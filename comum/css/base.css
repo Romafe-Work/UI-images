@@ -1,0 +1,209 @@
+/* =========================================================
+   ROMAFE — base e componentes
+   As regras vêm do site do manual (assets/css/style.css).
+   O que é novo para o ecrã de entrada está marcado com "+ entrada".
+   ========================================================= */
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--f-base);
+  font-size: var(--t-md);
+  line-height: 1.6;
+  color: var(--c-texto);
+  background: var(--c-fundo);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 {
+  font-family: var(--f-titulo);
+  line-height: 1.25; margin: 0 0 var(--e-3);
+  font-weight: 600; letter-spacing: -.01em;
+}
+p { margin: 0 0 var(--e-3); }
+a { color: var(--c-marca); }
+code, kbd, pre { font-family: var(--f-mono); font-size: .875em; }
+:focus-visible { outline: 3px solid var(--c-marca); outline-offset: 2px; border-radius: var(--r-sm); }
+
+.skip-link {
+  position: absolute; left: var(--e-3); top: -60px; z-index: 100;
+  background: var(--c-marca); color: #fff; padding: var(--e-2) var(--e-4);
+  border-radius: var(--r-sm); text-decoration: none; transition: top var(--tr);
+}
+.skip-link:focus { top: var(--e-3); }
+
+.marca { font-family: var(--f-marca); font-weight: 400; letter-spacing: 0; }
+
+/* ---------- botão ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--e-2);
+  font: inherit; font-weight: 600; line-height: 1;
+  padding: 11px var(--e-4); min-height: 42px;
+  border: 1px solid transparent; border-radius: var(--r-md);
+  background: var(--c-superficie-2); color: var(--c-texto);
+  cursor: pointer; transition: background var(--tr), transform var(--tr), border-color var(--tr);
+}
+.btn:hover { background: var(--c-borda); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn--primario { background: var(--c-marca); color: #fff; }
+[data-theme="dark"] .btn--primario { color: #2c2c2a; }
+.btn--primario:hover { background: var(--c-marca-forte); }
+.btn--ghost { background: transparent; border-color: var(--c-borda-forte); }
+.btn--ghost:hover { background: var(--c-superficie-2); }
+.btn--perigo { background: var(--c-erro); color: #fff; }
+[data-theme="dark"] .btn--perigo { color: #473835; }
+.btn--sm { min-height: 34px; padding: 7px var(--e-3); font-size: var(--t-sm); }
+.btn--bloco { width: 100%; }
+
+/* + entrada — a ação da marca é laranja (09 §2.1). O site só tinha o azul
+   porque a sua única ação é abrir capítulos, e essa não é a ação de ninguém. */
+.btn--acao {
+  background: var(--c-acao); color: #fff;
+  font-weight: 700;                    /* 02 §1: o peso paga o contraste do laranja */
+}
+.btn--acao:hover { background: var(--c-acao-premido); }
+/* 02 §3: o texto sobre laranja é branco, e não muda com o tema. */
+
+.btn__icone { width: 18px; height: 18px; flex: none; }
+
+/* ---------- campo ---------- */
+.campo { display: block; }
+.campo__label { display: block; font-size: var(--t-sm); font-weight: 600; margin-bottom: var(--e-1); }
+.campo__ajuda { display: block; font-size: var(--t-xs); color: var(--c-texto-2); margin-top: var(--e-1); }
+.campo__erro { display: block; font-size: var(--t-xs); color: var(--c-erro); margin-top: var(--e-1); font-weight: 600; }
+.campo__req { color: var(--c-erro); font-weight: 700; margin-left: 2px; }
+
+select.input { accent-color: var(--c-marca-fundo); }
+.input, select.input, textarea.input {
+  width: 100%; font: inherit; color: var(--c-texto);
+  padding: 10px var(--e-3); min-height: 42px;
+  background: var(--c-superficie); border: 1px solid var(--c-borda-forte); border-radius: var(--r-md);
+  transition: border-color var(--tr), box-shadow var(--tr);
+}
+.input::placeholder { color: var(--c-texto-3); }
+.input:focus { border-color: var(--c-marca); box-shadow: 0 0 0 3px var(--c-marca-suave); outline: none; }
+.input[aria-invalid="true"] { border-color: var(--c-erro); }
+.input:disabled { background: var(--c-superficie-3); color: var(--c-texto-3); cursor: not-allowed; }
+
+/* + entrada — campo com ícone à esquerda e botão à direita, 44px (19 §2) */
+.campo--icone { position: relative; }
+.campo--icone .input { min-height: var(--a-campo); padding-left: 42px; }
+.campo--icone .input[data-com-botao] { padding-right: 44px; }
+.campo__icone {
+  position: absolute; left: var(--e-3); top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; color: var(--c-texto-3); pointer-events: none;
+}
+.campo__acao {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border: 0; border-radius: var(--r-sm); background: transparent;
+  color: var(--c-texto-2); cursor: pointer;
+}
+.campo__acao:hover { background: var(--c-superficie-3); }
+/* Com rótulo por cima, o meio do .campo já não é o meio da caixa: desce
+   metade da altura do rótulo (a linha de --t-sm mais a folga de --e-1). */
+.campo__label ~ .campo__icone, .campo__label ~ .campo__acao { top: calc(50% + 13px); }
+.campo__acao svg { width: 18px; height: 18px; }
+
+/* ---------- opção (caixa de verificação) ---------- */
+.opcao { display: flex; gap: var(--e-2); align-items: flex-start; }
+.opcao input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--c-marca-fundo); flex: none; }
+.opcao__texto { font-size: var(--t-sm); }
+.opcao__ajuda { display: block; font-size: var(--t-xs); color: var(--c-texto-2); }
+
+/* ---------- segmentado (tema) ---------- */
+.segmented { display: inline-flex; background: var(--c-superficie-2); border: 1px solid var(--c-borda); border-radius: var(--r-full); padding: 3px; }
+.segmented__btn {
+  font: inherit; font-size: var(--t-xs); font-weight: 600;
+  border: 0; background: transparent; color: var(--c-texto-2);
+  padding: 6px var(--e-3); border-radius: var(--r-full); cursor: pointer;
+}
+.segmented__btn[aria-pressed="true"] { background: var(--c-superficie); color: var(--c-texto); box-shadow: var(--s-1); }
+
+/* ---------- lockup da marca ----------
+   ROMAFE nunca aparece sozinho: é o nome, o risco laranja e o subtítulo,
+   sempre por esta ordem e sempre com o mesmo desenho. */
+.lockup { display: inline-grid; justify-items: start; gap: 3px; }
+.lockup__nome {
+  font-family: var(--f-marca); font-size: var(--t-2xl); line-height: 1;
+  color: var(--c-logotipo); margin: 0;
+}
+.lockup__risco { width: 100%; height: 3px; background: var(--c-acao); border-radius: 2px; }
+.lockup__sub { font-size: var(--t-sm); color: var(--c-texto-2); margin: 0; line-height: 1.2; }
+
+.lockup--centro { justify-items: center; text-align: center; }
+.lockup--sm .lockup__nome { font-size: var(--t-xl); }
+.lockup--sm .lockup__sub { font-size: var(--t-xs); }
+.lockup--sm .lockup__risco { height: 2px; }
+
+/* ROMAFE é sempre azul e sempre em Motor. Sobre superfície escura o
+   #00537e dá 1.53:1 e desaparece, por isso o azul que se usa lá é o
+   #a8caee — o azul que é tinta, de 02 §1.1 e §11.4. Continua a ser azul. */
+.lockup--invertido .lockup__nome { color: #a8caee; }
+.lockup--invertido .lockup__sub { color: var(--c-entrada-tinta-2); }
+
+/* ---------- notificação efémera (14 §4) ----------
+   A cor vive numa faixa de 3px à esquerda e não no fundo: a notificação
+   aparece por cima de conteúdo qualquer, e um fundo colorido a atravessar
+   uma tabela é mais ruído do que informação. */
+.toasts {
+  position: fixed; left: 50%; bottom: var(--e-5); transform: translateX(-50%);
+  display: grid; gap: var(--e-2); z-index: 100;
+  width: min(420px, calc(100vw - var(--e-5)));
+}
+.toast {
+  display: flex; align-items: center; gap: var(--e-3);
+  padding: 12px var(--e-4);
+  background: var(--c-superficie); color: var(--c-texto);
+  border: 1px solid var(--c-borda-forte); border-left: 3px solid var(--c-texto-3);
+  border-radius: var(--r-md); box-shadow: var(--s-3);
+  font-size: var(--t-sm);
+}
+.toast__icone { width: 18px; height: 18px; flex: none; }
+.toast__texto { flex: 1; min-width: 0; }
+.toast__accao {
+  font: inherit; font-size: var(--t-sm); font-weight: 700;
+  color: var(--c-marca); background: none; border: 0; cursor: pointer; padding: 0;
+}
+.toast__fechar {
+  font: inherit; font-size: 16px; line-height: 1; width: 24px; height: 24px;
+  color: var(--c-texto-3); background: none; border: 0; border-radius: var(--r-sm); cursor: pointer;
+}
+.toast__fechar:hover { background: var(--c-superficie-3); color: var(--c-texto); }
+
+.toast--bom    { border-left-color: var(--c-ok); }
+.toast--bom    .toast__icone { color: var(--c-ok); }
+.toast--aviso  { border-left-color: var(--c-aviso); }
+.toast--aviso  .toast__icone { color: var(--c-aviso); }
+.toast--erro   { border-left-color: var(--c-erro); }
+.toast--erro   .toast__icone { color: var(--c-erro); }
+.toast--info   { border-left-color: var(--c-marca); }
+.toast--info   .toast__icone { color: var(--c-marca); }
+
+/* ---------- modal (13 §2) ---------- */
+.modal {
+  width: min(720px, 92vw); padding: 0; border: 0;
+  border-radius: var(--r-lg); background: var(--c-superficie); color: var(--c-texto);
+  box-shadow: var(--s-3);
+}
+.modal--estreito { width: min(480px, 92vw); }
+.modal::backdrop { background: rgba(34, 36, 40, .45); }
+[data-theme="dark"] .modal::backdrop { background: rgba(0, 0, 0, .6); }
+
+.modal__cabeca {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-3);
+  padding: var(--e-4) var(--e-5); border-bottom: 1px solid var(--c-borda);
+}
+.modal__titulo { font-family: var(--f-titulo); font-size: var(--t-lg); margin: 0; }
+.modal__fechar {
+  font: inherit; font-size: 20px; line-height: 1; width: 32px; height: 32px;
+  color: var(--c-texto-2); background: none; border: 0; border-radius: var(--r-sm); cursor: pointer;
+}
+.modal__fechar:hover { background: var(--c-superficie-3); color: var(--c-texto); }
+.modal__corpo { padding: var(--e-5); max-height: 60vh; overflow-y: auto; display: grid; gap: var(--e-4); }
+/* O primário fica à direita, que é onde o olho acaba a linha — 07 §2 */
+.modal__accoes {
+  display: flex; justify-content: flex-end; gap: var(--e-2);
+  padding: var(--e-4) var(--e-5); border-top: 1px solid var(--c-borda);
+}

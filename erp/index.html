@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt" data-app="erp" data-marca="ROLGEST" data-tela="1440x900">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ROLGEST — ecrãs do ERP</title>
+<meta name="description" content="Os ecrãs do ERP Rolgest, a partir de uma base comum.">
+<link rel="stylesheet" href="../comum/css/tokens.css">
+<link rel="stylesheet" href="../comum/css/base.css">
+<link rel="stylesheet" href="css/entrada.css">
+<link rel="stylesheet" href="../comum/css/editor.css">
+<script src="../comum/js/tema.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#formulario">Saltar para o formulário</a>
+
+<!-- =========================================================
+     A BASE do início de sessão. Está escrita uma vez só: a barra de
+     topo, a fotografia do armazém e o rodapé. Cada ecrã de entrada
+     traz o discurso (à esquerda) e o cartão (à direita).
+     ========================================================= -->
+<template data-base="entrada">
+<div class="entrada">
+
+  <header class="topo">
+    <div class="lockup lockup--sm">
+      <p class="lockup__nome">ROLGEST</p>
+      <span class="lockup__risco" aria-hidden="true"></span>
+      <p class="lockup__sub">Plataforma de gestão</p>
+    </div>
+
+    <div class="topo__accoes">
+      <div class="segmented" role="group" aria-label="Tema da interface">
+        <button type="button" class="segmented__btn" data-tema="light" aria-pressed="false">Claro</button>
+        <button type="button" class="segmented__btn" data-tema="dark" aria-pressed="false">Escuro</button>
+        <button type="button" class="segmented__btn" data-tema="auto" aria-pressed="true">Auto</button>
+      </div>
+      <button type="button" class="topo__idioma" aria-label="Mudar idioma: Português">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20Z"/>
+        </svg>
+        Português
+      </button>
+    </div>
+  </header>
+
+  <main class="palco">
+    <div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>
+    <div class="palco__veu" aria-hidden="true"></div>
+    <slot name="discurso"></slot>
+    <slot name="cartao"></slot>
+  </main>
+
+  <footer class="rodape">
+    <p class="rodape__direitos" data-ed-nome="Direitos" style="margin:0">© 2026 Romafe SA. Todos os direitos reservados.</p>
+    <ul class="rodape__ligacoes">
+      <li><a href="#">Aviso legal</a></li>
+      <li><a href="#">Política de privacidade</a></li>
+      <li><a href="#">Contactos</a></li>
+    </ul>
+    <p class="rodape__selo" style="margin:0">
+      <span class="rodape__barras" aria-hidden="true">///</span>
+      <span class="rodape__lema">Alojado<br>pela Romafe</span>
+    </p>
+  </footer>
+
+</div>
+</template>
+
+
+<!-- 01 · Passo 1 -->
+<div class="ecra" data-ecra="entrada" data-base="entrada" data-nome="01 · Entrar" data-fluxo="Entrar"
+     data-objetivo="Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue para a página dele (03). É uma página do Keycloak com o tema Rolgest: a aplicação só redireciona, nunca recebe a palavra-passe.">
+<section class="discurso" data-slot="discurso">
+      <h1 class="discurso__titulo">Uma plataforma<br>todas as empresas<br>do grupo</h1>
+
+      <!-- Não são argumentos de venda: é o que a pessoa precisa de saber para
+           perceber o que este ecrã faz e o que não faz. §5 do resumo v10 —
+           três perguntas, três donos, e nenhum consulta os outros. -->
+      <ul class="vantagens">
+        <li class="vantagem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <div>
+            <p class="vantagem__titulo">Uma identidade</p>
+            <p class="vantagem__sub">A conta é da sua empresa, não da Romafe</p>
+          </div>
+        </li>
+        <li class="vantagem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 21V8l6-4 6 4v13"/><path d="M15 21V11h6v10"/><path d="M2 21h20"/>
+            <path d="M7 11h2"/><path d="M7 15h2"/><path d="M18 15h1"/>
+          </svg>
+          <div>
+            <p class="vantagem__titulo">Uma empresa de cada vez</p>
+            <p class="vantagem__sub">Escolhe-se a seguir, e troca-se sem sair</p>
+          </div>
+        </li>
+        <li class="vantagem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+            <path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>
+          </svg>
+          <div>
+            <p class="vantagem__titulo">Os módulos que comprou</p>
+            <p class="vantagem__sub">A licença diz quantos lugares, o produto diz quem</p>
+          </div>
+        </li>
+      </ul>
+
+      <p class="discurso__assinatura">Rolgest é o produto. Romafe é quem o aloja.</p>
+    </section>
+<section class="cartao" data-slot="cartao" aria-labelledby="titulo-entrada">
+      <div class="cartao__cabeca">
+        <span class="lockup lockup--centro">
+          <span class="lockup__nome">ROLGEST</span>
+          <span class="lockup__risco" aria-hidden="true"></span>
+          <span class="lockup__sub" id="titulo-entrada">Plataforma de gestão</span>
+        </span>
+      </div>
+
+      <!-- 19 §3: uma mensagem só, e nenhum campo ganha borda vermelha.
+           Três recusas, três donos, três mensagens — e só uma se vê de cada
+           vez. As duas de baixo estão escondidas: mostram-se no painel, em
+           Peça → Visível, para se verem lado a lado. -->
+      <div class="alerta alerta--licenca" role="alert" data-ed-nome="Alerta · licença" hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>
+        </svg>
+        <span>A licença da sua empresa expirou a 14 de setembro. Fale com quem a contratou.</span>
+      </div>
+
+      <div class="alerta alerta--permissao" role="alert" data-ed-nome="Alerta · permissão" hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Entrou, mas não tem lugar em nenhum módulo. Peça acesso ao administrador da sua empresa.</span>
+      </div>
+
+      <!-- Passo 1. Um endereço que não existe também segue para a
+           palavra-passe, e só falha no fim: dizer aqui «não existe»
+           confirmava a quem tenta quem tem conta. -->
+      <form class="formulario" id="formulario" novalidate>
+        <div class="campo campo--icone">
+          <label class="campo__label" for="utilizador">Endereço de correio <span class="campo__req" aria-hidden="true">*</span></label>
+          <svg class="campo__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>
+          </svg>
+          <input class="input" id="utilizador" name="utilizador" type="email" required
+                 autocomplete="username" placeholder="nome@empresa.pt" value="ana.ribeiro@exemplo.pt">
+        </div>
+
+        <div class="formulario__accoes">
+          <button type="submit" class="btn btn--acao btn--bloco" id="continuar" data-ir="palavra-passe">
+            <span class="btn__rotulo">Continuar</span>
+            <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>
+            </svg>
+          </button>
+
+          <!-- No produto não é uma ligação: o Keycloak redireciona sozinho
+               quando o domínio pertence a uma organização com fornecedor
+               próprio. Aqui leva ao 01d, para o caminho se ver no mapa. -->
+          <p class="cartao__nota cartao__nota--caminho" data-ir="federado">Se a sua empresa tiver início de sessão próprio, segue para a página dela.</p>
+
+          <!-- Não há «Pedir acesso»: as contas nascem no administrador da
+               empresa, e o lugar vem da licença. Ninguém se inscreve num ERP. -->
+          <p class="cartao__nota">As contas são criadas pelo administrador da sua empresa.</p>
+        </div>
+      </form>
+
+      <div class="apoio">
+        <div class="apoio__item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+          </svg>
+          <div>
+            <p class="apoio__titulo">Sessão verificada</p>
+            <p class="apoio__sub">A empresa ativa é confirmada em cada pedido</p>
+          </div>
+        </div>
+        <div class="apoio__risco" aria-hidden="true"></div>
+        <div class="apoio__item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/>
+            <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3Z"/>
+          </svg>
+          <div>
+            <p class="apoio__titulo">Precisa de ajuda?</p>
+            <p class="apoio__sub">Apoio Romafe · 800 000 000</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="cartao__versao">Rolgest 10.0 · compilação 2026.09</p>
+    </section>
+</div>
+
+
+<!-- 02 · Passo 2, conta nossa -->
+<div class="ecra" data-ecra="palavra-passe" data-base="entrada" data-nome="02 · A palavra-passe" data-fluxo="Entrar"
+     data-objetivo="Passo 2, conta nossa: a palavra-passe valida no Keycloak, realm rolgest. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente." hidden>
+<section class="discurso" data-slot="discurso">
+      <h1 class="discurso__titulo">Uma conta<br>da Romafe</h1>
+      <p class="discurso__assinatura">O endereço é de uma conta criada no Rolgest. A palavra-passe confirma-se aqui.</p>
+    </section>
+<section class="cartao" data-slot="cartao" aria-labelledby="titulo-passe">
+      <div class="cartao__cabeca">
+        <span class="lockup lockup--centro">
+          <span class="lockup__nome">ROLGEST</span>
+          <span class="lockup__risco" aria-hidden="true"></span>
+          <span class="lockup__sub">Plataforma de gestão</span>
+        </span>
+      </div>
+
+      <div class="alerta" id="alerta" role="alert" data-ed-nome="Alerta · credenciais" hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16.5v.5"/>
+        </svg>
+        <span>Endereço ou palavra-passe incorretos.</span>
+      </div>
+
+      <form class="formulario" id="formulario-passe" novalidate aria-labelledby="titulo-passe">
+      <p class="identidade">
+        <span class="identidade__correio">ana.ribeiro@exemplo.pt</span>
+        <a class="identidade__mudar" href="#" data-ir="entrada">mudar</a>
+      </p>
+
+        <div class="campo campo--icone">
+          <label class="campo__label" for="palavra-passe" id="titulo-passe">Palavra-passe <span class="campo__req" aria-hidden="true">*</span></label>
+          <svg class="campo__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input class="input" id="palavra-passe" name="password" type="password" required
+                 autocomplete="current-password" data-com-botao placeholder="A sua palavra-passe">
+          <!-- 19 §2.1: é um <button>, e o rótulo muda -->
+          <button type="button" class="campo__acao" id="ver-palavra-passe" aria-label="Mostrar palavra-passe" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 19 §5: desligada e com a dica. Um posto de ERP também é partilhado
+             — o balcão, a expedição, a oficina. -->
+        <div class="opcao">
+          <input type="checkbox" id="manter" name="manter">
+          <label class="opcao__texto" for="manter">Manter sessão iniciada
+            <span class="opcao__ajuda">Não usar em computadores partilhados</span>
+          </label>
+        </div>
+
+        <div class="formulario__accoes">
+          <button type="submit" class="btn btn--acao btn--bloco" id="entrar">
+            <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>
+            </svg>
+            <span class="btn__rotulo">Entrar</span>
+          </button>
+          <!-- 19 §1: a recuperação é a última coisa do formulário, e é do Keycloak. -->
+          <a class="ligacao-recuperar" href="#">Esqueceu-se da palavra-passe?</a>
+        </div>
+      </form>
+      <p class="cartao__versao">Valida no Keycloak · realm rolgest</p>
+    </section>
+</div>
+
+
+<!-- 03 · Passo 2, cliente federado -->
+<div class="ecra" data-ecra="federado" data-base="entrada" data-nome="03 · O início de sessão da empresa" data-fluxo="Entrar"
+     data-objetivo="Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token." hidden>
+<section class="discurso" data-slot="discurso">
+      <h1 class="discurso__titulo">A conta<br>é da sua empresa</h1>
+      <p class="discurso__assinatura">O Rolgest não vê a sua palavra-passe. Quem a confirma é a sua empresa, e devolve-o aqui já com a sessão aberta.</p>
+    </section>
+<section class="cartao cartao--fora" data-slot="cartao" aria-labelledby="titulo-fora">
+      <p class="fora__marca">Fora do Rolgest</p>
+      <h2 class="cartao__titulo" id="titulo-fora">Página do fornecedor da empresa</h2>
+      <p class="cartao__sub">Por exemplo, o Entra ID da Exemplo, Lda. O desenho é o dela.</p>
+      <div class="formulario">
+        <p class="identidade"><span class="identidade__correio">ana.ribeiro@exemplo.pt</span></p>
+        <div class="campo">
+          <label class="campo__label" for="passe-empresa">Palavra-passe da empresa</label>
+          <input class="input" id="passe-empresa" type="password" value="••••••••••" disabled>
+        </div>
+        <div class="campo">
+          <label class="campo__label" for="fator-empresa">Segundo fator do cliente</label>
+          <input class="input" id="fator-empresa" type="text" value="código da aplicação" disabled>
+        </div>
+        <div class="formulario__accoes">
+          <button type="button" class="btn btn--acao btn--bloco">
+            <span class="btn__rotulo">Entrar na Exemplo</span>
+          </button>
+        </div>
+      </div>
+      <div class="cartao__pe">
+        <span>Não é a sua empresa?</span>
+        <a class="ligacao-recuperar" href="#" data-ir="entrada">Usar outro endereço</a>
+      </div>
+    </section>
+</div>
+
+
+<template id="fluxos">
+  <p data-fluxo="Entrar">Primeiro o endereço, e o domínio decide o caminho: palavra-passe nossa (02) ou a página da empresa (03).</p>
+</template>
+
+<script src="../comum/js/base.js"></script>
+<script src="js/entrada.js"></script>
+<script src="../comum/js/ecras.js"></script>
+<script src="../comum/js/fluxo.js"></script>
+<script src="../comum/js/editor.js"></script>
+</body>
+</html>

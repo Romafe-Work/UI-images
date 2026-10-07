@@ -1,0 +1,182 @@
+/* =========================================================
+   ROMAFE — tokens
+   Copiados sem alterar de https://romafe-work.github.io/UIUX/
+   (assets/css/style.css). Este ficheiro é a única fonte da verdade:
+   nada no produto escreve uma cor, um tamanho ou uma folga à mão.
+   ========================================================= */
+
+/* Fontes da marca — as mesmas três do produto, ver 04 §1 do manual.
+   Motor na marca, Jost nos títulos, Lato no corpo. */
+@font-face { font-family:'Motor'; font-style:normal; font-weight:400 700; font-display:swap;
+  src:url('../fonts/motor-latin.woff2') format('woff2'); }
+@font-face { font-family:'Lato'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('../fonts/lato-400-latin.woff2') format('woff2'); }
+@font-face { font-family:'Lato'; font-style:italic; font-weight:400; font-display:swap;
+  src:url('../fonts/lato-400i-latin.woff2') format('woff2'); }
+@font-face { font-family:'Lato'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('../fonts/lato-700-latin.woff2') format('woff2'); }
+@font-face { font-family:'Lato'; font-style:italic; font-weight:700; font-display:swap;
+  src:url('../fonts/lato-700i-latin.woff2') format('woff2'); }
+@font-face { font-family:'Jost'; font-style:normal; font-weight:400 700; font-display:swap;
+  src:url('../fonts/jost-latin.woff2') format('woff2'); }
+@font-face { font-family:'Jost'; font-style:normal; font-weight:400 700; font-display:swap;
+  src:url('../fonts/jost-latin-ext.woff2') format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+
+
+/* ---------- 1) TOKENS (design tokens) ---------- */
+:root {
+  /* cor — superfícies */
+  --c-fundo:        #f4f5f7;
+  --c-superficie:   #ffffff;
+  --c-superficie-2: #f7f8fa;
+  --c-superficie-3: #eceff3;
+  --c-borda:        #dfe2e7;
+  --c-borda-forte:  #c8ccd3;
+
+  /* cor — texto (02 §3) */
+  --c-texto:        #222428;
+  --c-texto-2:      #52514e;
+  --c-texto-3:      #6b6e74;
+
+  /* cor — marca e estados */
+  --c-marca:        #2762a8;   /* o azul da palavra ROMAFE */
+  --c-marca-forte:  #1f5089;
+  --c-marca-suave:  #e0eaf0;
+  --c-acao:         #ef7b10;   /* 02 §1: o laranja de referência. Não muda com o tema */
+  --c-acao-premido: #d86c01;   /* 02 §1.2: estado premido do primário */
+  --c-acao-traco:   #ba5c00;   /* 02 §1.2: traço e preenchimento sobre fundo claro */
+  --c-acao-marcador:#ef7b10;   /* 02 §6: marcador do item ativo */
+  --c-ok:           #2e6b25;
+  --c-ok-suave:     #e7efe6;
+  --c-aviso:        #876c0d;
+  --c-aviso-suave:  #fdf5d5;
+  --c-erro:         #ac2e25;
+  --c-erro-suave:   #f9e7e6;
+
+  /* tipografia */
+  --f-base: 'Lato', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-titulo: 'Jost', 'Lato', ui-sans-serif, system-ui, sans-serif;
+  --f-marca: 'Motor', 'Jost', sans-serif;
+  --f-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Consolas, monospace;
+  --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem;
+  --t-lg: 1.125rem; --t-xl: 1.375rem; --t-2xl: 1.75rem; --t-3xl: 2.25rem;
+
+  /* espaçamento — escala 4pt */
+  --e-1: 4px;  --e-2: 8px;  --e-3: 12px; --e-4: 16px;
+  --e-5: 24px; --e-6: 32px; --e-7: 48px; --e-8: 64px;
+
+  /* raio, sombra, transição */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-full: 999px;
+  --s-1: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+  --s-2: 0 4px 12px rgba(16,24,40,.10);
+  --s-3: 0 16px 40px rgba(16,24,40,.16);
+  --tr: 160ms cubic-bezier(.2,.8,.3,1);
+
+  --largura-max: 900px;
+  --painel-w: 310px;
+
+  /* Altura do que fica colado ao topo. O app.js mede-as no arranque e a cada
+     mudança de tamanho; estes valores são só o ponto de partida. Tudo o que
+     salta para uma âncora desconta as duas, senão o destino aterra por baixo
+     do cabeçalho e a primeira linha fica cortada. */
+  --h-topo: 70px;
+  --h-cabecalho: 96px;
+  --folga-ancora: calc(var(--h-topo) + var(--h-cabecalho) + 16px);
+}
+
+[data-theme="dark"] {
+  --c-fundo:        #2c2c2a;
+  --c-superficie:   #333331;
+  --c-superficie-2: #393937;
+  --c-superficie-3: #40403e;
+  --c-borda:        rgba(255,255,255,.12);
+  --c-borda-forte:  rgba(255,255,255,.24);
+
+  --c-texto:        #ffffff;
+  --c-texto-2:      #cdccc1;
+  --c-texto-3:      #adaca1;
+
+  --c-marca:        #a8caee;
+  --c-marca-forte:  #deebfb;
+  --c-marca-suave:  #414548;
+  --c-acao-traco:   #fb8f39;
+  --c-acao-marcador:#fb8f39;
+  --c-ok:           #8fbc89;
+  --c-ok-suave:     #373e34;
+  --c-aviso:        #f5c518;
+  --c-aviso-suave:  #4a452e;
+  --c-erro:         #f49791;
+  --c-erro-suave:   #473835;
+
+  --s-1: 0 1px 2px rgba(0,0,0,.4);
+  --s-2: 0 4px 14px rgba(0,0,0,.45);
+  --s-3: 0 18px 44px rgba(0,0,0,.55);
+}
+
+
+/* ---------- ACRESCENTOS DA ENTRADA ----------
+   Nenhuma cor nova (02 §11.2). Cada valor daqui está no capítulo 02,
+   e os dois azuis estão separados como o §11.4 obriga: um é fundo e não
+   muda com o tema, o outro é tinta e muda. */
+:root {
+  --c-marca-fundo:    #2762a8;                 /* o mesmo azul, onde ele é fundo e não tinta */
+  --c-entrada-fundo:  #012338;                 /* 02 §1.1 superfície invertida */
+  --c-entrada-veu:    rgba(0, 83, 126, .78);   /* 02 §1.1: as transparências do azul */
+  --c-entrada-tinta:  #ffffff;
+  --c-entrada-tinta-2: rgba(255, 255, 255, .72); /* 02 §6: o branco a 72% do menu */
+  /* Estes dois vêm das capturas do ecrã de entrada da Gestão de frota, que
+     é o produto a copiar. Não estão no capítulo 02 — ver LEIA-ME. */
+  --c-logotipo:       #2762a8;                 /* o azul do nome, nos dois temas */
+  --c-campo-fundo:    #e9f0fe;                 /* o azul lavado dos campos */
+  --c-marca-fundo-2:  #2d7ac6;                 /* fim do degradé das cabeças dos painéis */
+  --c-portal-fundo:   #edf4fa;                 /* o fundo do portal */
+  --c-acao-suave:     #fee1ce;                 /* 02 §1.2: fundo suave do laranja */
+  --a-campo:          44px;                    /* 19 §2: 44 e não 42 */
+  --l-cartao:         460px;                   /* a maqueta. O 19 §1 pede 400 */
+}
+
+/* 02 §11.4: sobre fundo escuro o azul da marca dá 1.53:1. O azul que é
+   tinta muda; o que é fundo fica onde está. */
+/* O fundo do portal é uma superfície como as outras: no tema escuro segue a
+   página, senão o ecrã inteiro fica branco por baixo dos cartões — 02 §2. */
+[data-theme="dark"] {
+  --c-campo-fundo:  #3d434f;
+  --c-portal-fundo: #2c2c2a;
+}
+
+/* O site trata "auto" como claro, porque não tem regra de sistema.
+   Aqui auto segue o sistema — é a única diferença de comportamento. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-fundo:        #2c2c2a;
+    --c-superficie:   #333331;
+    --c-superficie-2: #393937;
+    --c-superficie-3: #40403e;
+    --c-borda:        rgba(255,255,255,.12);
+    --c-borda-forte:  rgba(255,255,255,.24);
+
+    --c-texto:        #ffffff;
+    --c-texto-2:      #cdccc1;
+    --c-texto-3:      #adaca1;
+
+    --c-marca:        #a8caee;
+    --c-marca-forte:  #deebfb;
+    --c-marca-suave:  #414548;
+    --c-acao-traco:   #fb8f39;
+    --c-acao-marcador:#fb8f39;
+    --c-ok:           #8fbc89;
+    --c-ok-suave:     #373e34;
+    --c-aviso:        #f5c518;
+    --c-aviso-suave:  #4a452e;
+    --c-erro:         #f49791;
+    --c-erro-suave:   #473835;
+
+    --s-1: 0 1px 2px rgba(0,0,0,.4);
+    --s-2: 0 4px 14px rgba(0,0,0,.45);
+    --s-3: 0 18px 44px rgba(0,0,0,.55);
+
+    --c-campo-fundo:  #3d434f;
+    --c-portal-fundo: #2c2c2a;
+  }
+}

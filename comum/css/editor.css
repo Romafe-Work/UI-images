@@ -1,0 +1,261 @@
+/* =========================================================
+   ROMAFE — camada de edição
+   A ferramenta veste-se com o tema escuro do manual (02 §2) para
+   se distinguir do ecrã que está a editar. Os valores são fixos de
+   propósito: a moldura não muda quando se muda o tema do produto.
+   ========================================================= */
+
+:root {
+  --ed-fundo:   #2c2c2a;
+  --ed-painel:  #333331;
+  --ed-painel-2:#393937;
+  --ed-borda:   rgba(255,255,255,.12);
+  --ed-tinta:   #ffffff;
+  --ed-tinta-2: #cdccc1;
+  --ed-tinta-3: #adaca1;
+  --ed-accao:   #fb8f39;
+  --ed-marca:   #a8caee;
+  --ed-larg:    264px;
+}
+
+/* ---------- escolha do ecrã ---------- */
+.ed-ecras {
+  display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: var(--e-2);
+  padding: var(--e-2) var(--e-3); border-bottom: 1px solid var(--ed-borda);
+  background: var(--ed-painel-2);
+}
+.ed-ecras > label { color: var(--ed-tinta-3); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+
+/* ---------- rótulo que segue o rato ---------- */
+.ed-dica-flutuante {
+  position: fixed; z-index: 80; pointer-events: none;
+  background: var(--ed-fundo); color: var(--ed-tinta);
+  border: 1px solid var(--ed-borda); border-radius: var(--r-sm);
+  padding: 5px var(--e-2); font-size: 11px; white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0,0,0,.45);
+}
+.ed-dica-flutuante[hidden] { display: none; }
+
+/* ---------- a tela encolhe para os painéis ---------- */
+.editando { padding-left: var(--ed-larg); padding-right: var(--ed-larg); }
+.editando.ed-sem-esq { padding-left: 0; }
+.editando.ed-sem-dir { padding-right: 0; }
+.editando.ed-sem-esq .ed-painel--esq,
+.editando.ed-sem-dir .ed-painel--dir { display: none; }
+
+/* botão de fechar, na cabeça de cada painel */
+.ed-fechar {
+  font: inherit; font-size: 16px; line-height: 1;
+  width: 24px; height: 24px; flex: none;
+  border: 1px solid var(--ed-borda); border-radius: var(--r-sm);
+  background: var(--ed-painel-2); color: var(--ed-tinta-2); cursor: pointer;
+}
+.ed-fechar:hover { background: rgba(255,255,255,.10); color: var(--ed-tinta); }
+
+/* botão de abrir, encostado à margem, só quando o painel está fechado */
+.ed-abrir {
+  position: fixed; top: 10px; z-index: 61; display: none;
+  width: 26px; height: 34px; padding: 0;
+  font: inherit; font-size: 16px; line-height: 1;
+  border: 1px solid var(--ed-borda); background: var(--ed-painel); color: var(--ed-tinta);
+  cursor: pointer;
+}
+.ed-abrir--esq { left: 0; border-left: 0; border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.ed-abrir--dir { right: 0; border-right: 0; border-radius: var(--r-sm) 0 0 var(--r-sm); }
+.ed-sem-esq .ed-abrir--esq, .ed-sem-dir .ed-abrir--dir { display: block; }
+.editando .entrada { min-height: calc(100vh - 0px); }
+
+/* ---------- alvos na tela ---------- */
+/* O realce vai só à peça que o clique escolheria. Com :hover puro,
+   todos os pais do rato ficavam marcados ao mesmo tempo. */
+.editando [data-ed-alvo] { cursor: default; }
+.editando [data-ed-sel] { cursor: move; }
+.editando [data-ed-hover] { outline: 1px solid var(--ed-accao); outline-offset: 1px; }
+.editando [data-ed-sel] { outline: 2px solid var(--ed-accao) !important; outline-offset: 1px; }
+.editando [contenteditable="true"] { outline: 2px solid var(--ed-marca) !important; cursor: text; }
+
+/* ---------- painéis ---------- */
+.ed-painel {
+  position: fixed; top: 0; bottom: 0; width: var(--ed-larg); z-index: 60;
+  display: none; flex-direction: column;
+  background: var(--ed-painel); color: var(--ed-tinta);
+  font-family: var(--f-base); font-size: var(--t-xs); line-height: 1.5;
+}
+.editando .ed-painel { display: flex; }
+.ed-painel--esq { left: 0; border-right: 1px solid var(--ed-borda); }
+.ed-painel--dir { right: 0; border-left: 1px solid var(--ed-borda); }
+
+.ed-cabeca {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-2);
+  height: 44px; padding: 0 var(--e-3);
+  border-bottom: 1px solid var(--ed-borda); background: var(--ed-fundo);
+}
+.ed-cabeca h2 { font-family: var(--f-titulo); font-size: var(--t-sm); font-weight: 600; margin: 0; }
+.ed-cabeca__marca { font-family: var(--f-marca); font-size: var(--t-md); }
+
+.ed-corpo { flex: 1; overflow-y: auto; }
+.ed-pe { border-top: 1px solid var(--ed-borda); padding: var(--e-3); display: grid; gap: var(--e-2); }
+
+/* ---------- camadas ---------- */
+.ed-camada {
+  display: flex; align-items: center; gap: var(--e-2); width: 100%;
+  font: inherit; text-align: left; cursor: pointer;
+  padding: 5px var(--e-3); border: 0; background: none; color: var(--ed-tinta-2);
+}
+.ed-camada:hover { background: var(--ed-painel-2); color: var(--ed-tinta); }
+.ed-camada[aria-current="true"] { background: rgba(251,143,57,.18); color: var(--ed-tinta); }
+.ed-camada__icone { width: 12px; color: var(--ed-tinta-3); flex: none; }
+.ed-camada__nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- secções de propriedades ---------- */
+.ed-seccao { border-bottom: 1px solid var(--ed-borda); padding: var(--e-3); display: grid; gap: var(--e-2); }
+.ed-seccao__titulo {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ed-tinta-3); margin: 0;
+}
+.ed-linha { display: grid; grid-template-columns: 72px 1fr; align-items: center; gap: var(--e-2); }
+.ed-linha > label { color: var(--ed-tinta-3); }
+
+.ed-select, .ed-texto {
+  width: 100%; font: inherit; font-size: var(--t-xs); color: var(--ed-tinta);
+  background: var(--ed-painel-2); border: 1px solid var(--ed-borda);
+  border-radius: var(--r-sm); padding: 5px var(--e-2);
+}
+.ed-texto { resize: vertical; min-height: 56px; }
+.ed-select:focus, .ed-texto:focus { outline: 2px solid var(--ed-marca); outline-offset: -1px; }
+
+/* tokens de cor: a paleta é a do manual, não há selecionador livre */
+.ed-tokens { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.ed-token {
+  aspect-ratio: 1; border-radius: 4px; border: 1px solid var(--ed-borda);
+  padding: 0; cursor: pointer; background-clip: padding-box;
+}
+.ed-token[aria-pressed="true"] { outline: 2px solid var(--ed-accao); outline-offset: 1px; }
+.ed-token--nenhum { position: relative; background: var(--ed-painel-2); }
+.ed-token--nenhum::after {
+  content: ""; position: absolute; inset: 2px;
+  background: linear-gradient(to top right, transparent 45%, #f49791 45%, #f49791 55%, transparent 55%);
+}
+
+/* escalas: só os degraus que o manual tem */
+.ed-degraus { display: flex; flex-wrap: wrap; gap: 4px; }
+.ed-degrau {
+  font: inherit; font-size: 10px; font-weight: 700;
+  padding: 4px 7px; border-radius: var(--r-sm);
+  border: 1px solid var(--ed-borda); background: var(--ed-painel-2); color: var(--ed-tinta-2);
+  cursor: pointer;
+}
+.ed-degrau[aria-pressed="true"] { background: var(--ed-accao); border-color: transparent; color: #2c2c2a; }
+
+.ed-botao {
+  font: inherit; font-size: var(--t-xs); font-weight: 600;
+  padding: 7px var(--e-3); border-radius: var(--r-sm);
+  border: 1px solid var(--ed-borda); background: var(--ed-painel-2); color: var(--ed-tinta);
+  cursor: pointer;
+}
+.ed-botao:hover { background: rgba(255,255,255,.10); }
+.ed-botao--accao { background: var(--ed-accao); border-color: transparent; color: #2c2c2a; font-weight: 700; }
+.ed-botao:disabled { opacity: .4; cursor: not-allowed; }
+
+.ed-vazio { padding: var(--e-4); color: var(--ed-tinta-3); }
+.ed-dica { color: var(--ed-tinta-3); font-size: 10px; margin: 0; }
+
+/* ---------- diálogo do CSS ---------- */
+.ed-dialogo {
+  border: 1px solid var(--ed-borda); border-radius: var(--r-md); padding: 0;
+  width: min(680px, 92vw); background: var(--ed-painel); color: var(--ed-tinta);
+  font-family: var(--f-base);
+}
+.ed-dialogo::backdrop { background: rgba(0,0,0,.55); }
+.ed-dialogo__topo { display: flex; align-items: center; justify-content: space-between; padding: var(--e-3) var(--e-4); border-bottom: 1px solid var(--ed-borda); }
+.ed-dialogo h2 { font-family: var(--f-titulo); font-size: var(--t-md); margin: 0; }
+.ed-dialogo pre { margin: 0; padding: var(--e-4); max-height: 50vh; overflow: auto; background: var(--ed-fundo); font-size: 11px; line-height: 1.7; color: var(--ed-tinta-2); }
+.ed-dialogo__accoes { display: flex; gap: var(--e-2); justify-content: flex-end; padding: var(--e-3) var(--e-4); }
+
+.ed-aviso {
+  position: fixed; left: 50%; bottom: var(--e-5); transform: translateX(-50%); z-index: 70;
+  background: var(--ed-fundo); color: var(--ed-tinta); border: 1px solid var(--ed-borda);
+  padding: var(--e-2) var(--e-4); border-radius: var(--r-full); font-size: var(--t-xs);
+}
+
+@media (max-width: 1100px) {
+  .editando { padding: 0; }
+  .ed-painel--esq { display: none !important; }
+  .ed-painel--dir { width: 100%; top: auto; height: 52vh; border-top: 1px solid var(--ed-borda); }
+}
+
+/* ---------- secção da fotografia ---------- */
+.ed-foto {
+  height: 92px; border-radius: var(--r-sm); border: 1px solid var(--ed-borda);
+  background-size: cover; background-position: center; background-color: var(--ed-painel-2);
+}
+.ed-ficheiro { display: block; text-align: center; cursor: pointer; }
+.ed-ficheiro input { display: none; }
+
+/* ---------- coordenadas ---------- */
+.ed-coords { display: flex; gap: var(--e-2); align-items: center; }
+.ed-coord { display: flex; align-items: center; gap: 4px; flex: 1; }
+.ed-coord > span { color: var(--ed-tinta-3); font-size: 10px; font-weight: 700; }
+.ed-coord input { width: 100%; }
+
+/* ---------- o CSS da peça ---------- */
+.ed-css {
+  margin: 0; padding: var(--e-2); max-height: 260px; overflow: auto;
+  background: var(--ed-fundo); border: 1px solid var(--ed-borda); border-radius: var(--r-sm);
+  font-family: var(--f-mono); font-size: 10px; line-height: 1.6; color: var(--ed-tinta-2);
+  white-space: pre; tab-size: 2;
+}
+
+/* ---------- Ecrãs | Fluxo, por baixo do seletor ---------- */
+.ed-vistas { padding: var(--e-2) var(--e-3); border-bottom: 1px solid var(--ed-borda); background: var(--ed-painel-2); }
+
+/* ---------- o mapa de navegação, montado pelo fluxo.js ----------
+   Na aba «Fluxo» do editor (.ed-fluxo) fica entre os dois painéis; em
+   #so=fluxo ocupa a página toda, que é o que o gerar.sh fotografa.
+   As cores das setas são as do protótipo do Figma, de propósito: são da
+   ferramenta e não do produto, e não mudam com o tema. */
+.fluxo-tela { background: #eef0f3; color: #1c1d1f; font-family: var(--f-base); }
+.ed-fluxo .fluxo-tela { position: fixed; top: 0; bottom: 0; left: var(--ed-larg); right: var(--ed-larg); overflow: auto; z-index: 10; }
+.ed-fluxo.ed-sem-esq .fluxo-tela { left: 0; }
+.ed-fluxo.ed-sem-dir .fluxo-tela { right: 0; }
+.so-fluxo { margin: 0; background: #eef0f3; }
+.so-fluxo .skip-link { display: none; }
+
+.fluxo__cabeca { position: sticky; left: 0; padding: 32px 48px 0; }
+.fluxo__titulo { margin: 0 0 6px; font-family: var(--f-titulo); font-size: 28px; font-weight: 700; color: var(--c-logotipo); }
+.fluxo__legenda { margin: 0; font-size: 15px; color: #52514e; display: flex; align-items: center; gap: 10px; }
+.fluxo__amostra { width: 28px; height: 16px; flex: none; border: 2px solid #1a73e8; border-radius: 4px; }
+
+.fluxo__zoom { display: inline-flex; gap: 2px; margin-top: 14px; padding: 3px; background: #fff; border: 1px solid #d5d8dd; border-radius: 8px; }
+.fluxo__zoom button { font: inherit; font-size: 13px; min-width: 32px; height: 28px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: #1c1d1f; cursor: pointer; }
+.fluxo__zoom button:hover { background: #eef0f3; }
+.fluxo__zoom .fluxo__zoom-valor { min-width: 56px; color: #52514e; }
+
+.fluxo { position: relative; width: max-content; padding: 8px 48px 48px; }
+.fluxo__linha { display: grid; grid-template-columns: 260px auto; align-items: start; padding: 120px 0 28px; }
+.fluxo__linha + .fluxo__linha { border-top: 1px solid #d5d8dd; }
+.fluxo__cabeca-linha { padding-right: 24px; }
+.fluxo__rotulo { margin: 0 0 8px; font-family: var(--f-titulo); font-size: 20px; font-weight: 700; line-height: 1.3; color: var(--c-logotipo); }
+.fluxo__descricao { margin: 0; font-size: 14px; line-height: 1.45; color: #52514e; }
+/* 90px à esquerda: o corredor por onde descem as setas que mudam de linha */
+.fluxo__fila { display: flex; gap: 120px; padding-left: 90px; }
+
+.fluxo__cartao { margin: 0; width: calc(var(--tela-l, 1440px) * .25); }
+.ed-fluxo .fluxo__cartao { cursor: pointer; }
+.fluxo__quadro {
+  width: calc(var(--tela-l, 1440px) * .25); height: calc(var(--tela-a, 900px) * .25); overflow: hidden; border-radius: 8px; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 6px 18px rgba(0,0,0,.08);
+}
+.ed-fluxo .fluxo__cartao:hover .fluxo__quadro { outline: 3px solid var(--ed-accao); outline-offset: 3px; }
+/* O ecrã inteiro, a um quarto. Não se clica lá dentro: no mapa, um clique é
+   para abrir o ecrã, não para carregar num botão dele. */
+.fluxo .ecra { display: block; width: var(--tela-l, 1440px); height: var(--tela-a, 900px); zoom: .25; overflow: hidden; pointer-events: none; }
+.fluxo .ecra[hidden] { display: block; }
+.fluxo .entrada, .fluxo .casca { min-height: var(--tela-a, 900px); height: var(--tela-a, 900px); }
+.fluxo__legenda-ecra { padding-top: 40px; }   /* por cima passam as setas que saem por baixo */
+.fluxo__nome { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #1c1d1f; }
+.fluxo__objetivo { margin: 0; font-size: 13px; line-height: 1.4; color: #52514e; }
+
+.fluxo__setas { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; color: #1a73e8; }
+.fluxo__setas path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.fluxo__alvo { fill: rgba(26,115,232,.10); stroke: #1a73e8; stroke-width: 1.5; }

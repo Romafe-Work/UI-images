@@ -1,0 +1,269 @@
+/* =========================================================
+   ROLGEST — ecrã de entrada
+   Só layout. Nenhuma cor, folga ou raio escrito à mão: tudo em tokens.
+   ========================================================= */
+
+.entrada {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--c-entrada-fundo);
+}
+
+/* ---------- barra de topo ---------- */
+.topo {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-4);
+  padding: var(--e-3) var(--e-6);
+  background: var(--c-superficie);
+  color: var(--c-texto);
+  border-bottom: 1px solid var(--c-borda);
+}
+.topo__accoes { display: flex; align-items: center; gap: var(--e-3); }
+.topo__idioma {
+  display: inline-flex; align-items: center; gap: var(--e-1);
+  font: inherit; font-size: var(--t-sm); color: var(--c-texto);
+  background: transparent; border: 0; cursor: pointer; padding: var(--e-2);
+}
+.topo__idioma svg { width: 18px; height: 18px; }
+
+/* ---------- palco: fotografia + cartão ---------- */
+.palco {
+  position: relative; isolation: isolate;
+  /* Duas colunas: o discurso à esquerda, o cartão à direita. É a forma do
+     véu — escuro à esquerda, claro à direita —, e é o que faz o ecrã caber
+     nos 900px de altura de um portátil sem rolar. Abaixo de 1100 passa a
+     uma coluna, com o cartão em cima. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--l-cartao);
+  align-items: center;
+  gap: var(--e-8);
+  padding: var(--e-7) var(--e-8);
+}
+/* A fotografia é opcional: sem ela fica o azul de superfície invertida.
+   O ficheiro está em assets/img/armazem.webp e troca-se no painel. */
+.palco__foto {
+  position: absolute; inset: 0; z-index: -2;
+  background-color: var(--c-entrada-fundo);
+  background-image: url('../img/armazem.webp');
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+}
+
+/* O véu existe para o texto branco se ler sobre qualquer fotografia. Não é decoração. */
+.palco__veu {
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg,
+    var(--c-entrada-veu) 0%,
+    rgba(0, 83, 126, .56) 34%,
+    rgba(0, 83, 126, .24) 62%,
+    rgba(0, 83, 126, .12) 100%);
+}
+
+/* A ordem no HTML é a outra — o discurso vem primeiro — e é de propósito:
+   quem navega por teclado ou por leitor de ecrã encontra o formulário antes
+   do texto de apresentação. Aqui só se troca o que se vê. */
+.cartao { order: 2; }
+.discurso {
+  order: 1; color: var(--c-entrada-tinta);
+  width: min(520px, 100%);
+}
+/* o que já está dentro da fotografia não se repete por cima dela */
+.esta-na-foto { display: none; }
+.discurso__titulo {
+  font-family: var(--f-titulo); font-size: var(--t-2xl); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .01em; line-height: 1.15;
+  margin: 0 0 var(--e-7);
+}
+/* Em coluna, e não em três colunas: são frases, não cartazes. Lidas de
+   cima a baixo ao lado do formulário. */
+.vantagens {
+  list-style: none; margin: 0 0 var(--e-5); padding: 0;
+  display: grid; gap: var(--e-4);
+}
+.vantagem { display: flex; align-items: flex-start; gap: var(--e-3); }
+.vantagem svg { width: 28px; height: 28px; flex: none; color: var(--c-acao); }
+.vantagem__titulo { font-size: var(--t-md); font-weight: 700; margin: 0; }
+.vantagem__sub { font-size: var(--t-sm); color: var(--c-entrada-tinta-2); margin: 0; }
+.discurso__assinatura {
+  margin: 0; padding-top: var(--e-4);
+  border-top: 1px solid rgba(255,255,255,.25);
+  font-size: var(--t-md);
+}
+
+/* Os campos do cartão não são brancos sobre branco: levam o azul lavado
+   da marca, que é o que os faz ver-se dentro de um cartão branco. */
+.cartao .input { background: var(--c-campo-fundo); border-color: transparent; }
+.cartao .input:focus { background: var(--c-superficie); border-color: var(--c-marca); }
+
+/* ---------- cartão de sessão (19 §1) ---------- */
+.cartao {
+  width: 100%; max-width: var(--l-cartao); justify-self: center;
+  padding: var(--e-6);
+  background: var(--c-superficie);
+  border-radius: var(--r-lg);
+  box-shadow: var(--s-3);
+}
+.cartao__cabeca { display: grid; justify-items: center; margin-bottom: var(--e-5); }
+
+.formulario { display: grid; gap: var(--e-4); }
+.formulario__accoes { display: grid; gap: var(--e-3); margin-top: var(--e-1); }
+
+/* alerta de credenciais — 19 §3: uma mensagem só, no topo do cartão */
+.alerta {
+  display: flex; gap: var(--e-2); align-items: flex-start;
+  padding: var(--e-3); margin-bottom: var(--e-4);
+  background: var(--c-erro-suave); color: var(--c-texto);
+  border-left: 3px solid var(--c-erro); border-radius: var(--r-sm);
+  font-size: var(--t-sm);
+}
+.alerta[hidden] { display: none; }
+
+/* As outras duas recusas do §5: a licença e a permissão não são erros de
+   quem escreveu mal, são respostas de outro dono. Por isso não levam o
+   vermelho das credenciais. */
+.alerta--licenca {
+  background: var(--c-aviso-suave); border-left-color: var(--c-aviso);
+}
+.alerta--licenca svg { color: var(--c-aviso); }
+.alerta--permissao {
+  background: var(--c-marca-suave); border-left-color: var(--c-marca);
+}
+.alerta--permissao svg { color: var(--c-marca); }
+
+/* Onde estava «Pedir acesso». Num ERP ninguém se inscreve: a conta nasce no
+   administrador da empresa e o lugar vem da licença. A frase diz a quem
+   pedir, que é a única coisa útil neste ecrã. */
+.cartao__nota {
+  margin: 0; text-align: center;
+  font-size: var(--t-xs); color: var(--c-texto-2);
+}
+
+.ligacao-recuperar {
+  display: block; text-align: center;
+  font-size: var(--t-sm); color: var(--c-marca);
+  text-decoration: none; padding: var(--e-1) 0;
+}
+.ligacao-recuperar:hover { text-decoration: underline; }
+
+.separador {
+  display: flex; align-items: center; gap: var(--e-3);
+  font-size: var(--t-xs); color: var(--c-texto-2);
+}
+.separador::before, .separador::after {
+  content: ""; flex: 1; height: 1px; background: var(--c-borda);
+}
+
+/* O número da versão. Vive no fim do cartão e em tinta discreta: quem o
+   procura sabe onde está, e quem vem entrar não tropeça nele. */
+.cartao__versao {
+  margin: var(--e-3) 0 0;
+  font-size: 11px; color: var(--c-texto-3);
+}
+
+.apoio {
+  display: grid; grid-template-columns: 1fr 1px 1fr; gap: var(--e-2);
+  margin-top: var(--e-5); padding-top: var(--e-4);
+  border-top: 1px solid var(--c-borda);
+}
+.apoio__risco { background: var(--c-borda); }
+.apoio__item { display: flex; gap: var(--e-2); align-items: flex-start; }
+.apoio__item svg { width: 20px; height: 20px; flex: none; color: var(--c-marca); }
+.apoio__titulo { font-size: var(--t-xs); font-weight: 700; margin: 0; }
+.apoio__sub { font-size: 11px; color: var(--c-texto-2); margin: 0; line-height: 1.35; }
+
+/* ---------- rodapé ---------- */
+.rodape {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--e-4); flex-wrap: wrap;
+  padding: var(--e-3) var(--e-6);
+  background: var(--c-entrada-fundo);
+  color: var(--c-entrada-tinta-2);
+  font-size: var(--t-xs);
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.rodape__ligacoes { display: flex; gap: var(--e-4); list-style: none; margin: 0; padding: 0; }
+.rodape a { color: var(--c-entrada-tinta); text-decoration: none; }
+.rodape a:hover { text-decoration: underline; }
+.rodape__selo { display: flex; align-items: center; gap: var(--e-2); }
+/* As três barras são um desenho da marca, não uma palavra. Ficam laranja
+   como traço, e por isso levam aria-hidden no HTML — 02 §1.2. */
+.rodape__barras { color: var(--c-acao); font-weight: 700; letter-spacing: .08em; }
+.rodape__lema { line-height: 1.2; text-transform: uppercase; letter-spacing: .1em; font-size: 9px; }
+
+/* ---------- 02 e 03: o mesmo palco, outro cartão ----------
+   A escolha da empresa e a recusa à porta ficam em cima da fotografia,
+   como a entrada: ainda não se está dentro da aplicação. */
+.cartao__ola { margin: 0 0 var(--e-1); font-size: var(--t-sm); color: var(--c-texto-2); }
+.cartao__titulo { margin: 0 0 var(--e-2); font-family: var(--f-titulo); font-size: var(--t-xl); font-weight: 600; line-height: 1.25; }
+.cartao__sub { margin: 0 0 var(--e-4); font-size: var(--t-sm); color: var(--c-texto-2); }
+.cartao__nota--esquerda { text-align: left; margin-top: var(--e-3); }
+.cartao__pe {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-2);
+  margin-top: var(--e-4); padding-top: var(--e-3); border-top: 1px solid var(--c-borda);
+  font-size: var(--t-sm); color: var(--c-texto-2);
+}
+.cartao__pe .ligacao-recuperar { padding: 0; }
+
+.recusa__icone {
+  display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: var(--e-4);
+  border-radius: var(--r-md); background: var(--c-aviso-suave); color: var(--c-aviso);
+}
+.recusa__icone svg { width: 26px; height: 26px; }
+.recusa--nunca .recusa__icone { background: var(--c-marca-suave); color: var(--c-marca); }
+.recusa[hidden] { display: none; }
+.codigo {
+  margin: 0 0 var(--e-4); padding: var(--e-3);
+  background: var(--c-superficie-2); border: 1px dashed var(--c-borda-forte); border-radius: var(--r-sm);
+}
+.codigo dt { font-size: var(--t-xs); font-weight: 700; color: var(--c-texto-2); }
+.codigo dd { margin: 2px 0 0; font-family: var(--f-mono); font-size: var(--t-sm); }
+
+/* ---------- entrar em dois passos ----------
+   O endereço do passo 1 fica à vista no passo 2, com «mudar» ao lado. */
+.identidade {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-2);
+  margin: 0; padding: var(--e-2) var(--e-3);
+  background: var(--c-superficie-2); border-radius: var(--r-sm);
+  font-size: var(--t-sm);
+}
+.identidade__correio { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.identidade__mudar { color: var(--c-marca); }
+.input--codigo { font-family: var(--f-mono); letter-spacing: .3em; text-align: center; font-size: var(--t-lg); }
+.cartao__nota--caminho { color: var(--c-texto-2); }
+
+/* A página do fornecedor da empresa não é nossa: tracejada e sem a marca. */
+.cartao--fora {
+  background: var(--c-superficie-2); box-shadow: none;
+  border: 1px dashed var(--c-borda-forte);
+}
+.fora__marca {
+  margin: 0 0 var(--e-3); font-family: var(--f-mono); font-size: var(--t-xs);
+  text-transform: uppercase; letter-spacing: .1em; color: var(--c-aviso);
+}
+
+/* ---------- responsivo ---------- */
+@media (max-width: 1100px) {
+  .palco {
+    grid-template-columns: 1fr; justify-items: center; align-content: center;
+    gap: var(--e-6); padding: var(--e-6) var(--e-4);
+  }
+  .cartao { order: 1; }
+  .discurso { order: 2; width: min(560px, 100%); }
+  .discurso__titulo { font-size: var(--t-xl); }
+}
+@media (max-width: 560px) {
+  .topo { padding: var(--e-3) var(--e-4); flex-wrap: wrap; }
+  .discurso__titulo { font-size: var(--t-xl); }
+  .vantagens { gap: var(--e-4); }
+  .cartao { padding: var(--e-5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* ---------- impressão ----------
+   O que o `importar/gerar.sh` fotografa. A página é do tamanho do ecrã, sem
+   margem, para o PDF entrar no Canva ou no Figma como uma folha só. */
+@media print {
+  @page { size: 1440px 900px; margin: 0; }
+  .entrada { min-height: 900px; }
+}
