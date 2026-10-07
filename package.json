@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "ver": "vite build && (vite build --watch --logLevel warn & vite preview --port 5173 --strictPort)",
     "verificar": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"

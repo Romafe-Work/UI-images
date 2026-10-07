@@ -17,7 +17,8 @@ qualquer ecrã pelo nome, pelo fluxo ou pelo que ele faz. Cada resultado tem
 
 ```sh
 npm install
-npm run dev         # http://localhost:5173
+npm run ver         # http://localhost:5173 — a versão compilada, como no site; recompila sozinha
+npm run dev         # o servidor de desenvolvimento (para mexer no código)
 npm run verificar   # só o TypeScript
 npm run build       # verifica e gera dist/, que é o que vai para o site
 ```
