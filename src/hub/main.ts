@@ -65,7 +65,10 @@ function mostrar(): void {
     const ul = el('ul', 'lista');
     achados.forEach((e) => {
       const li = el('li'), txt = el('div'), acc = el('div', 'lista__accoes');
-      txt.appendChild(el('p', 'lista__nome', e.nome));
+      const nome = el('p', 'lista__nome', e.nome);
+      /* com dois produtos na mesma app, o fluxo diz de qual é o ecrã */
+      nome.appendChild(el('span', 'lista__fluxo', e.fluxo));
+      txt.appendChild(nome);
       if (e.objetivo) txt.appendChild(el('p', 'lista__obj', e.objetivo));
       acc.appendChild(ligacao(a.id + '/#so=ecra&ecra=' + encodeURIComponent(e.id), 'Ver'));
       acc.appendChild(ligacao(a.id + '/#ecra=' + encodeURIComponent(e.id), 'Editar'));

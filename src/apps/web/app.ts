@@ -1,14 +1,20 @@
 import type { App } from '../../comum/tipos';
-import { ecrasEntrar, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
+import { ecrasEntrar } from '../../comum/entrar/entrar';
 import type { IdWeb } from './ids';
-import { entrarWeb } from './entrar';
+import { entrarGoShop, entrarGoParts } from './entrar';
 
 export const web: App<IdWeb> = {
   id: 'web',
   nome: 'Web',
-  sub: 'Para abrir no navegador',
+  sub: 'GoShop e GoParts, no navegador',
   marca: 'WEB',
   tela: { l: 1440, a: 900 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar(entrarWeb)],
+  fluxos: {
+    'Entrar no GoShop': 'O início de sessão comum, com a marca do GoShop. Primeiro o endereço, e o domínio decide o caminho.',
+    'Entrar no GoParts': 'O início de sessão comum, com a marca do GoParts. Primeiro o endereço, e o domínio decide o caminho.',
+  },
+  ecras: [
+    ...ecrasEntrar(entrarGoShop, 'goshop-'),
+    ...ecrasEntrar(entrarGoParts, 'goparts-'),
+  ],
 };

@@ -14,7 +14,8 @@
                            barra de topo (a marca já está no cartão) e sem
                            «manter sessão», porque o aparelho é partilhado
    ========================================================= */
-import { ligacoes, type Ecra } from '../tipos';
+import type { Ecra } from '../tipos';
+import { discursoComum } from './discurso';
 
 export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado';
 export type Variante = 'completa' | 'compacta';
@@ -25,15 +26,19 @@ export interface OpcoesEntrar {
   marca: { nome: string; sub: string };
   /** como o produto se chama numa frase: «O Rolgest não vê a sua palavra-passe» */
   produto: string;
-  /** só na completa: o texto à esquerda, um por passo */
+  /** só na completa: o texto à esquerda, um por passo. Sem ele, vai o comum */
   discurso?: { entrada: string; palavraPasse: string; federado: string };
+  /** o nome do fluxo no mapa e no seletor; por omissão «Entrar» */
+  fluxo?: string;
   /** só na completa: a linha discreta no fim do cartão do 01 */
   versao?: string;
   /** só na completa: o realm do Keycloak, no fim do cartão do 02 */
   realm?: string;
 }
 
-const ir = ligacoes<IdEntrar>();
+/** O que muda quando a mesma app tem dois produtos (a Web: GoShop e GoParts):
+    os ids dos ecrãs e das peças levam um prefixo, para não se repetirem. */
+interface Chaves { ir: (id: IdEntrar) => string; id: (peca: string) => string }
 
 /* ---------------- peças ---------------- */
 
@@ -99,7 +104,7 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
 const SVG_SETA = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>`;
 
 /* ---------------- 01 · Entrar ---------------- */
-function cartaoEntrada(o: OpcoesEntrar): string {
+function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
   const completa = o.variante === 'completa';
   /* 19 §3: uma mensagem só, e nenhum campo ganha borda vermelha. As duas
      recusas de outro dono (a licença, o lugar) estão escondidas: mostram-se
@@ -134,27 +139,27 @@ function cartaoEntrada(o: OpcoesEntrar): string {
       </div>
       ${o.versao ? `<p class="cartao__versao">${o.versao}</p>` : ''}` : '';
 
-  return `<section class="cartao" aria-labelledby="titulo-entrada">
-      <div class="cartao__cabeca">${lockup(o.marca, 'lockup--centro', 'titulo-entrada')}</div>
+  return `<section class="cartao" aria-labelledby="${k.id('titulo-entrada')}">
+      <div class="cartao__cabeca">${lockup(o.marca, 'lockup--centro', k.id('titulo-entrada'))}</div>
       ${alertas}
       <!-- Passo 1. Um endereço que não existe também segue para a
            palavra-passe, e só falha no fim: dizer aqui «não existe»
            confirmava a quem tenta quem tem conta. -->
-      <form class="formulario" id="formulario" novalidate>
+      <form class="formulario" id="${k.id('formulario')}" novalidate>
         <div class="campo campo--icone">
-          <label class="campo__label" for="utilizador">Endereço de correio <span class="campo__req" aria-hidden="true">*</span></label>
+          <label class="campo__label" for="${k.id('utilizador')}">Endereço de correio <span class="campo__req" aria-hidden="true">*</span></label>
           <svg class="campo__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
-          <input class="input" id="utilizador" name="utilizador" type="email" required
+          <input class="input" id="${k.id('utilizador')}" name="utilizador" type="email" required
                  autocomplete="username" placeholder="nome@empresa.pt" value="ana.ribeiro@exemplo.pt">
         </div>
         <div class="formulario__accoes">
-          <button type="submit" class="btn btn--acao btn--bloco" id="continuar" ${ir('palavra-passe')}>
+          <button type="submit" class="btn btn--acao btn--bloco" id="${k.id('continuar')}" ${k.ir('palavra-passe')}>
             <span class="btn__rotulo">Continuar</span>${SVG_SETA}
           </button>
           <!-- No produto não é uma ligação: o Keycloak redireciona sozinho
                quando o domínio pertence a uma organização com fornecedor
                próprio. Aqui leva ao 03, para o caminho se ver no mapa. -->
-          <p class="cartao__nota cartao__nota--caminho" ${ir('federado')}>Se a sua empresa tiver início de sessão próprio, segue para a página dela.</p>
+          <p class="cartao__nota cartao__nota--caminho" ${k.ir('federado')}>Se a sua empresa tiver início de sessão próprio, segue para a página dela.</p>
           <!-- Não há «Pedir acesso»: as contas nascem no administrador da empresa. -->
           <p class="cartao__nota">As contas são criadas pelo administrador da sua empresa.</p>
         </div>
@@ -164,38 +169,38 @@ function cartaoEntrada(o: OpcoesEntrar): string {
 }
 
 /* ---------------- 02 · A palavra-passe ---------------- */
-function cartaoPalavraPasse(o: OpcoesEntrar): string {
+function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
   /* 19 §5: desligada e com a dica. No Mobile não existe: o PDA é de todos. */
   const manter = o.variante === 'completa' ? `
         <div class="opcao">
-          <input type="checkbox" id="manter" name="manter">
-          <label class="opcao__texto" for="manter">Manter sessão iniciada
+          <input type="checkbox" id="${k.id('manter')}" name="manter">
+          <label class="opcao__texto" for="${k.id('manter')}">Manter sessão iniciada
             <span class="opcao__ajuda">Não usar em computadores partilhados</span>
           </label>
         </div>` : '';
-  return `<section class="cartao" aria-labelledby="titulo-passe">
+  return `<section class="cartao" aria-labelledby="${k.id('titulo-passe')}">
       <div class="cartao__cabeca">${lockup(o.marca, 'lockup--centro')}</div>
-      <div class="alerta" id="alerta" role="alert" data-ed-nome="Alerta · credenciais" hidden>
+      <div class="alerta" id="${k.id('alerta')}" data-credenciais role="alert" data-ed-nome="Alerta · credenciais" hidden>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16.5v.5"/></svg>
         <span>Endereço ou palavra-passe incorretos.</span>
       </div>
-      <form class="formulario" id="formulario-passe" novalidate>
+      <form class="formulario" id="${k.id('formulario-passe')}" data-palavra-passe novalidate>
         <p class="identidade">
           <span class="identidade__correio">ana.ribeiro@exemplo.pt</span>
-          <a class="identidade__mudar" href="#" ${ir('entrada')}>mudar</a>
+          <a class="identidade__mudar" href="#" ${k.ir('entrada')}>mudar</a>
         </p>
         <div class="campo campo--icone">
-          <label class="campo__label" for="palavra-passe" id="titulo-passe">Palavra-passe <span class="campo__req" aria-hidden="true">*</span></label>
+          <label class="campo__label" for="${k.id('palavra-passe')}" id="${k.id('titulo-passe')}">Palavra-passe <span class="campo__req" aria-hidden="true">*</span></label>
           <svg class="campo__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input class="input" id="palavra-passe" name="password" type="password" required
+          <input class="input" id="${k.id('palavra-passe')}" name="password" type="password" required
                  autocomplete="current-password" data-com-botao placeholder="A sua palavra-passe">
           <!-- 19 §2.1: é um <button>, e o rótulo muda -->
-          <button type="button" class="campo__acao" id="ver-palavra-passe" aria-label="Mostrar palavra-passe" aria-pressed="false">
+          <button type="button" class="campo__acao" id="${k.id('ver-palavra-passe')}" aria-label="Mostrar palavra-passe" aria-pressed="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>${manter}
         <div class="formulario__accoes">
-          <button type="submit" class="btn btn--acao btn--bloco" id="entrar">
+          <button type="submit" class="btn btn--acao btn--bloco" id="${k.id('entrar')}">
             <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
             <span class="btn__rotulo">Entrar</span>
           </button>
@@ -208,20 +213,20 @@ function cartaoPalavraPasse(o: OpcoesEntrar): string {
 }
 
 /* ---------------- 03 · O início de sessão da empresa ---------------- */
-function cartaoFederado(o: OpcoesEntrar): string {
-  return `<section class="cartao cartao--fora" aria-labelledby="titulo-fora">
+function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
+  return `<section class="cartao cartao--fora" aria-labelledby="${k.id('titulo-fora')}">
       <p class="fora__marca">Fora do ${o.produto}</p>
-      <h2 class="cartao__titulo" id="titulo-fora">Página do fornecedor da empresa</h2>
+      <h2 class="cartao__titulo" id="${k.id('titulo-fora')}">Página do fornecedor da empresa</h2>
       <p class="cartao__sub">Por exemplo, o Entra ID da Exemplo, Lda. O desenho é o dela.</p>
       <div class="formulario">
         <p class="identidade"><span class="identidade__correio">ana.ribeiro@exemplo.pt</span></p>
         <div class="campo">
-          <label class="campo__label" for="passe-empresa">Palavra-passe da empresa</label>
-          <input class="input" id="passe-empresa" type="password" value="••••••••••" disabled>
+          <label class="campo__label" for="${k.id('passe-empresa')}">Palavra-passe da empresa</label>
+          <input class="input" id="${k.id('passe-empresa')}" type="password" value="••••••••••" disabled>
         </div>
         <div class="campo">
-          <label class="campo__label" for="fator-empresa">Segundo fator do cliente</label>
-          <input class="input" id="fator-empresa" type="text" value="código da aplicação" disabled>
+          <label class="campo__label" for="${k.id('fator-empresa')}">Segundo fator do cliente</label>
+          <input class="input" id="${k.id('fator-empresa')}" type="text" value="código da aplicação" disabled>
         </div>
         <div class="formulario__accoes">
           <button type="button" class="btn btn--acao btn--bloco"><span class="btn__rotulo">Entrar na Exemplo</span></button>
@@ -229,30 +234,32 @@ function cartaoFederado(o: OpcoesEntrar): string {
       </div>
       <div class="cartao__pe">
         <span>Não é a sua empresa?</span>
-        <a class="ligacao-recuperar" href="#" ${ir('entrada')}>Usar outro endereço</a>
+        <a class="ligacao-recuperar" href="#" ${k.ir('entrada')}>Usar outro endereço</a>
       </div>
     </section>`;
 }
 
-/** Os três ecrãs do início de sessão, para a app que os pede. */
-export function ecrasEntrar(o: OpcoesEntrar): Ecra<IdEntrar>[] {
-  const d = o.discurso || { entrada: '', palavraPasse: '', federado: '' };
+/** Os três ecrãs do início de sessão, para a app que os pede. Com dois
+    produtos na mesma app, cada um passa o seu prefixo: «goshop-». */
+export function ecrasEntrar<P extends string = ''>(o: OpcoesEntrar, prefixo = '' as P): Ecra<`${P}${IdEntrar}`>[] {
+  const k: Chaves = {
+    ir: (id) => `data-ir="${prefixo}${id}"`,
+    id: (peca) => prefixo + peca,
+  };
+  const d = o.variante === 'completa' ? (o.discurso || discursoComum(o.produto)) : { entrada: '', palavraPasse: '', federado: '' };
+  const fluxo = o.fluxo || 'Entrar';
+  const ecra = (id: IdEntrar, nome: string, objetivo: string, html: string): Ecra<`${P}${IdEntrar}`> =>
+    ({ id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo, html });
   return [
-    {
-      id: 'entrada', nome: '01 · Entrar', fluxo: 'Entrar',
-      objetivo: 'Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue para a página dela (03). É uma página do Keycloak: a aplicação só redireciona, nunca recebe a palavra-passe.',
-      html: pagina(o, d.entrada, cartaoEntrada(o)),
-    },
-    {
-      id: 'palavra-passe', nome: '02 · A palavra-passe', fluxo: 'Entrar',
-      objetivo: 'Passo 2, conta nossa: a palavra-passe valida no Keycloak. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente.',
-      html: pagina(o, d.palavraPasse, cartaoPalavraPasse(o)),
-    },
-    {
-      id: 'federado', nome: '03 · O início de sessão da empresa', fluxo: 'Entrar',
-      objetivo: 'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token.',
-      html: pagina(o, d.federado, cartaoFederado(o)),
-    },
+    ecra('entrada', '01 · Entrar',
+      'Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue para a página dela (03). É uma página do Keycloak: a aplicação só redireciona, nunca recebe a palavra-passe.',
+      pagina(o, d.entrada, cartaoEntrada(o, k))),
+    ecra('palavra-passe', '02 · A palavra-passe',
+      'Passo 2, conta nossa: a palavra-passe valida no Keycloak. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente.',
+      pagina(o, d.palavraPasse, cartaoPalavraPasse(o, k))),
+    ecra('federado', '03 · O início de sessão da empresa',
+      'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token.',
+      pagina(o, d.federado, cartaoFederado(o, k))),
   ];
 }
 
