@@ -84,8 +84,9 @@ No código, um ecrã tem `versoes: [{ id: 'v1', nota: '…', html }, …]`. No l
 - **v1** — o cartão à direita, com a apresentação da app à esquerda
 - **v2** — o cartão ao centro, sozinho sobre a fotografia (sugestão da chefia)
 - **v3** — o cartão ao centro, com o título por cima e as vantagens por baixo
+- **v4** — a v3 sem nada da Romafe (`semRomafe`): o produto pode ser vendido a outra empresa
 
-Para uma v4, acrescenta-se uma entrada à lista com as opções que mudam.
+Para uma v5, acrescenta-se uma entrada à lista com as opções que mudam.
 
 ## Acrescentar um ecrã
 

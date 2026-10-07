@@ -1,7 +1,7 @@
 import type { App } from '../../comum/tipos';
 import { ecrasEntrar, versoesCompletas, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoShop } from './ids';
-import { entrarGoShop } from './entrar';
+import { entrarGoShop, entrarGoShopV4 } from './entrar';
 
 export const goshop: App<IdGoShop> = {
   id: 'goshop',
@@ -11,5 +11,5 @@ export const goshop: App<IdGoShop> = {
   marca: 'GOSHOP',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar(versoesCompletas(entrarGoShop))],
+  ecras: [...ecrasEntrar(versoesCompletas(entrarGoShop, entrarGoShopV4))],
 };

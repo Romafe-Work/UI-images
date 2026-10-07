@@ -18,3 +18,15 @@ export const entrarGoShop: OpcoesEntrar = {
     ],
   },
 };
+
+/** Na v4 não há Romafe à vista: as peças são «do fornecedor». */
+export const entrarGoShopV4: Partial<OpcoesEntrar> = {
+  apresentacao: {
+    ...entrarGoShop.apresentacao!,
+    vantagens: [
+      entrarGoShop.apresentacao!.vantagens[0],
+      entrarGoShop.apresentacao!.vantagens[1],
+      { icone: 'caixa', titulo: 'Peças do fornecedor', sub: 'Encomendadas a partir da própria reparação' },
+    ],
+  },
+};

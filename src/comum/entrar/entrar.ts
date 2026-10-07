@@ -28,6 +28,10 @@ export interface OpcoesEntrar {
   variante: Variante;
   /** só na completa; por omissão «lado» */
   disposicao?: Disposicao;
+  /** sem nada da Romafe à vista (v4): o produto é vendido, e pode ser de
+      outra empresa. Saem os direitos, o «Alojado pela Romafe» e o apoio
+      com o nome; fica só a marca do produto */
+  semRomafe?: boolean;
   /** o nome na marca e a linha por baixo: ROLGEST · Plataforma de gestão */
   marca: { nome: string; sub: string };
   /** como o produto se chama numa frase: «O Rolgest não vê a sua palavra-passe» */
@@ -79,16 +83,16 @@ function topo(o: OpcoesEntrar): string {
 function rodape(o: OpcoesEntrar): string {
   if (o.variante === 'compacta') return '';
   return `<footer class="rodape">
-    <p class="rodape__direitos" data-ed-nome="Direitos">© 2026 Romafe SA. Todos os direitos reservados.</p>
+    <p class="rodape__direitos" data-ed-nome="Direitos">© 2026 ${o.semRomafe ? o.produto : 'Romafe SA'}. Todos os direitos reservados.</p>
     <ul class="rodape__ligacoes">
       <li><a href="#">Aviso legal</a></li>
       <li><a href="#">Política de privacidade</a></li>
       <li><a href="#">Contactos</a></li>
     </ul>
-    <p class="rodape__selo">
+    ${o.semRomafe ? '' : `<p class="rodape__selo">
       <span class="rodape__barras" aria-hidden="true">///</span>
       <span class="rodape__lema">Alojado<br>pela Romafe</span>
-    </p>
+    </p>`}
   </footer>`;
 }
 
@@ -101,7 +105,7 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   return `<div class="entrada entrada--${o.variante}${cls}">
   ${completa ? topo(o) : ''}
   <main class="palco">
-    <div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>
+    <div class="palco__foto" role="img" aria-label="${o.semRomafe ? 'Armazém' : 'Armazém da Romafe'}"></div>
     <div class="palco__veu" aria-hidden="true"></div>
     ${completa && !centro ? discurso : ''}
     ${cartao}
@@ -142,7 +146,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3Z"/></svg>
           <div>
             <p class="apoio__titulo">Precisa de ajuda?</p>
-            <p class="apoio__sub">Apoio Romafe · 800 000 000</p>
+            <p class="apoio__sub">${o.semRomafe ? 'Apoio ao cliente' : 'Apoio Romafe'} · 800 000 000</p>
           </div>
         </div>
       </div>
@@ -258,7 +262,7 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
       id: (peca) => prefixo + (i ? v.id + '-' : '') + peca,
     };
     const d = o.variante === 'completa' && o.apresentacao
-      ? discursoDe(o.produto, o.apresentacao)
+      ? discursoDe(o.produto, o.apresentacao, !!o.semRomafe)
       : { entrada: '', palavraPasse: '', federado: '' };
     return {
       entrada: pagina(o, d.entrada, cartaoEntrada(o, k)),
@@ -283,12 +287,15 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
 
 /** As versões do início de sessão completo (7 de outubro): v1 com o cartão
     à direita; v2 com o cartão ao centro, sugestão da chefia; v3 a v2 com a
-    apresentação de volta, porque à v2 «falta mais algo». */
-export function versoesCompletas(o: OpcoesEntrar): [VersaoEntrar, VersaoEntrar, VersaoEntrar] {
+    apresentação de volta, porque à v2 «falta mais algo»; v4 a v3 sem nada
+    da Romafe, porque o produto pode ser vendido a outra empresa. O que a
+    app quiser diferente na v4 (um texto que falava da Romafe) vem em `v4`. */
+export function versoesCompletas(o: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
   return [
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
     { id: 'v2', nota: 'Cartão ao centro, sozinho sobre a fotografia', opcoes: { ...o, disposicao: 'centro' } },
     { id: 'v3', nota: 'Cartão ao centro, com o título por cima e as vantagens por baixo', opcoes: { ...o, disposicao: 'centro-apresentacao' } },
+    { id: 'v4', nota: 'A v3 sem a Romafe: só a marca do produto', opcoes: { ...o, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
   ];
 }
 

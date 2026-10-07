@@ -44,7 +44,7 @@ function vantagem(v: Vantagem): string {
 /* Depois de cada <br> vai um espaço: na v1 não se vê (o espaço no início
    de uma linha desaparece), e na v3, onde o título é uma linha só e os <br>
    se escondem, é o que separa as palavras. */
-export function discurso(produto: string, a: Apresentacao): { entrada: string; palavraPasse: string; federado: string } {
+export function discurso(produto: string, a: Apresentacao, semRomafe = false): { entrada: string; palavraPasse: string; federado: string } {
   return {
     entrada: `
     <section class="discurso">
@@ -54,7 +54,7 @@ export function discurso(produto: string, a: Apresentacao): { entrada: string; p
     </section>`,
     palavraPasse: `
     <section class="discurso">
-      <h1 class="discurso__titulo">Uma conta<br> da Romafe</h1>
+      <h1 class="discurso__titulo">${semRomafe ? `Uma conta<br> do ${produto}` : 'Uma conta<br> da Romafe'}</h1>
       <p class="discurso__texto">O endereço é de uma conta criada no ${produto}. A palavra-passe confirma-se aqui.</p>
     </section>`,
     federado: `
