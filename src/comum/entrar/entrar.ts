@@ -15,7 +15,7 @@
                            «manter sessão», porque o aparelho é partilhado
    ========================================================= */
 import type { Ecra } from '../tipos';
-import { discursoComum } from './discurso';
+import { discurso as discursoDe, type Apresentacao } from './discurso';
 
 export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado';
 export type Variante = 'completa' | 'compacta';
@@ -26,8 +26,8 @@ export interface OpcoesEntrar {
   marca: { nome: string; sub: string };
   /** como o produto se chama numa frase: «O Rolgest não vê a sua palavra-passe» */
   produto: string;
-  /** só na completa: o texto à esquerda, um por passo. Sem ele, vai o comum */
-  discurso?: { entrada: string; palavraPasse: string; federado: string };
+  /** só na completa: o título e as três vantagens à esquerda do 01, de cada app */
+  apresentacao?: Apresentacao;
   /** o nome do fluxo no mapa e no seletor; por omissão «Entrar» */
   fluxo?: string;
   /** só na completa: a linha discreta no fim do cartão do 01 */
@@ -246,7 +246,9 @@ export function ecrasEntrar<P extends string = ''>(o: OpcoesEntrar, prefixo = ''
     ir: (id) => `data-ir="${prefixo}${id}"`,
     id: (peca) => prefixo + peca,
   };
-  const d = o.variante === 'completa' ? (o.discurso || discursoComum(o.produto)) : { entrada: '', palavraPasse: '', federado: '' };
+  const d = o.variante === 'completa' && o.apresentacao
+    ? discursoDe(o.produto, o.apresentacao)
+    : { entrada: '', palavraPasse: '', federado: '' };
   const fluxo = o.fluxo || 'Entrar';
   const ecra = (id: IdEntrar, nome: string, objetivo: string, html: string): Ecra<`${P}${IdEntrar}`> =>
     ({ id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo, html });

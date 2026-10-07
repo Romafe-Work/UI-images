@@ -76,18 +76,14 @@
 /* Em coluna, e não em três colunas: são frases, não cartazes. Lidas de
    cima a baixo ao lado do formulário. */
 .vantagens {
-  list-style: none; margin: 0 0 var(--e-5); padding: 0;
+  list-style: none; margin: 0; padding: 0;
   display: grid; gap: var(--e-4);
 }
 .vantagem { display: flex; align-items: flex-start; gap: var(--e-3); }
 .vantagem svg { width: 28px; height: 28px; flex: none; color: var(--c-acao); }
 .vantagem__titulo { font-size: var(--t-md); font-weight: 700; margin: 0; }
 .vantagem__sub { font-size: var(--t-sm); color: var(--c-entrada-tinta-2); margin: 0; }
-.discurso__assinatura {
-  margin: 0; padding-top: var(--e-4);
-  border-top: 1px solid rgba(255,255,255,.25);
-  font-size: var(--t-md);
-}
+.discurso__texto { margin: 0; font-size: var(--t-md); max-width: 440px; }
 
 /* Os campos do cartão não são brancos sobre branco: levam o azul lavado
    da marca, que é o que os faz ver-se dentro de um cartão branco. */

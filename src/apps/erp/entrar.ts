@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — o que o início de sessão tem de próprio no Rolgest
-   O processo, o cartão e o texto de apresentação são os comuns
-   (src/comum/entrar); aqui só a marca, a versão e o realm.
+   O processo e o cartão são os comuns (src/comum/entrar); aqui a marca,
+   a versão, o realm e o que o Rolgest diz de si à entrada.
    ========================================================= */
 import type { OpcoesEntrar } from '../../comum/entrar/entrar';
 
@@ -11,4 +11,12 @@ export const entrarErp: OpcoesEntrar = {
   produto: 'Rolgest',
   versao: 'Rolgest 10.0 · compilação 2026.09',
   realm: 'rolgest',
+  apresentacao: {
+    titulo: 'A gestão<br>de todas as empresas<br>do grupo',
+    vantagens: [
+      { icone: 'empresa', titulo: 'Uma empresa de cada vez', sub: 'Escolhe-se ao entrar e troca-se sem sair' },
+      { icone: 'separadores', titulo: 'Vendas, compras e stock', sub: 'Cada documento abre no seu separador' },
+      { icone: 'documento', titulo: 'Os módulos que contratou', sub: 'A licença diz quantos lugares; o administrador, quem' },
+    ],
+  },
 };
