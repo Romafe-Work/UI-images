@@ -482,7 +482,7 @@ function construirCamadas(): void {
     for (let i = 0; i < no.children.length; i++) {
       const f = no.children[i] as Peca;
       if (IGNORAR[f.tagName]) continue;
-      if (f.closest('.ed-painel')) continue;
+      if (f.closest('.ed-painel') || f.closest('.versoes')) continue;
 
       f.setAttribute('data-ed-alvo', '');
 

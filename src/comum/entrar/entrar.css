@@ -271,6 +271,28 @@
 .entrada--centro .cartao { order: 0; }
 .entrada--centro .palco__veu { background: rgba(0, 83, 126, .5); }
 
+/* ---------- v3: ao centro, com a apresentação à volta ----------
+   O título passa para cima do cartão, numa linha, e as três vantagens para
+   baixo, lado a lado. A secção do discurso desfaz-se (display: contents)
+   para os filhos se arrumarem com o cartão pela ordem que se vê. */
+.entrada--centro-apresentacao .palco {
+  grid-template-columns: minmax(0, 880px); justify-items: center;
+  align-content: center; gap: var(--e-5);
+}
+.entrada--centro-apresentacao .discurso { display: contents; }
+.entrada--centro-apresentacao .discurso__titulo {
+  order: 0; margin: 0; text-align: center;
+  font-size: var(--t-xl); color: var(--c-entrada-tinta);
+}
+.entrada--centro-apresentacao .discurso__titulo br { display: none; }
+.entrada--centro-apresentacao .cartao { order: 1; max-width: var(--l-cartao); }
+.entrada--centro-apresentacao .vantagens {
+  order: 2; width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-5);
+  color: var(--c-entrada-tinta);
+}
+.entrada--centro-apresentacao .discurso__texto { order: 0; text-align: center; color: var(--c-entrada-tinta); }
+
 /* =========================================================
    VARIANTE COMPACTA — Mobile
    A mesma fotografia, com um véu por igual (não há texto à esquerda para

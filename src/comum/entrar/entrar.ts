@@ -20,8 +20,9 @@ import { discurso as discursoDe, type Apresentacao } from './discurso';
 export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado';
 export type Variante = 'completa' | 'compacta';
 /** onde fica o cartão na variante completa: à direita, com a apresentação
-    à esquerda (v1), ou ao centro, sozinho sobre a fotografia (v2) */
-export type Disposicao = 'lado' | 'centro';
+    à esquerda (v1); ao centro, sozinho sobre a fotografia (v2); ou ao
+    centro, com o título por cima e as vantagens por baixo (v3) */
+export type Disposicao = 'lado' | 'centro' | 'centro-apresentacao';
 
 export interface OpcoesEntrar {
   variante: Variante;
@@ -95,7 +96,9 @@ function rodape(o: OpcoesEntrar): string {
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
-  return `<div class="entrada entrada--${o.variante}${centro ? ' entrada--centro' : ''}">
+  const centroApr = completa && o.disposicao === 'centro-apresentacao';
+  const cls = centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '';
+  return `<div class="entrada entrada--${o.variante}${cls}">
   ${completa ? topo(o) : ''}
   <main class="palco">
     <div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>
@@ -278,12 +281,14 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
   ];
 }
 
-/** As duas versões do início de sessão completo: v1 com o cartão à direita,
-    v2 com o cartão ao centro (sugestão da chefia, 7 de outubro). */
-export function versoesCompletas(o: OpcoesEntrar): [VersaoEntrar, VersaoEntrar] {
+/** As versões do início de sessão completo (7 de outubro): v1 com o cartão
+    à direita; v2 com o cartão ao centro, sugestão da chefia; v3 a v2 com a
+    apresentação de volta, porque à v2 «falta mais algo». */
+export function versoesCompletas(o: OpcoesEntrar): [VersaoEntrar, VersaoEntrar, VersaoEntrar] {
   return [
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
     { id: 'v2', nota: 'Cartão ao centro, sozinho sobre a fotografia', opcoes: { ...o, disposicao: 'centro' } },
+    { id: 'v3', nota: 'Cartão ao centro, com o título por cima e as vantagens por baixo', opcoes: { ...o, disposicao: 'centro-apresentacao' } },
   ];
 }
 

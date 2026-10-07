@@ -50,30 +50,43 @@ export function mostrarVersao(v: string): void {
   document.dispatchEvent(new CustomEvent('romafe:versao'));
 }
 
+/* Onde ficam os separadores: na barra de topo do ecrã, ao lado de Claro ·
+   Escuro · Auto e com o mesmo desenho, quando o ecrã a tem; senão (o
+   Mobile), a flutuar por cima dele. */
 function pintarBarra(): void {
   if (!barra) return;
   const e = ecraActual();
   const versoes = e ? Array.from(e.querySelectorAll<HTMLElement>(':scope > .versao')) : [];
   const actual = versoes.find((x) => !x.hidden);
+  const topo = actual?.querySelector<HTMLElement>('.topo__accoes');
+
   barra.textContent = '';
-  const rot = document.createElement('span');
-  rot.className = 'versoes__rotulo';
-  rot.textContent = 'Versões';
-  barra.appendChild(rot);
+  barra.className = topo ? 'versoes versoes--topo segmented' : 'versoes';
+  if (topo) topo.insertBefore(barra, topo.firstChild);
+  else document.body.appendChild(barra);
+
+  if (!topo) {
+    const rot = document.createElement('span');
+    rot.className = 'versoes__rotulo';
+    rot.textContent = 'Versões';
+    barra.appendChild(rot);
+  }
   versoes.forEach((x) => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'versoes__aba';
+    b.className = topo ? 'segmented__btn' : 'versoes__aba';
     b.textContent = x.dataset.versao || '';
-    b.title = x.dataset.nota || '';
+    b.title = (x.dataset.versao || '') + ' · ' + (x.dataset.nota || '');
     b.setAttribute('aria-pressed', String(x === actual));
     b.addEventListener('click', () => mostrarVersao(x.dataset.versao || ''));
     barra!.appendChild(b);
   });
-  const nota = document.createElement('span');
-  nota.className = 'versoes__nota';
-  nota.textContent = actual?.dataset.nota || '';
-  barra.appendChild(nota);
+  if (!topo) {
+    const nota = document.createElement('span');
+    nota.className = 'versoes__nota';
+    nota.textContent = actual?.dataset.nota || '';
+    barra.appendChild(nota);
+  }
 }
 
 export function mostrar(nome: string): boolean {

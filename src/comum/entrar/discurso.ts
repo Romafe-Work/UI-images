@@ -41,22 +41,25 @@ function vantagem(v: Vantagem): string {
         </li>`;
 }
 
+/* Depois de cada <br> vai um espaço: na v1 não se vê (o espaço no início
+   de uma linha desaparece), e na v3, onde o título é uma linha só e os <br>
+   se escondem, é o que separa as palavras. */
 export function discurso(produto: string, a: Apresentacao): { entrada: string; palavraPasse: string; federado: string } {
   return {
     entrada: `
     <section class="discurso">
-      <h1 class="discurso__titulo">${a.titulo}</h1>
+      <h1 class="discurso__titulo">${a.titulo.replace(/<br>/g, '<br> ')}</h1>
       <ul class="vantagens">${a.vantagens.map(vantagem).join('')}
       </ul>
     </section>`,
     palavraPasse: `
     <section class="discurso">
-      <h1 class="discurso__titulo">Uma conta<br>da Romafe</h1>
+      <h1 class="discurso__titulo">Uma conta<br> da Romafe</h1>
       <p class="discurso__texto">O endereço é de uma conta criada no ${produto}. A palavra-passe confirma-se aqui.</p>
     </section>`,
     federado: `
     <section class="discurso">
-      <h1 class="discurso__titulo">A conta<br>é da sua empresa</h1>
+      <h1 class="discurso__titulo">A conta<br> é da sua empresa</h1>
       <p class="discurso__texto">O ${produto} não vê a sua palavra-passe. Quem a confirma é a sua empresa, e devolve-o aqui já com a sessão aberta.</p>
     </section>`,
   };

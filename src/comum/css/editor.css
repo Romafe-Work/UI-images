@@ -278,10 +278,13 @@
 .versoes__aba:hover { background: rgba(255,255,255,.12); }
 .versoes__aba[aria-pressed="true"] { background: var(--c-acao, #f07c12); color: #fff; }
 .versoes__nota { opacity: .75; padding: 0 8px 0 6px; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.com-fluxo .versoes { display: none; }
+.com-fluxo .versoes, .fluxo .versoes { display: none; }
 .versao[hidden] { display: none; }
 .fluxo .versao[hidden] { display: none; }
 @media (max-width: 600px) { .versoes__nota { display: none; } }
-/* no editor a tela é mais estreita e o centro do topo já tem o tema:
-   os separadores descem para o fundo da fotografia, onde não há nada */
-.editando .versoes { top: auto; bottom: 64px; }
+/* na barra de topo do ecrã: é um .segmented como o do tema, ao lado dele */
+.versoes--topo {
+  position: static; transform: none; z-index: auto;
+  box-shadow: none; padding: 3px; gap: 0; font: inherit;
+  background: var(--c-superficie-2); color: inherit;
+}
