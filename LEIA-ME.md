@@ -88,6 +88,9 @@ No código, um ecrã tem `versoes: [{ id: 'v1', nota: '…', html }, …]`. No l
   logótipo (letra Motor e risco laranja) e sem a fotografia do armazém. O produto
   pode ser vendido a outra empresa
 
+No Mobile, a **v2** faz o mesmo que a v4 das outras apps, com o nome «Mobile»
+provisório (`src/apps/mobile/entrar.ts`).
+
 Para uma v5, acrescenta-se uma entrada à lista com as opções que mudam.
 
 ## Acrescentar um ecrã

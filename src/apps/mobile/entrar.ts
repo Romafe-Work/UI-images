@@ -10,3 +10,12 @@ export const entrarMobile: OpcoesEntrar = {
   marca: { nome: 'ROMAFE', sub: 'Mobile' },
   produto: 'Romafe',
 };
+
+/** v2, sem a Romafe. A app ainda não tem nome: fica «Mobile», provisório,
+    e muda-se aqui quando houver. */
+export const entrarMobileNeutro: OpcoesEntrar = {
+  variante: 'compacta',
+  marca: { nome: 'Mobile', sub: 'Armazém' },
+  produto: 'Mobile',
+  semRomafe: true,
+};
