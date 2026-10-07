@@ -96,7 +96,8 @@ Os três passos são os mesmos nas três apps, porque a identidade é uma só
 
 | | ERP, GoShop e GoParts (`completa`) | Mobile (`compacta`) |
 | --- | --- | --- |
-| Fotografia e texto de apresentação | sim, o mesmo; só muda o nome do produto | não |
+| Fotografia do armazém | sim | sim, com o véu por igual |
+| Texto de apresentação | sim, o mesmo; só muda o nome do produto | não |
 | Barra de topo com tema e idioma | sim | não — a marca está no cartão |
 | Alertas de licença e de lugar | sim | não |
 | «Manter sessão iniciada» | sim | não — o aparelho é de todos |

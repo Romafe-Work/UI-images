@@ -10,7 +10,7 @@
      completa  (ERP, Web)  fotografia, texto de apresentação, tema e idioma,
                            alertas de licença e de lugar, «manter sessão»,
                            apoio, versão e rodapé
-     compacta  (Mobile)    só o cartão: a marca, o campo e o botão. Sem
+     compacta  (Mobile)    a fotografia e o cartão: a marca, o campo e o botão. Sem
                            barra de topo (a marca já está no cartão) e sem
                            «manter sessão», porque o aparelho é partilhado
    ========================================================= */
@@ -92,9 +92,9 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   return `<div class="entrada entrada--${o.variante}">
   ${completa ? topo(o) : ''}
   <main class="palco">
-    ${completa ? `<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>
+    <div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>
     <div class="palco__veu" aria-hidden="true"></div>
-    ${discurso}` : ''}
+    ${completa ? discurso : ''}
     ${cartao}
   </main>
   ${rodape(o)}

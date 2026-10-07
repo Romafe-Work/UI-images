@@ -270,27 +270,18 @@
 
 /* =========================================================
    VARIANTE COMPACTA — Mobile
-   Só o cartão, a toda a largura, em cima. Sem fotografia nem véu: o fundo
-   é a superfície, e o cartão é a página.
+   A mesma fotografia, com um véu por igual (não há texto à esquerda para
+   proteger), e o cartão branco por cima, a toda a largura.
    ========================================================= */
 .rodape p { margin: 0; }
 
-.entrada--compacta {
-  grid-template-rows: 1fr;
-  background: var(--c-superficie);
-}
+.entrada--compacta { grid-template-rows: 1fr; }
 .entrada--compacta .palco {
   grid-template-columns: 1fr; align-items: start; align-content: center;
   padding: var(--e-5) var(--e-4); gap: 0;
 }
-.entrada--compacta .cartao {
-  max-width: none; padding: 0;
-  background: transparent; box-shadow: none; border-radius: 0;
-}
-.entrada--compacta .cartao--fora {
-  padding: var(--e-4);
-  background: var(--c-superficie-2); border-radius: var(--r-lg);
-}
-.entrada--compacta .cartao__cabeca { margin-bottom: var(--e-6); }
+.entrada--compacta .palco__veu { background: rgba(0, 83, 126, .55); }
+.entrada--compacta .cartao { max-width: none; padding: var(--e-5); }
+.entrada--compacta .cartao__cabeca { margin-bottom: var(--e-5); }
 .entrada--compacta .btn--bloco { min-height: 52px; }
 .entrada--compacta .input { min-height: 52px; font-size: var(--t-md); }
