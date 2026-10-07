@@ -7,6 +7,7 @@ export const erp: App<IdErp> = {
   id: 'erp',
   nome: 'ERP',
   sub: 'Rolgest, a plataforma de gestão',
+  grupo: 'ERP',
   marca: 'ROLGEST',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },

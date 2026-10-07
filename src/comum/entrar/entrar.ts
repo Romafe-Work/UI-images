@@ -36,7 +36,7 @@ export interface OpcoesEntrar {
   realm?: string;
 }
 
-/** O que muda quando a mesma app tem dois produtos (a Web: GoShop e GoParts):
+/** O que muda quando a mesma app tem dois produtos:
     os ids dos ecrãs e das peças levam um prefixo, para não se repetirem. */
 interface Chaves { ir: (id: IdEntrar) => string; id: (peca: string) => string }
 
@@ -239,8 +239,8 @@ function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
     </section>`;
 }
 
-/** Os três ecrãs do início de sessão, para a app que os pede. Com dois
-    produtos na mesma app, cada um passa o seu prefixo: «goshop-». */
+/** Os três ecrãs do início de sessão, para a app que os pede. Se uma app
+    tiver dois produtos, cada um passa o seu prefixo para os ids não se repetirem. */
 export function ecrasEntrar<P extends string = ''>(o: OpcoesEntrar, prefixo = '' as P): Ecra<`${P}${IdEntrar}`>[] {
   const k: Chaves = {
     ir: (id) => `data-ir="${prefixo}${id}"`,

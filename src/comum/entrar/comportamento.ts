@@ -3,8 +3,8 @@
    Regras de 19 no 02: mostrar/ocultar, uma mensagem só de erro,
    a palavra-passe limpa-se.
    ========================================================= */
-/* Um formulário de palavra-passe por produto: a Web tem dois (GoShop e
-   GoParts), e cada um liga-se sozinho, pelo que tem dentro. */
+/* Cada formulário de palavra-passe liga-se sozinho, pelo que tem dentro:
+   não depende de ids, e por isso serve qualquer app. */
 export function iniciar(): void {
   document.querySelectorAll<HTMLFormElement>('form[data-palavra-passe]').forEach(ligar);
 }

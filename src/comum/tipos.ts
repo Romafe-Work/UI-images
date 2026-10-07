@@ -18,12 +18,14 @@ export interface Ecra<Id extends string = string> {
   html: string;
 }
 
-export type IdApp = 'erp' | 'web' | 'mobile';
+export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';
 
 export interface App<Id extends string = string> {
   id: IdApp;
   nome: string;
   sub: string;
+  /** a família a que a app pertence na porta de entrada: o GoShop e o GoParts são «Web» */
+  grupo: 'ERP' | 'Web' | 'Mobile';
   /** o nome no canto do editor e no título do mapa */
   marca: string;
   tela: Tela;

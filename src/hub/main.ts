@@ -10,10 +10,11 @@ import './hub.css';
 import type { App } from '../comum/tipos';
 import { iniciar as iniciarTema } from '../comum/tema';
 import { erp } from '../apps/erp/app';
-import { web } from '../apps/web/app';
+import { goshop } from '../apps/goshop/app';
+import { goparts } from '../apps/goparts/app';
 import { mobile } from '../apps/mobile/app';
 
-const APPS: App[] = [erp, web, mobile];
+const APPS: App[] = [erp, goshop, goparts, mobile];
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string | null, txt?: string | null): HTMLElementTagNameMap[K] {
   const n = document.createElement(tag);
@@ -35,6 +36,9 @@ APPS.forEach((a) => {
   const n = a.ecras.length;
   const card = n ? ligacao(a.id + '/', '') : el('div');
   card.className = 'app' + (n ? '' : ' app--vazia');
+  /* a família só se escreve quando diz alguma coisa («Web» por cima do
+     GoShop); nas outras fica a linha em branco, para os nomes alinharem */
+  card.appendChild(el('p', 'app__grupo', a.grupo === a.nome ? '\u00a0' : a.grupo));
   card.appendChild(el('p', 'app__nome', a.nome));
   card.appendChild(el('p', 'app__sub', a.sub));
   card.appendChild(el('p', 'app__conta', n ? n + (n === 1 ? ' ecrã' : ' ecrãs') : 'por começar'));
@@ -61,12 +65,11 @@ function mostrar(): void {
     if (!achados.length) return;
     algum = true;
     const g = el('div', 'grupo');
-    g.appendChild(el('h2', 'grupo__titulo', a.nome));
+    g.appendChild(el('h2', 'grupo__titulo', a.grupo === a.nome ? a.nome : a.grupo + ' · ' + a.nome));
     const ul = el('ul', 'lista');
     achados.forEach((e) => {
       const li = el('li'), txt = el('div'), acc = el('div', 'lista__accoes');
       const nome = el('p', 'lista__nome', e.nome);
-      /* com dois produtos na mesma app, o fluxo diz de qual é o ecrã */
       nome.appendChild(el('span', 'lista__fluxo', e.fluxo));
       txt.appendChild(nome);
       if (e.objetivo) txt.appendChild(el('p', 'lista__obj', e.objetivo));

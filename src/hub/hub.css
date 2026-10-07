@@ -27,3 +27,4 @@ a.app:hover { border-color: var(--c-marca); }
 @media (max-width: 600px) { .lista li { flex-direction: column; } }
 .vazia { max-width: 640px; margin: 80px auto; padding: 0 16px; }
 .lista__fluxo { margin-left: 8px; font-weight: 400; font-size: .85rem; color: var(--c-texto-3); }
+.app__grupo { margin: 0 0 2px; font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--c-texto-3); }

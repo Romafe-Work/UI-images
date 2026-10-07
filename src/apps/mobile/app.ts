@@ -7,6 +7,7 @@ export const mobile: App<IdMobile> = {
   id: 'mobile',
   nome: 'Mobile',
   sub: 'Para o telemóvel e o PDA',
+  grupo: 'Mobile',
   marca: 'MOBILE',
   tela: { l: 480, a: 800 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },

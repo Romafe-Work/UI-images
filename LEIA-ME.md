@@ -1,11 +1,12 @@
 # Ecrãs Romafe
 
-Todos os ecrãs da Romafe num só sítio, divididos em três apps:
+Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são duas):
 
 | Pasta | App | Tela |
 | --- | --- | --- |
 | `src/apps/erp/` | ERP — Rolgest | 1440×900 |
-| `src/apps/web/` | Web — GoShop e GoParts | 1440×900 |
+| `src/apps/goshop/` | Web — GoShop | 1440×900 |
+| `src/apps/goparts/` | Web — GoParts | 1440×900 |
 | `src/apps/mobile/` | Mobile — telemóvel e PDA | 480×800 |
 
 `index.html` é a porta de entrada: as três apps e uma caixa para procurar
@@ -92,7 +93,7 @@ Os três passos são os mesmos nas três apps, porque a identidade é uma só
 | 02 · A palavra-passe — valida no Keycloak | — |
 | 03 · O início de sessão da empresa — palavra-passe e segundo fator do cliente | — |
 
-| | ERP e Web (`completa`) | Mobile (`compacta`) |
+| | ERP, GoShop e GoParts (`completa`) | Mobile (`compacta`) |
 | --- | --- | --- |
 | Fotografia e texto de apresentação | sim, o mesmo; só muda o nome do produto | não |
 | Barra de topo com tema e idioma | sim | não — a marca está no cartão |
@@ -105,7 +106,5 @@ Mudar `src/comum/entrar/entrar.ts` (o cartão) ou `discurso.ts` (o texto de
 apresentação) muda o login em todo o lado. O que cada app tem de próprio — a
 marca, a versão — está em `src/apps/<app>/entrar.ts`.
 
-A Web tem dois produtos, **GoShop** e **GoParts**, e cada um tem o seu login:
-o mesmo, com a marca dele. Os ecrãs levam o produto à frente do id
-(`goshop-entrada`, `goparts-palavra-passe`), e o tipo `IdWeb` em
-`src/apps/web/ids.ts` não deixa uma seta do GoShop apontar para um ecrã que não existe.
+A Web são duas apps, **GoShop** e **GoParts**, cada uma com a sua página, editor e
+mapa. Na porta de entrada aparecem lado a lado, com «Web» por cima.
