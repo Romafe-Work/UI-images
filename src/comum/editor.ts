@@ -501,9 +501,10 @@ function construirCamadas(): void {
   })(raiz, 0);
 }
 
+/* as camadas são as da versão que se vê, e não as de todas */
 function ecraVisivel(): Element | null {
-  const e = document.querySelector('.ecra:not([hidden])');
-  return e || document.querySelector('.ecra');
+  const e = document.querySelector('.ecra:not([hidden])') || document.querySelector('.ecra');
+  return e?.querySelector(':scope > .versao:not([hidden])') || e;
 }
 
 function trocarEcra(nome: string): void {
@@ -1215,7 +1216,8 @@ function abrirDialogo(): void {
    engolia o clique antes de ele chegar lá. */
 function ehMoldura(no: Element | null): boolean {
   return !!(no && (no.closest('.ed-painel') || no.closest('.ed-dialogo') ||
-            no.closest('.ed-abrir') || no.closest('.ed-aviso') || no.closest('.ed-dica-flutuante')));
+            no.closest('.ed-abrir') || no.closest('.ed-aviso') || no.closest('.ed-dica-flutuante') ||
+            no.closest('.versoes')));
 }
 
 /* a peça que um clique aqui escolheria */
@@ -1281,6 +1283,8 @@ export function iniciar(): void {
   carregar();
   construirCamadas();
   pintarProps();
+  /* trocar de versão nos separadores é trocar de camadas */
+  document.addEventListener('romafe:versao', function () { seleccionar(null); construirCamadas(); });
 
   document.addEventListener('click', interceptar, true);
   document.addEventListener('mouseover', realcar, true);

@@ -37,7 +37,16 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
     div.dataset.fluxo = e.fluxo;
     div.dataset.objetivo = e.objetivo;
     div.hidden = i > 0;
-    div.innerHTML = e.html;
+    /* uma <div class="versao"> por versão; o ecras.ts diz qual se vê */
+    e.versoes.forEach((v, j) => {
+      const dv = document.createElement('div');
+      dv.className = 'versao';
+      dv.dataset.versao = v.id;
+      dv.dataset.nota = v.nota;
+      dv.hidden = j < e.versoes.length - 1;
+      dv.innerHTML = v.html;
+      div.appendChild(dv);
+    });
     frag.appendChild(div);
   });
   document.body.appendChild(frag);

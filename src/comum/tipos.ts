@@ -5,6 +5,15 @@
 /** O tamanho da tela de uma app, em píxeis. */
 export interface Tela { l: number; a: number }
 
+/** Uma versão de um ecrã: v1, v2… A mais antiga fica, para se comparar. */
+export interface Versao {
+  /** «v1», «v2»… */
+  id: string;
+  /** o que esta versão muda, numa frase; aparece no separador */
+  nota: string;
+  html: string;
+}
+
 /** Um ecrã. `Id` é a lista fechada dos ecrãs da app: uma ligação para um
     ecrã que não existe não compila. */
 export interface Ecra<Id extends string = string> {
@@ -14,8 +23,8 @@ export interface Ecra<Id extends string = string> {
   fluxo: string;
   /** para que serve, numa ou duas frases; aparece no mapa e na procura */
   objetivo: string;
-  /** o HTML do ecrã, já montado a partir da base */
-  html: string;
+  /** as versões do ecrã, da mais antiga para a mais nova; há sempre uma */
+  versoes: [Versao, ...Versao[]];
 }
 
 export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';

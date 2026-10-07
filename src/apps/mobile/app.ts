@@ -11,5 +11,5 @@ export const mobile: App<IdMobile> = {
   marca: 'MOBILE',
   tela: { l: 480, a: 800 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar(entrarMobile)],
+  ecras: [...ecrasEntrar([{ id: 'v1', nota: 'Compacta: só o cartão, sobre a fotografia', opcoes: entrarMobile }])],
 };

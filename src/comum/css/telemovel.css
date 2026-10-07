@@ -11,7 +11,7 @@
 .tela-telemovel body > .ecra {
   width: var(--tela-l); height: var(--tela-a);
   box-sizing: content-box;   /* a moldura fica por fora: o ecrã tem mesmo 480 × 800 */
-  margin: 32px auto;
+  margin: 56px auto 32px;   /* em cima, espaço para os separadores das versões */
   overflow: auto;
   border: 10px solid #1c1d1f; border-radius: 36px;
   box-shadow: 0 2px 6px rgba(0,0,0,.18), 0 18px 48px rgba(0,0,0,.18);
@@ -19,12 +19,13 @@
 }
 .tela-telemovel body > .ecra[hidden] { display: none; }
 /* dentro da moldura, a altura é a da tela e não a da janela */
-.tela-telemovel body > .ecra > .entrada { min-height: 100%; }
+.tela-telemovel body > .ecra > .versao { height: 100%; }
+.tela-telemovel body > .ecra > .versao > .entrada { min-height: 100%; }
 
 @media (max-width: 600px) {
   .tela-telemovel body > .ecra {
     width: auto; height: auto; min-height: 100vh;
     margin: 0; border: 0; border-radius: 0; box-shadow: none;
   }
-  .tela-telemovel body > .ecra > .entrada { min-height: 100vh; }
+  .tela-telemovel body > .ecra > .versao > .entrada { min-height: 100vh; }
 }

@@ -264,6 +264,13 @@
   .entrada { min-height: 900px; }
 }
 
+/* ---------- v2: o cartão ao centro ----------
+   Sem apresentação: o cartão sozinho, ao meio da fotografia, e o véu por
+   igual, porque já não há texto à esquerda a proteger. */
+.entrada--centro .palco { grid-template-columns: minmax(0, var(--l-cartao)); justify-content: center; }
+.entrada--centro .cartao { order: 0; }
+.entrada--centro .palco__veu { background: rgba(0, 83, 126, .5); }
+
 /* =========================================================
    VARIANTE COMPACTA — Mobile
    A mesma fotografia, com um véu por igual (não há texto à esquerda para

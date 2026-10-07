@@ -71,6 +71,20 @@ Mudar a base muda todos os ecrãs que nasceram dela. As ligações escrevem-se
 com `ir('…')`, que só aceita ecrãs que existem em `ids.ts`: uma seta para um
 ecrã que não existe não compila.
 
+## Versões
+
+Cada ecrã tem uma ou mais versões (v1, v2…), e os separadores em cima
+escolhem qual se vê. A mais antiga fica, para se comparar. O endereço guarda
+a versão (`#ecra=entrada&v=v1`); sem ela, abre na mais nova.
+
+No código, um ecrã tem `versoes: [{ id: 'v1', nota: '…', html }, …]`. No login,
+`versoesCompletas()` dá as duas do ERP, do GoShop e do GoParts:
+
+- **v1** — o cartão à direita, com a apresentação da app à esquerda
+- **v2** — o cartão ao centro, sozinho sobre a fotografia (sugestão da chefia)
+
+Para uma v3, acrescenta-se uma entrada à lista com as opções que mudam.
+
 ## Acrescentar um ecrã
 
 1. Acrescentar o id em `src/apps/<app>/ids.ts`.

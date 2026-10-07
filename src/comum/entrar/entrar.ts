@@ -19,9 +19,14 @@ import { discurso as discursoDe, type Apresentacao } from './discurso';
 
 export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado';
 export type Variante = 'completa' | 'compacta';
+/** onde fica o cartão na variante completa: à direita, com a apresentação
+    à esquerda (v1), ou ao centro, sozinho sobre a fotografia (v2) */
+export type Disposicao = 'lado' | 'centro';
 
 export interface OpcoesEntrar {
   variante: Variante;
+  /** só na completa; por omissão «lado» */
+  disposicao?: Disposicao;
   /** o nome na marca e a linha por baixo: ROLGEST · Plataforma de gestão */
   marca: { nome: string; sub: string };
   /** como o produto se chama numa frase: «O Rolgest não vê a sua palavra-passe» */
@@ -89,12 +94,13 @@ function rodape(o: OpcoesEntrar): string {
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   const completa = o.variante === 'completa';
-  return `<div class="entrada entrada--${o.variante}">
+  const centro = completa && o.disposicao === 'centro';
+  return `<div class="entrada entrada--${o.variante}${centro ? ' entrada--centro' : ''}">
   ${completa ? topo(o) : ''}
   <main class="palco">
     <div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>
     <div class="palco__veu" aria-hidden="true"></div>
-    ${completa ? discurso : ''}
+    ${completa && !centro ? discurso : ''}
     ${cartao}
   </main>
   ${rodape(o)}
@@ -233,29 +239,51 @@ function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
     </section>`;
 }
 
-/** Os três ecrãs do início de sessão, para a app que os pede. Se uma app
-    tiver dois produtos, cada um passa o seu prefixo para os ids não se repetirem. */
-export function ecrasEntrar<P extends string = ''>(o: OpcoesEntrar, prefixo = '' as P): Ecra<`${P}${IdEntrar}`>[] {
-  const k: Chaves = {
-    ir: (id) => `data-ir="${prefixo}${id}"`,
-    id: (peca) => prefixo + peca,
-  };
-  const d = o.variante === 'completa' && o.apresentacao
-    ? discursoDe(o.produto, o.apresentacao)
-    : { entrada: '', palavraPasse: '', federado: '' };
-  const fluxo = o.fluxo || 'Entrar';
-  const ecra = (id: IdEntrar, nome: string, objetivo: string, html: string): Ecra<`${P}${IdEntrar}`> =>
-    ({ id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo, html });
+/** Uma versão do início de sessão: as opções com que se desenha. */
+export interface VersaoEntrar { id: string; nota: string; opcoes: OpcoesEntrar }
+
+/** Os três ecrãs do início de sessão, para a app que os pede, com as versões
+    que ela tiver. Se uma app tiver dois produtos, cada um passa o seu prefixo
+    para os ids dos ecrãs não se repetirem. */
+export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...VersaoEntrar[]], prefixo = '' as P): Ecra<`${P}${IdEntrar}`>[] {
+  /* cada versão desenha os três ecrãs; as peças levam a versão no id, para
+     duas versões do mesmo ecrã não terem dois #palavra-passe */
+  const desenhos = versoes.map((v, i) => {
+    const o = v.opcoes;
+    const k: Chaves = {
+      ir: (id) => `data-ir="${prefixo}${id}"`,
+      id: (peca) => prefixo + (i ? v.id + '-' : '') + peca,
+    };
+    const d = o.variante === 'completa' && o.apresentacao
+      ? discursoDe(o.produto, o.apresentacao)
+      : { entrada: '', palavraPasse: '', federado: '' };
+    return {
+      entrada: pagina(o, d.entrada, cartaoEntrada(o, k)),
+      'palavra-passe': pagina(o, d.palavraPasse, cartaoPalavraPasse(o, k)),
+      federado: pagina(o, d.federado, cartaoFederado(o, k)),
+    } as Record<IdEntrar, string>;
+  });
+  const fluxo = versoes[0].opcoes.fluxo || 'Entrar';
+  const ecra = (id: IdEntrar, nome: string, objetivo: string): Ecra<`${P}${IdEntrar}`> => ({
+    id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo,
+    versoes: versoes.map((v, i) => ({ id: v.id, nota: v.nota, html: desenhos[i][id] })) as Ecra['versoes'],
+  });
   return [
     ecra('entrada', '01 · Entrar',
-      'Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue sozinha para a página dela (03). É uma página do Keycloak: a aplicação só redireciona, nunca recebe a palavra-passe.',
-      pagina(o, d.entrada, cartaoEntrada(o, k))),
+      'Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue sozinha para a página dela (03). É uma página do Keycloak: a aplicação só redireciona, nunca recebe a palavra-passe.'),
     ecra('palavra-passe', '02 · A palavra-passe',
-      'Passo 2, conta nossa: a palavra-passe valida no Keycloak. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente.',
-      pagina(o, d.palavraPasse, cartaoPalavraPasse(o, k))),
+      'Passo 2, conta nossa: a palavra-passe valida no Keycloak. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente.'),
     ecra('federado', '03 · O início de sessão da empresa',
-      'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token. Não há botão que leve aqui: é o Keycloak que redireciona quando reconhece o domínio do endereço do 01.',
-      pagina(o, d.federado, cartaoFederado(o, k))),
+      'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token. Não há botão que leve aqui: é o Keycloak que redireciona quando reconhece o domínio do endereço do 01.'),
+  ];
+}
+
+/** As duas versões do início de sessão completo: v1 com o cartão à direita,
+    v2 com o cartão ao centro (sugestão da chefia, 7 de outubro). */
+export function versoesCompletas(o: OpcoesEntrar): [VersaoEntrar, VersaoEntrar] {
+  return [
+    { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
+    { id: 'v2', nota: 'Cartão ao centro, sozinho sobre a fotografia', opcoes: { ...o, disposicao: 'centro' } },
   ];
 }
 

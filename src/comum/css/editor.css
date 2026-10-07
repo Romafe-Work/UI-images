@@ -259,3 +259,29 @@
 .fluxo__setas { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; color: #1a73e8; }
 .fluxo__setas path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
 .fluxo__alvo { fill: rgba(26,115,232,.10); stroke: #1a73e8; stroke-width: 1.5; }
+
+/* ---------- separadores de versões ----------
+   Em cima, ao centro, por cima do ecrã: v1, v2… e a nota da versão que se
+   vê. Fora do desenho, como a moldura do editor; no mapa não aparecem. */
+.versoes {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 900;
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 6px 4px 12px; border-radius: 999px;
+  background: rgba(28, 29, 31, .92); color: #fff;
+  font: 500 12px/1 var(--f-base, system-ui); box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.versoes__rotulo { opacity: .6; margin-right: 4px; text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
+.versoes__aba {
+  font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer;
+  padding: 6px 10px; border-radius: 999px;
+}
+.versoes__aba:hover { background: rgba(255,255,255,.12); }
+.versoes__aba[aria-pressed="true"] { background: var(--c-acao, #f07c12); color: #fff; }
+.versoes__nota { opacity: .75; padding: 0 8px 0 6px; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.com-fluxo .versoes { display: none; }
+.versao[hidden] { display: none; }
+.fluxo .versao[hidden] { display: none; }
+@media (max-width: 600px) { .versoes__nota { display: none; } }
+/* no editor a tela é mais estreita e o centro do topo já tem o tema:
+   os separadores descem para o fundo da fotografia, onde não há nada */
+.editando .versoes { top: auto; bottom: 64px; }

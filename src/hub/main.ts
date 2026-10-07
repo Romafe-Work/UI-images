@@ -70,7 +70,7 @@ function mostrar(): void {
     achados.forEach((e) => {
       const li = el('li'), txt = el('div'), acc = el('div', 'lista__accoes');
       const nome = el('p', 'lista__nome', e.nome);
-      nome.appendChild(el('span', 'lista__fluxo', e.fluxo));
+      nome.appendChild(el('span', 'lista__fluxo', e.fluxo + ' · ' + e.versoes.map((v) => v.id).join(', ')));
       txt.appendChild(nome);
       if (e.objetivo) txt.appendChild(el('p', 'lista__obj', e.objetivo));
       acc.appendChild(ligacao(a.id + '/#so=ecra&ecra=' + encodeURIComponent(e.id), 'Ver'));
