@@ -16,7 +16,7 @@ export const entrarErp: OpcoesEntrar = {
     vantagens: [
       { icone: 'empresa', titulo: 'Uma empresa de cada vez', sub: 'Escolhe-se ao entrar e troca-se sem sair' },
       { icone: 'separadores', titulo: 'Vendas, compras e stock', sub: 'Cada documento abre no seu separador' },
-      { icone: 'documento', titulo: 'Os módulos que contratou', sub: 'A licença diz quantos lugares; o administrador, quem' },
+      { icone: 'procura', titulo: 'Tudo à mão com Ctrl K', sub: 'Abre qualquer ecrã ou documento da empresa ativa' },
     ],
   },
 };
