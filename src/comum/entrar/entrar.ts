@@ -29,8 +29,9 @@ export interface OpcoesEntrar {
   /** só na completa; por omissão «lado» */
   disposicao?: Disposicao;
   /** sem nada da Romafe à vista (v4): o produto é vendido, e pode ser de
-      outra empresa. Saem os direitos, o «Alojado pela Romafe» e o apoio
-      com o nome; fica só a marca do produto */
+      outra empresa. Saem os direitos, o «Alojado pela Romafe», o apoio com
+      o nome, a fotografia do armazém da Romafe e o desenho do logótipo dela
+      (a letra Motor e o risco laranja); fica o nome do produto, em letra neutra */
   semRomafe?: boolean;
   /** o nome na marca e a linha por baixo: ROLGEST · Plataforma de gestão */
   marca: { nome: string; sub: string };
@@ -101,11 +102,12 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
   const centroApr = completa && o.disposicao === 'centro-apresentacao';
-  const cls = centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '';
+  const cls = (centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '')
+    + (o.semRomafe ? ' entrada--neutra' : '');
   return `<div class="entrada entrada--${o.variante}${cls}">
   ${completa ? topo(o) : ''}
   <main class="palco">
-    <div class="palco__foto" role="img" aria-label="${o.semRomafe ? 'Armazém' : 'Armazém da Romafe'}"></div>
+    ${o.semRomafe ? '' : '<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>'}
     <div class="palco__veu" aria-hidden="true"></div>
     ${completa && !centro ? discurso : ''}
     ${cartao}
@@ -295,7 +297,7 @@ export function versoesCompletas(o: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
     { id: 'v2', nota: 'Cartão ao centro, sozinho sobre a fotografia', opcoes: { ...o, disposicao: 'centro' } },
     { id: 'v3', nota: 'Cartão ao centro, com o título por cima e as vantagens por baixo', opcoes: { ...o, disposicao: 'centro-apresentacao' } },
-    { id: 'v4', nota: 'A v3 sem a Romafe: só a marca do produto', opcoes: { ...o, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
+    { id: 'v4', nota: 'A v3 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
   ];
 }
 

@@ -293,6 +293,20 @@
 }
 .entrada--centro-apresentacao .discurso__texto { order: 0; text-align: center; color: var(--c-entrada-tinta); }
 
+/* ---------- v4: sem a Romafe ----------
+   O produto pode ser de outra empresa. A marca deixa de ter o desenho do
+   logótipo da Romafe (a letra Motor e o risco laranja): fica o nome do
+   produto, na letra dos títulos. Sem a fotografia do armazém da Romafe, o
+   fundo é a cor de entrada, com um degradê discreto. */
+.entrada--neutra .lockup__nome {
+  font-family: var(--f-titulo); font-weight: 700; letter-spacing: .02em; text-transform: none;
+}
+.entrada--neutra .lockup__risco { display: none; }
+.entrada--neutra .palco {
+  background: radial-gradient(120% 90% at 50% 30%, rgba(255,255,255,.10), transparent 60%), var(--c-entrada-fundo);
+}
+.entrada--neutra .palco__veu { display: none; }
+
 /* =========================================================
    VARIANTE COMPACTA — Mobile
    A mesma fotografia, com um véu por igual (não há texto à esquerda para
