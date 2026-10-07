@@ -280,7 +280,7 @@
   background: var(--c-superficie);
 }
 .entrada--compacta .palco {
-  grid-template-columns: 1fr; align-items: start;
+  grid-template-columns: 1fr; align-items: start; align-content: center;
   padding: var(--e-5) var(--e-4); gap: 0;
 }
 .entrada--compacta .cartao {

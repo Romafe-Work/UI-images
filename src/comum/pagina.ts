@@ -15,6 +15,8 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
   raiz.dataset.app = app.id;
   raiz.dataset.marca = app.marca;
   raiz.dataset.tela = app.tela.l + 'x' + app.tela.a;
+  /* tela estreita: cada ecrã fica numa moldura de telemóvel (telemovel.css) */
+  raiz.classList.toggle('tela-telemovel', app.tela.l <= 600);
   document.title = app.marca + ' — ecrãs';
 
   iniciarTema();

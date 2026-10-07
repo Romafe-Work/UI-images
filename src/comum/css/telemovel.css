@@ -1,0 +1,30 @@
+/* =========================================================
+   ROMAFE — a moldura do telemóvel
+   Num computador, um ecrã de telemóvel esticado à largura toda já não é um
+   ecrã de telemóvel. Nas apps de tela estreita (data-tela até 600 px de
+   largura) cada ecrã fica do tamanho da tela, ao centro, dentro de uma
+   moldura. No mapa não: lá manda o .fluxo .ecra do editor.css.
+   Num telemóvel de verdade a moldura sai e o ecrã ocupa tudo.
+   ========================================================= */
+.tela-telemovel body { background: var(--c-superficie-2); }
+
+.tela-telemovel body > .ecra {
+  width: var(--tela-l); height: var(--tela-a);
+  box-sizing: content-box;   /* a moldura fica por fora: o ecrã tem mesmo 480 × 800 */
+  margin: 32px auto;
+  overflow: auto;
+  border: 10px solid #1c1d1f; border-radius: 36px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.18), 0 18px 48px rgba(0,0,0,.18);
+  background: var(--c-superficie);
+}
+.tela-telemovel body > .ecra[hidden] { display: none; }
+/* dentro da moldura, a altura é a da tela e não a da janela */
+.tela-telemovel body > .ecra > .entrada { min-height: 100%; }
+
+@media (max-width: 600px) {
+  .tela-telemovel body > .ecra {
+    width: auto; height: auto; min-height: 100vh;
+    margin: 0; border: 0; border-radius: 0; box-shadow: none;
+  }
+  .tela-telemovel body > .ecra > .entrada { min-height: 100vh; }
+}
