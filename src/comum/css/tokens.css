@@ -8,19 +8,19 @@
 /* Fontes da marca — as mesmas três do produto, ver 04 §1 do manual.
    Motor na marca, Jost nos títulos, Lato no corpo. */
 @font-face { font-family:'Motor'; font-style:normal; font-weight:400 700; font-display:swap;
-  src:url('../fonts/motor-latin.woff2') format('woff2'); }
+  src:url('../fontes/motor-latin.woff2') format('woff2'); }
 @font-face { font-family:'Lato'; font-style:normal; font-weight:400; font-display:swap;
-  src:url('../fonts/lato-400-latin.woff2') format('woff2'); }
+  src:url('../fontes/lato-400-latin.woff2') format('woff2'); }
 @font-face { font-family:'Lato'; font-style:italic; font-weight:400; font-display:swap;
-  src:url('../fonts/lato-400i-latin.woff2') format('woff2'); }
+  src:url('../fontes/lato-400i-latin.woff2') format('woff2'); }
 @font-face { font-family:'Lato'; font-style:normal; font-weight:700; font-display:swap;
-  src:url('../fonts/lato-700-latin.woff2') format('woff2'); }
+  src:url('../fontes/lato-700-latin.woff2') format('woff2'); }
 @font-face { font-family:'Lato'; font-style:italic; font-weight:700; font-display:swap;
-  src:url('../fonts/lato-700i-latin.woff2') format('woff2'); }
+  src:url('../fontes/lato-700i-latin.woff2') format('woff2'); }
 @font-face { font-family:'Jost'; font-style:normal; font-weight:400 700; font-display:swap;
-  src:url('../fonts/jost-latin.woff2') format('woff2'); }
+  src:url('../fontes/jost-latin.woff2') format('woff2'); }
 @font-face { font-family:'Jost'; font-style:normal; font-weight:400 700; font-display:swap;
-  src:url('../fonts/jost-latin-ext.woff2') format('woff2');
+  src:url('../fontes/jost-latin-ext.woff2') format('woff2');
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
 
 

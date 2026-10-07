@@ -5,37 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ecrãs Romafe</title>
 <meta name="description" content="Todos os ecrãs da Romafe num só sítio: ERP, Web e Mobile.">
-<link rel="stylesheet" href="comum/css/tokens.css">
-<link rel="stylesheet" href="comum/css/base.css">
-<script src="comum/js/tema.js"></script>
-<style>
-  body { background: var(--c-fundo); }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .hub { max-width: 1080px; margin: 0 auto; padding: 48px 16px 64px; }
-  .hub__cabeca { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
-  .hub__titulo { font-size: 2rem; margin: 0 0 4px; }
-  .hub__sub { color: var(--c-texto-2); margin: 0; }
-  .procura { width: 100%; font: inherit; font-size: 1.05rem; padding: 14px 16px; border: 1px solid var(--c-borda-forte);
-             border-radius: var(--r-sm); background: var(--c-superficie); color: var(--c-texto); margin-bottom: 32px; }
-  .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 40px; }
-  .app { display: block; padding: 20px; border: 1px solid var(--c-borda); border-radius: 10px; background: var(--c-superficie);
-         color: inherit; text-decoration: none; }
-  a.app:hover { border-color: var(--c-marca); }
-  .app__nome { font-family: var(--f-titulo); font-size: 1.4rem; font-weight: 600; margin: 0; }
-  .app__sub { color: var(--c-texto-2); margin: 2px 0 12px; }
-  .app__conta { font-family: var(--f-mono); font-size: .85rem; color: var(--c-texto-3); margin: 0; }
-  .app--vazia { opacity: .6; }
-  .grupo { margin: 0 0 28px; }
-  .grupo__titulo { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--c-texto-3); margin: 0 0 8px; }
-  .lista { list-style: none; margin: 0; padding: 0; border: 1px solid var(--c-borda); border-radius: 10px; background: var(--c-superficie); }
-  .lista li { display: flex; gap: 16px; justify-content: space-between; align-items: baseline; padding: 12px 16px; border-top: 1px solid var(--c-borda); }
-  .lista li:first-child { border-top: 0; }
-  .lista__nome { font-weight: 700; margin: 0; }
-  .lista__obj { color: var(--c-texto-2); font-size: .9rem; margin: 2px 0 0; }
-  .lista__accoes { display: flex; gap: 12px; white-space: nowrap; font-size: .9rem; }
-  .vazio { color: var(--c-texto-2); }
-  @media (max-width: 600px) { .lista li { flex-direction: column; } }
-</style>
+<script>try{var t=localStorage.getItem("uiux:tema");if(t&&t!=="auto")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 </head>
 <body>
 <main class="hub">
@@ -57,61 +27,6 @@
   <section class="apps" id="apps" aria-label="As apps"></section>
   <section id="resultados" aria-live="polite"></section>
 </main>
-
-<script src="catalogo.js"></script>
-<script>
-(function () {
-  'use strict';
-  var C = window.CATALOGO || [];
-  function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
-  function ligacao(href, txt) { var a = el('a', null, txt); a.href = href; return a; }
-
-  var apps = document.getElementById('apps');
-  C.forEach(function (a) {
-    var n = a.ecras.length;
-    var card = el(n ? 'a' : 'div', 'app' + (n ? '' : ' app--vazia'));
-    if (n) card.href = a.pasta + '/index.html';
-    card.appendChild(el('p', 'app__nome', a.nome));
-    card.appendChild(el('p', 'app__sub', a.sub));
-    card.appendChild(el('p', 'app__conta', n ? n + (n === 1 ? ' ecrã' : ' ecrãs') : 'por começar'));
-    apps.appendChild(card);
-  });
-
-  /* sem acentos e sem maiúsculas: «palavra passe» encontra «Palavra-passe» */
-  function limpo(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[-·]/g, ' ').toLowerCase(); }
-
-  var res = document.getElementById('resultados');
-  var procura = document.getElementById('procura');
-  function mostrar() {
-    var termos = limpo(procura.value).split(/\s+/).filter(Boolean);
-    res.textContent = '';
-    var algum = false;
-    C.forEach(function (a) {
-      var achados = a.ecras.filter(function (e) {
-        var texto = limpo([a.nome, e.nome, e.fluxo, e.objetivo, e.ecra].join(' '));
-        return termos.every(function (t) { return texto.indexOf(t) >= 0; });
-      });
-      if (!achados.length) return;
-      algum = true;
-      var g = el('div', 'grupo');
-      g.appendChild(el('h2', 'grupo__titulo', a.nome));
-      var ul = el('ul', 'lista');
-      achados.forEach(function (e) {
-        var li = el('li'), txt = el('div'), acc = el('div', 'lista__accoes');
-        txt.appendChild(el('p', 'lista__nome', e.nome));
-        if (e.objetivo) txt.appendChild(el('p', 'lista__obj', e.objetivo));
-        acc.appendChild(ligacao(a.pasta + '/index.html#so=ecra&ecra=' + encodeURIComponent(e.ecra), 'Ver'));
-        acc.appendChild(ligacao(a.pasta + '/index.html#ecra=' + encodeURIComponent(e.ecra), 'Editar'));
-        li.appendChild(txt); li.appendChild(acc); ul.appendChild(li);
-      });
-      g.appendChild(ul);
-      res.appendChild(g);
-    });
-    if (!algum) res.appendChild(el('p', 'vazio', 'Nenhum ecrã com «' + procura.value + '».'));
-  }
-  procura.addEventListener('input', mostrar);
-  mostrar();
-})();
-</script>
+<script type="module" src="/src/hub/main.ts"></script>
 </body>
 </html>
