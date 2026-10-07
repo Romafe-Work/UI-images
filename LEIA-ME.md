@@ -87,11 +87,13 @@ No código, um ecrã tem `versoes: [{ id: 'v1', nota: '…', html }, …]`. No l
 - **v4** — a v3 sem nada da Romafe (`semRomafe`): sem o nome, sem o desenho do
   logótipo (letra Motor e risco laranja) e sem a fotografia do armazém. O produto
   pode ser vendido a outra empresa
+- **v5** — a v4 com marca e fundo (`desenhado`): o monograma do produto (a inicial
+  num quadrado) e um desenho abstrato, uma grelha fina e duas luzes, no lugar da fotografia
 
-No Mobile, a **v2** faz o mesmo que a v4 das outras apps, com o nome «Mobile»
+No Mobile, a **v2** e a **v3** fazem o mesmo que a v4 e a v5 das outras apps, com o nome «Mobile»
 provisório (`src/apps/mobile/entrar.ts`).
 
-Para uma v5, acrescenta-se uma entrada à lista com as opções que mudam.
+Para uma v6, acrescenta-se uma entrada à lista com as opções que mudam.
 
 ## Acrescentar um ecrã
 

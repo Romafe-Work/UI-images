@@ -307,6 +307,39 @@
 }
 .entrada--neutra .palco__veu { display: none; }
 
+/* ---------- v5: a v4 com marca e fundo ----------
+   O monograma é a inicial do produto num quadrado da cor de ação: dá ao
+   produto uma marca que não é a da Romafe. O fundo é um desenho abstrato
+   — uma grelha fina que se apaga para os lados e duas luzes — no lugar da
+   fotografia, que era de um armazém concreto. */
+.marca-produto { display: inline-flex; align-items: center; gap: var(--e-3); }
+.marca-produto--coluna { flex-direction: column; gap: var(--e-2); }
+.marca-produto__monograma {
+  display: grid; place-items: center; flex: none;
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--c-acao), #d9640a);
+  color: #fff; font-family: var(--f-titulo); font-weight: 700; font-size: 24px; line-height: 1;
+  box-shadow: 0 4px 12px rgba(240, 124, 18, .35);
+}
+.marca-produto--linha .marca-produto__monograma { width: 34px; height: 34px; border-radius: 9px; font-size: 18px; box-shadow: none; }
+.marca-produto--coluna .marca-produto__monograma { width: 52px; height: 52px; border-radius: 14px; font-size: 28px; }
+
+.entrada--desenhada .palco {
+  background:
+    radial-gradient(40% 50% at 18% 20%, rgba(80, 160, 230, .28), transparent 70%),
+    radial-gradient(35% 45% at 85% 85%, rgba(240, 124, 18, .16), transparent 70%),
+    linear-gradient(160deg, #0d3a5c, var(--c-entrada-fundo) 60%);
+}
+.entrada--desenhada .palco::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 45%, #000 30%, transparent 100%);
+          mask-image: radial-gradient(70% 70% at 50% 45%, #000 30%, transparent 100%);
+}
+
 /* =========================================================
    VARIANTE COMPACTA — Mobile
    A mesma fotografia, com um véu por igual (não há texto à esquerda para

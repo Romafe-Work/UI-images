@@ -33,6 +33,9 @@ export interface OpcoesEntrar {
       o nome, a fotografia do armazém da Romafe e o desenho do logótipo dela
       (a letra Motor e o risco laranja); fica o nome do produto, em letra neutra */
   semRomafe?: boolean;
+  /** a marca do produto ganha um monograma (a inicial num quadrado) e o
+      fundo, sem fotografia, ganha um desenho abstrato (v5) */
+  desenhado?: boolean;
   /** o nome na marca e a linha por baixo: ROLGEST · Plataforma de gestão */
   marca: { nome: string; sub: string };
   /** como o produto se chama numa frase: «O Rolgest não vê a sua palavra-passe» */
@@ -52,6 +55,16 @@ export interface OpcoesEntrar {
 interface Chaves { ir: (id: IdEntrar) => string; id: (peca: string) => string }
 
 /* ---------------- peças ---------------- */
+
+/** A marca: o lockup, e na v5 o monograma (a inicial do produto) antes dele —
+    ao lado no topo, por cima no cartão. */
+function marca(o: OpcoesEntrar, cls: string, idSub = ''): string {
+  const l = lockup(o.marca, cls, idSub);
+  if (!o.desenhado) return l;
+  const inicial = o.marca.nome.trim().charAt(0).toUpperCase();
+  const dir = cls.includes('centro') ? 'marca-produto--coluna' : 'marca-produto--linha';
+  return `<span class="marca-produto ${dir}"><span class="marca-produto__monograma" aria-hidden="true">${inicial}</span>${l}</span>`;
+}
 
 function lockup(m: OpcoesEntrar['marca'], cls: string, idSub = ''): string {
   return `<span class="lockup ${cls}">
@@ -77,7 +90,7 @@ function topo(o: OpcoesEntrar): string {
       </button>
     </div>`;
   return `<header class="topo">
-    ${lockup(o.marca, 'lockup--sm')}${accoes}
+    ${marca(o, 'lockup--sm')}${accoes}
   </header>`;
 }
 
@@ -103,7 +116,7 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   const centro = completa && o.disposicao === 'centro';
   const centroApr = completa && o.disposicao === 'centro-apresentacao';
   const cls = (centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '')
-    + (o.semRomafe ? ' entrada--neutra' : '');
+    + (o.semRomafe ? ' entrada--neutra' : '') + (o.desenhado ? ' entrada--desenhada' : '');
   return `<div class="entrada entrada--${o.variante}${cls}">
   ${completa ? topo(o) : ''}
   <main class="palco">
@@ -155,7 +168,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
       ${o.versao ? `<p class="cartao__versao">${o.versao}</p>` : ''}` : '';
 
   return `<section class="cartao" aria-labelledby="${k.id('titulo-entrada')}">
-      <div class="cartao__cabeca">${lockup(o.marca, 'lockup--centro', k.id('titulo-entrada'))}</div>
+      <div class="cartao__cabeca">${marca(o, 'lockup--centro', k.id('titulo-entrada'))}</div>
       ${alertas}
       <!-- Passo 1. Um endereço que não existe também segue para a
            palavra-passe, e só falha no fim: dizer aqui «não existe»
@@ -188,7 +201,7 @@ function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
           </label>
         </div>` : '';
   return `<section class="cartao" aria-labelledby="${k.id('titulo-passe')}">
-      <div class="cartao__cabeca">${lockup(o.marca, 'lockup--centro')}</div>
+      <div class="cartao__cabeca">${marca(o, 'lockup--centro')}</div>
       <div class="alerta" id="${k.id('alerta')}" data-credenciais role="alert" data-ed-nome="Alerta · credenciais" hidden>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16.5v.5"/></svg>
         <span>Endereço ou palavra-passe incorretos.</span>
@@ -290,14 +303,17 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
 /** As versões do início de sessão completo (7 de outubro): v1 com o cartão
     à direita; v2 com o cartão ao centro, sugestão da chefia; v3 a v2 com a
     apresentação de volta, porque à v2 «falta mais algo»; v4 a v3 sem nada
-    da Romafe, porque o produto pode ser vendido a outra empresa. O que a
-    app quiser diferente na v4 (um texto que falava da Romafe) vem em `v4`. */
-export function versoesCompletas(o: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
+    da Romafe, porque o produto pode ser vendido a outra empresa; v5 a v4
+    com o monograma e um fundo desenhado, porque à v4 «parece que falta
+    alguma coisa». O que a app quiser diferente sem a Romafe (um texto que
+    falava dela) vem em `v4`, e vale para a v4 e a v5. */
+export function versoesCompletas(o: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
   return [
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
     { id: 'v2', nota: 'Cartão ao centro, sozinho sobre a fotografia', opcoes: { ...o, disposicao: 'centro' } },
     { id: 'v3', nota: 'Cartão ao centro, com o título por cima e as vantagens por baixo', opcoes: { ...o, disposicao: 'centro-apresentacao' } },
     { id: 'v4', nota: 'A v3 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
+    { id: 'v5', nota: 'A v4 com marca e fundo: o monograma do produto e um desenho abstrato no lugar da fotografia', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true, desenhado: true } },
   ];
 }
 
