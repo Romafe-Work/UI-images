@@ -156,12 +156,6 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           <button type="submit" class="btn btn--acao btn--bloco" id="${k.id('continuar')}" ${k.ir('palavra-passe')}>
             <span class="btn__rotulo">Continuar</span>${SVG_SETA}
           </button>
-          <!-- No produto não é uma ligação: o Keycloak redireciona sozinho
-               quando o domínio pertence a uma organização com fornecedor
-               próprio. Aqui leva ao 03, para o caminho se ver no mapa. -->
-          <p class="cartao__nota cartao__nota--caminho" ${k.ir('federado')}>Se a sua empresa tiver início de sessão próprio, segue para a página dela.</p>
-          <!-- Não há «Pedir acesso»: as contas nascem no administrador da empresa. -->
-          <p class="cartao__nota">As contas são criadas pelo administrador da sua empresa.</p>
         </div>
       </form>
       ${apoio}
@@ -254,13 +248,13 @@ export function ecrasEntrar<P extends string = ''>(o: OpcoesEntrar, prefixo = ''
     ({ id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo, html });
   return [
     ecra('entrada', '01 · Entrar',
-      'Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue para a página dela (03). É uma página do Keycloak: a aplicação só redireciona, nunca recebe a palavra-passe.',
+      'Passo 1: só o endereço de correio, e o domínio decide o caminho. Conta nossa segue para a palavra-passe (02); empresa com fornecedor próprio segue sozinha para a página dela (03). É uma página do Keycloak: a aplicação só redireciona, nunca recebe a palavra-passe.',
       pagina(o, d.entrada, cartaoEntrada(o, k))),
     ecra('palavra-passe', '02 · A palavra-passe',
       'Passo 2, conta nossa: a palavra-passe valida no Keycloak. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente.',
       pagina(o, d.palavraPasse, cartaoPalavraPasse(o, k))),
     ecra('federado', '03 · O início de sessão da empresa',
-      'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token.',
+      'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token. Não há botão que leve aqui: é o Keycloak que redireciona quando reconhece o domínio do endereço do 01.',
       pagina(o, d.federado, cartaoFederado(o, k))),
   ];
 }
