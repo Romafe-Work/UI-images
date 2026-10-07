@@ -240,16 +240,16 @@
 /* 90px à esquerda: o corredor por onde descem as setas que mudam de linha */
 .fluxo__fila { display: flex; gap: 120px; padding-left: 90px; }
 
-.fluxo__cartao { margin: 0; width: calc(var(--tela-l, 1440px) * .25); }
+.fluxo__cartao { margin: 0; width: calc(var(--tela-l, 1440px) * var(--tela-escala, .25)); }
 .ed-fluxo .fluxo__cartao { cursor: pointer; }
 .fluxo__quadro {
-  width: calc(var(--tela-l, 1440px) * .25); height: calc(var(--tela-a, 900px) * .25); overflow: hidden; border-radius: 8px; background: #fff;
+  width: calc(var(--tela-l, 1440px) * var(--tela-escala, .25)); height: calc(var(--tela-a, 900px) * var(--tela-escala, .25)); overflow: hidden; border-radius: 8px; background: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 6px 18px rgba(0,0,0,.08);
 }
 .ed-fluxo .fluxo__cartao:hover .fluxo__quadro { outline: 3px solid var(--ed-accao); outline-offset: 3px; }
 /* O ecrã inteiro, a um quarto. Não se clica lá dentro: no mapa, um clique é
    para abrir o ecrã, não para carregar num botão dele. */
-.fluxo .ecra { display: block; width: var(--tela-l, 1440px); height: var(--tela-a, 900px); zoom: .25; overflow: hidden; pointer-events: none; }
+.fluxo .ecra { display: block; width: var(--tela-l, 1440px); height: var(--tela-a, 900px); zoom: var(--tela-escala, .25); overflow: hidden; pointer-events: none; }
 .fluxo .ecra[hidden] { display: block; }
 .fluxo .entrada, .fluxo .casca { min-height: var(--tela-a, 900px); height: var(--tela-a, 900px); }
 .fluxo__legenda-ecra { padding-top: 40px; }   /* por cima passam as setas que saem por baixo */

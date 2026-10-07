@@ -72,7 +72,7 @@ ecrã que não existe não compila.
 ## Acrescentar um ecrã
 
 1. Acrescentar o id em `src/apps/<app>/ids.ts`.
-2. Criar `src/apps/<app>/ecras/NN-nome.ts` a partir da base.
+2. Criar `src/apps/<app>/ecras/NN-nome.ts` a partir de uma base.
 3. Pô-lo na lista de `app.ts`. Aparece no editor, no mapa e na procura.
 4. Commit e push. O site atualiza-se sozinho.
 
@@ -81,14 +81,25 @@ As imagens vão normalizadas: WebP, 1440 px de largura no máximo.
 As alterações feitas no editor ficam no navegador de quem as fez. Para
 chegarem aos outros, copia-se o CSS (**Ver o CSS**) para o ficheiro e faz-se commit.
 
-## O ERP
+## O início de sessão é comum
 
-Começa pelo início de sessão em dois passos:
+Os três passos são os mesmos nas três apps, porque a identidade é uma só
+(Keycloak). Estão em `src/comum/entrar/`, e cada app só diz a marca e a variante:
 
 | Ecrã | Leva a |
 | --- | --- |
 | 01 · Entrar — o endereço; o domínio decide o caminho | 02 (conta nossa) ou 03 (cliente federado) |
-| 02 · A palavra-passe — valida no Keycloak, realm rolgest | — |
+| 02 · A palavra-passe — valida no Keycloak | — |
 | 03 · O início de sessão da empresa — palavra-passe e segundo fator do cliente | — |
 
-Veio do `Figma-ERP-Rolgest` (01, 01b e 01d de lá).
+| | ERP e Web (`completa`) | Mobile (`compacta`) |
+| --- | --- | --- |
+| Fotografia e texto de apresentação | sim, o texto é de cada app | não |
+| Barra de topo com tema e idioma | sim | não — a marca está no cartão |
+| Alertas de licença e de lugar | sim | não |
+| «Manter sessão iniciada» | sim | não — o aparelho é de todos |
+| Apoio, versão e rodapé | sim | não |
+| Campo, botão, «mudar», recuperar, página da empresa | sim | sim, maiores para o dedo |
+
+Mudar `src/comum/entrar/entrar.ts` muda o login nas três apps. O que cada app
+tem de próprio está em `src/apps/<app>/entrar.ts`.

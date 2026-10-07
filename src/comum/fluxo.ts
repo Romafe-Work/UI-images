@@ -44,6 +44,9 @@ export function configurar(a: App): void {
   const raiz = document.documentElement;
   raiz.style.setProperty('--tela-l', a.tela.l + 'px');
   raiz.style.setProperty('--tela-a', a.tela.a + 'px');
+  /* no mapa, um ecrã de computador vai a um quarto; um de telemóvel, que já
+     é estreito, vai a metade, para se ler */
+  raiz.style.setProperty('--tela-escala', a.tela.l <= 600 ? '.5' : '.25');
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string | null, txt?: string | null): HTMLElementTagNameMap[K] {

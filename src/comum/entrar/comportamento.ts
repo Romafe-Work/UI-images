@@ -1,5 +1,5 @@
 /* =========================================================
-   ERP — comportamento do início de sessão
+   ROMAFE — comportamento do início de sessão (as três apps)
    Regras de 19 no 02: mostrar/ocultar, uma mensagem só de erro,
    a palavra-passe limpa-se.
    ========================================================= */
