@@ -919,3 +919,9 @@
 .entrada--cena-marketplace .palco { background: url('../img/oficina.webp') center / cover no-repeat; }
 .entrada--cena-marketplace .palco::after { background: rgba(1, 35, 56, .12); }
 .entrada--cena-marketplace .faixa { background: var(--c-logotipo); }
+
+/* ERP: «Enterprise Resource Planning» por extenso, sem as letras espaçadas */
+.selo__sub--longo {
+  font-family: var(--f-titulo); font-weight: 600; font-size: var(--t-lg);
+  letter-spacing: .01em; margin-right: 0; color: var(--c-texto); white-space: nowrap;
+}

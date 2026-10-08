@@ -267,7 +267,7 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
 /** O ROMAFE com o risco laranja e a palavra espaçada por baixo. O ROMAFE
     é sempre azul e sempre em Motor, e por isso só vai em fundo claro. */
 function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
-  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub${o.minimo!.selo.length > 4 ? ' selo__sub--nome' : ''}">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
+  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub${o.minimo!.selo.length > 12 ? ' selo__sub--longo' : o.minimo!.selo.length > 4 ? ' selo__sub--nome' : ''}">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
 }
 
 /** ERP v6: a fotografia do armazém à esquerda, sem texto, com duas faixas
