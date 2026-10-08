@@ -1,4 +1,6 @@
 import type { App } from '../../comum/tipos';
+import { ecrasCarregar, DESCRICAO_CARREGAR } from '../../comum/carregar/carregar';
+import { GOSHOP } from '../goparts/portal/base';
 import { ecrasEntrar, versoesRomafe, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoShop } from './ids';
 import { entrarGoShop } from './entrar';
@@ -10,6 +12,6 @@ export const goshop: App<IdGoShop> = {
   grupo: 'WebShop',
   marca: 'GOSHOP',
   tela: { l: 1440, a: 900 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar(versoesRomafe(entrarGoShop, 'GoShop'))],
+  fluxos: { 'Entrar': DESCRICAO_ENTRAR, 'Carregamento': DESCRICAO_CARREGAR },
+  ecras: [...ecrasEntrar(versoesRomafe(entrarGoShop, 'GoShop')), ...ecrasCarregar(GOSHOP)],
 };

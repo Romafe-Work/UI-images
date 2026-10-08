@@ -1,4 +1,6 @@
 import type { App } from '../../comum/tipos';
+import { ecrasCarregar, DESCRICAO_CARREGAR } from '../../comum/carregar/carregar';
+import { GOPARTS } from './portal/base';
 import { ecrasEntrar, versoesRomafe, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoParts } from './ids';
 import { entrarGoParts } from './entrar';
@@ -14,6 +16,7 @@ export const goparts: App<IdGoParts> = {
   fluxos: {
     'Entrar': DESCRICAO_ENTRAR,
     'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos e as guias de remessa.',
+    'Carregamento': DESCRICAO_CARREGAR,
   },
-  ecras: [...ecrasEntrar(versoesRomafe(entrarGoParts, 'GoParts')), ...ecrasPortal],
+  ecras: [...ecrasEntrar(versoesRomafe(entrarGoParts, 'GoParts')), ...ecrasPortal, ...ecrasCarregar(GOPARTS)],
 };

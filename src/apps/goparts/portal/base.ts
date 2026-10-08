@@ -9,6 +9,13 @@ import type { IdGoParts } from '../ids';
 
 export type IdPortal = Extract<IdGoParts, 'inicio' | 'catalogo' | 'pedidos' | 'guias'>;
 
+/** De que produto é o portal: o GoParts, ou o GoShop, que usa a mesma moldura
+    (8 out. 2026, para os ecrãs de carregamento das duas apps). `ligar` diz se
+    as abas levam a ecrãs que existem nesta app. */
+export interface Produto { nome: string; sub: string; ligar: boolean }
+export const GOPARTS: Produto = { nome: 'GoParts', sub: 'O marketplace de peças auto', ligar: true };
+export const GOSHOP: Produto = { nome: 'GoShop', sub: 'A loja online de peças', ligar: false };
+
 const I = (d: string, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${d}</svg>`;
 
 /* as oito abas do portal atual; as que ainda não têm ecrã ficam sem destino */
@@ -23,12 +30,12 @@ const ABAS: [IdPortal | null, string, string][] = [
   [null, 'Minha lista', '<path d="m12 3.5 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.8l6-.8Z"/>'],
 ];
 
-function topo(): string {
+function topo(p: Produto): string {
   return `<header class="portal__topo">
     <div class="portal__marca">
       <span class="romafe portal__romafe">ROMAFE</span>
       <span class="portal__risco" aria-hidden="true"></span>
-      <span class="portal__produto">GoParts<span class="portal__produto-sub">O marketplace de peças auto</span></span>
+      <span class="portal__produto">${p.nome}<span class="portal__produto-sub">${p.sub}</span></span>
     </div>
     <div class="procura">
       ${I('<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', ' class="procura__lupa"')}
@@ -49,9 +56,9 @@ function topo(): string {
   </header>`;
 }
 
-function abas(ativa: IdPortal): string {
+function abas(ativa: IdPortal | null, p: Produto): string {
   return `<nav class="portal__abas" aria-label="Secções">${ABAS.map(([id, nome, d]) => `
-    <button type="button" class="aba"${id ? ` data-ir="${id}"` : ' disabled title="Ainda sem ecrã"'}${id === ativa ? ' aria-current="true"' : ''}>${I(d)}${nome}</button>`).join('')}
+    <button type="button" class="aba"${id && p.ligar ? ` data-ir="${id}"` : id ? '' : ' disabled title="Ainda sem ecrã"'}${id && id === ativa ? ' aria-current="true"' : ''}>${I(d)}${nome}</button>`).join('')}
   </nav>`;
 }
 
@@ -67,8 +74,8 @@ function rodape(): string {
 }
 
 /** O ecrã inteiro: o corpo vindo do ficheiro .html, com o topo, as abas e o rodapé à volta. */
-export function portal(ativa: IdPortal, corpo: string): string {
+export function portal(ativa: IdPortal | null, corpo: string, p: Produto = GOPARTS): string {
   const abre = corpo.indexOf('>') + 1;
   const fecha = corpo.lastIndexOf('</div>');
-  return corpo.slice(0, abre) + topo() + abas(ativa) + corpo.slice(abre, fecha) + rodape() + corpo.slice(fecha);
+  return corpo.slice(0, abre) + topo(p) + abas(ativa, p) + corpo.slice(abre, fecha) + rodape() + corpo.slice(fecha);
 }
