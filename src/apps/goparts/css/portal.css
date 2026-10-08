@@ -1,0 +1,242 @@
+/* =========================================================
+   ROMAFE — início do portal GO Repair
+   Os valores vêm dos tokens. Os dois que não estão no capítulo 02
+   — o azul claro do degradé e o azul do nome — estão no LEIA-ME.
+   ========================================================= */
+
+.portal {
+  min-height: 100vh; background: var(--c-portal-fundo);
+  display: grid; grid-template-rows: auto auto 1fr auto auto;
+}
+
+/* ---------- barra de topo ---------- */
+.portal__topo {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: var(--e-5);
+  padding: var(--e-3) var(--e-5);
+  background: var(--c-superficie); border-bottom: 1px solid var(--c-borda);
+}
+
+.portal__marca { display: flex; align-items: center; gap: var(--e-2); }
+.portal__sinal { width: 52px; height: 26px; flex: none; }
+.portal__nome {
+  font-family: var(--f-titulo); font-size: var(--t-2xl); font-weight: 700;
+  color: var(--c-texto); margin: 0; line-height: 1; letter-spacing: -.01em;
+}
+.portal__risco { width: 1px; height: 28px; background: var(--c-borda); margin: 0 var(--e-2); }
+
+/* o lockup em miniatura, ao lado de "by" */
+.lockup--mini { gap: 1px; }
+.lockup--mini .lockup__sobre { font-size: 10px; color: var(--c-texto-3); }
+.lockup--mini .lockup__nome { font-size: var(--t-lg); }
+.lockup--mini .lockup__sub { font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ---------- procura ---------- */
+.procura {
+  display: flex; align-items: center; gap: var(--e-2);
+  max-width: 640px; width: 100%; justify-self: center;
+  padding: 0 var(--e-3);
+  background: var(--c-superficie-2); border: 1px solid var(--c-borda);
+  border-radius: var(--r-md);
+}
+.procura:focus-within { border-color: var(--c-marca); box-shadow: 0 0 0 3px var(--c-marca-suave); }
+.procura__lupa { width: 18px; height: 18px; color: var(--c-texto-3); flex: none; }
+.procura__campo {
+  flex: 1; min-width: 0; font: inherit; font-size: var(--t-sm);
+  border: 0; background: none; color: var(--c-texto); padding: 10px 0;
+}
+.procura__campo:focus { outline: none; }
+.procura__atalho {
+  font-family: var(--f-base); font-size: 11px; color: var(--c-texto-3);
+  border: 1px solid var(--c-borda); border-radius: var(--r-sm);
+  padding: 2px 6px; background: var(--c-superficie);
+}
+
+/* ---------- ícones e conta ---------- */
+.portal__accoes { display: flex; align-items: center; gap: var(--e-2); }
+.portal__icone {
+  position: relative; display: grid; place-items: center;
+  width: 36px; height: 36px; border: 0; border-radius: var(--r-sm);
+  background: transparent; color: var(--c-texto-2); cursor: pointer;
+}
+.portal__icone:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+.portal__icone svg { width: 20px; height: 20px; }
+.portal__ponto {
+  position: absolute; top: 6px; right: 7px; width: 8px; height: 8px;
+  border-radius: var(--r-full); background: var(--c-acao);
+  border: 2px solid var(--c-superficie);
+}
+.portal__selo {
+  position: absolute; top: 2px; right: 2px; min-width: 17px; height: 17px;
+  display: grid; place-items: center; padding: 0 4px;
+  border-radius: var(--r-full); background: var(--c-acao); color: #fff;
+  font-size: 10px; font-weight: 700; border: 2px solid var(--c-superficie);
+}
+
+.conta {
+  display: flex; align-items: center; gap: var(--e-2);
+  font: inherit; text-align: left; cursor: pointer;
+  padding: var(--e-1) var(--e-2); border: 0; border-radius: var(--r-md);
+  background: transparent; color: var(--c-texto);
+}
+.conta:hover { background: var(--c-superficie-2); }
+.conta__inicial {
+  display: grid; place-items: center; width: 34px; height: 34px; flex: none;
+  border-radius: var(--r-full); background: var(--c-marca-fundo); color: #fff;
+  font-size: var(--t-sm); font-weight: 700;
+}
+.conta__texto { display: grid; }
+.conta__nome { font-size: var(--t-sm); font-weight: 700; color: var(--c-texto); line-height: 1.2; }
+.conta__local { font-size: var(--t-xs); color: var(--c-texto-3); }
+.conta svg { width: 16px; height: 16px; color: var(--c-texto-3); }
+
+/* ---------- abas ---------- */
+.portal__abas {
+  display: flex; align-items: stretch; gap: var(--e-1); overflow-x: auto;
+  padding: 0 var(--e-5); background: var(--c-superficie);
+  border-bottom: 1px solid var(--c-borda);
+}
+.aba {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font: inherit; font-size: var(--t-sm); color: var(--c-texto-2);
+  padding: var(--e-3) var(--e-4); border: 0; background: none; cursor: pointer;
+  border-bottom: 3px solid transparent; white-space: nowrap;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+}
+.aba svg { width: 18px; height: 18px; }
+.aba:hover { color: var(--c-texto); background: var(--c-superficie-2); }
+/* 02 §1: o laranja é o marcador do item ativo */
+.portal__abas .aba:last-of-type { margin-right: auto; }
+.aba[aria-current="true"] {
+  color: var(--c-marca); font-weight: 700;
+  background: var(--c-marca-suave); border-bottom-color: var(--c-acao-marcador);
+}
+
+
+/* ---------- painéis ---------- */
+.paineis {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-5); padding: var(--e-5); align-items: start;
+}
+.painel {
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  border-radius: var(--r-md); box-shadow: var(--s-1); overflow: hidden;
+}
+.painel__cabeca {
+  display: flex; align-items: center; gap: var(--e-3);
+  padding: var(--e-4); color: #fff;
+  background: linear-gradient(100deg, var(--c-marca-fundo), var(--c-marca-fundo-2));
+}
+/* O terceiro painel é laranja porque é a pesquisa que se espera — 02 §1.
+   É a única superfície de cor plena do ecrã com texto por cima. */
+.painel__cabeca--acao {
+  background: linear-gradient(100deg, var(--c-acao), var(--c-acao-marcador));
+}
+.painel__marca {
+  display: grid; place-items: center; width: 44px; height: 44px; flex: none;
+  border-radius: var(--r-md); background: rgba(255,255,255,.18);
+}
+.painel__marca svg { width: 24px; height: 24px; }
+.painel__titulo { font-family: var(--f-titulo); font-size: var(--t-lg); margin: 0; font-weight: 700; }
+.painel__sub { font-size: var(--t-xs); margin: 2px 0 0; opacity: .92; }
+
+.painel__corpo { padding: var(--e-4); display: grid; gap: var(--e-4); }
+.painel__pe {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-2);
+  padding: var(--e-4); border-top: 1px solid var(--c-borda);
+}
+.painel__pe .btn--acao { margin-left: auto; }
+.btn--icone { padding: 11px; }
+.btn--icone .btn__icone { margin: 0; }
+
+/* ---------- campos com chip ---------- */
+.campo__contador { font-weight: 400; color: var(--c-texto-3); }
+.campo__caixa { display: flex; align-items: stretch; }
+.campo__chip {
+  display: grid; place-items: center; width: 44px; flex: none;
+  background: var(--c-superficie-2); color: var(--c-marca);
+  border: 1px solid var(--c-borda-forte); border-right: 0;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+}
+.campo__chip svg { width: 20px; height: 20px; }
+.campo__chip--pais {
+  background: var(--c-marca-fundo); color: #fff;
+  font-size: var(--t-xs); font-weight: 700;
+}
+.campo__caixa .input { border-radius: 0 var(--r-md) var(--r-md) 0; }
+select.input {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 49%, currentColor 50%, transparent 52%),
+                    linear-gradient(-45deg, transparent 49%, currentColor 50%, transparent 52%);
+  background-size: 7px 7px, 7px 7px;
+  background-position: right 18px center, right 13px center;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+
+.opcoes { display: flex; flex-wrap: wrap; gap: var(--e-4); }
+.opcoes .opcao { align-items: center; }
+.opcoes .opcao input { margin-top: 0; width: 18px; height: 18px; }
+
+/* ---------- dica ---------- */
+.dica {
+  display: flex; align-items: center; gap: var(--e-3);
+  margin: 0 var(--e-5) var(--e-5);
+  padding: var(--e-4);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  border-left: 4px solid var(--c-acao); border-radius: var(--r-md);
+  box-shadow: var(--s-1);
+}
+.dica__marca {
+  display: grid; place-items: center; width: 44px; height: 44px; flex: none;
+  border-radius: var(--r-full); background: var(--c-acao-suave); color: var(--c-acao-traco);
+}
+.dica__marca svg { width: 22px; height: 22px; }
+.dica__titulo { font-weight: 700; margin: 0; font-size: var(--t-sm); }
+.dica__texto { margin: 0; font-size: var(--t-sm); color: var(--c-texto-2); }
+.dica__fechar {
+  margin-left: auto; font: inherit; font-size: 20px; line-height: 1;
+  width: 32px; height: 32px; border: 0; border-radius: var(--r-sm);
+  background: transparent; color: var(--c-texto-3); cursor: pointer;
+}
+.dica__fechar:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+
+/* ---------- rodapé ----------
+   Faixa azul da marca, com quem faz a plataforma à esquerda e a versão e os
+   avisos legais a seguir. É a única superfície de cor plena deste ecrã. */
+.portal__rodape {
+  display: flex; align-items: center; gap: var(--e-5); flex-wrap: wrap;
+  padding: var(--e-2) var(--e-5);
+  background: var(--c-marca-fundo); color: #fff;
+  font-size: var(--t-xs);
+}
+.portal__rodape p { margin: 0; }
+
+.fornecedor { display: flex; align-items: center; gap: var(--e-2); }
+.fornecedor__barras { color: #fff; font-weight: 700; letter-spacing: .06em; opacity: .9; }
+.fornecedor__texto { display: grid; line-height: 1.1; }
+.fornecedor__nome { font-size: var(--t-sm); font-weight: 300; }
+.fornecedor__nome strong { font-weight: 700; }
+.fornecedor__sub { font-size: 8px; letter-spacing: .18em; text-transform: uppercase; opacity: .8; }
+
+.portal__ligacoes {
+  display: flex; align-items: center; gap: var(--e-5); flex-wrap: wrap;
+  list-style: none; margin: 0; padding: 0;
+}
+.portal__ligacoes a { color: #fff; text-decoration: none; }
+.portal__ligacoes a:hover { text-decoration: underline; }
+
+.portal__topo-acima {
+  margin-left: auto; display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: var(--r-full);
+  border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.10);
+  color: #fff; cursor: pointer;
+}
+.portal__topo-acima:hover { background: rgba(255,255,255,.20); }
+.portal__topo-acima svg { width: 16px; height: 16px; }
+
+@media (max-width: 1200px) {
+  .portal__topo { grid-template-columns: 1fr; gap: var(--e-3); }
+  .procura { justify-self: stretch; max-width: none; }
+  .paineis { grid-template-columns: 1fr; }
+}

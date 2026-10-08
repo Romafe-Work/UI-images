@@ -1,0 +1,178 @@
+<div class="portal portal--pedidos">
+
+  <header class="pagina">
+    <span class="pagina__marca" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6Z"/><path d="M9 12h7M9 16h5"/></svg>
+    </span>
+    <div class="pagina__texto">
+      <h1 class="pagina__titulo">Histórico de pedidos</h1>
+      <p class="pagina__sub">Pesquise e acompanhe os seus pedidos.</p>
+    </div>
+    <nav class="migalhas" aria-label="Onde estou">
+      <a href="#">Início</a>
+      <span aria-hidden="true">›</span>
+      <a href="#">Pedidos</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">Histórico de pedidos</span>
+    </nav>
+  </header>
+
+  <section class="filtros">
+    <div class="filtros__topo">
+      <h2 class="filtros__titulo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+        Pesquisar pedidos
+      </h2>
+      <p class="filtros__dica">Utilize os filtros abaixo para localizar os seus pedidos.</p>
+    </div>
+
+    <div class="filtros__grelha">
+      <div class="campo">
+        <label class="campo__label" for="de">Data a partir de</label>
+        <input class="input" id="de" type="date" value="2024-01-01">
+      </div>
+      <div class="campo">
+        <label class="campo__label" for="ate">Data até</label>
+        <input class="input" id="ate" type="date" value="2024-12-31">
+      </div>
+      <div class="campo">
+        <label class="campo__label" for="numero">N.º Pedido</label>
+        <input class="input" id="numero" placeholder="Introduza o n.º do pedido">
+      </div>
+      <div class="campo">
+        <label class="campo__label" for="ref-pedido">Referência</label>
+        <input class="input" id="ref-pedido" placeholder="Introduza a referência">
+      </div>
+      <div class="campo">
+        <span class="campo__label">Estado do pedido</span>
+        <div class="estados">
+          <label class="estado"><input type="radio" name="estado" id="e-proc"><span>Processado</span></label>
+          <label class="estado"><input type="radio" name="estado" id="e-sem"><span>Sem proc.</span></label>
+          <label class="estado"><input type="radio" name="estado" id="e-todos" checked><span>Todos</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros__accoes">
+      <button type="button" class="btn btn--acao">
+        <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+        Pesquisar
+      </button>
+      <button type="button" class="btn">
+        <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v5h5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.2-5.7L3 9"/></svg>
+        Limpar filtros
+      </button>
+    </div>
+  </section>
+
+  <section class="resultados">
+    <div class="resumo">
+      <div class="resumo__item">
+        <span class="resumo__marca resumo__marca--info" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6Z"/><path d="M9 12h7M9 16h5"/></svg>
+        </span>
+        <span class="resumo__texto"><span class="resumo__nome">Pedidos encontrados</span><strong class="resumo__valor">5</strong></span>
+      </div>
+      <div class="resumo__item">
+        <span class="resumo__marca resumo__marca--bom" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+        </span>
+        <span class="resumo__texto"><span class="resumo__nome">Processados</span><strong class="resumo__valor">3</strong></span>
+      </div>
+      <div class="resumo__item">
+        <span class="resumo__marca resumo__marca--aviso" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </span>
+        <span class="resumo__texto"><span class="resumo__nome">Por recolher</span><strong class="resumo__valor">1</strong></span>
+      </div>
+      <p class="resumo__contagem">A mostrar 3 de 5 pedidos</p>
+    </div>
+
+    <div class="tabela-caixa">
+      <table class="tabela-dados">
+        <thead>
+          <tr>
+            <th><button type="button" class="tabela__ordenar">Pedido<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Data<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Armazém<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Morada entrega<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">O seu pedido<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Observações<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Valor<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Processado<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th><button type="button" class="tabela__ordenar">Recolher<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/></svg></button></th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a class="pedido" href="#">P2024/001256</a></td>
+            <td>15/04/2024</td>
+            <td>Porto (1)</td>
+            <td>Rua da Industria, 123<br><span class="tabela__discreto">4100-168 Porto</span></td>
+            <td>5 artigos</td>
+            <td>Entrega prioritária</td>
+            <td class="tabela__numero">€ 342,50</td>
+            <td>
+              <span class="pselo pselo--bom">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                Processado
+              </span>
+            </td>
+            <td>—</td>
+            <td class="tabela__accoes">
+              <button type="button" class="btn btn--ghost btn--sm">
+                <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                Ver
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td><a class="pedido" href="#">P2024/001233</a></td>
+            <td>10/04/2024</td>
+            <td>Lisboa (2)</td>
+            <td>Av. Infante D. Henrique, 55<br><span class="tabela__discreto">1800-218 Lisboa</span></td>
+            <td>12 artigos</td>
+            <td>—</td>
+            <td class="tabela__numero">€ 1.245,90</td>
+            <td>
+              <span class="pselo pselo--bom">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                Processado
+              </span>
+            </td>
+            <td>—</td>
+            <td class="tabela__accoes">
+              <button type="button" class="btn btn--ghost btn--sm">
+                <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                Ver
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td><a class="pedido" href="#">P2024/001198</a></td>
+            <td>02/04/2024</td>
+            <td>Porto (1)</td>
+            <td>Rua da Industria, 123<br><span class="tabela__discreto">4100-168 Porto</span></td>
+            <td>3 artigos</td>
+            <td>Confirmar stock</td>
+            <td class="tabela__numero">€ 87,30</td>
+            <td>
+              <span class="pselo pselo--aviso">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                Sem proc.
+              </span>
+            </td>
+            <td>Por recolher</td>
+            <td class="tabela__accoes">
+              <button type="button" class="btn btn--ghost btn--sm">
+                <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                Ver
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

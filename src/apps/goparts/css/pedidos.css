@@ -1,0 +1,151 @@
+/* =========================================================
+   ROMAFE — histórico de pedidos
+   Tabela, selos de estado e filtros. As cores dos selos são as de
+   02 §4.2: fundo a 12% e texto escurecido, nunca a cor plena.
+   ========================================================= */
+
+.portal--pedidos { grid-template-rows: auto auto auto auto 1fr auto; }
+
+/* ---------- cabeçalho da página ---------- */
+.pagina {
+  display: flex; align-items: center; gap: var(--e-4);
+  padding: var(--e-5) var(--e-5) var(--e-4);
+}
+.pagina__marca {
+  display: grid; place-items: center; width: 52px; height: 52px; flex: none;
+  border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-marca);
+  border: 1px solid var(--c-borda);
+}
+.pagina__marca svg { width: 26px; height: 26px; }
+.pagina__titulo { font-family: var(--f-titulo); font-size: var(--t-2xl); margin: 0; }
+.pagina__sub { margin: 0; font-size: var(--t-sm); color: var(--c-texto-2); }
+
+.migalhas {
+  display: flex; align-items: center; gap: var(--e-2); margin-left: auto;
+  padding: var(--e-2) var(--e-4);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  border-radius: var(--r-md); font-size: var(--t-xs); color: var(--c-texto-3);
+}
+.migalhas a { color: var(--c-texto-2); text-decoration: none; }
+.migalhas a:hover { text-decoration: underline; }
+.migalhas [aria-current="page"] { color: var(--c-texto); font-weight: 700; }
+
+/* ---------- filtros ---------- */
+.filtros {
+  margin: 0 var(--e-5) var(--e-5);
+  padding: var(--e-4) var(--e-5) var(--e-5);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  border-radius: var(--r-md); box-shadow: var(--s-1);
+}
+.filtros__topo {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--e-4); flex-wrap: wrap; margin-bottom: var(--e-4);
+}
+.filtros__titulo {
+  display: flex; align-items: center; gap: var(--e-2);
+  font-family: var(--f-titulo); font-size: var(--t-xl); margin: 0; color: var(--c-marca);
+}
+.filtros__titulo svg { width: 22px; height: 22px; }
+.filtros__dica { margin: 0; font-size: var(--t-sm); color: var(--c-texto-3); }
+
+.filtros__grelha {
+  /* As quatro primeiras dividem o espaço; a dos estados fica do tamanho das
+     três pastilhas, senão a última é cortada pela margem do cartão. */
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: var(--e-4); margin-bottom: var(--e-4);
+}
+.filtros__accoes { display: flex; gap: var(--e-3); flex-wrap: wrap; }
+
+/* estados como pastilhas: é uma escolha entre três, não três caixas soltas */
+.estados { display: flex; gap: var(--e-2); }
+.estado {
+  display: flex; align-items: center; gap: var(--e-2);
+  padding: 10px var(--e-3); cursor: pointer;
+  border: 1px solid var(--c-borda-forte); border-radius: var(--r-md);
+  background: var(--c-superficie); font-size: var(--t-sm); color: var(--c-texto-2);
+}
+.estado input { accent-color: var(--c-marca-fundo); width: 16px; height: 16px; }
+.estado:has(input:checked) {
+  background: var(--c-marca-fundo); border-color: transparent; color: #fff; font-weight: 700;
+}
+.estado:has(input:checked) input { accent-color: #fff; }
+
+/* ---------- resumo ---------- */
+.resultados {
+  margin: 0 var(--e-5) var(--e-5);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  border-radius: var(--r-md); box-shadow: var(--s-1); overflow: hidden;
+}
+.resumo {
+  display: flex; align-items: center; gap: var(--e-6); flex-wrap: wrap;
+  padding: var(--e-4) var(--e-5); border-bottom: 1px solid var(--c-borda);
+}
+.resumo__item { display: flex; align-items: center; gap: var(--e-3); }
+.resumo__item + .resumo__item { border-left: 1px solid var(--c-borda); padding-left: var(--e-6); }
+.resumo__marca { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-full); }
+.resumo__marca svg { width: 22px; height: 22px; }
+.resumo__marca--info  { background: var(--c-marca-suave); color: var(--c-marca); }
+.resumo__marca--bom   { background: var(--c-ok-suave); color: var(--c-ok); }
+.resumo__marca--aviso { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.resumo__texto { display: grid; }
+.resumo__nome { font-size: var(--t-sm); color: var(--c-texto-2); }
+.resumo__valor { font-family: var(--f-titulo); font-size: var(--t-xl); }
+.resumo__contagem { margin: 0 0 0 auto; font-size: var(--t-sm); color: var(--c-texto-3); }
+
+/* ---------- tabela ---------- */
+.tabela-caixa { overflow-x: auto; }
+.tabela-dados { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.tabela-dados th, .tabela-dados td {
+  text-align: left; padding: var(--e-3);
+  border-bottom: 1px solid var(--c-borda); vertical-align: middle;
+}
+.tabela-dados thead th {
+  background: var(--c-superficie-2); color: var(--c-texto-2);
+  font-size: var(--t-xs); font-weight: 700; white-space: nowrap;
+}
+.tabela-dados tbody tr:hover { background: var(--c-superficie-2); }
+.tabela__ordenar {
+  display: inline-flex; align-items: center; gap: var(--e-1);
+  font: inherit; font-size: var(--t-xs); font-weight: 700; color: inherit;
+  background: none; border: 0; padding: 0; cursor: pointer;
+}
+.tabela__ordenar svg { width: 12px; height: 12px; color: var(--c-texto-3); }
+.tabela__discreto { color: var(--c-texto-3); }
+/* O valor alinha à direita e não muda de largura ao mudar de linha */
+.tabela__numero { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* display:flex num <td> tira a célula do modelo da tabela e a coluna deixa
+   de contar para a largura. Fica célula, e o alinhamento faz-se por dentro. */
+.tabela__accoes { white-space: nowrap; text-align: right; }
+.tabela__accoes .btn { vertical-align: middle; }
+.tabela__mais {
+  display: inline-grid; place-items: center; width: 34px; height: 34px;
+  vertical-align: middle; margin-left: var(--e-2);
+  border: 1px solid var(--c-borda); border-radius: var(--r-sm);
+  background: var(--c-superficie); color: var(--c-texto-2); cursor: pointer;
+}
+.tabela__mais:hover { background: var(--c-superficie-3); color: var(--c-texto); }
+.tabela__mais svg { width: 16px; height: 16px; }
+
+.pedido {
+  display: inline-block; padding: 4px var(--e-2);
+  background: var(--c-marca-suave); color: var(--c-marca);
+  border-radius: var(--r-sm); font-weight: 700; text-decoration: none;
+}
+.pedido:hover { text-decoration: underline; }
+
+/* ---------- selos de estado (02 §4.2) ---------- */
+.pselo {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  padding: 5px var(--e-3); border-radius: var(--r-full);
+  font-size: var(--t-xs); font-weight: 700; white-space: nowrap;
+}
+.pselo svg { width: 14px; height: 14px; }
+.pselo--bom   { background: var(--c-ok-suave);    color: var(--c-ok); }
+.pselo--aviso { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.pselo--erro  { background: var(--c-erro-suave);  color: var(--c-erro); }
+
+@media (max-width: 1200px) {
+  .filtros__grelha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pagina { flex-wrap: wrap; }
+  .migalhas { margin-left: 0; }
+}

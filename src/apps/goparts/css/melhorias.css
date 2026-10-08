@@ -1,0 +1,40 @@
+/* =========================================================
+   GOPARTS — o que muda em relação ao Figma-WebShop-GoParts
+   ========================================================= */
+/* a marca: ROMAFE em Motor, no azul RGB(0, 99, 170), e o nome do produto */
+.portal__romafe { font-size: 30px; line-height: 1; }
+.portal__produto { display: grid; font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-lg); line-height: 1.1; color: var(--c-texto); }
+.portal__produto-sub { font-family: var(--f-base); font-weight: 400; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--c-texto-3); }
+.aba[disabled] { cursor: default; opacity: .7; }
+
+/* ---------- sem scroll (ela: «não quero scroll») ----------
+   Cada ecrã cabe em 1440 × 900: a tela tem a altura certa e o que é folga aperta-se. */
+.portal { height: 100vh; min-height: 0; overflow: hidden; }
+
+/* Catálogo: o herói numa faixa baixa e as marcas em duas linhas */
+.heroi { padding: var(--e-4) var(--e-5); }
+.heroi__titulo { font-size: var(--t-2xl); margin-bottom: var(--e-1); }
+.heroi__titulo br { display: none; }
+.heroi__sub { font-size: var(--t-sm); }
+.portal--catalogo .pesquisa { margin-top: var(--e-3); }
+.marcas { padding: var(--e-3) var(--e-5); }
+.marcas__grelha { grid-auto-rows: 64px; max-height: calc(64px * 2 + var(--e-3)); overflow: hidden; }
+
+/* Pedidos e Guias: o cabeçalho da página e os filtros mais baixos */
+.pagina { padding: var(--e-3) var(--e-5) var(--e-2); }
+.pagina__marca { width: 40px; height: 40px; }
+.pagina__titulo { font-size: var(--t-xl); }
+.filtros { margin-bottom: var(--e-3); padding: var(--e-3) var(--e-4) var(--e-4); }
+.resultados { margin-bottom: var(--e-3); }
+.cartoes { margin-bottom: var(--e-3); }
+.paginacao__passo { display: inline-flex; align-items: center; gap: var(--e-1); width: auto; padding: 0 var(--e-2); }
+/* as abas não encolhem; o que cede é a folga das peças por baixo */
+.portal__abas { flex: none; min-height: 50px; }
+.portal--catalogo { grid-template-rows: auto auto auto auto minmax(0, 1fr) auto; }
+.heroi { padding: var(--e-3) var(--e-5); }
+.marcas__grelha { grid-auto-rows: 58px; max-height: calc(58px * 2 + var(--e-3)); }
+.portal--pedidos .tabela td { padding-top: 6px; padding-bottom: 6px; }
+.portal--guias .cartoes { padding-top: 0; }
+.portal--guias .cartoes > * { padding-top: var(--e-2); padding-bottom: var(--e-2); }
+.marcas__grelha { grid-auto-rows: 52px; max-height: calc(52px * 2 + var(--e-3)); }
+.marcas__grelha .marca { padding-top: var(--e-2); padding-bottom: var(--e-2); }

@@ -149,3 +149,12 @@ aplicação (`familia` em `OpcoesEntrar`):
 | `marketplace` | GoParts | escuro, de rede, com «Abrir loja» | azul ROMAFE |
 
 Igual nos três: o ROMAFE em Motor na barra de topo, o cartão, o botão e o rodapé.
+
+## O portal do GoParts (8 out. 2026)
+
+Os quatro ecrãs depois de entrar — Início, Catálogo, Histórico de pedidos e Guias de remessa —
+vieram do `Figma-WebShop-GoParts`. Cada um é um `.html` em `src/apps/goparts/portal/`; o topo, as
+abas e o rodapé estão uma vez só em `portal/base.ts`. O CSS antigo está em `src/apps/goparts/css/`
+e o que mudou em `melhorias.css`: ROMAFE em Motor no topo, botões com ícone e texto, sem scroll.
+
+A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.ttf`).

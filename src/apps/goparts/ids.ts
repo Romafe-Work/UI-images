@@ -3,7 +3,7 @@ import type { IdEntrar } from '../../comum/entrar/entrar';
 
 /** Os ecrãs do GoParts: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */
-export type IdGoParts = IdEntrar;
+export type IdGoParts = IdEntrar | 'inicio' | 'catalogo' | 'pedidos' | 'guias';
 
 export type EcraGoParts = Ecra<IdGoParts>;
 

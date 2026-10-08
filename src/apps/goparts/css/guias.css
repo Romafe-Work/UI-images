@@ -1,0 +1,165 @@
+/* =========================================================
+   ROMAFE — Guias de remessa
+
+   Só arrumação, como as outras folhas de ecrã. O cartão, o campo, o botão, a
+   tabela e o selo vêm do `base.css` e do `pedidos.css`, e nenhuma regra daqui
+   escreve uma cor, um tamanho ou uma folga à mão.
+
+   PORQUE É QUE ESTE ECRÃ REAPROVEITA O DOS PEDIDOS. São a mesma coisa com
+   colunas diferentes: um cabeçalho de página, um cartão de filtros, contagens
+   e uma tabela. Fazer-lhe componentes próprios era ter duas tabelas de dados
+   que um dia divergem — e a que ninguém estivesse a olhar ficava para trás.
+
+   O que é mesmo novo está aqui: os cartões de contagem, a barra dos resultados
+   e a paginação.
+   ========================================================= */
+
+/* ---------- filtros ----------
+   Cinco colunas em vez das quatro dos pedidos, e a última do tamanho das
+   pastilhas. A grelha dos pedidos tem quatro campos; esta tem quatro e as
+   pastilhas do tipo de documento. */
+.filtros__grelha--guias {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+}
+
+/* As pastilhas do tipo de documento levam ícone, e o histórico de pedidos não
+   leva. Com ícone, «Nota crédito» partia-se em duas linhas e a pastilha ficava
+   com o dobro da altura das outras duas. */
+.filtros__grelha--guias .estados { gap: var(--e-2); }
+.filtros__grelha--guias .estado { white-space: nowrap; }
+.filtros__grelha--guias .estado svg { width: 16px; height: 16px; flex: none; }
+
+/* ---------- cartões de contagem ----------
+   No histórico de pedidos as contagens vivem numa linha só, separadas por
+   traços. Aqui são quatro e uma delas é dinheiro, que se lê melhor com ar à
+   volta — por isso cada uma tem o seu cartão. */
+.cartoes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e-4);
+  margin: 0 var(--e-5) var(--e-5);
+}
+
+.cartao-resumo {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-4) var(--e-5);
+  background: var(--c-superficie);
+  border: 1px solid var(--c-borda);
+  border-radius: var(--r-md);
+  box-shadow: var(--s-1);
+}
+
+.cartao-resumo__marca {
+  display: grid; place-items: center;
+  width: 48px; height: 48px; flex: none;
+  border-radius: var(--r-md);
+}
+.cartao-resumo__marca svg { width: 24px; height: 24px; }
+
+.cartao-resumo__marca--info { background: var(--c-marca-suave); color: var(--c-marca); }
+.cartao-resumo__marca--bom  { background: var(--c-ok-suave);    color: var(--c-ok); }
+.cartao-resumo__marca--erro { background: var(--c-erro-suave);  color: var(--c-erro); }
+
+/* O dinheiro leva o laranja da ação, sobre o fundo suave do aviso.
+   Não há `--c-acao-suave` no capítulo 02, e um laranja quase igual inventado
+   aqui era pior do que este par — que é feito de duas cores que o manual tem.
+   02 §1.2 proíbe o laranja como LETRA de blocos de texto; um número solto e um
+   ícone não são um bloco de texto. */
+.cartao-resumo__marca--valor { background: var(--c-aviso-suave); color: var(--c-acao); }
+
+.cartao-resumo__texto { display: grid; gap: 2px; min-width: 0; }
+.cartao-resumo__nome {
+  font-size: var(--t-sm); color: var(--c-texto-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cartao-resumo__valor {
+  font-family: var(--f-titulo); font-size: var(--t-2xl); color: var(--c-marca);
+  line-height: 1.1;
+}
+.cartao-resumo__valor--bom   { color: var(--c-ok); }
+.cartao-resumo__valor--erro  { color: var(--c-erro); }
+.cartao-resumo__valor--accao { color: var(--c-acao); }
+
+/* ---------- barra dos resultados ---------- */
+.resultados__topo {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--e-4); flex-wrap: wrap;
+  padding: var(--e-4) var(--e-5);
+  border-bottom: 1px solid var(--c-borda);
+}
+
+.resultados__titulo {
+  display: flex; align-items: center; gap: var(--e-2);
+  margin: 0; font-family: var(--f-titulo); font-size: var(--t-xl); color: var(--c-marca);
+}
+.resultados__titulo svg { width: 22px; height: 22px; }
+
+.por-pagina {
+  display: flex; align-items: center; gap: var(--e-2);
+  font-size: var(--t-sm); color: var(--c-texto-2);
+}
+/* A caixa encolhe ao tamanho do número: uma seleção com três opções de dois
+   dígitos não precisa da largura de um campo de morada. */
+.por-pagina .input { width: auto; min-width: 76px; }
+
+/* ---------- pé da tabela ---------- */
+.tabela__rodape {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--e-4); flex-wrap: wrap;
+  padding: var(--e-4) var(--e-5);
+  border-top: 1px solid var(--c-borda);
+}
+.tabela__rodape .resumo__contagem { margin: 0; }
+
+.paginacao { display: flex; align-items: center; gap: var(--e-2); }
+
+.paginacao__pagina,
+.paginacao__passo {
+  display: grid; place-items: center;
+  min-width: 34px; height: 34px; padding: 0 var(--e-2);
+  font: inherit; font-size: var(--t-sm); font-weight: 600;
+  color: var(--c-texto-2);
+  background: var(--c-superficie);
+  border: 1px solid var(--c-borda);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.paginacao__pagina:hover,
+.paginacao__passo:hover:not(:disabled) { border-color: var(--c-marca); color: var(--c-marca); }
+
+.paginacao__passo svg { width: 18px; height: 18px; }
+/* Uma seta que não leva a lado nenhum diz-se com o rato e com a cor, e não só
+   com a cor: `disabled` já tira o clique, e o cursor tira a expectativa. */
+.paginacao__passo:disabled { color: var(--c-texto-3); cursor: not-allowed; opacity: .6; }
+
+.paginacao__pagina[aria-current="page"] {
+  background: var(--c-marca); border-color: var(--c-marca); color: var(--c-entrada-tinta);
+}
+
+/* ---------- tabela ----------
+   Treze colunas e sete delas com dinheiro. Sem isto a tabela estica as colunas
+   de texto e aperta as dos números, que é ao contrário do que se precisa. */
+.tabela-dados--guias { min-width: 1180px; }
+.tabela-dados--guias td,
+.tabela-dados--guias th { white-space: nowrap; }
+/* A morada e as observações são as duas que podem quebrar, e são as únicas
+   onde partir a linha não muda o significado. */
+.tabela-dados--guias td:nth-child(4) { white-space: normal; min-width: 182px; }
+.tabela-dados--guias td:nth-child(6) { white-space: normal; min-width: 160px; }
+
+.tabela__numero--forte { font-weight: 700; color: var(--c-texto); }
+/* Um valor negativo é uma nota de crédito. Vai a vermelho, e o sinal fica lá:
+   a cor sozinha não serve a quem não a distingue — 02 §4. */
+.tabela__numero--negativo { color: var(--c-erro); }
+
+/* ---------- estreito ---------- */
+@media (max-width: 1100px) {
+  .cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filtros__grelha--guias { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .cartoes { grid-template-columns: 1fr; }
+  .filtros__grelha--guias { grid-template-columns: 1fr; }
+}

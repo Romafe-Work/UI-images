@@ -1,0 +1,316 @@
+<div class="portal portal--catalogo">
+
+  <section class="heroi">
+    <div class="heroi__foto" role="img" aria-label="Peças de motor"></div>
+    <div class="heroi__veu" aria-hidden="true"></div>
+
+    <div class="heroi__texto">
+      <p class="heroi__sobre"><span class="heroi__risco" aria-hidden="true"></span> Catálogo de peças</p>
+      <h1 class="heroi__titulo">Encontre a peça certa, <br><em>mais rápido.</em></h1>
+      <p class="heroi__sub">Pesquise por matrícula, chassis, referência ou selecione o seu veículo.</p>
+    </div>
+
+    <ul class="promessas">
+      <li class="promessa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="3"/><rect x="10.6" y="0.6" width="2.8" height="4.4" rx="1"/><rect x="10.6" y="0.6" width="2.8" height="4.4" rx="1" transform="rotate(60 12 12)"/><rect x="10.6" y="0.6" width="2.8" height="4.4" rx="1" transform="rotate(120 12 12)"/><rect x="10.6" y="0.6" width="2.8" height="4.4" rx="1" transform="rotate(180 12 12)"/><rect x="10.6" y="0.6" width="2.8" height="4.4" rx="1" transform="rotate(240 12 12)"/><rect x="10.6" y="0.6" width="2.8" height="4.4" rx="1" transform="rotate(300 12 12)"/></svg>
+        <span>Peças originais<br>e equivalentes</span>
+      </li>
+      <li class="promessa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 6.5h13v9h-13Z"/><path d="M14.5 9.5h4l3.5 3.5v2.5h-7.5Z"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        <span>Entrega rápida</span>
+      </li>
+      <li class="promessa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.5s7.5-3.8 7.5-9.5V5L12 2.4 4.5 5v7c0 5.7 7.5 9.5 7.5 9.5Z"/><path d="m8.8 12 2.4 2.4 4.2-4.4"/></svg>
+        <span>Apoio técnico<br>especializado</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="pesquisa">
+    <div class="pesquisa__topo">
+      <div class="modos" role="tablist" aria-label="Modo de pesquisa">
+        <button type="button" class="modo" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16l-2-5H6Z"/><circle cx="8" cy="16" r="1.6"/><circle cx="16" cy="16" r="1.6"/></svg>
+          Identificar veículo
+        </button>
+        <button type="button" class="modo" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          Pesquisa avançada
+        </button>
+      </div>
+
+      <button type="button" class="limpar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v5h5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.2-5.7L3 9"/></svg>
+        Limpar campos
+      </button>
+    </div>
+
+    <div class="pesquisa__grelha">
+      <div class="campo">
+        <label class="campo__label" for="cat-tipo">Tipo de veículo</label>
+        <div class="campo__caixa">
+          <span class="campo__chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 12h16l-2-5H6Z"/><circle cx="8" cy="16" r="1.6"/><circle cx="16" cy="16" r="1.6"/></svg>
+          </span>
+          <select class="input" id="cat-tipo"><option>Automóvel ligeiro</option></select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label class="campo__label" for="cat-matricula">Matrícula <span class="campo__contador">(0 / 500)</span></label>
+        <div class="campo__caixa">
+          <span class="campo__chip campo__chip--pais" aria-hidden="true">P</span>
+          <input class="input" id="cat-matricula" placeholder="Introduza a matrícula">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label class="campo__label" for="cat-chassi">N.º de chassi</label>
+        <div class="campo__caixa">
+          <span class="campo__chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 14V9l4-2h6l4 2v5"/><path d="M3 14h18v4H3Z"/></svg>
+          </span>
+          <input class="input" id="cat-chassi" placeholder="Introduza o n.º de chassi">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label class="campo__label" for="cat-motor">Motor</label>
+        <div class="campo__caixa">
+          <span class="campo__chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 10h3l2-3h5l2 3h4v6h-3l-2 3H9l-2-3H4Z"/></svg>
+          </span>
+          <input class="input" id="cat-motor" placeholder="Introduza o motor">
+        </div>
+      </div>
+
+      <div class="campo campo--largo">
+        <label class="campo__label" for="cat-descricao">Descrição</label>
+        <div class="campo__caixa">
+          <span class="campo__chip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6Z"/><path d="M9 12h7M9 16h5"/></svg>
+          </span>
+          <input class="input" id="cat-descricao" placeholder="Introduza a descrição">
+        </div>
+      </div>
+
+      <button type="button" class="btn btn--acao btn--bloco pesquisa__accao">
+        <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+        Pesquisar
+      </button>
+    </div>
+
+    <!-- A pesquisa por referência é outra maneira de chegar à peça, e não
+         outro modo do mesmo formulário: vive aqui em baixo, com o seu campo
+         e o seu botão. -->
+    <div class="referencia">
+      <p class="referencia__ou"><span>ou</span></p>
+
+      <div class="referencia__linha">
+        <div class="campo">
+          <label class="campo__label" for="cat-referencia">Pesquisar por referência</label>
+          <div class="campo__caixa">
+            <span class="campo__chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5v14M9 5v14M13 5v14M17 5v14M20 5v14"/></svg>
+            </span>
+            <input class="input" id="cat-referencia" placeholder="Introduza a referência da peça">
+          </div>
+        </div>
+
+        <div class="opcoes">
+          <div class="opcao"><input type="radio" name="cat-origem" id="cat-iam"><label class="opcao__texto" for="cat-iam">IAM</label></div>
+          <div class="opcao"><input type="radio" name="cat-origem" id="cat-oe"><label class="opcao__texto" for="cat-oe">OE</label></div>
+          <div class="opcao"><input type="radio" name="cat-origem" id="cat-todas" checked><label class="opcao__texto" for="cat-todas">Todas</label></div>
+          <div class="opcao"><input type="checkbox" id="cat-equivalencias" checked><label class="opcao__texto" for="cat-equivalencias">Incluir equivalências</label></div>
+        </div>
+
+        <button type="button" class="btn btn--acao referencia__accao">
+          <svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+          Pesquisar
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="marcas">
+    <div class="marcas__topo">
+      <h2 class="marcas__titulo">Marcas</h2>
+      <div class="marcas__filtros" role="tablist" aria-label="Filtrar marcas">
+        <button type="button" class="filtro" role="tab" aria-selected="true">Todas</button>
+        <button type="button" class="filtro" role="tab" aria-selected="false">Mais populares</button>
+        <button type="button" class="filtro" role="tab" aria-selected="false">Favoritas</button>
+      </div>
+    </div>
+
+    <div class="marcas__grelha">
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">AR</span>
+          <span class="marca__nome">ALFA ROMEO</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">AUDI</span>
+          <span class="marca__nome">AUDI</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">BMW</span>
+          <span class="marca__nome">BMW</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">CHV</span>
+          <span class="marca__nome">CHEVROLET</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">CHR</span>
+          <span class="marca__nome">CHRYSLER</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">CIT</span>
+          <span class="marca__nome">CITROËN</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">CUP</span>
+          <span class="marca__nome">CUPRA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">DAC</span>
+          <span class="marca__nome">DACIA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">DAE</span>
+          <span class="marca__nome">DAEWOO</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">DAI</span>
+          <span class="marca__nome">DAIHATSU</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">FIAT</span>
+          <span class="marca__nome">FIAT</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">FORD</span>
+          <span class="marca__nome">FORD</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">HON</span>
+          <span class="marca__nome">HONDA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">HYU</span>
+          <span class="marca__nome">HYUNDAI</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">ISU</span>
+          <span class="marca__nome">ISUZU</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">IVE</span>
+          <span class="marca__nome">IVECO</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">JAG</span>
+          <span class="marca__nome">JAGUAR</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">JEEP</span>
+          <span class="marca__nome">JEEP</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">KIA</span>
+          <span class="marca__nome">KIA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">LADA</span>
+          <span class="marca__nome">LADA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">LAN</span>
+          <span class="marca__nome">LANCIA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">LR</span>
+          <span class="marca__nome">LAND ROVER</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">MAZ</span>
+          <span class="marca__nome">MAZDA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">MB</span>
+          <span class="marca__nome">MERCEDES-BENZ</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">MINI</span>
+          <span class="marca__nome">MINI</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">MIT</span>
+          <span class="marca__nome">MITSUBISHI</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">NIS</span>
+          <span class="marca__nome">NISSAN</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">OPEL</span>
+          <span class="marca__nome">OPEL</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">PEU</span>
+          <span class="marca__nome">PEUGEOT</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">POR</span>
+          <span class="marca__nome">PORSCHE</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">REN</span>
+          <span class="marca__nome">RENAULT</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">ROV</span>
+          <span class="marca__nome">ROVER</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">SAAB</span>
+          <span class="marca__nome">SAAB</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">SEAT</span>
+          <span class="marca__nome">SEAT</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">SKO</span>
+          <span class="marca__nome">SKODA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">SMA</span>
+          <span class="marca__nome">SMART</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">SUB</span>
+          <span class="marca__nome">SUBARU</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">SUZ</span>
+          <span class="marca__nome">SUZUKI</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">TOY</span>
+          <span class="marca__nome">TOYOTA</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">VOL</span>
+          <span class="marca__nome">VOLVO</span>
+        </button>
+        <button type="button" class="marca">
+          <span class="marca__sinal" aria-hidden="true">VW</span>
+          <span class="marca__nome">VW</span>
+        </button>
+        <button type="button" class="marca marca--todas">
+          <span class="marca__mais" aria-hidden="true">+</span>
+          <span class="marca__nome">Ver todas<br>as marcas</span>
+        </button>
+    </div>
+  </section>
+</div>
