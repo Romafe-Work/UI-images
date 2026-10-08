@@ -137,10 +137,9 @@ select.input { accent-color: var(--c-marca-fundo); }
 .lockup--sm .lockup__sub { font-size: var(--t-xs); }
 .lockup--sm .lockup__risco { height: 2px; }
 
-/* ROMAFE é sempre azul e sempre em Motor. Sobre superfície escura o
-   #00537e dá 1.53:1 e desaparece, por isso o azul que se usa lá é o
-   #a8caee — o azul que é tinta, de 02 §1.1 e §11.4. Continua a ser azul. */
-.lockup--invertido .lockup__nome { color: #a8caee; }
+/* ROMAFE é sempre azul, RGB(0, 99, 170), e sempre em Motor — também sobre
+   superfície escura. Ela recusou o azul claro (#a8caee) do manual a 8 out. 2026. */
+.lockup--invertido .lockup__nome { color: var(--c-logotipo); }
 .lockup--invertido .lockup__sub { color: var(--c-entrada-tinta-2); }
 
 /* ---------- notificação efémera (14 §4) ----------

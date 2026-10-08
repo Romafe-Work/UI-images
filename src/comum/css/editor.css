@@ -91,7 +91,7 @@
   border-bottom: 1px solid var(--ed-borda); background: var(--ed-fundo);
 }
 .ed-cabeca h2 { font-family: var(--f-titulo); font-size: var(--t-sm); font-weight: 600; margin: 0; }
-.ed-cabeca__marca { font-family: var(--f-marca); font-size: var(--t-md); }
+.ed-cabeca__marca { font-family: var(--f-marca); font-size: var(--t-md); color: var(--c-logotipo); }
 
 .ed-corpo { flex: 1; overflow-y: auto; }
 .ed-pe { border-top: 1px solid var(--ed-borda); padding: var(--e-3); display: grid; gap: var(--e-2); }
