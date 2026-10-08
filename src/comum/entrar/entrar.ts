@@ -240,7 +240,7 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
 /** O ROMAFE com o risco laranja e a palavra espaçada por baixo. O ROMAFE
     é sempre azul e sempre em Motor, e por isso só vai em fundo claro. */
 function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
-  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
+  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub${o.minimo!.selo.length > 4 ? ' selo__sub--nome' : ''}">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
 }
 
 /** ERP v6: a fotografia do armazém à esquerda, sem texto, com duas faixas
@@ -321,9 +321,9 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           </button>
         </div>
       </form>
+      ${o.convite ? `<p class="convite">${o.convite.texto} <a href="#">${o.convite.ligacao}</a></p>` : ''}
       ${o.minimo ? `<div class="ajuda"><a href="#" ${k.ir('ajuda')}>${o.minimo.centro ? '' : SVG_AJUDA}Precisa de ajuda?</a></div>` : ''}
       ${o.variante === 'compacta' ? `<a class="ligacao-recuperar ajuda-compacta" href="#" ${k.ir('ajuda')}>Precisa de ajuda?</a>` : ''}
-      ${o.convite ? `<p class="convite">${o.convite.texto} <a href="#">${o.convite.ligacao}</a></p>` : ''}
       ${apoio}
     </section>`;
 }
@@ -513,6 +513,29 @@ export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {
     { id: 'v6', nota: NOTA_V6[v6.familia ?? 'interna'], opcoes: v6 },
     { id: 'v7', nota: 'Família Romafe com o cartão ao centro: o título por cima e as vantagens por baixo, sobre o fundo do tipo', opcoes: { ...v6, ...v7, centro: true } },
   ];
+}
+
+/** As versões numeram-se pela ordem, sem buracos: quando uma sai, as de
+    depois sobem um número (ela, 8 out. 2026: «muda só o nome da versão»). */
+function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
+  return vs.map((v, i) => ({ ...v, id: 'v' + (i + 1) })) as [VersaoEntrar, ...VersaoEntrar[]];
+}
+
+/** As versões do login das apps completas (ERP, Peça a Peça, Part Picker),
+    iguais nas três desde 8 out. 2026 — o que ela foi pedindo no ERP vale para
+    a Web: saem a v5 (fundo desenhado) e a v6 (família com o cartão ao lado);
+    entram a de pouco texto com a fotografia em diagonal e a da fotografia
+    toda com o cartão ao centro; números seguidos. Na 04 · Precisa de ajuda?
+    ficam só a v1, a v2, a v4 e a v5, numeradas outra vez v1 a v4.
+    `selo` é o que vai por baixo do ROMAFE nas duas últimas: «ERP», ou o nome da app. */
+export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, ...VersaoEntrar[]] {
+  const minimo = { ...o, familia: undefined };
+  const vs = numerar([
+    ...versoesCompletas(o, v4).filter((v) => v.id !== 'v5' && v.id !== 'v6'),
+    { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } } },
+    { id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...minimo, minimo: { selo, centro: true } } },
+  ]);
+  return vs.map((v) => (['v3', 'v6', 'v7'].includes(v.id) ? { ...v, sem: ['ajuda'] as IdEntrar[] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
 }
 
 export const DESCRICAO_ENTRAR =

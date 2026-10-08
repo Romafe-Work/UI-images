@@ -714,3 +714,9 @@
 }
 .cartao--ajuda .contacto svg { width: 18px; height: 18px; margin: 0; }
 .cartao--ajuda .contacto strong { margin-left: auto; font-size: var(--t-md); }
+
+/* o selo com o nome da app (Web), em vez da palavra espaçada do ERP */
+.selo__sub--nome {
+  font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-xl);
+  letter-spacing: 0; margin-right: 0; color: var(--c-texto);
+}
