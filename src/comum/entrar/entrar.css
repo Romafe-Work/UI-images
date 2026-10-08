@@ -914,3 +914,8 @@
 .faixa__vantagens svg { width: 28px; height: 28px; flex: none; color: var(--c-acao); }
 .faixa__titulo { margin: 0; font-size: var(--t-md); font-weight: 700; color: #fff; }
 .faixa__sub { margin: 2px 0 0; font-size: var(--t-sm); color: rgba(255, 255, 255, .8); }
+
+/* GoParts: a oficina (a fotografia do site da Romafe), faixa azul com as famílias */
+.entrada--cena-marketplace .palco { background: url('../img/oficina.webp') center / cover no-repeat; }
+.entrada--cena-marketplace .palco::after { background: rgba(1, 35, 56, .12); }
+.entrada--cena-marketplace .faixa { background: var(--c-logotipo); }

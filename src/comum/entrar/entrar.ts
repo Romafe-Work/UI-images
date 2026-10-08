@@ -213,7 +213,7 @@ function rodape(o: OpcoesEntrar): string {
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   if (o.minimo?.foto === 'video') return paginaVideo(cartao, o.minimo.tipo);
-  if (o.minimo?.foto === 'cena') return paginaCena(cartao);
+  if (o.minimo?.foto === 'cena') return paginaCena(cartao, o.minimo.tipo ?? 'interna');
   if (o.minimo?.foto) return paginaFoto(o.minimo.foto, cartao);
   if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
@@ -359,9 +359,12 @@ function paginaVideo(cartao: string, tipo?: Familia): string {
    faixa azul com os factos da casa. Também se fez para o GoShop (texto da
    Romafe Automotive; antes um bloco laranja) e para o GoParts (uma parede
    de marcas), e ela não gostou de nenhuma das duas: saíram. */
-function paginaCena(cartao: string): string {
-  const c = CENA.interna;
-  return `<div class="entrada entrada--completa entrada--video entrada--cena entrada--cena-interna">
+/* GoParts (8 out. 2026): o armazém não faz sentido numa loja de peças para
+   oficinas — ela mostrou o login atual, uma oficina com um bloco de motor.
+   É a fotografia de romafe.com (assets/img/components/about/products.jpg). */
+function paginaCena(cartao: string, tipo: Familia): string {
+  const c = CENA[tipo];
+  return `<div class="entrada entrada--completa entrada--video entrada--cena entrada--cena-${tipo}">
   <main class="palco">
     ${cartao}
   </main>
@@ -662,9 +665,11 @@ export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesE
     /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no GoParts */
     { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
     /* 8 out. 2026: uma interface diferente em cada app (ela: «os ecrãs entre ERP, GoShop e GoParts devem diferir»; a v8 fica igual nas três) */
-    { id: '', nota: 'Diferente em cada app: a cena do vídeo e a faixa de baixo', opcoes: { ...minimo, minimo: { selo, foto: 'video', tipo } } },
-    /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem); só no ERP */
+    ...(tipo === 'marketplace' ? [] : [{ id: '', nota: 'Diferente em cada app: a cena do vídeo e a faixa de baixo', opcoes: { ...minimo, minimo: { selo, foto: 'video' as const, tipo } } }]),
+    /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem) — no ERP a fachada da sede */
     ...(erp ? [{ id: '', nota: 'Sem o armazém: a fachada da sede, parada, e a faixa azul com os factos da casa', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const } } }] : []),
+    /* GoParts: a oficina, como o login que existe hoje (a do vídeo por app saiu) */
+    ...(tipo === 'marketplace' ? [{ id: '', nota: 'A oficina com o bloco de motor, como o login atual do GoParts, a caixa ao meio e as famílias de peças em baixo', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const, tipo } } }] : []),
   ]);
 }
 
