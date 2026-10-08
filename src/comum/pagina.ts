@@ -9,6 +9,7 @@ import { iniciar as iniciarTema } from './tema';
 import { iniciar as iniciarEcras } from './ecras';
 import { configurar as configurarFluxo } from './fluxo';
 import { iniciar as iniciarEditor } from './editor';
+import { juntarExtras } from './extras';
 
 export function montar(app: App, comportamentos: Array<() => void> = []): void {
   const raiz = document.documentElement;
@@ -28,6 +29,9 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
     return;
   }
 
+  /* o que se criou no editor (versões, cópias de ecrãs) entra antes de desenhar */
+  const locais = juntarExtras(app);
+
   const frag = document.createDocumentFragment();
   app.ecras.forEach((e, i) => {
     const div = document.createElement('div');
@@ -37,6 +41,7 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
     div.dataset.fluxo = e.fluxo;
     div.dataset.objetivo = e.objetivo;
     div.hidden = i > 0;
+    if (locais.has(e.id)) div.dataset.local = '1';
     /* uma <div class="versao"> por versão; o ecras.ts diz qual se vê */
     e.versoes.forEach((v, j) => {
       const dv = document.createElement('div');
@@ -44,6 +49,7 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
       dv.dataset.versao = v.id;
       dv.dataset.nota = v.nota;
       dv.hidden = j < e.versoes.length - 1;
+      if (locais.has(e.id + '|' + v.id)) dv.dataset.local = '1';
       dv.innerHTML = v.html;
       div.appendChild(dv);
     });

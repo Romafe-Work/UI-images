@@ -10,6 +10,7 @@
    por isso o CSS exportado nunca traz um valor inventado.
    ========================================================= */
 import { mostrar, pintarBarra } from './ecras';
+import { lerExtras, gravarExtras, type Extras } from './extras';
 import { fluxo } from './fluxo';
 import { aplicar as aplicarTema, actual as temaActual } from './tema';
 /* O CSS de tudo, tal como está escrito (com os comentários), para se ler
@@ -1115,6 +1116,18 @@ function montar(): void {
   });
   painelEsq.appendChild(vistas);
 
+  /* criar: por baixo da lista das versões (que o ecras.ts põe logo a seguir a Ecrãs · Fluxo) */
+  accoesVersao = el('div', 'ed-accoes-versao');
+  accoesVersao.appendChild(botaoIcone('Duplicar versão', I_DUPLICAR, duplicarVersao, 'Uma versão nova, igual à que se vê, no fim da lista'));
+  accoesVersao.appendChild(botaoIcone('Copiar ecrã', I_ECRA, copiarEcra, 'Um ecrã novo com todas as versões deste'));
+  const bNome = botaoIcone('Mudar nome', I_NOME, mudarNome, 'O nome do ecrã copiado e a nota da versão criada aqui');
+  bNome.dataset.soLocal = '1';
+  const bApagar = botaoIcone('Apagar', I_APAGAR, apagar, 'Apaga a versão ou o ecrã criados aqui');
+  bApagar.dataset.soLocal = '1';
+  accoesVersao.appendChild(bNome);
+  accoesVersao.appendChild(bApagar);
+  painelEsq.appendChild(accoesVersao);
+
   listaCamadas = el('div', 'ed-corpo');
   painelEsq.appendChild(listaCamadas);
 
@@ -1129,6 +1142,10 @@ function montar(): void {
   bRepor.type = 'button';
   bRepor.addEventListener('click', reporTudo);
   peE.appendChild(bCss); peE.appendChild(bAnular); peE.appendChild(bRepor);
+  const partilha = el('div', 'ed-degraus ed-partilha');
+  partilha.appendChild(botaoIcone('Exportar', I_EXPORTAR, exportar, 'Um ficheiro .json com as versões, os ecrãs e as mudanças feitas aqui'));
+  partilha.appendChild(botaoIcone('Importar', I_IMPORTAR, importar, 'Volta a pôr um ficheiro exportado'));
+  peE.appendChild(partilha);
 
   /* o tema muda-se aqui, porque na tela o clique escolhe peças */
   const temaBarra = el('div', 'ed-degraus');
@@ -1212,6 +1229,205 @@ function montar(): void {
   dialogo.appendChild(pre); dialogo.appendChild(accoesD);
   codigoDialogo = code;
   document.body.appendChild(dialogo);
+}
+
+/* ---------------- criar versões e ecrãs (8 out. 2026) ----------------
+   Duplicar a versão que se vê, copiar o ecrã inteiro, mudar o nome e
+   apagar o que se criou aqui. Fica neste navegador; Exportar e Importar
+   levam-no para outro sítio. Depois de cada mudança a página recarrega,
+   para a nova versão nascer como as outras. */
+const ICONE = (d: string) => `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const I_DUPLICAR = '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>';
+const I_ECRA = '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M12 8v5M9.5 10.5h5"/>';
+const I_NOME = '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>';
+const I_APAGAR = '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/>';
+const I_EXPORTAR = '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/>';
+const I_IMPORTAR = '<path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M4 3h16"/>';
+
+function botaoIcone(texto: string, icone: string, accao: () => void, dica: string): HTMLButtonElement {
+  const b = el('button', 'ed-botao ed-botao--icone');
+  b.type = 'button';
+  b.innerHTML = ICONE(icone) + '<span></span>';
+  b.querySelector('span')!.textContent = texto;
+  b.dataset.edDica = dica;
+  b.addEventListener('click', accao);
+  return b;
+}
+
+function ecraAberto(): HTMLElement | null { return document.querySelector<HTMLElement>('.ecra:not([hidden])'); }
+function versaoVisivel(): HTMLElement | null { return document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden])'); }
+
+/* O HTML da versão tal como se vê (com os textos mudados), sem o que é do
+   editor, e com os ids a acabar no sufixo, para não haver dois iguais. */
+function htmlLimpo(v: HTMLElement, sufixo: string): string {
+  const c = v.cloneNode(true) as HTMLElement;
+  c.querySelectorAll('*').forEach((n) => {
+    n.removeAttribute('contenteditable');
+    const cls = (n.getAttribute('class') || '').split(/\s+/).filter((x) => x && x.indexOf('ed-') !== 0 && x !== 'editando');
+    if (cls.length) n.setAttribute('class', cls.join(' ')); else n.removeAttribute('class');
+    if (n.id) n.id = n.id + sufixo;
+    ['for', 'aria-labelledby', 'aria-describedby', 'aria-controls'].forEach((a) => {
+      const val = n.getAttribute(a);
+      if (val) n.setAttribute(a, val.split(/\s+/).map((x) => x + sufixo).join(' '));
+    });
+  });
+  return c.innerHTML;
+}
+
+/* As regras do editor que eram da versão (ou do ecrã) de origem passam a
+   valer também para a cópia. */
+function copiarEstilos(origem: HTMLElement, trocar: (s: string) => string | null): void {
+  Object.keys(estilos).forEach((s) => {
+    let pertence = false;
+    try { pertence = !!origem.querySelector(s.replace(/^\[data-ecra="[^"]+"\]\s*/, '').replace(/^div\.versao(:nth-of-type\(\d+\))?\s*>\s*/, '')); } catch (e) { pertence = false; }
+    const novo = trocar(s);
+    if (novo && novo !== s && (pertence || s.indexOf('div.versao') >= 0) && !estilos[novo]) estilos[novo] = { ...estilos[s] };
+  });
+  escrever();
+}
+
+function proximoNumero(ecra: HTMLElement): number {
+  let n = 0;
+  ecra.querySelectorAll<HTMLElement>(':scope > .versao').forEach((v) => {
+    const m = /^v(\d+)/.exec(v.dataset.versao || '');
+    if (m) n = Math.max(n, +m[1]);
+  });
+  return n + 1;
+}
+
+function irERecarregar(ecra: string, versao: string): void {
+  const h = location.hash.replace(/^#/, '').split('&').filter((p) => p && !/^(ecra|v)=/.test(p));
+  h.push('ecra=' + encodeURIComponent(ecra), 'v=' + encodeURIComponent(versao));
+  location.hash = h.join('&');
+  location.reload();
+}
+
+function duplicarVersao(): void {
+  const e = ecraAberto(), v = versaoVisivel();
+  if (!e || !v) return;
+  const id = e.dataset.ecra || '';
+  const todas = Array.from(e.querySelectorAll<HTMLElement>(':scope > .versao'));
+  const i = todas.indexOf(v) + 1;
+  const novoId = 'v' + proximoNumero(e);
+  const sufixo = '-' + novoId;
+  const amb = '[data-ecra="' + id + '"] ';
+  copiarEstilos(v, (s) => {
+    if (s.indexOf(amb + 'div.versao:nth-of-type(' + i + ')') === 0) return s.replace(amb + 'div.versao:nth-of-type(' + i + ')', amb + 'div.versao:nth-of-type(' + (todas.length + 1) + ')');
+    const m = new RegExp('^' + amb.replace(/[[\]"]/g, '\\$&') + '#([\\w-]+)').exec(s);
+    if (m && v.querySelector('#' + CSS.escape(m[1]))) return s.replace('#' + m[1], '#' + m[1] + sufixo);
+    return null;
+  });
+  const x: Extras = lerExtras(APP);
+  (x.versoes[id] = x.versoes[id] || []).push({ id: novoId, nota: 'Cópia da ' + (v.dataset.versao || '') + (v.dataset.nota ? ': ' + v.dataset.nota : ''), html: htmlLimpo(v, sufixo) });
+  gravarExtras(APP, x);
+  irERecarregar(id, novoId);
+}
+
+function copiarEcra(): void {
+  const e = ecraAberto();
+  if (!e) return;
+  const id = e.dataset.ecra || '';
+  const x: Extras = lerExtras(APP);
+  let k = 1;
+  while (document.querySelector('.ecra[data-ecra="' + id + '-copia' + k + '"]')) k++;
+  const novo = id + '-copia' + k;
+  const sufixo = '-c' + k;
+  const versoes = Array.from(e.querySelectorAll<HTMLElement>(':scope > .versao')).map((v) => ({ id: v.dataset.versao || '', nota: v.dataset.nota || '', html: htmlLimpo(v, sufixo) }));
+  copiarEstilos(e, (s) => {
+    if (s.indexOf('[data-ecra="' + id + '"]') !== 0) return null;
+    return s.replace('[data-ecra="' + id + '"]', '[data-ecra="' + novo + '"]').replace(/#([\w-]+)/, (_m, a: string) => '#' + a + sufixo);
+  });
+  x.ecras.push({ id: novo, nome: 'Cópia de ' + (e.dataset.nome || id), fluxo: e.dataset.fluxo || '', objetivo: e.dataset.objetivo || '', depois: id, versoes });
+  gravarExtras(APP, x);
+  irERecarregar(novo, versaoVisivel()?.dataset.versao || '');
+}
+
+function mudarNome(): void {
+  const e = ecraAberto(), v = versaoVisivel();
+  if (!e || !v) return;
+  const id = e.dataset.ecra || '';
+  const x: Extras = lerExtras(APP);
+  const copia = x.ecras.find((c) => c.id === id);
+  if (v.dataset.local) {
+    const nota = window.prompt('O que é esta versão?', v.dataset.nota || '');
+    if (nota === null) return;
+    const lista = (x.versoes[id] || []).concat(copia ? copia.versoes : []);
+    const alvo = lista.find((c) => c.id === v.dataset.versao);
+    if (alvo) alvo.nota = nota;
+  }
+  if (copia) {
+    const nome = window.prompt('O nome do ecrã', copia.nome);
+    if (nome) copia.nome = nome;
+  }
+  gravarExtras(APP, x);
+  irERecarregar(id, v.dataset.versao || '');
+}
+
+function apagar(): void {
+  const e = ecraAberto(), v = versaoVisivel();
+  if (!e || !v) return;
+  const id = e.dataset.ecra || '';
+  const x: Extras = lerExtras(APP);
+  const copia = x.ecras.find((c) => c.id === id);
+  const lista = x.versoes[id] || [];
+  const nVersoes = e.querySelectorAll(':scope > .versao').length;
+  if (v.dataset.local && lista.some((c) => c.id === v.dataset.versao)) {
+    if (!window.confirm('Apagar a ' + v.dataset.versao + ' deste ecrã?')) return;
+    x.versoes[id] = lista.filter((c) => c.id !== v.dataset.versao);
+  } else if (copia && (nVersoes === 1 || window.confirm('Apagar o ecrã «' + copia.nome + '» inteiro? (Cancelar apaga só a ' + v.dataset.versao + ')'))) {
+    if (nVersoes === 1 && !window.confirm('Apagar o ecrã «' + copia.nome + '»?')) return;
+    x.ecras = x.ecras.filter((c) => c.id !== id);
+    delete x.versoes[id];
+    Object.keys(estilos).forEach((s) => { if (s.indexOf('[data-ecra="' + id + '"]') === 0) delete estilos[s]; });
+    escrever();
+    gravarExtras(APP, x);
+    irERecarregar(copia.depois, '');
+    return;
+  } else if (copia) {
+    copia.versoes = copia.versoes.filter((c) => c.id !== v.dataset.versao);
+  } else return;
+  gravarExtras(APP, x);
+  irERecarregar(id, '');
+}
+
+function exportar(): void {
+  const dados = { app: APP, data: new Date().toISOString(), extras: lerExtras(APP), editor: { estilos, textos, classes } };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' }));
+  a.download = 'romafe-' + APP + '-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function importar(): void {
+  const f = document.createElement('input');
+  f.type = 'file';
+  f.accept = 'application/json,.json';
+  f.addEventListener('change', () => {
+    const ficheiro = f.files && f.files[0];
+    if (!ficheiro) return;
+    ficheiro.text().then((t) => {
+      try {
+        const d = JSON.parse(t) as { app?: string; extras?: Extras; editor?: unknown };
+        if (d.app && d.app !== APP && !window.confirm('Este ficheiro é da app «' + d.app + '». Importar mesmo assim?')) return;
+        if (d.extras) gravarExtras(APP, d.extras);
+        if (d.editor) localStorage.setItem(CHAVE, JSON.stringify(d.editor));
+        location.reload();
+      } catch (e) { aviso('O ficheiro não é um export do editor'); }
+    });
+  });
+  f.click();
+}
+
+let accoesVersao: HTMLElement;
+function pintarAccoes(): void {
+  if (!accoesVersao) return;
+  const e = ecraAberto(), v = versaoVisivel();
+  const local = !!(v?.dataset.local || e?.dataset.local);
+  accoesVersao.querySelectorAll<HTMLButtonElement>('[data-so-local]').forEach((b) => {
+    b.disabled = !local;
+    b.title = local ? '' : 'Só se muda ou apaga o que se criou aqui';
+  });
 }
 
 /* ---------------- o mapa ----------------
@@ -1391,7 +1607,8 @@ export function iniciar(): void {
   construirCamadas();
   pintarProps();
   /* trocar de versão nos separadores é trocar de camadas */
-  document.addEventListener('romafe:versao', function () { seleccionar(null); construirCamadas(); });
+  document.addEventListener('romafe:versao', function () { seleccionar(null); construirCamadas(); pintarAccoes(); });
+  pintarAccoes();
 
   document.addEventListener('click', interceptar, true);
   document.addEventListener('mouseover', realcar, true);

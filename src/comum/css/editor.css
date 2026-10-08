@@ -315,3 +315,13 @@
 .versoes__id { font-weight: 700; color: var(--ed-tinta); }
 .versoes__linha[aria-pressed="true"] .versoes__id { color: var(--c-acao); }
 .versoes__texto { line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- criar versões e ecrãs (8 out. 2026) ---------- */
+.ed-accoes-versao {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  padding: var(--e-2) var(--e-3); background: var(--ed-painel-2); border-bottom: 1px solid var(--ed-borda);
+}
+.ed-botao--icone { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.ed-botao--icone svg { flex: none; }
+.ed-botao[disabled] { opacity: .45; cursor: default; }
+.ed-partilha { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
