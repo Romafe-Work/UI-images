@@ -47,6 +47,9 @@ export interface OpcoesEntrar {
   /** a marca do produto ganha um monograma (a inicial num quadrado) e o
       fundo, sem fotografia, ganha um desenho abstrato (v5) */
   desenhado?: boolean;
+  /** no lugar do monograma, o nome ROMAFE em Motor (Pick v3: ela pediu
+      «remove o P e coloca Romafe», 8 out. 2026) */
+  monogramaRomafe?: boolean;
   /** v6: o tipo de aplicação, que decide o palco (ver `Familia`) */
   familia?: Familia;
   /** v7: a v6 com o cartão ao centro nos três tipos — o título por cima e
@@ -89,6 +92,7 @@ function marca(o: OpcoesEntrar, cls: string, idSub = ''): string {
   if (!o.desenhado) return l;
   const inicial = o.marca.nome.trim().charAt(0).toUpperCase();
   const dir = cls.includes('centro') ? 'marca-produto--coluna' : 'marca-produto--linha';
+  if (o.monogramaRomafe) return `<span class="marca-produto ${dir}">${romafe('romafe--cartao')}${l}</span>`;
   return `<span class="marca-produto ${dir}"><span class="marca-produto__monograma" aria-hidden="true">${inicial}</span>${l}</span>`;
 }
 
