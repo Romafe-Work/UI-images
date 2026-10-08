@@ -659,7 +659,33 @@
 .entrada--compacta .cartao--ajuda .caso__texto { font-size: var(--t-xs); }
 .entrada--compacta .casos { gap: var(--e-2); }
 /* sem discurso à volta, o cartão da ajuda fica ao centro do palco, em qualquer versão */
-.palco:has(> .cartao--ajuda) { grid-template-columns: minmax(0, 1fr); justify-items: center; }
-.palco:has(> .cartao--ajuda) > .cartao--ajuda { grid-column: 1 / -1; max-width: 520px; }
+.entrada:not(.entrada--fixa) .palco:has(> .cartao--ajuda) { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.entrada:not(.entrada--fixa) .palco:has(> .cartao--ajuda) > .cartao--ajuda { grid-column: 1 / -1; max-width: 520px; }
 .palco:has(> .cartao--ajuda) > .palco__discurso:empty { display: none; }
 .entrada--minima .ajuda__voltar { font-size: var(--t-md); }
+
+/* =========================================================
+   FIXO — o cartão no mesmo sítio em todos os ecrãs da versão (ERP)
+   O texto à volta é o mesmo em todos (o do 01), e o cartão prende-se em
+   cima, à mesma altura: muda o que tem dentro, não onde está.
+   ========================================================= */
+.entrada--fixa .palco { align-items: start; align-content: start; padding-top: 11vh; }
+.entrada--fixa .cartao { align-self: start; }
+.entrada--fixa.entrada--centro-apresentacao .palco,
+.entrada--fixa.entrada--familia-centro .palco { padding-top: 6vh; }
+.entrada--fixa.entrada--minima .palco { padding-top: 0; }
+.entrada--fixa.entrada--minima .cartao { margin-top: 14vh; }
+/* no 01 da v1 o discurso fica ao lado; com o cartão em cima, ele vai junto */
+.entrada--fixa .discurso { align-self: start; margin-top: var(--e-6); }
+.entrada--fixa.entrada--centro-apresentacao .discurso,
+.entrada--fixa.entrada--familia-centro .discurso { margin-top: 0; }
+
+/* ROMAFE como nome do lockup (v1 a v4): o tamanho do nome de antes */
+.lockup__romafe { font-size: var(--t-2xl); line-height: 1; }
+.lockup--centro .lockup__romafe { font-size: 34px; }
+.lockup--sm .lockup__romafe { font-size: var(--t-xl); }
+.entrada--fixa.entrada--neutra .lockup__risco { display: block; }
+/* a família ao centro (ERP v5) tinha uma regra mais forte a centrar na vertical */
+.entrada.entrada--completa.entrada--interna.entrada--familia-centro.entrada--fixa .palco {
+  align-items: start; align-content: start; padding-top: 6vh;
+}

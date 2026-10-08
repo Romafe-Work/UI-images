@@ -69,6 +69,10 @@ export interface OpcoesEntrar {
         azuis nos cantos; a ajuda só em texto */
     centro?: boolean;
   };
+  /** o cartão fica no mesmo sítio em todos os ecrãs da versão: o texto à
+      volta é sempre o do 01, o cartão prende-se em cima, e o 03 deixa de ser
+      «Fora da Romafe» para ter a marca como os outros (ERP, 8 out. 2026) */
+  fixo?: boolean;
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
@@ -98,7 +102,7 @@ interface Chaves { ir: (id: IdEntrar) => string; id: (peca: string) => string }
     ao lado no topo, por cima no cartão. */
 function marca(o: OpcoesEntrar, cls: string, idSub = ''): string {
   if (o.familia) return produto(o, idSub);
-  const l = lockup(o.marca, cls, idSub);
+  const l = lockup(o.marca, cls, idSub, !!o.nomeRomafe);
   if (!o.desenhado) return l;
   const inicial = o.marca.nome.trim().charAt(0).toUpperCase();
   const dir = cls.includes('centro') ? 'marca-produto--coluna' : 'marca-produto--linha';
@@ -106,9 +110,11 @@ function marca(o: OpcoesEntrar, cls: string, idSub = ''): string {
   return `<span class="marca-produto ${dir}"><span class="marca-produto__monograma" aria-hidden="true">${inicial}</span>${l}</span>`;
 }
 
-function lockup(m: OpcoesEntrar['marca'], cls: string, idSub = ''): string {
+function lockup(m: OpcoesEntrar['marca'], cls: string, idSub = '', comRomafe = false): string {
+  /* com o ROMAFE, o nome é sempre o desenho da marca — azul e em Motor —,
+     também nas versões neutras, que de outro modo o punham noutra letra */
   return `<span class="lockup ${cls}">
-      <span class="lockup__nome">${m.nome}</span>
+      ${comRomafe ? romafe('lockup__romafe') : `<span class="lockup__nome">${m.nome}</span>`}
       <span class="lockup__risco" aria-hidden="true"></span>
       <span class="lockup__sub"${idSub ? ` id="${idSub}"` : ''}>${m.sub}</span>
     </span>`;
@@ -170,14 +176,14 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
-  if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro);
+  if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
   const centroApr = completa && o.disposicao === 'centro-apresentacao';
   const cls = (centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '')
     + (o.semRomafe ? ' entrada--neutra' : '') + (o.desenhado ? ' entrada--desenhada' : '');
-  return `<div class="entrada entrada--${o.variante}${cls}">
+  return `<div class="entrada entrada--${o.variante}${cls}${o.fixo ? ' entrada--fixa' : ''}">
   ${completa ? topo(o) : ''}
   <main class="palco">
     ${o.semRomafe ? '' : '<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>'}
@@ -207,7 +213,7 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
     ? `<ul class="categorias" aria-label="Famílias de peças">${CATEGORIAS.map((c) => `<li class="categoria">${c}</li>`).join('')}</ul>`
     : '';
   const foto = f === 'interna' ? '<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div><div class="palco__veu" aria-hidden="true"></div>' : '';
-  return `<div class="entrada entrada--${o.variante} entrada--familia entrada--${f}${o.centro ? ' entrada--familia-centro' : ''}">
+  return `<div class="entrada entrada--${o.variante} entrada--familia entrada--${f}${o.centro ? ' entrada--familia-centro' : ''}${o.fixo ? ' entrada--fixa' : ''}">
   ${completa ? topo(o) : ''}
   <main class="palco">
     ${foto}
@@ -227,11 +233,11 @@ function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
 /** ERP v6: a fotografia do armazém à esquerda, sem texto, com duas faixas
     azuis em diagonal; o painel claro à direita, recortado em seta, com o
     cartão. Mais nada. */
-function paginaMinima(cartao: string, centro: boolean): string {
+function paginaMinima(cartao: string, centro: boolean, fixo: boolean): string {
   const formas = centro
     ? '<div class="minima__canto minima__canto--cima" aria-hidden="true"></div><div class="minima__canto minima__canto--baixo" aria-hidden="true"></div>'
     : '<div class="minima__faixa" aria-hidden="true"></div><div class="minima__painel" aria-hidden="true"></div>';
-  return `<div class="entrada entrada--completa entrada--minima${centro ? ' entrada--minima-centro' : ''}">
+  return `<div class="entrada entrada--completa entrada--minima${centro ? ' entrada--minima-centro' : ''}${fixo ? ' entrada--fixa' : ''}">
   <main class="palco">
     <div class="minima__foto" role="img" aria-label="Armazém da Romafe"></div>
     ${formas}
@@ -355,8 +361,11 @@ function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
 
 /* ---------------- 03 · O início de sessão da empresa ---------------- */
 function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
-  return `<section class="cartao cartao--fora" aria-labelledby="${k.id('titulo-fora')}">
-      <p class="fora__marca">Fora ${o.feminino ? 'da' : 'do'} ${o.produto}</p>
+  const topoCartao = o.fixo
+    ? `<div class="cartao__cabeca">${o.minimo ? selo(o, '', true) : marca(o, 'lockup--centro')}</div>`
+    : `<p class="fora__marca">Fora ${o.feminino ? 'da' : 'do'} ${o.produto}</p>`;
+  return `<section class="cartao${o.fixo ? '' : ' cartao--fora'}" aria-labelledby="${k.id('titulo-fora')}">
+      ${topoCartao}
       <h2 class="cartao__titulo" id="${k.id('titulo-fora')}">Página do fornecedor da empresa</h2>
       <p class="cartao__sub">Por exemplo, o Entra ID da Exemplo, Lda. O desenho é o dela.</p>
       <div class="formulario">
@@ -442,11 +451,13 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
     const d = o.variante === 'completa' && o.apresentacao
       ? discursoDe(o.produto, o.apresentacao, !!o.semRomafe, !!o.feminino)
       : { entrada: '', palavraPasse: '', federado: '' };
+    /* fixo: o mesmo texto à volta em todos os ecrãs, para o cartão não mudar de sítio */
+    const volta = (outro: string): string => (o.fixo ? d.entrada : outro);
     return {
       entrada: pagina(o, d.entrada, cartaoEntrada(o, k)),
-      'palavra-passe': pagina(o, d.palavraPasse, cartaoPalavraPasse(o, k)),
-      federado: pagina(o, d.federado, cartaoFederado(o, k)),
-      ajuda: pagina(o, '', cartaoAjuda(o, k)),
+      'palavra-passe': pagina(o, volta(d.palavraPasse), cartaoPalavraPasse(o, k)),
+      federado: pagina(o, volta(d.federado), cartaoFederado(o, k)),
+      ajuda: pagina(o, volta(''), cartaoAjuda(o, k)),
     } as Record<IdEntrar, string>;
   });
   const fluxo = versoes[0].opcoes.fluxo || 'Entrar';

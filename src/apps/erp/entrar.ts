@@ -14,6 +14,7 @@ export const entrarErp: OpcoesEntrar = {
   produto: 'Romafe',
   feminino: true,
   nomeRomafe: true,
+  fixo: true,
   versao: 'Versão 10.0 · compilação 2026.09',
   realm: 'romafe',
   apresentacao: {
