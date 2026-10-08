@@ -3,6 +3,12 @@ import { ecrasEntrar, versoesCompletas, DESCRICAO_ENTRAR, type VersaoEntrar } fr
 import type { IdErp } from './ids';
 import { entrarErp } from './entrar';
 
+/** As versões numeram-se pela ordem, sem buracos: quando uma sai, as de
+    depois sobem um número (ela, 8 out. 2026: «muda só o nome da versão»). */
+function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
+  return vs.map((v, i) => ({ ...v, id: 'v' + (i + 1) })) as [VersaoEntrar, ...VersaoEntrar[]];
+}
+
 export const erp: App<IdErp> = {
   id: 'erp',
   nome: 'ERP',
@@ -11,10 +17,10 @@ export const erp: App<IdErp> = {
   marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar([
-    /* a v5 e a v6 saíram a 8 out. 2026, a pedido dela; as outras guardam o número */
-    ...versoesCompletas(entrarErp).filter((v) => v.id !== 'v5' && v.id !== 'v6') as [VersaoEntrar, ...VersaoEntrar[]],
-    { id: 'v8', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o ERP, o campo e a ajuda', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP' } } },
-    { id: 'v9', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da v8 ao centro', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', centro: true } } },
-  ])],
+  ecras: [...ecrasEntrar(numerar([
+    /* a v5 e a v6 de antes saíram a 8 out. 2026, a pedido dela */
+    ...versoesCompletas(entrarErp).filter((v) => v.id !== 'v5' && v.id !== 'v6'),
+    { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o ERP, o campo e a ajuda', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP' } } },
+    { id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', centro: true } } },
+  ]))],
 };

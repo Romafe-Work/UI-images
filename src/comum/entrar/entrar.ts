@@ -59,13 +59,13 @@ export interface OpcoesEntrar {
   /** no cartão, o nome ROMAFE em Motor no lugar do nome do produto
       (ERP v7: ela pediu «não digas Rolgest, mas sim Romafe») */
   nomeRomafe?: boolean;
-  /** v8 do ERP (8 out. 2026, a partir de duas imagens dela): pouco texto à
+  /** ERP v6 (era a v8; 8 out. 2026, a partir de duas imagens dela): pouco texto à
       volta. Sem barra de topo, sem rodapé e sem discurso; no cartão o selo,
       a linha por baixo (marca.sub), o campo e «Precisa de ajuda?». O selo é
       a palavra espaçada por baixo do ROMAFE: «ERP». */
   minimo?: {
     selo: string;
-    /** v9: a fotografia no ecrã todo, com o cartão ao centro e duas formas
+    /** ERP v7 (era a v9): a fotografia no ecrã todo, com o cartão ao centro e duas formas
         azuis nos cantos; a ajuda só em texto */
     centro?: boolean;
   };
@@ -224,7 +224,7 @@ function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
   return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
 }
 
-/** v8: a fotografia do armazém à esquerda, sem texto, com duas faixas
+/** ERP v6: a fotografia do armazém à esquerda, sem texto, com duas faixas
     azuis em diagonal; o painel claro à direita, recortado em seta, com o
     cartão. Mais nada. */
 function paginaMinima(cartao: string, centro: boolean): string {
@@ -484,7 +484,7 @@ export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {
     { id: 'v4', nota: 'A v3 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
     { id: 'v5', nota: 'A v4 com marca e fundo: o monograma do produto e um desenho abstrato no lugar da fotografia', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true, desenhado: true } },
     { id: 'v6', nota: NOTA_V6[v6.familia ?? 'interna'], opcoes: v6 },
-    { id: 'v7', nota: 'A v6 com o cartão ao centro: o título por cima e as vantagens por baixo, sobre o fundo do tipo', opcoes: { ...v6, ...v7, centro: true } },
+    { id: 'v7', nota: 'Família Romafe com o cartão ao centro: o título por cima e as vantagens por baixo, sobre o fundo do tipo', opcoes: { ...v6, ...v7, centro: true } },
   ];
 }
 
