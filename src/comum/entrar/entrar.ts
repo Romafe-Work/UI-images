@@ -22,7 +22,7 @@ export type Variante = 'completa' | 'compacta';
 /** onde fica o cartão na variante completa: à direita, com a apresentação
     à esquerda (v1); ao centro, sozinho sobre a fotografia (v2); ou ao
     centro, com o título por cima e as vantagens por baixo (v3) */
-export type Disposicao = 'lado' | 'centro' | 'centro-apresentacao';
+export type Disposicao = 'lado' | 'centro' | 'centro-apresentacao' | 'diagonal';
 /** v6: a família Romafe (8 out. 2026). Três tipos de aplicação, diferentes
     entre si e com as mesmas peças: o nome ROMAFE na letra Motor e no azul
     RGB(0, 99, 170), o cartão, o botão laranja e o rodapé. */
@@ -59,6 +59,11 @@ export interface OpcoesEntrar {
   /** no cartão, o nome ROMAFE em Motor no lugar do nome do produto
       (ERP v7: ela pediu «não digas Rolgest, mas sim Romafe») */
   nomeRomafe?: boolean;
+  /** v8 do ERP (8 out. 2026, a partir de uma imagem dela): pouco texto à
+      volta. Sem barra de topo, sem rodapé, sem discurso, sem apoio nem
+      versão no cartão; os campos sem rótulo à vista. O selo é a palavra
+      espaçada por baixo do ROMAFE: «ERP». */
+  minimo?: { selo: string };
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
@@ -160,6 +165,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
+  if (o.minimo) return paginaMinima(o, cartao);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
@@ -207,11 +213,29 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
 </div>`;
 }
 
+/** O ROMAFE com o risco laranja e a palavra espaçada por baixo. O ROMAFE
+    é sempre azul e sempre em Motor, também sobre a fotografia. */
+function selo(o: OpcoesEntrar, cls = ''): string {
+  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub">${o.minimo!.selo}</span></span>`;
+}
+
+/** v8: a fotografia do armazém à esquerda, clara e cortada em diagonal,
+    com o selo por cima; o cartão à direita, sobre um fundo claro. Mais nada. */
+function paginaMinima(o: OpcoesEntrar, cartao: string): string {
+  return `<div class="entrada entrada--completa entrada--minima">
+  <main class="palco">
+    <div class="minima__foto" role="img" aria-label="Armazém da Romafe"></div>
+    <div class="minima__selo" aria-hidden="true">${selo(o, 'selo--grande')}</div>
+    ${cartao}
+  </main>
+</div>`;
+}
+
 const SVG_SETA = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>`;
 
 /* ---------------- 01 · Entrar ---------------- */
 function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
-  const completa = o.variante === 'completa';
+  const completa = o.variante === 'completa' && !o.minimo;
   /* 19 §3: uma mensagem só, e nenhum campo ganha borda vermelha. As duas
      recusas de outro dono (a licença, o lugar) estão escondidas: mostram-se
      no painel, em Peça → Visível. No Mobile não cabem: lá a recusa é do PDA. */
@@ -246,7 +270,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
       ${o.versao ? `<p class="cartao__versao">${o.versao}</p>` : ''}` : '';
 
   return `<section class="cartao" aria-labelledby="${k.id('titulo-entrada')}">
-      <div class="cartao__cabeca">${marca(o, 'lockup--centro', k.id('titulo-entrada'))}</div>
+      <div class="cartao__cabeca">${o.minimo ? `<h1 class="selo__titulo" id="${k.id('titulo-entrada')}">${selo(o)}</h1>` : marca(o, 'lockup--centro', k.id('titulo-entrada'))}</div>
       ${alertas}
       <!-- Passo 1. Um endereço que não existe também segue para a
            palavra-passe, e só falha no fim: dizer aqui «não existe»
@@ -280,7 +304,7 @@ function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
           </label>
         </div>` : '';
   return `<section class="cartao" aria-labelledby="${k.id('titulo-passe')}">
-      <div class="cartao__cabeca">${marca(o, 'lockup--centro')}</div>
+      <div class="cartao__cabeca">${o.minimo ? selo(o) : marca(o, 'lockup--centro')}</div>
       <div class="alerta" id="${k.id('alerta')}" data-credenciais role="alert" data-ed-nome="Alerta · credenciais" hidden>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16.5v.5"/></svg>
         <span>Endereço ou palavra-passe incorretos.</span>
@@ -309,7 +333,7 @@ function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
           <a class="ligacao-recuperar" href="#">Esqueceu-se da palavra-passe?</a>
         </div>
       </form>
-      ${o.variante === 'completa' && o.realm ? `<p class="cartao__versao">Valida no Keycloak · realm ${o.realm}</p>` : ''}
+      ${o.variante === 'completa' && !o.minimo && o.realm ? `<p class="cartao__versao">Valida no Keycloak · realm ${o.realm}</p>` : ''}
     </section>`;
 }
 

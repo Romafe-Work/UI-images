@@ -535,3 +535,64 @@
 @media (max-width: 560px) {
   .topo__tipo { display: none; }
 }
+
+/* =========================================================
+   v8 — POUCO TEXTO À VOLTA (ERP, 8 out. 2026)
+   A partir de uma imagem dela. Sem barra de topo, sem rodapé, sem discurso:
+   a fotografia do armazém à esquerda, cortada em diagonal, e o cartão à
+   direita sobre um fundo claro. O ROMAFE é sempre azul e em Motor; para se
+   ler sobre a fotografia, ela leva um véu branco em vez do azul.
+   ========================================================= */
+.entrada--minima { grid-template-rows: 1fr; }
+.entrada--minima .palco {
+  grid-template-columns: 46% minmax(0, 1fr); gap: 0; padding: 0;
+  min-height: 100vh; align-items: center; overflow: hidden;
+  background: linear-gradient(135deg, #f3f6fa 0%, var(--c-superficie) 70%);
+}
+.minima__foto {
+  position: absolute; inset: 0; z-index: -1;
+  background: url('../img/armazem.webp') center / cover no-repeat;
+  clip-path: polygon(0 0, 57% 0, 36% 100%, 0 100%);
+}
+/* o véu: mais branco onde está o ROMAFE, e a apagar a fotografia junto à diagonal */
+.minima__foto::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(24% 26% at 23% 50%, rgba(255,255,255,.80), rgba(255,255,255,0) 100%),
+    linear-gradient(90deg, rgba(0,63,120,.10) 0%, rgba(255,255,255,.25) 28%, rgba(243,246,250,.9) 54%);
+}
+.minima__selo { grid-column: 1; justify-self: center; }
+.entrada--minima .cartao {
+  grid-column: 2; justify-self: center; order: 0;
+  max-width: 500px; padding: var(--e-8) var(--e-7) var(--e-7);
+  border-radius: 20px; box-shadow: 0 24px 60px rgba(16, 24, 40, .10);
+}
+.entrada--minima .cartao__cabeca { margin-bottom: var(--e-6); }
+
+.selo { display: grid; justify-items: center; gap: var(--e-3); }
+.selo__titulo { margin: 0; font: inherit; }
+.romafe--selo { font-size: 64px; }
+.selo--grande .romafe--selo { font-size: 88px; }
+.selo__risco { width: 60px; height: 4px; border-radius: 2px; background: var(--c-acao); }
+.selo__sub {
+  font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 500;
+  letter-spacing: .45em; margin-right: -.45em; color: var(--c-texto-2);
+}
+.selo--grande .selo__sub { font-size: var(--t-xl); color: var(--c-texto); }
+
+/* os campos sem rótulo à vista: o rótulo fica para o leitor de ecrã */
+.entrada--minima .campo__label {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.entrada--minima .input { min-height: 56px; border: 1px solid var(--c-borda); }
+/* sem o rótulo por cima, o ícone e o olho voltam ao meio do campo */
+.entrada--minima .campo__label ~ .campo__icone,
+.entrada--minima .campo__label ~ .campo__acao { top: 50%; }
+.entrada--minima .btn--bloco { min-height: 56px; font-size: var(--t-lg); }
+
+@media (max-width: 1100px) {
+  .entrada--minima .palco { grid-template-columns: 1fr; padding: var(--e-6) var(--e-4); }
+  .minima__selo, .minima__foto { display: none; }
+  .entrada--minima .cartao { grid-column: 1; }
+}
