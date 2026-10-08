@@ -12,6 +12,19 @@
 import { mostrar } from './ecras';
 import { fluxo } from './fluxo';
 import { aplicar as aplicarTema, actual as temaActual } from './tema';
+/* O CSS de tudo, tal como está escrito (com os comentários), para se ler
+   no diálogo «Ver o CSS». Fica fora o editor.css: é da ferramenta, não dos ecrãs. */
+import cssTokens from './css/tokens.css?raw';
+import cssBase from './css/base.css?raw';
+import cssEntrar from './entrar/entrar.css?raw';
+import cssTelemovel from './css/telemovel.css?raw';
+
+const FICHEIROS_CSS: [string, string, string][] = [
+  ['tokens.css', 'as cores, as letras, as folgas e os raios — a fonte da verdade', cssTokens],
+  ['base.css', 'as peças: botões, campos, marca, avisos', cssBase],
+  ['entrar.css', 'o início de sessão: o palco, o cartão e todas as versões', cssEntrar],
+  ['telemovel.css', 'a moldura do ecrã do PDA', cssTelemovel],
+];
 
 /** Uma peça do ecrã: um elemento HTML ou um ícone SVG. Os dois têm style e dataset. */
 type Peca = HTMLElement | SVGElement;
@@ -148,6 +161,9 @@ let listaCamadas: HTMLElement;
 let corpoProps: HTMLElement;
 let dialogo: HTMLDialogElement;
 let codigoDialogo: HTMLElement;
+let abaDialogo: 'tudo' | 'peca' | 'mudaste' = 'tudo';
+let filtroDialogo: HTMLInputElement;
+let notaDialogo: HTMLElement;
 let avisoEl: HTMLElement | null = null;
 
 /* o botão de cada camada sabe a que peça pertence */
@@ -1157,11 +1173,28 @@ function montar(): void {
   /* diálogo do CSS */
   dialogo = el('dialog', 'ed-dialogo');
   const topoD = el('div', 'ed-dialogo__topo');
-  topoD.appendChild(el('h2', null, 'O que mudaste'));
+  topoD.appendChild(el('h2', null, 'O CSS'));
   const bFechar = el('button', 'ed-botao', 'Fechar');
   bFechar.type = 'button';
   bFechar.addEventListener('click', function () { dialogo.close(); });
   topoD.appendChild(bFechar);
+  const abas = el('div', 'ed-degraus ed-dialogo__abas');
+  ([['tudo', 'Tudo'], ['peca', 'Esta peça'], ['mudaste', 'O que mudaste']] as const).forEach(function (par) {
+    const b = el('button', 'ed-degrau', par[1]);
+    b.type = 'button';
+    b.dataset.aba = par[0];
+    b.addEventListener('click', function () { abaDialogo = par[0]; pintarDialogo(); });
+    abas.appendChild(b);
+  });
+  const barraD = el('div', 'ed-dialogo__barra');
+  barraD.appendChild(abas);
+  filtroDialogo = el('input', 'ed-dialogo__filtro');
+  filtroDialogo.type = 'search';
+  filtroDialogo.placeholder = 'Procurar: cartao, --c-acao, v8…';
+  filtroDialogo.setAttribute('aria-label', 'Procurar no CSS');
+  filtroDialogo.addEventListener('input', pintarDialogo);
+  barraD.appendChild(filtroDialogo);
+  notaDialogo = el('p', 'ed-dica ed-dialogo__nota');
   const pre = el('pre');
   const code = el('code');
   pre.appendChild(code);
@@ -1173,7 +1206,8 @@ function montar(): void {
     if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { aviso('CSS copiado'); });
   });
   accoesD.appendChild(bCopiar);
-  dialogo.appendChild(topoD); dialogo.appendChild(pre); dialogo.appendChild(accoesD);
+  dialogo.appendChild(topoD); dialogo.appendChild(barraD); dialogo.appendChild(notaDialogo);
+  dialogo.appendChild(pre); dialogo.appendChild(accoesD);
   codigoDialogo = code;
   document.body.appendChild(dialogo);
 }
@@ -1204,8 +1238,79 @@ function abrirFluxo(sim: boolean): void {
   pintarProps();
 }
 
+/* ---------------- o CSS de tudo ---------------- */
+function cssTudo(): string {
+  return FICHEIROS_CSS.map(function (f) {
+    return '/* ════════ ' + f[0] + ' — ' + f[1] + ' ════════ */\n\n' + f[2].trim();
+  }).join('\n\n\n');
+}
+
+/* As regras que se aplicam à peça, por ordem, como nas ferramentas do
+   navegador: as das folhas dos ecrãs (as do editor ficam de fora) e as
+   que estão dentro de um @media que vale agora. */
+function regrasDaPeca(alvo: Element): string {
+  const linhas: string[] = [];
+  const visitar = function (lista: CSSRuleList, media: string): void {
+    for (let i = 0; i < lista.length; i++) {
+      const r = lista[i];
+      if (r instanceof CSSMediaRule) {
+        if (window.matchMedia(r.media.mediaText).matches) visitar(r.cssRules, r.media.mediaText);
+        continue;
+      }
+      if (!(r instanceof CSSStyleRule)) continue;
+      const partes = r.selectorText.split(',').map(function (x) { return x.trim(); })
+        .filter(function (x) { return x.indexOf('.ed-') < 0; });
+      const vale = partes.some(function (x) {
+        try { return alvo.matches(x.replace(/::?(before|after|backdrop|placeholder|-webkit-[a-z-]+)$/, '')); } catch (e) { return false; }
+      });
+      if (!vale) continue;
+      const texto = r.cssText.replace(/\{ /, '{\n  ').replace(/; /g, ';\n  ').replace(/\s*\}$/, '\n}');
+      linhas.push((media ? '@media ' + media + ' {\n' : '') + texto + (media ? '\n}' : ''));
+    }
+  };
+  for (let i = 0; i < document.styleSheets.length; i++) {
+    const f = document.styleSheets[i];
+    if (f.ownerNode === folha) continue;
+    let regras: CSSRuleList;
+    try { regras = f.cssRules; } catch (e) { continue; }
+    visitar(regras, '');
+  }
+  return linhas.length
+    ? '/* ' + seletor(alvo) + ' — ' + linhas.length + ' regras, da primeira para a última (a última ganha) */\n\n' + linhas.join('\n\n')
+    : '/* Nenhuma regra dos ecrãs se aplica a esta peça. */';
+}
+
+/* o filtro guarda os blocos (de uma linha em branco à seguinte) onde aparece o que se escreveu */
+function filtrar(texto: string, termo: string): string {
+  if (!termo) return texto;
+  const t = termo.toLowerCase();
+  const blocos = texto.split(/\n\s*\n/).filter(function (b) { return b.toLowerCase().indexOf(t) >= 0; });
+  return blocos.length ? blocos.join('\n\n') : '/* Nada com «' + termo + '». */';
+}
+
+function pintarDialogo(): void {
+  let texto: string;
+  let nota: string;
+  if (abaDialogo === 'tudo') {
+    texto = cssTudo();
+    nota = 'Todo o CSS dos ecrãs, ficheiro a ficheiro, como está escrito.';
+  } else if (abaDialogo === 'peca') {
+    texto = seleccionado ? regrasDaPeca(seleccionado as unknown as Element) : '/* Escolhe uma peça na tela ou nas camadas. */';
+    nota = seleccionado ? 'Todas as regras que se aplicam à peça escolhida.' : 'Nenhuma peça escolhida.';
+  } else {
+    texto = cssFinal();
+    nota = 'Só o que mudaste no editor, pronto a copiar.';
+  }
+  notaDialogo.textContent = nota;
+  filtroDialogo.hidden = abaDialogo === 'mudaste';
+  codigoDialogo.textContent = abaDialogo === 'mudaste' ? texto : filtrar(texto, filtroDialogo.value.trim());
+  const bs = dialogo.querySelectorAll<HTMLElement>('.ed-dialogo__abas .ed-degrau');
+  for (let k = 0; k < bs.length; k++) bs[k].setAttribute('aria-pressed', String(bs[k].dataset.aba === abaDialogo));
+}
+
 function abrirDialogo(): void {
-  codigoDialogo.textContent = cssFinal();
+  abaDialogo = 'tudo';
+  pintarDialogo();
   dialogo.showModal();
 }
 

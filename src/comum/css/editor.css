@@ -163,13 +163,20 @@
 /* ---------- diálogo do CSS ---------- */
 .ed-dialogo {
   border: 1px solid var(--ed-borda); border-radius: var(--r-md); padding: 0;
-  width: min(680px, 92vw); background: var(--ed-painel); color: var(--ed-tinta);
+  width: min(900px, 94vw); background: var(--ed-painel); color: var(--ed-tinta);
   font-family: var(--f-base);
 }
 .ed-dialogo::backdrop { background: rgba(0,0,0,.55); }
 .ed-dialogo__topo { display: flex; align-items: center; justify-content: space-between; padding: var(--e-3) var(--e-4); border-bottom: 1px solid var(--ed-borda); }
 .ed-dialogo h2 { font-family: var(--f-titulo); font-size: var(--t-md); margin: 0; }
-.ed-dialogo pre { margin: 0; padding: var(--e-4); max-height: 50vh; overflow: auto; background: var(--ed-fundo); font-size: 11px; line-height: 1.7; color: var(--ed-tinta-2); }
+.ed-dialogo__barra { display: flex; align-items: center; gap: var(--e-3); padding: var(--e-3) var(--e-4) 0; flex-wrap: wrap; }
+.ed-dialogo__filtro {
+  flex: 1; min-width: 180px; font: inherit; font-size: 12px; padding: 6px 10px;
+  background: var(--ed-fundo); color: var(--ed-tinta); border: 1px solid var(--ed-borda); border-radius: var(--r-sm);
+}
+.ed-dialogo__filtro[hidden] { display: none; }
+.ed-dialogo__nota { padding: var(--e-2) var(--e-4); }
+.ed-dialogo pre { margin: 0; padding: var(--e-4); max-height: 62vh; overflow: auto; background: var(--ed-fundo); font-size: 11px; line-height: 1.7; color: var(--ed-tinta-2); }
 .ed-dialogo__accoes { display: flex; gap: var(--e-2); justify-content: flex-end; padding: var(--e-3) var(--e-4); }
 
 .ed-aviso {
