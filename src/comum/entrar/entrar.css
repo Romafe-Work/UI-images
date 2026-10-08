@@ -803,3 +803,7 @@
 
 /* GoShop v5: a família ao centro com as famílias de peças — menos folga */
 .entrada.entrada--completa.entrada--webshop.entrada--familia-centro.entrada--fixa .palco { padding-top: 3vh; gap: var(--e-4); }
+
+/* Pick: o cartão ao meio do ecrã, na vertical (ela, 8 out. 2026: «quero o
+   quadrado do login no meio»). Ganha a preso-em-cima do `fixo`. */
+.entrada--fixa.entrada--compacta .palco { align-content: center; padding: var(--e-3); }
