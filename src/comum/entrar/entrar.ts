@@ -421,7 +421,11 @@ function cartaoAjuda(o: OpcoesEntrar, k: Chaves): string {
 }
 
 /** Uma versão do início de sessão: as opções com que se desenha. */
-export interface VersaoEntrar { id: string; nota: string; opcoes: OpcoesEntrar }
+export interface VersaoEntrar {
+  id: string; nota: string; opcoes: OpcoesEntrar;
+  /** os ecrãs onde esta versão não existe (no ERP, a ajuda só tem algumas) */
+  sem?: IdEntrar[];
+}
 
 /** Os três ecrãs do início de sessão, para a app que os pede, com as versões
     que ela tiver. Se uma app tiver dois produtos, cada um passa o seu prefixo
@@ -448,7 +452,9 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
   const fluxo = versoes[0].opcoes.fluxo || 'Entrar';
   const ecra = (id: IdEntrar, nome: string, objetivo: string): Ecra<`${P}${IdEntrar}`> => ({
     id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo,
-    versoes: versoes.map((v, i) => ({ id: v.id, nota: v.nota, html: desenhos[i][id] })) as Ecra['versoes'],
+    versoes: versoes.map((v, i) => ({ id: v.id, nota: v.nota, html: desenhos[i][id], sem: v.sem }))
+      .filter((v) => !v.sem?.includes(id))
+      .map(({ sem: _sem, ...v }) => v) as Ecra['versoes'],
   });
   return [
     ecra('entrada', '01 · Entrar',

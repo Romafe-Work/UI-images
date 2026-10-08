@@ -9,6 +9,13 @@ function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
   return vs.map((v, i) => ({ ...v, id: 'v' + (i + 1) })) as [VersaoEntrar, ...VersaoEntrar[]];
 }
 
+/** No 04 · Precisa de ajuda? ficam só algumas versões (ela, 8 out. 2026:
+    tirar a v3, a v6 e a v7). As que ficam guardam o número das do 01, para
+    a ajuda de uma versão ser a mesma versão do resto. */
+function semAjuda(vs: [VersaoEntrar, ...VersaoEntrar[]], ids: string[]): [VersaoEntrar, ...VersaoEntrar[]] {
+  return vs.map((v) => (ids.includes(v.id) ? { ...v, sem: ['ajuda'] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
+}
+
 export const erp: App<IdErp> = {
   id: 'erp',
   nome: 'ERP',
@@ -17,10 +24,10 @@ export const erp: App<IdErp> = {
   marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar(numerar([
+  ecras: [...ecrasEntrar(semAjuda(numerar([
     /* a v5 e a v6 de antes saíram a 8 out. 2026, a pedido dela */
     ...versoesCompletas(entrarErp).filter((v) => v.id !== 'v5' && v.id !== 'v6'),
     { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o ERP, o campo e a ajuda', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP' } } },
     { id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', centro: true } } },
-  ]))],
+  ]), ['v3', 'v6', 'v7']))],
 };
