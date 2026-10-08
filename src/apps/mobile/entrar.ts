@@ -7,6 +7,8 @@ import type { OpcoesEntrar } from '../../comum/entrar/entrar';
 
 export const entrarMobile: OpcoesEntrar = {
   variante: 'compacta',
+  comRomafe: true,
+  fixo: true,
   marca: { nome: 'ROMAFE', sub: 'Pick' },
   produto: 'Romafe',
 };
@@ -15,6 +17,8 @@ export const entrarMobile: OpcoesEntrar = {
     o nome e o subtítulo mudam-se aqui. */
 export const entrarMobileNeutro: OpcoesEntrar = {
   variante: 'compacta',
+  comRomafe: true,
+  fixo: true,
   marca: { nome: 'Pick', sub: 'Armazém' },
   produto: 'Pick',
   semRomafe: true,
@@ -25,6 +29,8 @@ export const entrarMobileNeutro: OpcoesEntrar = {
     Sem a palavra «Mobile» (ela tirou-a no mesmo dia). */
 export const entrarMobileFamilia: OpcoesEntrar = {
   variante: 'compacta',
+  comRomafe: true,
+  fixo: true,
   familia: 'interna',
   marca: { nome: 'ROMAFE', sub: 'Armazém' },
   produto: 'Pick',

@@ -10,6 +10,9 @@ import type { OpcoesEntrar } from '../../comum/entrar/entrar';
 export const entrarPecaAPeca: OpcoesEntrar = {
   variante: 'completa',
   familia: 'webshop',
+  /* como no ERP: o ROMAFE sempre azul e o cartão sempre no mesmo sítio */
+  comRomafe: true,
+  fixo: true,
   marca: { nome: 'PEÇA A PEÇA', sub: 'A loja online de peças' },
   produto: 'Peça a Peça',
   convite: { texto: 'Ainda não é cliente?', ligacao: 'Pedir conta' },

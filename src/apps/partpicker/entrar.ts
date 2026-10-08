@@ -10,6 +10,9 @@ import type { OpcoesEntrar } from '../../comum/entrar/entrar';
 export const entrarPartPicker: OpcoesEntrar = {
   variante: 'completa',
   familia: 'marketplace',
+  /* como no ERP: o ROMAFE sempre azul e o cartão sempre no mesmo sítio */
+  comRomafe: true,
+  fixo: true,
   marca: { nome: 'PART PICKER', sub: 'O marketplace de peças auto' },
   produto: 'Part Picker',
   convite: { texto: 'Quer vender peças?', ligacao: 'Abrir loja no Part Picker' },

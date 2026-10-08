@@ -73,6 +73,10 @@ export interface OpcoesEntrar {
       volta é sempre o do 01, o cartão prende-se em cima, e o 03 deixa de ser
       «Fora da Romafe» para ter a marca como os outros (ERP, 8 out. 2026) */
   fixo?: boolean;
+  /** o ROMAFE, azul e em Motor, por cima do nome da app em todas as versões,
+      também nas que eram sem a Romafe (Web e Pick, 8 out. 2026: «quero sempre
+      Romafe presente com aquele azul») */
+  comRomafe?: boolean;
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
@@ -102,19 +106,28 @@ interface Chaves { ir: (id: IdEntrar) => string; id: (peca: string) => string }
     ao lado no topo, por cima no cartão. */
 function marca(o: OpcoesEntrar, cls: string, idSub = ''): string {
   if (o.familia) return produto(o, idSub);
-  const l = lockup(o.marca, cls, idSub, !!o.nomeRomafe);
+  const l = lockup(o, cls, idSub);
   if (!o.desenhado) return l;
   const inicial = o.marca.nome.trim().charAt(0).toUpperCase();
   const dir = cls.includes('centro') ? 'marca-produto--coluna' : 'marca-produto--linha';
+  /* com o ROMAFE presente, o monograma (a inicial num quadrado) sai: a marca é o ROMAFE */
+  if (o.comRomafe) return l;
   if (o.monogramaRomafe) return `<span class="marca-produto ${dir}">${romafe('romafe--cartao')}${l}</span>`;
   return `<span class="marca-produto ${dir}"><span class="marca-produto__monograma" aria-hidden="true">${inicial}</span>${l}</span>`;
 }
 
-function lockup(m: OpcoesEntrar['marca'], cls: string, idSub = '', comRomafe = false): string {
+function lockup(o: OpcoesEntrar, cls: string, idSub = ''): string {
+  const m = o.marca;
   /* com o ROMAFE, o nome é sempre o desenho da marca — azul e em Motor —,
-     também nas versões neutras, que de outro modo o punham noutra letra */
+     também nas versões neutras, que de outro modo o punham noutra letra.
+     Numa app que não é a Romafe, o nome dela vem por baixo, na letra dos títulos. */
+  const nome = o.nomeRomafe
+    ? romafe('lockup__romafe')
+    : o.comRomafe
+      ? romafe('lockup__romafe') + (o.produto !== 'Romafe' ? `<span class="lockup__produto">${o.produto}</span>` : '')
+      : `<span class="lockup__nome">${m.nome}</span>`;
   return `<span class="lockup ${cls}">
-      ${comRomafe ? romafe('lockup__romafe') : `<span class="lockup__nome">${m.nome}</span>`}
+      ${nome}
       <span class="lockup__risco" aria-hidden="true"></span>
       <span class="lockup__sub"${idSub ? ` id="${idSub}"` : ''}>${m.sub}</span>
     </span>`;
@@ -129,7 +142,7 @@ function romafe(cls = ''): string {
     para o ROMAFE; na compacta, sem barra de topo, o ROMAFE vem por cima. */
 function produto(o: OpcoesEntrar, idSub = ''): string {
   return `<span class="produto">
-      ${o.variante === 'compacta' && !o.nomeRomafe ? romafe('romafe--cartao') : ''}
+      ${(o.variante === 'compacta' || o.comRomafe) && !o.nomeRomafe ? romafe('romafe--cartao') : ''}
       ${o.nomeRomafe ? romafe('romafe--nome') : `<span class="produto__nome">${o.produto}</span>`}
       <span class="produto__sub"${idSub ? ` id="${idSub}"` : ''}>${o.marca.sub}</span>
     </span>`;
@@ -370,10 +383,6 @@ function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
       <p class="cartao__sub">Por exemplo, o Entra ID da Exemplo, Lda. O desenho é o dela.</p>
       <div class="formulario">
         <p class="identidade"><span class="identidade__correio">ana.ribeiro@exemplo.pt</span></p>
-        <div class="campo">
-          <label class="campo__label" for="${k.id('passe-empresa')}">Palavra-passe da empresa</label>
-          <input class="input" id="${k.id('passe-empresa')}" type="password" value="••••••••••" disabled>
-        </div>
         <div class="campo">
           <label class="campo__label" for="${k.id('fator-empresa')}">Segundo fator do cliente</label>
           <input class="input" id="${k.id('fator-empresa')}" type="text" value="código da aplicação" disabled>

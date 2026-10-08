@@ -689,3 +689,15 @@
 .entrada.entrada--completa.entrada--interna.entrada--familia-centro.entrada--fixa .palco {
   align-items: start; align-content: start; padding-top: 6vh;
 }
+
+/* ---------- Web e Pick: o ROMAFE por cima do nome da app ---------- */
+.lockup__produto {
+  font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-xl);
+  line-height: 1.1; color: var(--c-texto); text-transform: none; letter-spacing: 0;
+}
+.lockup--sm .lockup__produto { font-size: var(--t-md); }
+.lockup--sm { justify-items: start; }
+.lockup:has(.lockup__produto) .lockup__risco { width: 60px; justify-self: center; }
+.lockup--sm:has(.lockup__produto) .lockup__risco { justify-self: start; width: 40px; }
+/* na compacta (Pick) o cartão também se prende em cima */
+.entrada--fixa.entrada--compacta .palco { align-content: start; padding-top: 10vh; }
