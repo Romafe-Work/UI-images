@@ -771,3 +771,35 @@
   .foto__pe { position: static; width: auto; padding: var(--e-6) var(--e-5); }
 }
 .entrada--foto .ligacao-recuperar { text-align: left; }
+
+/* =========================================================
+   SEM SCROLL (8 out. 2026: «não quero scroll»)
+   Tudo tem de caber no ecrã: na Pick, os 320 × 533 do EDA61K; na Web e no
+   ERP, os 1440 × 900. Na Pick aperta-se o que é folga e letra; não se tira
+   nenhum passo nem nenhuma instrução.
+   ========================================================= */
+.entrada--fixa.entrada--compacta .palco { padding: var(--e-3) var(--e-3) 0; }
+.entrada--compacta .cartao { padding: var(--e-4); }
+.entrada--compacta .cartao__cabeca { margin-bottom: var(--e-3); }
+.entrada--compacta .romafe--cartao { font-size: 28px; margin-bottom: 2px; }
+.entrada--compacta .lockup__romafe { font-size: 28px; }
+.entrada--compacta .produto__nome, .entrada--compacta .lockup__produto { font-size: var(--t-lg); }
+.entrada--compacta .produto__nome::after { margin-top: var(--e-1); }
+.entrada--compacta .formulario { gap: var(--e-3); }
+.entrada--compacta .input, .entrada--compacta .btn--bloco { min-height: 46px; }
+.entrada--compacta .opcao__ajuda { display: none; }
+/* 03: o título mais pequeno e sem a frase de exemplo, que é nota para nós */
+.entrada--compacta .cartao__titulo { font-size: var(--t-lg); margin-bottom: var(--e-2); }
+.entrada--compacta .cartao--fora .cartao__sub,
+.entrada--compacta .cartao:not(.cartao--ajuda) .cartao__sub { display: none; }
+.entrada--compacta .cartao__pe { margin-top: var(--e-3); padding-top: var(--e-2); font-size: var(--t-xs); }
+/* ajuda: letra pequena e o apoio numa linha */
+.entrada--compacta .cartao--ajuda .cartao__titulo { font-size: var(--t-md); margin-bottom: var(--e-2); }
+.entrada--compacta .cartao--ajuda .caso__titulo { font-size: var(--t-xs); }
+.entrada--compacta .cartao--ajuda .caso__texto { font-size: 11px; }
+.entrada--compacta .cartao--ajuda .contacto { font-size: var(--t-xs); white-space: nowrap; }
+.entrada--compacta .cartao--ajuda .contacto strong { font-size: var(--t-sm); }
+.entrada--compacta .ajuda-compacta { margin-top: var(--e-2); }
+
+/* GoShop v5: a família ao centro com as famílias de peças — menos folga */
+.entrada.entrada--completa.entrada--webshop.entrada--familia-centro.entrada--fixa .palco { padding-top: 3vh; gap: var(--e-4); }
