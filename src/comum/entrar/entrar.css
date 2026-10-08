@@ -607,7 +607,30 @@
 .ajuda a:hover { text-decoration: underline; }
 .ajuda svg { width: 22px; height: 22px; }
 
+/* ---------- v9: a fotografia toda, o cartão ao centro ----------
+   Outra imagem dela: a fotografia no ecrã inteiro com um véu azul leve,
+   duas formas azuis translúcidas nos cantos (em cima à esquerda, em baixo
+   à direita) e o cartão sozinho ao meio. */
+.entrada--minima-centro .palco { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.entrada--minima-centro .minima__foto { right: 0; }
+.entrada--minima-centro .minima__foto::after {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(0, 72, 160, .22);
+}
+.minima__canto { position: absolute; z-index: -2; pointer-events: none; background: rgba(40, 110, 210, .45); }
+.minima__canto--cima {
+  left: 0; top: 0; width: 28%; height: 50%;
+  clip-path: polygon(0 0, 90% 0, 100% 12%, 45% 100%, 0 100%);
+}
+.minima__canto--baixo {
+  right: 0; bottom: 0; width: 24%; height: 62%;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 88% 4%);
+  background: rgba(120, 170, 235, .35);
+}
+.entrada--minima-centro .cartao { grid-column: 1; width: min(560px, 92%); }
+
 @media (max-width: 1100px) {
+  .minima__canto { display: none; }
   .entrada--minima .palco { grid-template-columns: 1fr; padding: var(--e-6) var(--e-4); background: #eef3f9; }
   .minima__foto, .minima__faixa, .minima__painel { display: none; }
   .entrada--minima .cartao { grid-column: 1; }

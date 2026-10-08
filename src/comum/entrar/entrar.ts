@@ -63,7 +63,12 @@ export interface OpcoesEntrar {
       volta. Sem barra de topo, sem rodapé e sem discurso; no cartão o selo,
       a linha por baixo (marca.sub), o campo e «Precisa de ajuda?». O selo é
       a palavra espaçada por baixo do ROMAFE: «ERP». */
-  minimo?: { selo: string };
+  minimo?: {
+    selo: string;
+    /** v9: a fotografia no ecrã todo, com o cartão ao centro e duas formas
+        azuis nos cantos; a ajuda só em texto */
+    centro?: boolean;
+  };
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
@@ -165,7 +170,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
-  if (o.minimo) return paginaMinima(cartao);
+  if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
@@ -222,12 +227,14 @@ function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
 /** v8: a fotografia do armazém à esquerda, sem texto, com duas faixas
     azuis em diagonal; o painel claro à direita, recortado em seta, com o
     cartão. Mais nada. */
-function paginaMinima(cartao: string): string {
-  return `<div class="entrada entrada--completa entrada--minima">
+function paginaMinima(cartao: string, centro: boolean): string {
+  const formas = centro
+    ? '<div class="minima__canto minima__canto--cima" aria-hidden="true"></div><div class="minima__canto minima__canto--baixo" aria-hidden="true"></div>'
+    : '<div class="minima__faixa" aria-hidden="true"></div><div class="minima__painel" aria-hidden="true"></div>';
+  return `<div class="entrada entrada--completa entrada--minima${centro ? ' entrada--minima-centro' : ''}">
   <main class="palco">
     <div class="minima__foto" role="img" aria-label="Armazém da Romafe"></div>
-    <div class="minima__faixa" aria-hidden="true"></div>
-    <div class="minima__painel" aria-hidden="true"></div>
+    ${formas}
     ${cartao}
   </main>
 </div>`;
@@ -292,7 +299,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           </button>
         </div>
       </form>
-      ${o.minimo ? `<div class="ajuda"><a href="#">${SVG_AJUDA}Precisa de ajuda?</a></div>` : ''}
+      ${o.minimo ? `<div class="ajuda"><a href="#">${o.minimo.centro ? '' : SVG_AJUDA}Precisa de ajuda?</a></div>` : ''}
       ${o.convite ? `<p class="convite">${o.convite.texto} <a href="#">${o.convite.ligacao}</a></p>` : ''}
       ${apoio}
     </section>`;
