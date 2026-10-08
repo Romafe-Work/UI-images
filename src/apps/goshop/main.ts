@@ -5,6 +5,6 @@ import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
 import { iniciar as entrar } from '../../comum/entrar/comportamento';
-import { partpicker } from './app';
+import { goshop } from './app';
 
-montar(partpicker, [entrar]);
+montar(goshop, [entrar]);

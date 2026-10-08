@@ -521,7 +521,7 @@ function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
   return vs.map((v, i) => ({ ...v, id: 'v' + (i + 1) })) as [VersaoEntrar, ...VersaoEntrar[]];
 }
 
-/** As versões do login das apps completas (ERP, Peça a Peça, Part Picker),
+/** As versões do login das apps completas (ERP, GoShop, GoParts),
     iguais nas três desde 8 out. 2026 — o que ela foi pedindo no ERP vale para
     a Web: saem a v5 (fundo desenhado) e a v6 (família com o cartão ao lado);
     entram a de pouco texto com a fotografia em diagonal e a da fotografia
