@@ -146,6 +146,6 @@ aplicação (`familia` em `OpcoesEntrar`):
 | --- | --- | --- | --- |
 | `interna` | ERP (v6), Pick (v4) | fotografia do armazém numa metade, cartão na outra | azul ROMAFE |
 | `webshop` | GoShop | claro, de loja, com as famílias de peças e «Pedir conta» | laranja |
-| `marketplace` | GoParts | escuro, de rede, com «Abrir loja» | verde-água (proposta) |
+| `marketplace` | GoParts | escuro, de rede, com «Abrir loja» | azul ROMAFE |
 
 Igual nos três: o ROMAFE em Motor na barra de topo, o cartão, o botão e o rodapé.

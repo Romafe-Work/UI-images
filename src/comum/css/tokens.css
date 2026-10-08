@@ -137,9 +137,10 @@
   /* v6, a família Romafe (8 out. 2026). O nome ROMAFE leva o --c-logotipo,
      RGB(0, 99, 170), em todos os temas: nunca passa a um azul claro (ela).
      A cor de cada tipo é a do risco do topo e do cartão: o azul ROMAFE nas
-     internas, o laranja na loja, e um verde-água no marketplace (proposta). */
+     internas e no marketplace, o laranja na loja. O verde-água que estava no
+     marketplace saiu a 8 out. 2026: não é cor da Romafe. */
   --c-romafe:         var(--c-logotipo);
-  --c-mercado:        #129c92;
+  --c-mercado:        var(--c-logotipo);
   --a-campo:          44px;                    /* 19 §2: 44 e não 42 */
   --l-cartao:         460px;                   /* a maqueta. O 19 §1 pede 400 */
 }

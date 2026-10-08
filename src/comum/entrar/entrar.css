@@ -461,7 +461,7 @@
   grid-template-columns: minmax(0, 880px); justify-content: center; justify-items: center;
   align-content: center; gap: var(--e-5);
   background:
-    radial-gradient(40% 50% at 15% 20%, rgba(18, 156, 146, .30), transparent 70%),
+    radial-gradient(40% 50% at 15% 20%, rgba(0, 99, 170, .35), transparent 70%),
     radial-gradient(35% 45% at 85% 80%, rgba(0, 99, 170, .55), transparent 70%),
     linear-gradient(160deg, #0a2a44, var(--c-entrada-fundo) 65%);
 }
@@ -484,7 +484,6 @@
   grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-5);
   color: var(--c-entrada-tinta);
 }
-.entrada--marketplace .vantagem svg { color: #5fd3c8; }
 .entrada--marketplace .discurso__texto { order: 0; text-align: center; color: var(--c-entrada-tinta); }
 
 /* ---------- v7: o cartão ao centro nos três tipos ----------
