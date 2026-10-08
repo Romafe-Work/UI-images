@@ -454,7 +454,8 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
     id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo,
     versoes: versoes.map((v, i) => ({ id: v.id, nota: v.nota, html: desenhos[i][id], sem: v.sem }))
       .filter((v) => !v.sem?.includes(id))
-      .map(({ sem: _sem, ...v }) => v) as Ecra['versoes'],
+      /* em cada ecrã os números seguem a ordem, sem buracos (ela, 8 out. 2026) */
+      .map(({ sem: _sem, ...v }, n) => ({ ...v, id: 'v' + (n + 1) })) as Ecra['versoes'],
   });
   return [
     ecra('entrada', '01 · Entrar',

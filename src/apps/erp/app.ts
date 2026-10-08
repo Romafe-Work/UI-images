@@ -10,8 +10,8 @@ function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
 }
 
 /** No 04 · Precisa de ajuda? ficam só algumas versões (ela, 8 out. 2026:
-    tirar a v3, a v6 e a v7). As que ficam guardam o número das do 01, para
-    a ajuda de uma versão ser a mesma versão do resto. */
+    tirar a v3, a v6 e a v7). As que ficam são numeradas outra vez pela
+    ordem, v1 a v4 — ela preferiu os números seguidos a números iguais aos do 01. */
 function semAjuda(vs: [VersaoEntrar, ...VersaoEntrar[]], ids: string[]): [VersaoEntrar, ...VersaoEntrar[]] {
   return vs.map((v) => (ids.includes(v.id) ? { ...v, sem: ['ajuda'] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
 }
