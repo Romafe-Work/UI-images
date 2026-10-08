@@ -538,61 +538,83 @@
 
 /* =========================================================
    v8 — POUCO TEXTO À VOLTA (ERP, 8 out. 2026)
-   A partir de uma imagem dela. Sem barra de topo, sem rodapé, sem discurso:
-   a fotografia do armazém à esquerda, cortada em diagonal, e o cartão à
-   direita sobre um fundo claro. O ROMAFE é sempre azul e em Motor; para se
-   ler sobre a fotografia, ela leva um véu branco em vez do azul.
+   A partir de duas imagens dela. Sem barra de topo, sem rodapé, sem
+   discurso. A fotografia do armazém viva à esquerda, duas faixas azuis em
+   diagonal, e o painel claro à direita recortado em seta, com o cartão.
+   O ROMAFE é sempre azul e em Motor: onde ele está, a fotografia clareia.
    ========================================================= */
 .entrada--minima { grid-template-rows: 1fr; }
 .entrada--minima .palco {
-  grid-template-columns: 46% minmax(0, 1fr); gap: 0; padding: 0;
+  grid-template-columns: 57% minmax(0, 1fr); gap: 0; padding: 0;
   min-height: 100vh; align-items: center; overflow: hidden;
-  background: linear-gradient(135deg, #f3f6fa 0%, var(--c-superficie) 70%);
+  background: var(--c-entrada-fundo);
 }
+.minima__foto, .minima__faixa, .minima__painel { position: absolute; inset: 0; pointer-events: none; }
 .minima__foto {
-  position: absolute; inset: 0; z-index: -1;
+  z-index: -3; right: 30%;
   background: url('../img/armazem.webp') center / cover no-repeat;
-  clip-path: polygon(0 0, 57% 0, 36% 100%, 0 100%);
 }
-/* o véu: mais branco onde está o ROMAFE, e a apagar a fotografia junto à diagonal */
+/* o ROMAFE azul lê-se porque a fotografia clareia atrás dele */
 .minima__foto::after {
   content: ""; position: absolute; inset: 0;
-  background:
-    radial-gradient(24% 26% at 23% 50%, rgba(255,255,255,.80), rgba(255,255,255,0) 100%),
-    linear-gradient(90deg, rgba(0,63,120,.10) 0%, rgba(255,255,255,.25) 28%, rgba(243,246,250,.9) 54%);
+  background: radial-gradient(300px 190px at 38% 21%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.78) 50%, rgba(255,255,255,0) 100%);
 }
-.minima__selo { grid-column: 1; justify-self: center; }
+/* as duas faixas azuis: a mais escura junto ao painel, a mais clara por baixo */
+.minima__faixa {
+  z-index: -2;
+  background: rgba(0, 72, 160, .62);
+  clip-path: polygon(37% 0, 58% 0, 40% 64%, 36% 52%, 44% 18%);
+}
+.minima__faixa::after {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(225, 236, 248, .55);
+  clip-path: polygon(40% 64%, 51% 100%, 30% 100%);
+}
+.minima__painel {
+  z-index: -1;
+  background:
+    linear-gradient(115deg, transparent 60%, rgba(0, 99, 170, .05) 60.2%, transparent 75%),
+    linear-gradient(160deg, #f6f9fd 0%, #eaf1f9 100%);
+  clip-path: polygon(58% 0, 100% 0, 100% 100%, 51% 100%, 40% 64%);
+}
+.minima__selo { grid-column: 1; align-self: start; justify-self: center; margin-top: 13vh; transform: translateX(-12%); }
+
 .entrada--minima .cartao {
   grid-column: 2; justify-self: center; order: 0;
-  max-width: 500px; padding: var(--e-8) var(--e-7) var(--e-7);
+  width: min(560px, 92%); max-width: none;
+  padding: var(--e-7) var(--e-6) var(--e-5);
   border-radius: 20px; box-shadow: 0 24px 60px rgba(16, 24, 40, .10);
 }
-.entrada--minima .cartao__cabeca { margin-bottom: var(--e-6); }
+.entrada--minima .cartao__cabeca { margin-bottom: var(--e-5); }
 
-.selo { display: grid; justify-items: center; gap: var(--e-3); }
+.selo { display: grid; justify-items: center; gap: var(--e-2); }
 .selo__titulo { margin: 0; font: inherit; }
-.romafe--selo { font-size: 64px; }
-.selo--grande .romafe--selo { font-size: 88px; }
-.selo__risco { width: 60px; height: 4px; border-radius: 2px; background: var(--c-acao); }
+.romafe--selo { font-size: 60px; }
+.selo--grande .romafe--selo { font-size: 84px; }
+.selo__risco { width: 60px; height: 4px; border-radius: 2px; background: var(--c-acao); margin: var(--e-1) 0; }
 .selo__sub {
-  font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 500;
-  letter-spacing: .45em; margin-right: -.45em; color: var(--c-texto-2);
+  font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 600;
+  letter-spacing: .4em; margin-right: -.4em; color: var(--c-texto-2);
 }
 .selo--grande .selo__sub { font-size: var(--t-xl); color: var(--c-texto); }
+.selo__linha { font-size: var(--t-md); color: var(--c-texto-2); }
 
-/* os campos sem rótulo à vista: o rótulo fica para o leitor de ecrã */
-.entrada--minima .campo__label {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap;
+.entrada--minima .input { min-height: 56px; }
+.entrada--minima .btn--bloco { min-height: 60px; font-size: var(--t-lg); }
+
+.ajuda {
+  margin-top: var(--e-5); padding-top: var(--e-4);
+  border-top: 1px solid var(--c-borda); text-align: center;
 }
-.entrada--minima .input { min-height: 56px; border: 1px solid var(--c-borda); }
-/* sem o rótulo por cima, o ícone e o olho voltam ao meio do campo */
-.entrada--minima .campo__label ~ .campo__icone,
-.entrada--minima .campo__label ~ .campo__acao { top: 50%; }
-.entrada--minima .btn--bloco { min-height: 56px; font-size: var(--t-lg); }
+.ajuda a {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  color: var(--c-marca); font-weight: 700; text-decoration: none;
+}
+.ajuda a:hover { text-decoration: underline; }
+.ajuda svg { width: 22px; height: 22px; }
 
 @media (max-width: 1100px) {
-  .entrada--minima .palco { grid-template-columns: 1fr; padding: var(--e-6) var(--e-4); }
-  .minima__selo, .minima__foto { display: none; }
+  .entrada--minima .palco { grid-template-columns: 1fr; padding: var(--e-6) var(--e-4); background: #eef3f9; }
+  .minima__selo, .minima__foto, .minima__faixa, .minima__painel { display: none; }
   .entrada--minima .cartao { grid-column: 1; }
 }

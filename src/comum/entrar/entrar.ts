@@ -59,10 +59,10 @@ export interface OpcoesEntrar {
   /** no cartão, o nome ROMAFE em Motor no lugar do nome do produto
       (ERP v7: ela pediu «não digas Rolgest, mas sim Romafe») */
   nomeRomafe?: boolean;
-  /** v8 do ERP (8 out. 2026, a partir de uma imagem dela): pouco texto à
-      volta. Sem barra de topo, sem rodapé, sem discurso, sem apoio nem
-      versão no cartão; os campos sem rótulo à vista. O selo é a palavra
-      espaçada por baixo do ROMAFE: «ERP». */
+  /** v8 do ERP (8 out. 2026, a partir de duas imagens dela): pouco texto à
+      volta. Sem barra de topo, sem rodapé e sem discurso; no cartão o selo,
+      a linha por baixo (marca.sub), o campo e «Precisa de ajuda?». O selo é
+      a palavra espaçada por baixo do ROMAFE: «ERP». */
   minimo?: { selo: string };
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
@@ -215,21 +215,26 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
 
 /** O ROMAFE com o risco laranja e a palavra espaçada por baixo. O ROMAFE
     é sempre azul e sempre em Motor, também sobre a fotografia. */
-function selo(o: OpcoesEntrar, cls = ''): string {
-  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub">${o.minimo!.selo}</span></span>`;
+function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
+  return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
 }
 
-/** v8: a fotografia do armazém à esquerda, clara e cortada em diagonal,
-    com o selo por cima; o cartão à direita, sobre um fundo claro. Mais nada. */
+/** v8: a fotografia do armazém à esquerda, com duas faixas azuis em
+    diagonal e o selo em cima; o painel claro à direita, recortado em seta,
+    com o cartão. Mais nada. */
 function paginaMinima(o: OpcoesEntrar, cartao: string): string {
   return `<div class="entrada entrada--completa entrada--minima">
   <main class="palco">
     <div class="minima__foto" role="img" aria-label="Armazém da Romafe"></div>
+    <div class="minima__faixa" aria-hidden="true"></div>
+    <div class="minima__painel" aria-hidden="true"></div>
     <div class="minima__selo" aria-hidden="true">${selo(o, 'selo--grande')}</div>
     ${cartao}
   </main>
 </div>`;
 }
+
+const SVG_AJUDA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3Z"/></svg>`;
 
 const SVG_SETA = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>`;
 
@@ -270,7 +275,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
       ${o.versao ? `<p class="cartao__versao">${o.versao}</p>` : ''}` : '';
 
   return `<section class="cartao" aria-labelledby="${k.id('titulo-entrada')}">
-      <div class="cartao__cabeca">${o.minimo ? `<h1 class="selo__titulo" id="${k.id('titulo-entrada')}">${selo(o)}</h1>` : marca(o, 'lockup--centro', k.id('titulo-entrada'))}</div>
+      <div class="cartao__cabeca">${o.minimo ? `<h1 class="selo__titulo" id="${k.id('titulo-entrada')}">${selo(o, '', true)}</h1>` : marca(o, 'lockup--centro', k.id('titulo-entrada'))}</div>
       ${alertas}
       <!-- Passo 1. Um endereço que não existe também segue para a
            palavra-passe, e só falha no fim: dizer aqui «não existe»
@@ -288,6 +293,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           </button>
         </div>
       </form>
+      ${o.minimo ? `<div class="ajuda"><a href="#">${SVG_AJUDA}Precisa de ajuda?</a></div>` : ''}
       ${o.convite ? `<p class="convite">${o.convite.texto} <a href="#">${o.convite.ligacao}</a></p>` : ''}
       ${apoio}
     </section>`;
@@ -304,7 +310,7 @@ function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
           </label>
         </div>` : '';
   return `<section class="cartao" aria-labelledby="${k.id('titulo-passe')}">
-      <div class="cartao__cabeca">${o.minimo ? selo(o) : marca(o, 'lockup--centro')}</div>
+      <div class="cartao__cabeca">${o.minimo ? selo(o, '', true) : marca(o, 'lockup--centro')}</div>
       <div class="alerta" id="${k.id('alerta')}" data-credenciais role="alert" data-ed-nome="Alerta · credenciais" hidden>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16.5v.5"/></svg>
         <span>Endereço ou palavra-passe incorretos.</span>
