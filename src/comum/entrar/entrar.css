@@ -701,3 +701,16 @@
 .lockup--sm:has(.lockup__produto) .lockup__risco { justify-self: start; width: 40px; }
 /* na compacta (Pick) o cartão também se prende em cima */
 .entrada--fixa.entrada--compacta .palco { align-content: start; padding-top: 10vh; }
+
+/* a ajuda mais baixa (8 out. 2026): uma linha por caso, o apoio numa linha e menos folga */
+.cartao--ajuda .cartao__cabeca { margin-bottom: var(--e-3); }
+.cartao--ajuda .cartao__titulo { font-size: var(--t-lg); margin-bottom: var(--e-3); }
+.cartao--ajuda .casos { gap: var(--e-2); margin-bottom: var(--e-3); }
+.cartao--ajuda .caso svg { width: 18px; height: 18px; }
+.cartao--ajuda .caso__texto { margin-top: 0; line-height: 1.3; }
+.cartao--ajuda .contacto {
+  align-items: center; gap: var(--e-2); margin: 0 0 var(--e-3); padding: var(--e-2) var(--e-3);
+  font-size: var(--t-sm);
+}
+.cartao--ajuda .contacto svg { width: 18px; height: 18px; margin: 0; }
+.cartao--ajuda .contacto strong { margin-left: auto; font-size: var(--t-md); }

@@ -414,12 +414,12 @@ function icone(nome: keyof typeof AJUDA_ICONES): string {
 
 function cartaoAjuda(o: OpcoesEntrar, k: Chaves): string {
   const casos: [keyof typeof AJUDA_ICONES, string, string][] = [
-    ['chave', 'Esqueci-me da palavra-passe', 'Escreva o seu endereço e, no passo seguinte, carregue em «Esqueceu-se da palavra-passe?». Recebe uma ligação no correio.'],
+    ['chave', 'Esqueci-me da palavra-passe', 'No passo seguinte, «Esqueceu-se da palavra-passe?».'],
     /* nas internas a conta nasce no administrador; na loja e no marketplace pede-se */
     o.convite
-      ? ['cadeado', 'Ainda não tenho conta', `No primeiro passo, carregue em «${o.convite.ligacao}». Se a conta estiver bloqueada, ligue para o apoio.`]
-      : ['cadeado', 'Não tenho conta ou a conta está bloqueada', 'As contas são criadas e desbloqueadas pelo administrador da sua empresa. Fale com ele.'],
-    ['empresa', 'Entro com a conta da minha empresa', 'Escreva o endereço da empresa. Seguimos sozinhos para a página dela, e a palavra-passe é a de lá.'],
+      ? ['cadeado', 'Ainda não tenho conta', `No primeiro passo, «${o.convite.ligacao}».`]
+      : ['cadeado', 'Não tenho conta ou está bloqueada', 'Fale com o administrador da sua empresa.'],
+    ['empresa', 'Entro com a conta da empresa', 'Escreva o endereço: seguimos para a página dela.'],
   ];
   const cabeca = o.minimo ? selo(o) : marca(o, 'lockup--centro');
   return `<section class="cartao cartao--ajuda" aria-labelledby="${k.id('titulo-ajuda')}">
@@ -428,10 +428,7 @@ function cartaoAjuda(o: OpcoesEntrar, k: Chaves): string {
       <ul class="casos">${casos.map(([i, t, d]) => `
         <li class="caso">${icone(i)}<div><p class="caso__titulo">${t}</p><p class="caso__texto">${d}</p></div></li>`).join('')}
       </ul>
-      <div class="contacto">${icone('telefone')}<div>
-        <p class="caso__titulo">${o.semRomafe ? 'Apoio ao cliente' : 'Apoio Romafe'}</p>
-        <p class="caso__texto">800 000 000</p>
-      </div></div>
+      <p class="contacto">${icone('telefone')}<span>${o.semRomafe && !o.comRomafe ? 'Apoio ao cliente' : 'Apoio Romafe'}</span><strong>800 000 000</strong></p>
       <div class="formulario__accoes">
         <a class="btn btn--acao btn--bloco ajuda__voltar" href="#" ${k.ir('entrada')}>${SVG_VOLTAR}<span class="btn__rotulo">Voltar a entrar</span></a>
       </div>
