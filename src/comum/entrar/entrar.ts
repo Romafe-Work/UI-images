@@ -85,6 +85,8 @@ export interface OpcoesEntrar {
       também nas que eram sem a Romafe (Web e Pick, 8 out. 2026: «quero sempre
       Romafe presente com aquele azul») */
   comRomafe?: boolean;
+  /** em baixo, a faixa azul das marcas no lugar do rodapé (ERP v3.1) */
+  faixaMarcas?: boolean;
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
@@ -181,6 +183,10 @@ function topo(o: OpcoesEntrar): string {
 
 function rodape(o: OpcoesEntrar): string {
   if (o.variante === 'compacta') return '';
+  if (o.faixaMarcas) return `<footer class="faixa">
+    <p class="faixa__rotulo">Distribuímos</p>
+    <ul class="faixa__marcas">${MARCAS.map((m) => `<li>${m}</li>`).join('')}</ul>
+  </footer>`;
   return `<footer class="rodape">
     <p class="rodape__direitos" data-ed-nome="Direitos">© 2026 ${o.semRomafe ? o.produto : 'Romafe SA'}. Todos os direitos reservados.</p>
     <ul class="rodape__ligacoes">
@@ -198,7 +204,7 @@ function rodape(o: OpcoesEntrar): string {
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   if (o.minimo?.foto === 'video') return paginaVideo(cartao, o.minimo.tipo);
-  if (o.minimo?.foto === 'cena') return paginaCena(cartao, o.minimo.tipo ?? 'interna');
+  if (o.minimo?.foto === 'cena') return paginaCena(cartao);
   if (o.minimo?.foto) return paginaFoto(o.minimo.foto, cartao);
   if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
@@ -206,7 +212,8 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   const centro = completa && o.disposicao === 'centro';
   const centroApr = completa && o.disposicao === 'centro-apresentacao';
   const cls = (centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '')
-    + (o.semRomafe ? ' entrada--neutra' : '') + (o.desenhado ? ' entrada--desenhada' : '');
+    + (o.semRomafe ? ' entrada--neutra' : '') + (o.desenhado ? ' entrada--desenhada' : '')
+    + (o.nomeRomafe ? ' entrada--erp' : '');
   return `<div class="entrada entrada--${o.variante}${cls}${o.fixo ? ' entrada--fixa' : ''}">
   ${completa ? topo(o) : ''}
   <main class="palco">
@@ -337,37 +344,13 @@ function paginaVideo(cartao: string, tipo?: Familia): string {
 </div>`;
 }
 
-/* ---------------- v10: sem o armazém ----------------
+/* ---------------- v10 do ERP: sem o armazém ----------------
    Ela, 8 out. 2026: «não quero ter sempre a imagem do armazém, o vídeo do
-   mesmo». Cada app com um fundo seu, ainda com material verdadeiro:
-     interna      a fachada da sede (o letreiro ROMAFE), parada; caixa ao meio;
-                  faixa azul com os factos da casa
-     webshop      sem fotografia: metade laranja com as famílias de peças em
-                  letra grande, como o índice de um catálogo, e as marcas
-     marketplace  sem fotografia: fundo escuro com as marcas em letra grande e
-                  esbatida, como uma parede de marcas; caixa à esquerda */
-const FAMILIAS_PECAS = ['Travagem', 'Filtros', 'Suspensão', 'Embraiagem', 'Direção', 'Iluminação', 'Baterias', 'Transmissão'];
-
-function paginaCena(cartao: string, tipo: Familia): string {
-  if (tipo === 'webshop') {
-    return `<div class="entrada entrada--completa entrada--cena entrada--cena-webshop">
-  <main class="palco">
-    <section class="catalogo" aria-label="Famílias de peças">
-      <ul class="catalogo__familias">${FAMILIAS_PECAS.map((f) => `<li>${f}</li>`).join('')}</ul>
-      <p class="catalogo__marcas">${MARCAS.join(' · ')}</p>
-    </section>
-    ${cartao}
-  </main>
-</div>`;
-  }
-  if (tipo === 'marketplace') {
-    return `<div class="entrada entrada--completa entrada--cena entrada--cena-marketplace">
-  <main class="palco">
-    <div class="parede" aria-hidden="true">${[...MARCAS, ...MARCAS, ...MARCAS].map((m) => `<span>${m}</span>`).join('')}</div>
-    ${cartao}
-  </main>
-</div>`;
-  }
+   mesmo». A fachada da sede (o letreiro ROMAFE), parada; caixa ao meio;
+   faixa azul com os factos da casa. Também se fez para o GoShop (texto da
+   Romafe Automotive; antes um bloco laranja) e para o GoParts (uma parede
+   de marcas), e ela não gostou de nenhuma das duas: saíram. */
+function paginaCena(cartao: string): string {
   const c = CENA.interna;
   return `<div class="entrada entrada--completa entrada--video entrada--cena entrada--cena-interna">
   <main class="palco">
@@ -592,8 +575,9 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
     id: `${prefixo}${id}` as `${P}${IdEntrar}`, nome, fluxo, objetivo,
     versoes: versoes.map((v, i) => ({ id: v.id, nota: v.nota, html: desenhos[i][id], sem: v.sem }))
       .filter((v) => !v.sem?.includes(id))
-      /* em cada ecrã os números seguem a ordem, sem buracos (ela, 8 out. 2026) */
-      .map(({ sem: _sem, ...v }, n) => ({ ...v, id: 'v' + (n + 1) })) as Ecra['versoes'],
+      /* num ecrã com versões a menos (a ajuda), os números seguem a ordem, sem
+         buracos (ela, 8 out. 2026); nos outros ficam os nomes (v3.1 incluída) */
+      .map(({ sem: _sem, ...v }, n, todas) => (todas.length < versoes.length ? { ...v, id: 'v' + (n + 1) } : v)) as Ecra['versoes'],
   });
   return [
     ecra('entrada', '01 · Entrar',
@@ -638,8 +622,11 @@ export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {
 
 /** As versões numeram-se pela ordem, sem buracos: quando uma sai, as de
     depois sobem um número (ela, 8 out. 2026: «muda só o nome da versão»). */
-function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
-  return vs.map((v, i) => ({ ...v, id: 'v' + (i + 1) })) as [VersaoEntrar, ...VersaoEntrar[]];
+function numerar(vs: (VersaoEntrar & { ponto?: boolean })[]): [VersaoEntrar, ...VersaoEntrar[]] {
+  /* uma versão com `ponto` é uma variante da anterior e leva o número dela
+     com .1 (ela, 8 out. 2026: «faz um v3.1»); as outras seguem a ordem */
+  let n = 0, p = 0;
+  return vs.map(({ ponto, ...v }) => (ponto ? { ...v, id: `v${n}.${++p}` } : (p = 0, { ...v, id: 'v' + ++n }))) as [VersaoEntrar, ...VersaoEntrar[]];
 }
 
 /** As versões do login das apps completas (ERP, GoShop, GoParts),
@@ -652,18 +639,24 @@ function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
 export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, ...VersaoEntrar[]] {
   const minimo = { ...o, familia: undefined };
   const tipo = o.familia ?? 'interna';
-  const vs = numerar([
-    ...versoesCompletas(o, v4).filter((v) => v.id !== 'v5' && v.id !== 'v6'),
-    { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } } },
-    { id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...minimo, minimo: { selo, centro: true } } },
+  const erp = tipo === 'interna';
+  const semAjuda = ['ajuda'] as IdEntrar[];
+  const [v1, v2, v3, v4b, familia] = versoesCompletas(o, v4).filter((v) => v.id !== 'v5' && v.id !== 'v6');
+  return numerar([
+    v1, v2, { ...v3, sem: semAjuda },
+    /* ERP, 8 out. 2026: a v3 com a faixa azul das marcas no lugar do rodapé */
+    ...(erp ? [{ id: '', ponto: true, nota: 'A v3 com a faixa azul das marcas em baixo, no lugar do rodapé', opcoes: { ...v3.opcoes, faixaMarcas: true }, sem: semAjuda }] : []),
+    v4b, familia,
+    { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } }, sem: semAjuda },
+    /* a da fotografia toda com formas nos cantos saiu do ERP a 8 out. 2026 */
+    ...(erp ? [] : [{ id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...minimo, minimo: { selo, centro: true } }, sem: semAjuda }]),
     /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no GoParts */
     { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
     /* 8 out. 2026: uma interface diferente em cada app (ela: «os ecrãs entre ERP, GoShop e GoParts devem diferir»; a v8 fica igual nas três) */
-    { id: '', nota: 'Diferente em cada app: a cena do vídeo, o lado da caixa e a faixa de baixo', opcoes: { ...minimo, minimo: { selo, foto: 'video', tipo } } },
-    /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem) */
-    { id: '', nota: 'Sem o armazém: a fachada no ERP, o catálogo a laranja no GoShop, a parede de marcas no GoParts', opcoes: { ...minimo, minimo: { selo, foto: 'cena', tipo } } },
+    { id: '', nota: 'Diferente em cada app: a cena do vídeo e a faixa de baixo', opcoes: { ...minimo, minimo: { selo, foto: 'video', tipo } } },
+    /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem); só no ERP */
+    ...(erp ? [{ id: '', nota: 'Sem o armazém: a fachada da sede, parada, e a faixa azul com os factos da casa', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const } } }] : []),
   ]);
-  return vs.map((v) => (['v3', 'v6', 'v7'].includes(v.id) ? { ...v, sem: ['ajuda'] as IdEntrar[] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
 }
 
 export const DESCRICAO_ENTRAR =

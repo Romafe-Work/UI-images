@@ -876,10 +876,7 @@
 }
 
 /* ---------- a versão do vídeo, diferente em cada app ---------- */
-.entrada--video-webshop .palco { padding-right: 9vw; }
-.entrada--video-webshop .palco .cartao { justify-self: end; }
-.entrada--video-marketplace .palco { padding-left: 9vw; }
-.entrada--video-marketplace .palco .cartao { justify-self: start; }
+/* o login ao meio também no GoShop e no GoParts (ela, 8 out. 2026) */
 .entrada--video-webshop .faixa { background: var(--c-acao); color: #1d1d1b; }
 .entrada--video-webshop .faixa__rotulo { color: rgba(29, 29, 27, .75); }
 .entrada--video-marketplace .faixa { background: var(--c-entrada-fundo); }
@@ -903,39 +900,5 @@
 }
 .entrada--cena-interna .palco::after { background: rgba(1, 35, 56, .18); }
 
-/* GoShop: o catálogo a laranja */
-.entrada--cena-webshop .palco {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 0; gap: 0;
-  align-items: stretch; background: var(--c-fundo);
-}
-.catalogo {
-  background: var(--c-acao); color: #1d1d1b;
-  display: grid; align-content: center; gap: var(--e-6); padding: var(--e-8);
-}
-.catalogo__familias {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: 1fr 1fr; gap: var(--e-3) var(--e-6);
-}
-.catalogo__familias li {
-  font-family: var(--f-titulo); font-weight: 700; font-size: 34px; line-height: 1.1;
-  padding-bottom: var(--e-2); border-bottom: 2px solid rgba(29, 29, 27, .25);
-}
-.catalogo__marcas { margin: 0; font-size: var(--t-sm); font-weight: 700; letter-spacing: .06em; }
-.entrada--cena-webshop .cartao { grid-column: 2; align-self: center; justify-self: center; box-shadow: var(--s-2); }
-
-/* GoParts: a parede de marcas */
-.entrada--cena-marketplace .palco {
-  grid-template-columns: minmax(0, 1fr); padding-left: 9vw; overflow: hidden;
-  align-content: center; background: var(--c-entrada-fundo);
-}
-.entrada--cena-marketplace .cartao { justify-self: start; position: relative; z-index: 1; }
-.parede {
-  position: absolute; inset: -40px -80px; z-index: 0; pointer-events: none;
-  display: flex; flex-wrap: wrap; align-content: center; gap: var(--e-3) var(--e-7);
-  transform: rotate(-8deg);
-}
-.parede span {
-  font-family: var(--f-titulo); font-weight: 700; font-size: 88px; line-height: 1;
-  color: rgba(255, 255, 255, .07);
-}
-.parede span:nth-child(5n + 2) { color: rgba(0, 99, 170, .55); }
+/* ERP v2: o rodapé mais alto (ela, 8 out. 2026) */
+.entrada--erp.entrada--centro:not(.entrada--centro-apresentacao) .rodape { padding-top: var(--e-6); padding-bottom: var(--e-6); }
