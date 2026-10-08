@@ -242,6 +242,9 @@ function paginaMinima(cartao: string, centro: boolean): string {
 
 const SVG_AJUDA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3Z"/></svg>`;
 
+/* Todos os botões levam ícone e texto (ela, 8 out. 2026). */
+const SVG_ENTRAR = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>`;
+const SVG_VOLTAR = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></svg>`;
 const SVG_SETA = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>`;
 
 /* ---------------- 01 · Entrar ---------------- */
@@ -367,7 +370,7 @@ function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
           <input class="input" id="${k.id('fator-empresa')}" type="text" value="código da aplicação" disabled>
         </div>
         <div class="formulario__accoes">
-          <button type="button" class="btn btn--acao btn--bloco"><span class="btn__rotulo">Entrar na Exemplo</span></button>
+          <button type="button" class="btn btn--acao btn--bloco">${SVG_ENTRAR}<span class="btn__rotulo">Entrar na Exemplo</span></button>
         </div>
       </div>
       <div class="cartao__pe">
@@ -412,7 +415,7 @@ function cartaoAjuda(o: OpcoesEntrar, k: Chaves): string {
         <p class="caso__texto">800 000 000</p>
       </div></div>
       <div class="formulario__accoes">
-        <a class="btn btn--bloco ajuda__voltar" href="#" ${k.ir('entrada')}>Voltar a entrar</a>
+        <a class="btn btn--acao btn--bloco ajuda__voltar" href="#" ${k.ir('entrada')}>${SVG_VOLTAR}<span class="btn__rotulo">Voltar a entrar</span></a>
       </div>
     </section>`;
 }
