@@ -10,7 +10,7 @@
 
 .tela-telemovel body > .ecra {
   width: var(--tela-l); height: var(--tela-a);
-  box-sizing: content-box;   /* a moldura fica por fora: o ecrã tem mesmo 480 × 800 */
+  box-sizing: content-box;   /* a moldura fica por fora: o ecrã tem mesmo o tamanho da tela */
   margin: 56px auto 32px;   /* em cima, espaço para os separadores das versões */
   overflow: auto;
   border: 10px solid #1c1d1f; border-radius: 36px;

@@ -7,7 +7,7 @@ Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são d
 | `src/apps/erp/` | ERP — Rolgest | 1440×900 |
 | `src/apps/pecaapeca/` | WebShop — Peça a Peça (era GoShop) | 1440×900 |
 | `src/apps/partpicker/` | MarketPlace — Part Picker (era GoParts) | 1440×900 |
-| `src/apps/mobile/` | Mobile — telemóvel e PDA | 480×800 |
+| `src/apps/mobile/` | Mobile — telemóvel e PDA | 320×533 (o EDA61K) |
 
 `index.html` é a porta de entrada: as três apps e uma caixa para procurar
 qualquer ecrã pelo nome, pelo fluxo ou pelo que ele faz. Cada resultado tem

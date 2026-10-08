@@ -109,7 +109,7 @@ function romafe(cls = ''): string {
     para o ROMAFE; na compacta, sem barra de topo, o ROMAFE vem por cima. */
 function produto(o: OpcoesEntrar, idSub = ''): string {
   return `<span class="produto">
-      ${o.variante === 'compacta' ? romafe('romafe--cartao') : ''}
+      ${o.variante === 'compacta' && !o.nomeRomafe ? romafe('romafe--cartao') : ''}
       ${o.nomeRomafe ? romafe('romafe--nome') : `<span class="produto__nome">${o.produto}</span>`}
       <span class="produto__sub"${idSub ? ` id="${idSub}"` : ''}>${o.marca.sub}</span>
     </span>`;
