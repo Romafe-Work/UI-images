@@ -13,6 +13,6 @@ export const erp: App<IdErp> = {
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
   ecras: [...ecrasEntrar([
     ...versoesCompletas(entrarErp),
-    { id: 'v8', nota: 'Pouco texto à volta: a fotografia com faixas azuis em diagonal e o ROMAFE azul, e o cartão com o ROMAFE, o ERP, o campo e a ajuda', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP' } } },
+    { id: 'v8', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o ERP, o campo e a ajuda', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP' } } },
   ])],
 };

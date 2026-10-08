@@ -541,7 +541,9 @@
    A partir de duas imagens dela. Sem barra de topo, sem rodapé, sem
    discurso. A fotografia do armazém viva à esquerda, duas faixas azuis em
    diagonal, e o painel claro à direita recortado em seta, com o cartão.
-   O ROMAFE é sempre azul e em Motor: onde ele está, a fotografia clareia.
+   O ROMAFE é sempre azul e em Motor, e sobre a fotografia escura esse azul
+   não se lê; ela também não quis a fotografia clareada atrás dele. Por isso
+   o ROMAFE fica só no cartão, e a fotografia fica sem texto.
    ========================================================= */
 .entrada--minima { grid-template-rows: 1fr; }
 .entrada--minima .palco {
@@ -553,11 +555,6 @@
 .minima__foto {
   z-index: -3; right: 30%;
   background: url('../img/armazem.webp') center / cover no-repeat;
-}
-/* o ROMAFE azul lê-se porque a fotografia clareia atrás dele */
-.minima__foto::after {
-  content: ""; position: absolute; inset: 0;
-  background: radial-gradient(300px 190px at 38% 21%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.78) 50%, rgba(255,255,255,0) 100%);
 }
 /* as duas faixas azuis: a mais escura junto ao painel, a mais clara por baixo */
 .minima__faixa {
@@ -577,7 +574,6 @@
     linear-gradient(160deg, #f6f9fd 0%, #eaf1f9 100%);
   clip-path: polygon(58% 0, 100% 0, 100% 100%, 51% 100%, 40% 64%);
 }
-.minima__selo { grid-column: 1; align-self: start; justify-self: center; margin-top: 13vh; transform: translateX(-12%); }
 
 .entrada--minima .cartao {
   grid-column: 2; justify-self: center; order: 0;
@@ -590,13 +586,11 @@
 .selo { display: grid; justify-items: center; gap: var(--e-2); }
 .selo__titulo { margin: 0; font: inherit; }
 .romafe--selo { font-size: 60px; }
-.selo--grande .romafe--selo { font-size: 84px; }
 .selo__risco { width: 60px; height: 4px; border-radius: 2px; background: var(--c-acao); margin: var(--e-1) 0; }
 .selo__sub {
   font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 600;
   letter-spacing: .4em; margin-right: -.4em; color: var(--c-texto-2);
 }
-.selo--grande .selo__sub { font-size: var(--t-xl); color: var(--c-texto); }
 .selo__linha { font-size: var(--t-md); color: var(--c-texto-2); }
 
 .entrada--minima .input { min-height: 56px; }
@@ -615,6 +609,6 @@
 
 @media (max-width: 1100px) {
   .entrada--minima .palco { grid-template-columns: 1fr; padding: var(--e-6) var(--e-4); background: #eef3f9; }
-  .minima__selo, .minima__foto, .minima__faixa, .minima__painel { display: none; }
+  .minima__foto, .minima__faixa, .minima__painel { display: none; }
   .entrada--minima .cartao { grid-column: 1; }
 }

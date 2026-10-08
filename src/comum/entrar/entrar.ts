@@ -165,7 +165,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
-  if (o.minimo) return paginaMinima(o, cartao);
+  if (o.minimo) return paginaMinima(cartao);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
@@ -214,21 +214,20 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
 }
 
 /** O ROMAFE com o risco laranja e a palavra espaçada por baixo. O ROMAFE
-    é sempre azul e sempre em Motor, também sobre a fotografia. */
+    é sempre azul e sempre em Motor, e por isso só vai em fundo claro. */
 function selo(o: OpcoesEntrar, cls = '', comSub = false): string {
   return `<span class="selo${cls ? ' ' + cls : ''}">${romafe('romafe--selo')}<span class="selo__risco" aria-hidden="true"></span><span class="selo__sub">${o.minimo!.selo}</span>${comSub ? `<span class="selo__linha">${o.marca.sub}</span>` : ''}</span>`;
 }
 
-/** v8: a fotografia do armazém à esquerda, com duas faixas azuis em
-    diagonal e o selo em cima; o painel claro à direita, recortado em seta,
-    com o cartão. Mais nada. */
-function paginaMinima(o: OpcoesEntrar, cartao: string): string {
+/** v8: a fotografia do armazém à esquerda, sem texto, com duas faixas
+    azuis em diagonal; o painel claro à direita, recortado em seta, com o
+    cartão. Mais nada. */
+function paginaMinima(cartao: string): string {
   return `<div class="entrada entrada--completa entrada--minima">
   <main class="palco">
     <div class="minima__foto" role="img" aria-label="Armazém da Romafe"></div>
     <div class="minima__faixa" aria-hidden="true"></div>
     <div class="minima__painel" aria-hidden="true"></div>
-    <div class="minima__selo" aria-hidden="true">${selo(o, 'selo--grande')}</div>
     ${cartao}
   </main>
 </div>`;
