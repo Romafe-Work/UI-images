@@ -874,3 +874,14 @@
 @media (max-width: 1100px) {
   .faixa { flex-direction: column; gap: var(--e-2); }
 }
+
+/* ---------- a versão do vídeo, diferente em cada app ---------- */
+.entrada--video-webshop .palco { padding-right: 9vw; }
+.entrada--video-webshop .palco .cartao { justify-self: end; }
+.entrada--video-marketplace .palco { padding-left: 9vw; }
+.entrada--video-marketplace .palco .cartao { justify-self: start; }
+.entrada--video-webshop .faixa { background: var(--c-acao); color: #1d1d1b; }
+.entrada--video-webshop .faixa__rotulo { color: rgba(29, 29, 27, .75); }
+.entrada--video-marketplace .faixa { background: var(--c-entrada-fundo); }
+.entrada--video-marketplace .faixa__marcas li { font-weight: 600; }
+.entrada--video-interna .faixa__marcas li { font-size: var(--t-md); }

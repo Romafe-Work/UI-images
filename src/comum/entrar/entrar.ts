@@ -74,6 +74,8 @@ export interface OpcoesEntrar {
         recortada. O valor é a fotografia (src/comum/img/<foto>.webp, tirada do
         vídeo de romafe.com). */
     foto?: 'corredor' | 'separacao' | 'fachada' | 'mosaico' | 'video';
+    /** na versão do vídeo, o tipo de app decide a cena, onde fica a caixa e a faixa */
+    tipo?: Familia;
   };
   /** o cartão fica no mesmo sítio em todos os ecrãs da versão: o texto à
       volta é sempre o do 01, o cartão prende-se em cima, e o 03 deixa de ser
@@ -195,7 +197,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
-  if (o.minimo?.foto === 'video') return paginaVideo(cartao);
+  if (o.minimo?.foto === 'video') return paginaVideo(cartao, o.minimo.tipo ?? 'interna');
   if (o.minimo?.foto) return paginaFoto(o.minimo.foto, cartao);
   if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
@@ -303,15 +305,31 @@ function paginaFoto(foto: string, cartao: string): string {
 const VIDEO_ROMAFE = 'https://www.romafe.com/assets/video/intro.mp4';
 const MARCAS = ['SKF', 'TRW', 'VALEO', 'HELLA', 'NGK NTK', 'CORTECO', 'UFI', 'MANNOL'];
 
-function paginaVideo(cartao: string): string {
-  return `<div class="entrada entrada--completa entrada--video">
+/* As três apps diferem (ela, 8 out. 2026: «os ecrãs entre ERP, GoShop e
+   GoParts devem diferir»), e continuam da mesma família: o vídeo, o ROMAFE
+   azul, a caixa branca e o botão laranja são os mesmos.
+     interna      o vídeo desde o escritório; a caixa ao meio; faixa azul
+                  com factos da casa (do site da Romafe)
+     webshop      desde os corredores com as caixas; a caixa à direita;
+                  faixa laranja com as marcas que vende
+     marketplace  desde os empilhadores e as paletes; a caixa à esquerda;
+                  faixa escura com as famílias de peças */
+const CENA: Record<Familia, { inicio: number; rotulo: string; itens: string[] }> = {
+  interna: { inicio: 3, rotulo: 'Romafe', itens: ['Desde 1945', 'Porto e Sacavém', '60 pessoas', '6 000 m² de armazém'] },
+  webshop: { inicio: 6, rotulo: 'Marcas que vendemos', itens: MARCAS },
+  marketplace: { inicio: 30, rotulo: 'Encontre peças de', itens: ['Travagem', 'Filtros', 'Suspensão', 'Embraiagem', 'Direção', 'Iluminação', 'Baterias'] },
+};
+
+function paginaVideo(cartao: string, tipo: Familia): string {
+  const c = CENA[tipo];
+  return `<div class="entrada entrada--completa entrada--video entrada--video-${tipo}">
   <main class="palco">
-    <video class="video" autoplay muted loop playsinline preload="auto" aria-hidden="true" src="${VIDEO_ROMAFE}"></video>
+    <video class="video" autoplay muted loop playsinline preload="auto" aria-hidden="true" src="${VIDEO_ROMAFE}#t=${c.inicio}"></video>
     ${cartao}
   </main>
   <footer class="faixa">
-    <p class="faixa__rotulo">Distribuímos</p>
-    <ul class="faixa__marcas">${MARCAS.map((m) => `<li>${m}</li>`).join('')}</ul>
+    <p class="faixa__rotulo">${c.rotulo}</p>
+    <ul class="faixa__marcas">${c.itens.map((m) => `<li>${m}</li>`).join('')}</ul>
   </footer>
 </div>`;
 }
@@ -587,12 +605,13 @@ function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
     `selo` é o que vai por baixo do ROMAFE nas duas últimas: «ERP», ou o nome da app. */
 export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, ...VersaoEntrar[]] {
   const minimo = { ...o, familia: undefined };
+  const tipo = o.familia ?? 'interna';
   const vs = numerar([
     ...versoesCompletas(o, v4).filter((v) => v.id !== 'v5' && v.id !== 'v6'),
     { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } } },
     { id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...minimo, minimo: { selo, centro: true } } },
     /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no GoParts */
-    { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
+    { id: '', nota: 'O vídeo do armazém ao fundo e a caixa branca; cada app com a sua cena, o seu lado e a sua faixa', opcoes: { ...minimo, minimo: { selo, foto: 'video', tipo } } },
   ]);
   return vs.map((v) => (['v3', 'v6', 'v7'].includes(v.id) ? { ...v, sem: ['ajuda'] as IdEntrar[] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
 }
