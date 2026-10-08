@@ -665,7 +665,8 @@ export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesE
     /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no GoParts */
     { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
     /* 8 out. 2026: uma interface diferente em cada app (ela: «os ecrãs entre ERP, GoShop e GoParts devem diferir»; a v8 fica igual nas três) */
-    ...(tipo === 'marketplace' ? [] : [{ id: '', nota: 'Diferente em cada app: a cena do vídeo e a faixa de baixo', opcoes: { ...minimo, minimo: { selo, foto: 'video' as const, tipo } } }]),
+    /* só no ERP: no GoParts e no GoShop saiu (8 out. 2026; o GoShop «está mais relacionado com vendas») */
+    ...(erp ? [{ id: '', nota: 'O vídeo desde o escritório e a faixa azul com os factos da casa', opcoes: { ...minimo, minimo: { selo, foto: 'video' as const, tipo } } }] : []),
     /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem) — no ERP a fachada da sede */
     ...(erp ? [{ id: '', nota: 'Sem o armazém: a fachada da sede, parada, e a faixa azul com os factos da casa', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const } } }] : []),
     /* GoParts: a oficina, como o login que existe hoje (a do vídeo por app saiu) */
