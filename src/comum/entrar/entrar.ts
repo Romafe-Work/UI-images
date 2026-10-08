@@ -49,6 +49,9 @@ export interface OpcoesEntrar {
   desenhado?: boolean;
   /** v6: o tipo de aplicação, que decide o palco (ver `Familia`) */
   familia?: Familia;
+  /** v7: a v6 com o cartão ao centro nos três tipos — o título por cima e
+      as vantagens por baixo; cada tipo guarda o seu fundo */
+  centro?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
       Nas internas não há: a conta nasce no administrador. */
   convite?: { texto: string; ligacao: string };
@@ -183,7 +186,7 @@ function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): strin
     ? `<ul class="categorias" aria-label="Famílias de peças">${CATEGORIAS.map((c) => `<li class="categoria">${c}</li>`).join('')}</ul>`
     : '';
   const foto = f === 'interna' ? '<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div><div class="palco__veu" aria-hidden="true"></div>' : '';
-  return `<div class="entrada entrada--${o.variante} entrada--familia entrada--${f}">
+  return `<div class="entrada entrada--${o.variante} entrada--familia entrada--${f}${o.centro ? ' entrada--familia-centro' : ''}">
   ${completa ? topo(o) : ''}
   <main class="palco">
     ${foto}
@@ -380,8 +383,9 @@ export const NOTA_V6: Record<Familia, string> = {
     com o monograma e um fundo desenhado, porque à v4 «parece que falta
     alguma coisa». O que a app quiser diferente sem a Romafe (um texto que
     falava dela) vem em `v4`, e vale para a v4 e a v5. A v6 (8 out.) é a
-    família Romafe, e é a única que usa a `familia` e o `convite` da app. */
-export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
+    família Romafe, e é a única que usa a `familia` e o `convite` da app; a
+    v7 é a v6 com o cartão ao centro. */
+export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
   const o: OpcoesEntrar = { ...v6, familia: undefined, convite: undefined };
   return [
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
@@ -390,6 +394,7 @@ export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {
     { id: 'v4', nota: 'A v3 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
     { id: 'v5', nota: 'A v4 com marca e fundo: o monograma do produto e um desenho abstrato no lugar da fotografia', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true, desenhado: true } },
     { id: 'v6', nota: NOTA_V6[v6.familia ?? 'interna'], opcoes: v6 },
+    { id: 'v7', nota: 'A v6 com o cartão ao centro: o título por cima e as vantagens por baixo, sobre o fundo do tipo', opcoes: { ...v6, centro: true } },
   ];
 }
 

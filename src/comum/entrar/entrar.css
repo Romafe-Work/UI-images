@@ -481,6 +481,38 @@
 .entrada--marketplace .vantagem svg { color: #5fd3c8; }
 .entrada--marketplace .discurso__texto { order: 0; text-align: center; color: var(--c-entrada-tinta); }
 
+/* ---------- v7: o cartão ao centro nos três tipos ----------
+   A arrumação do marketplace passa às outras duas: o título por cima, o
+   cartão, as vantagens por baixo lado a lado. Cada tipo guarda o fundo:
+   a fotografia passa a ocupar o palco todo nas internas, e a loja continua
+   clara, com as famílias de peças no fim. */
+.entrada--familia-centro .palco,
+.entrada--completa.entrada--interna.entrada--familia-centro .palco {
+  grid-template-columns: minmax(0, 880px); justify-content: center; justify-items: center;
+  align-content: center; gap: var(--e-5); padding: var(--e-7) var(--e-8);
+}
+.entrada--completa.entrada--interna.entrada--familia-centro .palco__foto,
+.entrada--completa.entrada--interna.entrada--familia-centro .palco__veu { right: 0; }
+.entrada--familia-centro .palco__discurso,
+.entrada--completa.entrada--interna.entrada--familia-centro .palco__discurso,
+.entrada--familia-centro .discurso { display: contents; }
+.entrada--completa.entrada--interna.entrada--familia-centro .palco { align-items: center; background: none; }
+.entrada--familia-centro .discurso__titulo {
+  order: 0; margin: 0; text-align: center; font-size: var(--t-xl);
+}
+.entrada--familia-centro .discurso__titulo br { display: none; }
+.entrada--familia-centro .cartao { order: 1; }
+.entrada--familia-centro .vantagens {
+  order: 2; width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-5);
+}
+.entrada--familia-centro .discurso__texto { order: 0; text-align: center; }
+.entrada--familia-centro .categorias { order: 3; margin: 0; justify-content: center; max-width: none; }
+.entrada--interna.entrada--familia-centro .discurso { color: var(--c-entrada-tinta); }
+.entrada--webshop.entrada--familia-centro .palco::before {
+  right: auto; left: 50%; transform: translate(-50%, -50%);
+}
+
 /* ---------- compacta (Mobile): só o cartão, com o ROMAFE em cima ---------- */
 .entrada--compacta.entrada--interna .palco__veu { background: rgba(0, 99, 170, .72); }
 
@@ -490,7 +522,9 @@
   .entrada--completa.entrada--interna .palco__veu { right: 0; }
   .entrada--completa.entrada--interna .palco__discurso { padding: 0; order: 2; }
   .palco__discurso { order: 2; }
-  .entrada--marketplace .vantagens { grid-template-columns: 1fr; }
+  .entrada--marketplace .vantagens,
+  .entrada--familia-centro .vantagens { grid-template-columns: 1fr; }
+  .entrada--familia-centro .palco { padding: var(--e-6) var(--e-4); }
 }
 @media (max-width: 560px) {
   .topo__tipo { display: none; }
