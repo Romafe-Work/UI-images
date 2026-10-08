@@ -4,7 +4,7 @@ Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são d
 
 | Pasta | App | Tela |
 | --- | --- | --- |
-| `src/apps/erp/` | ERP — Rolgest | 1440×900 |
+| `src/apps/erp/` | ERP — Romafe, a plataforma de gestão | 1440×900 |
 | `src/apps/pecaapeca/` | WebShop — Peça a Peça (era GoShop) | 1440×900 |
 | `src/apps/partpicker/` | MarketPlace — Part Picker (era GoParts) | 1440×900 |
 | `src/apps/mobile/` | Mobile — Pick, a app do armazém no PDA | 320×533 (o EDA61K) |

@@ -1,15 +1,15 @@
 import type { App } from '../../comum/tipos';
 import { ecrasEntrar, versoesCompletas, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdErp } from './ids';
-import { entrarErp, entrarErpV7 } from './entrar';
+import { entrarErp } from './entrar';
 
 export const erp: App<IdErp> = {
   id: 'erp',
   nome: 'ERP',
-  sub: 'Rolgest, a plataforma de gestão',
+  sub: 'A plataforma de gestão',
   grupo: 'ERP',
-  marca: 'ROLGEST',
+  marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar(versoesCompletas(entrarErp, {}, entrarErpV7))],
+  ecras: [...ecrasEntrar(versoesCompletas(entrarErp))],
 };
