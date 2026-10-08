@@ -15,7 +15,7 @@
                            «manter sessão», porque o aparelho é partilhado
    ========================================================= */
 import type { Ecra } from '../tipos';
-import { discurso as discursoDe, type Apresentacao } from './discurso';
+import { discurso as discursoDe, ICONES, type Apresentacao } from './discurso';
 
 export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado' | 'ajuda';
 export type Variante = 'completa' | 'compacta';
@@ -85,8 +85,9 @@ export interface OpcoesEntrar {
       também nas que eram sem a Romafe (Web e Pick, 8 out. 2026: «quero sempre
       Romafe presente com aquele azul») */
   comRomafe?: boolean;
-  /** em baixo, a faixa azul das marcas no lugar do rodapé (ERP v3.1) */
-  faixaMarcas?: boolean;
+  /** em baixo, uma faixa azul no lugar do rodapé: as marcas, ou as três
+      vantagens da apresentação, que saem de cima (ERP v3.1, 8 out. 2026) */
+  faixa?: 'marcas' | 'vantagens';
   /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
   feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
@@ -183,9 +184,17 @@ function topo(o: OpcoesEntrar): string {
 
 function rodape(o: OpcoesEntrar): string {
   if (o.variante === 'compacta') return '';
-  if (o.faixaMarcas) return `<footer class="faixa">
+  if (o.faixa === 'marcas') return `<footer class="faixa">
     <p class="faixa__rotulo">Distribuímos</p>
     <ul class="faixa__marcas">${MARCAS.map((m) => `<li>${m}</li>`).join('')}</ul>
+  </footer>`;
+  if (o.faixa === 'vantagens' && o.apresentacao) return `<footer class="faixa faixa--vantagens">
+    <ul class="faixa__vantagens">${o.apresentacao.vantagens.map((v) => `
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[v.icone]}</svg>
+        <div><p class="faixa__titulo">${v.titulo}</p><p class="faixa__sub">${v.sub}</p></div>
+      </li>`).join('')}
+    </ul>
   </footer>`;
   return `<footer class="rodape">
     <p class="rodape__direitos" data-ed-nome="Direitos">© 2026 ${o.semRomafe ? o.produto : 'Romafe SA'}. Todos os direitos reservados.</p>
@@ -213,7 +222,7 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   const centroApr = completa && o.disposicao === 'centro-apresentacao';
   const cls = (centro ? ' entrada--centro' : centroApr ? ' entrada--centro entrada--centro-apresentacao' : '')
     + (o.semRomafe ? ' entrada--neutra' : '') + (o.desenhado ? ' entrada--desenhada' : '')
-    + (o.nomeRomafe ? ' entrada--erp' : '');
+    + (o.nomeRomafe ? ' entrada--erp' : '') + (o.faixa ? ` entrada--faixa-${o.faixa}` : '');
   return `<div class="entrada entrada--${o.variante}${cls}${o.fixo ? ' entrada--fixa' : ''}">
   ${completa ? topo(o) : ''}
   <main class="palco">
@@ -645,7 +654,7 @@ export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesE
   return numerar([
     v1, v2, { ...v3, sem: semAjuda },
     /* ERP, 8 out. 2026: a v3 com a faixa azul das marcas no lugar do rodapé */
-    ...(erp ? [{ id: '', ponto: true, nota: 'A v3 com a faixa azul das marcas em baixo, no lugar do rodapé', opcoes: { ...v3.opcoes, faixaMarcas: true }, sem: semAjuda }] : []),
+    ...(erp ? [{ id: '', ponto: true, nota: 'A v3 com as três vantagens numa faixa azul em baixo, no lugar do rodapé', opcoes: { ...v3.opcoes, faixa: 'vantagens' as const }, sem: semAjuda }] : []),
     v4b, familia,
     { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } }, sem: semAjuda },
     /* a da fotografia toda com formas nos cantos saiu do ERP a 8 out. 2026 */
