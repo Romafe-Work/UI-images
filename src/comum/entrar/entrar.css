@@ -635,3 +635,31 @@
   .minima__foto, .minima__faixa, .minima__painel { display: none; }
   .entrada--minima .cartao { grid-column: 1; }
 }
+
+/* =========================================================
+   04 · PRECISA DE AJUDA? — em todas as apps e versões
+   O mesmo cartão: a marca, os três casos com o que fazer, o número do
+   apoio e a volta ao 01.
+   ========================================================= */
+.cartao--ajuda .cartao__titulo { text-align: center; margin-bottom: var(--e-4); }
+.casos { list-style: none; margin: 0 0 var(--e-4); padding: 0; display: grid; gap: var(--e-3); }
+.caso, .contacto { display: flex; gap: var(--e-3); align-items: flex-start; }
+.caso svg, .contacto svg { width: 22px; height: 22px; flex: none; color: var(--c-marca); margin-top: 1px; }
+.caso__titulo { margin: 0; font-size: var(--t-sm); font-weight: 700; }
+.caso__texto { margin: 2px 0 0; font-size: var(--t-sm); color: var(--c-texto-2); line-height: 1.4; }
+.contacto {
+  margin-bottom: var(--e-4); padding: var(--e-3);
+  background: var(--c-marca-suave); border-radius: var(--r-md);
+}
+.contacto .caso__texto { font-size: var(--t-md); font-weight: 700; color: var(--c-texto); }
+.ajuda__voltar { text-decoration: none; }
+.apoio__titulo a { color: inherit; text-decoration: none; }
+.apoio__titulo a:hover { text-decoration: underline; }
+.ajuda-compacta { margin-top: var(--e-3); }
+.entrada--compacta .cartao--ajuda .caso__texto { font-size: var(--t-xs); }
+.entrada--compacta .casos { gap: var(--e-2); }
+/* sem discurso à volta, o cartão da ajuda fica ao centro do palco, em qualquer versão */
+.palco:has(> .cartao--ajuda) { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.palco:has(> .cartao--ajuda) > .cartao--ajuda { grid-column: 1 / -1; max-width: 520px; }
+.palco:has(> .cartao--ajuda) > .palco__discurso:empty { display: none; }
+.entrada--minima .ajuda__voltar { font-size: var(--t-md); }

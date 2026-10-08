@@ -17,7 +17,7 @@
 import type { Ecra } from '../tipos';
 import { discurso as discursoDe, type Apresentacao } from './discurso';
 
-export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado';
+export type IdEntrar = 'entrada' | 'palavra-passe' | 'federado' | 'ajuda';
 export type Variante = 'completa' | 'compacta';
 /** onde fica o cartão na variante completa: à direita, com a apresentação
     à esquerda (v1); ao centro, sozinho sobre a fotografia (v2); ou ao
@@ -273,7 +273,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
         <div class="apoio__item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3Z"/></svg>
           <div>
-            <p class="apoio__titulo">Precisa de ajuda?</p>
+            <p class="apoio__titulo"><a href="#" ${k.ir('ajuda')}>Precisa de ajuda?</a></p>
             <p class="apoio__sub">${o.semRomafe ? 'Apoio ao cliente' : 'Apoio Romafe'} · 800 000 000</p>
           </div>
         </div>
@@ -299,7 +299,8 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           </button>
         </div>
       </form>
-      ${o.minimo ? `<div class="ajuda"><a href="#">${o.minimo.centro ? '' : SVG_AJUDA}Precisa de ajuda?</a></div>` : ''}
+      ${o.minimo ? `<div class="ajuda"><a href="#" ${k.ir('ajuda')}>${o.minimo.centro ? '' : SVG_AJUDA}Precisa de ajuda?</a></div>` : ''}
+      ${o.variante === 'compacta' ? `<a class="ligacao-recuperar ajuda-compacta" href="#" ${k.ir('ajuda')}>Precisa de ajuda?</a>` : ''}
       ${o.convite ? `<p class="convite">${o.convite.texto} <a href="#">${o.convite.ligacao}</a></p>` : ''}
       ${apoio}
     </section>`;
@@ -376,6 +377,46 @@ function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
     </section>`;
 }
 
+/* ---------------- 04 · Precisa de ajuda? ----------------
+   Para quem não consegue entrar. Não é um formulário: diz o que fazer em
+   cada caso e a quem ligar. A recuperação da palavra-passe continua a ser
+   do Keycloak, no 02; aqui só se diz onde está. */
+const AJUDA_ICONES = {
+  chave: '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7"/><path d="m16 7 3 3"/><path d="m14 9 2 2"/>',
+  cadeado: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  empresa: '<path d="M3 21V8l6-4 6 4v13"/><path d="M15 21V11h6v10"/><path d="M2 21h20"/>',
+  telefone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/>',
+};
+function icone(nome: keyof typeof AJUDA_ICONES): string {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AJUDA_ICONES[nome]}</svg>`;
+}
+
+function cartaoAjuda(o: OpcoesEntrar, k: Chaves): string {
+  const casos: [keyof typeof AJUDA_ICONES, string, string][] = [
+    ['chave', 'Esqueci-me da palavra-passe', 'Escreva o seu endereço e, no passo seguinte, carregue em «Esqueceu-se da palavra-passe?». Recebe uma ligação no correio.'],
+    /* nas internas a conta nasce no administrador; na loja e no marketplace pede-se */
+    o.convite
+      ? ['cadeado', 'Ainda não tenho conta', `No primeiro passo, carregue em «${o.convite.ligacao}». Se a conta estiver bloqueada, ligue para o apoio.`]
+      : ['cadeado', 'Não tenho conta ou a conta está bloqueada', 'As contas são criadas e desbloqueadas pelo administrador da sua empresa. Fale com ele.'],
+    ['empresa', 'Entro com a conta da minha empresa', 'Escreva o endereço da empresa. Seguimos sozinhos para a página dela, e a palavra-passe é a de lá.'],
+  ];
+  const cabeca = o.minimo ? selo(o) : marca(o, 'lockup--centro');
+  return `<section class="cartao cartao--ajuda" aria-labelledby="${k.id('titulo-ajuda')}">
+      <div class="cartao__cabeca">${cabeca}</div>
+      <h2 class="cartao__titulo" id="${k.id('titulo-ajuda')}">Precisa de ajuda?</h2>
+      <ul class="casos">${casos.map(([i, t, d]) => `
+        <li class="caso">${icone(i)}<div><p class="caso__titulo">${t}</p><p class="caso__texto">${d}</p></div></li>`).join('')}
+      </ul>
+      <div class="contacto">${icone('telefone')}<div>
+        <p class="caso__titulo">${o.semRomafe ? 'Apoio ao cliente' : 'Apoio Romafe'}</p>
+        <p class="caso__texto">800 000 000</p>
+      </div></div>
+      <div class="formulario__accoes">
+        <a class="btn btn--bloco ajuda__voltar" href="#" ${k.ir('entrada')}>Voltar a entrar</a>
+      </div>
+    </section>`;
+}
+
 /** Uma versão do início de sessão: as opções com que se desenha. */
 export interface VersaoEntrar { id: string; nota: string; opcoes: OpcoesEntrar }
 
@@ -398,6 +439,7 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
       entrada: pagina(o, d.entrada, cartaoEntrada(o, k)),
       'palavra-passe': pagina(o, d.palavraPasse, cartaoPalavraPasse(o, k)),
       federado: pagina(o, d.federado, cartaoFederado(o, k)),
+      ajuda: pagina(o, '', cartaoAjuda(o, k)),
     } as Record<IdEntrar, string>;
   });
   const fluxo = versoes[0].opcoes.fluxo || 'Entrar';
@@ -412,6 +454,8 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
       'Passo 2, conta nossa: a palavra-passe valida no Keycloak. O endereço fica à vista com «mudar». A recusa é sempre a mesma, esteja a conta errada, desativada ou inexistente.'),
     ecra('federado', '03 · O início de sessão da empresa',
       'Passo 2, cliente federado: o domínio pertence a uma organização com fornecedor próprio (por exemplo o Entra ID da empresa). A palavra-passe e o segundo fator são do cliente; a página não é nossa. Volta à aplicação já com o token. Não há botão que leve aqui: é o Keycloak que redireciona quando reconhece o domínio do endereço do 01.'),
+    ecra('ajuda', '04 · Precisa de ajuda?',
+      'Para quem não consegue entrar: o que fazer quando se esquece da palavra-passe, quando não tem conta ou ela está bloqueada, e quando entra com a conta da empresa; e o número do apoio. Abre-se em «Precisa de ajuda?» no 01 e volta-se ao 01.'),
   ];
 }
 
