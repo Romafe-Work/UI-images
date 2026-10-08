@@ -50,14 +50,38 @@ export function mostrarVersao(v: string): void {
   document.dispatchEvent(new CustomEvent('romafe:versao'));
 }
 
-/* Onde ficam os separadores: na barra de topo do ecrã, ao lado de Claro ·
-   Escuro · Auto e com o mesmo desenho, quando o ecrã a tem; senão (o
-   Mobile), a flutuar por cima dele. */
-function pintarBarra(): void {
+/* Onde ficam os separadores: no editor, no painel da esquerda, por baixo
+   de Ecrãs · Fluxo, uma linha por versão com a nota (ela, 8 out. 2026).
+   Sem o editor (#so=ecra): na barra de topo do ecrã, ao lado de Claro ·
+   Escuro · Auto, quando o ecrã a tem; senão a flutuar por cima dele. */
+export function pintarBarra(): void {
   if (!barra) return;
   const e = ecraActual();
   const versoes = e ? Array.from(e.querySelectorAll<HTMLElement>(':scope > .versao')) : [];
   const actual = versoes.find((x) => !x.hidden);
+  const painel = document.querySelector<HTMLElement>('.ed-painel--esq .ed-vistas');
+  if (painel) {
+    barra.textContent = '';
+    barra.className = 'versoes versoes--painel';
+    painel.after(barra);
+    const rot = document.createElement('p');
+    rot.className = 'versoes__rotulo';
+    rot.textContent = 'Versões · ' + versoes.length;
+    barra.appendChild(rot);
+    versoes.forEach((x) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'versoes__linha';
+      b.setAttribute('aria-pressed', String(x === actual));
+      b.innerHTML = '<span class="versoes__id"></span><span class="versoes__texto"></span>';
+      b.querySelector('.versoes__id')!.textContent = x.dataset.versao || '';
+      b.querySelector('.versoes__texto')!.textContent = x.dataset.nota || '';
+      b.title = b.textContent || '';
+      b.addEventListener('click', () => mostrarVersao(x.dataset.versao || ''));
+      barra!.appendChild(b);
+    });
+    return;
+  }
   const topo = actual?.querySelector<HTMLElement>('.topo__accoes');
 
   barra.textContent = '';

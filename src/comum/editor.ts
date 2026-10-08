@@ -9,7 +9,7 @@
    número de folga. Escolhe-se um token, e o que sai é um token —
    por isso o CSS exportado nunca traz um valor inventado.
    ========================================================= */
-import { mostrar } from './ecras';
+import { mostrar, pintarBarra } from './ecras';
 import { fluxo } from './fluxo';
 import { aplicar as aplicarTema, actual as temaActual } from './tema';
 /* O CSS de tudo, tal como está escrito (com os comentários), para se ler
@@ -1162,6 +1162,8 @@ function montar(): void {
   painelDir.appendChild(corpoProps);
 
   document.body.appendChild(painelEsq);
+  /* as versões vão para o painel, por baixo de Ecrãs · Fluxo */
+  pintarBarra();
   document.body.appendChild(painelDir);
 
   botaoAbrir('esq', '›', 'as camadas');

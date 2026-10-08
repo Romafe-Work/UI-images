@@ -295,3 +295,23 @@
   box-shadow: none; padding: 3px; gap: 0; font: inherit;
   background: var(--c-superficie-2); color: inherit;
 }
+
+/* ---------- versões no painel da esquerda (8 out. 2026) ---------- */
+.versoes--painel {
+  position: static; transform: none; display: grid; gap: 2px; max-height: 34vh; overflow-y: auto;
+  padding: var(--e-2) var(--e-3); margin: 0; border-radius: 0; box-shadow: none;
+  background: var(--ed-painel-2); border-bottom: 1px solid var(--ed-borda);
+}
+.versoes--painel .versoes__rotulo {
+  margin: 0 0 var(--e-1); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--ed-tinta-3);
+}
+.versoes__linha {
+  display: grid; grid-template-columns: 38px 1fr; align-items: start; gap: var(--e-2);
+  width: 100%; padding: 6px var(--e-2); text-align: left; font: inherit; font-size: 11px;
+  color: var(--ed-tinta-2); background: transparent; border: 1px solid transparent; border-radius: var(--r-sm); cursor: pointer;
+}
+.versoes__linha:hover { background: rgba(255, 255, 255, .05); }
+.versoes__linha[aria-pressed="true"] { border-color: var(--c-acao); color: var(--ed-tinta); background: rgba(239, 123, 16, .12); }
+.versoes__id { font-weight: 700; color: var(--ed-tinta); }
+.versoes__linha[aria-pressed="true"] .versoes__id { color: var(--c-acao); }
+.versoes__texto { line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
