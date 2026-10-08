@@ -34,7 +34,7 @@ export interface App<Id extends string = string> {
   nome: string;
   sub: string;
   /** o tipo de aplicação na porta de entrada: a Peça a Peça é a WebShop e o Part Picker o MarketPlace */
-  grupo: 'ERP' | 'WebShop' | 'MarketPlace' | 'Mobile';
+  grupo: 'ERP' | 'WebShop' | 'MarketPlace' | 'Pick';
   /** o nome no canto do editor e no título do mapa */
   marca: string;
   tela: Tela;

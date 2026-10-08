@@ -7,7 +7,7 @@ Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são d
 | `src/apps/erp/` | ERP — Rolgest | 1440×900 |
 | `src/apps/pecaapeca/` | WebShop — Peça a Peça (era GoShop) | 1440×900 |
 | `src/apps/partpicker/` | MarketPlace — Part Picker (era GoParts) | 1440×900 |
-| `src/apps/mobile/` | Mobile — telemóvel e PDA | 320×533 (o EDA61K) |
+| `src/apps/mobile/` | Mobile — Pick, a app do armazém no PDA | 320×533 (o EDA61K) |
 
 `index.html` é a porta de entrada: as três apps e uma caixa para procurar
 qualquer ecrã pelo nome, pelo fluxo ou pelo que ele faz. Cada resultado tem
@@ -144,7 +144,7 @@ aplicação (`familia` em `OpcoesEntrar`):
 
 | Tipo | Apps | Palco | Cor do tipo |
 | --- | --- | --- | --- |
-| `interna` | ERP (v6), Mobile (v4) | fotografia do armazém numa metade, cartão na outra | azul ROMAFE |
+| `interna` | ERP (v6), Pick (v4) | fotografia do armazém numa metade, cartão na outra | azul ROMAFE |
 | `webshop` | Peça a Peça | claro, de loja, com as famílias de peças e «Pedir conta» | laranja |
 | `marketplace` | Part Picker | escuro, de rede, com «Abrir loja» | verde-água (proposta) |
 
