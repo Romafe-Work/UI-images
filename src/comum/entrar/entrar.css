@@ -719,3 +719,55 @@
   font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-xl);
   letter-spacing: 0; margin-right: 0; color: var(--c-texto);
 }
+
+/* =========================================================
+   v8 (ERP) — A FOTOGRAFIA VERDADEIRA E UM PAINEL LISO
+   Depois de ela dizer que tudo «parece feito pela IA» (8 out. 2026). Tirado
+   de propósito: véus, brilhos, degradês, formas recortadas, sombras grandes,
+   cantos redondos no painel e a lista de vantagens. Fica a fotografia do
+   armazém da Romafe (do vídeo de romafe.com), nítida, e o ROMAFE grande.
+   ========================================================= */
+.entrada--foto { grid-template-rows: 1fr; }
+.entrada--foto .palco {
+  grid-template-columns: minmax(0, 1fr) 520px; gap: 0; padding: 0;
+  min-height: 100vh; align-items: start; background: var(--c-superficie);
+}
+.foto {
+  position: absolute; inset: 0 520px 0 0; z-index: 0;
+  background: center / cover no-repeat;
+}
+.foto--corredor  { background-image: url('../img/corredor.webp'); }
+.foto--separacao { background-image: url('../img/separacao.webp'); }
+.foto--fachada   { background-image: url('../img/fachada.webp'); background-position: 20% center; }
+
+.entrada--foto .cartao {
+  grid-column: 2; order: 0; position: relative;
+  width: 100%; max-width: none; margin-top: 15vh;
+  padding: 0 var(--e-8); background: transparent;
+  border: 0; border-radius: 0; box-shadow: none;
+}
+.entrada--foto .cartao__cabeca { justify-items: start; margin-bottom: var(--e-7); }
+.entrada--foto .selo { justify-items: start; }
+.entrada--foto .romafe--selo { font-size: 76px; }
+.entrada--foto .selo__sub { margin-right: 0; }
+.entrada--foto .cartao__titulo { text-align: left; }
+.entrada--foto .ajuda { text-align: left; border-top: 0; padding-top: 0; }
+.entrada--foto .input { min-height: 52px; }
+.entrada--foto .btn--bloco { min-height: 52px; }
+
+.foto__pe {
+  position: absolute; right: 0; bottom: var(--e-6); width: 520px;
+  margin: 0; padding: 0 var(--e-8);
+  display: flex; justify-content: space-between;
+  font-size: var(--t-xs); color: var(--c-texto-3);
+  text-transform: uppercase; letter-spacing: .12em;
+}
+.foto__lema { color: var(--c-logotipo); font-weight: 700; }
+
+@media (max-width: 1100px) {
+  .entrada--foto .palco { grid-template-columns: 1fr; }
+  .foto { inset: 0 0 auto 0; height: 220px; }
+  .entrada--foto .cartao { grid-column: 1; margin-top: 260px; padding: 0 var(--e-5); }
+  .foto__pe { position: static; width: auto; padding: var(--e-6) var(--e-5); }
+}
+.entrada--foto .ligacao-recuperar { text-align: left; }

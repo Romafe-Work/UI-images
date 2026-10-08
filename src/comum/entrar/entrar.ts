@@ -68,6 +68,12 @@ export interface OpcoesEntrar {
     /** ERP v7 (era a v9): a fotografia no ecrã todo, com o cartão ao centro e duas formas
         azuis nos cantos; a ajuda só em texto */
     centro?: boolean;
+    /** v8 do ERP (8 out. 2026), depois de ela dizer que tudo «parece feito pela
+        IA»: uma fotografia verdadeira da Romafe, nítida e sem véu, e um painel
+        branco liso com o ROMAFE grande. Nenhum brilho, degradê nem forma
+        recortada. O valor é a fotografia (src/comum/img/<foto>.webp, tirada do
+        vídeo de romafe.com). */
+    foto?: 'corredor' | 'separacao' | 'fachada';
   };
   /** o cartão fica no mesmo sítio em todos os ecrãs da versão: o texto à
       volta é sempre o do 01, o cartão prende-se em cima, e o 03 deixa de ser
@@ -189,6 +195,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
+  if (o.minimo?.foto) return paginaFoto(o.minimo.foto, cartao);
   if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
   const completa = o.variante === 'completa';
@@ -255,6 +262,18 @@ function paginaMinima(cartao: string, centro: boolean, fixo: boolean): string {
     <div class="minima__foto" role="img" aria-label="Armazém da Romafe"></div>
     ${formas}
     ${cartao}
+  </main>
+</div>`;
+}
+
+/** v8: a fotografia da Romafe à esquerda, tal como é, e o painel branco à
+    direita. No fundo do painel, só factos: desde 1945, e o lema da casa. */
+function paginaFoto(foto: string, cartao: string): string {
+  return `<div class="entrada entrada--completa entrada--foto entrada--fixa">
+  <main class="palco">
+    <div class="foto foto--${foto}" role="img" aria-label="Armazém da Romafe"></div>
+    ${cartao}
+    <p class="foto__pe"><span>Desde 1945</span><span class="foto__lema">Rolling your way</span></p>
   </main>
 </div>`;
 }
