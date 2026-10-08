@@ -7,8 +7,10 @@
 
 /* Fontes da marca — as mesmas três do produto, ver 04 §1 do manual.
    Motor na marca, Jost nos títulos, Lato no corpo. */
+/* A Motor é a do ficheiro que a Romafe enviou a 8 out. 2026 (motorn.TTF,
+   Corel Motor Plain), passada a woff2 sem mudar nenhum desenho. */
 @font-face { font-family:'Motor'; font-style:normal; font-weight:400 700; font-display:swap;
-  src:url('../fontes/motor-latin.woff2') format('woff2'); }
+  src:url('../fontes/motor.woff2') format('woff2'); }
 @font-face { font-family:'Lato'; font-style:normal; font-weight:400; font-display:swap;
   src:url('../fontes/lato-400-latin.woff2') format('woff2'); }
 @font-face { font-family:'Lato'; font-style:italic; font-weight:400; font-display:swap;
@@ -127,11 +129,17 @@
   --c-entrada-tinta-2: rgba(255, 255, 255, .72); /* 02 §6: o branco a 72% do menu */
   /* Estes dois vêm das capturas do ecrã de entrada da Gestão de frota, que
      é o produto a copiar. Não estão no capítulo 02 — ver LEIA-ME. */
-  --c-logotipo:       #2762a8;                 /* o azul do nome, nos dois temas */
+  --c-logotipo:       #0063aa;                 /* o azul do nome ROMAFE: RGB(0, 99, 170), dado pela Romafe a 8 out. 2026 */
   --c-campo-fundo:    #e9f0fe;                 /* o azul lavado dos campos */
   --c-marca-fundo-2:  #2d7ac6;                 /* fim do degradé das cabeças dos painéis */
   --c-portal-fundo:   #edf4fa;                 /* o fundo do portal */
   --c-acao-suave:     #fee1ce;                 /* 02 §1.2: fundo suave do laranja */
+  /* v6, a família Romafe (8 out. 2026). O nome ROMAFE leva o --c-logotipo;
+     sobre o tema escuro passa ao azul que é tinta, como o §11.4 manda.
+     A cor de cada tipo é a do risco do topo e do cartão: o azul ROMAFE nas
+     internas, o laranja na loja, e um verde-água no marketplace (proposta). */
+  --c-romafe:         var(--c-logotipo);
+  --c-mercado:        #129c92;
   --a-campo:          44px;                    /* 19 §2: 44 e não 42 */
   --l-cartao:         460px;                   /* a maqueta. O 19 §1 pede 400 */
 }
@@ -141,6 +149,7 @@
 /* O fundo do portal é uma superfície como as outras: no tema escuro segue a
    página, senão o ecrã inteiro fica branco por baixo dos cartões — 02 §2. */
 [data-theme="dark"] {
+  --c-romafe:       #a8caee;
   --c-campo-fundo:  #3d434f;
   --c-portal-fundo: #2c2c2a;
 }
@@ -178,5 +187,6 @@
 
     --c-campo-fundo:  #3d434f;
     --c-portal-fundo: #2c2c2a;
+    --c-romafe:       #a8caee;
   }
 }

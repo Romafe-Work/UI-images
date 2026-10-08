@@ -5,8 +5,8 @@ Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são d
 | Pasta | App | Tela |
 | --- | --- | --- |
 | `src/apps/erp/` | ERP — Rolgest | 1440×900 |
-| `src/apps/goshop/` | Web — GoShop | 1440×900 |
-| `src/apps/goparts/` | Web — GoParts | 1440×900 |
+| `src/apps/pecaapeca/` | WebShop — Peça a Peça (era GoShop) | 1440×900 |
+| `src/apps/partpicker/` | MarketPlace — Part Picker (era GoParts) | 1440×900 |
 | `src/apps/mobile/` | Mobile — telemóvel e PDA | 480×800 |
 
 `index.html` é a porta de entrada: as três apps e uma caixa para procurar
@@ -79,7 +79,7 @@ flutuar por cima quando o ecrã não tem barra de topo (Mobile). A mais antiga f
 a versão (`#ecra=entrada&v=v1`); sem ela, abre na mais nova.
 
 No código, um ecrã tem `versoes: [{ id: 'v1', nota: '…', html }, …]`. No login,
-`versoesCompletas()` dá as três do ERP, do GoShop e do GoParts:
+`versoesCompletas()` dá as três do ERP, do Peça a Peça e do Part Picker:
 
 - **v1** — o cartão à direita, com a apresentação da app à esquerda
 - **v2** — o cartão ao centro, sozinho sobre a fotografia (sugestão da chefia)
@@ -118,7 +118,7 @@ Os três passos são os mesmos nas três apps, porque a identidade é uma só
 | 02 · A palavra-passe — valida no Keycloak | — |
 | 03 · O início de sessão da empresa — palavra-passe e segundo fator do cliente | — |
 
-| | ERP, GoShop e GoParts (`completa`) | Mobile (`compacta`) |
+| | ERP, Peça a Peça e Part Picker (`completa`) | Mobile (`compacta`) |
 | --- | --- | --- |
 | Fotografia do armazém | sim | sim, com o véu por igual |
 | Apresentação (título e três vantagens) | sim, própria de cada app | não |
@@ -132,5 +132,20 @@ Mudar `src/comum/entrar/entrar.ts` (o cartão) ou `discurso.ts` (o texto de
 apresentação) muda o login em todo o lado. O que cada app tem de próprio — a
 marca, a versão — está em `src/apps/<app>/entrar.ts`.
 
-A Web são duas apps, **GoShop** e **GoParts**, cada uma com a sua página, editor e
+A Web são duas apps, **Peça a Peça** e **Part Picker**, cada uma com a sua página, editor e
 mapa. Na porta de entrada aparecem lado a lado, com «Web» por cima.
+
+## A família Romafe (v6 do login, 8 out. 2026)
+
+A Romafe deu a letra do nome ROMAFE (`motorn.TTF`, passada a
+`src/comum/fontes/motor.woff2`) e a cor, RGB(0, 99, 170) (`--c-logotipo`).
+Pediu três logins diferentes que se vejam da mesma família, um por tipo de
+aplicação (`familia` em `OpcoesEntrar`):
+
+| Tipo | Apps | Palco | Cor do tipo |
+| --- | --- | --- | --- |
+| `interna` | ERP (v6), Mobile (v4) | fotografia do armazém numa metade, cartão na outra | azul ROMAFE |
+| `webshop` | Peça a Peça | claro, de loja, com as famílias de peças e «Pedir conta» | laranja |
+| `marketplace` | Part Picker | escuro, de rede, com «Abrir loja» | verde-água (proposta) |
+
+Igual nos três: o ROMAFE em Motor na barra de topo, o cartão, o botão e o rodapé.

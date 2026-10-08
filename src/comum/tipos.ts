@@ -27,14 +27,14 @@ export interface Ecra<Id extends string = string> {
   versoes: [Versao, ...Versao[]];
 }
 
-export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';
+export type IdApp = 'erp' | 'pecaapeca' | 'partpicker' | 'mobile';
 
 export interface App<Id extends string = string> {
   id: IdApp;
   nome: string;
   sub: string;
-  /** a família a que a app pertence na porta de entrada: o GoShop e o GoParts são «Web» */
-  grupo: 'ERP' | 'Web' | 'Mobile';
+  /** o tipo de aplicação na porta de entrada: a Peça a Peça é a WebShop e o Part Picker o MarketPlace */
+  grupo: 'ERP' | 'WebShop' | 'MarketPlace' | 'Mobile';
   /** o nome no canto do editor e no título do mapa */
   marca: string;
   tela: Tela;

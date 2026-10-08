@@ -10,8 +10,8 @@ export default defineConfig({
       input: {
         entrada: resolve(import.meta.dirname, 'index.html'),
         erp: resolve(import.meta.dirname, 'erp/index.html'),
-        goshop: resolve(import.meta.dirname, 'goshop/index.html'),
-        goparts: resolve(import.meta.dirname, 'goparts/index.html'),
+        pecaapeca: resolve(import.meta.dirname, 'pecaapeca/index.html'),
+        partpicker: resolve(import.meta.dirname, 'partpicker/index.html'),
         mobile: resolve(import.meta.dirname, 'mobile/index.html'),
       },
     },

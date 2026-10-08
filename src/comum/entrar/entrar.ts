@@ -23,6 +23,17 @@ export type Variante = 'completa' | 'compacta';
     à esquerda (v1); ao centro, sozinho sobre a fotografia (v2); ou ao
     centro, com o título por cima e as vantagens por baixo (v3) */
 export type Disposicao = 'lado' | 'centro' | 'centro-apresentacao';
+/** v6: a família Romafe (8 out. 2026). Três tipos de aplicação, diferentes
+    entre si e com as mesmas peças: o nome ROMAFE na letra Motor e no azul
+    RGB(0, 99, 170), o cartão, o botão laranja e o rodapé. */
+export type Familia = 'interna' | 'webshop' | 'marketplace';
+
+/** como cada tipo se apresenta ao lado do nome ROMAFE, na barra de topo */
+const TIPO: Record<Familia, string> = {
+  interna: 'Aplicações internas',
+  webshop: 'Loja online',
+  marketplace: 'Marketplace',
+};
 
 export interface OpcoesEntrar {
   variante: Variante;
@@ -36,6 +47,11 @@ export interface OpcoesEntrar {
   /** a marca do produto ganha um monograma (a inicial num quadrado) e o
       fundo, sem fotografia, ganha um desenho abstrato (v5) */
   desenhado?: boolean;
+  /** v6: o tipo de aplicação, que decide o palco (ver `Familia`) */
+  familia?: Familia;
+  /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
+      Nas internas não há: a conta nasce no administrador. */
+  convite?: { texto: string; ligacao: string };
   /** o nome na marca e a linha por baixo: ROLGEST · Plataforma de gestão */
   marca: { nome: string; sub: string };
   /** como o produto se chama numa frase: «O Rolgest não vê a sua palavra-passe» */
@@ -59,6 +75,7 @@ interface Chaves { ir: (id: IdEntrar) => string; id: (peca: string) => string }
 /** A marca: o lockup, e na v5 o monograma (a inicial do produto) antes dele —
     ao lado no topo, por cima no cartão. */
 function marca(o: OpcoesEntrar, cls: string, idSub = ''): string {
+  if (o.familia) return produto(o, idSub);
   const l = lockup(o.marca, cls, idSub);
   if (!o.desenhado) return l;
   const inicial = o.marca.nome.trim().charAt(0).toUpperCase();
@@ -71,6 +88,21 @@ function lockup(m: OpcoesEntrar['marca'], cls: string, idSub = ''): string {
       <span class="lockup__nome">${m.nome}</span>
       <span class="lockup__risco" aria-hidden="true"></span>
       <span class="lockup__sub"${idSub ? ` id="${idSub}"` : ''}>${m.sub}</span>
+    </span>`;
+}
+
+/** O nome ROMAFE, na letra e na cor que a Romafe deu. É texto, para se ler. */
+function romafe(cls = ''): string {
+  return `<span class="romafe${cls ? ' ' + cls : ''}">ROMAFE</span>`;
+}
+
+/** v6: no cartão, o nome do produto na letra dos títulos. A Motor fica só
+    para o ROMAFE; na compacta, sem barra de topo, o ROMAFE vem por cima. */
+function produto(o: OpcoesEntrar, idSub = ''): string {
+  return `<span class="produto">
+      ${o.variante === 'compacta' ? romafe('romafe--cartao') : ''}
+      <span class="produto__nome">${o.produto}</span>
+      <span class="produto__sub"${idSub ? ` id="${idSub}"` : ''}>${o.marca.sub}</span>
     </span>`;
 }
 
@@ -89,8 +121,11 @@ function topo(o: OpcoesEntrar): string {
         Português
       </button>
     </div>`;
+  const esquerda = o.familia
+    ? `<span class="topo__familia">${romafe()}<span class="topo__tipo">${TIPO[o.familia]}</span></span>`
+    : marca(o, 'lockup--sm');
   return `<header class="topo">
-    ${marca(o, 'lockup--sm')}${accoes}
+    ${esquerda}${accoes}
   </header>`;
 }
 
@@ -112,6 +147,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
+  if (o.familia) return paginaFamilia(o, discurso, cartao);
   const completa = o.variante === 'completa';
   const centro = completa && o.disposicao === 'centro';
   const centroApr = completa && o.disposicao === 'centro-apresentacao';
@@ -123,6 +159,35 @@ function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
     ${o.semRomafe ? '' : '<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div>'}
     <div class="palco__veu" aria-hidden="true"></div>
     ${completa && !centro ? discurso : ''}
+    ${cartao}
+  </main>
+  ${rodape(o)}
+</div>`;
+}
+
+/** O que a loja online mostra à volta do discurso: as famílias de peças,
+    como as prateleiras de uma loja. */
+const CATEGORIAS = ['Travagem', 'Filtros', 'Suspensão', 'Iluminação', 'Embraiagem', 'Baterias'];
+
+/** v6: a mesma barra de topo e o mesmo rodapé nos três tipos; o palco é de cada um.
+      interna      duas metades: a fotografia do armazém com o discurso, e o
+                   cartão numa superfície lisa. Sóbria, é uma ferramenta
+      webshop      clara, de loja: o discurso e as famílias de peças à
+                   esquerda, o cartão à direita, e o convite para pedir conta
+      marketplace  escura e desenhada, de rede: o título por cima do cartão,
+                   as vantagens por baixo, e o convite para vender */
+function paginaFamilia(o: OpcoesEntrar, discurso: string, cartao: string): string {
+  const f = o.familia!;
+  const completa = o.variante === 'completa';
+  const extra = f === 'webshop' && discurso
+    ? `<ul class="categorias" aria-label="Famílias de peças">${CATEGORIAS.map((c) => `<li class="categoria">${c}</li>`).join('')}</ul>`
+    : '';
+  const foto = f === 'interna' ? '<div class="palco__foto" role="img" aria-label="Armazém da Romafe"></div><div class="palco__veu" aria-hidden="true"></div>' : '';
+  return `<div class="entrada entrada--${o.variante} entrada--familia entrada--${f}">
+  ${completa ? topo(o) : ''}
+  <main class="palco">
+    ${foto}
+    ${completa ? `<div class="palco__discurso">${discurso}${extra}</div>` : ''}
     ${cartao}
   </main>
   ${rodape(o)}
@@ -186,6 +251,7 @@ function cartaoEntrada(o: OpcoesEntrar, k: Chaves): string {
           </button>
         </div>
       </form>
+      ${o.convite ? `<p class="convite">${o.convite.texto} <a href="#">${o.convite.ligacao}</a></p>` : ''}
       ${apoio}
     </section>`;
 }
@@ -300,20 +366,30 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
   ];
 }
 
+/** A nota do separador da v6, conforme o tipo de aplicação. */
+export const NOTA_V6: Record<Familia, string> = {
+  interna: 'Família Romafe, aplicações internas: o ROMAFE em Motor no topo, a fotografia do armazém numa metade e o cartão na outra',
+  webshop: 'Família Romafe, loja online: o ROMAFE em Motor no topo, um palco claro de loja e o convite para pedir conta',
+  marketplace: 'Família Romafe, marketplace: o ROMAFE em Motor no topo, um palco escuro de rede e o convite para vender',
+};
+
 /** As versões do início de sessão completo (7 de outubro): v1 com o cartão
     à direita; v2 com o cartão ao centro, sugestão da chefia; v3 a v2 com a
     apresentação de volta, porque à v2 «falta mais algo»; v4 a v3 sem nada
     da Romafe, porque o produto pode ser vendido a outra empresa; v5 a v4
     com o monograma e um fundo desenhado, porque à v4 «parece que falta
     alguma coisa». O que a app quiser diferente sem a Romafe (um texto que
-    falava dela) vem em `v4`, e vale para a v4 e a v5. */
-export function versoesCompletas(o: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
+    falava dela) vem em `v4`, e vale para a v4 e a v5. A v6 (8 out.) é a
+    família Romafe, e é a única que usa a `familia` e o `convite` da app. */
+export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
+  const o: OpcoesEntrar = { ...v6, familia: undefined, convite: undefined };
   return [
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
     { id: 'v2', nota: 'Cartão ao centro, sozinho sobre a fotografia', opcoes: { ...o, disposicao: 'centro' } },
     { id: 'v3', nota: 'Cartão ao centro, com o título por cima e as vantagens por baixo', opcoes: { ...o, disposicao: 'centro-apresentacao' } },
     { id: 'v4', nota: 'A v3 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
     { id: 'v5', nota: 'A v4 com marca e fundo: o monograma do produto e um desenho abstrato no lugar da fotografia', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true, desenhado: true } },
+    { id: 'v6', nota: NOTA_V6[v6.familia ?? 'interna'], opcoes: v6 },
   ];
 }
 

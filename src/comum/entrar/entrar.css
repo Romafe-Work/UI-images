@@ -357,3 +357,141 @@
 .entrada--compacta .cartao__cabeca { margin-bottom: var(--e-5); }
 .entrada--compacta .btn--bloco { min-height: 52px; }
 .entrada--compacta .input { min-height: 52px; font-size: var(--t-md); }
+
+/* =========================================================
+   v6 — A FAMÍLIA ROMAFE (8 out. 2026)
+   O que é igual nos três tipos, para se ver que são da mesma casa: o nome
+   ROMAFE em Motor e no azul RGB(0, 99, 170) na barra de topo, o cartão, o
+   botão laranja e o rodapé. O que muda é o palco e a cor do tipo
+   (--c-familia), que aparece no risco por baixo do topo e no cimo do cartão.
+   ========================================================= */
+.entrada--interna    { --c-familia: var(--c-logotipo); }
+.entrada--webshop    { --c-familia: var(--c-acao); }
+.entrada--marketplace { --c-familia: var(--c-mercado); }
+
+/* O tamanho é o que deixa ler a palavra: 32px no topo, com a letra a
+   respirar um pouco. */
+.romafe {
+  font-family: var(--f-marca); font-size: 32px; line-height: 1;
+  letter-spacing: .03em; color: var(--c-romafe);
+}
+.entrada--familia .topo { border-bottom: 3px solid var(--c-familia); }
+.topo__familia { display: flex; align-items: center; gap: var(--e-4); }
+.topo__tipo {
+  padding-left: var(--e-4); border-left: 1px solid var(--c-borda-forte);
+  font-family: var(--f-titulo); font-size: var(--t-sm); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .1em; color: var(--c-texto-2);
+}
+
+/* No cartão, o produto na letra dos títulos: a Motor é só do ROMAFE. */
+.produto { display: grid; justify-items: center; text-align: center; gap: var(--e-1); }
+.produto__nome {
+  font-family: var(--f-titulo); font-size: var(--t-2xl); font-weight: 700;
+  line-height: 1.1; color: var(--c-texto);
+}
+.produto__nome::after {
+  content: ""; display: block; width: 40px; height: 3px; margin: var(--e-2) auto 0;
+  border-radius: 2px; background: var(--c-familia);
+}
+.produto__sub { font-size: var(--t-sm); color: var(--c-texto-2); }
+.romafe--cartao { font-size: 36px; margin-bottom: var(--e-2); }
+
+.entrada--familia .cartao:not(.cartao--fora) { border-top: 4px solid var(--c-familia); }
+.convite { margin: var(--e-4) 0 0; text-align: center; font-size: var(--t-sm); color: var(--c-texto-2); }
+.convite a { color: var(--c-marca); font-weight: 700; }
+
+.palco__discurso { order: 1; }
+
+/* ---------- interna: duas metades ----------
+   Uma ferramenta de trabalho: a fotografia do armazém numa metade, em azul
+   ROMAFE, com o discurso; o cartão na outra, numa superfície lisa. */
+.entrada--completa.entrada--interna .palco {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  padding: 0; gap: 0; align-items: stretch;
+  background: var(--c-fundo);
+}
+.entrada--completa.entrada--interna .palco__foto,
+.entrada--completa.entrada--interna .palco__veu { right: 50%; }
+.entrada--interna .palco__veu {
+  background: linear-gradient(160deg, rgba(0, 99, 170, .78), rgba(1, 35, 56, .8));
+}
+.entrada--completa.entrada--interna .palco__discurso {
+  display: flex; align-items: center; padding: var(--e-8);
+}
+.entrada--completa.entrada--interna .cartao {
+  align-self: center; box-shadow: var(--s-2);
+}
+
+/* ---------- webshop: uma loja ----------
+   Clara e quente: o discurso e as famílias de peças em tinta escura sobre
+   um fundo claro, uma luz laranja atrás do cartão. */
+.entrada--webshop .palco {
+  background: linear-gradient(135deg, var(--c-superficie) 0%, var(--c-portal-fundo) 100%);
+  overflow: hidden;
+}
+.entrada--webshop .palco::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  right: -160px; top: 50%; width: 760px; height: 760px; transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 123, 16, .22), rgba(239, 123, 16, 0) 68%);
+}
+.entrada--webshop .discurso,
+.entrada--webshop .discurso__titulo { color: var(--c-texto); }
+.entrada--webshop .vantagem__sub { color: var(--c-texto-2); }
+.categorias {
+  list-style: none; margin: var(--e-6) 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--e-2); max-width: 640px;
+}
+.categoria {
+  padding: 6px 14px; border-radius: var(--r-full);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  font-size: var(--t-sm); font-weight: 700; color: var(--c-texto-2);
+}
+
+/* ---------- marketplace: uma rede ----------
+   Escuro e desenhado, muitos pontos ligados: o título por cima do cartão
+   e as vantagens por baixo, como a v3. */
+.entrada--marketplace .palco {
+  grid-template-columns: minmax(0, 880px); justify-content: center; justify-items: center;
+  align-content: center; gap: var(--e-5);
+  background:
+    radial-gradient(40% 50% at 15% 20%, rgba(18, 156, 146, .30), transparent 70%),
+    radial-gradient(35% 45% at 85% 80%, rgba(0, 99, 170, .55), transparent 70%),
+    linear-gradient(160deg, #0a2a44, var(--c-entrada-fundo) 65%);
+}
+.entrada--marketplace .palco::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, .22) 1.2px, transparent 1.6px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 45%, #000 25%, transparent 100%);
+          mask-image: radial-gradient(70% 70% at 50% 45%, #000 25%, transparent 100%);
+}
+.entrada--marketplace .palco__discurso,
+.entrada--marketplace .discurso { display: contents; }
+.entrada--marketplace .discurso__titulo {
+  order: 0; margin: 0; text-align: center; font-size: var(--t-xl); color: var(--c-entrada-tinta);
+}
+.entrada--marketplace .discurso__titulo br { display: none; }
+.entrada--marketplace .cartao { order: 1; }
+.entrada--marketplace .vantagens {
+  order: 2; width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-5);
+  color: var(--c-entrada-tinta);
+}
+.entrada--marketplace .vantagem svg { color: #5fd3c8; }
+.entrada--marketplace .discurso__texto { order: 0; text-align: center; color: var(--c-entrada-tinta); }
+
+/* ---------- compacta (Mobile): só o cartão, com o ROMAFE em cima ---------- */
+.entrada--compacta.entrada--interna .palco__veu { background: rgba(0, 99, 170, .72); }
+
+@media (max-width: 1100px) {
+  .entrada--completa.entrada--interna .palco { grid-template-columns: 1fr; padding: var(--e-6) var(--e-4); gap: var(--e-6); }
+  .entrada--completa.entrada--interna .palco__foto,
+  .entrada--completa.entrada--interna .palco__veu { right: 0; }
+  .entrada--completa.entrada--interna .palco__discurso { padding: 0; order: 2; }
+  .palco__discurso { order: 2; }
+  .entrada--marketplace .vantagens { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .topo__tipo { display: none; }
+}

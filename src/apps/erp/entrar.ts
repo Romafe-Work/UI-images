@@ -7,6 +7,7 @@ import type { OpcoesEntrar } from '../../comum/entrar/entrar';
 
 export const entrarErp: OpcoesEntrar = {
   variante: 'completa',
+  familia: 'interna',
   marca: { nome: 'ROLGEST', sub: 'Plataforma de gestão' },
   produto: 'Rolgest',
   versao: 'Rolgest 10.0 · compilação 2026.09',

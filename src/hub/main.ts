@@ -10,11 +10,11 @@ import './hub.css';
 import type { App } from '../comum/tipos';
 import { iniciar as iniciarTema } from '../comum/tema';
 import { erp } from '../apps/erp/app';
-import { goshop } from '../apps/goshop/app';
-import { goparts } from '../apps/goparts/app';
+import { pecaapeca } from '../apps/pecaapeca/app';
+import { partpicker } from '../apps/partpicker/app';
 import { mobile } from '../apps/mobile/app';
 
-const APPS: App[] = [erp, goshop, goparts, mobile];
+const APPS: App[] = [erp, pecaapeca, partpicker, mobile];
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string | null, txt?: string | null): HTMLElementTagNameMap[K] {
   const n = document.createElement(tag);
@@ -37,7 +37,7 @@ APPS.forEach((a) => {
   const card = n ? ligacao(a.id + '/', '') : el('div');
   card.className = 'app' + (n ? '' : ' app--vazia');
   /* a família só se escreve quando diz alguma coisa («Web» por cima do
-     GoShop); nas outras fica a linha em branco, para os nomes alinharem */
+     Peça a Peça); nas outras fica a linha em branco, para os nomes alinharem */
   card.appendChild(el('p', 'app__grupo', a.grupo === a.nome ? '\u00a0' : a.grupo));
   card.appendChild(el('p', 'app__nome', a.nome));
   card.appendChild(el('p', 'app__sub', a.sub));

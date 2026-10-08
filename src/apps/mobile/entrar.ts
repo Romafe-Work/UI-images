@@ -19,3 +19,12 @@ export const entrarMobileNeutro: OpcoesEntrar = {
   produto: 'Mobile',
   semRomafe: true,
 };
+
+/** v4, a família Romafe (8 out. 2026): aplicação interna, com o ROMAFE em
+    Motor no cartão. O nome da app continua provisório. */
+export const entrarMobileFamilia: OpcoesEntrar = {
+  variante: 'compacta',
+  familia: 'interna',
+  marca: { nome: 'ROMAFE', sub: 'Armazém' },
+  produto: 'Mobile',
+};

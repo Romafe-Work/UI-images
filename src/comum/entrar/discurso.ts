@@ -1,6 +1,6 @@
 /* =========================================================
    ROMAFE — o texto de apresentação do início de sessão
-   À esquerda do cartão, na variante completa (ERP, GoShop, GoParts).
+   À esquerda do cartão, na variante completa (ERP, Peça a Peça, Part Picker).
    A forma é comum — um título e três vantagens —, o conteúdo é de cada
    app: diz o que se vai encontrar lá dentro, e não o que as apps têm
    em comum. Cada app escreve o seu em src/apps/<app>/entrar.ts.
