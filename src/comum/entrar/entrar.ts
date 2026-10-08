@@ -73,7 +73,7 @@ export interface OpcoesEntrar {
         branco liso com o ROMAFE grande. Nenhum brilho, degradê nem forma
         recortada. O valor é a fotografia (src/comum/img/<foto>.webp, tirada do
         vídeo de romafe.com). */
-    foto?: 'corredor' | 'separacao' | 'fachada';
+    foto?: 'corredor' | 'separacao' | 'fachada' | 'mosaico';
   };
   /** o cartão fica no mesmo sítio em todos os ecrãs da versão: o texto à
       volta é sempre o do 01, o cartão prende-se em cima, e o 03 deixa de ser
@@ -269,11 +269,25 @@ function paginaMinima(cartao: string, centro: boolean, fixo: boolean): string {
 /** v8: a fotografia da Romafe à esquerda, tal como é, e o painel branco à
     direita. No fundo do painel, só factos: desde 1945, e o lema da casa. */
 function paginaFoto(foto: string, cartao: string): string {
-  return `<div class="entrada entrada--completa entrada--foto entrada--fixa">
+  /* v9: três fotografias em mosaico (gente, corredor, fachada) e, no fundo do
+     painel, os números do site da Romafe em vez de frases */
+  const imagem = foto === 'mosaico'
+    ? `<div class="foto foto--mosaico" role="img" aria-label="A Romafe: a separação, o armazém e a sede no Porto">
+        <span class="mosaico__a"></span><span class="mosaico__b"></span><span class="mosaico__c"></span>
+      </div>`
+    : `<div class="foto foto--${foto}" role="img" aria-label="Armazém da Romafe"></div>`;
+  const pe = foto === 'mosaico'
+    ? `<dl class="numeros">
+        <div><dt>1945</dt><dd>fundada no Porto</dd></div>
+        <div><dt>60</dt><dd>pessoas</dd></div>
+        <div><dt>6 000 m²</dt><dd>de armazém</dd></div>
+      </dl>`
+    : `<p class="foto__pe"><span>Desde 1945</span><span class="foto__lema">Rolling your way</span></p>`;
+  return `<div class="entrada entrada--completa entrada--foto entrada--fixa${foto === 'mosaico' ? ' entrada--mosaico' : ''}">
   <main class="palco">
-    <div class="foto foto--${foto}" role="img" aria-label="Armazém da Romafe"></div>
+    ${imagem}
     ${cartao}
-    <p class="foto__pe"><span>Desde 1945</span><span class="foto__lema">Rolling your way</span></p>
+    ${pe}
   </main>
 </div>`;
 }

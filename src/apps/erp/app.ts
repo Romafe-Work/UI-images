@@ -15,5 +15,6 @@ export const erp: App<IdErp> = {
     ...versoesRomafe(entrarErp, 'ERP'),
     /* a de teste, sem nada que pareça gerado: a fotografia verdadeira e o painel liso */
     { id: 'v8', nota: 'Teste: a fotografia verdadeira do armazém, nítida e sem efeitos, e um painel branco liso com o ROMAFE grande', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', foto: 'corredor' } } },
+    { id: 'v9', nota: 'A v8 mais viva: três fotografias da Romafe em mosaico (a separação, o corredor, a sede) e os números da casa', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', foto: 'mosaico' } } },
   ])],
 };

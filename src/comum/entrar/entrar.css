@@ -807,3 +807,30 @@
 /* Pick: o cartão ao meio do ecrã, na vertical (ela, 8 out. 2026: «quero o
    quadrado do login no meio»). Ganha a preso-em-cima do `fixo`. */
 .entrada--fixa.entrada--compacta .palco { align-content: center; padding: var(--e-3); }
+
+/* ---------- v9 (ERP): a v8 mais viva ----------
+   Três fotografias verdadeiras em mosaico, com uma junta branca fina, como
+   numa folha de contacto: a pessoa a separar em grande, o corredor e a sede
+   por baixo. No painel, os números do site da Romafe em letra grande. */
+.foto--mosaico {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 3fr 2fr;
+  gap: 6px; background: var(--c-superficie); padding-right: 6px;
+}
+.foto--mosaico span { background-size: cover; background-position: center; background-repeat: no-repeat; }
+.mosaico__a { grid-column: 1 / -1; background-image: url('../img/separacao.webp'); background-position: 40% 35%; }
+.mosaico__b { background-image: url('../img/corredor.webp'); }
+.mosaico__c { background-image: url('../img/fachada.webp'); background-position: left center; }
+
+.numeros {
+  position: absolute; right: 0; bottom: var(--e-6); width: 520px;
+  margin: 0; padding: var(--e-4) var(--e-8) 0;
+  display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between;
+  border-top: 1px solid var(--c-borda);
+}
+.numeros div { display: grid; gap: 2px; }
+.numeros dt { font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-xl); color: var(--c-logotipo); line-height: 1.1; }
+.numeros dd { margin: 0; font-size: var(--t-xs); color: var(--c-texto-2); }
+@media (max-width: 1100px) {
+  .foto--mosaico { height: 260px; }
+  .numeros { position: static; width: auto; padding: var(--e-5); }
+}
