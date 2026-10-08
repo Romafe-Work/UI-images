@@ -73,7 +73,7 @@ export interface OpcoesEntrar {
         branco liso com o ROMAFE grande. Nenhum brilho, degradê nem forma
         recortada. O valor é a fotografia (src/comum/img/<foto>.webp, tirada do
         vídeo de romafe.com). */
-    foto?: 'corredor' | 'separacao' | 'fachada' | 'mosaico' | 'video';
+    foto?: 'corredor' | 'separacao' | 'fachada' | 'mosaico' | 'video' | 'cena';
     /** na versão do vídeo, o tipo de app decide a cena, onde fica a caixa e a faixa */
     tipo?: Familia;
   };
@@ -198,6 +198,7 @@ function rodape(o: OpcoesEntrar): string {
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
   if (o.minimo?.foto === 'video') return paginaVideo(cartao, o.minimo.tipo);
+  if (o.minimo?.foto === 'cena') return paginaCena(cartao, o.minimo.tipo ?? 'interna');
   if (o.minimo?.foto) return paginaFoto(o.minimo.foto, cartao);
   if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
@@ -327,6 +328,49 @@ function paginaVideo(cartao: string, tipo?: Familia): string {
   return `<div class="entrada entrada--completa entrada--video${tipo ? ` entrada--video-${tipo}` : ''}">
   <main class="palco">
     <video class="video" autoplay muted loop playsinline preload="auto" aria-hidden="true" src="${VIDEO_ROMAFE}${c.inicio ? `#t=${c.inicio}` : ''}"></video>
+    ${cartao}
+  </main>
+  <footer class="faixa">
+    <p class="faixa__rotulo">${c.rotulo}</p>
+    <ul class="faixa__marcas">${c.itens.map((m) => `<li>${m}</li>`).join('')}</ul>
+  </footer>
+</div>`;
+}
+
+/* ---------------- v10: sem o armazém ----------------
+   Ela, 8 out. 2026: «não quero ter sempre a imagem do armazém, o vídeo do
+   mesmo». Cada app com um fundo seu, ainda com material verdadeiro:
+     interna      a fachada da sede (o letreiro ROMAFE), parada; caixa ao meio;
+                  faixa azul com os factos da casa
+     webshop      sem fotografia: metade laranja com as famílias de peças em
+                  letra grande, como o índice de um catálogo, e as marcas
+     marketplace  sem fotografia: fundo escuro com as marcas em letra grande e
+                  esbatida, como uma parede de marcas; caixa à esquerda */
+const FAMILIAS_PECAS = ['Travagem', 'Filtros', 'Suspensão', 'Embraiagem', 'Direção', 'Iluminação', 'Baterias', 'Transmissão'];
+
+function paginaCena(cartao: string, tipo: Familia): string {
+  if (tipo === 'webshop') {
+    return `<div class="entrada entrada--completa entrada--cena entrada--cena-webshop">
+  <main class="palco">
+    <section class="catalogo" aria-label="Famílias de peças">
+      <ul class="catalogo__familias">${FAMILIAS_PECAS.map((f) => `<li>${f}</li>`).join('')}</ul>
+      <p class="catalogo__marcas">${MARCAS.join(' · ')}</p>
+    </section>
+    ${cartao}
+  </main>
+</div>`;
+  }
+  if (tipo === 'marketplace') {
+    return `<div class="entrada entrada--completa entrada--cena entrada--cena-marketplace">
+  <main class="palco">
+    <div class="parede" aria-hidden="true">${[...MARCAS, ...MARCAS, ...MARCAS].map((m) => `<span>${m}</span>`).join('')}</div>
+    ${cartao}
+  </main>
+</div>`;
+  }
+  const c = CENA.interna;
+  return `<div class="entrada entrada--completa entrada--video entrada--cena entrada--cena-interna">
+  <main class="palco">
     ${cartao}
   </main>
   <footer class="faixa">
@@ -616,6 +660,8 @@ export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesE
     { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
     /* 8 out. 2026: uma interface diferente em cada app (ela: «os ecrãs entre ERP, GoShop e GoParts devem diferir»; a v8 fica igual nas três) */
     { id: '', nota: 'Diferente em cada app: a cena do vídeo, o lado da caixa e a faixa de baixo', opcoes: { ...minimo, minimo: { selo, foto: 'video', tipo } } },
+    /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem) */
+    { id: '', nota: 'Sem o armazém: a fachada no ERP, o catálogo a laranja no GoShop, a parede de marcas no GoParts', opcoes: { ...minimo, minimo: { selo, foto: 'cena', tipo } } },
   ]);
   return vs.map((v) => (['v3', 'v6', 'v7'].includes(v.id) ? { ...v, sem: ['ajuda'] as IdEntrar[] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
 }

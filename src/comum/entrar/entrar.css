@@ -885,3 +885,57 @@
 .entrada--video-marketplace .faixa { background: var(--c-entrada-fundo); }
 .entrada--video-marketplace .faixa__marcas li { font-weight: 600; }
 .entrada--video-interna .faixa__marcas li { font-size: var(--t-md); }
+
+/* =========================================================
+   v10 — SEM O ARMAZÉM: um fundo diferente em cada app
+   ========================================================= */
+.entrada--cena { grid-template-rows: 1fr auto; height: 100vh; min-height: 0; }
+.entrada--cena .cartao {
+  order: 0; width: min(440px, 100%); max-width: none; padding: var(--e-6);
+  border-radius: var(--r-lg); box-shadow: 0 20px 50px rgba(0, 0, 0, .25);
+}
+.entrada--cena .cartao__cabeca { margin-bottom: var(--e-5); }
+.entrada--cena .romafe--selo { font-size: 56px; }
+
+/* ERP: a fachada da sede */
+.entrada--cena-interna .palco {
+  background: url('../img/fachada.webp') 20% center / cover no-repeat;
+}
+.entrada--cena-interna .palco::after { background: rgba(1, 35, 56, .18); }
+
+/* GoShop: o catálogo a laranja */
+.entrada--cena-webshop .palco {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 0; gap: 0;
+  align-items: stretch; background: var(--c-fundo);
+}
+.catalogo {
+  background: var(--c-acao); color: #1d1d1b;
+  display: grid; align-content: center; gap: var(--e-6); padding: var(--e-8);
+}
+.catalogo__familias {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--e-3) var(--e-6);
+}
+.catalogo__familias li {
+  font-family: var(--f-titulo); font-weight: 700; font-size: 34px; line-height: 1.1;
+  padding-bottom: var(--e-2); border-bottom: 2px solid rgba(29, 29, 27, .25);
+}
+.catalogo__marcas { margin: 0; font-size: var(--t-sm); font-weight: 700; letter-spacing: .06em; }
+.entrada--cena-webshop .cartao { grid-column: 2; align-self: center; justify-self: center; box-shadow: var(--s-2); }
+
+/* GoParts: a parede de marcas */
+.entrada--cena-marketplace .palco {
+  grid-template-columns: minmax(0, 1fr); padding-left: 9vw; overflow: hidden;
+  align-content: center; background: var(--c-entrada-fundo);
+}
+.entrada--cena-marketplace .cartao { justify-self: start; position: relative; z-index: 1; }
+.parede {
+  position: absolute; inset: -40px -80px; z-index: 0; pointer-events: none;
+  display: flex; flex-wrap: wrap; align-content: center; gap: var(--e-3) var(--e-7);
+  transform: rotate(-8deg);
+}
+.parede span {
+  font-family: var(--f-titulo); font-weight: 700; font-size: 88px; line-height: 1;
+  color: rgba(255, 255, 255, .07);
+}
+.parede span:nth-child(5n + 2) { color: rgba(0, 99, 170, .55); }
