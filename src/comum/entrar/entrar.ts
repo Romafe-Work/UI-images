@@ -295,9 +295,9 @@ function paginaFoto(foto: string, cartao: string): string {
 
 /* ---------------- v10 (ERP): movimento, marcas, uma pessoa e cor ----------------
    O que ela escolheu quando disse que «falta qualquer coisa» (8 out. 2026):
-   o vídeo do armazém do site da Romafe a correr ao fundo, a caixa do login
-   ao meio, e uma faixa azul ROMAFE com a frase da CEO e as marcas que a
-   Romafe distribui. Tudo verdadeiro, tirado de romafe.com. O vídeo vem do
+   o vídeo do armazém do site da Romafe a correr ao fundo e a caixa do login
+   ao meio. Depois pediu «algo mais simples»: a faixa azul em baixo ficou só
+   com as marcas que a Romafe distribui (saiu a frase da CEO). Tudo verdadeiro, tirado de romafe.com. O vídeo vem do
    site deles (17 MB, não se copia para aqui); enquanto não carrega, ou se
    falhar, fica a fotografia do corredor. */
 const VIDEO_ROMAFE = 'https://www.romafe.com/assets/video/intro.mp4';
@@ -310,15 +310,8 @@ function paginaVideo(cartao: string): string {
     ${cartao}
   </main>
   <footer class="faixa">
-    <figure class="faixa__pessoa">
-      <span class="faixa__retrato" role="img" aria-label="Mónica França"></span>
-      <blockquote>«No caminho do sucesso, mais importante do que qualquer estratégia, é ter ao nosso lado as pessoas certas.»</blockquote>
-      <figcaption>Mónica França, CEO</figcaption>
-    </figure>
-    <div class="faixa__marcas">
-      <p class="faixa__rotulo">Distribuímos</p>
-      <ul>${MARCAS.map((m) => `<li>${m}</li>`).join('')}</ul>
-    </div>
+    <p class="faixa__rotulo">Distribuímos</p>
+    <ul class="faixa__marcas">${MARCAS.map((m) => `<li>${m}</li>`).join('')}</ul>
   </footer>
 </div>`;
 }
@@ -588,8 +581,8 @@ function numerar(vs: VersaoEntrar[]): [VersaoEntrar, ...VersaoEntrar[]] {
 /** As versões do login das apps completas (ERP, GoShop, GoParts),
     iguais nas três desde 8 out. 2026 — o que ela foi pedindo no ERP vale para
     a Web: saem a v5 (fundo desenhado) e a v6 (família com o cartão ao lado);
-    entram a de pouco texto com a fotografia em diagonal e a da fotografia
-    toda com o cartão ao centro; números seguidos. Na 04 · Precisa de ajuda?
+    entram a de pouco texto com a fotografia em diagonal, a da fotografia
+    toda com o cartão ao centro e a do vídeo do armazém; números seguidos. Na 04 · Precisa de ajuda?
     ficam só a v1, a v2, a v4 e a v5, numeradas outra vez v1 a v4.
     `selo` é o que vai por baixo do ROMAFE nas duas últimas: «ERP», ou o nome da app. */
 export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, ...VersaoEntrar[]] {
@@ -598,6 +591,8 @@ export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesE
     ...versoesCompletas(o, v4).filter((v) => v.id !== 'v5' && v.id !== 'v6'),
     { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } } },
     { id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...minimo, minimo: { selo, centro: true } } },
+    /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no GoParts */
+    { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
   ]);
   return vs.map((v) => (['v3', 'v6', 'v7'].includes(v.id) ? { ...v, sem: ['ajuda'] as IdEntrar[] } : v)) as [VersaoEntrar, ...VersaoEntrar[]];
 }

@@ -11,11 +11,5 @@ export const erp: App<IdErp> = {
   marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR },
-  ecras: [...ecrasEntrar([
-    ...versoesRomafe(entrarErp, 'ERP'),
-    /* a de teste, sem nada que pareça gerado: a fotografia verdadeira e o painel liso */
-    { id: 'v8', nota: 'Teste: a fotografia verdadeira do armazém, nítida e sem efeitos, e um painel branco liso com o ROMAFE grande', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', foto: 'corredor' } } },
-    { id: 'v9', nota: 'A v8 mais viva: três fotografias da Romafe em mosaico (a separação, o corredor, a sede) e os números da casa', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', foto: 'mosaico' } } },
-    { id: 'v10', nota: 'Movimento, marcas, uma pessoa e cor: o vídeo do armazém ao fundo, a caixa ao meio e uma faixa azul com a CEO e as marcas', opcoes: { ...entrarErp, familia: undefined, minimo: { selo: 'ERP', foto: 'video' } } },
-  ])],
+  ecras: [...ecrasEntrar(versoesRomafe(entrarErp, 'ERP'))],
 };
