@@ -44,7 +44,8 @@ function vantagem(v: Vantagem): string {
 /* Depois de cada <br> vai um espaço: na v1 não se vê (o espaço no início
    de uma linha desaparece), e na v3, onde o título é uma linha só e os <br>
    se escondem, é o que separa as palavras. */
-export function discurso(produto: string, a: Apresentacao, semRomafe = false): { entrada: string; palavraPasse: string; federado: string } {
+export function discurso(produto: string, a: Apresentacao, semRomafe = false, feminino = false): { entrada: string; palavraPasse: string; federado: string } {
+  const [no, O] = feminino ? ['na', 'A'] : ['no', 'O'];
   return {
     entrada: `
     <section class="discurso">
@@ -54,13 +55,13 @@ export function discurso(produto: string, a: Apresentacao, semRomafe = false): {
     </section>`,
     palavraPasse: `
     <section class="discurso">
-      <h1 class="discurso__titulo">${semRomafe ? `Uma conta<br> do ${produto}` : 'Uma conta<br> da Romafe'}</h1>
-      <p class="discurso__texto">O endereço é de uma conta criada no ${produto}. A palavra-passe confirma-se aqui.</p>
+      <h1 class="discurso__titulo">${semRomafe ? `Uma conta<br> ${feminino ? 'da' : 'do'} ${produto}` : 'Uma conta<br> da Romafe'}</h1>
+      <p class="discurso__texto">O endereço é de uma conta criada ${no} ${produto}. A palavra-passe confirma-se aqui.</p>
     </section>`,
     federado: `
     <section class="discurso">
       <h1 class="discurso__titulo">A conta<br> é da sua empresa</h1>
-      <p class="discurso__texto">O ${produto} não vê a sua palavra-passe. Quem a confirma é a sua empresa, e devolve-o aqui já com a sessão aberta.</p>
+      <p class="discurso__texto">${O} ${produto} não vê a sua palavra-passe. Quem a confirma é a sua empresa, e devolve-o aqui já com a sessão aberta.</p>
     </section>`,
   };
 }

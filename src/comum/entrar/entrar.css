@@ -395,6 +395,12 @@
 }
 .produto__sub { font-size: var(--t-sm); color: var(--c-texto-2); }
 .romafe--cartao { font-size: 36px; margin-bottom: var(--e-2); }
+/* o ROMAFE como nome no cartão, com o risco da cor do tipo por baixo */
+.romafe--nome { font-size: 44px; }
+.romafe--nome::after {
+  content: ""; display: block; width: 40px; height: 3px; margin: var(--e-2) auto 0;
+  border-radius: 2px; background: var(--c-familia);
+}
 
 .entrada--familia .cartao:not(.cartao--fora) { border-top: 4px solid var(--c-familia); }
 .convite { margin: var(--e-4) 0 0; text-align: center; font-size: var(--t-sm); color: var(--c-texto-2); }

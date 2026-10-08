@@ -21,3 +21,13 @@ export const entrarErp: OpcoesEntrar = {
     ],
   },
 };
+
+/** Na v7 não se diz Rolgest: diz-se Romafe (ela, 8 out. 2026). O nome no
+    cartão é o ROMAFE em Motor, e a versão e o realm deixam de levar o Rolgest. */
+export const entrarErpV7: Partial<OpcoesEntrar> = {
+  produto: 'Romafe',
+  feminino: true,
+  nomeRomafe: true,
+  versao: 'Versão 10.0 · compilação 2026.09',
+  realm: 'romafe',
+};

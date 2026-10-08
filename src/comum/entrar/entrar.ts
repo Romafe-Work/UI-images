@@ -50,8 +50,14 @@ export interface OpcoesEntrar {
   /** v6: o tipo de aplicação, que decide o palco (ver `Familia`) */
   familia?: Familia;
   /** v7: a v6 com o cartão ao centro nos três tipos — o título por cima e
-      as vantagens por baixo; cada tipo guarda o seu fundo */
+      as vantagens por baixo; cada tipo guarda o seu fundo. Na barra de topo
+      fica só o ROMAFE, sem dizer o tipo (ela: «não digas se é para web ou mobile») */
   centro?: boolean;
+  /** no cartão, o nome ROMAFE em Motor no lugar do nome do produto
+      (ERP v7: ela pediu «não digas Rolgest, mas sim Romafe») */
+  nomeRomafe?: boolean;
+  /** o produto diz-se no feminino: «da Romafe», «na Romafe» */
+  feminino?: boolean;
   /** v6: o convite no fim do cartão do 01, para quem ainda não tem conta.
       Nas internas não há: a conta nasce no administrador. */
   convite?: { texto: string; ligacao: string };
@@ -104,7 +110,7 @@ function romafe(cls = ''): string {
 function produto(o: OpcoesEntrar, idSub = ''): string {
   return `<span class="produto">
       ${o.variante === 'compacta' ? romafe('romafe--cartao') : ''}
-      <span class="produto__nome">${o.produto}</span>
+      ${o.nomeRomafe ? romafe('romafe--nome') : `<span class="produto__nome">${o.produto}</span>`}
       <span class="produto__sub"${idSub ? ` id="${idSub}"` : ''}>${o.marca.sub}</span>
     </span>`;
 }
@@ -125,7 +131,7 @@ function topo(o: OpcoesEntrar): string {
       </button>
     </div>`;
   const esquerda = o.familia
-    ? `<span class="topo__familia">${romafe()}<span class="topo__tipo">${TIPO[o.familia]}</span></span>`
+    ? `<span class="topo__familia">${romafe()}${o.centro ? '' : `<span class="topo__tipo">${TIPO[o.familia]}</span>`}</span>`
     : marca(o, 'lockup--sm');
   return `<header class="topo">
     ${esquerda}${accoes}
@@ -306,7 +312,7 @@ function cartaoPalavraPasse(o: OpcoesEntrar, k: Chaves): string {
 /* ---------------- 03 · O início de sessão da empresa ---------------- */
 function cartaoFederado(o: OpcoesEntrar, k: Chaves): string {
   return `<section class="cartao cartao--fora" aria-labelledby="${k.id('titulo-fora')}">
-      <p class="fora__marca">Fora do ${o.produto}</p>
+      <p class="fora__marca">Fora ${o.feminino ? 'da' : 'do'} ${o.produto}</p>
       <h2 class="cartao__titulo" id="${k.id('titulo-fora')}">Página do fornecedor da empresa</h2>
       <p class="cartao__sub">Por exemplo, o Entra ID da Exemplo, Lda. O desenho é o dela.</p>
       <div class="formulario">
@@ -346,7 +352,7 @@ export function ecrasEntrar<P extends string = ''>(versoes: [VersaoEntrar, ...Ve
       id: (peca) => prefixo + (i ? v.id + '-' : '') + peca,
     };
     const d = o.variante === 'completa' && o.apresentacao
-      ? discursoDe(o.produto, o.apresentacao, !!o.semRomafe)
+      ? discursoDe(o.produto, o.apresentacao, !!o.semRomafe, !!o.feminino)
       : { entrada: '', palavraPasse: '', federado: '' };
     return {
       entrada: pagina(o, d.entrada, cartaoEntrada(o, k)),
@@ -384,8 +390,8 @@ export const NOTA_V6: Record<Familia, string> = {
     alguma coisa». O que a app quiser diferente sem a Romafe (um texto que
     falava dela) vem em `v4`, e vale para a v4 e a v5. A v6 (8 out.) é a
     família Romafe, e é a única que usa a `familia` e o `convite` da app; a
-    v7 é a v6 com o cartão ao centro. */
-export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
+    v7 é a v6 com o cartão ao centro, e o que a app lá quiser diferente vem em `v7`. */
+export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {}, v7: Partial<OpcoesEntrar> = {}): [VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar, VersaoEntrar] {
   const o: OpcoesEntrar = { ...v6, familia: undefined, convite: undefined };
   return [
     { id: 'v1', nota: 'Cartão à direita, com a apresentação da app', opcoes: { ...o, disposicao: 'lado' } },
@@ -394,7 +400,7 @@ export function versoesCompletas(v6: OpcoesEntrar, v4: Partial<OpcoesEntrar> = {
     { id: 'v4', nota: 'A v3 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true } },
     { id: 'v5', nota: 'A v4 com marca e fundo: o monograma do produto e um desenho abstrato no lugar da fotografia', opcoes: { ...o, marca: { ...o.marca, nome: o.produto }, ...v4, disposicao: 'centro-apresentacao', semRomafe: true, desenhado: true } },
     { id: 'v6', nota: NOTA_V6[v6.familia ?? 'interna'], opcoes: v6 },
-    { id: 'v7', nota: 'A v6 com o cartão ao centro: o título por cima e as vantagens por baixo, sobre o fundo do tipo', opcoes: { ...v6, centro: true } },
+    { id: 'v7', nota: 'A v6 com o cartão ao centro: o título por cima e as vantagens por baixo, sobre o fundo do tipo', opcoes: { ...v6, ...v7, centro: true } },
   ];
 }
 
