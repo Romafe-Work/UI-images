@@ -73,7 +73,7 @@ export interface OpcoesEntrar {
         branco liso com o ROMAFE grande. Nenhum brilho, degradê nem forma
         recortada. O valor é a fotografia (src/comum/img/<foto>.webp, tirada do
         vídeo de romafe.com). */
-    foto?: 'corredor' | 'separacao' | 'fachada' | 'mosaico';
+    foto?: 'corredor' | 'separacao' | 'fachada' | 'mosaico' | 'video';
   };
   /** o cartão fica no mesmo sítio em todos os ecrãs da versão: o texto à
       volta é sempre o do 01, o cartão prende-se em cima, e o 03 deixa de ser
@@ -195,6 +195,7 @@ function rodape(o: OpcoesEntrar): string {
 
 /** A base: o topo, o palco e o rodapé à volta do cartão de cada passo. */
 function pagina(o: OpcoesEntrar, discurso: string, cartao: string): string {
+  if (o.minimo?.foto === 'video') return paginaVideo(cartao);
   if (o.minimo?.foto) return paginaFoto(o.minimo.foto, cartao);
   if (o.minimo) return paginaMinima(cartao, !!o.minimo.centro, !!o.fixo);
   if (o.familia) return paginaFamilia(o, discurso, cartao);
@@ -289,6 +290,36 @@ function paginaFoto(foto: string, cartao: string): string {
     ${cartao}
     ${pe}
   </main>
+</div>`;
+}
+
+/* ---------------- v10 (ERP): movimento, marcas, uma pessoa e cor ----------------
+   O que ela escolheu quando disse que «falta qualquer coisa» (8 out. 2026):
+   o vídeo do armazém do site da Romafe a correr ao fundo, a caixa do login
+   ao meio, e uma faixa azul ROMAFE com a frase da CEO e as marcas que a
+   Romafe distribui. Tudo verdadeiro, tirado de romafe.com. O vídeo vem do
+   site deles (17 MB, não se copia para aqui); enquanto não carrega, ou se
+   falhar, fica a fotografia do corredor. */
+const VIDEO_ROMAFE = 'https://www.romafe.com/assets/video/intro.mp4';
+const MARCAS = ['SKF', 'TRW', 'VALEO', 'HELLA', 'NGK NTK', 'CORTECO', 'UFI', 'MANNOL'];
+
+function paginaVideo(cartao: string): string {
+  return `<div class="entrada entrada--completa entrada--video">
+  <main class="palco">
+    <video class="video" autoplay muted loop playsinline preload="auto" aria-hidden="true" src="${VIDEO_ROMAFE}"></video>
+    ${cartao}
+  </main>
+  <footer class="faixa">
+    <figure class="faixa__pessoa">
+      <span class="faixa__retrato" role="img" aria-label="Mónica França"></span>
+      <blockquote>«No caminho do sucesso, mais importante do que qualquer estratégia, é ter ao nosso lado as pessoas certas.»</blockquote>
+      <figcaption>Mónica França, CEO</figcaption>
+    </figure>
+    <div class="faixa__marcas">
+      <p class="faixa__rotulo">Distribuímos</p>
+      <ul>${MARCAS.map((m) => `<li>${m}</li>`).join('')}</ul>
+    </div>
+  </footer>
 </div>`;
 }
 

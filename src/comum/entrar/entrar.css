@@ -834,3 +834,56 @@
   .foto--mosaico { height: 260px; }
   .numeros { position: static; width: auto; padding: var(--e-5); }
 }
+
+/* =========================================================
+   v10 (ERP) — MOVIMENTO, MARCAS, UMA PESSOA E COR
+   O vídeo do armazém da Romafe no ecrã todo, a caixa do login ao meio, e
+   uma faixa azul ROMAFE em baixo com a CEO e as marcas. O único véu é uma
+   sombra leve no vídeo, para a caixa branca se destacar.
+   ========================================================= */
+.entrada--video { grid-template-rows: 1fr auto; height: 100vh; min-height: 0; }
+.entrada--video .palco {
+  grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: center;
+  padding: var(--e-6); overflow: hidden;
+  background: var(--c-entrada-fundo) url('../img/corredor.webp') center / cover no-repeat;
+}
+.video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
+}
+.entrada--video .palco::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(1, 35, 56, .28);
+}
+.entrada--video .cartao {
+  grid-column: 1; order: 0; width: min(440px, 100%); max-width: none;
+  padding: var(--e-6); border-radius: var(--r-lg); box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+}
+.entrada--video .cartao__cabeca { margin-bottom: var(--e-5); }
+.entrada--video .romafe--selo { font-size: 56px; }
+.entrada--video .ajuda { margin-top: var(--e-4); padding-top: var(--e-3); }
+
+.faixa {
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center;
+  gap: var(--e-7); padding: var(--e-4) var(--e-8);
+  background: var(--c-logotipo); color: #fff;
+}
+.faixa__pessoa {
+  margin: 0; display: grid; grid-template-columns: 56px 1fr; column-gap: var(--e-4); align-items: center;
+}
+.faixa__retrato {
+  grid-row: span 2; width: 56px; height: 56px; border-radius: 50%;
+  background: url('../img/ceo.webp') center / cover no-repeat; box-shadow: 0 0 0 3px var(--c-acao);
+}
+.faixa blockquote { margin: 0; font-size: var(--t-sm); line-height: 1.4; font-style: italic; }
+.faixa figcaption { font-size: var(--t-xs); font-weight: 700; color: var(--c-acao-suave); margin-top: 2px; }
+.faixa__marcas { display: grid; gap: var(--e-2); justify-items: end; }
+.faixa__rotulo { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: rgba(255,255,255,.75); }
+.faixa__marcas ul {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: flex-end; gap: var(--e-2) var(--e-4);
+}
+.faixa__marcas li { font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-md); letter-spacing: .04em; }
+
+@media (max-width: 1100px) {
+  .faixa { grid-template-columns: 1fr; padding: var(--e-4); gap: var(--e-3); }
+  .faixa__marcas { justify-items: start; }
+  .faixa__marcas ul { justify-content: flex-start; }
+}
