@@ -1,0 +1,165 @@
+/* =========================================================
+   GOPARTS — os quatro ecrãs de entrar no estilo do Início v2.2 (12 out. 2026)
+   A fotografia da oficina à esquerda, nítida e sem véus, cortada em diagonal
+   como o herói da v2.2; os números da Romafe numa caixa clara por cima dela
+   (texto nunca direto na fotografia). À direita, o cartão azul da Romafe.
+   O ROMAFE só na barra branca. Claro e escuro.
+
+   ANIMAÇÕES (só transform, opacity e clip-path; a página não mexe):
+   a fotografia abre-se pela diagonal e aproxima-se devagar; a caixa dos
+   números sobe e o 75 000 entra; o título e o cartão sobem; dentro do cartão
+   a cabeça, os campos e o botão entram em cascata. Campos: ao focar, o ícone
+   fica laranja. Botões: sobem 2 px e o ícone avança. No editor e com
+   «reduzir movimento», nada se mexe.
+
+   AJUSTÁVEL: duas colunas de 1100 px para cima; abaixo disso a fotografia
+   passa a uma faixa em cima, e o cartão fica por baixo.
+   ========================================================= */
+.portal.login22 {
+  height: auto; min-height: 100vh; overflow: visible;
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto;
+  background: var(--c-portal-fundo); color: var(--c-texto);
+}
+
+/* ---------- a barra de cima, a do Início ---------- */
+.login22__topo {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-4);
+  min-height: 72px; padding: 0 var(--e-5);
+  background: var(--c-superficie); border-bottom: 1px solid var(--c-borda);
+}
+.login22 .portal__romafe { font-size: 34px; }
+.login22 .portal__produto { font-size: 22px; }
+.login22 .portal__produto-sub { font-size: 11px; color: var(--c-texto-2); white-space: nowrap; }
+.login22__idioma {
+  display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; color: var(--c-texto-2);
+  padding: 8px 12px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: none; cursor: pointer;
+}
+.login22__idioma svg { width: 16px; height: 16px; }
+
+/* ---------- o palco: a fotografia e o cartão ---------- */
+.login22__palco { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); min-height: 0; }
+.login22__foto { position: relative; overflow: hidden; min-height: 560px; }
+.login22__imagem {
+  position: absolute; inset: 0;
+  background: url('../../../comum/img/oficina.webp') center / cover no-repeat;
+  clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
+}
+.login22__factos {
+  position: absolute; left: var(--e-6); bottom: var(--e-6); z-index: 1;
+  display: grid; gap: 2px; width: min(360px, calc(100% - 2 * var(--e-6)));
+  padding: var(--e-4) var(--e-5); border-radius: var(--r-md);
+  background: var(--c-superficie); border: 1px solid var(--c-borda); box-shadow: 0 12px 28px -18px rgba(0, 20, 50, .55);
+}
+.login22__factos p { margin: 0; }
+.login22__antes, .login22__depois { font-family: var(--f-titulo); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-texto-2); }
+.login22__numero { font-family: var(--f-titulo); font-weight: 700; font-size: 40px; line-height: 1.05; color: var(--c-logotipo); font-variant-numeric: tabular-nums; }
+[data-theme="dark"] .login22__numero { color: #2f8ae6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .login22__numero { color: #2f8ae6; } }
+.login22__lista { list-style: none; margin: var(--e-3) 0 0; padding: var(--e-3) 0 0; border-top: 1px solid var(--c-borda); display: grid; gap: var(--e-2); }
+.login22__lista li { display: flex; align-items: center; gap: var(--e-2); font-size: 13px; color: var(--c-texto-2); }
+.login22__lista svg { width: 18px; height: 18px; flex: none; color: var(--c-texto-2); transition: color .2s ease, transform .2s ease; }
+.login22__lista li:hover svg { color: var(--c-acao); transform: scale(1.1); }
+
+.login22__lado { display: grid; align-content: center; justify-items: center; gap: var(--e-4); padding: var(--e-6) var(--e-6) var(--e-6) var(--e-4); }
+.login22__boas { width: min(520px, 100%); }
+.login22__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: clamp(30px, 2.8vw, 40px); line-height: 1.1; }
+.login22__sub { margin: 6px 0 0; font-size: 16px; color: var(--c-texto-2); }
+
+/* ---------- o cartão azul (o dos cartões do carrossel) ---------- */
+.c22__cartao.login22__cartao { grid-area: auto; width: min(520px, 100%); min-height: 430px; padding: var(--e-5) var(--e-6) var(--e-6); gap: var(--e-4); align-content: start; }
+.login22__cartao::before { display: none; }
+.login22__cabeca { display: flex; align-items: center; gap: var(--e-3); }
+.login22__icone { width: 56px; height: 56px; border-radius: 14px; }
+.login22__icone svg { width: 28px; height: 28px; }
+.login22__cartao-titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 24px; line-height: 1.15; }
+.login22__cartao-sub { margin: 4px 0 0; font-size: 14px; color: rgba(255, 255, 255, .88); }
+.login22__form { display: grid; gap: var(--e-3); }
+.portal--v22 .login22__cartao .campo__label { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.portal--v22 .login22__cartao .input { min-height: 48px; font-size: 16px; color: #fff; background: rgba(4, 18, 38, .45); border-color: rgba(255, 255, 255, .22); }
+.portal--v22 .login22__cartao .input::placeholder { color: rgba(255, 255, 255, .65); }
+.portal--v22 .login22__cartao .campo__chip { width: 52px; background: rgba(4, 18, 38, .55); color: #fff; border-color: rgba(255, 255, 255, .22); transition: color .18s ease; }
+.portal--v22 .login22__cartao .campo__chip svg { width: 20px; height: 20px; transition: transform .2s ease; }
+.portal--v22 .login22__cartao .campo:focus-within .campo__chip { color: var(--c-acao); }
+.portal--v22 .login22__cartao .campo:focus-within .campo__chip svg { transform: scale(1.1); }
+.login22__campo .campo__caixa { position: relative; }
+.login22__olho { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: var(--r-sm); background: none; color: rgba(255, 255, 255, .8); cursor: pointer; }
+.login22__olho svg { width: 18px; height: 18px; }
+.login22__botao { min-height: 52px; font-size: 17px; width: 100%; transition: transform .15s ease, background-color .15s ease; }
+.login22__botao .btn__icone { width: 20px; height: 20px; transition: transform .15s ease; }
+.login22__botao:hover { transform: translateY(-2px); }
+.login22__botao:hover .btn__icone { transform: translateX(3px); }
+.login22__botao:active { transform: none; }
+.login22__conta { display: flex; align-items: center; gap: var(--e-2); padding: 10px var(--e-3); border-radius: var(--r-md); background: rgba(255, 255, 255, .12); font-size: 15px; }
+.login22__conta svg { width: 18px; height: 18px; flex: none; }
+.login22__conta span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.login22__mudar { font: inherit; font-size: 14px; color: #fff; text-decoration: underline; background: none; border: 0; cursor: pointer; }
+.login22__manter { display: flex; align-items: flex-start; gap: var(--e-2); font-size: 15px; cursor: pointer; }
+.login22__manter input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--c-acao); }
+.login22__manter small { display: block; font-size: 12px; color: rgba(255, 255, 255, .75); }
+.login22__opcoes { display: grid; gap: 4px; padding-top: var(--e-3); border-top: 1px solid rgba(255, 255, 255, .2); }
+.login22__ligacao {
+  display: inline-flex; align-items: center; gap: var(--e-2); justify-self: start; font: inherit; font-size: 15px; color: #fff; cursor: pointer;
+  padding: 6px 4px; border: 0; background: none;
+  background-image: linear-gradient(currentColor, currentColor); background-size: 0 1px; background-position: left bottom; background-repeat: no-repeat;
+  transition: background-size .25s ease;
+}
+.login22__ligacao svg { width: 18px; height: 18px; transition: transform .2s ease; }
+.login22__ligacao:hover { background-size: 100% 1px; }
+.login22__ligacao:hover svg { transform: translateX(2px); }
+.login22__vender { display: flex; align-items: center; gap: var(--e-2); margin: 0; width: min(520px, 100%); font-size: 14px; color: var(--c-texto-2); }
+.login22__vender svg { width: 18px; height: 18px; color: var(--c-acao); }
+.login22__vender a { color: var(--c-marca); font-weight: 700; }
+.login22__ajudas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-2); }
+.login22__ajudas li { display: flex; gap: var(--e-3); padding: var(--e-2) var(--e-3); border-radius: var(--r-md); background: rgba(255, 255, 255, .1); transition: background-color .2s ease, transform .2s ease; }
+.login22__ajudas li:hover { background: rgba(255, 255, 255, .16); transform: translateX(3px); }
+.login22__ajudas svg { width: 20px; height: 20px; flex: none; margin-top: 2px; }
+.login22__ajudas p { margin: 0; font-weight: 700; font-size: 15px; }
+.login22__ajudas span { font-size: 13px; color: rgba(255, 255, 255, .85); }
+.login22__apoio { display: flex; align-items: center; gap: var(--e-2); padding: var(--e-3); border-radius: var(--r-md); background: rgba(4, 18, 38, .45); color: #fff; text-decoration: none; }
+.login22__apoio svg { width: 18px; height: 18px; }
+.login22__apoio span { flex: 1; }
+.login22__apoio strong { font-variant-numeric: tabular-nums; }
+
+/* ---------- rodapé ---------- */
+.login22__rodape { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2) var(--e-5); padding: var(--e-3) var(--e-5); font-size: 13px; color: var(--c-texto-2); border-top: 1px solid var(--c-borda); background: var(--c-superficie); }
+.login22__rodape a { color: inherit; }
+.login22__rodape span:last-child { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.login22__rodape svg { width: 14px; height: 14px; }
+
+/* ---------- a entrada ---------- */
+.login22 .login22__imagem { animation: l22-foto 1s cubic-bezier(.65, 0, .35, 1) both; }
+.login22 .login22__factos { animation: l22-subir .6s cubic-bezier(.2, .8, .2, 1) .5s both; }
+.login22 .login22__numero { animation: l22-subir .5s ease-out .7s both; }
+.login22 .login22__lista li { animation: l22-subir .4s ease-out both; }
+.login22 .login22__lista li:nth-child(1) { animation-delay: .8s; }
+.login22 .login22__lista li:nth-child(2) { animation-delay: .9s; }
+.login22 .login22__lista li:nth-child(3) { animation-delay: 1s; }
+.login22 .login22__boas { animation: l22-subir .55s ease-out .15s both; }
+.login22 .login22__cartao { animation: l22-cartao .65s cubic-bezier(.2, .8, .2, 1) .25s both; }
+.login22 .login22__cartao > * { animation: l22-subir .4s ease-out both; }
+.login22 .login22__cartao > :nth-child(1) { animation-delay: .45s; }
+.login22 .login22__cartao > :nth-child(2) { animation-delay: .53s; }
+.login22 .login22__cartao > :nth-child(3) { animation-delay: .61s; }
+.login22 .login22__cartao > :nth-child(4) { animation-delay: .69s; }
+.login22 .login22__vender { animation: l22-subir .4s ease-out .8s both; }
+@keyframes l22-foto { from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); transform: scale(1.05); } }
+@keyframes l22-subir { from { opacity: 0; transform: translateY(12px); } }
+@keyframes l22-cartao { from { opacity: 0; transform: perspective(900px) translateY(24px) rotateX(5deg); } }
+body.editando .login22 *, body.editando .login22 { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .login22 *, .login22 { animation: none !important; transition: none !important; } }
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1100px) {
+  .login22__palco { grid-template-columns: minmax(0, 1fr); }
+  .login22__foto { min-height: 300px; }
+  .login22__imagem { clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%); }
+  .login22__factos { left: var(--e-5); bottom: var(--e-5); }
+  .login22__lado { padding: var(--e-5); }
+  @keyframes l22-foto { from { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); } }
+}
+@media (max-width: 640px) {
+  .login22__factos { position: static; width: auto; margin: var(--e-4); }
+  .login22__foto { min-height: 0; display: grid; }
+  .login22__imagem { position: relative; height: 200px; }
+  .login22 .portal__produto-sub { display: none; }
+}

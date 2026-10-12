@@ -1,9 +1,9 @@
 import type { App } from '../../comum/tipos';
 import { ecrasCarregar, DESCRICAO_CARREGAR } from '../../comum/carregar/carregar';
 import { GOPARTS } from './portal/base';
-import { ecrasEntrar, versoesRomafe, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
+import { DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoParts } from './ids';
-import { entrarGoParts } from './entrar';
+import { ecrasEntrar22 } from './entrar-v22';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro, DESCRICAO_ERROS } from './erros/erros';
 
@@ -20,10 +20,7 @@ export const goparts: App<IdGoParts> = {
     'Carregamento': DESCRICAO_CARREGAR,
     'Erros': DESCRICAO_ERROS,
   },
-  /* 12 out. 2026: ela pediu só uma versão nos quatro ecrãs de entrar — a «Família Romafe»
-     com o cartão ao centro (a v5; no 04 é a v4), a que combina com o Início v2.2 */
-  ecras: [...ecrasEntrar(versoesRomafe(entrarGoParts, 'GoParts')).map((e) => ({
-    ...e,
-    versoes: [e.versoes.find((v) => v.nota.startsWith('Família Romafe com o cartão ao centro')) ?? e.versoes[0]] as typeof e.versoes,
-  })), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
+  /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a
+     fotografia da oficina (entrar-v22.ts); a «Família Romafe» saiu (ela não gostou) */
+  ecras: [...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
 };
