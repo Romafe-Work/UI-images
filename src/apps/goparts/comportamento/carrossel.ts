@@ -118,7 +118,7 @@ export function iniciar(): void {
   const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
   document.addEventListener('pointermove', (ev) => {
     if (quieto.matches || ev.pointerType !== 'mouse') return;
-    const cartao = (ev.target as Element).closest<HTMLElement>('.carrossel__cartao.is-atual');
+    const cartao = (ev.target as Element).closest<HTMLElement>('.carrossel__cartao.is-atual, .login22__cartao');
     if (!cartao) return;
     const r = cartao.getBoundingClientRect();
     const x = (ev.clientX - r.left) / r.width - 0.5;
@@ -127,7 +127,7 @@ export function iniciar(): void {
     cartao.style.setProperty('--rx', (-y * 3).toFixed(2) + 'deg');
   });
   document.addEventListener('pointerout', (ev) => {
-    const cartao = (ev.target as Element).closest<HTMLElement>('.carrossel__cartao.is-atual');
+    const cartao = (ev.target as Element).closest<HTMLElement>('.carrossel__cartao.is-atual, .login22__cartao');
     if (cartao && !cartao.contains(ev.relatedTarget as Node)) {
       cartao.style.removeProperty('--rx'); cartao.style.removeProperty('--ry');
     }

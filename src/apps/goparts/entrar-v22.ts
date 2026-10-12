@@ -7,7 +7,9 @@
    clara por cima. À direita, o cartão azul da Romafe dos cartões do carrossel,
    com os campos escuros, o botão laranja e os ícones do Lucide. O cartão fica
    no mesmo sítio nos quatro ecrãs; muda só o que tem dentro.
-   É a única versão destes ecrãs no GoParts.
+   Depois, ela: «continuo a não gostar, quero login no meio» — a fotografia passou
+   ao fundo todo, nítida, e o cartão ao centro; os números numa faixa clara por
+   baixo dele. É a única versão destes ecrãs no GoParts.
    ========================================================= */
 import type { EcraGoParts } from './ids';
 import mail from 'lucide-static/icons/mail.svg?raw';
@@ -44,28 +46,19 @@ function moldura(titulo: string, sub: string, corpo: string, rodapeCartao = ''):
     <button type="button" class="login22__idioma">${L(globe)}Português</button>
   </header>
   <main class="login22__palco">
-    <section class="login22__foto" aria-label="A oficina">
-      <div class="login22__imagem" role="img" aria-label="Bloco de motor numa bancada de oficina"></div>
-      <div class="login22__factos">
-        <p class="login22__antes">Mais de</p>
-        <p class="login22__numero">75 000</p>
-        <p class="login22__depois">referências auto das principais marcas</p>
-        <ul class="login22__lista">
-          <li>${L(disc)}Distribuidor SKF desde 1975</li>
-          <li>${L(shield)}Certificada ISO 9001 desde 2006</li>
-          <li>${L(truck)}Expedição do Porto e de Sacavém</li>
-        </ul>
-      </div>
-    </section>
-    <section class="login22__lado">
-      <div class="login22__boas">
-        <h1 class="login22__titulo">${titulo}</h1>
-        <p class="login22__sub">${sub}</p>
-      </div>
+    <div class="login22__imagem" role="img" aria-label="Bloco de motor numa bancada de oficina"></div>
+    <section class="login22__centro">
       <div class="c22__cartao c22__cartao--azul login22__cartao">
+        <p class="login22__boas"><span class="login22__titulo">${titulo}</span><span class="login22__sub">${sub}</span></p>
         ${corpo}
       </div>
       ${rodapeCartao}
+      <ul class="login22__factos" aria-label="A Romafe">
+        <li class="login22__facto login22__facto--numero"><strong class="login22__numero">75 000</strong><span>referências auto</span></li>
+        <li class="login22__facto">${L(disc)}Distribuidor SKF desde 1975</li>
+        <li class="login22__facto">${L(shield)}ISO 9001 desde 2006</li>
+        <li class="login22__facto">${L(truck)}Expedição do Porto e de Sacavém</li>
+      </ul>
     </section>
   </main>
   <footer class="login22__rodape">

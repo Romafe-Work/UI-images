@@ -1,19 +1,18 @@
 /* =========================================================
    GOPARTS — os quatro ecrãs de entrar no estilo do Início v2.2 (12 out. 2026)
-   A fotografia da oficina à esquerda, nítida e sem véus, cortada em diagonal
-   como o herói da v2.2; os números da Romafe numa caixa clara por cima dela
-   (texto nunca direto na fotografia). À direita, o cartão azul da Romafe.
+   O login ao meio (ela, 12 out.): a fotografia da oficina no fundo todo,
+   nítida e sem véus, e o cartão azul da Romafe ao centro; os números numa
+   faixa clara por baixo (texto nunca direto na fotografia).
    O ROMAFE só na barra branca. Claro e escuro.
 
    ANIMAÇÕES (só transform, opacity e clip-path; a página não mexe):
-   a fotografia abre-se pela diagonal e aproxima-se devagar; a caixa dos
-   números sobe e o 75 000 entra; o título e o cartão sobem; dentro do cartão
+   a fotografia aproxima-se devagar; o cartão sobe com um leve 3D; dentro do cartão
    a cabeça, os campos e o botão entram em cascata. Campos: ao focar, o ícone
    fica laranja. Botões: sobem 2 px e o ícone avança. No editor e com
    «reduzir movimento», nada se mexe.
 
-   AJUSTÁVEL: duas colunas de 1100 px para cima; abaixo disso a fotografia
-   passa a uma faixa em cima, e o cartão fica por baixo.
+   AJUSTÁVEL: o cartão tem até 540 px e fica ao centro em qualquer janela;
+   a faixa dos números dobra em linhas quando não cabe.
    ========================================================= */
 .portal.login22 {
   height: auto; min-height: 100vh; overflow: visible;
@@ -36,37 +35,31 @@
 }
 .login22__idioma svg { width: 16px; height: 16px; }
 
-/* ---------- o palco: a fotografia e o cartão ---------- */
-.login22__palco { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); min-height: 0; }
-.login22__foto { position: relative; overflow: hidden; min-height: 560px; }
-.login22__imagem {
-  position: absolute; inset: 0;
-  background: url('../../../comum/img/oficina.webp') center / cover no-repeat;
-  clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
-}
+/* ---------- o palco: a fotografia no fundo todo e o login ao meio (ela: «quero login no meio») ---------- */
+.login22__palco { position: relative; display: grid; place-items: center; padding: var(--e-6) var(--e-5); min-height: 0; overflow: hidden; }
+.login22__imagem { position: absolute; inset: 0; background: url('../../../comum/img/oficina.webp') center / cover no-repeat; }
+.login22__centro { position: relative; z-index: 1; display: grid; justify-items: center; gap: var(--e-3); width: min(540px, 100%); }
+.login22__boas { margin: 0; display: grid; gap: 2px; padding-bottom: var(--e-3); border-bottom: 1px solid rgba(255, 255, 255, .2); }
+.login22__titulo { font-family: var(--f-titulo); font-weight: 700; font-size: 28px; line-height: 1.1; color: #fff; }
+.login22__sub { font-size: 15px; color: rgba(255, 255, 255, .88); }
+/* os números numa faixa clara, nunca texto direto na fotografia */
 .login22__factos {
-  position: absolute; left: var(--e-6); bottom: var(--e-6); z-index: 1;
-  display: grid; gap: 2px; width: min(360px, calc(100% - 2 * var(--e-6)));
-  padding: var(--e-4) var(--e-5); border-radius: var(--r-md);
-  background: var(--c-superficie); border: 1px solid var(--c-borda); box-shadow: 0 12px 28px -18px rgba(0, 20, 50, .55);
+  list-style: none; margin: 0; padding: var(--e-2) var(--e-3); width: max-content; max-width: min(900px, calc(100vw - 48px));
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-2) var(--e-4);
+  border-radius: var(--r-full); background: var(--c-superficie); border: 1px solid var(--c-borda);
+  box-shadow: 0 10px 24px -16px rgba(0, 20, 50, .6);
 }
-.login22__factos p { margin: 0; }
-.login22__antes, .login22__depois { font-family: var(--f-titulo); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-texto-2); }
-.login22__numero { font-family: var(--f-titulo); font-weight: 700; font-size: 40px; line-height: 1.05; color: var(--c-logotipo); font-variant-numeric: tabular-nums; }
+.login22__facto { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--c-texto-2); white-space: nowrap; }
+.login22__facto svg { width: 16px; height: 16px; color: var(--c-texto-2); transition: color .2s ease, transform .2s ease; }
+.login22__facto:hover svg { color: var(--c-acao); transform: scale(1.1); }
+.login22__facto--numero { gap: 6px; }
+.login22__numero { font-family: var(--f-titulo); font-weight: 700; font-size: 18px; color: var(--c-logotipo); font-variant-numeric: tabular-nums; }
 [data-theme="dark"] .login22__numero { color: #2f8ae6; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .login22__numero { color: #2f8ae6; } }
-.login22__lista { list-style: none; margin: var(--e-3) 0 0; padding: var(--e-3) 0 0; border-top: 1px solid var(--c-borda); display: grid; gap: var(--e-2); }
-.login22__lista li { display: flex; align-items: center; gap: var(--e-2); font-size: 13px; color: var(--c-texto-2); }
-.login22__lista svg { width: 18px; height: 18px; flex: none; color: var(--c-texto-2); transition: color .2s ease, transform .2s ease; }
-.login22__lista li:hover svg { color: var(--c-acao); transform: scale(1.1); }
-
-.login22__lado { display: grid; align-content: center; justify-items: center; gap: var(--e-4); padding: var(--e-6) var(--e-6) var(--e-6) var(--e-4); }
-.login22__boas { width: min(520px, 100%); }
-.login22__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: clamp(30px, 2.8vw, 40px); line-height: 1.1; }
-.login22__sub { margin: 6px 0 0; font-size: 16px; color: var(--c-texto-2); }
+.login22__vender { padding: 6px var(--e-3); border-radius: var(--r-full); background: var(--c-superficie); border: 1px solid var(--c-borda); width: auto !important; }
 
 /* ---------- o cartão azul (o dos cartões do carrossel) ---------- */
-.c22__cartao.login22__cartao { grid-area: auto; width: min(520px, 100%); min-height: 430px; padding: var(--e-5) var(--e-6) var(--e-6); gap: var(--e-4); align-content: start; }
+.c22__cartao.login22__cartao { grid-area: auto; width: 100%; min-height: 470px; box-shadow: 0 30px 60px -30px rgba(0, 15, 35, .7); padding: var(--e-5) var(--e-6) var(--e-6); gap: var(--e-4); align-content: start; }
 .login22__cartao::before { display: none; }
 .login22__cabeca { display: flex; align-items: center; gap: var(--e-3); }
 .login22__icone { width: 56px; height: 56px; border-radius: 14px; }
@@ -127,39 +120,35 @@
 .login22__rodape svg { width: 14px; height: 14px; }
 
 /* ---------- a entrada ---------- */
-.login22 .login22__imagem { animation: l22-foto 1s cubic-bezier(.65, 0, .35, 1) both; }
-.login22 .login22__factos { animation: l22-subir .6s cubic-bezier(.2, .8, .2, 1) .5s both; }
-.login22 .login22__numero { animation: l22-subir .5s ease-out .7s both; }
-.login22 .login22__lista li { animation: l22-subir .4s ease-out both; }
-.login22 .login22__lista li:nth-child(1) { animation-delay: .8s; }
-.login22 .login22__lista li:nth-child(2) { animation-delay: .9s; }
-.login22 .login22__lista li:nth-child(3) { animation-delay: 1s; }
-.login22 .login22__boas { animation: l22-subir .55s ease-out .15s both; }
-.login22 .login22__cartao { animation: l22-cartao .65s cubic-bezier(.2, .8, .2, 1) .25s both; }
+.login22 .login22__imagem { animation: l22-foto 1.6s ease-out both, l22-respirar 24s ease-in-out 1.6s infinite alternate; }
+.login22 .login22__facto { animation: l22-subir .4s ease-out both; }
+.login22 .login22__facto:nth-child(1) { animation-delay: .95s; }
+.login22 .login22__facto:nth-child(2) { animation-delay: 1.05s; }
+.login22 .login22__facto:nth-child(3) { animation-delay: 1.15s; }
+.login22 .login22__facto:nth-child(4) { animation-delay: 1.25s; }
+/* o cartão inclina-se até 1,5° com o rato, como o do Início */
+.login22 .login22__cartao { transition: transform .2s ease-out; }
+@keyframes l22-respirar { from { transform: scale(1); } to { transform: scale(1.06) translateX(-1%); } }
+.login22 .login22__cartao { animation: l22-cartao .65s cubic-bezier(.2, .8, .2, 1) .2s both; }
 .login22 .login22__cartao > * { animation: l22-subir .4s ease-out both; }
-.login22 .login22__cartao > :nth-child(1) { animation-delay: .45s; }
-.login22 .login22__cartao > :nth-child(2) { animation-delay: .53s; }
-.login22 .login22__cartao > :nth-child(3) { animation-delay: .61s; }
-.login22 .login22__cartao > :nth-child(4) { animation-delay: .69s; }
-.login22 .login22__vender { animation: l22-subir .4s ease-out .8s both; }
-@keyframes l22-foto { from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); transform: scale(1.05); } }
+.login22 .login22__cartao > :nth-child(1) { animation-delay: .4s; }
+.login22 .login22__cartao > :nth-child(2) { animation-delay: .48s; }
+.login22 .login22__cartao > :nth-child(3) { animation-delay: .56s; }
+.login22 .login22__cartao > :nth-child(4) { animation-delay: .64s; }
+.login22 .login22__cartao > :nth-child(5) { animation-delay: .72s; }
+.login22 .login22__vender { animation: l22-subir .4s ease-out .75s both; }
+.login22 .login22__factos { animation: l22-subir .5s ease-out .85s both; }
+@keyframes l22-foto { from { transform: scale(1.06); opacity: .6; } }
 @keyframes l22-subir { from { opacity: 0; transform: translateY(12px); } }
 @keyframes l22-cartao { from { opacity: 0; transform: perspective(900px) translateY(24px) rotateX(5deg); } }
 body.editando .login22 *, body.editando .login22 { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .login22 *, .login22 { animation: none !important; transition: none !important; } }
 
 /* ---------- onde se dobra ---------- */
-@media (max-width: 1100px) {
-  .login22__palco { grid-template-columns: minmax(0, 1fr); }
-  .login22__foto { min-height: 300px; }
-  .login22__imagem { clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%); }
-  .login22__factos { left: var(--e-5); bottom: var(--e-5); }
-  .login22__lado { padding: var(--e-5); }
-  @keyframes l22-foto { from { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); } }
-}
 @media (max-width: 640px) {
-  .login22__factos { position: static; width: auto; margin: var(--e-4); }
-  .login22__foto { min-height: 0; display: grid; }
-  .login22__imagem { position: relative; height: 200px; }
+  .login22__palco { padding: var(--e-4); }
+  .login22__factos { border-radius: var(--r-md); }
   .login22 .portal__produto-sub { display: none; }
 }
+/* a inclinação: depois da entrada (a animação l22-cartao acaba em «none») */
+.login22 .login22__cartao:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
