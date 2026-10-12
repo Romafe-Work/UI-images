@@ -20,5 +20,10 @@ export const goparts: App<IdGoParts> = {
     'Carregamento': DESCRICAO_CARREGAR,
     'Erros': DESCRICAO_ERROS,
   },
-  ecras: [...ecrasEntrar(versoesRomafe(entrarGoParts, 'GoParts')), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
+  /* 12 out. 2026: ela pediu só uma versão nos quatro ecrãs de entrar — a «Família Romafe»
+     com o cartão ao centro (a v5; no 04 é a v4), a que combina com o Início v2.2 */
+  ecras: [...ecrasEntrar(versoesRomafe(entrarGoParts, 'GoParts')).map((e) => ({
+    ...e,
+    versoes: [e.versoes.find((v) => v.nota.startsWith('Família Romafe com o cartão ao centro')) ?? e.versoes[0]] as typeof e.versoes,
+  })), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
 };

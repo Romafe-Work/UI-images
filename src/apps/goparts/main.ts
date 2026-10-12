@@ -18,6 +18,7 @@ import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
 import './css/select.css';
+import './css/entrar-animacao.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
