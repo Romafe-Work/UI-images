@@ -4,7 +4,7 @@
    grande ao centro com o formulário em duas colunas, os outros dois atrás,
    aos lados, só com o resumo e um desenho de linhas (a imagem tinha
    fotografias de banco; aqui são os desenhos da v2). Setas redondas nos
-   lados, pontos por baixo, e o Acesso rápido. No azul da Romafe,
+   lados e pontos por baixo. O Acesso rápido da imagem saiu a 12 out., a pedido dela. No azul da Romafe,
    RGB(0, 99, 170), não no azul vivo da imagem (ela pediu). Claro e escuro.
    Comportamento: comportamento/carrossel.ts (o mesmo da v2.1).
 
@@ -110,26 +110,6 @@
 .carrossel__ponto { width: 18px; height: 6px; border-radius: var(--r-full); background: var(--c-borda-forte); transition: width .3s ease, background .3s ease; }
 .carrossel__ponto.is-atual { width: 32px; background: var(--c-logotipo); }
 
-/* ---------- acesso rápido ---------- */
-.c22__rapido { display: grid; gap: var(--e-4); padding: var(--e-5); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
-.c22__rapido-cabeca { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; padding-left: var(--e-4); border-left: 4px solid var(--c-acao); }
-.c22__rapido-titulo { margin: 0; font-family: var(--f-titulo); font-size: 22px; }
-.c22__rapido-sub { margin: 2px 0 0; font-size: 14px; color: var(--c-texto-2); }
-.c22__mais { color: var(--c-texto); font-weight: 700; }
-.c22__atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--e-3); }
-.c22__atalho {
-  display: flex; align-items: center; gap: var(--e-3);
-  font: inherit; color: var(--c-texto); text-align: left; cursor: pointer;
-  padding: var(--e-4); border-radius: var(--r-md); background: var(--c-superficie-2); border: 1px solid var(--c-borda);
-}
-.c22__atalho:hover:not([disabled]) { border-color: var(--c-borda-forte); }
-.c22__atalho[disabled] { cursor: default; }
-.c22__atalho > span { display: grid; gap: 2px; min-width: 0; }
-.c22__atalho-icone { width: 32px; height: 32px; flex: none; color: var(--c-texto); }
-.c22__atalho-nome { font-weight: 700; font-size: 15px; }
-.c22__atalho-sub { font-size: 12px; color: var(--c-texto-2); }
-.c22__chevron { width: 18px; height: 18px; margin-left: auto; flex: none; color: var(--c-texto-3); }
-
 @media (prefers-reduced-motion: reduce) {
   .c22__cartao, .c22__cartao.is-atual { transition: none; }
   .c22__cartao.is-atual { transform: none; }
@@ -152,3 +132,5 @@
 .c22__cartao.is-ant .c22__marca svg, .c22__cartao.is-seg .c22__marca svg { width: 30px; height: 30px; }
 .c22__cartao.is-ant .c22__titulo, .c22__cartao.is-seg .c22__titulo { font-size: 22px; }
 .c22__cartao.is-ant, .c22__cartao.is-seg { padding-inline: var(--e-4); }
+/* sem o Acesso rápido, o carrossel fica ao meio da altura que sobra */
+.portal--v22 .c22 { align-content: center; }

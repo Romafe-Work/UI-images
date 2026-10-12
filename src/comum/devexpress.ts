@@ -36,7 +36,7 @@ const REGRAS: [string, Componente][] = [
 
   /* botões */
   ['.conta, .erp__empresa', { peca: 'Menu da conta', web: 'DxDropDownButton', wpf: 'DropDownButton' }],
-  ['.btn, .carrossel__seta, .c22__seta, .populares__chip, .cat4__item, .cat5__item, .c22__atalho', { peca: 'Botão', web: 'DxButton', wpf: 'SimpleButton', nota: 'Sempre com ícone e texto.' }],
+  ['.btn, .carrossel__seta, .c22__seta, .populares__chip, .cat4__item, .cat5__item', { peca: 'Botão', web: 'DxButton', wpf: 'SimpleButton', nota: 'Sempre com ícone e texto.' }],
   ['.portal__icone', { peca: 'Botão de ícone', web: 'DxButton (só ícone, com hint)', wpf: 'SimpleButton (só ícone, com ToolTip)' }],
 
   /* navegação */
