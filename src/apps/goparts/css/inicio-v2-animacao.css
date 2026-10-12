@@ -187,30 +187,3 @@
 /* o painel fechado não se vê nem se alcança com o Tab; ao abrir aparece logo, ao fechar só no fim */
 .acord__painel { visibility: hidden; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .25s; }
 .acord__cabeca[aria-expanded="true"] + .acord__painel { visibility: visible; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
-
-/* ---------- o ícone em 3D (12 out.) ----------
-   Ela pediu primeiro o ícone «em 3D, como se estivesse fora da caixa», depois «dentro,
-   mas com 3D», e por fim, a partir de quem reviu: «meter 3D só o ícone, não a caixa».
-   A caixa fica plana, como antes. O desenho do ícone inclina-se (skew 2D, que fica
-   nítido; a rotação 3D serrilhava o traço) e ganha
-   espessura com camadas sólidas do mesmo traço, mais escuras, empilhadas em diagonal
-   (sem brilho); com o rato, no cartão da frente, roda mais um pouco. */
-:is(.portal--v21, .portal--v23) .painel2__marca svg { width: 34px; height: 34px; }
-.portal--v22 .c22__marca svg { width: 44px; height: 44px; }
-:is(.portal--v21, .portal--v23) .painel2__marca svg,
-.portal--v22 .c22__marca svg {
-  --lado3d: #0b3a6b;
-  transform: rotate(-2deg) skew(-4deg, -2deg);   /* quase de frente (ela: «menos inclinado») */   /* 2D: o 3D rasterizava o traço e serrilhava */
-  filter:
-    drop-shadow(1px 1px 0 var(--lado3d)) drop-shadow(1px 1px 0 var(--lado3d))
-    drop-shadow(1px 1px 0 var(--lado3d));
-  stroke-width: 2.3;
-  transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
-}
-:is(.portal--v21, .portal--v23) .painel2--acao .painel2__marca svg,
-.portal--v22 .c22__cartao--laranja .c22__marca svg { --lado3d: #9a4a00; }
-:is(.portal--v21, .portal--v23) .carrossel__cartao.is-atual:hover .painel2__marca svg,
-.portal--v22 .c22__cartao.is-atual:hover .c22__marca svg { transform: rotate(-3deg) skew(-6deg, -3deg) scale(1.05); }
-@media (prefers-reduced-motion: reduce) {
-  :is(.portal--v21, .portal--v23) .painel2__marca svg, .portal--v22 .c22__marca svg { transition: none; }
-}
