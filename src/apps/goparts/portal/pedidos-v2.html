@@ -1,0 +1,118 @@
+<div class="portal portal--v3 portal--v22 portal--noite portal--ped2">
+  <main class="ped2" data-pedidos>
+
+    <header class="ped2__cabeca">
+      <div><h1 class="ped2__titulo">Pedidos</h1><p class="ped2__sub">Pesquise e acompanhe os pedidos da sua conta.</p></div>
+      <div class="ped2__resumo" aria-live="polite"><span><strong class="ped2__conta">6</strong> pedidos</span><span><strong class="ped2__total">2 892,15 €</strong> no período</span></div>
+    </header>
+
+    <section class="ped2__filtros c22__cartao c22__cartao--azul">
+      <div class="ped2__campos">
+        <div class="campo"><label class="campo__label" for="ped2-de">Data a partir de</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="calendar"><path d="M8 2v3" /><path d="M16 2v3" /><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /></svg></span><input class="input" id="ped2-de" type="text" value="01/03/2024" inputmode="numeric"></div></div>
+        <div class="campo"><label class="campo__label" for="ped2-ate">Data até</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="calendar"><path d="M8 2v3" /><path d="M16 2v3" /><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /></svg></span><input class="input" id="ped2-ate" type="text" placeholder="dd/mm/aaaa" inputmode="numeric"></div></div>
+        <div class="campo"><label class="campo__label" for="ped2-num">N.º do pedido</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="hash"><line x1="4" x2="20" y1="9" y2="9" /><line x1="4" x2="20" y1="15" y2="15" /><line x1="10" x2="8" y1="3" y2="21" /><line x1="16" x2="14" y1="3" y2="21" /></svg></span><input class="input" id="ped2-num" placeholder="P2024/…"></div></div>
+        <div class="campo"><label class="campo__label" for="ped2-ref">Referência</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="barcode"><path d="M3 5v14" /><path d="M8 5v14" /><path d="M12 5v14" /><path d="M17 5v14" /><path d="M21 5v14" /></svg></span><input class="input" id="ped2-ref" placeholder="Referência da peça"></div></div>
+      </div>
+      <div class="ped2__baixo">
+        <nav class="ped2__estados" aria-label="Estado do pedido">
+          <button type="button" class="ped2__estado-aba" data-filtro="todos" aria-current="true">Todos <span class="ped2__n">6</span></button>
+          <button type="button" class="ped2__estado-aba" data-filtro="proc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></svg>Processado <span class="ped2__n">4</span></button>
+          <button type="button" class="ped2__estado-aba" data-filtro="sem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="clock"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>Sem proc. <span class="ped2__n">2</span></button>
+        </nav>
+        <div class="ped2__botoes">
+          <button type="button" class="btn btn--claro ped2__limpar"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="eraser"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21" /><path d="m5.082 11.09 8.828 8.828" /></svg><span class="btn__rotulo">Limpar</span></button>
+          <button type="button" class="btn btn--acao ped2__pesquisar"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="search"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></svg><span class="btn__rotulo">Pesquisar</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cg-tabela erp-tabela ped2__tabela">
+      <div class="erp-tabela__rolo"><table>
+        <thead><tr><th>Pedido</th><th>Data</th><th>Armazém</th><th>Morada de entrega</th><th class="erp-num">O seu pedido</th><th>Observações</th><th class="erp-num">Valor</th><th>Processado</th><th>Recolher</th></tr></thead>
+        <tbody>
+          <tr class="ped2__linha" data-estado="proc" style="--i:0">
+            <td><button type="button" class="ped2__abrir" aria-expanded="false" aria-controls="ped2-linha-1"><svg class="ped2__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6" /></svg><span class="ped2__num">P2024/001256</span></button></td>
+            <td>15/04/2024</td><td>Porto (1)</td>
+            <td><span class="ped2__morada">Rua da Indústria, 123</span><span class="ped2__discreto">4100-168 Porto</span></td>
+            <td class="erp-num">5 artigos</td><td class="ped2__obs">Entrega prioritária</td>
+            <td class="erp-num ped2__valor">342,50 €</td>
+            <td><span class="ped2__estado ped2__estado--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></svg>Processado</span></td>
+            <td><span class="ped2__discreto">—</span></td>
+          </tr>
+          <tr class="ped2__detalhe" id="ped2-linha-1" data-estado="proc"><td colspan="9"><div class="ped2__dentro"><div class="ped2__artigos">
+            <ul><li><span class="ped2__qt">2</span><span>Disco de travão Brembo 09.A727.11</span><span class="erp-num">172,80 €</span></li><li><span class="ped2__qt">2</span><span>Pastilhas TRW GDB1550</span><span class="erp-num">104,20 €</span></li><li><span class="ped2__qt">1</span><span>Filtro de óleo UFI 23.130.00</span><span class="erp-num">7,85 €</span></li><li><span class="ped2__qt">…</span><span>e mais 2 artigos</span><span class="erp-num">57,65 €</span></li></ul>
+            <div class="ped2__accoes"><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="btn__rotulo">Ver o pedido</span></button><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg><span class="btn__rotulo">Repetir pedido</span></button></div>
+          </div></div></td></tr>
+          <tr class="ped2__linha" data-estado="proc" style="--i:1">
+            <td><button type="button" class="ped2__abrir" aria-expanded="false" aria-controls="ped2-linha-2"><svg class="ped2__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6" /></svg><span class="ped2__num">P2024/001233</span></button></td>
+            <td>10/04/2024</td><td>Lisboa (2)</td>
+            <td><span class="ped2__morada">Av. Infante D. Henrique, 55</span><span class="ped2__discreto">1800-218 Lisboa</span></td>
+            <td class="erp-num">12 artigos</td><td class="ped2__obs">—</td>
+            <td class="erp-num ped2__valor">1 245,90 €</td>
+            <td><span class="ped2__estado ped2__estado--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></svg>Processado</span></td>
+            <td><span class="ped2__discreto">—</span></td>
+          </tr>
+          <tr class="ped2__detalhe" id="ped2-linha-2" data-estado="proc"><td colspan="9"><div class="ped2__dentro"><div class="ped2__artigos">
+            <ul><li><span class="ped2__qt">4</span><span>Rolamento de roda SKF VKBA 3525</span><span class="erp-num">612,40 €</span></li><li><span class="ped2__qt">4</span><span>Amortecedor Monroe G8017</span><span class="erp-num">498,00 €</span></li><li><span class="ped2__qt">…</span><span>e mais 10 artigos</span><span class="erp-num">135,50 €</span></li></ul>
+            <div class="ped2__accoes"><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="btn__rotulo">Ver o pedido</span></button><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg><span class="btn__rotulo">Repetir pedido</span></button></div>
+          </div></div></td></tr>
+          <tr class="ped2__linha" data-estado="sem" style="--i:2">
+            <td><button type="button" class="ped2__abrir" aria-expanded="false" aria-controls="ped2-linha-3"><svg class="ped2__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6" /></svg><span class="ped2__num">P2024/001198</span></button></td>
+            <td>02/04/2024</td><td>Porto (1)</td>
+            <td><span class="ped2__morada">Rua da Indústria, 123</span><span class="ped2__discreto">4100-168 Porto</span></td>
+            <td class="erp-num">3 artigos</td><td class="ped2__obs">Confirmar stock</td>
+            <td class="erp-num ped2__valor">87,30 €</td>
+            <td><span class="ped2__estado ped2__estado--aviso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="clock"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>Sem proc.</span></td>
+            <td><span class="ped2__recolher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="package"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><polyline points="3.29 7 12 12 20.71 7" /><path d="m7.5 4.27 9 5.15" /></svg>Por recolher</span></td>
+          </tr>
+          <tr class="ped2__detalhe" id="ped2-linha-3" data-estado="sem"><td colspan="9"><div class="ped2__dentro"><div class="ped2__artigos">
+            <ul><li><span class="ped2__qt">1</span><span>Correia Gates 6PK1070</span><span class="erp-num">24,90 €</span></li><li><span class="ped2__qt">2</span><span>Escovas Bosch Aerotwin A863S</span><span class="erp-num">62,40 €</span></li></ul>
+            <div class="ped2__accoes"><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="btn__rotulo">Ver o pedido</span></button><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg><span class="btn__rotulo">Repetir pedido</span></button></div>
+          </div></div></td></tr>
+          <tr class="ped2__linha" data-estado="proc" style="--i:3">
+            <td><button type="button" class="ped2__abrir" aria-expanded="false" aria-controls="ped2-linha-4"><svg class="ped2__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6" /></svg><span class="ped2__num">P2024/001175</span></button></td>
+            <td>28/03/2024</td><td>Porto (1)</td>
+            <td><span class="ped2__morada">Rua da Indústria, 123</span><span class="ped2__discreto">4100-168 Porto</span></td>
+            <td class="erp-num">7 artigos</td><td class="ped2__obs">—</td>
+            <td class="erp-num ped2__valor">418,75 €</td>
+            <td><span class="ped2__estado ped2__estado--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></svg>Processado</span></td>
+            <td><span class="ped2__discreto">—</span></td>
+          </tr>
+          <tr class="ped2__detalhe" id="ped2-linha-4" data-estado="proc"><td colspan="9"><div class="ped2__dentro"><div class="ped2__artigos">
+            <ul><li><span class="ped2__qt">1</span><span>Kit de embraiagem Valeo 826317</span><span class="erp-num">318,20 €</span></li><li><span class="ped2__qt">…</span><span>e mais 6 artigos</span><span class="erp-num">100,55 €</span></li></ul>
+            <div class="ped2__accoes"><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="btn__rotulo">Ver o pedido</span></button><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg><span class="btn__rotulo">Repetir pedido</span></button></div>
+          </div></div></td></tr>
+          <tr class="ped2__linha" data-estado="sem" style="--i:4">
+            <td><button type="button" class="ped2__abrir" aria-expanded="false" aria-controls="ped2-linha-5"><svg class="ped2__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6" /></svg><span class="ped2__num">P2024/001142</span></button></td>
+            <td>21/03/2024</td><td>Lisboa (2)</td>
+            <td><span class="ped2__morada">Av. Infante D. Henrique, 55</span><span class="ped2__discreto">1800-218 Lisboa</span></td>
+            <td class="erp-num">2 artigos</td><td class="ped2__obs">Levanta no balcão</td>
+            <td class="erp-num ped2__valor">64,10 €</td>
+            <td><span class="ped2__estado ped2__estado--aviso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="clock"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>Sem proc.</span></td>
+            <td><span class="ped2__recolher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="package"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><polyline points="3.29 7 12 12 20.71 7" /><path d="m7.5 4.27 9 5.15" /></svg>Por recolher</span></td>
+          </tr>
+          <tr class="ped2__detalhe" id="ped2-linha-5" data-estado="sem"><td colspan="9"><div class="ped2__dentro"><div class="ped2__artigos">
+            <ul><li><span class="ped2__qt">2</span><span>Velas NGK BKR6E</span><span class="erp-num">64,10 €</span></li></ul>
+            <div class="ped2__accoes"><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="btn__rotulo">Ver o pedido</span></button><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg><span class="btn__rotulo">Repetir pedido</span></button></div>
+          </div></div></td></tr>
+          <tr class="ped2__linha" data-estado="proc" style="--i:5">
+            <td><button type="button" class="ped2__abrir" aria-expanded="false" aria-controls="ped2-linha-6"><svg class="ped2__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6" /></svg><span class="ped2__num">P2024/001120</span></button></td>
+            <td>14/03/2024</td><td>Porto (1)</td>
+            <td><span class="ped2__morada">Rua da Indústria, 123</span><span class="ped2__discreto">4100-168 Porto</span></td>
+            <td class="erp-num">9 artigos</td><td class="ped2__obs">—</td>
+            <td class="erp-num ped2__valor">733,60 €</td>
+            <td><span class="ped2__estado ped2__estado--ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></svg>Processado</span></td>
+            <td><span class="ped2__discreto">—</span></td>
+          </tr>
+          <tr class="ped2__detalhe" id="ped2-linha-6" data-estado="proc"><td colspan="9"><div class="ped2__dentro"><div class="ped2__artigos">
+            <ul><li><span class="ped2__qt">1</span><span>Bomba de água SKF VKPC 85309</span><span class="erp-num">96,30 €</span></li><li><span class="ped2__qt">…</span><span>e mais 8 artigos</span><span class="erp-num">637,30 €</span></li></ul>
+            <div class="ped2__accoes"><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg><span class="btn__rotulo">Ver o pedido</span></button><button type="button" class="btn btn--ghost btn--sm"><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg><span class="btn__rotulo">Repetir pedido</span></button></div>
+          </div></div></td></tr>
+        </tbody>
+      </table></div>
+      <p class="ped2__vazio" hidden>Nenhum pedido neste estado.</p>
+      <div class="ped2__pe"><span>A mostrar 6 de 6 · de 01/03/2024 até hoje</span></div>
+    </section>
+
+  </main>
+</div>

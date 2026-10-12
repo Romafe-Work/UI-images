@@ -5,11 +5,12 @@
    ========================================================= */
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
-import { estadosInicio, estadosCatalogo } from './estados';
+import { estadosInicio, estadosCatalogo, estadosPedidos } from './estados';
 import inicioV22 from './inicio-v22.html?raw';
 import catalogo from './catalogo.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
 import pedidos from './pedidos.html?raw';
+import pedidosV2 from './pedidos-v2.html?raw';
 import guias from './guias.html?raw';
 
 const FLUXO = 'Portal';
@@ -26,8 +27,10 @@ export const ecrasPortal: EcraGoParts[] = [
     { id: 'v2', nota: 'A partir do catálogo atual do GO REPAIR, no estilo do Início v2.2 (12 out.): passos do catálogo, pesquisa por veículo no cartão azul, marcas com Favoritas/Todas e procura; a marca abre os modelos', html: portal('catalogo', catalogoV2, undefined, { menu: true, rodape: false }) }],
     objetivo: 'O catálogo de peças: a pesquisa por veículo ou por referência num só sítio, e as marcas de automóveis para escolher.' },
   ...estadosCatalogo(),
-  { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('pedidos', pedidos) }],
+  { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('pedidos', pedidos) },
+    { id: 'v2', nota: 'A partir dos Pedidos atuais do GO REPAIR, no estilo do Início v2.2 (12 out.): filtros no cartão azul, estado em separadores com contagem, resumo, e cada pedido abre os seus artigos', html: portal('pedidos', pedidosV2, undefined, { menu: true, rodape: false }) }],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
+  ...estadosPedidos(),
   { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('guias', guias) }],
     objetivo: 'As guias de remessa e as notas de crédito: filtros, os totais faturados e a lista com bruto, desconto, portes e IVA.' },
 ];

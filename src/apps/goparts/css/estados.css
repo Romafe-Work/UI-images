@@ -87,3 +87,13 @@
 /* com mensagens de erro por baixo, os campos alinham por cima (senão os da mesma linha descem) */
 .portal--estado .cat2__campos:has(.campo--erro) { align-items: start; }
 .portal--estado .cat2__campos:has(.campo--erro) .cat2__pesquisar { align-self: end; }
+
+/* ---------- 12 · Pedidos ---------- */
+.est-esbatido { opacity: .45; }
+.est-vazio--tabela { margin: var(--e-4); }
+.est-falha--tabela { margin: var(--e-4); }
+.est-vazio .est-aviso__botoes { justify-content: center; }
+.portal--estado .ped2__filtros .campo__erro { color: #fff; background: rgba(140, 20, 20, .45); padding: 4px 8px; border-radius: var(--r-sm); font-size: 13px; }
+.portal--estado .ped2__filtros .campo--erro .input { border-color: #ffb4a8; box-shadow: inset 0 0 0 1px #ffb4a8; }
+.est-com-erros { align-items: start; }
+.ped2__tabela > .progresso { border-radius: 0; }

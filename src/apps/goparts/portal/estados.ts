@@ -13,8 +13,10 @@ import type { EcraGoParts, IdGoParts } from '../ids';
 import { portal } from './base';
 import inicioV22 from './inicio-v22.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
+import pedidosV2 from './pedidos-v2.html?raw';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
+export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
@@ -39,7 +41,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|ped2)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -241,6 +243,75 @@ const catalogoFalha = () => catalogo(mudar(catalogoV2, 'e118', (r) => {
   $(r, '.cat2__grelha').outerHTML = `<div class="cg-falha est-falha est-falha--largo">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar as marcas</p><p class="cg-falha__texto">A pesquisa por matrícula, chassis ou motor continua a funcionar em cima. Referência do erro: <code>GP-20261012-B7D2</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
 }));
 
+/* ================= 12 · Pedidos ================= */
+const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
+const semPedidos = (r: HTMLElement) => $$(r, '[data-pedidos]').forEach((x) => x.removeAttribute('data-pedidos'));
+const linhasEsq = (n: number) => Array.from({ length: n }, (_, i) => `<tr>${[70, 55, 50, 85, 45, 60, 45, 55, 40].map((c) => `<td>${E(Math.max(30, c - (i % 3) * 10), 'esq--texto')}</td>`).join('')}</tr>`).join('');
+const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
+  const i = $<HTMLInputElement>(r, `#${id}`);
+  i.setAttribute('value', valor); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', `${id}-msg`);
+  i.closest('.campo')!.classList.add('campo--erro');
+  i.closest('.campo')!.insertAdjacentHTML('beforeend', `<p class="campo__erro" id="${id}-msg">${I(IC.aviso)}${msg}</p>`);
+};
+
+/* 12.1 · esqueleto: os filtros já lá estão; o resumo e as linhas chegam */
+const pedidosCarga = () => pedidos(mudar(pedidosV2, 'e121', (r) => {
+  semPedidos(r);
+  $(r, '.ped2').setAttribute('aria-busy', 'true');
+  $(r, '.ped2__resumo').innerHTML = `${E('130px', 'esq--botao')}${E('170px', 'esq--botao')}`;
+  $(r, 'tbody').innerHTML = linhasEsq(7);
+  $$(r, '.ped2__n').forEach((n) => n.remove());
+  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A carregar os pedidos…</span>`;
+}));
+
+/* 12.2 · a pesquisar com filtros: o botão espera, as linhas antigas esbatem */
+const pedidosFiltrar = () => pedidos(mudar(pedidosV2, 'e122', (r) => {
+  semPedidos(r);
+  $<HTMLInputElement>(r, '#e122-ref').setAttribute('value', 'VKBA 3525');
+  aCarregar($(r, '.ped2__pesquisar'), 'A pesquisar…');
+  $(r, '.ped2__tabela').insertAdjacentHTML('afterbegin', '<div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div>');
+  $(r, '.ped2__tabela tbody').classList.add('est-esbatido');
+  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A procurar pedidos com a referência VKBA 3525…</span>`;
+}));
+
+/* 12.3 · sem pedidos no período */
+const pedidosVazio = () => pedidos(mudar(pedidosV2, 'e123', (r) => {
+  semPedidos(r);
+  $<HTMLInputElement>(r, '#e123-de').setAttribute('value', '01/10/2026');
+  $(r, '.ped2__conta').textContent = '0';
+  $(r, '.ped2__total').textContent = '0,00 €';
+  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Nenhum pedido desde 01/10/2026.</strong> O último pedido da conta foi a 15/04/2024.</p><div class="est-aviso__botoes">${BOTAO('Ver o último ano', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
+  $(r, '.ped2__pe').innerHTML = '<span>A mostrar 0 · de 01/10/2026 até hoje</span>';
+}));
+
+/* 12.4 · erro nas datas */
+const pedidosDatas = () => pedidos(mudar(pedidosV2, 'e124', (r) => {
+  semPedidos(r);
+  erroCampo(r, 'e124-ate', '01/02/2024', '«Data até» é antes de «Data a partir de» (01/03/2024).');
+  erroCampo(r, 'e124-num', 'P24-1256', 'O n.º do pedido escreve-se P2024/001256.');
+  $(r, '.ped2__campos').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir antes de pesquisar</p></div></div>`);
+  $(r, '.ped2__campos').classList.add('est-com-erros');
+}));
+
+/* 12.5 · sem ligação */
+const pedidosRede = () => pedidos(mudar(pedidosV2, 'e125', (r) => {
+  semPedidos(r);
+  $(r, '.ped2').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver os pedidos de há 4 minutos. Pesquisar volta quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
+  const b = $(r, '.ped2__pesquisar'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação');
+  $(r, '.ped2__tabela tbody').classList.add('est-esbatido');
+}));
+
+/* 12.6 · a tabela não carregou */
+const pedidosFalha = () => pedidos(mudar(pedidosV2, 'e126', (r) => {
+  semPedidos(r);
+  $(r, '.ped2__resumo').innerHTML = '';
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="cg-falha est-falha est-falha--largo est-falha--tabela">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar os pedidos</p><p class="cg-falha__texto">Os filtros ficaram como estavam. Referência do erro: <code>GP-20261012-5E19</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
+  $(r, '.ped2__pe').remove();
+}));
+
 /* ---------- a lista: cada estado logo a seguir ao seu ecrã ---------- */
 const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): EcraGoParts =>
   ({ id, nome, fluxo: 'Portal', objetivo, versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
@@ -264,4 +335,12 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-procura', '11.6 · Marca não encontrada', 'A procura de marca não encontra nada: sugere a escrita certa e outro caminho.', catalogoProcura),
   e('catalogo-sem-favoritas', '11.7 · Sem favoritas', 'Ainda sem favoritas: explica a estrela e leva a «Todas».', catalogoSemFavoritas),
   e('catalogo-falha', '11.8 · As marcas não carregaram', 'A grelha falhou: o que continua a funcionar, a referência do erro, o apoio e «Tentar de novo».', catalogoFalha),
+];
+export const estadosPedidos = (): EcraGoParts[] => [
+  e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já à vista; o resumo e as linhas da tabela chegam em esqueleto.', pedidosCarga),
+  e('pedidos-filtrar', '12.2 · A pesquisar', 'Com uma referência escrita: o botão em «A pesquisar…», uma barra fina por cima da tabela e as linhas antigas esbatidas.', pedidosFiltrar),
+  e('pedidos-vazio', '12.3 · Sem pedidos no período', 'Nenhum pedido nas datas escolhidas: diz quando foi o último e dá dois caminhos.', pedidosVazio),
+  e('pedidos-datas', '12.4 · Erro nos filtros', 'A data final antes da inicial e o n.º mal escrito: cada campo diz como deve ser.', pedidosDatas),
+  e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa em cima, os pedidos de há pouco esbatidos e a pesquisa desligada.', pedidosRede),
+  e('pedidos-falha', '12.6 · Os pedidos não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', pedidosFalha),
 ];

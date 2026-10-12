@@ -35,7 +35,9 @@ function medir() {
   const pecas = [...ecra.querySelectorAll(SEL)].filter((e) => visivel(e) && !decorativo(e));
   for (const e of pecas) {
     const r = e.getBoundingClientRect();
-    if (r.right > W + 2 || r.left < -2) { problemas.push(`fora da janela: ${nome(e)}`); continue; }
+    /* dentro de uma caixa que rola de lado (uma tabela larga), sair da janela é o normal: rola-se */
+    const rola = (() => { for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll') return true; } return false; })();
+    if (!rola && (r.right > W + 2 || r.left < -2)) { problemas.push(`fora da janela: ${nome(e)}`); continue; }
     for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) {
       const s = getComputedStyle(a);
       if (s.overflowX === 'visible' && s.overflowY === 'visible') continue;

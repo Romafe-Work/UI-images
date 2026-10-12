@@ -1,0 +1,91 @@
+/* =========================================================
+   GOPARTS — 12 · Pedidos v2 (12 out. 2026), a partir dos Pedidos atuais do
+   GO REPAIR, no estilo do Início v2.2: os filtros no cartão azul da Romafe,
+   o estado em separadores com a contagem, a tabela com as colunas de
+   sempre, e cada pedido abre os seus artigos. Claro e escuro.
+
+   AJUSTÁVEL: ocupa pelo menos a janela e rola; os filtros passam de 4 a 2
+   colunas; a tabela larga rola dentro da caixa, nunca a página para o lado.
+   Comportamento: comportamento/pedidos.ts.
+   ========================================================= */
+.ped2 { display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-6); align-content: start; }
+.ped2__cabeca { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--e-4); flex-wrap: wrap; }
+.ped2__titulo { margin: 0; font-family: var(--f-titulo); font-size: 28px; line-height: 1.1; }
+.ped2__sub { margin: 4px 0 0; font-size: 14px; color: var(--c-texto-2); }
+.ped2__resumo { display: flex; gap: var(--e-3); flex-wrap: wrap; }
+.ped2__resumo > span { padding: 8px var(--e-4); border-radius: var(--r-md); background: var(--c-superficie); border: 1px solid var(--c-borda); font-size: 14px; color: var(--c-texto-2); }
+.ped2__resumo strong { color: var(--c-texto); font-size: 18px; font-variant-numeric: tabular-nums; margin-right: 4px; }
+
+/* ---------- os filtros, no cartão azul ---------- */
+.ped2__filtros.c22__cartao { grid-area: auto; width: auto; padding: var(--e-4) var(--e-5); gap: var(--e-4); }
+.ped2__filtros::before { display: none; }
+.ped2__campos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--e-3) var(--e-4); }
+.portal--ped2 .ped2__filtros .campo__label { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.portal--ped2 .ped2__filtros .input { min-height: 46px; color: #fff; background: rgba(4, 18, 38, .45); border-color: rgba(255, 255, 255, .22); }
+.portal--ped2 .ped2__filtros .input::placeholder { color: rgba(255, 255, 255, .65); }
+.portal--ped2 .ped2__filtros .campo__chip { width: 46px; background: rgba(4, 18, 38, .55); color: #fff; border-color: rgba(255, 255, 255, .22); }
+.portal--ped2 .ped2__filtros .campo__chip svg { width: 18px; height: 18px; }
+.ped2__baixo { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; }
+.ped2__estados { display: flex; gap: 4px; padding: 4px; border-radius: var(--r-md); background: rgba(4, 18, 38, .35); }
+.ped2__estado-aba {
+  display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; color: rgba(255, 255, 255, .85); cursor: pointer;
+  padding: 7px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; transition: background-color .2s ease, color .2s ease;
+}
+.ped2__estado-aba svg { width: 16px; height: 16px; }
+.ped2__estado-aba:hover { background: rgba(255, 255, 255, .1); }
+.ped2__estado-aba[aria-current="true"] { background: rgba(255, 255, 255, .18); color: #fff; font-weight: 700; box-shadow: inset 0 -3px 0 var(--c-acao); }
+.ped2__n { font-size: 11px; font-weight: 700; padding: 0 6px; border-radius: var(--r-full); background: rgba(255, 255, 255, .2); }
+.ped2__botoes { display: flex; gap: var(--e-2); }
+.ped2__botoes .btn { min-height: 46px; padding: 0 var(--e-5); }
+
+/* ---------- a tabela ---------- */
+.ped2__tabela table { min-width: 980px; }
+.ped2__tabela thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.ped2__tabela td { vertical-align: middle; font-size: 14px; }
+.ped2__linha { transition: background-color .15s ease; }
+.ped2__linha:hover { background: var(--c-superficie-2); }
+.ped2__abrir { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-weight: 700; color: var(--c-marca); cursor: pointer; border: 0; background: none; padding: 0; white-space: nowrap; }
+.ped2__seta { width: 16px; height: 16px; color: var(--c-texto-3); transform: rotate(-90deg); transition: transform .25s cubic-bezier(.4, 0, .2, 1), color .2s ease; }
+.ped2__abrir[aria-expanded="true"] .ped2__seta { transform: none; color: var(--c-acao); }
+.ped2__morada { display: block; }
+.ped2__discreto { display: block; font-size: 12px; color: var(--c-texto-3); }
+.ped2__obs { color: var(--c-texto-2); }
+.ped2__valor { font-weight: 700; }
+.ped2__estado { display: inline-flex; align-items: center; gap: 5px; padding: 3px var(--e-2); border-radius: var(--r-full); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ped2__estado svg { width: 14px; height: 14px; }
+.ped2__estado--ok { background: var(--c-ok-suave); color: var(--c-ok); }
+.ped2__estado--aviso { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.ped2__recolher { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--c-acao-traco); white-space: nowrap; }
+.ped2__recolher svg { width: 16px; height: 16px; }
+
+/* o detalhe: os artigos do pedido, a abrir como os acordeões do Início (250 ms) */
+.ped2__detalhe > td { padding: 0 !important; border-bottom: 0; }
+.ped2__dentro { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .25s; }
+.ped2__linha:has(.ped2__abrir[aria-expanded="true"]) + .ped2__detalhe .ped2__dentro { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
+.ped2__linha:has(.ped2__abrir[aria-expanded="true"]) { background: var(--c-superficie-2); box-shadow: inset 3px 0 0 var(--c-acao); }
+.ped2__artigos { overflow: hidden; min-height: 0; display: flex; justify-content: space-between; align-items: flex-end; gap: var(--e-4); flex-wrap: wrap; background: var(--c-superficie-2); }
+.ped2__linha:has(.ped2__abrir[aria-expanded="true"]) + .ped2__detalhe .ped2__artigos { padding: var(--e-2) var(--e-5) var(--e-4) 44px; border-bottom: 1px solid var(--c-borda); }
+.ped2__artigos ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 420px; }
+.ped2__artigos li { display: grid; grid-template-columns: 32px 1fr auto; gap: var(--e-3); font-size: 13px; color: var(--c-texto-2); }
+.ped2__qt { font-weight: 700; color: var(--c-texto); }
+.ped2__accoes { display: flex; gap: var(--e-2); }
+.ped2__vazio { margin: 0; padding: var(--e-5); text-align: center; color: var(--c-texto-2); }
+.ped2__pe { padding: var(--e-3) var(--e-4); font-size: 13px; color: var(--c-texto-2); }
+
+/* a entrada das linhas ao filtrar */
+.ped2 tbody.is-a-entrar .ped2__linha:not([hidden]) { animation: resultado-entrar .25s ease-out calc(var(--i, 0) * 35ms) both; }
+@media (prefers-reduced-motion: reduce) {
+  .ped2 tbody.is-a-entrar .ped2__linha, .ped2__dentro, .ped2__seta { animation: none; transition: none; }
+}
+
+@media (max-width: 1180px) {
+  .ped2__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .ped2__campos { grid-template-columns: minmax(0, 1fr); }
+  .ped2__botoes { width: 100%; }
+  .ped2__botoes .btn { flex: 1; }
+}
+/* a tabela larga rola dentro da caixa (a regra estava só no CSS do ERP) */
+.ped2__tabela .erp-tabela__rolo { overflow-x: auto; }
+.ped2__tabela .erp-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }

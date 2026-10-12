@@ -13,6 +13,7 @@ import './css/noite.css';
 import './css/inicio-v3.css';
 import './css/inicio-v4.css';
 import './css/catalogo-v2.css';
+import './css/pedidos-v2.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
@@ -25,5 +26,6 @@ import { iniciar as carrossel } from './comportamento/carrossel';
 import { iniciar as entrada } from './comportamento/entrada';
 import { iniciar as v2animacao } from './comportamento/v2-animacao';
 import { iniciar as catalogoV2 } from './comportamento/catalogo';
+import { iniciar as pedidosV2 } from './comportamento/pedidos';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, pedidosV2]);
