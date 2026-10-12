@@ -177,3 +177,14 @@
 .linha .portal__icone { width: 34px; }
 .heroi2 { grid-template-columns: minmax(0, 1fr) 250px; padding-right: 360px; }
 .heroi2__lista li { white-space: nowrap; }
+
+/* ---------- com scroll (ela, 12 out.: «tenho de ter scroll») ----------
+   Numa janela mais baixa que 900 os painéis eram espremidos e os botões
+   caíam por cima dos campos. O ecrã tem agora a altura do que leva. */
+.portal.portal--v2 { height: auto; min-height: 100vh; overflow: visible; grid-template-rows: auto auto auto; }
+.paineis2 { align-items: stretch; padding-bottom: var(--e-5); }
+.painel2 { min-height: auto; }
+.painel2__corpo { min-height: auto; }
+/* a barra não empurra a conta para fora: as abas encolhem primeiro */
+.linha > .portal__marca, .linha > .portal__accoes { flex: none; }
+.linha__abas { min-width: 0; overflow: hidden; }
