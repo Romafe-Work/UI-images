@@ -169,3 +169,68 @@
 .inicio-mais { display: grid; gap: var(--e-4); padding: 0 var(--e-5) var(--e-6); }
 .c22 .inicio-mais { padding: var(--e-2) 0 0; }
 .portal--v2 .inicio-mais .cat4__titulo { color: var(--c-texto); }
+
+/* =========================================================
+   Animação das categorias, pesquisas recentes e últimos pedidos (12 out. 2026)
+   Entrada (só no protótipo, quando o bloco aparece: comportamento/entrada.ts)
+   e reação ao rato (sempre). Com «reduzir movimento» nada se mexe.
+   ========================================================= */
+/* --- ao passar o rato --- */
+.cat4__item { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), border-color .2s ease, box-shadow .25s ease, background .2s ease; }
+.cat4__item svg { transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), color .2s ease; }
+.cat4__item:hover { transform: translateY(-3px); border-color: var(--c-acao); }   /* sem brilho (ela, 12 out.) */
+.cat4__item:hover svg { transform: rotate(-14deg) scale(1.15); color: var(--c-acao); }
+.cat4__item:active { transform: translateY(-1px) scale(.98); }
+
+.cartao4 { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+.cartao4:hover { transform: translateY(-2px); border-color: var(--c-borda-forte); box-shadow: 0 16px 30px -18px rgba(0, 20, 50, .5); }
+.cartao4__titulo svg { transition: transform .5s ease; }
+.cartao4:hover .cartao4__titulo svg { transform: rotate(-20deg); }
+.cartao4__lista li { position: relative; cursor: pointer; transition: background .2s ease, padding-left .25s ease; border-radius: 4px; }
+.cartao4__lista li::before {
+  content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 2px;
+  background: var(--c-acao); transform: scaleY(0); transition: transform .25s ease;
+}
+.cartao4__lista li:hover { background: var(--c-superficie-2); padding-left: var(--e-3); }
+.cartao4__lista li:hover::before { transform: scaleY(1); }
+
+.mais svg { transition: transform .25s ease; }
+.mais:hover svg { transform: translateX(4px); }
+
+/* o estado por processar tem um ponto a pulsar */
+.cartao4__estado--aviso::before {
+  content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 5px; vertical-align: 1px;
+  border-radius: 50%; background: currentColor; animation: pulsar-aviso 1.6s ease-out infinite;
+}
+@keyframes pulsar-aviso { 0% { box-shadow: 0 0 0 0 rgba(239, 123, 16, .6); } 70% { box-shadow: 0 0 0 7px rgba(239, 123, 16, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 123, 16, 0); } }
+
+/* --- a entrada, quando o bloco aparece --- */
+.anima-entrada .cat4 .cat4__titulo, .anima-entrada .cat4 .mais { opacity: 0; transform: translateY(8px); transition: opacity .5s ease, transform .5s ease; }
+.anima-entrada .cat4 .cat4__item { opacity: 0; transform: translateY(16px) scale(.96); }
+.anima-entrada .cat4.is-visivel .cat4__titulo, .anima-entrada .cat4.is-visivel .mais { opacity: 1; transform: none; }
+.anima-entrada .cat4.is-visivel .cat4__item {
+  opacity: 1; transform: none;
+  transition: opacity .45s ease calc(var(--i, 0) * 45ms + 120ms), transform .5s cubic-bezier(.34, 1.56, .64, 1) calc(var(--i, 0) * 45ms + 120ms),
+              border-color .2s ease, box-shadow .25s ease, background .2s ease;
+}
+/* depois de entrar, o rato volta a mexer sem atraso */
+.anima-entrada .cat4.is-visivel .cat4__item:hover { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), border-color .2s ease, box-shadow .25s ease, background .2s ease; transform: translateY(-3px); }
+
+.anima-entrada .recentes .cartao4 { opacity: 0; transform: translateY(24px); }
+.anima-entrada .recentes .cartao4__lista li { opacity: 0; transform: translateX(-12px); }
+.anima-entrada .recentes.is-visivel .cartao4 {
+  opacity: 1; transform: none;
+  transition: opacity .5s ease calc(var(--i, 0) * 120ms), transform .6s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 120ms), box-shadow .3s ease, border-color .3s ease;
+}
+.anima-entrada .recentes.is-visivel .cartao4:hover { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; transform: translateY(-2px); }
+.anima-entrada .recentes.is-visivel .cartao4__lista li {
+  opacity: 1; transform: none;
+  transition: opacity .4s ease calc(var(--i, 0) * 120ms + var(--j, 0) * 80ms + 250ms), transform .45s ease calc(var(--i, 0) * 120ms + var(--j, 0) * 80ms + 250ms), background .2s ease, padding-left .25s ease;
+}
+.anima-entrada .recentes.is-visivel .cartao4__lista li:hover { transition: background .2s ease, padding-left .25s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat4__item, .cat4__item svg, .cartao4, .cartao4__titulo svg, .cartao4__lista li, .cartao4__lista li::before, .mais svg { transition: none; }
+  .cat4__item:hover, .cartao4:hover { transform: none; }
+  .cartao4__estado--aviso::before { animation: none; }
+}

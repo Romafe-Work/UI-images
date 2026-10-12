@@ -80,8 +80,8 @@ export function iniciar(): void {
     const r = cartao.getBoundingClientRect();
     const x = (ev.clientX - r.left) / r.width - 0.5;
     const y = (ev.clientY - r.top) / r.height - 0.5;
-    cartao.style.setProperty('--ry', (x * 6).toFixed(2) + 'deg');
-    cartao.style.setProperty('--rx', (-y * 6).toFixed(2) + 'deg');
+    cartao.style.setProperty('--ry', (x * 3).toFixed(2) + 'deg');   // até 1,5° (ela: «1–2 graus»)
+    cartao.style.setProperty('--rx', (-y * 3).toFixed(2) + 'deg');
   });
   document.addEventListener('pointerout', (ev) => {
     const cartao = (ev.target as Element).closest<HTMLElement>('.carrossel__cartao.is-atual');

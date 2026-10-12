@@ -1,0 +1,97 @@
+/* =========================================================
+   GOPARTS — as animações das três versões da v2 (v2.1, v2.2, v2.3)
+   12 out. 2026, a partir da proposta que ela colou: modernas, suaves e
+   funcionais; sem brilhos, sem sombras exageradas, com alguma
+   profundidade 3D. As durações são as da tabela dela:
+
+   Carrossel      coverflow (v2.1, v2.2) e prisma (v2.3)   450 ms
+   Menu           risca laranja deslizante                 200 ms
+   Botões         sobe 2 px e o ícone avança                150 ms
+   Campos         fade de ativação                          180 ms
+   Resultados     fade + subida                             250 ms
+   Cartão         inclinação de até 1,5° com o rato          —
+
+   O carrossel nunca avança sozinho. Com «reduzir movimento» nada se mexe.
+   O JavaScript está em comportamento/v2-animacao.ts.
+   ========================================================= */
+
+/* ---------- carrossel: 450 ms, sombras discretas, sem brilho ---------- */
+.portal--v21 .carrossel__cartao { transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .45s ease, filter .45s ease, box-shadow .45s ease; }
+.portal--v21 .carrossel__cartao.is-atual {
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .45s ease, filter .45s ease;
+  box-shadow: 0 12px 28px -20px rgba(0, 20, 50, .45), 0 0 0 1px var(--c-borda);
+}
+.portal--v22 .c22__cartao { transition: transform .45s cubic-bezier(.2, .8, .2, 1), width .45s cubic-bezier(.2, .8, .2, 1), opacity .45s ease, filter .45s ease; }
+.portal--v22 .c22__cartao.is-atual { box-shadow: 0 14px 30px -22px rgba(0, 25, 60, .5); }
+.portal--v22 .c22__cartao::before { display: none; }        /* sem a faixa de brilho */
+.portal--v23 .prisma { transition-duration: .45s; }
+.portal--v23 .carrossel__cartao { box-shadow: 0 12px 28px -20px rgba(0, 25, 60, .45); }
+/* a inclinação do cartão principal também no prisma (até 1,5°) */
+.portal--v23 .carrossel__cartao.is-atual {
+  transform: rotateY(calc(var(--face) * 120deg)) translateZ(calc(var(--l) * 0.2887)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+.portal--v21 .carrossel__seta, .portal--v23 .carrossel__seta, .portal--v22 .c22__seta { box-shadow: 0 4px 12px -6px rgba(0, 0, 0, .35); }
+
+/* ---------- botões: sobem 2 px e o ícone avança (150 ms) ---------- */
+:is(.portal--v21, .portal--v22, .portal--v23) .btn--acao { transition: transform .15s ease, background-color .15s ease; }
+:is(.portal--v21, .portal--v22, .portal--v23) .btn--acao .btn__icone { transition: transform .15s ease; }
+:is(.portal--v21, .portal--v22, .portal--v23) .btn--acao:hover:not(:disabled) { transform: translateY(-2px); }
+:is(.portal--v21, .portal--v22, .portal--v23) .btn--acao:hover:not(:disabled) .btn__icone { transform: translateX(2px); }
+:is(.portal--v21, .portal--v22, .portal--v23) .btn--acao:active:not(:disabled) { transform: translateY(0); }
+
+/* ---------- menu: a risca laranja desliza (200 ms) ---------- */
+.com-risca { position: relative; }
+.com-risca > .risca {
+  position: absolute; left: 0; bottom: 0; height: 3px; width: 0; border-radius: 2px;
+  background: var(--c-acao); pointer-events: none; opacity: 0;
+  transition: transform .2s cubic-bezier(.4, 0, .2, 1), width .2s cubic-bezier(.4, 0, .2, 1), opacity .2s ease;
+}
+/* a escolhida: fundo um pouco mais claro e cantos arredondados; a risca é a que desliza */
+:is(.portal--v21, .portal--v23) .linha__aba,
+.portal--v22 .aba { border-bottom-color: transparent !important; border-radius: var(--r-md); transition: background-color .2s ease, color .2s ease; }
+:is(.portal--v21, .portal--v23) .linha__aba[aria-current="true"],
+.portal--v22 .aba[aria-current="true"] { background: var(--c-superficie-2); }
+:is(.portal--v21, .portal--v23) .linha__abas { padding-block: 6px; }
+:is(.portal--v21, .portal--v23) .carrossel__escolha { border-radius: var(--r-md); padding-bottom: 6px; }
+:is(.portal--v21, .portal--v23) .carrossel__opcao { border-radius: var(--r-md); transition: background-color .2s ease, color .2s ease; }
+:is(.portal--v21, .portal--v23) .carrossel__opcao[aria-selected="true"],
+:is(.portal--v21, .portal--v23) .carrossel__opcao[aria-selected="true"][data-carrossel-ir],
+.portal--v21 .carrossel__opcao[aria-selected="true"]:nth-child(2) { background: var(--c-superficie-2); color: var(--c-texto); }
+:is(.portal--v21, .portal--v23) .carrossel__escolha > .risca { bottom: 3px; }
+
+/* ---------- campos: o Modelo ativa-se com um fade (180 ms), sem saltos ---------- */
+:is(.portal--v21, .portal--v22, .portal--v23) select.input { transition: opacity .18s ease, background-color .18s ease, border-color .18s ease, color .18s ease; }
+:is(.portal--v21, .portal--v22, .portal--v23) select.input:disabled { opacity: .55; }
+:is(.portal--v21, .portal--v22, .portal--v23) select.input.is-ativado { animation: campo-ativado .18s ease-out; border-color: var(--c-marca); }
+@keyframes campo-ativado { from { opacity: .55; } to { opacity: 1; } }
+
+/* ---------- pesquisa: os resultados entram (250 ms) ---------- */
+.resultados-ref { display: grid; gap: var(--e-2); margin: 0 var(--e-4) var(--e-3); }
+.c22__cartao .resultados-ref { margin: 0; }
+.resultados-ref__titulo { margin: 0; font-size: 13px; color: var(--c-texto-2); animation: resultado-entrar .25s ease-out both; }
+.c22__cartao .resultados-ref__titulo { color: rgba(255,255,255,.85); }
+.resultados-ref__titulo strong { color: inherit; }
+.resultados-ref__titulo span { opacity: .7; }
+.resultados-ref ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.resultados-ref li {
+  display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: var(--e-3);
+  padding: 8px var(--e-3); border-radius: var(--r-md); background: var(--c-superficie-2); border: 1px solid var(--c-borda);
+  animation: resultado-entrar .25s ease-out calc(var(--i, 0) * 60ms + 60ms) both;
+}
+.c22__cartao .resultados-ref li { background: rgba(4, 18, 38, .45); border-color: rgba(255,255,255,.18); color: #fff; }
+.resultados-ref__marca { font-weight: 700; font-size: 13px; color: var(--c-marca); }
+.c22__cartao .resultados-ref__marca { color: #fff; }
+.resultados-ref__ref { display: grid; font-weight: 700; font-size: 14px; }
+.resultados-ref__ref small { font-weight: 400; font-size: 12px; color: var(--c-texto-2); }
+.c22__cartao .resultados-ref__ref small { color: rgba(255,255,255,.75); }
+.resultados-ref__stock { font-size: 12px; color: var(--c-ok); white-space: nowrap; }
+.c22__cartao .resultados-ref__stock { color: #fff; }
+@keyframes resultado-entrar { from { opacity: 0; transform: translateY(8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.portal--v21, .portal--v22, .portal--v23) :is(.carrossel__cartao, .c22__cartao, .prisma, .btn--acao, .btn__icone, select.input) { transition: none !important; }
+  :is(.portal--v21, .portal--v22, .portal--v23) .btn--acao:hover .btn__icone,
+  :is(.portal--v21, .portal--v22, .portal--v23) .btn--acao:hover { transform: none; }
+  .com-risca > .risca { transition: none; }
+  .resultados-ref li, .resultados-ref__titulo, select.input.is-ativado { animation: none; }
+}
