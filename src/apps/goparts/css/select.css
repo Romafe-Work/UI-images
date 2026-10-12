@@ -1,0 +1,56 @@
+/* =========================================================
+   GOPARTS — listas de escolha animadas (12 out. 2026; comportamento/select.ts)
+   O <select> nativo fica escondido por baixo; o botão tem o aspeto do campo
+   e a lista abre a deslizar (180 ms), com as opções em cascata, o visto e a
+   risca laranja na escolhida. Sem brilhos; sombra curta. Claro e escuro
+   (a lista copia as cores do ecrã). Com «reduzir movimento», sem animação.
+   ========================================================= */
+.sel__nativo { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden; }
+.sel__botao {
+  display: flex; align-items: center; gap: var(--e-2); text-align: left; cursor: pointer;
+  background-image: none !important; padding-right: var(--e-3) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.sel__botao:disabled { cursor: not-allowed; opacity: .55; }
+.sel__texto { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel__botao--vazio .sel__texto { opacity: .7; }
+.sel__seta { width: 18px; height: 18px; flex: none; opacity: .8; transition: transform .2s cubic-bezier(.4, 0, .2, 1); }
+.sel__botao[aria-expanded="true"] .sel__seta { transform: rotate(180deg); }
+.sel__botao[aria-expanded="true"] { border-color: var(--c-acao) !important; box-shadow: 0 0 0 3px rgba(239, 123, 16, .25); }
+/* ao escolher, o texto novo entra a subir */
+.sel__botao.is-escolhido .sel__texto { animation: sel-texto .22s ease-out; }
+@keyframes sel-texto { from { opacity: 0; transform: translateY(6px); } }
+/* ao ser ativado (a marca ativa o modelo), um pulso discreto */
+.sel__botao.is-ativado { animation: sel-ativo .5s ease-out; }
+@keyframes sel-ativo { 0% { box-shadow: 0 0 0 0 rgba(239, 123, 16, .45); } 100% { box-shadow: 0 0 0 8px rgba(239, 123, 16, 0); } }
+
+.sel__lista {
+  position: fixed; z-index: 1000; max-height: 280px; overflow-y: auto; margin: 0; padding: 6px; list-style: none;
+  background: var(--c-superficie); color: var(--c-texto);
+  border: 1px solid var(--c-borda-forte); border-radius: var(--r-md);
+  box-shadow: 0 12px 28px -12px rgba(0, 20, 50, .45);
+  font: 15px/1.3 var(--f-base, system-ui, sans-serif);
+  opacity: 0; transform: translateY(-6px) scale(.98); transform-origin: top center;
+  transition: opacity .18s ease, transform .18s cubic-bezier(.2, .8, .2, 1);
+}
+.sel__lista--cima { transform-origin: bottom center; transform: translateY(6px) scale(.98); }
+.sel__lista.is-aberta { opacity: 1; transform: none; }
+.sel__lista.is-a-fechar { opacity: 0; transform: translateY(-4px) scale(.98); transition-duration: .12s; }
+.sel__opcao {
+  position: relative; display: flex; align-items: center; gap: var(--e-2); cursor: pointer;
+  padding: 9px var(--e-3) 9px var(--e-2); border-radius: var(--r-sm);
+  transition: background-color .12s ease, padding-left .15s ease;
+}
+.sel__lista.is-aberta .sel__opcao { animation: sel-opcao .2s ease-out calc(var(--i, 0) * 22ms) both; }
+@keyframes sel-opcao { from { opacity: 0; transform: translateY(-4px); } }
+.sel__opcao.is-ativa { background: var(--c-superficie-2); padding-left: var(--e-3); }
+.sel__opcao.is-escolhida { font-weight: 700; }
+.sel__opcao.is-escolhida::before { content: ''; position: absolute; left: 0; top: 7px; bottom: 7px; width: 3px; border-radius: 2px; background: var(--c-acao); }
+.sel__opcao.is-desligada { opacity: .45; cursor: default; }
+.sel__visto { display: grid; place-items: center; width: 18px; height: 18px; flex: none; color: var(--c-acao); opacity: 0; }
+.sel__opcao.is-escolhida .sel__visto { opacity: 1; }
+.sel__visto svg { width: 16px; height: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sel__lista, .sel__lista.is-aberta .sel__opcao, .sel__seta, .sel__botao.is-escolhido .sel__texto, .sel__botao.is-ativado { transition: none; animation: none; }
+}

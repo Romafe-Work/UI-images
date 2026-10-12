@@ -17,6 +17,7 @@ import './css/pedidos-v2.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
+import './css/select.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -27,5 +28,6 @@ import { iniciar as entrada } from './comportamento/entrada';
 import { iniciar as v2animacao } from './comportamento/v2-animacao';
 import { iniciar as catalogoV2 } from './comportamento/catalogo';
 import { iniciar as pedidosV2 } from './comportamento/pedidos';
+import { iniciar as selects } from './comportamento/select';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, pedidosV2]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, pedidosV2, selects]);

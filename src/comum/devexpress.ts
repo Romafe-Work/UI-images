@@ -26,7 +26,7 @@ const REGRAS: [string, Componente][] = [
   ['.procura, .procura__campo, .heroi2__procura, .heroi2__campo, input[type="search"]', { peca: 'Procura', web: 'DxAutocomplete', wpf: 'SearchControl', nota: 'Com sugestões enquanto se escreve.' }],
   ['input[type="checkbox"]', { peca: 'Caixa de escolha', web: 'DxCheckBox', wpf: 'CheckEdit' }],
   ['.opcoes:has(input[type="radio"]), input[type="radio"]', { peca: 'Escolha única', web: 'DxRadioGroup', wpf: 'ListBoxEdit (RadioListBoxEditStyleSettings)' }],
-  ['select, .cg-select', { peca: 'Lista de escolha', web: 'DxSelectBox', wpf: 'ComboBoxEdit' }],
+  ['select, .cg-select, .sel__botao, .sel__lista', { peca: 'Lista de escolha', web: 'DxSelectBox', wpf: 'ComboBoxEdit' }],
   ['input[inputmode="numeric"], .erp-celula', { peca: 'Número', web: 'DxNumberBox', wpf: 'SpinEdit' }],
   ['#erp-data, input[type="date"]', { peca: 'Data', web: 'DxDateBox', wpf: 'DateEdit' }],
   ['input, textarea', { peca: 'Campo de texto', web: 'DxTextBox', wpf: 'TextEdit' }],
