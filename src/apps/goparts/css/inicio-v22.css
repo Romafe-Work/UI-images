@@ -134,3 +134,17 @@
 .c22__cartao.is-ant, .c22__cartao.is-seg { padding-inline: var(--e-4); }
 /* sem o Acesso rápido, o carrossel fica ao meio da altura que sobra */
 .portal--v22 .c22 { align-content: center; }
+
+/* os três cartões com a mesma altura (ela, 12 out.: «estes cards quero do mesmo size»):
+   os de lado deixam de recuar no 3D (translateZ) e de ter margem em cima e em baixo;
+   ficam só com uma rotação leve */
+.c22__cartao.is-ant, .c22__cartao.is-seg { margin-block: 0; align-self: stretch; }
+/* rodam pela aresta de fora: essa fica com a altura do cartão do centro e a de dentro vai para trás */
+.c22__cartao.is-ant { transform: translateX(-35cqw) rotateY(10deg); transform-origin: left center; }
+.c22__cartao.is-seg { transform: translateX(35cqw) rotateY(-10deg); transform-origin: right center; }
+@media (max-width: 1180px) {
+  .c22__cartao.is-ant { transform: translateX(-37cqw) rotateY(12deg); }
+  .c22__cartao.is-seg { transform: translateX(37cqw) rotateY(-12deg); }
+}
+/* o do centro também estica até à altura do palco: os três ficam sempre do mesmo tamanho */
+.c22__cartao.is-atual { align-self: stretch; align-content: space-between; }

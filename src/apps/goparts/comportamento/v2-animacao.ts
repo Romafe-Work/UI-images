@@ -24,13 +24,20 @@ const MENUS = '.linha__abas, .portal__abas, .carrossel__escolha';
 const ITENS = '.linha__aba, .aba, .carrossel__opcao';
 const escolhido = (m: HTMLElement) => m.querySelector<HTMLElement>(`:is(${ITENS}):is([aria-current="true"], [aria-selected="true"])`);
 
+/* A escolhida tem a sua própria risca (CSS) e fica sempre marcada. Esta risca é
+   a pré-visualização: vai para a opção por baixo do rato e desaparece quando
+   chega à escolhida; ao escolher outra, desliza até ela e funde-se com a dela. */
 function pousar(m: HTMLElement, alvo: HTMLElement | null): void {
   const risca = m.querySelector<HTMLElement>(':scope > .risca');
   if (!risca) return;
+  window.clearTimeout(Number(risca.dataset.apagar || 0));
   if (!alvo || !alvo.offsetWidth) { risca.style.opacity = '0'; return; }
-  risca.style.opacity = '1';
   risca.style.transform = `translateX(${alvo.offsetLeft}px)`;
   risca.style.width = alvo.offsetWidth + 'px';
+  if (alvo === escolhido(m)) {
+    /* já está na escolhida: acaba de deslizar e apaga-se por cima da risca dela */
+    risca.dataset.apagar = String(window.setTimeout(() => { risca.style.opacity = '0'; }, 200));
+  } else risca.style.opacity = '1';
 }
 
 function ligarMenus(): void {

@@ -48,7 +48,50 @@ function mostrar(c: HTMLElement, i: number): void {
   if (seg) seg.textContent = nome(alvo + 1);
 }
 
+/* A v2.2 troca de cartão numa View Transition: a página muda de uma vez e
+   anima-se a imagem dos cartões, sem recalcular o texto a cada instante (o que
+   fazia a altura mudar e a página por baixo mexer). Na demonstração, a
+   animação escolhida (data-anim) sai durante a troca, para não rodar a página. */
+function trocar(c: HTMLElement, i: number): void {
+  const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
+  const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!c.classList.contains('c22__carrossel') || !doc.startViewTransition || quieto) { mostrar(c, i); return; }
+  const raiz = document.documentElement;
+  const anim = raiz.dataset.anim;
+  delete raiz.dataset.anim;
+  raiz.dataset.vt = 'carrossel';
+  const t = doc.startViewTransition(() => mostrar(c, i));
+  t.finished.finally(() => { delete raiz.dataset.vt; if (anim) raiz.dataset.anim = anim; });
+}
+
+/* O palco fica com a altura do cartão mais alto (medida com cada um ao
+   centro), para trocar de cartão não mudar a altura da página. */
+function fixarAltura(c: HTMLElement): void {
+  const palco = c.querySelector<HTMLElement>('.carrossel__palco');
+  if (!palco || !palco.offsetWidth) return;
+  const lista = cartoes(c);
+  const guardado = lista.map((x) => x.className);
+  palco.style.minHeight = '';
+  let maior = 0;
+  lista.forEach((_, i) => {
+    lista.forEach((x, j) => {
+      x.classList.remove(...ESTADOS);
+      const d = (j - i + lista.length) % lista.length;
+      x.classList.add(d === 0 ? 'is-atual' : d === 1 ? 'is-seg' : 'is-ant');
+    });
+    maior = Math.max(maior, palco.offsetHeight);
+  });
+  lista.forEach((x, j) => { x.className = guardado[j]; });
+  palco.style.minHeight = maior + 'px';
+}
+function fixarTodas(): void { document.querySelectorAll<HTMLElement>('[data-carrossel]').forEach(fixarAltura); }
+
 export function iniciar(): void {
+  requestAnimationFrame(fixarTodas);
+  document.addEventListener('romafe:versao', () => requestAnimationFrame(fixarTodas));
+  window.addEventListener('resize', fixarTodas);
+  if (document.fonts) document.fonts.ready.then(fixarTodas);
+
   document.addEventListener('click', (ev) => {
     if (document.body.classList.contains('editando')) return;
     const t = ev.target as Element;
@@ -57,9 +100,9 @@ export function iniciar(): void {
     const passo = t.closest<HTMLElement>('[data-carrossel-passo]');
     const ir = t.closest<HTMLElement>('[data-carrossel-ir]');
     const lado = t.closest<HTMLElement>('.carrossel__cartao.is-ant, .carrossel__cartao.is-seg');
-    if (passo) mostrar(c, atual(c) + Number(passo.dataset.carrosselPasso));
-    else if (ir) mostrar(c, Number(ir.dataset.carrosselIr));
-    else if (lado) { ev.preventDefault(); mostrar(c, cartoes(c).indexOf(lado)); }
+    if (passo) trocar(c, atual(c) + Number(passo.dataset.carrosselPasso));
+    else if (ir) trocar(c, Number(ir.dataset.carrosselIr));
+    else if (lado) { ev.preventDefault(); trocar(c, cartoes(c).indexOf(lado)); }
   });
 
   document.addEventListener('keydown', (ev) => {
@@ -68,7 +111,7 @@ export function iniciar(): void {
     if (alvo.closest('input, select, textarea')) return;   // nos campos, as setas são do texto
     const c = alvo.closest<HTMLElement>('[data-carrossel]');
     if (!c) return;
-    mostrar(c, atual(c) + (ev.key === 'ArrowLeft' ? -1 : 1));
+    trocar(c, atual(c) + (ev.key === 'ArrowLeft' ? -1 : 1));
   });
 
   /* a inclinação 3D do cartão do centro, só com rato e sem «reduzir movimento» */
