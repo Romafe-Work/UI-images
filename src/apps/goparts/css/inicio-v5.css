@@ -1,15 +1,16 @@
 /* =========================================================
    GOPARTS — Início v5 (12 out. 2026), a partir de uma imagem de referência
    O topo da v1 (marca, procura, ícones, conta) por cima de tudo e as secções
-   numa coluna à esquerda. Uma faixa com o título e a procura, as seis
-   categorias principais, os três painéis com o botão laranja à largura toda
-   e quatro cartões com factos de romafe.com. Claro e escuro (noite.css).
+   numa coluna à esquerda. Uma faixa com o título e a procura, os três
+   painéis com o botão laranja à largura toda e quatro cartões com factos de
+   romafe.com. As categorias da imagem saíram a 12 out., a pedido dela.
+   Claro e escuro (noite.css).
 
    AJUSTÁVEL: ocupa pelo menos a janela e rola se não couber; a coluna das
    secções fica presa. Nada sai da janela de 1024 px para cima. Onde se dobra:
-   a faixa põe a procura por baixo do título (≤ 1280); categorias, painéis e
-   cartões passam para menos por linha; abaixo de 1100 a coluna fica só com
-   os ícones e o nome por baixo, e a conta só com a inicial.
+   a faixa põe a procura por baixo do título (≤ 1280); painéis e cartões
+   passam para menos por linha; abaixo de 1100 a coluna fica só com os
+   ícones e o nome por baixo, e a conta só com a inicial.
    ========================================================= */
 .portal.portal--v5 {
   height: auto; min-height: 100vh; overflow: visible;
@@ -76,24 +77,6 @@
 .faixa5__avancada svg { width: 22px; height: 22px; color: var(--c-texto-2); }
 .faixa5__avancada:hover { text-decoration: underline; }
 
-/* ---------- categorias ---------- */
-.cat5__cabeca { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; margin-bottom: var(--e-3); }
-.cat5__titulo { margin: 0; font-family: var(--f-titulo); font-size: 20px; }
-.cat5__lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--e-3); }
-.cat5__item {
-  display: flex; align-items: center; gap: var(--e-3);
-  font: inherit; font-size: 15px; font-weight: 700; color: var(--c-texto); text-align: left; cursor: pointer;
-  padding: var(--e-3); border-radius: var(--r-md);
-  background: var(--c-superficie); border: 1px solid var(--c-borda);
-}
-.cat5__item:hover { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
-.cat5__icone {
-  display: grid; place-items: center; width: 56px; height: 56px; flex: none;
-  border-radius: var(--r-full); background: var(--c-superficie-2); color: var(--c-marca);
-}
-.cat5__icone svg { width: 34px; height: 34px; }
-.cat5__seta { width: 18px; height: 18px; margin-left: auto; color: var(--c-texto-2); flex: none; }
-
 /* ---------- os três painéis ---------- */
 .paineis5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--e-4); align-items: stretch; }
 .painel5 {
@@ -154,9 +137,6 @@
 }
 
 /* ---------- acertos depois de medir a 1440 ---------- */
-.cat5__item { gap: var(--e-2); font-size: 14px; white-space: nowrap; }
-.cat5__icone { width: 48px; height: 48px; }
-.cat5__icone svg { width: 28px; height: 28px; }
 .painel5__par .input { font-size: 14px; padding-left: var(--e-2); padding-right: 30px; background-position: right 14px center, right 9px center; }
 .painel5 .opcoes { gap: var(--e-4) var(--e-6); }
 /* Marca e Modelo lado a lado só quando o painel tem largura para «Selecione modelo»
