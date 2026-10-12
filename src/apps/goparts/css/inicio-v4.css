@@ -164,3 +164,8 @@
 /* o quadrado do ícone na cabeça azul: branco transparente, como na v3 e na v5,
    em vez do azul vivo da v2 */
 .paineis4 .painel2:not(.painel2--acao) .painel2__marca { background: rgba(255,255,255,.2); }
+
+/* ---------- as mesmas secções por baixo do carrossel da v2.1, v2.2 e v2.3 (ela, 12 out.) ---------- */
+.inicio-mais { display: grid; gap: var(--e-4); padding: 0 var(--e-5) var(--e-6); }
+.c22 .inicio-mais { padding: var(--e-2) 0 0; }
+.portal--v2 .inicio-mais .cat4__titulo { color: var(--c-texto); }
