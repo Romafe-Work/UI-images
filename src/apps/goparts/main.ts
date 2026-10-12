@@ -30,5 +30,6 @@ import { iniciar as v2animacao } from './comportamento/v2-animacao';
 import { iniciar as catalogoV2 } from './comportamento/catalogo';
 import { iniciar as pedidosV2 } from './comportamento/pedidos';
 import { iniciar as selects } from './comportamento/select';
+import { iniciar as login } from './comportamento/login';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, pedidosV2, selects]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, pedidosV2, selects, login]);

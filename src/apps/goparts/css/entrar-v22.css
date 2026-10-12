@@ -141,7 +141,6 @@
 @keyframes l22-foto { from { transform: scale(1.06); opacity: .6; } }
 @keyframes l22-subir { from { opacity: 0; transform: translateY(12px); } }
 @keyframes l22-cartao { from { opacity: 0; transform: perspective(900px) translateY(24px) rotateX(5deg); } }
-body.editando .login22 *, body.editando .login22 { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .login22 *, .login22 { animation: none !important; transition: none !important; } }
 
 /* ---------- onde se dobra ---------- */
@@ -152,3 +151,16 @@ body.editando .login22 *, body.editando .login22 { animation: none !important; }
 }
 /* a inclinação: depois da entrada (a animação l22-cartao acaba em «none») */
 .login22 .login22__cartao:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+
+/* o cartão no azul da Romafe, RGB(0, 99, 170), liso — sem o degradê para o azul mais
+   escuro dos cartões do carrossel (ela, 12 out.: «o azul do card em login deve ser da cor da Romafe») */
+.c22__cartao.c22__cartao--azul.login22__cartao { background: var(--c-logotipo); }
+
+/* mais vida (ela: «e quero animações»): o ícone do cartão flutua devagar, e a seta
+   do botão laranja avança duas vezes a cada 4 s; o 75 000 conta de 0 (entrar-v22.ts).
+   Correm também no editor: era lá que ela via os ecrãs, e estavam desligadas. */
+.login22 .login22__icone svg { animation: l22-flutuar 3.2s ease-in-out 1.2s infinite; }
+@keyframes l22-flutuar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.login22 .login22__botao .btn__icone { animation: l22-seta 4s ease-in-out 2s infinite; }
+@keyframes l22-seta { 0%, 76%, 100% { transform: none; } 82% { transform: translateX(4px); } 88% { transform: none; } 94% { transform: translateX(4px); } }
+.login22 .login22__botao:hover .btn__icone { animation: none; transform: translateX(3px); }
