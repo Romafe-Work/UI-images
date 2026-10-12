@@ -187,3 +187,55 @@
 /* o painel fechado não se vê nem se alcança com o Tab; ao abrir aparece logo, ao fechar só no fim */
 .acord__painel { visibility: hidden; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .25s; }
 .acord__cabeca[aria-expanded="true"] + .acord__painel { visibility: visible; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
+
+/* ---------- o ícone fora da caixa, em 3D (12 out.: «o ícone ao lado do título em 3D,
+   como se estivesse fora da caixa») ----------
+   O quadrado do ícone sobe metade por cima da aresta do cartão e roda um pouco;
+   a espessura são camadas sólidas do mesmo tom, mais escuro (sem brilho), e por
+   baixo uma sombra curta. O cartão deixa-o sair (overflow-clip-margin); o desenho
+   de linhas fica dentro. */
+:is(.portal--v21, .portal--v23) .painel2.carrossel__cartao,
+.portal--v22 .c22__cartao { overflow: clip; overflow-clip-margin: 64px; }
+:is(.portal--v21, .portal--v23) .painel2__cabeca { overflow: visible; }
+:is(.portal--v21, .portal--v23) .painel2__desenho { right: 0; bottom: 0; }
+.portal--v22 .c22__desenho { right: 0; bottom: 0; }
+.portal--v22 .c22__cartao::before { inset: 0; }
+
+:is(.portal--v21, .portal--v23) .painel2__marca,
+.portal--v22 .c22__marca {
+  --fundo3d: #1a4f8f; --lado3d: #0f3866;
+  position: relative; z-index: 2;
+  background: var(--fundo3d); color: #fff; border-radius: 14px;
+  transform: perspective(500px) translate(-18%, -66%) rotateX(14deg) rotateY(-20deg) rotateZ(-4deg);
+  transform-origin: center bottom;
+  box-shadow:
+    1px 1px 0 var(--lado3d), 2px 2px 0 var(--lado3d), 3px 3px 0 var(--lado3d),
+    4px 4px 0 var(--lado3d), 5px 5px 0 var(--lado3d), 6px 6px 0 var(--lado3d),
+    10px 16px 14px -6px rgba(0, 18, 40, .45);
+  transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+:is(.portal--v21, .portal--v23) .painel2--acao .painel2__marca,
+.portal--v22 .c22__cartao--laranja .c22__marca { --fundo3d: #f08a24; --lado3d: #b35600; }
+/* o desenho do ícone também sai do quadrado */
+:is(.portal--v21, .portal--v23) .painel2__marca svg,
+.portal--v22 .c22__marca svg { transform: translateZ(18px) translate(-1px, -2px); filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, .25)); }
+/* o título encosta ao ícone, que agora está mais acima */
+:is(.portal--v21, .portal--v23) .painel2__cabeca > div { align-self: flex-start; padding-top: 2px; }
+/* no cartão de frente, com o rato, o ícone sai mais um pouco */
+:is(.portal--v21, .portal--v23) .carrossel__cartao.is-atual:hover .painel2__marca,
+.portal--v22 .c22__cartao.is-atual:hover .c22__marca { transform: perspective(500px) translate(-20%, -74%) rotateX(18deg) rotateY(-24deg) rotateZ(-5deg); }
+/* espaço em cima para o ícone que sai */
+:is(.portal--v21, .portal--v22, .portal--v23) .carrossel__palco { padding-top: 64px; }
+@media (prefers-reduced-motion: reduce) {
+  :is(.portal--v21, .portal--v23) .painel2__marca, .portal--v22 .c22__marca { transition: none; }
+}
+/* com o ícone fora, o título ocupa o lugar dele: o ícone fica por cima do canto */
+:is(.portal--v21, .portal--v23) .painel2__marca { margin-right: calc(-1 * var(--e-2)); }
+/* v2.3: o prisma já é 3D (preserve-3d); cortar o cartão achatava-o e deformava o ícone.
+   Aqui o cartão não corta, a cabeça arredonda os cantos de cima, e o ícone sai com
+   profundidade real (translateZ) em vez de uma perspetiva própria. */
+.portal--v23 .painel2.carrossel__cartao { overflow: visible; }
+.portal--v23 .painel2__cabeca { border-radius: var(--r-md) var(--r-md) 0 0; }
+.portal--v23 .painel2__marca { transform: translate(-18%, -66%) translateZ(48px) rotateX(14deg) rotateY(-20deg) rotateZ(-4deg); transform-style: preserve-3d; }
+.portal--v23 .carrossel__cartao.is-atual:hover .painel2__marca { transform: translate(-20%, -74%) translateZ(60px) rotateX(18deg) rotateY(-24deg) rotateZ(-5deg); }
+.portal--v23 .painel2__marca svg { transform: translateZ(14px); }
