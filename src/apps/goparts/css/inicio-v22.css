@@ -1,0 +1,154 @@
+/* =========================================================
+   GOPARTS — Início v2.2 (12 out. 2026), a partir de uma imagem de referência
+   O topo e as abas da v3; as três pesquisas num carrossel: um cartão
+   grande ao centro com o formulário em duas colunas, os outros dois atrás,
+   aos lados, só com o resumo e um desenho de linhas (a imagem tinha
+   fotografias de banco; aqui são os desenhos da v2). Setas redondas nos
+   lados, pontos por baixo, e o Acesso rápido. No azul da Romafe,
+   RGB(0, 99, 170), não no azul vivo da imagem (ela pediu). Claro e escuro.
+   Comportamento: comportamento/carrossel.ts (o mesmo da v2.1).
+
+   AJUSTÁVEL: o palco mede-se pela própria largura (cqw): o cartão do
+   centro tem até 920 px ou 64 % do palco, os de lado 30 %; nada sai do
+   palco. Abaixo de 1180 o formulário passa a uma coluna e os de lado
+   espreitam menos. Ocupa pelo menos a janela e a página rola.
+   ========================================================= */
+.portal--v22 { --v22-azul: var(--c-logotipo); --v22-azul-2: #004a80; }
+
+.c22 { display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-6); align-content: start; }
+
+/* ---------- o palco ---------- */
+.c22__carrossel { display: grid; gap: var(--e-3); }
+.c22__palco {
+  container-type: inline-size; position: relative;
+  display: grid; grid-template-areas: "c"; place-items: center;
+  perspective: 1800px; overflow-x: clip; padding: var(--e-3) 0;
+}
+.c22__cartao {
+  grid-area: c; position: relative; overflow: hidden;
+  display: grid; align-content: start; gap: var(--e-4);
+  padding: var(--e-5) var(--e-6); border-radius: 18px; color: #fff;
+  border: 1px solid rgba(255,255,255,.18);
+  transition: transform .6s cubic-bezier(.2,.8,.2,1), width .6s cubic-bezier(.2,.8,.2,1), opacity .4s ease, filter .4s ease;
+}
+.c22__cartao--azul { background: linear-gradient(135deg, var(--v22-azul) 0%, var(--v22-azul-2) 100%); }
+.c22__cartao--laranja { background: linear-gradient(135deg, #f08a24 0%, #b85a00 100%); }
+/* o brilho em diagonal da imagem: uma faixa clara e larga, atrás de tudo */
+.c22__cartao::before {
+  content: ''; position: absolute; inset: -40% -10%; pointer-events: none;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.10) 50%, transparent 62%);
+}
+.c22__cartao > * { position: relative; }
+.c22__desenho { position: absolute !important; right: -8px; bottom: -10px; width: 46%; max-width: 260px; color: #fff; opacity: .16; pointer-events: none; }
+
+/* o do centro: grande e à frente */
+.c22__cartao.is-atual {
+  z-index: 3; width: min(920px, 64cqw);
+  transform: translateZ(0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  box-shadow: 0 40px 80px -30px rgba(0, 25, 60, .65);
+}
+/* os de lado: mais estreitos, atrás, rodados, só o resumo */
+.c22__cartao.is-ant, .c22__cartao.is-seg {
+  z-index: 1; width: 30cqw; align-self: stretch; margin-block: var(--e-5);
+  opacity: .72; filter: saturate(.75); cursor: pointer;
+}
+.c22__cartao.is-ant { transform: translateX(-35cqw) translateZ(-120px) rotateY(14deg); transform-origin: right center; }
+.c22__cartao.is-seg { transform: translateX(35cqw) translateZ(-120px) rotateY(-14deg); transform-origin: left center; }
+.c22__cartao.is-ant:hover, .c22__cartao.is-seg:hover { opacity: .9; }
+.c22__cartao.is-ant > *, .c22__cartao.is-seg > * { pointer-events: none; }
+.c22__cartao.is-ant .c22__form, .c22__cartao.is-ant .c22__pe,
+.c22__cartao.is-seg .c22__form, .c22__cartao.is-seg .c22__pe { display: none; }
+.c22__cartao.is-ant .c22__desenho, .c22__cartao.is-seg .c22__desenho { width: 80%; max-width: none; opacity: .22; }
+/* nos de lado o texto fica do lado de fora, que é o que se vê */
+.c22__cartao.is-ant .c22__cabeca { flex-direction: column; align-items: flex-start; max-width: 46%; }
+.c22__cartao.is-seg .c22__cabeca { flex-direction: column; align-items: flex-start; margin-left: auto; max-width: 46%; }
+
+/* ---------- dentro do cartão ---------- */
+.c22__cabeca { display: flex; align-items: center; gap: var(--e-4); }
+.c22__marca { display: grid; place-items: center; width: 72px; height: 72px; flex: none; border-radius: 16px; background: rgba(255,255,255,.18); }
+.c22__marca svg { width: 40px; height: 40px; }
+.c22__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: clamp(24px, 2.4vw, 36px); line-height: 1.1; }
+.c22__sub { margin: 6px 0 0; font-size: 16px; line-height: 1.4; color: rgba(255,255,255,.9); }
+.is-ant .c22__titulo, .is-seg .c22__titulo { font-size: 24px; }
+.is-ant .c22__sub, .is-seg .c22__sub { font-size: 14px; }
+
+.c22__form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-3) var(--e-5); }
+.c22__largo { grid-column: 1 / -1; }
+.portal--v22 .c22__cartao .campo__label { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.portal--v22 .c22__cartao .input {
+  min-height: 48px; font-size: 16px; color: #fff;
+  background: rgba(4, 18, 38, .45); border-color: rgba(255,255,255,.22);
+}
+.portal--v22 .c22__cartao .input::placeholder { color: rgba(255,255,255,.65); }
+.portal--v22 .c22__cartao select.input:disabled { color: rgba(255,255,255,.6); opacity: 1; }
+.portal--v22 .c22__cartao .campo__chip { width: 56px; background: rgba(4, 18, 38, .55); color: #fff; border-color: rgba(255,255,255,.22); }
+.portal--v22 .c22__cartao .campo__chip--pais { background: rgba(255,255,255,.22); font-size: 16px; }
+.portal--v22 .c22__cartao .opcoes { gap: var(--e-3) var(--e-6); }
+.portal--v22 .c22__cartao .opcao__texto { color: #fff; font-size: 16px; }
+.portal--v22 .c22__cartao .opcao input { width: 20px; height: 20px; accent-color: var(--v22-azul); }
+
+.c22__pe { display: flex; align-items: center; justify-content: space-between; gap: var(--e-4); flex-wrap: wrap; }
+.c22__nota { margin: 0; display: flex; align-items: center; gap: var(--e-3); font-size: 14px; color: rgba(255,255,255,.88); max-width: 420px; }
+.c22__nota svg { width: 30px; height: 30px; flex: none; }
+.c22__botao { min-height: 52px; font-size: 18px; padding: 0 var(--e-6); margin-left: auto; }
+.c22__botao .btn__icone { width: 22px; height: 22px; }
+.c22__cartao--laranja .c22__botao { background: #fff; color: #b85a00; }
+.c22__cartao--laranja .c22__botao:hover { background: #fdeee0; }
+
+/* ---------- setas e pontos ---------- */
+.c22__seta {
+  position: absolute; top: 50%; z-index: 4; transform: translateY(-50%);
+  display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-full);
+  background: var(--c-superficie); color: var(--c-texto); border: 1px solid var(--c-borda-forte);
+  box-shadow: var(--s-2); cursor: pointer;
+}
+.c22__seta svg { width: 26px; height: 26px; }
+.c22__seta:hover { background: var(--c-superficie-2); }
+.c22__seta--ant { left: calc(50% - min(460px, 32cqw) - 28px); }
+.c22__seta--seg { right: calc(50% - min(460px, 32cqw) - 28px); }
+.c22__pontos { display: flex; justify-content: center; gap: var(--e-2); }
+.carrossel__ponto { width: 18px; height: 6px; border-radius: var(--r-full); background: var(--c-borda-forte); transition: width .3s ease, background .3s ease; }
+.carrossel__ponto.is-atual { width: 32px; background: var(--c-logotipo); }
+
+/* ---------- acesso rápido ---------- */
+.c22__rapido { display: grid; gap: var(--e-4); padding: var(--e-5); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.c22__rapido-cabeca { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; padding-left: var(--e-4); border-left: 4px solid var(--c-acao); }
+.c22__rapido-titulo { margin: 0; font-family: var(--f-titulo); font-size: 22px; }
+.c22__rapido-sub { margin: 2px 0 0; font-size: 14px; color: var(--c-texto-2); }
+.c22__mais { color: var(--c-texto); font-weight: 700; }
+.c22__atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--e-3); }
+.c22__atalho {
+  display: flex; align-items: center; gap: var(--e-3);
+  font: inherit; color: var(--c-texto); text-align: left; cursor: pointer;
+  padding: var(--e-4); border-radius: var(--r-md); background: var(--c-superficie-2); border: 1px solid var(--c-borda);
+}
+.c22__atalho:hover:not([disabled]) { border-color: var(--c-borda-forte); }
+.c22__atalho[disabled] { cursor: default; }
+.c22__atalho > span { display: grid; gap: 2px; min-width: 0; }
+.c22__atalho-icone { width: 32px; height: 32px; flex: none; color: var(--c-texto); }
+.c22__atalho-nome { font-weight: 700; font-size: 15px; }
+.c22__atalho-sub { font-size: 12px; color: var(--c-texto-2); }
+.c22__chevron { width: 18px; height: 18px; margin-left: auto; flex: none; color: var(--c-texto-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .c22__cartao, .c22__cartao.is-atual { transition: none; }
+  .c22__cartao.is-atual { transform: none; }
+}
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1180px) {
+  .c22__cartao.is-atual { width: 72cqw; }
+  .c22__cartao.is-ant, .c22__cartao.is-seg { width: 26cqw; }
+  .c22__cartao.is-ant { transform: translateX(-37cqw) translateZ(-160px) rotateY(18deg); }
+  .c22__cartao.is-seg { transform: translateX(37cqw) translateZ(-160px) rotateY(-18deg); }
+  .c22__cartao.is-ant .c22__cabeca, .c22__cartao.is-seg .c22__cabeca { max-width: 46%; }
+  .c22__seta--ant { left: calc(14cqw - 28px); }
+  .c22__seta--seg { right: calc(14cqw - 28px); }
+  .c22__form { grid-template-columns: minmax(0, 1fr); }
+  .c22__cartao { padding: var(--e-4) var(--e-5); }
+}
+/* nos de lado, o resumo cabe na parte que espreita (os 18 % do palco fora do cartão do centro) */
+.c22__cartao.is-ant .c22__marca, .c22__cartao.is-seg .c22__marca { width: 56px; height: 56px; }
+.c22__cartao.is-ant .c22__marca svg, .c22__cartao.is-seg .c22__marca svg { width: 30px; height: 30px; }
+.c22__cartao.is-ant .c22__titulo, .c22__cartao.is-seg .c22__titulo { font-size: 22px; }
+.c22__cartao.is-ant, .c22__cartao.is-seg { padding-inline: var(--e-4); }

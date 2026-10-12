@@ -21,6 +21,13 @@ function mostrar(c: HTMLElement, i: number): void {
   const lista = cartoes(c);
   const n = lista.length;
   const alvo = ((i % n) + n) % n;
+  /* o prisma da v2.3 roda sempre pelo caminho mais curto: conta as voltas
+     (--volta) em vez de saltar de 2 para 0 para trás */
+  const antes = atual(c);
+  const passo = ((alvo - antes + n + 1) % n) - 1;
+  const volta = Number(c.dataset.volta || antes) + passo;
+  c.dataset.volta = String(volta);
+  c.style.setProperty('--volta', String(volta));
   lista.forEach((x, j) => {
     x.classList.remove(...ESTADOS);
     const d = (j - alvo + n) % n;          // 0 = centro, 1 = à direita, n-1 = à esquerda
@@ -31,6 +38,8 @@ function mostrar(c: HTMLElement, i: number): void {
   c.querySelectorAll<HTMLElement>('[data-carrossel-ir]').forEach((b) => {
     b.setAttribute('aria-selected', String(Number(b.dataset.carrosselIr) === alvo));
   });
+  /* os pontos por baixo (v2.2): o do cartão do centro fica comprido */
+  c.querySelectorAll<HTMLElement>('.carrossel__ponto').forEach((p, j) => p.classList.toggle('is-atual', j === alvo));
   /* as setas dizem o nome do cartão para onde levam */
   const nome = (k: number) => lista[((k % n) + n) % n].dataset.nome || '';
   const ant = c.querySelector('.carrossel__seta--ant .carrossel__seta-nome');
