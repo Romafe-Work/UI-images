@@ -1,0 +1,162 @@
+/* =========================================================
+   GOPARTS — Início v4 (12 out. 2026), a partir de uma imagem de referência
+   O menu à esquerda (marca, secções e a caixa de ajuda); em cima só os
+   ícones e a conta; um herói com a procura e um desenho de linhas (peças);
+   os três painéis da v2; as categorias populares; pesquisas recentes e
+   últimos pedidos. Claro e escuro (azul-noite em noite.css).
+
+   AJUSTÁVEL: ocupa pelo menos a janela e rola se não couber — o menu fica
+   preso à esquerda e só o conteúdo rola. Nada sai da janela de 1024 px para
+   cima. Onde se dobra: o desenho do herói sai (≤ 1280), os painéis passam a
+   dois por linha quando três não cabem, as categorias descem de linha, e
+   abaixo de 1100 o menu fica só com os ícones e o nome por baixo.
+   ========================================================= */
+.portal.portal--v4 {
+  height: auto; min-height: 100vh; overflow: visible;
+  display: grid; grid-template-columns: 240px minmax(0, 1fr); grid-template-rows: none;
+  color: var(--c-texto); background: var(--c-portal-fundo);
+  --v2-azul: #1f63c4; --v2-azul-2: #174e9e;
+  --v2-chip: var(--c-superficie-2);
+  --v2-destaque: var(--noite-destaque);
+}
+
+/* ---------- o menu à esquerda ---------- */
+.lado {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: var(--e-4);
+  padding: var(--e-5) 0 var(--e-4);
+  background: var(--noite-barra); border-right: 1px solid var(--c-borda);
+}
+.lado__marca { display: grid; gap: 2px; padding: 0 var(--e-5); }
+.lado__romafe { font-size: 40px; line-height: 1; }
+.lado__produto { font-family: var(--f-titulo); font-weight: 700; font-size: 24px; color: var(--c-texto); margin-top: var(--e-2); line-height: 1.1; }
+.lado__sub { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--c-texto-2); line-height: 1.4; }
+.lado__nav { display: grid; gap: 2px; }
+.lado__item {
+  display: flex; align-items: center; gap: var(--e-3);
+  font: inherit; font-size: 16px; color: var(--c-texto); text-align: left;
+  padding: 14px var(--e-5); border: 0; border-left: 3px solid transparent;
+  background: none; cursor: pointer;
+}
+.lado__item svg { width: 22px; height: 22px; flex: none; color: var(--c-texto-2); }
+.lado__item:hover:not([disabled]) { background: var(--c-superficie-2); }
+.lado__item[aria-current="true"] { border-left-color: var(--c-acao); background: var(--c-superficie-2); color: var(--c-acao-traco); font-weight: 700; }
+.lado__item[aria-current="true"] svg { color: var(--c-acao); }
+.lado__item[disabled] { cursor: default; opacity: .75; }
+.lado__ajuda {
+  margin: auto var(--e-4) 0; padding: var(--e-4);
+  border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie);
+}
+.lado__ajuda-icone { width: 26px; height: 26px; color: var(--c-texto-2); }
+.lado__ajuda-titulo { margin: var(--e-2) 0 var(--e-1); font-weight: 700; font-size: 15px; }
+.lado__ajuda-texto { margin: 0 0 var(--e-3); font-size: 13px; color: var(--c-texto-2); line-height: 1.4; }
+.lado__ajuda-botao { width: 100%; color: var(--c-texto); }
+
+/* ---------- em cima, o resto ---------- */
+.lado__resto { min-width: 0; display: grid; grid-template-rows: auto 1fr; }
+.cima {
+  display: flex; justify-content: flex-end; align-items: center;
+  min-height: 64px; padding: 0 var(--e-5);
+  background: var(--noite-barra); border-bottom: 1px solid var(--c-borda);
+}
+.cima .portal__accoes { gap: var(--e-2); }
+.cima .portal__icone { color: var(--c-texto-2); }
+.cima .portal__ponto, .cima .portal__selo { border-color: var(--noite-barra); }
+.cima .conta__inicial { background: var(--v2-azul); width: 38px; height: 38px; }
+.cima .conta__nome, .cima .conta__local { white-space: nowrap; }
+
+.quatro { display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-5); align-content: start; }
+
+/* ---------- o herói, com o desenho de linhas ---------- */
+.heroi4 {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); align-items: center;
+  padding: var(--e-5) var(--e-6); min-height: 300px;
+  border: 1px solid var(--c-borda); border-radius: var(--r-md);
+  background: var(--c-superficie);
+}
+.heroi4__texto { position: relative; z-index: 1; }
+.heroi4 .heroi2__titulo {
+  font-family: var(--f-titulo); font-weight: 700; font-size: clamp(36px, 3.5vw, 50px); line-height: 1.04;
+  letter-spacing: -.01em; margin: 0 0 var(--e-3); color: var(--c-texto);
+}
+.heroi4 .heroi2__destaque { color: var(--v2-destaque); }
+.heroi4 .heroi2__sub { font-size: 17px; line-height: 1.45; color: var(--c-texto-2); margin: 0 0 var(--e-4); }
+.heroi4__desenho {
+  position: absolute; right: 0; top: 0; height: 100%; width: auto; max-width: 48%;
+  color: var(--c-marca); opacity: .75; pointer-events: none;
+}
+.heroi4__faixas { color: var(--v2-azul); opacity: .35; }
+
+/* ---------- os três painéis (os da v2) ---------- */
+.paineis4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--e-4); align-items: stretch; }
+
+/* ---------- categorias populares ---------- */
+.cat4__cabeca, .cartao4__cabeca { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); }
+.cat4__titulo { font-family: var(--f-titulo); font-size: 18px; margin: 0 0 var(--e-2); }
+.mais { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: var(--c-marca); text-decoration: none; white-space: nowrap; }
+.mais:hover { text-decoration: underline; }
+.mais svg { width: 16px; height: 16px; }
+.cat4__lista { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+.cat4__item {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font: inherit; font-size: 14px; color: var(--c-texto); cursor: pointer;
+  padding: 10px var(--e-4); border-radius: var(--r-md);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+}
+.cat4__item:hover { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
+.cat4__item svg { width: 24px; height: 24px; color: var(--c-texto-2); flex: none; }
+
+/* ---------- pesquisas recentes e últimos pedidos ---------- */
+.recentes { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: var(--e-4); }
+.cartao4 { background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); padding: var(--e-3) var(--e-4); }
+.cartao4__titulo { display: flex; align-items: center; gap: var(--e-2); font-family: var(--f-titulo); font-size: 17px; margin: 0; }
+.cartao4__titulo svg { width: 22px; height: 22px; color: var(--c-texto-2); }
+.cartao4__lista { list-style: none; margin: var(--e-2) 0 0; padding: 0; }
+.cartao4__lista li {
+  display: flex; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap;
+  padding: var(--e-2) 0; border-top: 1px solid var(--c-borda); font-size: 14px;
+}
+.cartao4__info { color: var(--c-texto-2); }
+.cartao4__estado { font-weight: 700; }
+.cartao4__estado--bom { color: var(--c-ok); }
+.cartao4__estado--aviso { color: var(--c-acao-traco); }
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1280px) {
+  .heroi4 { grid-template-columns: minmax(0, 1fr); }
+  .heroi4__desenho { opacity: .25; }
+}
+@media (max-width: 1100px) {
+  /* o menu estreita: ícone por cima do nome, sem a caixa de ajuda */
+  .portal.portal--v4 { grid-template-columns: 104px minmax(0, 1fr); }
+  .lado__marca { padding: 0 var(--e-2); text-align: center; }
+  .lado__romafe { font-size: 22px; }
+  .lado__produto { font-size: 16px; }
+  .lado__sub, .lado__ajuda { display: none; }
+  .lado__item { flex-direction: column; gap: 4px; font-size: 11px; text-align: center; padding: 10px 4px; white-space: normal; }
+  .quatro { padding: var(--e-4); }
+  .heroi4 { padding: var(--e-5); }
+}
+@media (max-width: 760px) {
+  .cima .conta__texto { display: none; }
+  .paineis4, .recentes { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- acertos depois de medir a 1440 ---------- */
+/* o fundo do menu desce até ao fim da página, mesmo quando ela rola */
+.portal.portal--v4 { background: linear-gradient(90deg, var(--noite-barra) 240px, var(--c-portal-fundo) 240px); }
+/* o texto do herói fica com 60 %; o desenho fica no resto */
+.heroi4 { grid-template-columns: minmax(0, 62%) 1fr; }
+.heroi4__desenho { max-width: 40%; }
+.heroi4 .populares__chip { padding: 5px 12px; }
+/* os botões dos painéis cabem lado a lado num painel de 370 px */
+.paineis4 .painel2__pe .btn { font-size: 14px; padding: 0 var(--e-3); min-height: 42px; }
+.paineis4 .painel2__pe .btn--acao { flex: 0 1 150px; }
+@media (max-width: 1100px) {
+  .portal.portal--v4 { background: linear-gradient(90deg, var(--noite-barra) 104px, var(--c-portal-fundo) 104px); }
+}
+@media (max-width: 1280px) {
+  .heroi4 { grid-template-columns: minmax(0, 1fr); }
+  .heroi4__desenho { max-width: 48%; }
+}

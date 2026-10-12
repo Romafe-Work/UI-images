@@ -1,0 +1,43 @@
+/* =========================================================
+   GOPARTS — o escuro em azul-noite (12 out. 2026)
+   As imagens de referência das v3 e v4 do Início são escuras em azul-noite,
+   não no cinzento do manual. Um ecrã com .portal--noite usa estes tokens
+   só no tema escuro (Escuro, ou Auto com o sistema escuro); no claro fica
+   com os do manual. O ROMAFE não muda: --c-logotipo em todos os temas.
+   ========================================================= */
+[data-theme="dark"] .portal--noite {
+  --c-portal-fundo: #0e1828;
+  --c-superficie:   #142235;
+  --c-superficie-2: #1a2b42;
+  --c-superficie-3: #22344d;
+  --c-borda:        rgba(255,255,255,.10);
+  --c-borda-forte:  rgba(255,255,255,.18);
+  --c-texto:        #ffffff;
+  --c-texto-2:      #c9d3e0;
+  --c-texto-3:      #8d9bb0;
+  --c-marca:        #3b8ee0;
+  --c-marca-suave:  rgba(59,142,224,.22);
+  --noite-barra:    #0b1422;
+  --noite-destaque: #2f8ae6;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .portal--noite {
+    --c-portal-fundo: #0e1828;
+    --c-superficie:   #142235;
+    --c-superficie-2: #1a2b42;
+    --c-superficie-3: #22344d;
+    --c-borda:        rgba(255,255,255,.10);
+    --c-borda-forte:  rgba(255,255,255,.18);
+    --c-texto:        #ffffff;
+    --c-texto-2:      #c9d3e0;
+    --c-texto-3:      #8d9bb0;
+    --c-marca:        #3b8ee0;
+    --c-marca-suave:  rgba(59,142,224,.22);
+    --noite-barra:    #0b1422;
+    --noite-destaque: #2f8ae6;
+    color-scheme: dark;
+  }
+}
+/* no claro, a barra é a superfície e o destaque é o azul do ROMAFE */
+.portal--noite { --noite-barra: var(--c-superficie); --noite-destaque: var(--c-logotipo); }

@@ -1,0 +1,91 @@
+/* =========================================================
+   GOPARTS — Início v3 (12 out. 2026), a partir de uma imagem de referência
+   A v1 redesenhada: botão do menu, procura no topo, abas com divisórias e a
+   ativa num bloco com o traço laranja, cabeças dos painéis em cor lisa.
+   Sem a dica e sem o rodapé. Claro e escuro (azul-noite em noite.css).
+
+   AJUSTÁVEL: ocupa pelo menos a janela e rola se não couber; nada sai da
+   janela de 1024 px para cima. Onde se dobra: a procura do topo encolhe e,
+   abaixo de 1180, a conta mostra só a inicial; as abas descem de linha; os
+   painéis passam a dois por linha quando três não cabem.
+   ========================================================= */
+.portal.portal--v3 {
+  height: auto; min-height: 100vh; overflow: visible;
+  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr;
+  color: var(--c-texto); background: var(--c-portal-fundo);
+  --v3-azul: #1a6ff0;
+}
+
+/* ---------- topo ---------- */
+.portal--v3 .portal__topo { background: var(--noite-barra); padding: var(--e-3) var(--e-5); min-height: 76px; }
+.portal--v3 .portal__menu { margin-right: var(--e-2); }
+.portal--v3 .portal__romafe { font-size: 34px; }
+.portal--v3 .portal__produto { font-size: 22px; }
+.portal--v3 .portal__produto, .portal--v3 .portal__produto-sub, .portal--v3 .conta__nome, .portal--v3 .conta__local { white-space: nowrap; }
+.portal--v3 .portal__produto-sub { color: var(--c-texto-2); font-size: 11px; }
+.portal--v3 .procura { max-width: 600px; min-width: 0; background: var(--c-superficie-2); }
+.portal--v3 .procura__campo { padding: 12px 0; font-size: 15px; }
+.portal--v3 .procura__atalho { background: transparent; color: var(--c-texto-2); }
+.portal--v3 .portal__icone { color: var(--c-texto-2); }
+.portal--v3 .portal__ponto { display: none; }
+.portal--v3 .conta__inicial { background: var(--v3-azul); width: 40px; height: 40px; }
+
+/* ---------- abas: divisórias, a ativa num bloco com o traço laranja ---------- */
+.portal--v3 .portal__abas {
+  flex-wrap: wrap; overflow: visible; gap: 0;
+  padding: var(--e-2) var(--e-5); background: var(--noite-barra);
+}
+.portal--v3 .aba {
+  position: relative; font-size: 15px; padding: var(--e-3) var(--e-5);
+  border-radius: var(--r-md) var(--r-md) 0 0; color: var(--c-texto);
+}
+.portal--v3 .aba svg { width: 22px; height: 22px; }
+.portal--v3 .aba + .aba::before {
+  content: ''; position: absolute; left: 0; top: 30%; bottom: 30%; width: 1px; background: var(--c-borda);
+}
+.portal--v3 .aba[aria-current="true"] {
+  background: var(--c-superficie-2); color: var(--c-texto);
+  border-bottom-color: var(--c-acao); font-weight: 700;
+}
+.portal--v3 .aba[aria-current="true"] + .aba::before { display: none; }
+.portal--v3 .portal__abas .aba:last-of-type { margin-right: 0; }
+
+/* ---------- painéis: cabeças lisas, o terceiro só da altura do que leva ---------- */
+.portal--v3 .paineis {
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--e-4); padding: var(--e-5); align-items: start;
+}
+.portal--v3 .painel { background: var(--c-superficie); border-color: var(--c-borda); border-radius: 12px; }
+.portal--v3 .painel__cabeca { background: var(--v3-azul); padding: var(--e-4) var(--e-5); min-height: 116px; border-radius: 12px 12px 0 0; }
+.portal--v3 .painel__cabeca--acao { background: var(--c-acao); }
+.portal--v3 .painel__marca { width: 56px; height: 56px; background: rgba(255,255,255,.22); }
+.portal--v3 .painel__marca svg { width: 30px; height: 30px; }
+.portal--v3 .painel__titulo { font-size: 24px; }
+.portal--v3 .painel__sub { font-size: 14px; margin-top: 4px; }
+.portal--v3 .painel__corpo { padding: var(--e-4) var(--e-5); gap: var(--e-4); }
+.portal--v3 .campo__label { font-size: 16px; color: var(--c-texto); }
+.portal--v3 .input { min-height: 48px; background: var(--c-superficie-2); color: var(--c-texto); font-size: 16px; }
+.portal--v3 .campo__chip { width: 56px; background: var(--c-superficie-2); color: var(--c-texto); }
+.portal--v3 .campo__chip--pais { background: var(--v3-azul); color: #fff; font-size: 16px; }
+.portal--v3 .opcao__texto { font-size: 16px; color: var(--c-texto); }
+.portal--v3 .opcoes { gap: var(--e-4) var(--e-6); }
+.portal--v3 .opcoes .opcao input { width: 22px; height: 22px; accent-color: var(--v3-azul); }
+.portal--v3 .painel__pe { flex-wrap: wrap; padding: var(--e-4) var(--e-5) var(--e-5); }
+.portal--v3 .painel__pe .btn { min-height: 52px; font-size: 16px; padding: 0 var(--e-5); }
+.portal--v3 .painel__pe .btn--ghost { color: var(--c-texto); }
+.portal--v3 .painel__pe .btn .btn__icone { width: 22px; height: 22px; }
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1200px) {
+  /* o portal.css passa o topo a uma coluna; aqui fica em linha e a procura encolhe */
+  .portal--v3 .portal__topo { grid-template-columns: auto minmax(160px, 1fr) auto; gap: var(--e-4); }
+  .portal--v3 .procura { justify-self: stretch; }
+  .portal--v3 .procura__atalho, .portal--v3 .conta__texto { display: none; }
+  .portal--v3 .aba { padding: var(--e-3) var(--e-3); }
+}
+@media (max-width: 760px) {
+  .portal--v3 .portal__topo { grid-template-columns: minmax(0, 1fr) auto; }
+  .portal--v3 .procura { grid-column: 1 / -1; order: 3; }
+  .portal--v3 .portal__produto-sub { display: none; }
+  .portal--v3 .paineis { grid-template-columns: minmax(0, 1fr); padding: var(--e-4); }
+}

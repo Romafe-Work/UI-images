@@ -55,7 +55,7 @@ Mede as quatro apps × ecrãs × versões em 1024×700, 1280×720, 1448×787, 14
 1920×1080 (a Pick em 320×533, 360×640 e 412×780) e lista o que sai da janela, o que
 um contentor corta e o que fica por cima de outra coisa. Só se entrega com zero.
 
-**Estado a 12 out. 2026:** o 10 · Início do GoParts (v1 e v2, claro e escuro) passa
+**Estado a 12 out. 2026:** o 10 · Início do GoParts (v1 a v4, claro e escuro) passa
 a zero em todos os tamanhos. O ERP, os logins e a Pick também. Ainda falham, quase
 sempre por causa de `.portal { height: 100vh; overflow: hidden }` em `melhorias.css`:
 Catálogo, Pedidos e Guias do GoParts, e os ecrãs de carregamento e de erro do GoParts e
