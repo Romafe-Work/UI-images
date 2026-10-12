@@ -38,3 +38,13 @@
 .portal--guias .cartoes > * { padding-top: var(--e-2); padding-bottom: var(--e-2); }
 .marcas__grelha { grid-auto-rows: 52px; max-height: calc(52px * 2 + var(--e-3)); }
 .marcas__grelha .marca { padding-top: var(--e-2); padding-bottom: var(--e-2); }
+
+/* ---------- Início: ajustável (ela, 12 out.: «devem caber no screen e ser ajustáveis») ----------
+   O Início deixa de estar preso à altura da janela: ocupa-a pelo menos e, se não
+   couber, a página rola. Na largura, as abas que não cabem descem para outra linha. */
+.portal.portal--inicio { height: auto; min-height: 100vh; overflow: visible; grid-template-columns: minmax(0, 1fr); }
+.portal--inicio .portal__abas { flex-wrap: wrap; overflow: visible; }
+.portal--inicio .portal__abas .aba:last-of-type { margin-right: 0; }
+@media (max-width: 1200px) {
+  .portal--inicio .paineis { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+}

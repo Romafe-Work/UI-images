@@ -2,7 +2,7 @@
 
 Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são duas):
 
-| Pasta | App | Tela |
+| Pasta | App | Tela de desenho (os ecrãs ajustam-se à janela) |
 | --- | --- | --- |
 | `src/apps/erp/` | ERP — Romafe, a plataforma de gestão | 1440×900 |
 | `src/apps/goshop/` | WebShop — GoShop | 1440×900 |
@@ -20,11 +20,46 @@ npm install
 npm run ver         # http://localhost:5173 — a versão compilada, como no site; recompila sozinha
 npm run dev         # o servidor de desenvolvimento (para mexer no código)
 npm run verificar   # só o TypeScript
+npm run medir       # todos os ecrãs cabem e ajustam-se à janela (ver «Ecrãs ajustáveis»)
 npm run build       # verifica e gera dist/, que é o que vai para o site
 ```
 
 Cada push para `main` compila e publica no GitHub Pages
 (`.github/workflows/publicar.yml`). Se o TypeScript falhar, não publica.
+
+## Ecrãs ajustáveis (12 out. 2026)
+
+**Todas as versões de todos os ecrãs têm de caber na janela e ajustar-se a ela.**
+A tela da tabela de cima (1440×900, 320×533) é o tamanho em que o ecrã se desenha;
+não é um tamanho fixo. Na prática:
+
+- **Largura:** nada sai da janela nem fica cortado, de 1024 px para cima (Web e ERP)
+  e de 320 px para cima (Pick). Quando não cabe, dobra-se: as abas descem para
+  outra linha, os painéis passam a dois por linha, a fotografia sai.
+- **Altura:** o ecrã ocupa pelo menos a janela (`min-height: 100vh`) e, se o
+  conteúdo for mais alto, **a página rola**. Nunca `height: 100vh` com
+  `overflow: hidden`, que espreme o ecrã e põe os botões por cima dos campos.
+- **Temas:** cada versão funciona em Claro e em Escuro, com as cores dos tokens.
+  Uma versão desenhada escura redefine os tokens dentro de `[data-theme="dark"]`
+  e não à força em todos os temas.
+- **No CSS:** cada ficheiro de ecrã diz no cabeçalho onde se dobra
+  (ver `src/apps/goparts/css/inicio-v2.css`).
+
+Para medir, com o `npm run ver` a correr:
+
+```sh
+PLAYWRIGHT=/caminho/para/playwright/index.mjs npm run medir
+```
+
+Mede as quatro apps × ecrãs × versões em 1024×700, 1280×720, 1448×787, 1440×900 e
+1920×1080 (a Pick em 320×533, 360×640 e 412×780) e lista o que sai da janela, o que
+um contentor corta e o que fica por cima de outra coisa. Só se entrega com zero.
+
+**Estado a 12 out. 2026:** o 10 · Início do GoParts (v1 e v2, claro e escuro) passa
+a zero em todos os tamanhos. O ERP, os logins e a Pick também. Ainda falham, quase
+sempre por causa de `.portal { height: 100vh; overflow: hidden }` em `melhorias.css`:
+Catálogo, Pedidos e Guias do GoParts, e os ecrãs de carregamento e de erro do GoParts e
+do GoShop.
 
 ## Como está feito
 

@@ -7,7 +7,8 @@
     "ver": "vite build && (vite build --watch --logLevel warn & vite preview --port 5173 --strictPort)",
     "verificar": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "medir": "node scripts/medir-ecras.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
