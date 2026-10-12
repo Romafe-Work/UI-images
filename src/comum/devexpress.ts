@@ -44,6 +44,7 @@ const REGRAS: [string, Componente][] = [
   ['.lado, .lado5, .erp__lado, .lado__item, .lado5__item, .erp__modulo, .erp__subitem', { peca: 'Menu lateral', web: 'DxDrawer com DxTreeView', wpf: 'AccordionControl' }],
   ['.carrossel, .c22__carrossel, .prisma', { peca: 'Carrossel', web: 'DxGallery', wpf: 'FlipView (a confirmar)', nota: 'O 3D é CSS nosso, por cima do componente.' }],
 
+  ['.acordeao, .acord', { peca: 'Acordeão', web: 'DxAccordion', wpf: 'AccordionControl' }],
   ['.cartao4__lista, .cp-itens', { peca: 'Lista', web: 'DxList', wpf: 'ListBoxEdit' }],
 
   /* espera e avisos */

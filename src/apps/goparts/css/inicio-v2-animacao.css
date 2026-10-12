@@ -112,3 +112,75 @@
   .com-risca > .risca { transition: none; }
   .resultados-ref li, .resultados-ref__titulo, select.input.is-ativado { animation: none; }
 }
+
+/* ---------- o herói da v2.1 e da v2.3 (ela, 12 out.: «falta animação nestes headers») ----------
+   Só no protótipo (comportamento/entrada.ts põe .heroi-anima e .is-visivel).
+   Entra por ordem: título, texto, procura, pesquisas populares; depois os números
+   (o 75 000 conta de 0) e a lista; a fotografia abre-se pela diagonal e as faixas
+   deslizam. Só transform, opacity e clip-path: a página não mexe. */
+.anima-entrada .heroi-anima :is(.heroi2__titulo, .heroi2__sub, .heroi2__procura, .populares__rotulo, .populares__chip, .heroi2__antes, .heroi2__numero, .heroi2__depois, .heroi2__lista li) {
+  opacity: 0; transform: translateY(14px);
+}
+.anima-entrada .heroi-anima.is-visivel :is(.heroi2__titulo, .heroi2__sub, .heroi2__procura, .populares__rotulo, .populares__chip, .heroi2__antes, .heroi2__numero, .heroi2__depois, .heroi2__lista li) {
+  opacity: 1; transform: none;
+  transition: opacity .5s ease calc(var(--i, 0) * 60ms + 80ms), transform .55s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 60ms + 80ms);
+}
+/* depois de entrar, as pesquisas populares reagem ao rato sem atraso */
+.anima-entrada .heroi-anima.is-visivel .populares__chip:hover { transition: transform .15s ease, background-color .15s ease; transform: translateY(-2px); }
+.heroi-anima .heroi2__numero { font-variant-numeric: tabular-nums; }
+/* «com rapidez»: um traço laranja que se desenha por baixo */
+.heroi-anima .heroi2__destaque { position: relative; display: inline-block; }
+.heroi-anima .heroi2__destaque::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; border-radius: 2px;
+  background: var(--c-acao); transform: scaleX(0); transform-origin: left;
+}
+.anima-entrada .heroi-anima.is-visivel .heroi2__destaque::after { transform: scaleX(1); transition: transform .6s cubic-bezier(.65, 0, .35, 1) .7s; }
+/* a fotografia abre-se pela diagonal e aproxima-se devagar */
+.anima-entrada .heroi-anima .heroi2__foto { clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); transform: scale(1.06); }
+.anima-entrada .heroi-anima.is-visivel .heroi2__foto {
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%); transform: none;
+  transition: clip-path .9s cubic-bezier(.65, 0, .35, 1) .15s, transform 2.4s ease-out .15s;
+}
+/* as faixas diagonais deslizam para o sítio */
+.anima-entrada .heroi-anima::before, .anima-entrada .heroi-anima::after { opacity: 0; translate: 80px 0; }
+.anima-entrada .heroi-anima.is-visivel::before, .anima-entrada .heroi-anima.is-visivel::after { opacity: .12; translate: 0 0; transition: opacity .8s ease .3s, translate .9s cubic-bezier(.2, .8, .2, 1) .3s; }
+.anima-entrada .heroi-anima.is-visivel::after { opacity: .08; }
+/* o ícone da lista acende para laranja ao passar o rato */
+.heroi-anima .heroi2__lista svg { transition: color .2s ease, transform .2s ease; }
+.heroi-anima .heroi2__lista li:hover svg { color: var(--c-acao); transform: scale(1.1); }
+@media (prefers-reduced-motion: reduce) {
+  .heroi-anima .heroi2__lista svg { transition: none; }
+}
+/* no escuro a fotografia não tem corte em diagonal: abre-se até ao retângulo inteiro */
+[data-theme="dark"] .anima-entrada .heroi-anima.is-visivel .heroi2__foto,
+.anima-entrada[data-theme="dark"] .heroi-anima.is-visivel .heroi2__foto { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]).anima-entrada .heroi-anima.is-visivel .heroi2__foto { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+
+/* ---------- acordeões: pesquisas recentes e últimos pedidos (12 out.) ----------
+   Um aberto de cada vez (comportamento/v2-animacao.ts). A altura abre com
+   grid-template-rows 0fr → 1fr e o conteúdo entra com um fade: 250 ms. */
+.acordeao li.acord { display: block; padding: 0; cursor: default; }
+.acordeao li.acord:hover { padding-left: 0; background: none; }
+.acordeao li.acord::before { display: none; }
+.acord__cabeca {
+  width: 100%; display: flex; align-items: center; gap: var(--e-3); justify-content: space-between;
+  font: inherit; font-size: 14px; color: var(--c-texto); text-align: left; cursor: pointer;
+  padding: var(--e-2) var(--e-1); border: 0; border-radius: 4px; background: none;
+  transition: background-color .2s ease;
+}
+.acord__cabeca:hover { background: var(--c-superficie-2); }
+.acord__cabeca .cartao4__info { margin-left: auto; }
+.acord__seta { width: 18px; height: 18px; flex: none; color: var(--c-texto-3); transition: transform .25s cubic-bezier(.4, 0, .2, 1), color .2s ease; }
+.acord__cabeca[aria-expanded="true"] .acord__seta { transform: rotate(180deg); color: var(--c-acao); }
+.acord__cabeca[aria-expanded="true"] { box-shadow: inset 3px 0 0 var(--c-acao); }
+.acord__painel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1); }
+.acord__cabeca[aria-expanded="true"] + .acord__painel { grid-template-rows: 1fr; }
+.acord__dentro { overflow: hidden; min-height: 0; display: grid; gap: 4px; padding: 0 var(--e-3); opacity: 0; transition: opacity .2s ease, padding .25s ease; }
+.acord__cabeca[aria-expanded="true"] + .acord__painel .acord__dentro { opacity: 1; padding: var(--e-1) var(--e-3) var(--e-3); transition-delay: .05s; }
+.acord__dentro p { margin: 0; font-size: 13px; color: var(--c-texto-2); }
+.acord__botao { justify-self: start; margin-top: var(--e-1); }
+@media (prefers-reduced-motion: reduce) {
+  .acord__painel, .acord__dentro, .acord__seta { transition: none; }
+}

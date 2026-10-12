@@ -133,7 +133,23 @@ function ligarPesquisa(): void {
   });
 }
 
+/* ---------- os acordeões das pesquisas recentes e dos últimos pedidos ----------
+   Ela, 12 out.: «accordions, se possível com animação». Um aberto de cada vez;
+   a altura abre com grid-template-rows (0fr → 1fr), 250 ms. */
+function ligarAcordeoes(): void {
+  document.addEventListener('click', (ev) => {
+    if (editando()) return;
+    const cab = (ev.target as Element).closest<HTMLButtonElement>('.acord__cabeca');
+    if (!cab) return;
+    const lista = cab.closest('[data-acordeao]');
+    const abrir = cab.getAttribute('aria-expanded') !== 'true';
+    lista?.querySelectorAll<HTMLButtonElement>('.acord__cabeca[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+    cab.setAttribute('aria-expanded', String(abrir));
+  });
+}
+
 export function iniciar(): void {
+  ligarAcordeoes();
   ligarMenus();
   ligarCampos();
   ligarPesquisa();
