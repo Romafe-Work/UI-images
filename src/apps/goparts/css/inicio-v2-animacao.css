@@ -184,3 +184,6 @@
 @media (prefers-reduced-motion: reduce) {
   .acord__painel, .acord__dentro, .acord__seta { transition: none; }
 }
+/* o painel fechado não se vê nem se alcança com o Tab; ao abrir aparece logo, ao fechar só no fim */
+.acord__painel { visibility: hidden; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .25s; }
+.acord__cabeca[aria-expanded="true"] + .acord__painel { visibility: visible; transition: grid-template-rows .25s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
