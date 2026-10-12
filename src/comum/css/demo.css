@@ -72,6 +72,85 @@
 @keyframes demo-cubo-sair-tras { to { transform: translateX(100%) rotateY(90deg); opacity: .4; } }
 @keyframes demo-cubo-entrar-tras { from { transform: translateX(-100%) rotateY(-90deg); opacity: .4; } }
 
+/* ======== as dez de 12 out. 2026 (ela: «quero mais animações») ======== */
+
+/* desfocar */
+[data-anim="desfocar"]::view-transition-old(root) { animation-name: demo-desfocar-sair; }
+[data-anim="desfocar"]::view-transition-new(root) { animation-name: demo-desfocar-entrar; }
+
+/* elástico: empurrar com o novo a passar do sítio e a voltar */
+[data-anim="elastico"]::view-transition-old(root) { animation-name: demo-para-esquerda; animation-duration: .7s; }
+[data-anim="elastico"]::view-transition-new(root) { animation-name: demo-da-direita; animation-duration: .7s; animation-timing-function: cubic-bezier(.34, 1.56, .64, 1); }
+[data-anim="elastico"][data-sentido="tras"]::view-transition-old(root) { animation-name: demo-para-direita; }
+[data-anim="elastico"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-da-esquerda; }
+
+/* deslizar para fora: o antigo sai por cima e o novo está por baixo */
+[data-anim="sair"]::view-transition-old(root) { animation-name: demo-para-esquerda; z-index: 2; }
+[data-anim="sair"]::view-transition-new(root) { animation: none; z-index: 1; }
+[data-anim="sair"][data-sentido="tras"]::view-transition-old(root) { animation-name: demo-para-direita; }
+
+/* pilha de cartas */
+[data-anim="cartas"]::view-transition-old(root) { animation-name: demo-carta-cair; }
+[data-anim="cartas"]::view-transition-new(root) { animation-name: demo-carta-subir; animation-duration: .65s; }
+
+/* afastar */
+[data-anim="afastar"]::view-transition-old(root) { animation-name: demo-encolher; }
+[data-anim="afastar"]::view-transition-new(root) { animation-name: demo-chegar-de-longe; }
+
+/* virar na vertical */
+[data-anim="virar-vertical"]::view-transition-group(root) { animation-duration: .7s; }
+[data-anim="virar-vertical"]::view-transition-image-pair(root) { isolation: isolate; perspective: 2000px; }
+[data-anim="virar-vertical"]::view-transition-old(root) { animation: demo-virarx-sair .35s ease-in both; backface-visibility: hidden; }
+[data-anim="virar-vertical"]::view-transition-new(root) { animation: demo-virarx-entrar .35s ease-out .35s both; backface-visibility: hidden; }
+[data-anim="virar-vertical"][data-sentido="tras"]::view-transition-old(root) { animation-name: demo-virarx-entrar-inv; }
+[data-anim="virar-vertical"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-virarx-sair-inv; }
+
+/* abrir a porta: o antigo roda pela aresta esquerda, por cima do novo */
+[data-anim="porta"]::view-transition-image-pair(root) { perspective: 1800px; }
+[data-anim="porta"]::view-transition-old(root) { animation: demo-porta .75s cubic-bezier(.5, 0, .3, 1) both; transform-origin: left center; z-index: 2; }
+[data-anim="porta"]::view-transition-new(root) { animation: demo-porta-atras .75s ease-out both; z-index: 1; }
+[data-anim="porta"][data-sentido="tras"]::view-transition-old(root) { transform-origin: right center; animation-name: demo-porta-tras; }
+
+/* revelar em círculo, a partir do último clique (--demo-x, --demo-y) */
+[data-anim="circulo"]::view-transition-old(root) { animation: none; }
+[data-anim="circulo"]::view-transition-new(root) { animation: demo-circulo .9s cubic-bezier(.65, 0, .35, 1) both; }
+
+/* limpar */
+[data-anim="limpar"]::view-transition-old(root) { animation: none; }
+[data-anim="limpar"]::view-transition-new(root) { animation: demo-limpar .6s cubic-bezier(.65, 0, .35, 1) both; }
+[data-anim="limpar"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-limpar-tras; }
+
+/* animação inteligente: o que se repete entre ecrãs tem nome próprio e fica
+   (ou vai para o sítio novo); o resto dissolve com um leve subir */
+[data-anim="inteligente"] .ecra:not([hidden]) > .versao:not([hidden]) :is(.portal__topo, .linha, .erp__topo, .pk__topo) { view-transition-name: demo-topo; }
+[data-anim="inteligente"] .ecra:not([hidden]) > .versao:not([hidden]) :is(.portal__abas, .linha__abas) { view-transition-name: demo-abas; }
+[data-anim="inteligente"] .ecra:not([hidden]) > .versao:not([hidden]) :is(.erp__lado, .lado, .lado5) { view-transition-name: demo-lado; }
+[data-anim="inteligente"] .ecra:not([hidden]) > .versao:not([hidden]) :is(.aba, .linha__aba, .erp__modulo, .lado__item, .lado5__item)[aria-current="true"] { view-transition-name: demo-ativa; }
+[data-anim="inteligente"]::view-transition-old(root) { animation-name: demo-sair-fade; animation-duration: .35s; }
+[data-anim="inteligente"]::view-transition-new(root) { animation-name: demo-subir-fade; animation-duration: .5s; }
+[data-anim="inteligente"]::view-transition-group(demo-topo),
+[data-anim="inteligente"]::view-transition-group(demo-abas),
+[data-anim="inteligente"]::view-transition-group(demo-lado),
+[data-anim="inteligente"]::view-transition-group(demo-ativa) { animation-duration: .5s; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
+
+@keyframes demo-desfocar-sair { to { filter: blur(14px); opacity: 0; } }
+@keyframes demo-desfocar-entrar { from { filter: blur(14px); opacity: 0; } }
+@keyframes demo-carta-cair { to { transform: translateY(6%) scale(.88); opacity: .25; filter: brightness(.6); } }
+@keyframes demo-carta-subir { from { transform: translateY(105%); box-shadow: 0 -30px 60px rgba(0,0,0,.35); } to { box-shadow: 0 0 0 rgba(0,0,0,0); } }
+@keyframes demo-encolher { to { transform: scale(.8); opacity: 0; } }
+@keyframes demo-chegar-de-longe { from { transform: scale(1.1); opacity: 0; } }
+@keyframes demo-virarx-sair { to { transform: rotateX(90deg); } }
+@keyframes demo-virarx-entrar { from { transform: rotateX(-90deg); } }
+@keyframes demo-virarx-entrar-inv { to { transform: rotateX(-90deg); } }
+@keyframes demo-virarx-sair-inv { from { transform: rotateX(90deg); } }
+@keyframes demo-porta { to { transform: rotateY(-100deg); opacity: .6; } }
+@keyframes demo-porta-tras { to { transform: rotateY(100deg); opacity: .6; } }
+@keyframes demo-porta-atras { from { transform: scale(.94); filter: brightness(.6); } }
+@keyframes demo-circulo { from { clip-path: circle(0 at var(--demo-x, 50%) var(--demo-y, 50%)); } to { clip-path: circle(125% at var(--demo-x, 50%) var(--demo-y, 50%)); } }
+@keyframes demo-limpar { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes demo-limpar-tras { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes demo-subir-fade { from { opacity: 0; transform: translateY(14px); } }
+
 /* o fundo atrás das animações 3D, para não se ver branco a meio */
 .demo { background: #0b1422; }
 

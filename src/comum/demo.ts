@@ -17,17 +17,33 @@
 import { ler, mostrar, mostrarVersao, definirTransicao, transitar, type Sentido } from './ecras';
 import './css/demo.css';
 
-export interface Animacao { id: string; nome: string; descricao: string }
+export interface Animacao { id: string; nome: string; descricao: string; grupo: string }
 export const ANIMACOES: Animacao[] = [
-  { id: 'instantaneo', nome: 'Instantâneo', descricao: 'Troca sem animação.' },
-  { id: 'dissolver', nome: 'Dissolver', descricao: 'Um ecrã desvanece-se no outro.' },
-  { id: 'deslizar', nome: 'Deslizar', descricao: 'O novo entra de lado por cima do antigo.' },
-  { id: 'empurrar', nome: 'Empurrar', descricao: 'O novo empurra o antigo para fora.' },
-  { id: 'mover', nome: 'Mover por cima', descricao: 'O novo sobe de baixo, por cima do antigo.' },
-  { id: 'aproximar', nome: 'Aproximar', descricao: 'O antigo cresce e some; o novo chega de perto.' },
-  { id: 'virar', nome: 'Virar 3D', descricao: 'O ecrã vira como uma carta (o card 14 do shadcnspace).' },
-  { id: 'cubo', nome: 'Rodar em cubo', descricao: 'Os dois ecrãs são faces de um cubo que roda.' },
+  { grupo: 'Simples', id: 'instantaneo', nome: 'Instantâneo', descricao: 'Troca sem animação.' },
+  { grupo: 'Simples', id: 'dissolver', nome: 'Dissolver', descricao: 'Um ecrã desvanece-se no outro.' },
+  { grupo: 'Simples', id: 'desfocar', nome: 'Desfocar', descricao: 'O antigo desfoca-se e some; o novo entra a ganhar foco.' },
+  { grupo: 'Deslizar', id: 'deslizar', nome: 'Deslizar', descricao: 'O novo entra de lado por cima do antigo.' },
+  { grupo: 'Deslizar', id: 'empurrar', nome: 'Empurrar', descricao: 'O novo empurra o antigo para fora.' },
+  { grupo: 'Deslizar', id: 'elastico', nome: 'Elástico', descricao: 'Empurrar, com o novo a passar um pouco e a voltar, como uma mola.' },
+  { grupo: 'Deslizar', id: 'sair', nome: 'Deslizar para fora', descricao: 'O antigo sai de lado e deixa ver o novo por baixo.' },
+  { grupo: 'Deslizar', id: 'mover', nome: 'Mover por cima', descricao: 'O novo sobe de baixo, por cima do antigo.' },
+  { grupo: 'Deslizar', id: 'cartas', nome: 'Pilha de cartas', descricao: 'O antigo cai para trás como uma carta; o novo sobe para o topo da pilha.' },
+  { grupo: 'Escala', id: 'aproximar', nome: 'Aproximar', descricao: 'O antigo cresce e some; o novo chega de perto.' },
+  { grupo: 'Escala', id: 'afastar', nome: 'Afastar', descricao: 'O antigo encolhe para longe; o novo vem de mais perto.' },
+  { grupo: '3D', id: 'virar', nome: 'Virar 3D', descricao: 'O ecrã vira como uma carta (o card 14 do shadcnspace).' },
+  { grupo: '3D', id: 'virar-vertical', nome: 'Virar na vertical', descricao: 'Vira de cima para baixo, como uma folha de calendário.' },
+  { grupo: '3D', id: 'cubo', nome: 'Rodar em cubo', descricao: 'Os dois ecrãs são faces de um cubo que roda.' },
+  { grupo: '3D', id: 'porta', nome: 'Abrir a porta', descricao: 'O antigo abre-se pela aresta esquerda como uma porta, e o novo está atrás.' },
+  { grupo: 'Revelar', id: 'circulo', nome: 'Revelar em círculo', descricao: 'O novo abre-se num círculo a partir do sítio onde se clicou.' },
+  { grupo: 'Revelar', id: 'limpar', nome: 'Limpar', descricao: 'O novo passa por cima da esquerda para a direita, como um limpa-vidros.' },
+  { grupo: 'Inteligente', id: 'inteligente', nome: 'Animação inteligente', descricao: 'Como o «Smart Animate» do Figma: a barra, as abas e o menu ficam ou vão para o sítio novo; só o conteúdo muda.' },
 ];
+
+/** As opções de uma lista, agrupadas como no Figma (para o editor e para a barra). */
+export function opcoesAnimacao(escolhida: string): string {
+  const grupos = Array.from(new Set(ANIMACOES.map((a) => a.grupo)));
+  return grupos.map((g) => `<optgroup label="${g}">${ANIMACOES.filter((a) => a.grupo === g).map((a) => `<option value="${a.id}" title="${a.descricao}"${a.id === escolhida ? ' selected' : ''}>${a.nome}</option>`).join('')}</optgroup>`).join('');
+}
 const PADRAO = 'empurrar';
 const CHAVE = 'romafe:demo:animacao';
 
@@ -97,6 +113,13 @@ export function iniciar(): void {
     doc.startViewTransition(() => { mudar(); pintar(); });
   });
 
+  /* de onde parte o «Revelar em círculo»: o sítio do último clique no ecrã */
+  document.addEventListener('pointerdown', (ev) => {
+    const naBarra = (ev.target as Element).closest('.demo-barra');
+    raiz.style.setProperty('--demo-x', naBarra ? '50%' : ev.clientX + 'px');
+    raiz.style.setProperty('--demo-y', naBarra ? '50%' : ev.clientY + 'px');
+  }, true);
+
   /* ---------- a barra de baixo ---------- */
   const barra = document.createElement('nav');
   barra.className = 'demo-barra';
@@ -104,7 +127,7 @@ export function iniciar(): void {
   barra.innerHTML = `
     <span class="demo-barra__marca">${I('<polygon points="6 4 20 12 6 20 6 4"/>')}Demonstração</span>
     <label class="demo-barra__anim"><span>Animação</span>
-      <select class="demo-barra__select">${ANIMACOES.map((a) => `<option value="${a.id}"${a.id === inicial ? ' selected' : ''}>${a.nome}</option>`).join('')}</select>
+      <select class="demo-barra__select">${opcoesAnimacao(inicial)}</select>
     </label>
     <button type="button" class="demo-barra__botao" data-demo="ant">${I('<path d="m15 5-7 7 7 7"/>')}<span>Anterior</span></button>
     <span class="demo-barra__onde" aria-live="polite"></span>

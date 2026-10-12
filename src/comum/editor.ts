@@ -13,7 +13,7 @@ import { mostrar, pintarBarra } from './ecras';
 import { lerExtras, gravarExtras, type Extras } from './extras';
 import { fluxo } from './fluxo';
 import { componenteDe } from './devexpress';
-import { ANIMACOES, animacaoGuardada, guardarAnimacao, enderecoDemo } from './demo';
+import { opcoesAnimacao, animacaoGuardada, guardarAnimacao, enderecoDemo } from './demo';
 import { aplicar as aplicarTema, actual as temaActual } from './tema';
 /* O CSS de tudo, tal como está escrito (com os comentários), para se ler
    no diálogo «Ver o CSS». Fica fora o editor.css: é da ferramenta, não dos ecrãs. */
@@ -1171,13 +1171,7 @@ function montar(): void {
   const demo = el('div', 'ed-demo');
   const selAnim = el('select', 'ed-select ed-demo__anim');
   selAnim.setAttribute('aria-label', 'Animação da demonstração');
-  ANIMACOES.forEach(function (a) {
-    const o = el('option', null, a.nome);
-    o.value = a.id;
-    o.title = a.descricao;
-    if (a.id === animacaoGuardada()) o.selected = true;
-    selAnim.appendChild(o);
-  });
+  selAnim.innerHTML = opcoesAnimacao(animacaoGuardada());
   selAnim.addEventListener('change', function () { guardarAnimacao(selAnim.value); });
   const bDemo = botaoIcone('Ver demonstração', '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>', function () {
     const e = document.querySelector<HTMLElement>('.ecra:not([hidden])');

@@ -73,8 +73,17 @@ está a ver. Lá, cada ligação do ecrã leva ao seguinte com essa animação, 
 - **Reproduzir o fluxo** passa pelos ecrãs do fluxo sozinha, de 2,6 em 2,6 segundos;
 - **Copiar o link** dá o endereço para mandar a quem quiser ver.
 
-As animações: Instantâneo, Dissolver, Deslizar, Empurrar, Mover por cima, Aproximar, Virar 3D (o
-card 14 do shadcnspace) e Rodar em cubo. O endereço é
+As 18 animações, por grupos (como no Figma):
+
+- **Simples:** Instantâneo, Dissolver, Desfocar.
+- **Deslizar:** Deslizar, Empurrar, Elástico, Deslizar para fora, Mover por cima, Pilha de cartas.
+- **Escala:** Aproximar, Afastar.
+- **3D:** Virar 3D (o card 14 do shadcnspace), Virar na vertical, Rodar em cubo, Abrir a porta.
+- **Revelar:** Revelar em círculo (a partir do sítio onde se clicou), Limpar.
+- **Inteligente:** Animação inteligente, como o «Smart Animate» do Figma — a barra de cima, as
+  abas, o menu lateral e o separador ativo ficam ou deslizam para o sítio novo; só o conteúdo muda.
+
+As que têm lado viram ao andar para trás. O endereço é
 `<app>/#so=ecra&demo=1&anim=<animação>&ecra=<ecrã>&v=<versão>`. Usa a View Transitions do
 navegador (`src/comum/demo.ts`, `src/comum/css/demo.css`); sem ela, ou com «reduzir movimento»,
 a troca é instantânea.
