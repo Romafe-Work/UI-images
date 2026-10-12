@@ -40,7 +40,7 @@ const REGRAS: [string, Componente][] = [
   ['.portal__icone', { peca: 'Botão de ícone', web: 'DxButton (só ícone, com hint)', wpf: 'SimpleButton (só ícone, com ToolTip)' }],
 
   /* navegação */
-  ['.portal__abas, .linha__abas, .aba, .linha__aba, .carrossel__escolha, .carrossel__opcao', { peca: 'Abas', web: 'DxTabs', wpf: 'DXTabControl' }],
+  ['.portal__abas, .linha__abas, .aba, .linha__aba, .carrossel__escolha, .carrossel__opcao, .cp-abas, .cp-aba', { peca: 'Abas', web: 'DxTabs', wpf: 'DXTabControl' }],
   ['.lado, .lado5, .erp__lado, .lado__item, .lado5__item, .erp__modulo, .erp__subitem', { peca: 'Menu lateral', web: 'DxDrawer com DxTreeView', wpf: 'AccordionControl' }],
   ['.carrossel, .c22__carrossel, .prisma', { peca: 'Carrossel', web: 'DxGallery', wpf: 'FlipView (a confirmar)', nota: 'O 3D é CSS nosso, por cima do componente.' }],
 

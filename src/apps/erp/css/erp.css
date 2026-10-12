@@ -167,3 +167,65 @@
 /* o fundo da coluna dos módulos desce até ao fim da página, mesmo quando ela rola */
 .erp { background: linear-gradient(90deg, var(--c-superficie) 232px, var(--c-portal-fundo) 232px); }
 @media (max-width: 1100px) { .erp { background: linear-gradient(90deg, var(--c-superficie) 92px, var(--c-portal-fundo) 92px); } }
+
+/* =========================================================
+   10 · Compras (12 out. 2026): o primeiro ecrã do ERP
+   Ajustável: os números passam a dois por linha quando não cabem; abaixo de
+   1600 a coluna da direita desce para baixo da lista; a tabela larga rola
+   dentro da caixa.
+   ========================================================= */
+.cp-numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--e-4); }
+.cp-numero { display: flex; align-items: center; gap: var(--e-3); padding: var(--e-4); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.cp-numero p { margin: 0; }
+.cp-numero__icone { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: var(--r-md); }
+.cp-numero__icone svg { width: 22px; height: 22px; }
+.cp-numero__icone--azul { background: var(--c-marca-suave); color: var(--c-logotipo); }
+.cp-numero__icone--erro { background: var(--c-erro-suave); color: var(--c-erro); }
+.cp-numero__icone--aviso { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.cp-numero__icone--ok { background: var(--c-ok-suave); color: var(--c-ok); }
+.cp-numero__rotulo { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .05em; color: var(--c-texto-3); }
+.cp-numero__valor { font-family: var(--f-titulo); font-weight: 700; font-size: 26px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.cp-numero__sub { font-size: var(--t-xs); color: var(--c-texto-2); }
+
+.cp-dois { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--e-4); align-items: start; }
+.cp-lista__topo { display: grid; gap: var(--e-3); padding: var(--e-3) var(--e-4) var(--e-3); border-bottom: 1px solid var(--c-borda); }
+.cp-abas { display: flex; flex-wrap: wrap; gap: var(--e-1); }
+.cp-aba {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font: inherit; font-size: var(--t-sm); color: var(--c-texto-2); white-space: nowrap;
+  padding: 6px var(--e-3); border: 0; border-radius: var(--r-full); background: none; cursor: pointer;
+}
+.cp-aba:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+.cp-aba[aria-current="true"] { background: var(--c-marca-suave); color: var(--c-texto); font-weight: 700; box-shadow: inset 0 -2px 0 var(--c-acao); }
+.cp-aba__conta { font-size: 11px; font-weight: 700; padding: 0 6px; border-radius: var(--r-full); background: var(--c-superficie-3); color: var(--c-texto-2); }
+.cp-lista__filtros { display: flex; align-items: center; gap: var(--e-2); flex-wrap: wrap; }
+.cp-procura { margin-left: 0; max-width: 360px; }
+.cp-lista__pe { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); padding: var(--e-3) var(--e-4); font-size: var(--t-sm); color: var(--c-texto-2); }
+.cp-atraso { color: var(--c-erro); font-weight: 700; }
+.cp-estado { display: inline-block; padding: 2px var(--e-2); border-radius: var(--r-full); font-size: var(--t-xs); font-weight: 700; white-space: nowrap; }
+.cp-estado--cinza { background: var(--c-superficie-3); color: var(--c-texto-2); }
+.cp-estado--azul { background: var(--c-marca-suave); color: var(--c-marca); }
+.cp-estado--aviso { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.cp-estado--ok { background: var(--c-ok-suave); color: var(--c-ok); }
+.cp-estado--erro { background: var(--c-erro-suave); color: var(--c-erro); }
+
+.cp-lado { display: grid; gap: var(--e-4); }
+.cp-caixa { display: grid; gap: var(--e-3); padding: var(--e-4); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.cp-caixa__titulo { display: flex; align-items: center; gap: var(--e-2); margin: 0; font-family: var(--f-titulo); font-size: var(--t-md); }
+.cp-caixa__titulo svg { width: 20px; height: 20px; color: var(--c-logotipo); }
+.cp-itens { list-style: none; margin: 0; padding: 0; display: grid; }
+.cp-itens li { display: flex; align-items: center; gap: var(--e-3); padding: var(--e-2) 0; border-top: 1px solid var(--c-borda); }
+.cp-itens li:first-child { border-top: 0; }
+.cp-itens p { margin: 0; }
+.cp-item__nome { font-size: var(--t-sm); font-weight: 700; }
+.cp-item__sub { font-size: var(--t-xs); color: var(--c-texto-2); }
+.cp-dia { display: grid; place-items: center; width: 44px; flex: none; padding: 4px 0; border-radius: var(--r-sm); background: var(--c-superficie-2); font-size: 11px; line-height: 1.2; color: var(--c-texto-2); text-align: center; }
+.cp-dia strong { font-size: 16px; color: var(--c-texto); }
+
+/* a coluna da direita só cabe ao lado da lista em janelas largas (a 1440 a lista ficava apertada) */
+@media (max-width: 1600px) {
+  .cp-dois { grid-template-columns: minmax(0, 1fr); }
+  .cp-lado { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+}
+
+.cp-lista td:first-child a, .cp-lista td:nth-child(3), .cp-lista td:nth-child(4), .cp-lista th { white-space: nowrap; }
