@@ -13,7 +13,7 @@
   height: auto; min-height: 100vh; overflow: visible;
   grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr;
   color: var(--c-texto); background: var(--c-portal-fundo);
-  --v3-azul: #1a6ff0;
+  --v3-azul: var(--c-logotipo);   /* o azul do ROMAFE, RGB(0, 99, 170) — ela, 12 out.: o azul vivo da imagem não */
 }
 
 /* ---------- topo ---------- */

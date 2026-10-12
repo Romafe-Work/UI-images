@@ -15,7 +15,8 @@
   height: auto; min-height: 100vh; overflow: visible;
   display: grid; grid-template-columns: 240px minmax(0, 1fr); grid-template-rows: none;
   color: var(--c-texto); background: var(--c-portal-fundo);
-  --v2-azul: #1f63c4; --v2-azul-2: #174e9e;
+  /* o azul do ROMAFE, RGB(0, 99, 170), a escurecer para a esquerda — ela, 12 out.: o azul vivo não */
+  --v2-azul: var(--c-logotipo); --v2-azul-2: #004f88;
   --v2-chip: var(--c-superficie-2);
   --v2-destaque: var(--noite-destaque);
 }
@@ -160,3 +161,6 @@
   .heroi4 { grid-template-columns: minmax(0, 1fr); }
   .heroi4__desenho { max-width: 48%; }
 }
+/* o quadrado do ícone na cabeça azul: branco transparente, como na v3 e na v5,
+   em vez do azul vivo da v2 */
+.paineis4 .painel2:not(.painel2--acao) .painel2__marca { background: rgba(255,255,255,.2); }
