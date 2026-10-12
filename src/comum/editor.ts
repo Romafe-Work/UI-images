@@ -13,6 +13,7 @@ import { mostrar, pintarBarra } from './ecras';
 import { lerExtras, gravarExtras, type Extras } from './extras';
 import { fluxo } from './fluxo';
 import { componenteDe } from './devexpress';
+import { ANIMACOES, animacaoGuardada, guardarAnimacao, enderecoDemo } from './demo';
 import { aplicar as aplicarTema, actual as temaActual } from './tema';
 /* O CSS de tudo, tal como está escrito (com os comentários), para se ler
    no diálogo «Ver o CSS». Fica fora o editor.css: é da ferramenta, não dos ecrãs. */
@@ -1165,6 +1166,32 @@ function montar(): void {
   bRepor.type = 'button';
   bRepor.addEventListener('click', reporTudo);
   peE.appendChild(bCss); peE.appendChild(bAnular); peE.appendChild(bRepor);
+  /* a demonstração das animações (12 out. 2026): escolhe-se a animação e abre-se
+     o ecrã que se vê num separador novo, em modo de apresentação */
+  const demo = el('div', 'ed-demo');
+  const selAnim = el('select', 'ed-select ed-demo__anim');
+  selAnim.setAttribute('aria-label', 'Animação da demonstração');
+  ANIMACOES.forEach(function (a) {
+    const o = el('option', null, a.nome);
+    o.value = a.id;
+    o.title = a.descricao;
+    if (a.id === animacaoGuardada()) o.selected = true;
+    selAnim.appendChild(o);
+  });
+  selAnim.addEventListener('change', function () { guardarAnimacao(selAnim.value); });
+  const bDemo = botaoIcone('Ver demonstração', '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>', function () {
+    const e = document.querySelector<HTMLElement>('.ecra:not([hidden])');
+    const v = e && e.querySelector<HTMLElement>(':scope > .versao:not([hidden])');
+    if (!e || !e.dataset.ecra) return;
+    window.open(enderecoDemo(e.dataset.ecra, (v && v.dataset.versao) || '', selAnim.value), '_blank', 'noopener');
+  }, 'Abre este ecrã num separador novo, a navegar com a animação escolhida');
+  bDemo.classList.add('ed-demo__abrir');
+  const lAnim = el('label', 'ed-demo__rotulo', 'Animação');
+  demo.appendChild(lAnim);
+  demo.appendChild(selAnim);
+  demo.appendChild(bDemo);
+  peE.appendChild(demo);
+
   const partilha = el('div', 'ed-degraus ed-partilha');
   partilha.appendChild(botaoIcone('Exportar', I_EXPORTAR, exportar, 'Um ficheiro .json com as versões, os ecrãs e as mudanças feitas aqui'));
   partilha.appendChild(botaoIcone('Importar', I_IMPORTAR, importar, 'Volta a pôr um ficheiro exportado'));

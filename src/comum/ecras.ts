@@ -125,6 +125,15 @@ export function mostrar(nome: string): boolean {
   return true;
 }
 
+/* ---------------- a transição entre ecrãs ----------------
+   No protótipo normal, trocar de ecrã é instantâneo. A demonstração
+   (demo.ts) troca isto por uma animação; o sentido diz se se vai para a
+   frente (uma ligação, «seguinte») ou para trás («anterior»). */
+export type Sentido = 'frente' | 'tras';
+let transicao: (mudar: () => void, sentido: Sentido) => void = (mudar) => mudar();
+export function definirTransicao(f: (mudar: () => void, sentido: Sentido) => void): void { transicao = f; }
+export function transitar(mudar: () => void, sentido: Sentido = 'frente'): void { transicao(mudar, sentido); }
+
 export function iniciar(): void {
   barra = document.createElement('nav');
   barra.className = 'versoes';
@@ -147,7 +156,8 @@ export function iniciar(): void {
     if (!peca || !existe(peca.dataset.ir)) return;
     ev.preventDefault();
     ev.stopPropagation();
-    mostrar(peca.dataset.ir);
+    const destino = peca.dataset.ir;
+    transitar(() => { mostrar(destino); }, 'frente');
   }, true);
 
   if (so === 'fluxo') fluxo.ligar({});

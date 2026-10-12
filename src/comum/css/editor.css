@@ -333,3 +333,9 @@
   padding: 4px 6px; border-radius: 4px; background: var(--ed-fundo-2, rgba(127,127,127,.12)); color: var(--ed-tinta, inherit);
   word-break: break-word;
 }
+
+/* a demonstração das animações (12 out. 2026) */
+.ed-demo { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 6px 8px; padding: 8px; border-radius: 8px; background: rgba(239, 123, 16, .1); border: 1px solid rgba(239, 123, 16, .35); }
+.ed-demo__rotulo { font-size: 11px; color: var(--ed-tinta-3); }
+.ed-demo__anim { width: 100%; }
+.ed-demo__abrir { grid-column: 1 / -1; justify-content: center; background: #ef7b10 !important; border-color: #ef7b10 !important; color: #fff !important; }

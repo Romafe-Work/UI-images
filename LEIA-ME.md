@@ -62,6 +62,23 @@ sempre por causa de `.portal { height: 100vh; overflow: hidden }` em `melhorias.
 Catálogo, Pedidos e Guias do GoParts, e os ecrãs de carregamento e de erro do GoParts e
 do GoShop.
 
+## Demonstração das animações (12 out. 2026)
+
+Como o modo de apresentação do Figma. No editor, em baixo no painel da esquerda, escolhe-se a
+**animação** e carrega-se em **Ver demonstração**: abre-se um separador novo com o ecrã que se
+está a ver. Lá, cada ligação do ecrã leva ao seguinte com essa animação, e a barra de baixo:
+
+- troca de animação sem sair;
+- anda pelo fluxo para a frente e para trás (também com ← e →);
+- **Reproduzir o fluxo** passa pelos ecrãs do fluxo sozinha, de 2,6 em 2,6 segundos;
+- **Copiar o link** dá o endereço para mandar a quem quiser ver.
+
+As animações: Instantâneo, Dissolver, Deslizar, Empurrar, Mover por cima, Aproximar, Virar 3D (o
+card 14 do shadcnspace) e Rodar em cubo. O endereço é
+`<app>/#so=ecra&demo=1&anim=<animação>&ecra=<ecrã>&v=<versão>`. Usa a View Transitions do
+navegador (`src/comum/demo.ts`, `src/comum/css/demo.css`); sem ela, ou com «reduzir movimento»,
+a troca é instantânea.
+
 ## Componentes DevExpress (12 out. 2026)
 
 Os componentes vão ser da **DevExpress**, com o mínimo possível (reunião de 6 out.). Ainda não

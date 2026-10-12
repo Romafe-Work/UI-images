@@ -1,0 +1,112 @@
+/* =========================================================
+   ROMAFE — a demonstração das animações (12 out. 2026)
+   Cada animação é um par: como sai o ecrã antigo (::view-transition-old)
+   e como entra o novo (::view-transition-new). <html data-anim> diz qual,
+   <html data-sentido="frente|tras"> vira as que têm lado.
+   A barra de baixo tem nome de transição próprio: fica parada enquanto o
+   ecrã muda. Com «reduzir movimento» não há animação (demo.ts nem a pede).
+   ========================================================= */
+::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: .6s; animation-timing-function: cubic-bezier(.4, 0, .2, 1); animation-fill-mode: both;
+}
+::view-transition-group(root) { animation-duration: .6s; }
+
+/* dissolver: o cruzamento do próprio navegador, um pouco mais lento */
+[data-anim="dissolver"]::view-transition-old(root) { animation-name: demo-sair-fade; animation-duration: .45s; }
+[data-anim="dissolver"]::view-transition-new(root) { animation-name: demo-entrar-fade; animation-duration: .45s; }
+
+/* deslizar: o novo entra de lado, por cima; o antigo fica */
+[data-anim="deslizar"]::view-transition-old(root) { animation: none; }
+[data-anim="deslizar"]::view-transition-new(root) { animation-name: demo-da-direita; }
+[data-anim="deslizar"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-da-esquerda; }
+
+/* empurrar: os dois andam juntos */
+[data-anim="empurrar"]::view-transition-old(root) { animation-name: demo-para-esquerda; }
+[data-anim="empurrar"]::view-transition-new(root) { animation-name: demo-da-direita; }
+[data-anim="empurrar"][data-sentido="tras"]::view-transition-old(root) { animation-name: demo-para-direita; }
+[data-anim="empurrar"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-da-esquerda; }
+
+/* mover por cima: o novo sobe de baixo (e desce, para trás) */
+[data-anim="mover"]::view-transition-old(root) { animation-name: demo-recuar; }
+[data-anim="mover"]::view-transition-new(root) { animation-name: demo-de-baixo; }
+[data-anim="mover"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-de-cima; }
+
+/* aproximar */
+[data-anim="aproximar"]::view-transition-old(root) { animation-name: demo-crescer-e-sumir; }
+[data-anim="aproximar"]::view-transition-new(root) { animation-name: demo-chegar-de-perto; }
+
+/* virar 3D: como o card 14 — o antigo vira até ficar de lado, e o novo
+   continua a volta do outro lado (cada um faz metade do tempo) */
+[data-anim="virar"]::view-transition-group(root) { animation-duration: .7s; }
+[data-anim="virar"]::view-transition-image-pair(root) { isolation: isolate; perspective: 2000px; }
+[data-anim="virar"]::view-transition-old(root) { animation: demo-virar-sair .35s ease-in both; backface-visibility: hidden; }
+[data-anim="virar"]::view-transition-new(root) { animation: demo-virar-entrar .35s ease-out .35s both; backface-visibility: hidden; }
+[data-anim="virar"][data-sentido="tras"]::view-transition-old(root) { animation-name: demo-virar-sair-tras; }
+[data-anim="virar"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-virar-entrar-tras; }
+
+/* rodar em cubo: o antigo roda para trás pela aresta esquerda, o novo vem
+   da direita pela aresta oposta */
+[data-anim="cubo"]::view-transition-image-pair(root) { perspective: 1600px; }
+[data-anim="cubo"]::view-transition-old(root) { animation: demo-cubo-sair .7s cubic-bezier(.45, .05, .2, 1) both; transform-origin: left center; }
+[data-anim="cubo"]::view-transition-new(root) { animation: demo-cubo-entrar .7s cubic-bezier(.45, .05, .2, 1) both; transform-origin: right center; }
+[data-anim="cubo"][data-sentido="tras"]::view-transition-old(root) { animation-name: demo-cubo-sair-tras; transform-origin: right center; }
+[data-anim="cubo"][data-sentido="tras"]::view-transition-new(root) { animation-name: demo-cubo-entrar-tras; transform-origin: left center; }
+
+@keyframes demo-sair-fade { to { opacity: 0; } }
+@keyframes demo-entrar-fade { from { opacity: 0; } }
+@keyframes demo-da-direita { from { transform: translateX(100%); } }
+@keyframes demo-da-esquerda { from { transform: translateX(-100%); } }
+@keyframes demo-para-esquerda { to { transform: translateX(-100%); } }
+@keyframes demo-para-direita { to { transform: translateX(100%); } }
+@keyframes demo-de-baixo { from { transform: translateY(100%); } }
+@keyframes demo-de-cima { from { transform: translateY(-100%); } }
+@keyframes demo-recuar { to { transform: scale(.94); opacity: .6; } }
+@keyframes demo-crescer-e-sumir { to { transform: scale(1.12); opacity: 0; } }
+@keyframes demo-chegar-de-perto { from { transform: scale(.88); opacity: 0; } }
+@keyframes demo-virar-sair { to { transform: rotateY(-90deg); } }
+@keyframes demo-virar-entrar { from { transform: rotateY(90deg); } }
+@keyframes demo-virar-sair-tras { to { transform: rotateY(90deg); } }
+@keyframes demo-virar-entrar-tras { from { transform: rotateY(-90deg); } }
+@keyframes demo-cubo-sair { to { transform: translateX(-100%) rotateY(-90deg); opacity: .4; } }
+@keyframes demo-cubo-entrar { from { transform: translateX(100%) rotateY(90deg); opacity: .4; } }
+@keyframes demo-cubo-sair-tras { to { transform: translateX(100%) rotateY(90deg); opacity: .4; } }
+@keyframes demo-cubo-entrar-tras { from { transform: translateX(-100%) rotateY(-90deg); opacity: .4; } }
+
+/* o fundo atrás das animações 3D, para não se ver branco a meio */
+.demo { background: #0b1422; }
+
+/* ---------- a barra de baixo ---------- */
+.demo .versoes { display: none; }
+.demo-barra {
+  view-transition-name: demo-barra;
+  position: fixed; left: 50%; bottom: 16px; z-index: 50; transform: translateX(-50%);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px;
+  width: max-content; max-width: calc(100vw - 32px); padding: 10px 14px;
+  font: 13px/1.3 var(--f-base, system-ui, sans-serif); color: #fff;
+  background: rgba(20, 24, 32, .92); border: 1px solid rgba(255,255,255,.14); border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.35); backdrop-filter: blur(8px);
+}
+.demo-barra__marca { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: #ef7b10; }
+.demo-barra__anim { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.75); }
+.demo-barra__select {
+  font: inherit; color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px; padding: 6px 8px;
+}
+.demo-barra__select option { color: #222; }
+.demo-barra__botao {
+  display: inline-flex; align-items: center; gap: 6px; font: inherit; font-weight: 700; color: #fff; cursor: pointer;
+  padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06);
+}
+.demo-barra__botao:hover { background: rgba(255,255,255,.14); }
+.demo-barra__botao--acao { background: #ef7b10; border-color: #ef7b10; }
+.demo-barra__botao--acao:hover { background: #d86c01; }
+.demo-barra__onde { min-width: 160px; text-align: center; color: rgba(255,255,255,.85); }
+.demo-barra__dica { flex-basis: 100%; margin: 0; text-align: center; font-size: 12px; color: rgba(255,255,255,.6); }
+/* deixar espaço para a barra no fim da página */
+body.demo::after { content: ''; display: block; height: 120px; }
+
+@media (max-width: 600px) {
+  .demo-barra { bottom: 8px; padding: 8px; gap: 6px; font-size: 12px; }
+  .demo-barra__anim > span, .demo-barra__dica { display: none; }
+  .demo-barra__onde { min-width: 0; flex-basis: 100%; }
+}

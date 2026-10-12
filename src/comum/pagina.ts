@@ -7,6 +7,7 @@
 import type { App } from './tipos';
 import { iniciar as iniciarTema } from './tema';
 import { iniciar as iniciarEcras } from './ecras';
+import { iniciar as iniciarDemo } from './demo';
 import { configurar as configurarFluxo } from './fluxo';
 import { iniciar as iniciarEditor } from './editor';
 import { juntarExtras } from './extras';
@@ -60,5 +61,6 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
   comportamentos.forEach((f) => f());
   configurarFluxo(app);
   iniciarEcras();
+  iniciarDemo();
   iniciarEditor();
 }
