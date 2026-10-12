@@ -10,6 +10,7 @@ import './css/inicio-v2.css';
 import './css/noite.css';
 import './css/inicio-v3.css';
 import './css/inicio-v4.css';
+import './css/inicio-v5.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import '../../comum/css/editor.css';

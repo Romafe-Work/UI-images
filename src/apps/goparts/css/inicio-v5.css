@@ -1,0 +1,173 @@
+/* =========================================================
+   GOPARTS — Início v5 (12 out. 2026), a partir de uma imagem de referência
+   O topo da v1 (marca, procura, ícones, conta) por cima de tudo e as secções
+   numa coluna à esquerda. Uma faixa com o título e a procura, as seis
+   categorias principais, os três painéis com o botão laranja à largura toda
+   e quatro cartões com factos de romafe.com. Claro e escuro (noite.css).
+
+   AJUSTÁVEL: ocupa pelo menos a janela e rola se não couber; a coluna das
+   secções fica presa. Nada sai da janela de 1024 px para cima. Onde se dobra:
+   a faixa põe a procura por baixo do título (≤ 1280); categorias, painéis e
+   cartões passam para menos por linha; abaixo de 1100 a coluna fica só com
+   os ícones e o nome por baixo, e a conta só com a inicial.
+   ========================================================= */
+.portal.portal--v5 {
+  height: auto; min-height: 100vh; overflow: visible;
+  display: grid; grid-template-columns: 240px minmax(0, 1fr); grid-template-rows: auto 1fr;
+  color: var(--c-texto); background: var(--c-portal-fundo);
+  --v5-azul: #1a6ff0;
+  --v2-chip: var(--c-superficie-2);
+}
+
+/* ---------- topo ---------- */
+.portal--v5 .portal__topo { grid-column: 1 / -1; background: var(--noite-barra); min-height: 72px; position: sticky; top: 0; z-index: 3; }
+.portal--v5 .portal__romafe { font-size: 34px; }
+.portal--v5 .portal__produto { font-size: 22px; }
+.portal--v5 .portal__produto, .portal--v5 .portal__produto-sub, .portal--v5 .conta__nome, .portal--v5 .conta__local { white-space: nowrap; }
+.portal--v5 .portal__produto-sub { color: var(--c-texto-2); font-size: 11px; }
+.portal--v5 .procura { max-width: 420px; justify-self: end; background: var(--c-superficie-2); }
+.portal--v5 .procura__atalho { background: transparent; color: var(--c-texto-2); }
+.portal--v5 .portal__icone { color: var(--c-texto-2); }
+.portal--v5 .portal__ponto { display: none; }
+.portal--v5 .conta__inicial { background: var(--v5-azul); width: 40px; height: 40px; }
+
+/* ---------- a coluna das secções ---------- */
+.lado5 {
+  position: sticky; top: 72px; align-self: start; max-height: calc(100vh - 72px); overflow-y: auto;
+  display: grid; gap: var(--e-2); padding: var(--e-5) var(--e-3);
+}
+.lado5__item {
+  display: flex; align-items: center; gap: var(--e-4);
+  font: inherit; font-size: 16px; color: var(--c-texto); text-align: left;
+  padding: 14px var(--e-4); border: 0; border-bottom: 3px solid transparent; border-radius: var(--r-md);
+  background: none; cursor: pointer;
+}
+.lado5__item svg { width: 26px; height: 26px; flex: none; color: var(--c-texto-2); }
+.lado5__item:hover:not([disabled]) { background: var(--c-superficie-2); }
+.lado5__item[aria-current="true"] { background: var(--c-superficie-2); border-bottom-color: var(--c-acao); font-weight: 700; }
+.lado5__item[aria-current="true"] svg { color: var(--c-texto); }
+.lado5__item[disabled] { cursor: default; opacity: .75; }
+
+.cinco { min-width: 0; display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-5) var(--e-3); align-content: start; border-left: 1px solid var(--c-borda); }
+
+/* ---------- a faixa ---------- */
+.faixa5 {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--e-6); align-items: center;
+  padding: var(--e-6) var(--e-6) var(--e-5);
+  border: 1px solid var(--c-borda); border-radius: var(--r-md);
+  background: var(--c-superficie);
+}
+[data-theme="dark"] .faixa5 { background: linear-gradient(100deg, #0f2a52, #12305e 55%, #0f2547); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .faixa5 { background: linear-gradient(100deg, #0f2a52, #12305e 55%, #0f2547); } }
+.faixa5__desenho { position: absolute; right: 0; top: 0; height: 100%; width: auto; max-width: 65%; color: var(--c-marca); opacity: .22; pointer-events: none; }
+.faixa5__texto, .faixa5__procura { position: relative; z-index: 1; min-width: 0; }
+.faixa5__antes { margin: 0 0 var(--e-2); font-family: var(--f-titulo); font-weight: 700; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--noite-destaque); }
+.faixa5__titulo { margin: 0 0 var(--e-3); font-family: var(--f-titulo); font-weight: 700; font-size: clamp(26px, 2.4vw, 34px); line-height: 1.15; color: var(--c-texto); }
+.faixa5__sub { margin: 0; font-size: 17px; color: var(--c-texto-2); }
+.faixa5 .heroi2__procura { max-width: none; }
+.faixa5__baixo { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; margin-top: var(--e-3); }
+.faixa5__exemplo { font-size: 13px; color: var(--c-texto-2); }
+.faixa5__avancada {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font: inherit; font-size: 14px; color: var(--c-texto); cursor: pointer;
+  border: 0; background: none; padding: 4px 0;
+}
+.faixa5__avancada svg { width: 22px; height: 22px; color: var(--c-texto-2); }
+.faixa5__avancada:hover { text-decoration: underline; }
+
+/* ---------- categorias ---------- */
+.cat5__cabeca { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; margin-bottom: var(--e-3); }
+.cat5__titulo { margin: 0; font-family: var(--f-titulo); font-size: 20px; }
+.cat5__lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--e-3); }
+.cat5__item {
+  display: flex; align-items: center; gap: var(--e-3);
+  font: inherit; font-size: 15px; font-weight: 700; color: var(--c-texto); text-align: left; cursor: pointer;
+  padding: var(--e-3); border-radius: var(--r-md);
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+}
+.cat5__item:hover { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
+.cat5__icone {
+  display: grid; place-items: center; width: 56px; height: 56px; flex: none;
+  border-radius: var(--r-full); background: var(--c-superficie-2); color: var(--c-marca);
+}
+.cat5__icone svg { width: 34px; height: 34px; }
+.cat5__seta { width: 18px; height: 18px; margin-left: auto; color: var(--c-texto-2); flex: none; }
+
+/* ---------- os três painéis ---------- */
+.paineis5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--e-4); align-items: stretch; }
+.painel5 {
+  display: grid; grid-template-rows: auto 1fr auto;
+  background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md);
+  overflow: hidden; padding-bottom: var(--e-4);
+}
+.painel5__cabeca { display: flex; align-items: center; gap: var(--e-4); padding: var(--e-3) var(--e-5); min-height: 96px; background: var(--v5-azul); color: #fff; }
+.painel5--acao .painel5__cabeca { background: var(--c-acao); }
+.painel5__marca { display: grid; place-items: center; width: 64px; height: 64px; flex: none; border-radius: var(--r-md); background: rgba(255,255,255,.22); }
+.painel5__marca svg { width: 36px; height: 36px; }
+.painel5__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 22px; line-height: 1.15; }
+.painel5__sub { margin: 4px 0 0; font-size: 14px; line-height: 1.35; color: rgba(255,255,255,.92); }
+.painel5__corpo { display: grid; gap: var(--e-3); align-content: start; padding: var(--e-3) var(--e-5); }
+.painel5--acao .painel5__corpo { gap: var(--e-4); }
+.painel5 .campo__label { font-size: 14px; color: var(--c-texto); margin-bottom: 4px; }
+.painel5 .input { min-height: 40px; padding-top: 7px; padding-bottom: 7px; background: var(--c-superficie-2); color: var(--c-texto); }
+.painel5 .campo__chip { background: var(--c-superficie-2); color: var(--c-texto); border-color: var(--c-borda-forte); }
+.painel5 .campo__chip--pais { background: var(--v5-azul); color: #fff; font-size: 15px; }
+.painel5__par { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-3); }
+.painel5__par .campo__chip { width: 40px; }
+.painel5 .opcao__texto { font-size: 15px; color: var(--c-texto); }
+.painel5 .opcoes { gap: var(--e-4) var(--e-7); }
+.painel5 .opcoes .opcao input { width: 22px; height: 22px; accent-color: var(--v5-azul); }
+.painel5__botao { margin: 0 var(--e-5); min-height: 42px; font-size: 16px; }
+
+/* ---------- os quatro cartões de baixo ---------- */
+.fatos5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--e-3); }
+.fato5 {
+  display: flex; align-items: center; gap: var(--e-4);
+  padding: var(--e-3) var(--e-5); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie);
+}
+.fato5 > svg { width: 36px; height: 36px; flex: none; color: var(--c-marca); }
+.fato5 p { margin: 0; }
+.fato5__titulo { font-weight: 700; font-size: 15px; }
+.fato5__texto { font-size: 13px; color: var(--c-texto-2); }
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1280px) {
+  .faixa5 { grid-template-columns: minmax(0, 1fr); gap: var(--e-4); }
+  .portal--v5 .procura__atalho { display: none; }
+}
+@media (max-width: 1200px) {
+  /* o portal.css passa o topo a uma coluna; aqui fica em linha */
+  .portal--v5 .portal__topo { grid-template-columns: auto minmax(160px, 1fr) auto; gap: var(--e-4); }
+  .portal--v5 .procura { justify-self: stretch; max-width: none; }
+}
+@media (max-width: 1100px) {
+  .portal.portal--v5 { grid-template-columns: 96px minmax(0, 1fr); }
+  .lado5 { padding: var(--e-4) var(--e-1); }
+  .lado5__item { flex-direction: column; gap: 4px; font-size: 11px; text-align: center; padding: 10px 4px; }
+  .portal--v5 .conta__texto { display: none; }
+}
+@media (max-width: 760px) {
+  .portal--v5 .portal__produto-sub { display: none; }
+  .portal--v5 .portal__topo { grid-template-columns: minmax(0, 1fr) auto; }
+  .portal--v5 .procura { grid-column: 1 / -1; order: 3; }
+}
+
+/* ---------- acertos depois de medir a 1440 ---------- */
+.cat5__item { gap: var(--e-2); font-size: 14px; white-space: nowrap; }
+.cat5__icone { width: 48px; height: 48px; }
+.cat5__icone svg { width: 28px; height: 28px; }
+.painel5__par .input { font-size: 14px; padding-left: var(--e-2); padding-right: 30px; background-position: right 14px center, right 9px center; }
+.painel5 .opcoes { gap: var(--e-4) var(--e-6); }
+/* Marca e Modelo lado a lado só quando o painel tem largura para «Selecione modelo»
+   sem cortar; num painel mais estreito ficam um por baixo do outro */
+.painel5 { container-type: inline-size; }
+@container (max-width: 460px) {
+  .painel5__par { grid-template-columns: minmax(0, 1fr); }
+  .painel5__par .input { font-size: 16px; }
+}
+@media (max-width: 1100px) {
+  .lado5 { gap: 2px; }
+  .lado5__item { padding: 8px 4px; }
+  .lado5__item svg { width: 22px; height: 22px; }
+}

@@ -30,7 +30,7 @@ const ABAS: [IdPortal | null, string, string][] = [
   [null, 'Minha lista', '<path d="m12 3.5 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.8l6-.8Z"/>'],
 ];
 
-function topo(p: Produto, menu = false): string {
+function topo(p: Produto, menu = false, definicoes = true): string {
   return `<header class="portal__topo">
     <div class="portal__marca">${menu ? `
       <button type="button" class="portal__icone portal__menu" aria-label="Menu">${I('<path d="M4 6h16M4 12h16M4 18h16"/>')}</button>` : ''}
@@ -46,7 +46,7 @@ function topo(p: Produto, menu = false): string {
     <div class="portal__accoes">
       <button type="button" class="portal__icone" aria-label="Mensagens">${I('<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 6 9-6"/>')}<span class="portal__ponto" aria-label="Novas mensagens"></span></button>
       <button type="button" class="portal__icone" aria-label="Carrinho, 3 artigos">${I('<path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 7H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>')}<span class="portal__selo">3</span></button>
-      <button type="button" class="portal__icone" aria-label="Definições">${I('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>')}</button>
+      ${definicoes ? `<button type="button" class="portal__icone" aria-label="Definições">${I('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>')}</button>` : ''}
       <button type="button" class="portal__icone" aria-label="Ajuda">${I('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.6 2.6 0 1 1 3.4 2.5c-.7.3-1 .8-1 1.6v.3"/><path d="M12 17.4h.01"/>')}</button>
       <button type="button" class="conta">
         <span class="conta__inicial" aria-hidden="true">FF</span>
@@ -151,4 +151,16 @@ export function portalLateral(ativa: IdPortal | null, corpo: string, p: Produto 
   const abre = corpo.indexOf('>') + 1;
   const fecha = corpo.lastIndexOf('</div>');
   return corpo.slice(0, abre) + lado + `<div class="lado__resto">` + cima + corpo.slice(abre, fecha) + `</div>` + corpo.slice(fecha);
+}
+
+/* ---------- v5 (12 out. 2026): a barra em cima e as secções à esquerda ----------
+   A partir de uma imagem de referência: o topo da v1 (marca, procura, ícones,
+   conta; sem as definições) por cima de tudo, e as secções numa coluna à
+   esquerda, no lugar das abas. */
+export function portalTopoLado(ativa: IdPortal | null, corpo: string, p: Produto = GOPARTS): string {
+  const lado = `<nav class="lado5" aria-label="Secções">${ABAS.map(([id, nome, d]) => `
+    <button type="button" class="lado5__item"${id && p.ligar ? ` data-ir="${id}"` : id ? '' : ' disabled title="Ainda sem ecrã"'}${id && id === ativa ? ' aria-current="true"' : ''}>${I(d)}${nome}</button>`).join('')}
+  </nav>`;
+  const abre = corpo.indexOf('>') + 1;
+  return corpo.slice(0, abre) + topo(p, false, false) + lado + corpo.slice(abre);
 }
