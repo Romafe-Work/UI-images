@@ -7,6 +7,7 @@ import './css/pedidos.css';
 import './css/guias.css';
 import './css/melhorias.css';
 import './css/inicio-v2.css';
+import './css/inicio-v21.css';
 import './css/noite.css';
 import './css/inicio-v3.css';
 import './css/inicio-v4.css';
@@ -18,5 +19,6 @@ import '../../comum/css/editor.css';
 import { montar } from '../../comum/pagina';
 import { iniciar as entrar } from '../../comum/entrar/comportamento';
 import { goparts } from './app';
+import { iniciar as carrossel } from './comportamento/carrossel';
 
-montar(goparts, [entrar]);
+montar(goparts, [entrar, carrossel]);

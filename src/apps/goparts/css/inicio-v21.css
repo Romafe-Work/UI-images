@@ -1,0 +1,81 @@
+/* =========================================================
+   GOPARTS — Início v2.1 (12 out. 2026): a v2 com as três pesquisas num
+   carrossel de cartões 3D, em vez de três lado a lado.
+   Um cartão ao centro, os outros dois aos lados, mais pequenos, rodados e
+   para trás; as setas dizem o nome do cartão para onde levam; por cima,
+   os três nomes para escolher direto. Comportamento em
+   comportamento/carrossel.ts. Com «reduzir movimento» não há transição
+   nem inclinação.
+
+   AJUSTÁVEL: o cartão do centro tem até 560 px e encolhe com a janela;
+   os de lado espreitam o que couber e o palco não deixa nada sair para o
+   lado. As setas levam sempre o nome (ícone e texto). Abaixo de 1180 o
+   cartão do centro fica com mais da largura e os de lado espreitam menos.
+   ========================================================= */
+.carrossel { display: grid; gap: var(--e-3); padding: var(--e-4) var(--e-5) var(--e-6); }
+
+/* ---------- a escolha por cima ---------- */
+.carrossel__escolha {
+  justify-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-1);
+  padding: 4px; border-radius: var(--r-full); background: var(--c-superficie); border: 1px solid var(--c-borda);
+}
+.carrossel__opcao {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--c-texto-2); white-space: nowrap;
+  padding: 8px var(--e-4); border: 0; border-radius: var(--r-full); background: none; cursor: pointer;
+}
+.carrossel__opcao svg { width: 18px; height: 18px; flex: none; }
+.carrossel__opcao:hover { color: var(--c-texto); background: var(--c-superficie-2); }
+.carrossel__opcao[aria-selected="true"] { color: #fff; background: var(--v2-azul); }
+.carrossel__opcao[aria-selected="true"]:nth-child(2) { background: var(--c-acao); }
+
+/* ---------- o palco 3D ---------- */
+.carrossel__palco {
+  position: relative; display: grid; grid-template-areas: "c"; place-items: center;
+  perspective: 1600px; perspective-origin: 50% 40%;
+  overflow-x: clip; padding: var(--e-3) 0 var(--e-4);
+}
+.carrossel__cartao {
+  grid-area: c; width: min(560px, 46%); min-width: 340px; align-self: stretch;
+  transform-style: preserve-3d; will-change: transform;
+  transition: transform .55s cubic-bezier(.2, .8, .2, 1), opacity .4s ease, filter .4s ease, box-shadow .4s ease;
+}
+.carrossel__cartao.is-atual {
+  z-index: 3;
+  transform: translateZ(0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  box-shadow: 0 30px 60px -20px rgba(0, 20, 50, .45), 0 0 0 1px var(--c-borda);
+  transition: transform .2s ease-out, opacity .4s ease, filter .4s ease, box-shadow .4s ease;
+}
+.carrossel__cartao.is-ant, .carrossel__cartao.is-seg {
+  z-index: 1; opacity: .55; filter: saturate(.7) brightness(.95); cursor: pointer;
+}
+.carrossel__cartao.is-ant { transform: translateX(-68%) translateZ(-220px) rotateY(32deg); }
+.carrossel__cartao.is-seg { transform: translateX(68%) translateZ(-220px) rotateY(-32deg); }
+.carrossel__cartao.is-ant:hover, .carrossel__cartao.is-seg:hover { opacity: .8; }
+/* nos de lado, o clique é do cartão inteiro: os campos não se usam de lado */
+.carrossel__cartao.is-ant > *, .carrossel__cartao.is-seg > * { pointer-events: none; }
+
+/* ---------- as setas, com o nome para onde levam ---------- */
+.carrossel__seta {
+  position: absolute; top: 50%; z-index: 4; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--c-texto); white-space: nowrap;
+  padding: 10px var(--e-3); border-radius: var(--r-full);
+  background: var(--c-superficie); border: 1px solid var(--c-borda-forte); box-shadow: var(--s-2); cursor: pointer;
+}
+.carrossel__seta svg { width: 22px; height: 22px; flex: none; color: var(--c-acao); }
+.carrossel__seta:hover { background: var(--c-superficie-2); }
+.carrossel__seta--ant { left: var(--e-2); }
+.carrossel__seta--seg { right: var(--e-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .carrossel__cartao, .carrossel__cartao.is-atual { transition: none; transform: none; }
+  .carrossel__cartao.is-ant, .carrossel__cartao.is-seg { display: none; }
+}
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1180px) {
+  .carrossel__cartao { width: min(560px, 60%); }
+  .carrossel__cartao.is-ant { transform: translateX(-52%) translateZ(-260px) rotateY(34deg); }
+  .carrossel__cartao.is-seg { transform: translateX(52%) translateZ(-260px) rotateY(-34deg); }
+}
