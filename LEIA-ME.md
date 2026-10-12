@@ -62,6 +62,49 @@ sempre por causa de `.portal { height: 100vh; overflow: hidden }` em `melhorias.
 Catálogo, Pedidos e Guias do GoParts, e os ecrãs de carregamento e de erro do GoParts e
 do GoShop.
 
+## Componentes DevExpress (12 out. 2026)
+
+Os componentes vão ser da **DevExpress**, com o mínimo possível (reunião de 6 out.). Ainda não
+está decidido se o ERP é de secretária (WPF) ou web (Vue), por isso cada peça leva as duas
+referências: **DevExtreme** (a biblioteca web da DevExpress, com componentes para Vue) e
+**DevExpress WPF**. A Pick fica de fora: é Kotlin nativo e a DevExpress não tem componentes
+para Android nativo.
+
+No editor, ao escolher uma peça, o painel de propriedades mostra em cima o seu componente;
+uma peça sem regra mostra o do contentor («faz parte de»). As regras estão em
+`src/comum/devexpress.ts` — uma peça nova que seja um componente entra lá. «—» quer dizer que
+não há componente e fica em CSS nosso. «A confirmar» é nome que ainda falta ver na documentação.
+
+| Peça | Web · DevExtreme (Vue) | Secretária · WPF | Nota |
+| --- | --- | --- | --- |
+| Tabela | `DxDataGrid` | `GridControl` | Ordenar, filtrar, paginar e «carregar mais» vêm do próprio componente. |
+| Carregar mais | `DxDataGrid (scrolling: infinite)` | `GridControl (InfiniteSource)` |  |
+| Paginação | `DxDataGrid (pager)` | `DataPager` |  |
+| Palavra-passe | `DxTextBox (mode: password)` | `PasswordBoxEdit` |  |
+| Procura | `DxAutocomplete` | `SearchControl` | Com sugestões enquanto se escreve. |
+| Caixa de escolha | `DxCheckBox` | `CheckEdit` |  |
+| Escolha única | `DxRadioGroup` | `ListBoxEdit (RadioListBoxEditStyleSettings)` |  |
+| Lista de escolha | `DxSelectBox` | `ComboBoxEdit` |  |
+| Número | `DxNumberBox` | `SpinEdit` |  |
+| Data | `DxDateBox` | `DateEdit` |  |
+| Campo de texto | `DxTextBox` | `TextEdit` |  |
+| Mensagem do campo | `DxValidator` | `Validação do editor (ValidationErrorTemplate)` |  |
+| Resumo dos erros | `DxValidationSummary` | `— (lista nossa ligada aos erros dos editores)` |  |
+| Formulário | `DxForm` | `DataLayoutControl` |  |
+| Menu da conta | `DxDropDownButton` | `DropDownButton` |  |
+| Botão | `DxButton` | `SimpleButton` | Sempre com ícone e texto. |
+| Botão de ícone | `DxButton (só ícone, com hint)` | `SimpleButton (só ícone, com ToolTip)` |  |
+| Abas | `DxTabs` | `DXTabControl` |  |
+| Menu lateral | `DxDrawer com DxTreeView` | `AccordionControl` |  |
+| Carrossel | `DxGallery` | `FlipView (a confirmar)` | O 3D é CSS nosso, por cima do componente. |
+| Barra de progresso | `DxProgressBar` | `ProgressBarEdit` |  |
+| Girador | `DxLoadIndicator` | `WaitIndicator` |  |
+| Esqueleto | `— (CSS nosso)` | `— (CSS nosso)` | Nenhuma das duas tem esqueletos. |
+| Diálogo | `DxPopup` | `ThemedWindow (DXDialogWindow)` |  |
+| Aviso pequeno | `DxToast (notify)` | `NotificationService` |  |
+| Faixa de aviso | `— (CSS nosso)` | `— (CSS nosso)` |  |
+| Contador | `— (badge do DxButton não existe: CSS nosso)` | `— (CSS nosso)` |  |
+
 ## Como está feito
 
 ```

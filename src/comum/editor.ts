@@ -12,6 +12,7 @@
 import { mostrar, pintarBarra } from './ecras';
 import { lerExtras, gravarExtras, type Extras } from './extras';
 import { fluxo } from './fluxo';
+import { componenteDe } from './devexpress';
 import { aplicar as aplicarTema, actual as temaActual } from './tema';
 /* O CSS de tudo, tal como está escrito (com os comentários), para se ler
    no diálogo «Ver o CSS». Fica fora o editor.css: é da ferramenta, não dos ecrãs. */
@@ -611,6 +612,28 @@ function pintarProps(): void {
   }
 
   if (alvoEl) alvoEl.textContent = nomeDe(alvo);
+
+  /* --- o componente DevExpress (12 out. 2026): web (DevExtreme) e secretária (WPF) --- */
+  const sx = seccao('Componente DevExpress');
+  if (document.documentElement.dataset.app === 'mobile') {
+    sx.appendChild(el('p', 'ed-dica', 'A Pick é Kotlin nativo: a DevExpress não tem componentes para Android nativo.'));
+  } else {
+    const dx = componenteDe(alvo);
+    if (!dx) {
+      sx.appendChild(el('p', 'ed-dica', 'Sem componente: é estrutura ou texto, em HTML e CSS nossos.'));
+    } else {
+      if (!dx.propria) sx.appendChild(el('p', 'ed-dica', 'Faz parte de: ' + dx.c.peca + ' (' + nomeDe(dx.de as Peca) + ')'));
+      else sx.appendChild(el('p', 'ed-dica', dx.c.peca));
+      ([['Web · DevExtreme', dx.c.web], ['Secretária · WPF', dx.c.wpf]] as const).forEach(function (par) {
+        const l = el('div', 'ed-linha');
+        l.appendChild(el('label', null, par[0]));
+        l.appendChild(el('code', 'ed-dx', par[1]));
+        sx.appendChild(l);
+      });
+      if (dx.c.nota) sx.appendChild(el('p', 'ed-dica', dx.c.nota));
+    }
+  }
+  corpoProps.appendChild(sx);
 
   /* --- para onde leva, no protótipo e no mapa --- */
   const comLigacao = alvo.closest<HTMLElement>('[data-ir]');

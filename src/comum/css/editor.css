@@ -325,3 +325,11 @@
 .ed-botao--icone svg { flex: none; }
 .ed-botao[disabled] { opacity: .45; cursor: default; }
 .ed-partilha { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+
+/* o componente DevExpress de cada peça (12 out. 2026): o nome por baixo do rótulo */
+.ed-linha:has(> .ed-dx) { grid-template-columns: 1fr; gap: 2px; margin-bottom: var(--e-2); }
+.ed-dx {
+  font-family: var(--f-mono, ui-monospace, monospace); font-size: 12px; line-height: 1.4;
+  padding: 4px 6px; border-radius: 4px; background: var(--ed-fundo-2, rgba(127,127,127,.12)); color: var(--ed-tinta, inherit);
+  word-break: break-word;
+}
