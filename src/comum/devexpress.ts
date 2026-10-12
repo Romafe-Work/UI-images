@@ -41,6 +41,8 @@ const REGRAS: [string, Componente][] = [
 
   /* navegação */
   ['.portal__abas, .linha__abas, .aba, .linha__aba, .carrossel__escolha, .carrossel__opcao, .cp-abas, .cp-aba', { peca: 'Abas', web: 'DxTabs', wpf: 'DXTabControl' }],
+  ['.cat2__passos, .cat2__passo', { peca: 'Passos', web: 'DxTabs (ou DxMultiView com passos)', wpf: 'WizardControl' }],
+  ['.cat2__grelha, .cat2__lista-modelos', { peca: 'Grelha de escolha', web: 'DxTileView', wpf: 'TileLayoutControl' }],
   ['.lado, .lado5, .erp__lado, .lado__item, .lado5__item, .erp__modulo, .erp__subitem', { peca: 'Menu lateral', web: 'DxDrawer com DxTreeView', wpf: 'AccordionControl' }],
   ['.carrossel, .c22__carrossel, .prisma', { peca: 'Carrossel', web: 'DxGallery', wpf: 'FlipView (a confirmar)', nota: 'O 3D é CSS nosso, por cima do componente.' }],
 

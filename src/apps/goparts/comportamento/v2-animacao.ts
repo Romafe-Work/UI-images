@@ -20,8 +20,8 @@ const V2 = '.portal--v21, .portal--v22, .portal--v23';
 const editando = () => document.body.classList.contains('editando');
 
 /* ---------- o indicador deslizante ---------- */
-const MENUS = '.linha__abas, .portal__abas, .carrossel__escolha';
-const ITENS = '.linha__aba, .aba, .carrossel__opcao';
+const MENUS = '.linha__abas, .portal__abas, .carrossel__escolha, .cat2__passos';
+const ITENS = '.linha__aba, .aba, .carrossel__opcao, .cat2__passo';
 const escolhido = (m: HTMLElement) => m.querySelector<HTMLElement>(`:is(${ITENS}):is([aria-current="true"], [aria-selected="true"])`);
 
 /* A escolhida tem a sua própria risca (CSS) e fica sempre marcada. Esta risca é

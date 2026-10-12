@@ -1,0 +1,139 @@
+/* =========================================================
+   GOPARTS — 11 · Catálogo v2 (12 out. 2026), a partir da imagem do catálogo
+   atual do GO REPAIR, no estilo do Início v2.2 (topo, abas, cartão azul
+   da Romafe, ícones do Lucide, animações suaves). Claro e escuro.
+   As marcas levam um monograma com as iniciais: os logótipos são marcas
+   registadas e não os temos.
+
+   AJUSTÁVEL: ocupa pelo menos a janela e rola. Os campos passam de 4 a 2
+   colunas e a 1; a grelha de marcas usa as colunas que couberem (auto-fill).
+   Comportamento: comportamento/catalogo.ts.
+   ========================================================= */
+.portal.portal--cat2 { grid-template-rows: auto auto auto 1fr; }
+
+/* ---------- os passos do catálogo (com a risca da v2.2) ---------- */
+.cat2__passos {
+  display: flex; flex-wrap: wrap; gap: var(--e-1); padding: var(--e-2) var(--e-5);
+  background: var(--c-superficie); border-bottom: 1px solid var(--c-borda);
+}
+.cat2__passo {
+  font: inherit; font-size: 15px; color: var(--c-texto); white-space: nowrap; cursor: pointer;
+  padding: 8px var(--e-3); border: 0; border-radius: var(--r-md); background: none;
+  transition: background-color .2s ease, color .2s ease;
+}
+.cat2__passo:hover:not(:disabled) { background: var(--c-superficie-2); }
+.cat2__passo:disabled { color: var(--c-texto-3); cursor: default; }
+.cat2__passo[aria-current="true"] { background: var(--c-superficie-2); font-weight: 700; box-shadow: inset 0 -3px 0 var(--c-acao); }
+
+.cat2 { display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-6); align-content: start; }
+
+/* ---------- a pesquisa por veículo, no cartão azul da v2.2 ---------- */
+.cat2__pesquisa { padding: var(--e-4) var(--e-5) var(--e-5); gap: var(--e-4); }
+.cat2__pesquisa::before { display: none; }
+.cat2__pesquisa-cabeca { display: flex; align-items: center; gap: var(--e-3); }
+.cat2__icone { width: 52px; height: 52px; }
+.cat2__icone svg { width: 28px; height: 28px; }
+.cat2__titulo { margin: 0; font-family: var(--f-titulo); font-size: 24px; line-height: 1.15; }
+.cat2__sub { margin: 2px 0 0; font-size: 14px; color: rgba(255, 255, 255, .88); }
+.cat2__campos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--e-3) var(--e-4); align-items: end; }
+.cat2__largo { grid-column: span 3; }
+.cat2__pesquisar { min-height: 48px; font-size: 16px; }
+.portal--cat2 .cat2__pesquisa .campo__label { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.portal--cat2 .cat2__pesquisa .campo__contador { color: rgba(255, 255, 255, .7); }
+.portal--cat2 .cat2__pesquisa .input { min-height: 46px; color: #fff; background: rgba(4, 18, 38, .45); border-color: rgba(255, 255, 255, .22); }
+.portal--cat2 .cat2__pesquisa .input::placeholder { color: rgba(255, 255, 255, .65); }
+.portal--cat2 .cat2__pesquisa select.input option { color: #222; }
+.portal--cat2 .cat2__pesquisa .campo__chip { width: 46px; background: rgba(4, 18, 38, .55); color: #fff; border-color: rgba(255, 255, 255, .22); }
+.portal--cat2 .cat2__pesquisa .campo__chip svg { width: 18px; height: 18px; }
+.portal--cat2 .cat2__pesquisa .campo__chip--pais { background: rgba(255, 255, 255, .22); }
+
+/* ---------- as marcas ---------- */
+.cat2__marcas { display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-5); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.cat2__marcas-cabeca { display: flex; align-items: center; gap: var(--e-4); flex-wrap: wrap; }
+.cat2__marcas-cabeca > div:first-child { margin-right: auto; }
+.cat2__marcas-titulo { margin: 0; font-family: var(--f-titulo); font-size: 22px; }
+.cat2__marcas-sub { margin: 2px 0 0; font-size: 13px; color: var(--c-texto-2); }
+.cat2__procura { width: 260px; max-width: 100%; margin: 0; }
+.cat2__filtro { display: flex; gap: 4px; padding: 4px; border-radius: var(--r-md); background: var(--c-superficie-2); }
+.cat2__filtro-aba {
+  display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; color: var(--c-texto-2); cursor: pointer;
+  padding: 6px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; transition: background-color .2s ease, color .2s ease;
+}
+.cat2__filtro-aba svg { width: 16px; height: 16px; }
+.cat2__filtro-aba[aria-current="true"] { background: var(--c-superficie); color: var(--c-texto); font-weight: 700; box-shadow: inset 0 -2px 0 var(--c-acao); }
+
+.cat2__grelha { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: var(--e-3); }
+.cat2__marca { position: relative; }
+.cat2__marca[hidden] { display: none; }
+.cat2__marca-botao {
+  width: 100%; display: grid; justify-items: center; gap: var(--e-2);
+  font: inherit; color: var(--c-texto); cursor: pointer; padding: var(--e-4) var(--e-2) var(--e-3);
+  border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.cat2__marca-botao:hover { transform: translateY(-3px); border-color: var(--c-acao); }
+.cat2__mono {
+  display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-full);
+  font-family: var(--f-titulo); font-weight: 700; font-size: 17px; letter-spacing: .02em;
+  color: var(--c-logotipo); background: var(--c-marca-suave); transition: transform .25s cubic-bezier(.34, 1.56, .64, 1);
+}
+.cat2__marca-botao:hover .cat2__mono { transform: scale(1.08); }
+.cat2__marca-nome { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-align: center; color: var(--c-texto-2); }
+.cat2__estrela {
+  position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 28px; height: 28px;
+  border: 0; border-radius: var(--r-full); background: none; color: var(--c-texto-3); cursor: pointer; opacity: 0;
+  transition: opacity .15s ease, color .15s ease;
+}
+.cat2__estrela svg { width: 16px; height: 16px; }
+.cat2__marca:hover .cat2__estrela, .cat2__estrela:focus-visible, .cat2__estrela[aria-pressed="true"] { opacity: 1; }
+.cat2__estrela[aria-pressed="true"] { color: var(--c-acao); }
+.cat2__estrela[aria-pressed="true"] svg { fill: currentColor; }
+.cat2__estrela.is-a-marcar svg { animation: estrela-marcar .35s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes estrela-marcar { 50% { transform: scale(1.4) rotate(15deg); } }
+.cat2__vazio { margin: 0; color: var(--c-texto-2); }
+
+/* a entrada em cascata ao filtrar */
+.cat2__grelha.is-a-entrar .cat2__marca:not([hidden]) { animation: marca-entrar .3s ease-out calc(var(--i, 0) * 18ms) both; }
+@keyframes marca-entrar { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+
+/* ---------- os modelos da marca escolhida ---------- */
+.cat2__modelos { display: grid; gap: var(--e-4); animation: marca-entrar .3s ease-out both; }
+.cat2__modelos[hidden] { display: none; }
+.cat2__modelos-cabeca { display: flex; align-items: center; gap: var(--e-3); }
+.cat2__escolhida { color: var(--c-logotipo); }
+.cat2__exemplo { margin-left: auto; font-size: 12px; color: var(--c-texto-3); }
+.cat2__lista-modelos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--e-3); }
+.cat2__lista-modelos li { animation: marca-entrar .3s ease-out calc(var(--i, 0) * 40ms) both; }
+.cat2__modelo {
+  width: 100%; display: grid; gap: 2px; text-align: left; font: inherit; color: var(--c-texto); cursor: pointer;
+  padding: var(--e-3) var(--e-4); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.cat2__modelo:hover { transform: translateY(-2px); border-color: var(--c-acao); }
+.cat2__modelo-nome { font-weight: 700; }
+.cat2__modelo-anos { font-size: 12px; color: var(--c-texto-2); }
+.cat2__sem { color: var(--c-texto-2); font-size: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat2__grelha.is-a-entrar .cat2__marca, .cat2__modelos, .cat2__lista-modelos li, .cat2__estrela.is-a-marcar svg { animation: none; }
+  .cat2__marca-botao, .cat2__mono, .cat2__modelo { transition: none; }
+}
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1180px) {
+  .cat2__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cat2__largo { grid-column: span 2; }
+  .cat2__pesquisar { grid-column: span 2; }
+}
+@media (max-width: 640px) {
+  .cat2__campos { grid-template-columns: minmax(0, 1fr); }
+  .cat2__largo, .cat2__pesquisar { grid-column: auto; }
+}
+
+/* acertos depois de ver: o cartão azul vem da v2.2, onde tem grid-area do carrossel;
+   aqui fica no fluxo, em cima. O [hidden] tem de ganhar ao display das grelhas.
+   No escuro, as iniciais no azul claro do tema (o --c-logotipo é só para o ROMAFE). */
+.cat2__pesquisa.c22__cartao { grid-area: auto; width: auto; }
+.cat2__grelha[hidden], .cat2__marcas-cabeca[hidden] { display: none; }
+[data-theme="dark"] .portal--cat2 .cat2__mono { color: var(--c-marca); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--cat2 .cat2__mono { color: var(--c-marca); } }
