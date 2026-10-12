@@ -200,7 +200,7 @@
 :is(.portal--v21, .portal--v23) .painel2__marca svg,
 .portal--v22 .c22__marca svg {
   --lado3d: #0b3a6b;
-  transform: rotate(-6deg) skew(-10deg, -6deg) scaleX(.94);   /* 2D: o 3D rasterizava o traço e serrilhava */
+  transform: rotate(-2deg) skew(-4deg, -2deg);   /* quase de frente (ela: «menos inclinado») */   /* 2D: o 3D rasterizava o traço e serrilhava */
   filter:
     drop-shadow(1px 1px 0 var(--lado3d)) drop-shadow(1px 1px 0 var(--lado3d))
     drop-shadow(1px 1px 0 var(--lado3d));
@@ -210,7 +210,7 @@
 :is(.portal--v21, .portal--v23) .painel2--acao .painel2__marca svg,
 .portal--v22 .c22__cartao--laranja .c22__marca svg { --lado3d: #9a4a00; }
 :is(.portal--v21, .portal--v23) .carrossel__cartao.is-atual:hover .painel2__marca svg,
-.portal--v22 .c22__cartao.is-atual:hover .c22__marca svg { transform: rotate(-8deg) skew(-13deg, -8deg) scale(1.06); }
+.portal--v22 .c22__cartao.is-atual:hover .c22__marca svg { transform: rotate(-3deg) skew(-6deg, -3deg) scale(1.05); }
 @media (prefers-reduced-motion: reduce) {
   :is(.portal--v21, .portal--v23) .painel2__marca svg, .portal--v22 .c22__marca svg { transition: none; }
 }
