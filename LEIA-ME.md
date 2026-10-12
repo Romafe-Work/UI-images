@@ -55,7 +55,7 @@ Mede as quatro apps × ecrãs × versões em 1024×700, 1280×720, 1448×787, 14
 1920×1080 (a Pick em 320×533, 360×640 e 412×780) e lista o que sai da janela, o que
 um contentor corta e o que fica por cima de outra coisa. Só se entrega com zero.
 
-**Estado a 12 out. 2026:** o 10 · Início do GoParts (só a v2.2, desde 12 out.) e o 11 · Catálogo v2 (claro e escuro) passam
+**Estado a 12 out. 2026:** o 10 · Início do GoParts (só a v2.2, desde 12 out.), o 11 · Catálogo e o 12 · Pedidos (só a v2, desde 12 out.) passam
 a zero em todos os tamanhos. O ERP, os logins e a Pick também. O ERP faz-se por módulo e começa por Compras: **10 · Compras** é o primeiro ecrã (encomendas a fornecedor). Os estados de carregamento e de erro do ERP (20–26, 30–39, no módulo de Compras) e da Pick
 (20–23, 30–36) nasceram ajustáveis e passam a zero. Ainda falham, quase
 sempre por causa de `.portal { height: 100vh; overflow: hidden }` em `melhorias.css`:
