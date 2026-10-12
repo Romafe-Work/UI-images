@@ -156,38 +156,53 @@
 .cat2__marca-nome { color: var(--c-texto-3); font-weight: 600; letter-spacing: .06em; font-size: 11px; }
 @media (prefers-reduced-motion: reduce) { .cat2__logo { transition: none; } }
 
-/* ---------- animação dos cartões das marcas (12 out. 2026: «quero animações e a marca nos cards») ----------
-   Cada marca tem a sua cor (do simple-icons; aproximada nas que lá não estão), em duas
-   variantes legíveis: --cor-claro no fundo claro, --cor-escuro no azul-noite.
-   Ao passar o rato: o cartão sobe e inclina-se até 1,5°, o contorno e o logótipo ganham
-   a cor da marca, o logótipo cresce, e uma risca na cor da marca desenha-se por baixo do
-   nome. Ao carregar, o cartão afunda. Sem brilho; sombra curta. */
-.cat2__marca { --cor: var(--cor-claro, var(--c-marca)); perspective: 600px; }
+/* ---------- animação dos cartões das marcas (12 out. 2026) ----------
+   Primeiro ela pediu «animações e a marca nos cards»; depois colou uma proposta
+   para o catálogo: discretas, rápidas e funcionais, entre 150 e 250 ms, sem
+   brilhos, gradientes, sombras nem 3D («aqui a prioridade é encontrar peças
+   rapidamente»). Ficou assim:
+   - cartão: sobe 3 px, a borda fica azul e o fundo um pouco mais claro (180 ms);
+     o logótipo ganha a cor da marca;
+   - favorita: a estrela cresce a 1,2 e volta (200 ms);
+   - procura: os que saem desvanecem e os que ficam deslizam para o sítio novo
+     (comportamento/catalogo.ts, 220 ms);
+   - Marcas → Modelos: a grelha sai para a esquerda e os modelos entram da
+     direita (250 ms); ao voltar, ao contrário;
+   - passos: a risca laranja desliza para o passo ativo (v2-animacao.ts). */
+.cat2__marca { --cor: var(--cor-claro, var(--c-marca)); }
 [data-theme="dark"] .portal--cat2 .cat2__marca { --cor: var(--cor-escuro, var(--c-marca)); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--cat2 .cat2__marca { --cor: var(--cor-escuro, var(--c-marca)); } }
 
-.cat2__marca-botao {
-  position: relative; overflow: hidden;
-  transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), border-color .2s ease, box-shadow .25s ease;
-}
-.cat2__marca-botao::after {
-  content: ''; position: absolute; left: 20%; right: 20%; bottom: 10px; height: 2px; border-radius: 2px;
-  background: var(--cor); transform: scaleX(0); transition: transform .3s cubic-bezier(.65, 0, .35, 1);
-}
-.cat2__marca-botao:hover {
-  transform: translateY(-4px) rotateX(1.5deg); border-color: var(--cor);
-  box-shadow: 0 10px 18px -14px var(--cor);
-}
-.cat2__marca-botao:hover::after { transform: scaleX(1); }
-.cat2__marca-botao:hover .cat2__logo { transform: scale(1.12); color: var(--cor); }
+.cat2__marca-botao { transition: transform .18s ease-out, border-color .18s ease, background-color .18s ease; }
+.cat2__marca-botao:hover { transform: translateY(-3px); border-color: var(--c-marca); background: var(--c-superficie-2); }
+.cat2__marca-botao:hover .cat2__logo { transform: none; color: var(--cor); }
+.cat2__logo { transition: color .18s ease; }
 .cat2__marca-botao:hover .cat2__marca-nome { color: var(--c-texto); }
-.cat2__marca-botao:active { transform: translateY(-1px) scale(.97); transition-duration: .1s; }
-.cat2__marca-botao:focus-visible { outline: 2px solid var(--cor); outline-offset: 2px; }
-/* a estrela da favorita também fica na cor da marca ao passar */
-.cat2__marca:hover .cat2__estrela:not([aria-pressed="true"]) { color: var(--cor); }
-/* a entrada em cascata ganha um pequeno ressalto */
-@keyframes marca-entrar { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 70% { opacity: 1; transform: translateY(-2px) scale(1.01); } 100% { transform: none; } }
+.cat2__marca-botao:active { transform: translateY(-1px); transition-duration: .1s; }
+.cat2__marca-botao:focus-visible { outline: 2px solid var(--c-marca); outline-offset: 2px; }
+/* a estrela: cresce e volta */
+.cat2__estrela.is-a-marcar svg { animation: estrela-marcar .2s ease-out; }
+@keyframes estrela-marcar { 50% { transform: scale(1.2); } }
+/* a entrada ao filtrar, sem ressalto */
+@keyframes marca-entrar { from { opacity: 0; transform: translateY(6px); } }
+.cat2__grelha.is-a-entrar .cat2__marca:not([hidden]) { animation: marca-entrar .2s ease-out calc(var(--i, 0) * 12ms) both; }
+/* a procura: sair desvanecendo (o deslizar dos outros é FLIP no comportamento) */
+.cat2__marca.is-a-sair { opacity: 0; transform: scale(.96); transition: opacity .15s ease, transform .15s ease; }
+/* Marcas → Modelos: deslizar na horizontal, 250 ms */
+.cat2__grelha.is-a-sair-esq { animation: passo-sair-esq .2s ease-in both; }
+.cat2__modelos.is-a-entrar-dir { animation: passo-entrar-dir .25s ease-out both; }
+.cat2__modelos.is-a-sair-dir { animation: passo-sair-dir .2s ease-in both; }
+.cat2__grelha.is-a-entrar-esq { animation: passo-entrar-esq .25s ease-out both; }
+@keyframes passo-sair-esq { to { opacity: 0; transform: translateX(-32px); } }
+@keyframes passo-entrar-dir { from { opacity: 0; transform: translateX(32px); } }
+@keyframes passo-sair-dir { to { opacity: 0; transform: translateX(32px); } }
+@keyframes passo-entrar-esq { from { opacity: 0; transform: translateX(-32px); } }
+.cat2__modelos { animation: none; }
+.cat2__lista-modelos li { animation: marca-entrar .2s ease-out calc(var(--i, 0) * 30ms + 80ms) both; }
+.cat2__modelo { transition: transform .18s ease-out, border-color .18s ease, background-color .18s ease; }
+.cat2__modelo:hover { transform: translateY(-3px); border-color: var(--c-marca); background: var(--c-superficie); }
 @media (prefers-reduced-motion: reduce) {
-  .cat2__marca-botao, .cat2__marca-botao::after { transition: none; }
-  .cat2__marca-botao:hover, .cat2__marca-botao:active { transform: none; }
+  .cat2__marca-botao, .cat2__logo, .cat2__modelo, .cat2__marca.is-a-sair { transition: none; }
+  .cat2__marca-botao:hover, .cat2__modelo:hover { transform: none; }
+  .cat2__grelha, .cat2__modelos, .cat2__lista-modelos li, .cat2__marca, .cat2__estrela svg { animation: none !important; }
 }

@@ -18,6 +18,50 @@ const MODELOS: Record<string, [string, string][]> = {
 };
 const editando = () => document.body.classList.contains('editando');
 
+const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* A procura com animação de disposição (FLIP): as marcas que saem desvanecem
+   (150 ms) e as que ficam deslizam do sítio antigo para o novo (220 ms), sem
+   a grelha saltar. Os separadores Favoritas/Todas usam a entrada em cascata. */
+function procurar(c: HTMLElement): void {
+  if (quieto()) { aplicar(c); return; }
+  const grelha = c.querySelector<HTMLElement>('.cat2__grelha')!;
+  const termo = (c.querySelector<HTMLInputElement>('.cat2__procura input')?.value || '').trim().toLowerCase();
+  const filtro = grelha.dataset.filtroAtivo || 'favoritas';
+  const marcas = Array.from(grelha.querySelectorAll<HTMLElement>('.cat2__marca'));
+  const fica = (m: HTMLElement) => termo ? (m.dataset.nome || '').toLowerCase().includes(termo) : (filtro === 'todas' || m.querySelector('.cat2__estrela')?.getAttribute('aria-pressed') === 'true');
+  const antes = new Map(marcas.filter((m) => !m.hidden).map((m) => [m, m.getBoundingClientRect()]));
+  const saem = marcas.filter((m) => !m.hidden && !fica(m));
+  saem.forEach((m) => m.classList.add('is-a-sair'));
+  window.setTimeout(() => {
+    grelha.classList.remove('is-a-entrar');
+    marcas.forEach((m) => { m.classList.remove('is-a-sair'); m.hidden = !fica(m); });
+    const vazio = c.querySelector<HTMLElement>('.cat2__vazio');
+    if (vazio) vazio.hidden = marcas.some((m) => !m.hidden);
+    marcas.filter((m) => !m.hidden).forEach((m) => {
+      const a = antes.get(m);
+      const d = m.getBoundingClientRect();
+      if (!a) { m.animate([{ opacity: 0, transform: 'scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'ease-out' }); return; }
+      const dx = a.left - d.left, dy = a.top - d.top;
+      if (dx || dy) m.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    });
+  }, saem.length ? 150 : 0);
+}
+
+/** Troca de um bloco para outro na horizontal: o que sai vai para um lado, o que entra vem do outro. */
+function deslizar(sai: HTMLElement, entra: HTMLElement, frente: boolean, antes: () => void): void {
+  if (quieto()) { antes(); return; }
+  const fora = frente ? 'is-a-sair-esq' : 'is-a-sair-dir';
+  const dentro = frente ? 'is-a-entrar-dir' : 'is-a-entrar-esq';
+  sai.classList.add(fora);
+  window.setTimeout(() => {
+    sai.classList.remove(fora);
+    antes();
+    entra.classList.remove(dentro); void entra.offsetWidth; entra.classList.add(dentro);
+    window.setTimeout(() => entra.classList.remove(dentro), 260);
+  }, 200);
+}
+
 function aplicar(c: HTMLElement): void {
   const grelha = c.querySelector<HTMLElement>('.cat2__grelha')!;
   const filtro = grelha.dataset.filtroAtivo || 'favoritas';
@@ -52,18 +96,26 @@ function abrirModelos(c: HTMLElement, nome: string): void {
     : '<li class="cat2__sem">Sem modelos de exemplo para esta marca: os exemplos só existem para as favoritas de origem.</li>';
   lista.querySelectorAll('.cat2__modelo-nome').forEach((s, i) => { s.textContent = modelos[i][0]; });
   c.querySelector('.cat2__escolhida')!.textContent = '· ' + nome;
-  c.querySelector<HTMLElement>('.cat2__grelha')!.hidden = true;
-  c.querySelector<HTMLElement>('.cat2__vazio')!.hidden = true;
-  c.querySelector<HTMLElement>('.cat2__marcas-cabeca')!.hidden = true;
-  c.querySelector<HTMLElement>('.cat2__modelos')!.hidden = false;
+  const grelha = c.querySelector<HTMLElement>('.cat2__grelha')!;
+  const bloco = c.querySelector<HTMLElement>('.cat2__modelos')!;
   passo(c.closest('.portal'), 1);
+  deslizar(grelha, bloco, true, () => {
+    grelha.hidden = true;
+    c.querySelector<HTMLElement>('.cat2__vazio')!.hidden = true;
+    c.querySelector<HTMLElement>('.cat2__marcas-cabeca')!.hidden = true;
+    bloco.hidden = false;
+  });
 }
 function fecharModelos(c: HTMLElement): void {
-  c.querySelector<HTMLElement>('.cat2__modelos')!.hidden = true;
-  c.querySelector<HTMLElement>('.cat2__grelha')!.hidden = false;
-  c.querySelector<HTMLElement>('.cat2__marcas-cabeca')!.hidden = false;
+  const grelha = c.querySelector<HTMLElement>('.cat2__grelha')!;
+  const modelos = c.querySelector<HTMLElement>('.cat2__modelos')!;
   passo(c.closest('.portal'), 0);
-  aplicar(c);
+  if (modelos.hidden) return;
+  deslizar(modelos, grelha, false, () => {
+    modelos.hidden = true;
+    grelha.hidden = false;
+    c.querySelector<HTMLElement>('.cat2__marcas-cabeca')!.hidden = false;
+  });
 }
 
 export function iniciar(): void {
@@ -100,6 +152,6 @@ export function iniciar(): void {
     const i = ev.target as HTMLElement;
     if (editando() || !i.matches('.cat2__procura input')) return;
     const c = i.closest<HTMLElement>('[data-catalogo]');
-    if (c) aplicar(c);
+    if (c) procurar(c);
   });
 }
