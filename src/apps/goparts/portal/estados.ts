@@ -168,7 +168,7 @@ function catalogoCarga(): string {
     parado(r);
     $(r, '.cat2').setAttribute('aria-busy', 'true');
     $(r, '.cat2__campos').innerHTML = Array.from({ length: 5 }, (_, i) => `<div class="est-campo${i === 4 ? ' cat2__largo' : ''}">${E(35, 'esq--escuro esq--rotulo')}${E('100%', 'esq--escuro esq--campo')}</div>`).join('') + E('100%', 'esq--escuro esq--campo');
-    $(r, '.cat2__grelha').innerHTML = Array.from({ length: 16 }, () => `<li class="est-marca">${E('56px', 'est-redondo')}${E('70%', 'esq--texto')}</li>`).join('');
+    $(r, '.cat2__grelha').innerHTML = Array.from({ length: 16 }, () => `<li class="est-marca">${E('44px', 'est-redondo')}${E('70%', 'esq--texto')}</li>`).join('');
     $(r, '.cat2__marcas-cabeca').insertAdjacentHTML('afterend', '<p class="sr-only" role="status">A carregar as marcas</p>');
   }));
 }
