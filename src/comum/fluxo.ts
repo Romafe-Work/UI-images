@@ -82,6 +82,8 @@ function ligar(o?: Opcoes): void {
   const linhas: Record<string, HTMLElement> = {};
   lugares = [];
   ecras.forEach((ecra) => {
+    /* os estados não são ecrãs do mapa: escolhem-se no próprio ecrã */
+    if (ecra.dataset.estadoDe) return;
     const marcador = document.createComment('ecra:' + ecra.dataset.ecra);
     ecra.parentNode?.insertBefore(marcador, ecra);
     lugares.push({ ecra, marcador, hidden: ecra.hidden === true });

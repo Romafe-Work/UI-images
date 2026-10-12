@@ -41,6 +41,7 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
     div.dataset.nome = e.nome;
     div.dataset.fluxo = e.fluxo;
     div.dataset.objetivo = e.objetivo;
+    if (e.estadoDe) div.dataset.estadoDe = e.estadoDe;
     div.hidden = i > 0;
     if (locais.has(e.id)) div.dataset.local = '1';
     /* uma <div class="versao"> por versão; o ecras.ts diz qual se vê */

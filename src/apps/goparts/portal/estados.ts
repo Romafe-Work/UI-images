@@ -313,8 +313,9 @@ const pedidosFalha = () => pedidos(mudar(pedidosV2, 'e126', (r) => {
 }));
 
 /* ---------- a lista: cada estado logo a seguir ao seu ecrã ---------- */
+const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos' };
 const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): EcraGoParts =>
-  ({ id, nome, fluxo: 'Portal', objetivo, versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
+  ({ id, nome, fluxo: 'Portal', objetivo, estadoDe: PAI[id.split('-')[0]], versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
 
 export const estadosInicio = (): EcraGoParts[] => [
   e('inicio-carga', '10.1 · A carregar o Início', 'O Início com a forma do carrossel, das categorias e dos dois cartões em esqueleto: quando chegam, nada salta.', inicioCarga),

@@ -25,6 +25,10 @@ export interface Ecra<Id extends string = string> {
   objetivo: string;
   /** as versões do ecrã, da mais antiga para a mais nova; há sempre uma */
   versoes: [Versao, ...Versao[]];
+  /** Um estado (a carregar, erro, vazio…) de outro ecrã (12 out. 2026: ela pediu
+      os estados escolhidos no próprio ecrã, por baixo das versões, e não como
+      ecrãs soltos 10.1, 10.2…). Não aparece no seletor nem no mapa. */
+  estadoDe?: Id;
 }
 
 export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';

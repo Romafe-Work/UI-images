@@ -528,6 +528,10 @@ function ecraVisivel(): Element | null {
 
 function trocarEcra(nome: string): void {
   mostrar(nome);
+  /* o seletor mostra o ecrã de que este é estado */
+  const pai = document.querySelector<HTMLElement>('.ecra[data-ecra="' + nome + '"]')?.dataset.estadoDe;
+  const picker = painelEsq && painelEsq.querySelector<HTMLSelectElement>('.ed-ecras select');
+  if (picker) picker.value = pai || nome;
   seleccionar(null);
   construirCamadas();
   window.scrollTo(0, 0);
@@ -1112,6 +1116,8 @@ function montar(): void {
   const ecras = document.querySelectorAll<HTMLElement>('.ecra');
   let grupo: HTMLOptGroupElement | null = null;
   for (let i = 0; i < ecras.length; i++) {
+    /* os estados escolhem-se na secção «Estados», por baixo das versões */
+    if (ecras[i].dataset.estadoDe) continue;
     const fl = ecras[i].dataset.fluxo || '';
     if (!grupo || grupo.label !== fl) {
       grupo = el('optgroup');
@@ -1120,7 +1126,7 @@ function montar(): void {
     }
     const o = el('option', null, ecras[i].dataset.nome || ecras[i].dataset.ecra);
     o.value = ecras[i].dataset.ecra ?? '';
-    if (!ecras[i].hidden) o.selected = true;
+    if (!ecras[i].hidden || document.querySelector('.ecra[data-estado-de="' + ecras[i].dataset.ecra + '"]:not([hidden])')) o.selected = true;
     grupo.appendChild(o);
   }
   selEcras.addEventListener('change', function () { trocarEcra(selEcras.value); });
@@ -1654,6 +1660,8 @@ export function iniciar(): void {
   document.addEventListener('romafe:versao', function () { seleccionar(null); construirCamadas(); pintarAccoes(); });
   pintarAccoes();
 
+  /* escolher um estado na secção «Estados» (ecras.ts) */
+  document.addEventListener('romafe:ir', function (ev) { trocarEcra(String((ev as CustomEvent).detail)); });
   document.addEventListener('click', interceptar, true);
   document.addEventListener('mouseover', realcar, true);
   document.addEventListener('mousedown', comecarArrasto, true);

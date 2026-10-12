@@ -62,6 +62,17 @@ sempre por causa de `.portal { height: 100vh; overflow: hidden }` em `melhorias.
 Catálogo, Pedidos e Guias do GoParts, e os ecrãs de carregamento e de erro do GoParts e
 do GoShop.
 
+## Estados de um ecrã (12 out. 2026)
+
+Os estados de um ecrã — a carregar, a pesquisar, sem resultados, erros, sem ligação, vazio —
+não são ecrãs soltos: escolhem-se no próprio ecrã. No editor, no painel da esquerda, por baixo
+das versões, há a secção **Estados**: «Normal» (o ecrã como está) e os estados dele (10.1,
+10.2…). No modo «Ver» aparecem numa segunda barra, por baixo da das versões. Não entram no
+seletor de ecrãs nem no mapa.
+
+Um estado é um ecrã com `estadoDe: '<id do ecrã>'` (ver `src/apps/goparts/portal/estados.ts`,
+que monta os estados do Início, do Catálogo e dos Pedidos a partir do HTML de cada um).
+
 ## Demonstração das animações (12 out. 2026)
 
 Como o modo de apresentação do Figma. No editor, em baixo no painel da esquerda, escolhe-se a
