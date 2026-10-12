@@ -1,0 +1,89 @@
+/* =========================================================
+   GOPARTS — os estados do 10 · Início e do 11 · Catálogo (10.1…, 11.1…)
+   12 out. 2026. No estilo da v2.2: o esqueleto tem a forma do que vem;
+   os avisos dentro dos cartões azuis são caixas brancas translúcidas
+   (texto branco), fora deles usam as superfícies do tema. Claro e escuro.
+   Ajustável como os ecrãs de cima. Peças comuns: carregar.css (esq,
+   girador, progresso, cg-falha) e erros.css (er-faixa, campo__erro).
+   ========================================================= */
+
+/* ---------- 10.1 · o carrossel em esqueleto ---------- */
+.est-carrossel { display: grid; grid-template-columns: 1fr 2.6fr 1fr; gap: var(--e-4); align-items: stretch; padding: var(--e-3) 0; }
+.est-cartao { display: grid; gap: var(--e-3); align-content: start; padding: var(--e-5); border-radius: 18px; background: linear-gradient(135deg, var(--c-logotipo), #004a80); }
+.est-cartao--lado { opacity: .55; }
+.est-cartao__cabeca { display: flex; align-items: center; gap: var(--e-3); }
+.est-cartao__cabeca > div { flex: 1; display: grid; gap: 6px; }
+.est-quadrado { height: 64px; border-radius: 16px; flex: none; }
+.est-campo { display: grid; gap: 4px; }
+.est-linha { display: block; }
+.est-chips { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+.est-chips .esq { height: 44px; }
+.est-lista { display: flex; justify-content: space-between; padding: var(--e-2) 0; border-top: 1px solid var(--c-borda); }
+.recentes .cartao4 > .esq--titulo { margin-bottom: var(--e-2); }
+
+/* ---------- carregar dentro dos cartões azuis ---------- */
+.est-select { min-height: 48px; color: #fff; background: rgba(4, 18, 38, .45); border-color: rgba(255, 255, 255, .22); }
+.est-progresso { display: grid; gap: 6px; }
+.est-progresso .progresso { background: rgba(255, 255, 255, .2); }
+.est-progresso p { margin: 0; font-size: 13px; color: rgba(255, 255, 255, .9); }
+.portal--cat2 .cat2__pesquisa .est-progresso { grid-column: 1 / -1; }
+
+/* ---------- avisos dentro dos cartões azuis ---------- */
+.est-aviso {
+  display: grid; grid-template-columns: auto 1fr; gap: var(--e-3); align-items: start;
+  padding: var(--e-3) var(--e-4); border-radius: var(--r-md);
+  background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .28); color: #fff;
+  animation: resultado-entrar .25s ease-out both;
+}
+.est-aviso > svg { width: 22px; height: 22px; margin-top: 2px; }
+.est-aviso p { margin: 0; font-size: 14px; line-height: 1.45; color: rgba(255, 255, 255, .92); }
+.est-aviso__titulo { font-weight: 700; font-size: 15px !important; color: #fff !important; margin-bottom: 4px !important; }
+.est-aviso__botoes { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-top: var(--e-3); }
+.est-aviso--erro { border-color: rgba(255, 255, 255, .45); background: rgba(140, 20, 20, .35); }
+.c22__cartao--laranja .est-aviso { background: rgba(80, 30, 0, .28); }
+/* o botão claro, para usar em cima do azul e do laranja */
+.btn--claro { background: #fff; color: var(--c-logotipo); border-color: #fff; }
+.btn--claro:hover { background: #eef4fa; }
+.c22__cartao--laranja .btn--claro { color: #b85a00; }
+/* os erros de campo em branco, dentro do cartão */
+.portal--estado .c22__cartao .campo__erro,
+.portal--estado .cat2__pesquisa .campo__erro { color: #fff; background: rgba(140, 20, 20, .45); padding: 4px 8px; border-radius: var(--r-sm); font-size: 13px; }
+.portal--estado .c22__cartao .campo--erro .input,
+.portal--estado .cat2__pesquisa .campo--erro .input { border-color: #ffb4a8; box-shadow: inset 0 0 0 1px #ffb4a8; }
+.portal--estado .cat2__pesquisa .est-aviso { grid-column: 1 / -1; }
+
+/* ---------- 10.6 · sem ligação ---------- */
+.est-faixa { border-radius: var(--r-md); border: 1px solid var(--c-borda); flex-wrap: wrap; }
+.est-desligado .c22__botao[disabled] { opacity: .55; cursor: not-allowed; }
+
+/* ---------- falhas e vazios fora dos cartões azuis ---------- */
+.est-falha { margin-top: var(--e-2); }
+.est-falha--largo { grid-template-columns: auto 1fr auto; align-items: center; }
+.est-falha--largo .btn { grid-column: auto; }
+.est-falha code { font-family: var(--f-mono, monospace); }
+.est-apoio { display: flex; align-items: center; gap: var(--e-2); margin: var(--e-2) 0 0; font-size: 13px; color: var(--c-texto-2); }
+.est-apoio svg { width: 16px; height: 16px; color: var(--c-logotipo); }
+.est-vazio {
+  display: grid; justify-items: center; gap: var(--e-2); text-align: center;
+  padding: var(--e-5) var(--e-4); margin-top: var(--e-2); border: 1px dashed var(--c-borda-forte); border-radius: var(--r-md);
+}
+.est-vazio > svg { width: 28px; height: 28px; color: var(--c-texto-3); }
+.est-vazio p { margin: 0; max-width: 460px; font-size: 14px; color: var(--c-texto-2); }
+.est-vazio strong { color: var(--c-texto); }
+.est-vazio--largo { padding: var(--e-6) var(--e-4); }
+
+/* ---------- 11.1 e 11.5 · esqueletos do catálogo ---------- */
+.est-marca { display: grid; justify-items: center; gap: var(--e-2); padding: var(--e-4) var(--e-2) var(--e-3); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.est-redondo { height: 56px; border-radius: var(--r-full); }
+.est-modelo { display: grid; gap: 6px; padding: var(--e-3) var(--e-4); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); }
+.cat2__exemplo .girador { vertical-align: -2px; }
+
+@media (max-width: 1180px) {
+  .est-carrossel { grid-template-columns: 1fr; }
+  .est-cartao--lado { display: none; }
+  .est-falha--largo { grid-template-columns: auto 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .est-aviso { animation: none; } }
+/* com mensagens de erro por baixo, os campos alinham por cima (senão os da mesma linha descem) */
+.portal--estado .cat2__campos:has(.campo--erro) { align-items: start; }
+.portal--estado .cat2__campos:has(.campo--erro) .cat2__pesquisar { align-self: end; }

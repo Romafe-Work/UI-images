@@ -15,6 +15,7 @@ import './css/inicio-v4.css';
 import './css/catalogo-v2.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
+import './css/estados.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
