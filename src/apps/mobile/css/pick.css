@@ -1,0 +1,89 @@
+/* =========================================================
+   PICK — os ecrãs dentro da app (12 out. 2026): carregamento e erros
+   Só tokens; claro e escuro. Desenhados para 320 × 533 (o EDA61K).
+
+   AJUSTÁVEL: o ecrã ocupa a tela toda e acompanha a largura (de 320 px
+   para cima); a barra de cima fica presa, o botão da ação fica preso em
+   baixo, e o meio rola se não couber. Num telemóvel maior o conteúdo
+   não estica além de 480 px de largura, ao centro.
+   ========================================================= */
+.pk {
+  min-height: 100%; display: flex; flex-direction: column;
+  background: var(--c-superficie-2); color: var(--c-texto); font-size: 15px;
+}
+@media (max-width: 600px) { .pk { min-height: 100vh; } }
+
+/* ---------- a barra de cima ---------- */
+.pk__topo {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: var(--e-2);
+  min-height: 48px; padding: 0 var(--e-3);
+  background: var(--c-superficie); border-bottom: 1px solid var(--c-borda);
+}
+.pk__nome { font-family: var(--f-titulo); font-weight: 700; font-size: 20px; color: var(--c-logotipo); }
+.pk__funcao { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: var(--r-full); background: var(--c-marca-suave); color: var(--c-marca); }
+.pk__rede { margin-left: auto; display: grid; place-items: center; color: var(--c-ok); }
+.pk__rede svg { width: 20px; height: 20px; }
+.pk__rede--sem { color: var(--c-erro); }
+.pk__quem { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--r-full); background: var(--c-logotipo); color: #fff; font-size: 12px; font-weight: 700; }
+
+/* ---------- o meio e o pé ---------- */
+.pk__corpo {
+  flex: 1; display: grid; gap: var(--e-3); align-content: start;
+  width: 100%; max-width: 480px; margin: 0 auto; padding: var(--e-3);
+}
+.pk__pe {
+  position: sticky; bottom: 0; z-index: 2;
+  display: grid; gap: var(--e-2); padding: var(--e-3);
+  background: var(--c-superficie); border-top: 1px solid var(--c-borda);
+}
+.pk__pe > * { width: 100%; max-width: 480px; margin: 0 auto; }
+.pk-botao { min-height: 48px; font-size: 16px; }
+.pk-botao .btn__icone { width: 20px; height: 20px; }
+.pk-botao.btn--ghost { color: var(--c-texto); }
+
+/* ---------- peças ---------- */
+.pk-guia { margin: 0; display: flex; justify-content: space-between; gap: var(--e-2); font-size: 13px; color: var(--c-texto-2); }
+.pk-guia span:first-child { font-weight: 700; color: var(--c-texto); }
+.pk-cartao { display: grid; gap: var(--e-2); padding: var(--e-3); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.pk-cartao--feito { justify-items: center; text-align: center; }
+.pk-cartao__linha { display: grid; grid-template-columns: auto 1fr; gap: var(--e-3); align-items: center; }
+.pk-cartao__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 18px; line-height: 1.25; }
+.pk-rotulo { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--c-texto-3); }
+.pk-posicao { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 34px; letter-spacing: .06em; color: var(--c-texto); font-variant-numeric: tabular-nums; }
+.pk-posicao__partes { margin: 0; font-size: 12px; color: var(--c-texto-2); }
+.pk-campo { min-height: 48px; font-size: 18px; }
+.pk-estado { margin: 0; display: flex; align-items: center; gap: var(--e-2); font-size: 14px; color: var(--c-texto-2); }
+.pk-nota { margin: 0; font-size: 13px; line-height: 1.45; color: var(--c-texto-2); }
+.pk-nota--apoio { display: flex; align-items: center; gap: var(--e-2); }
+.pk-nota--apoio svg { width: 16px; height: 16px; flex: none; color: var(--c-logotipo); }
+.pk-ref { margin: 0; font-size: 12px; color: var(--c-texto-3); }
+.pk-ref code { font-family: var(--f-mono); color: var(--c-texto-2); }
+
+/* o aviso: ícone, título e o que fazer */
+.pk-aviso { display: grid; gap: var(--e-2); justify-items: center; text-align: center; padding: var(--e-4) var(--e-3); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); border-top: 4px solid var(--c-borda); }
+.pk-aviso--erro { border-top-color: var(--c-erro); }
+.pk-aviso--aviso { border-top-color: var(--c-aviso); }
+.pk-aviso--azul { border-top-color: var(--c-logotipo); }
+.pk-aviso__icone { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--r-full); }
+.pk-aviso__icone svg { width: 28px; height: 28px; }
+.pk-aviso--erro .pk-aviso__icone { background: var(--c-erro-suave); color: var(--c-erro); }
+.pk-aviso--aviso .pk-aviso__icone { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.pk-aviso--azul .pk-aviso__icone { background: var(--c-marca-suave); color: var(--c-logotipo); }
+.pk-aviso__icone--ok { background: var(--c-ok-suave); color: var(--c-ok); }
+.pk-aviso__titulo { margin: 0; font-family: var(--f-titulo); font-size: 20px; line-height: 1.2; }
+.pk-aviso__texto { margin: 0; font-size: 15px; line-height: 1.45; color: var(--c-texto-2); }
+.pk-aviso__texto strong { color: var(--c-texto); font-variant-numeric: tabular-nums; }
+
+.pk-numeros { display: grid; grid-template-columns: 1fr 1fr; gap: var(--e-2); }
+.pk-numeros div { display: grid; justify-items: center; padding: var(--e-2); background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.pk-numeros strong { font-family: var(--f-titulo); font-size: 24px; }
+.pk-numeros span { font-size: 12px; color: var(--c-texto-2); }
+
+/* ---------- a abrir: a tela toda ---------- */
+.pk--cheio { display: grid; place-content: center; justify-items: center; gap: var(--e-2); padding: var(--e-5); background: var(--c-superficie); text-align: center; }
+.pk-abrir__romafe { font-size: 44px; }
+.pk-abrir__risco { width: 44px; height: 4px; border-radius: 2px; background: var(--c-acao); }
+.pk-abrir__nome { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 22px; }
+.pk-abrir__barra { width: 180px; margin-top: var(--e-4); }
+.pk-abrir__texto { margin: 0; font-size: 13px; color: var(--c-texto-2); }

@@ -2,6 +2,7 @@ import type { App } from '../../comum/tipos';
 import { ecrasEntrar, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdMobile } from './ids';
 import { entrarMobile, entrarMobileNeutro, entrarMobileFamilia } from './entrar';
+import { ecrasCarregarPick, ecrasErroPick, DESCRICAO_CARREGAR_PICK, DESCRICAO_ERROS_PICK } from './estados';
 
 export const mobile: App<IdMobile> = {
   id: 'mobile',
@@ -12,12 +13,12 @@ export const mobile: App<IdMobile> = {
   /* o ecrã do Honeywell EDA61K: 4", 480 × 800 píxeis físicos a densidade
      1,5 (hdpi), o que dá 320 × 533 píxeis CSS (dp) */
   tela: { l: 320, a: 533 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR },
+  fluxos: { 'Entrar': DESCRICAO_ENTRAR, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
   ecras: [...ecrasEntrar([
     { id: 'v1', nota: 'Compacta: só o cartão, sobre a fotografia', opcoes: entrarMobile },
     /* como a v4 das outras apps: o produto pode ser de outra empresa */
     { id: 'v2', nota: 'A v1 sem nada da Romafe: nem o nome, nem o desenho do logótipo, nem a fotografia do armazém', opcoes: entrarMobileNeutro },
     { id: 'v3', nota: 'A v2 com fundo desenhado e, por cima do nome, o ROMAFE em Motor (era o monograma P)', opcoes: { ...entrarMobileNeutro, desenhado: true, monogramaRomafe: true } },
     { id: 'v4', nota: 'Família Romafe, aplicações internas: o ROMAFE em Motor e o nome Pick no cartão, sobre a fotografia do armazém', opcoes: entrarMobileFamilia },
-  ])],
+  ]), ...ecrasCarregarPick(), ...ecrasErroPick()],
 };
