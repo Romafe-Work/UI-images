@@ -79,3 +79,35 @@ export function portal(ativa: IdPortal | null, corpo: string, p: Produto = GOPAR
   const fecha = corpo.lastIndexOf('</div>');
   return corpo.slice(0, abre) + topo(p) + abas(ativa, p) + corpo.slice(abre, fecha) + rodape() + corpo.slice(fecha);
 }
+
+/* ---------- v2 (12 out. 2026): uma barra só ----------
+   A partir da imagem dela: as abas sobem para a barra do topo, ao lado da
+   marca, e a procura sai da barra para o herói do Início. Sem rodapé. */
+function topoLinha(ativa: IdPortal | null, p: Produto): string {
+  return `<header class="linha">
+    <div class="portal__marca">
+      <span class="romafe portal__romafe">ROMAFE</span>
+      <span class="portal__risco" aria-hidden="true"></span>
+      <span class="portal__produto">${p.nome}<span class="portal__produto-sub">${p.sub}</span></span>
+    </div>
+    <nav class="linha__abas" aria-label="Secções">${ABAS.map(([id, nome, d]) => `
+      <button type="button" class="linha__aba"${id && p.ligar ? ` data-ir="${id}"` : id ? '' : ' disabled title="Ainda sem ecrã"'}${id && id === ativa ? ' aria-current="true"' : ''}>${I(d)}${nome}</button>`).join('')}
+    </nav>
+    <div class="portal__accoes">
+      <button type="button" class="portal__icone" aria-label="Mensagens">${I('<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 6 9-6"/>')}</button>
+      <button type="button" class="portal__icone" aria-label="Carrinho, 3 artigos">${I('<path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 7H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>')}<span class="portal__selo">3</span></button>
+      <button type="button" class="portal__icone" aria-label="Ajuda">${I('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.6 2.6 0 1 1 3.4 2.5c-.7.3-1 .8-1 1.6v.3"/><path d="M12 17.4h.01"/>')}</button>
+      <button type="button" class="conta">
+        <span class="conta__inicial" aria-hidden="true">FF</span>
+        <span class="conta__texto"><span class="conta__nome">Fernando F. França</span><span class="conta__local">Porto · 1 conta</span></span>
+        ${I('<path d="m6 9 6 6 6-6"/>')}
+      </button>
+    </div>
+  </header>`;
+}
+
+/** O ecrã da v2: a barra única em cima e o corpo por baixo. */
+export function portalLinha(ativa: IdPortal | null, corpo: string, p: Produto = GOPARTS): string {
+  const abre = corpo.indexOf('>') + 1;
+  return corpo.slice(0, abre) + topoLinha(ativa, p) + corpo.slice(abre);
+}

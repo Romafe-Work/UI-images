@@ -6,6 +6,7 @@ import './css/catalogo.css';
 import './css/pedidos.css';
 import './css/guias.css';
 import './css/melhorias.css';
+import './css/inicio-v2.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import '../../comum/css/editor.css';

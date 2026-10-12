@@ -1,0 +1,179 @@
+/* =========================================================
+   GOPARTS — Início v2 (12 out. 2026), a partir da imagem dela
+   Escuro em azul-noite em qualquer tema: a imagem é assim. As cores são
+   tokens redefinidos só dentro de .portal--v2; o ROMAFE continua no
+   --c-logotipo, RGB(0, 99, 170), e não no azul claro da imagem.
+   A fotografia é a da oficina de romafe.com, no lugar do carro da imagem.
+   ========================================================= */
+.portal--v2 {
+  --c-portal-fundo: #0e1828;
+  --c-superficie:   #142235;
+  --c-superficie-2: #1a2b42;
+  --c-superficie-3: #22344d;
+  --c-borda:        rgba(255,255,255,.10);
+  --c-borda-forte:  rgba(255,255,255,.18);
+  --c-texto:        #ffffff;
+  --c-texto-2:      #c9d3e0;
+  --c-texto-3:      #8d9bb0;
+  --c-marca:        #3b8ee0;
+  --c-marca-suave:  rgba(59,142,224,.22);
+  --c-acao-marcador:#ef7b10;
+  --v2-azul:        #1f63c4;   /* as cabeças azuis dos painéis */
+  --v2-azul-2:      #174e9e;
+
+  color-scheme: dark;
+  color: var(--c-texto);
+  background: var(--c-portal-fundo);
+  height: 100vh; min-height: 0; overflow: hidden;
+  display: grid; grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+/* ---------- a barra única ---------- */
+.linha {
+  display: flex; align-items: center; gap: var(--e-5);
+  height: 72px; padding: 0 var(--e-5);
+  background: #0b1422; border-bottom: 1px solid var(--c-borda);
+}
+.linha .portal__romafe { font-size: 34px; }
+.linha .portal__produto { font-size: 22px; }
+.linha .portal__produto-sub { font-size: 10px; color: var(--c-texto-2); }
+.linha__abas { display: flex; align-items: stretch; align-self: stretch; gap: 2px; margin: 0 auto; }
+.linha__aba {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 13px; color: var(--c-texto-2); white-space: nowrap;
+  padding: 0 10px; border: 0; background: none; cursor: pointer;
+  border-bottom: 3px solid transparent; border-top: 3px solid transparent;
+}
+.linha__aba svg { width: 17px; height: 17px; }
+.linha__aba:hover:not([disabled]) { color: #fff; }
+.linha__aba[aria-current="true"] { color: #fff; font-weight: 700; border-bottom-color: var(--c-acao); }
+.linha__aba[disabled] { cursor: default; opacity: .7; }
+.linha .portal__accoes { gap: var(--e-1); }
+.linha .portal__icone { color: var(--c-texto-2); }
+.linha .portal__icone:hover { background: var(--c-superficie-2); color: #fff; }
+.linha .portal__selo { border-color: #0b1422; top: 0; right: 0; }
+.linha .conta__inicial { background: var(--v2-azul); }
+
+/* ---------- o herói ---------- */
+.heroi2 {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 40px;
+  padding: 30px 380px 26px 40px;
+  background:
+    linear-gradient(90deg, #0e1828 0%, #0e1828 58%, rgba(14,24,40,.85) 68%, rgba(14,24,40,0) 88%),
+    url('../../../comum/img/oficina.webp') right 0 center / 52% auto no-repeat,
+    #0e1828;
+}
+/* as duas faixas em diagonal da imagem, atrás do texto */
+.heroi2::before, .heroi2::after {
+  content: ''; position: absolute; top: -40px; bottom: -40px; width: 70px;
+  background: var(--v2-azul); opacity: .16; transform: skewX(-28deg); pointer-events: none;
+}
+.heroi2::before { left: 47%; }
+.heroi2::after { left: 54%; width: 26px; opacity: .1; }
+.heroi2 > * { position: relative; z-index: 1; }
+
+.heroi2__titulo {
+  font-family: var(--f-titulo); font-weight: 700; font-size: 50px; line-height: 1.04;
+  letter-spacing: -.01em; margin: 0 0 var(--e-3); color: #fff;
+}
+.heroi2__destaque { color: #2f8ae6; }
+.heroi2__sub { font-size: 17px; line-height: 1.45; color: var(--c-texto-2); margin: 0 0 var(--e-4); }
+
+.heroi2__procura {
+  display: flex; align-items: stretch; max-width: 720px; height: 50px;
+  background: var(--c-superficie-2); border: 1px solid var(--c-borda-forte);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.heroi2__procura:focus-within { border-color: var(--c-marca); box-shadow: 0 0 0 3px var(--c-marca-suave); }
+.heroi2__lupa { width: 20px; height: 20px; color: var(--c-texto-2); align-self: center; margin: 0 var(--e-3) 0 var(--e-4); flex: none; }
+.heroi2__campo {
+  flex: 1; min-width: 0; font: inherit; font-size: 15px; color: #fff;
+  border: 0; background: none; outline: none;
+}
+.heroi2__campo::placeholder { color: var(--c-texto-3); }
+.heroi2__botao { border-radius: 0; min-height: 0; padding: 0 var(--e-5); font-size: 17px; }
+.heroi2__botao .btn__icone { width: 20px; height: 20px; }
+
+.populares { display: flex; align-items: center; flex-wrap: wrap; gap: var(--e-2); margin-top: var(--e-3); }
+.populares__rotulo { font-size: 13px; color: var(--c-texto-2); margin-right: var(--e-1); }
+.populares__chip {
+  font: inherit; font-size: 13px; color: #fff; cursor: pointer;
+  padding: 5px 16px; border-radius: var(--r-full);
+  background: rgba(255,255,255,.06); border: 1px solid var(--c-borda-forte);
+}
+.populares__chip:hover { background: rgba(255,255,255,.12); }
+
+/* os números de romafe.com, por cima do lado escuro da fotografia */
+.heroi2__factos { align-self: center; padding-top: var(--e-2); }
+.heroi2__factos p { margin: 0; }
+.heroi2__antes, .heroi2__depois {
+  font-family: var(--f-titulo); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-texto-2); line-height: 1.5;
+}
+.heroi2__numero { font-family: var(--f-titulo); font-weight: 700; font-size: 38px; line-height: 1.05; color: #2f8ae6; }
+.heroi2__lista { list-style: none; margin: var(--e-4) 0 0; padding: 0; display: grid; gap: var(--e-3); }
+.heroi2__lista li { display: flex; align-items: center; gap: var(--e-3); font-size: 13px; color: var(--c-texto-2); }
+.heroi2__lista svg { width: 24px; height: 24px; flex: none; color: var(--c-texto-2); }
+
+/* ---------- os três painéis ---------- */
+.paineis2 {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-4);
+  padding: 0 var(--e-5) var(--e-4); min-height: 0;
+}
+.painel2 {
+  display: grid; grid-template-rows: auto 1fr auto; min-height: 0;
+  background: var(--c-superficie); border: 1px solid var(--c-borda);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.painel2__cabeca {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: var(--e-4);
+  padding: var(--e-3) var(--e-4); min-height: 92px; color: #fff;
+  background: linear-gradient(100deg, var(--v2-azul-2), var(--v2-azul));
+}
+.painel2--acao .painel2__cabeca { background: linear-gradient(100deg, #d86c01, var(--c-acao)); }
+.painel2__cabeca > div { position: relative; z-index: 1; }
+.painel2__marca {
+  position: relative; z-index: 1;
+  display: grid; place-items: center; width: 60px; height: 60px; flex: none;
+  border-radius: var(--r-md); background: #2f7ee0; color: #fff;
+}
+.painel2--acao .painel2__marca { background: #f58a24; }
+.painel2__marca svg { width: 30px; height: 30px; }
+.painel2__titulo { font-family: var(--f-titulo); font-weight: 700; font-size: 22px; margin: 0; line-height: 1.15; }
+.painel2__sub { font-size: 13px; line-height: 1.4; margin: 4px 0 0; color: rgba(255,255,255,.9); }
+/* o desenho de linhas no canto da cabeça: carro, engrenagens, disco de travão */
+.painel2__desenho {
+  position: absolute; right: -6px; bottom: -8px; width: 150px; height: auto;
+  color: #fff; opacity: .28; pointer-events: none;
+}
+
+.painel2__corpo { padding: var(--e-3) var(--e-4); display: grid; gap: var(--e-2); align-content: start; min-height: 0; }
+.painel2--acao .painel2__corpo { gap: var(--e-4); padding-top: var(--e-4); }
+.painel2__corpo .campo__label { font-size: 14px; color: #fff; margin-bottom: 4px; }
+.painel2__corpo .input { min-height: 38px; padding-top: 7px; padding-bottom: 7px; background: var(--c-superficie-2); }
+.painel2__corpo .campo__chip { background: var(--c-superficie-3); color: var(--c-texto-2); border-color: var(--c-borda-forte); }
+.painel2__corpo .campo__chip--pais { background: var(--v2-azul); color: #fff; }
+.painel2__corpo .opcao__texto { color: #fff; }
+.painel2__corpo .opcoes { gap: var(--e-6, 32px); }
+.painel2__corpo input[type="radio"], .painel2__corpo input[type="checkbox"] { accent-color: var(--c-acao); }
+
+.painel2__pe {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e-2);
+  padding: var(--e-3) var(--e-4) var(--e-4);
+}
+.painel2__pe .btn { min-height: 44px; }
+.painel2__pe .btn--ghost { color: #fff; border-color: var(--c-borda-forte); }
+.painel2__pe .btn--ghost:hover { background: var(--c-superficie-2); }
+.painel2__pe .btn--acao { min-width: 180px; }
+
+/* a barra a 1440: nada parte em duas linhas */
+.linha { gap: var(--e-4); padding: 0 var(--e-4) 0 var(--e-5); }
+.linha .portal__romafe { font-size: 30px; }
+.linha .portal__produto, .linha .portal__produto-sub, .linha .conta__nome, .linha .conta__local { white-space: nowrap; }
+.linha .portal__produto-sub { font-size: 9px; letter-spacing: .04em; }
+.linha__aba { padding: 0 7px; gap: 5px; }
+.linha__aba svg { width: 16px; height: 16px; }
+.linha .portal__icone { width: 34px; }
+.heroi2 { grid-template-columns: minmax(0, 1fr) 250px; padding-right: 360px; }
+.heroi2__lista li { white-space: nowrap; }
