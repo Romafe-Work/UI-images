@@ -323,17 +323,18 @@ function cliqueReferencias(main: HTMLElement, t: Element): boolean {
    «Ver referências». A árvore abre sem animar a altura: os grupos aparecem a
    desvanecer e a descer 4 px, em cascata curta.
    ========================================================= */
-function ramo(b: HTMLElement, abrir?: boolean): void {
-  const ul = document.getElementById(b.getAttribute('aria-controls') || '');
+export function ramo(b: HTMLElement, abrir?: boolean): void {
+  /* pelo ramo e não pelo id: os estados parados montam-se fora do documento */
+  const ul = b.closest('.cat5__ramo')?.querySelector<HTMLElement>('.cat5__folhas');
   if (!ul) return;
   const sim = abrir ?? b.getAttribute('aria-expanded') !== 'true';
   b.setAttribute('aria-expanded', String(sim));
   b.querySelector('.cat5__mais-menos')!.innerHTML = L(sim ? minus : plus);
   ul.hidden = !sim;
-  if (sim && !quieto()) $$(ul, 'li:not([hidden])').slice(0, 8).forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 180, delay: i * 25, easing: 'ease-out', fill: 'backwards' }));
+  if (sim && !quieto() && ul.isConnected) $$(ul, 'li:not([hidden])').slice(0, 8).forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 180, delay: i * 25, easing: 'ease-out', fill: 'backwards' }));
 }
 
-function escolherGrupo(main: HTMLElement, grupo: string): void {
+export function escolherGrupo(main: HTMLElement, grupo: string): void {
   $$(main, '.cat5__universal .cat5__folha').forEach((f) => { if (f.dataset.grupo === grupo) f.setAttribute('aria-current', 'true'); else f.removeAttribute('aria-current'); });
   main.dataset.uGrupo = grupo;
   const lado = main.querySelector<HTMLElement>('.cat5__u-lado')!;
@@ -342,7 +343,7 @@ function escolherGrupo(main: HTMLElement, grupo: string): void {
   lado.querySelector('.cat5__u-fabricantes')!.innerHTML = ['Todos', ...fabricantesDe(grupo)].map((f, i) =>
     `<li style="--i:${i}"><button type="button" class="cat5__u-fab" data-fabricante="${i ? f : ''}" aria-pressed="${i === 0}">${f}</button></li>`).join('');
   lado.querySelector<HTMLButtonElement>('.cat5__u-ver')!.disabled = false;
-  if (!quieto()) lado.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
+  if (!quieto() && lado.isConnected) lado.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
 }
 
 function procurarGrupo(main: HTMLElement): void {

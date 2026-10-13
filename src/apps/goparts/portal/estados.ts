@@ -15,11 +15,13 @@ import inicioV22 from './inicio-v22.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
+import { catalogoV5 } from './catalogo-v5';
+import { abrirReferencias, escolherGrupo, ramo } from '../comportamento/catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
 export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha';
-export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos';
+export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -43,7 +45,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|ped2)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -266,6 +268,35 @@ const catalogoVeiculos = () => catalogo(mudar(catalogoV3, 'e1110', (r) => {
   $$(r, '.cat3__vista[data-so="veiculos"] .cat3__linha').find((l) => l.dataset.kw === '78')?.setAttribute('aria-selected', 'true');
 }));
 
+/* 11.11 · v5: as referências do BMW 1 (E81) 118d, com a SKF e duas marcadas para comparar */
+const catalogoReferencias = () => catalogo(mudar(catalogoV5, 'e1111', (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  Object.assign(main.dataset, { marca: 'BMW', modelo: '1 (E81)', versao: '118d' });
+  abrirReferencias(main, '', ['SKF'], 'veiculo');
+  mostrar(main, 'referencias');
+  passos(r, 4);
+  const logo = $(r, '.cat2__marca[data-nome="BMW"] .cat2__logo');
+  $(r, '.cat5__logo').innerHTML = logo.outerHTML;
+  $(r, '.cat5__m-marca').textContent = 'BMW';
+  $(r, '.cat5__m-modelo').textContent = '1 (E81)';
+  /* duas marcadas: o «Comparar (2)» fica ativo */
+  $$<HTMLInputElement>(r, '.cat5__refs tbody input[type="checkbox"]').slice(0, 2).forEach((c) => { c.setAttribute('checked', ''); c.closest('tr')!.classList.add('is-marcada'); });
+  $(r, '.cat5__n-comparar').textContent = '2';
+  $(r, '.cat5__comparar').removeAttribute('disabled');
+}));
+
+/* 11.12 · v5: o Universal, com «Comando da correia» aberto e o Kit de distribuição escolhido */
+const catalogoUniversal = () => catalogo(mudar(catalogoV5, 'e1112', (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  mostrar(main, 'universal');
+  passos(r, 6, 0);
+  const b = $$(r, '.cat5__abrir-ramo').find((x) => (x.textContent || '').includes('Comando da correia'))!;
+  ramo(b, true);
+  escolherGrupo(main, 'Kit de distribuição');
+}));
+
 /* ================= 12 · Pedidos ================= */
 const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
 const semPedidos = (r: HTMLElement) => $$(r, '[data-pedidos]').forEach((x) => x.removeAttribute('data-pedidos'));
@@ -361,6 +392,8 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-falha', '11.8 · As marcas não carregaram', 'A grelha falhou: o que continua a funcionar, a referência do erro, o apoio e «Tentar de novo».', catalogoFalha),
   e('catalogo-lista-modelos', '11.9 · Modelos da marca', 'Catálogo v3: escolhida a BMW, a tabela dos modelos com Fabricado desde e até; os filtros Modelo e Ano no cartão azul.', catalogoListaModelos),
   e('catalogo-veiculos', '11.10 · Veículos do modelo', 'Catálogo v3: os veículos do Scénic II com motor, kW, cv, cc, tração e carroçaria; o 1.5 dCi escolhido acende «Grupo montagem».', catalogoVeiculos),
+  e('catalogo-referencias', '11.11 · Referências', 'Catálogo v5: as peças do BMW 1 (E81) 118d com a SKF, preço, desconto, líquido e stock no Porto e em Sacavém; duas marcadas para comparar.', catalogoReferencias),
+  e('catalogo-universal', '11.12 · Universal', 'Catálogo v5: os grupos de montagem sem veículo, em árvore; o Kit de distribuição escolhido mostra os fabricantes e «Ver referências».', catalogoUniversal),
 ];
 export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já à vista; o resumo e as linhas da tabela chegam em esqueleto.', pedidosCarga),
