@@ -28,6 +28,8 @@ import corredor from '../../comum/img/corredor.webp';
 import separacao from '../../comum/img/separacao.webp';
 import oficina from '../../comum/img/oficina.webp';
 import skf from '../../comum/img/skf-paletes.webp';
+import tornoVideo from '../../comum/video/torno-anel.webm';
+import tornoImg from '../../comum/img/torno-anel.webp';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import arrowUp from 'lucide-static/icons/arrow-up.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
@@ -77,6 +79,14 @@ const CAPITULOS: [string, string, string, string, string][] = [
 /* o fluxo do herói (ela, 13 out.: «ainda não gosto… quero um flow»): procurar, ver o stock, encomendar, receber,
    a acontecer sozinho com uma referência verdadeira do catálogo (comportamento/publico.ts) */
 const REF = REFERENCIAS[0];
+/* depois: «isto devia estar com a imagem do armazém» — o fluxo passa para cima da fotografia do corredor
+   (os cartões levam o texto; nada escrito direto na fotografia) e sai o bloco de baixo, que repetia a imagem */
+
+/* como nasce um rolamento (ela, 13 out.: «podes meter um vídeo de um rolamento a ser feito… sê criativo»):
+   não há vídeo livre de uma fábrica de rolamentos; há o de um torno a trabalhar um anel de aço (Pexels,
+   licença livre, também comercial), regravado em WebM a 1280×720. O vídeo começa recortado como um anel —
+   um rolamento de frente —, o furo fecha e o anel abre com o scroll; no fim dá lugar às paletes SKF. */
+const NASCE = ['Começa num tubo de aço.', 'No torno, ganha a forma do anel.', 'Depois junta-se às esferas e à gaiola.', 'E chega à Romafe, em paletes SKF.'];
 
 /* três referências SKF do próprio catálogo (catalogo-dados.ts) */
 const SKF = REFERENCIAS.filter((r) => r[1] === 'SKF').slice(0, 3).map(([grupo, , ref, desc, preco, , porto, sacavem], i) =>
@@ -100,6 +110,7 @@ const html = `<div class="pub">
         <button type="button" class="btn btn--claro pub__cta pub__cta--claro" data-ir="publico-contactos">${L(userPlus, 'btn__icone')}<span class="btn__rotulo">Pedir acesso</span></button>
       </div>
     </div>
+    <div class="pub__heroi-foto"><img src="${corredor}" alt="Um corredor do armazém da Romafe, com caixas SKF">
     <ol class="pub__flow" data-passo="0" aria-label="Como funciona o GoParts">
       <li class="pub__flow-passo" data-n="1"><span class="pub__flow-num">1</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Procure a peça</p>
         <div class="pub__flow-campo">${L(search)}<span class="pub__flow-escrito" data-texto="${REF[2]}"></span><i class="pub__flow-cursor"></i></div></div></li>
@@ -110,8 +121,8 @@ const html = `<div class="pub">
       <li class="pub__flow-passo" data-n="4"><span class="pub__flow-num">4</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Receba amanhã</p>
         <div class="pub__flow-pista"><span class="pub__flow-carrinha">${L(truck)}</span><span class="pub__flow-oficina">${L(wrench)}A sua oficina</span></div></div></li>
     </ol>
+    </div>
   </div>
-    <div class="pub__abrir" aria-hidden="true"><div class="pub__abrir-fixo"><img class="pub__abrir-img" src="${corredor}" alt=""><p class="pub__abrir-legenda">O armazém da Romafe, no Porto</p></div></div>
   </section>
 
   <section class="pub__historia" aria-label="A Romafe" style="--n:${CAPITULOS.length}">
@@ -120,6 +131,24 @@ const html = `<div class="pub">
         <ol class="pub__caps" aria-label="Capítulos">${CAPITULOS.map(([, num], i) => `<li><button type="button" data-cap="${i}"${i ? '' : ' aria-current="true"'}><span class="pub__caps-barra" aria-hidden="true"><i></i></span>${num}</button></li>`).join('')}</ol>
       </div>
       <div class="pub__fotos">${CAPITULOS.map(([img, , , , alt], i) => `<figure class="pub__foto" style="--i:${i}"><img src="${img}" alt="${alt}"></figure>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="pub__nasce" aria-label="Como nasce um rolamento" style="--n:${NASCE.length}">
+    <div class="pub__nasce-fixo">
+      <div class="pub__nasce-textos">
+        <p class="pub__kicker">Como nasce um rolamento</p>
+        ${NASCE.map((t, i) => `<h2 class="pub__nasce-frase" data-passo="${i}"${i ? '' : ' aria-current="true"'}>${t}</h2>`).join('')}
+        <ol class="pub__nasce-pontos" aria-hidden="true">${NASCE.map((_, i) => `<li data-passo="${i}"${i ? '' : ' aria-current="true"'}></li>`).join('')}</ol>
+      </div>
+      <figure class="pub__nasce-palco">
+        <div class="pub__nasce-anel">
+          <video class="pub__nasce-video" src="${tornoVideo}" poster="${tornoImg}" muted loop playsinline preload="metadata" aria-label="Um torno a trabalhar um anel de aço"></video>
+          <span class="pub__nasce-furo" aria-hidden="true"></span>
+          <img class="pub__nasce-skf" src="${skf}" alt="Paletes e caixas SKF no armazém da Romafe">
+        </div>
+        <figcaption>Vídeo: um torno a trabalhar um anel de aço (Pexels). Fotografia: paletes SKF no armazém da Romafe.</figcaption>
+      </figure>
     </div>
   </section>
 

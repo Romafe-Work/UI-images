@@ -251,3 +251,50 @@
   .pub__heroi-topo { grid-template-columns: minmax(0, 1fr); padding: 0 var(--e-5); }
 }
 @media (max-width: 640px) { .pub__flow-mais { display: none; } }
+
+/* ---------- o fluxo em cima da fotografia do armazém (13 out.) ---------- */
+.pub__heroi { padding: var(--e-6) 0 var(--e-7, 64px) !important; }
+.pub__heroi-topo { align-items: stretch; min-height: calc(100vh - 72px - var(--e-6) - var(--e-7, 64px)); }
+.pub__heroi-topo .pub__heroi-texto { align-self: center; }
+.pub__heroi-foto { position: relative; display: grid; align-items: center; padding: var(--e-6) var(--e-6) var(--e-6) var(--e-5); border-radius: 28px; overflow: hidden; background: var(--pub-fundo-2); }
+.pub__heroi-foto > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: pub-assentar 1.6s var(--ease-out) both; }
+@keyframes pub-assentar { from { transform: scale(1.08); } }
+.pub__heroi-foto .pub__flow { position: relative; }
+/* na fotografia, a linha dos passos é clara e os cartões levam mais sombra */
+.pub__heroi-foto .pub__flow::before { background: rgba(250, 248, 245, .7); }
+.pub__heroi-foto .pub__flow-corpo { box-shadow: 0 24px 48px -24px rgba(20, 20, 20, .6); }
+.pub__heroi-foto .pub__flow-passo { opacity: .82; }
+.pub__heroi-foto .pub__flow-passo .pub__flow-corpo { transition: transform .4s var(--ease-out); }
+.pub__heroi-foto .pub__flow-num { box-shadow: 0 4px 10px rgba(20, 20, 20, .3); }
+@media (prefers-reduced-motion: reduce) { .pub__heroi-foto > img { animation: none; } }
+@media (max-width: 1000px) {
+  .pub__heroi-topo { min-height: 0; }
+  .pub__heroi-foto { padding: var(--e-4); }
+}
+.pub__flow-linha dd { white-space: nowrap; }
+
+/* ---------- como nasce um rolamento (13 out.) ----------
+   Fica parada enquanto o scroll corre (--n passos). O vídeo está recortado em círculo (clip-path,
+   raio --c) e um disco da cor do papel por cima faz o furo (scale --f): é um anel, um rolamento de
+   frente. Com o scroll o furo fecha e o círculo abre até ser o quadro todo; no último passo entram
+   as paletes SKF por cima (opacidade --s). O texto troca de frase em frase ao lado, nunca por cima. */
+.pub__nasce { position: relative; height: calc(var(--n) * 90vh); padding: 0 !important; }
+.pub__nasce-fixo { position: sticky; top: 72px; height: calc(100vh - 72px); display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--e-7, 64px); align-items: center; padding: var(--e-6); }
+.pub__nasce-textos { position: relative; min-height: 280px; }
+.pub__nasce-frase { position: absolute; left: 0; right: 0; top: 48px; margin: 0; font-family: var(--f-titulo); font-weight: 600; font-size: clamp(30px, 3.2vw, 50px); line-height: 1.08; letter-spacing: -.02em; opacity: 0; transform: translateY(18px); transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
+.pub__nasce-frase[aria-current] { opacity: 1; transform: none; transition-duration: .6s; }
+.pub__nasce-pontos { position: absolute; left: 0; bottom: 0; display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pub__nasce-pontos li { width: 28px; height: 3px; border-radius: 3px; background: var(--pub-linha); transition: background-color .3s ease; }
+.pub__nasce-pontos li[aria-current] { background: var(--c-acao); }
+.pub__nasce-palco { margin: 0; display: grid; gap: var(--e-3); }
+.pub__nasce-anel { position: relative; aspect-ratio: 16 / 10; border-radius: 28px; overflow: hidden; clip-path: circle(var(--c, 34%) at 50% 50%); background: #20242a; }
+.pub__nasce-video, .pub__nasce-skf { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pub__nasce-furo { position: absolute; left: 50%; top: 50%; width: 40%; aspect-ratio: 1; margin: -20% 0 0 -20%; border-radius: 50%; background: var(--pub-fundo); transform: scale(var(--f, .5)); box-shadow: inset 0 0 0 6px rgba(20, 20, 20, .08); }
+.pub__nasce-skf { opacity: var(--s, 0); }
+.pub__nasce-palco figcaption { font-size: 12px; color: var(--pub-texto-2); }
+@media (max-width: 1000px) {
+  .pub__nasce-fixo { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; gap: var(--e-4); padding: var(--e-5); align-items: start; }
+  .pub__nasce-textos { min-height: 190px; }
+  .pub__nasce-frase { top: 36px; }
+}
+@media (max-width: 640px) { .pub__nasce-anel { aspect-ratio: 4 / 5; } }

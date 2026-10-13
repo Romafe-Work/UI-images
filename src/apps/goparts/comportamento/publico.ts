@@ -65,6 +65,26 @@ function desenhar(): void {
   }
   const abrir = pub.querySelector<HTMLElement>('.pub__abrir-fixo');
   if (abrir) abrir.style.setProperty('--k', (quieto() ? 1 : lim(progresso(abrir.parentElement!) * 1.6)).toFixed(3));
+  /* como nasce um rolamento: o anel abre (clip-path --c, furo --f), as paletes SKF entram no fim (--s);
+     o vídeo só corre com a secção à vista, abranda no terceiro passo e para com «reduzir movimento» */
+  const nasce = pub.querySelector<HTMLElement>('.pub__nasce');
+  if (nasce) {
+    const n = nasce.querySelectorAll('.pub__nasce-frase').length, p = progresso(nasce) * (n - 1);
+    const anel = nasce.querySelector<HTMLElement>('.pub__nasce-anel')!;
+    const a = lim(p / 1.6), suave = a * a * (3 - 2 * a);
+    anel.style.setProperty('--c', `${(34 + suave * 41).toFixed(2)}%`);
+    anel.style.setProperty('--f', (0.5 * (1 - suave)).toFixed(3));
+    anel.style.setProperty('--s', lim((p - (n - 1.6)) / 0.6).toFixed(3));
+    const atual = Math.round(p);
+    nasce.querySelectorAll<HTMLElement>('[data-passo]').forEach((el) => { if (Number(el.dataset.passo) === atual) el.setAttribute('aria-current', 'true'); else el.removeAttribute('aria-current'); });
+    const v = nasce.querySelector<HTMLVideoElement>('.pub__nasce-video');
+    const r = nasce.getBoundingClientRect(), aVista = r.top < innerHeight && r.bottom > 0;
+    if (v) {
+      v.playbackRate = atual === 2 ? 0.4 : 1;
+      if (aVista && !quieto() && v.paused) v.play().catch(() => undefined);
+      else if ((!aVista || quieto()) && !v.paused) v.pause();
+    }
+  }
   const h = pub.querySelector<HTMLElement>('.pub__historia');
   if (h) {
     const fotos = h.querySelectorAll<HTMLElement>('.pub__foto'), n = fotos.length;
