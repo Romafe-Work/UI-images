@@ -18,12 +18,15 @@ import './css/catalogo-v4.css';
 import './css/catalogo-v5.css';
 import './css/pedidos-v2.css';
 import './css/pedidos-v3.css';
+import './css/guias-v2.css';
+import './css/faturas.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
 import './css/select.css';
 import './css/entrar-v22.css';
 import './css/abertura.css';
+import './css/publico.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -36,8 +39,11 @@ import { iniciar as catalogoV2 } from './comportamento/catalogo';
 import { iniciar as catalogoV4 } from './comportamento/catalogo-v4';
 import { iniciar as pedidosV2 } from './comportamento/pedidos';
 import { iniciar as pedidosV3 } from './comportamento/pedidos-v3';
+import { iniciar as guiasV2 } from './comportamento/guias-v2';
+import { iniciar as faturas } from './comportamento/faturas';
 import { iniciar as selects } from './comportamento/select';
 import { iniciar as login } from './comportamento/login';
 import { iniciar as abertura } from './comportamento/abertura';
+import { iniciar as publico } from './comportamento/publico';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, selects, login, abertura]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, login, abertura, publico]);

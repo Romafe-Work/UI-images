@@ -20,9 +20,15 @@ import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComp
 import pedidosV2 from './pedidos-v2.html?raw';
 import { pedidosV3 } from './pedidos-v3';
 import { preencher } from '../comportamento/pedidos-v3';
+import { guiasV2 } from './guias-v2';
+import { preencher as preencherGuia } from '../comportamento/guias-v2';
+import { faturasV1 } from './faturas-v1';
+import { preencher as preencherFatura } from '../comportamento/faturas';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
 export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto';
+export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
+export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
@@ -47,7 +53,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|gui2|fat)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -382,8 +388,165 @@ const pedidosFalha = () => pedidos(mudar(pedidosV2, 'e126', (r) => {
   $(r, '.ped2__pe').remove();
 }));
 
+/* ================= 13 · Guias de remessa (v2) ================= */
+const guias = (html: string) => portal('guias', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
+const semGuias = (r: HTMLElement) => $$(r, '[data-guias]').forEach((x) => x.removeAttribute('data-guias'));
+const guiasEsq = (n: number) => Array.from({ length: n }, (_, i) => `<tr>${[80, 50, 60, 85, 55, 60, 45, 45, 40, 40, 50, 40, 50].map((c) => `<td>${E(Math.max(30, c - (i % 3) * 10), 'esq--texto')}</td>`).join('')}</tr>`).join('');
+
+/* 13.1 · esqueleto: os filtros já lá estão; o resumo e as guias chegam */
+const guiasCarga = () => guias(mudar(guiasV2, 'e131', (r) => {
+  semGuias(r);
+  $(r, '.gui2').setAttribute('aria-busy', 'true');
+  $(r, '.ped2__resumo').innerHTML = `${E('110px', 'esq--botao')}${E('170px', 'esq--botao')}`;
+  $(r, 'tbody').innerHTML = guiasEsq(8);
+  $$(r, '.ped2__n').forEach((n) => n.remove());
+  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A carregar as guias de remessa…</span>`;
+}));
+
+/* 13.2 · a pesquisar uma referência: o botão espera, as guias de antes esbatem */
+const guiasPesquisa = () => guias(mudar(guiasV2, 'e132', (r) => {
+  semGuias(r);
+  $<HTMLInputElement>(r, '#e132-ref').setAttribute('value', 'VKBA 3525');
+  aCarregar($(r, '.ped2__pesquisar'), 'A pesquisar…');
+  $(r, '.gui2__tabela').insertAdjacentHTML('afterbegin', '<div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div>');
+  $(r, '.gui2__tabela tbody').classList.add('est-esbatido');
+  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A procurar guias com a referência VKBA 3525…</span>`;
+}));
+
+/* 13.3 · sem guias no período escolhido */
+const guiasVazio = () => guias(mudar(guiasV2, 'e133', (r) => {
+  semGuias(r);
+  $<HTMLInputElement>(r, '#e133-de').setAttribute('value', '01/10/2026');
+  $(r, '.ped2__conta').textContent = '0';
+  $(r, '.ped2__total').textContent = '0,00 €';
+  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Nenhuma guia desde 01/10/2026.</strong> A última guia da conta é de 15/04/2024 (GR2024/08812).</p><div class="est-aviso__botoes">${BOTAO('Ver o último ano', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver os pedidos', IC.grelha, 'btn--acao btn--sm', ' data-ir="pedidos"')}</div></div>`;
+  $(r, '.ped2__pe').innerHTML = '<span>A mostrar 0 · de 01/10/2026 até hoje</span>';
+}));
+
+/* 13.4 · erro nos filtros */
+const guiasFiltros = () => guias(mudar(guiasV2, 'e134', (r) => {
+  semGuias(r);
+  erroCampo(r, 'e134-ate', '01/02/2024', '«Data até» é antes de «Data a partir de» (01/03/2024).');
+  erroCampo(r, 'e134-num', 'GR-8812', 'O n.º da guia escreve-se GR2024/08812.');
+  $(r, '.ped2__campos').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir antes de pesquisar</p></div></div>`);
+  $(r, '.ped2__campos').classList.add('est-com-erros');
+}));
+
+/* 13.5 · sem ligação: as guias de há pouco ficam à vista, esbatidas */
+const guiasRede = () => guias(mudar(guiasV2, 'e135', (r) => {
+  semGuias(r);
+  $(r, '.gui2').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver as guias de há 6 minutos. Pesquisar e descarregar PDF voltam quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
+  const b = $(r, '.ped2__pesquisar'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação');
+  $(r, '.gui2__tabela tbody').classList.add('est-esbatido');
+}));
+
+/* 13.6 · a tabela não carregou */
+const guiasFalha = () => guias(mudar(guiasV2, 'e136', (r) => {
+  semGuias(r);
+  $(r, '.ped2__resumo').innerHTML = '';
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="cg-falha est-falha est-falha--largo est-falha--tabela">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar as guias de remessa</p><p class="cg-falha__texto">Os filtros ficaram como estavam. Referência do erro: <code>GP-20261013-G4K7</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
+  $(r, '.ped2__pe').remove();
+}));
+
+/* 13.7 · uma guia aberta no painel (a do pedido expedido em parte) */
+const guiasAberta = () => guias(mudar(guiasV2, 'e137', (r) => {
+  semGuias(r);
+  preencherGuia(r, $$(r, '.gui2__linha')[1]);
+}));
+
+/* 13.8 · uma nota de crédito aberta (a devolução de um retentor) */
+const guiasCredito = () => guias(mudar(guiasV2, 'e138', (r) => {
+  semGuias(r);
+  preencherGuia(r, $$(r, '.gui2__linha')[2]);
+}));
+
+/* 13.9 · primeira vez: um cliente novo, ainda sem nenhuma guia */
+const guiasPrimeira = () => guias(mudar(guiasV2, 'e139', (r) => {
+  semGuias(r);
+  $(r, '.ped2__resumo').innerHTML = '';
+  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não tem guias de remessa.</strong> Quando um pedido for expedido, a guia aparece aqui com a fatura; as devoluções aparecem como notas de crédito.</p><div class="est-aviso__botoes">${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
+  $(r, '.ped2__pe').remove();
+}));
+
+/* ================= 14 · Faturas ================= */
+const faturas = (html: string) => portal('faturas', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
+const semFaturas = (r: HTMLElement) => $$(r, '[data-faturas]').forEach((x) => x.removeAttribute('data-faturas'));
+const faturasEsq = (n: number) => Array.from({ length: n }, (_, i) => `<tr>${[70, 50, 60, 85, 45, 45, 40, 40, 50, 40, 30, 30, 30, 30, 50, 60].map((c) => `<td>${E(Math.max(25, c - (i % 3) * 10), 'esq--texto')}</td>`).join('')}</tr>`).join('');
+
+/* 14.1 · esqueleto */
+const faturasCarga = () => faturas(mudar(faturasV1, 'e141', (r) => {
+  semFaturas(r);
+  $(r, '.fat').setAttribute('aria-busy', 'true');
+  $(r, '.ped2__resumo').innerHTML = `${E('130px', 'esq--botao')}${E('160px', 'esq--botao')}${E('150px', 'esq--botao')}`;
+  $(r, 'tbody').innerHTML = faturasEsq(8);
+  $$(r, '.ped2__n').forEach((n) => n.remove());
+  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A carregar as faturas…</span>`;
+}));
+/* 14.2 · a pesquisar um n.º */
+const faturasPesquisa = () => faturas(mudar(faturasV1, 'e142', (r) => {
+  semFaturas(r);
+  $<HTMLInputElement>(r, '#e142-num').setAttribute('value', 'FT2024/05');
+  aCarregar($(r, '.ped2__pesquisar'), 'A pesquisar…');
+  $(r, '.fat__tabela').insertAdjacentHTML('afterbegin', '<div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div>');
+  $(r, '.fat__tabela tbody').classList.add('est-esbatido');
+  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A procurar faturas FT2024/05…</span>`;
+}));
+/* 14.3 · sem faturas no período */
+const faturasVazio = () => faturas(mudar(faturasV1, 'e143', (r) => {
+  semFaturas(r);
+  $<HTMLInputElement>(r, '#e143-de').setAttribute('value', '01/10/2026');
+  $(r, '.ped2__conta').textContent = '0';
+  $(r, '.ped2__total').textContent = '0,00 €';
+  $(r, '.fat__aberto-valor').textContent = '0,00 €';
+  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Nenhuma fatura desde 01/10/2026.</strong> A última fatura da conta é a FT2024/05530, de 15/04/2024.</p><div class="est-aviso__botoes">${BOTAO('Ver o último ano', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver as guias', IC.grelha, 'btn--acao btn--sm', ' data-ir="guias"')}</div></div>`;
+  $(r, '.ped2__pe').innerHTML = '<span>A mostrar 0 · de 01/10/2026 até hoje</span>';
+}));
+/* 14.4 · erro nos filtros */
+const faturasFiltros = () => faturas(mudar(faturasV1, 'e144', (r) => {
+  semFaturas(r);
+  erroCampo(r, 'e144-ate', '01/02/2024', '«Data até» é antes de «Data a partir de» (01/03/2024).');
+  erroCampo(r, 'e144-num', '5530', 'Escreva o n.º completo: FT2024/05530 (fatura) ou NC2024/00412 (nota de crédito).');
+  $(r, '.ped2__campos').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir antes de pesquisar</p></div></div>`);
+  $(r, '.ped2__campos').classList.add('est-com-erros');
+}));
+/* 14.5 · sem ligação */
+const faturasRede = () => faturas(mudar(faturasV1, 'e145', (r) => {
+  semFaturas(r);
+  $(r, '.fat').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver as faturas de há 5 minutos. Pesquisar e descarregar PDF voltam quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
+  const b = $(r, '.ped2__pesquisar'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação');
+  $(r, '.fat__tabela tbody').classList.add('est-esbatido');
+}));
+/* 14.6 · a tabela não carregou */
+const faturasFalha = () => faturas(mudar(faturasV1, 'e146', (r) => {
+  semFaturas(r);
+  $(r, '.ped2__resumo').innerHTML = '';
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="cg-falha est-falha est-falha--largo est-falha--tabela">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar as faturas</p><p class="cg-falha__texto">Os filtros ficaram como estavam. Referência do erro: <code>GP-20261013-F2M9</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
+  $(r, '.ped2__pe').remove();
+}));
+/* 14.7 · uma fatura em aberto, no painel, com a referência Multibanco */
+const faturasAberta = () => faturas(mudar(faturasV1, 'e147', (r) => { semFaturas(r); preencherFatura(r, $$(r, '.fat__linha')[0]); }));
+/* 14.8 · uma fatura vencida, no painel */
+const faturasVencida = () => faturas(mudar(faturasV1, 'e148', (r) => { semFaturas(r); preencherFatura(r, $$(r, '.fat__linha')[3]); }));
+/* 14.9 · primeira vez */
+const faturasPrimeira = () => faturas(mudar(faturasV1, 'e149', (r) => {
+  semFaturas(r);
+  $(r, '.ped2__resumo').innerHTML = '';
+  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não tem faturas.</strong> A fatura de cada encomenda aparece aqui quando a guia de remessa sai do armazém; as devoluções aparecem como notas de crédito.</p><div class="est-aviso__botoes">${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
+  $(r, '.ped2__pe').remove();
+}));
+
 /* ---------- a lista: cada estado logo a seguir ao seu ecrã ---------- */
-const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos' };
+const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos', guias: 'guias', faturas: 'faturas' };
 const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): EcraGoParts =>
   ({ id, nome, fluxo: 'Portal', objetivo, estadoDe: PAI[id.split('-')[0]], versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
 
@@ -426,4 +589,26 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa em cima, os pedidos de há pouco esbatidos e a pesquisa desligada.', pedidosRede),
   e('pedidos-falha', '12.6 · Os pedidos não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', pedidosFalha),
   e('pedidos-aberto', '12.7 · Pedido aberto', 'Pedidos v3: o P2024/001233 aberto no painel — o percurso, os 12 artigos com um pendente, os totais e as ações. As animações correm ao mostrar o ecrã.', pedidosAberto),
+];
+export const estadosGuias = (): EcraGoParts[] => [
+  e('guias-carga', '13.1 · A carregar as guias', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', guiasCarga),
+  e('guias-pesquisa', '13.2 · A pesquisar', 'Com uma referência escrita: o botão em «A pesquisar…», uma barra fina e as guias de antes esbatidas.', guiasPesquisa),
+  e('guias-vazio', '13.3 · Sem guias no período', 'Nenhuma guia nas datas escolhidas: diz qual foi a última e dá dois caminhos.', guiasVazio),
+  e('guias-filtros', '13.4 · Erro nos filtros', 'A data final antes da inicial e o n.º mal escrito: cada campo diz como deve ser.', guiasFiltros),
+  e('guias-rede', '13.5 · Sem ligação', 'Uma faixa em cima, as guias de há pouco esbatidas; pesquisar e descarregar esperam pela ligação.', guiasRede),
+  e('guias-falha', '13.6 · As guias não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', guiasFalha),
+  e('guias-aberta', '13.7 · Guia aberta', 'A GR2024/08640 no painel: a fatura e o pedido, os artigos servidos, os valores (bruto, desconto, embalagens, portes, base, IVA, total) e a morada.', guiasAberta),
+  e('guias-credito', '13.8 · Nota de crédito aberta', 'Uma devolução no painel: a nota de crédito, o pedido da peça devolvida e os valores a negativo.', guiasCredito),
+  e('guias-primeira', '13.9 · Primeira vez', 'Um cliente novo, sem guias: diz quando vão aparecer e leva ao catálogo.', guiasPrimeira),
+];
+export const estadosFaturas = (): EcraGoParts[] => [
+  e('faturas-carga', '14.1 · A carregar as faturas', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', faturasCarga),
+  e('faturas-pesquisa', '14.2 · A pesquisar', 'Com um n.º escrito: o botão em «A pesquisar…», uma barra fina e as faturas de antes esbatidas.', faturasPesquisa),
+  e('faturas-vazio', '14.3 · Sem faturas no período', 'Nenhuma fatura nas datas escolhidas: diz qual foi a última e dá dois caminhos.', faturasVazio),
+  e('faturas-filtros', '14.4 · Erro nos filtros', 'A data final antes da inicial e o n.º incompleto: cada campo diz como deve ser.', faturasFiltros),
+  e('faturas-rede', '14.5 · Sem ligação', 'Uma faixa em cima, as faturas de há pouco esbatidas; pesquisar e descarregar esperam pela ligação.', faturasRede),
+  e('faturas-falha', '14.6 · As faturas não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', faturasFalha),
+  e('faturas-aberta', '14.7 · Fatura em aberto', 'A FT2024/05530 no painel: em aberto, com o vencimento e a referência Multibanco, os valores, a guia, o pedido e os artigos.', faturasAberta),
+  e('faturas-vencida', '14.8 · Fatura vencida', 'Uma fatura que já venceu: o pagamento a âmbar, o total da linha também, e a referência para pagar.', faturasVencida),
+  e('faturas-primeira', '14.9 · Primeira vez', 'Um cliente novo, sem faturas: diz quando vão aparecer e leva ao catálogo.', faturasPrimeira),
 ];

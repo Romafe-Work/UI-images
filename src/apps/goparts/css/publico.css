@@ -1,0 +1,155 @@
+/* =========================================================
+   GOPARTS — 00 · A página pública (13 out. 2026)
+   No estilo dos sites que ela mandou: fundo azul-noite, letra enorme a subir linha
+   a linha, fotografias que trocam com uma revelação em círculo, uma secção que fica
+   parada enquanto o scroll conta a história, a rota a desenhar-se, as marcas a
+   deslizar. A barra de cima é branca (o ROMAFE só vai em fundo claro).
+   As animações ligadas ao scroll lêem variáveis que comportamento/publico.ts põe
+   (--rot, --r, a cena atual, o traço da rota); as de entrada correm quando cada
+   secção ganha .is-visivel. Só transform, opacity e clip-path. Com «reduzir
+   movimento», tudo aparece já e nada roda nem desliza.
+   ========================================================= */
+.pub {
+  --pub-noite: #0a1525; --pub-noite-2: #0f1e33; --pub-tinta: #f3f6fa; --pub-tinta-2: #9db0c7; --pub-linha: rgba(255, 255, 255, .12);
+  --pub-azul: #2f86d8;
+  background: var(--pub-noite); color: var(--pub-tinta); font-family: var(--f-texto, inherit); overflow-x: clip;
+}
+.pub ::selection { background: var(--c-acao); color: #fff; }
+
+/* ---------- a barra ---------- */
+.pub__barra { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--e-5); padding: 0 var(--e-6); min-height: 72px; background: #fff; color: #18263a; border-bottom: 1px solid #e3e9f0; }
+.pub__marca { display: flex; align-items: center; gap: var(--e-3); text-decoration: none; color: inherit; }
+.pub__marca .romafe { font-size: 34px; }
+.pub__risco { width: 1px; height: 28px; background: #d6dee8; }
+.pub__produto { font-family: var(--f-titulo); font-weight: 700; font-size: 22px; }
+.pub__nav { display: flex; gap: var(--e-5); margin-left: auto; }
+.pub__nav a { position: relative; font-size: 15px; color: #3b4a5e; text-decoration: none; padding: 6px 0; }
+.pub__nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--c-acao); transform: scaleX(0); transform-origin: right; transition: transform .3s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .pub__nav a:hover::after { transform: scaleX(1); transform-origin: left; } .pub__nav a:hover { color: #18263a; } }
+
+/* ---------- o herói ---------- */
+.pub__heroi { position: relative; min-height: calc(100vh - 72px); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); grid-template-rows: 1fr auto; padding: var(--e-7, 64px) var(--e-6) 0; gap: var(--e-6); overflow: hidden; }
+.pub__heroi-texto { align-self: center; display: grid; gap: var(--e-5); position: relative; z-index: 1; }
+.pub__titulo, .pub__h2 { margin: 0; font-family: var(--f-titulo); font-weight: 700; text-transform: uppercase; letter-spacing: -.035em; line-height: .86; }
+.pub__titulo { font-size: clamp(64px, 10.5vw, 172px); }
+.pub__titulo .pub__linha:last-child { color: var(--c-acao); }
+.pub__linha { display: block; overflow: hidden; padding-bottom: .04em; }
+.pub__linha > span { display: inline-block; }
+.pub__lead { margin: 0; max-width: 46ch; font-size: 18px; line-height: 1.55; color: var(--pub-tinta-2); }
+.pub__accoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-5); }
+.pub__cta.btn { min-height: 56px; padding: 0 var(--e-6); font-size: 17px; border-radius: var(--r-full); }
+.pub__ligacao { display: inline-flex; align-items: center; gap: var(--e-2); color: var(--pub-tinta); text-decoration: none; font-size: 15px; border-bottom: 1px solid var(--pub-linha); padding-bottom: 4px; transition: border-color .2s ease; }
+.pub__ligacao svg { width: 16px; height: 16px; }
+@media (hover: hover) and (pointer: fine) { .pub__ligacao:hover { border-color: var(--c-acao); } }
+
+/* o rolamento grande, à direita, que roda com o scroll */
+.pub__heroi-roda { position: relative; align-self: center; justify-self: end; width: min(46vw, 680px); aspect-ratio: 1; margin-right: calc(var(--e-6) * -1 - 8vw); }
+.pub__rolamento { width: 100%; height: 100%; transform: rotate(calc(var(--rot, 0) * 1deg)); }
+.pub__r-anel { fill: none; stroke: #1d4f86; stroke-width: 40; }
+.pub__r-fino { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: 1.5; }
+.pub__r-esferas circle { fill: var(--c-acao); }
+.pub__r-furo { fill: var(--pub-noite-2); stroke: #1d4f86; stroke-width: 10; }
+
+/* os números, em baixo, separados por linhas finas */
+.pub__numeros { grid-column: 1 / -1; list-style: none; margin: 0; padding: var(--e-5) 0 var(--e-6); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--pub-linha); position: relative; z-index: 1; }
+.pub__numeros li { display: grid; gap: 4px; padding: 0 var(--e-4); }
+.pub__numeros li + li { border-left: 1px solid var(--pub-linha); }
+.pub__numeros strong { font-family: var(--f-titulo); font-size: clamp(32px, 3.6vw, 52px); font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.pub__numeros span { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--pub-tinta-2); }
+.pub__descer { position: absolute; left: 50%; bottom: calc(var(--e-6) + 96px); translate: -50% 0; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--pub-linha); color: var(--pub-tinta-2); }
+.pub__descer svg { width: 18px; height: 18px; }
+
+/* ---------- do armazém à oficina: fica parado enquanto o scroll conta ---------- */
+.pub__historia { height: 400vh; position: relative; }
+.pub__fixo { position: sticky; top: 72px; height: calc(100vh - 72px); display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr) auto; align-items: center; gap: var(--e-6); padding: var(--e-6); }
+.pub__fotos { position: relative; height: 100%; border-radius: 28px; overflow: hidden; background: var(--pub-noite-2); }
+.pub__foto { position: absolute; inset: 0; background-size: cover; background-position: center; clip-path: circle(calc(var(--r, 0) * 75%) at 50% 55%); transform: scale(calc(1.12 - var(--r, 0) * .12)); }
+.pub__foto:first-child { --r: 1; }
+.pub__cenas { position: relative; height: 60%; }
+.pub__cena { position: absolute; inset: 0; display: grid; align-content: center; gap: var(--e-3); opacity: 0; transform: translateY(24px); transition: opacity .45s var(--ease-out), transform .45s var(--ease-out); pointer-events: none; }
+.pub__cena[aria-current="true"] { opacity: 1; transform: none; }
+.pub__cena-grande { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: clamp(56px, 7vw, 112px); line-height: .9; letter-spacing: -.035em; text-transform: uppercase; }
+.pub__cena-linha { margin: 0; font-size: 22px; font-weight: 600; }
+.pub__cena-texto { margin: 0; max-width: 34ch; font-size: 16px; line-height: 1.55; color: var(--pub-tinta-2); }
+.pub__progresso { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.pub__progresso li { width: 3px; height: 40px; border-radius: 3px; background: var(--pub-linha); position: relative; overflow: hidden; }
+.pub__progresso li::after { content: ""; position: absolute; inset: 0; background: var(--c-acao); transform-origin: top; transform: scaleY(var(--f, 0)); }
+
+/* ---------- a rota ---------- */
+.pub__rota { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: var(--e-6); padding: var(--e-7, 64px) var(--e-6); background: var(--pub-noite-2); }
+.pub__h2 { font-size: clamp(48px, 6.4vw, 104px); }
+.pub__rota-texto { display: grid; gap: var(--e-5); }
+.pub__rota-texto p { margin: 0; max-width: 44ch; font-size: 18px; line-height: 1.55; color: var(--pub-tinta-2); }
+.pub__mapa { width: 100%; max-height: 80vh; overflow: visible; }
+.pub__mapa-costa { fill: none; stroke: rgba(255, 255, 255, .14); stroke-width: 2; stroke-dasharray: 3 7; }
+.pub__mapa-rota { fill: none; stroke: var(--c-acao); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--traco, 0)); }
+.pub__mapa-ponto { fill: var(--pub-azul); }
+.pub__mapa-oficina { fill: var(--c-acao); }
+.pub__mapa text { fill: var(--pub-tinta); font-family: var(--f-titulo); font-size: 17px; font-weight: 600; }
+
+/* ---------- as marcas ---------- */
+.pub__marcas { padding: var(--e-7, 64px) 0; display: grid; gap: var(--e-5); border-top: 1px solid var(--pub-linha); border-bottom: 1px solid var(--pub-linha); }
+.pub__marcas-titulo { margin: 0; text-align: center; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--pub-tinta-2); }
+.pub__faixa { display: flex; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.pub__faixa ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 72px; padding-right: 72px; flex: none; animation: pub-faixa 40s linear infinite; }
+.pub__faixa li { display: grid; place-items: center; height: 56px; color: var(--pub-tinta-2); transition: color .2s ease; }
+.pub__faixa svg { width: 48px; height: 48px; fill: currentColor; }
+@media (hover: hover) and (pointer: fine) { .pub__faixa:hover ul { animation-play-state: paused; } .pub__faixa li:hover { color: var(--pub-tinta); } }
+@keyframes pub-faixa { to { transform: translateX(-100%); } }
+
+/* ---------- o fim ---------- */
+.pub__fim { min-height: 80vh; display: grid; place-items: center; align-content: center; gap: var(--e-6); padding: var(--e-7, 64px) var(--e-6); text-align: center; }
+.pub__h2--fim { font-size: clamp(64px, 11vw, 180px); }
+.pub__h2--fim .pub__linha:last-child { color: var(--c-acao); }
+.pub__cta--grande.btn { min-height: 64px; padding: 0 var(--e-7, 64px); font-size: 19px; }
+.pub__cta--grande .btn__icone { transition: transform .2s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .pub__cta--grande:hover .btn__icone { transform: translateX(4px); } }
+.pub__fim-nota { margin: 0; color: var(--pub-tinta-2); font-size: 15px; }
+.pub__fim-nota a { color: var(--pub-tinta); }
+.pub__rodape { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--e-3); padding: var(--e-4) var(--e-6); font-size: 13px; color: var(--pub-tinta-2); border-top: 1px solid var(--pub-linha); }
+
+/* ---------- as entradas (quando cada secção aparece: .is-visivel) ---------- */
+.pub .pub__linha > span { transform: translateY(108%); transition: transform .9s var(--ease-out) calc(var(--i, 0) * 90ms); }
+.pub .is-visivel .pub__linha > span { transform: none; }
+.pub__lead, .pub__accoes, .pub__rota-texto p, .pub__fim-nota, .pub__fim .pub__cta { opacity: 0; transform: translateY(16px); transition: opacity .7s var(--ease-out) .35s, transform .7s var(--ease-out) .35s; }
+.pub__accoes { transition-delay: .45s; }
+.is-visivel .pub__lead, .is-visivel .pub__accoes, .is-visivel .pub__rota-texto p, .is-visivel .pub__fim-nota, .is-visivel .pub__cta { opacity: 1; transform: none; }
+.pub__heroi-roda { opacity: 0; transform: translateX(18%) rotate(40deg); transition: opacity 1s var(--ease-out) .1s, transform 1.4s var(--ease-out) .1s; }
+.is-visivel .pub__heroi-roda { opacity: 1; transform: none; }
+.pub__numeros li { opacity: 0; transform: translateY(12px); transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); }
+.is-visivel .pub__numeros li { opacity: 1; transform: none; }
+.pub__numeros li:nth-child(2) { transition-delay: .08s; } .pub__numeros li:nth-child(3) { transition-delay: .16s; } .pub__numeros li:nth-child(4) { transition-delay: .24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pub .pub__linha > span, .pub__lead, .pub__accoes, .pub__rota-texto p, .pub__fim-nota, .pub__fim .pub__cta, .pub__heroi-roda, .pub__numeros li, .pub__cena { transition: none; transform: none; opacity: 1; }
+  .pub__cena:not([aria-current="true"]) { opacity: 0; }
+  .pub__rolamento { transform: none; }
+  .pub__faixa ul { animation: none; }
+  .pub__foto { transform: none; }
+}
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1000px) {
+  .pub__heroi { grid-template-columns: minmax(0, 1fr); }
+  .pub__heroi-roda { position: absolute; right: -30vw; top: 8vh; width: 80vw; opacity: .35; }
+  .is-visivel .pub__heroi-roda { opacity: .35; }
+  .pub__numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--e-4); }
+  .pub__numeros li:nth-child(3) { border-left: 0; }
+  .pub__fixo { grid-template-columns: minmax(0, 1fr); grid-template-rows: 55% 1fr; padding: var(--e-4); gap: var(--e-3); }
+  .pub__progresso { display: none; }
+  .pub__cenas { height: 100%; }
+  .pub__rota { grid-template-columns: minmax(0, 1fr); }
+  .pub__descer { display: none; }
+}
+@media (max-width: 640px) {
+  .pub__barra { padding: 0 var(--e-4); gap: var(--e-3); }
+  .pub__nav { display: none; }
+  .pub__entrar { margin-left: auto; }
+  .pub__marca .romafe { font-size: 24px; }
+  .pub__produto { font-size: 17px; }
+  .pub__heroi { padding: var(--e-6) var(--e-4) 0; }
+  .pub__lead { font-size: 16px; }
+  .pub__heroi-roda, .is-visivel .pub__heroi-roda { opacity: .18; }
+  .pub__cena-linha { font-size: 18px; }
+  .pub__rota, .pub__fim { padding: var(--e-6) var(--e-4); }
+}

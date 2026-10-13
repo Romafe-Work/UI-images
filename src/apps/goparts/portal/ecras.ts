@@ -5,7 +5,9 @@
    ========================================================= */
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
-import { estadosInicio, estadosCatalogo, estadosPedidos } from './estados';
+import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
+import { faturasV1 } from './faturas-v1';
+import { guiasV2 } from './guias-v2';
 import inicioV22 from './inicio-v22.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
@@ -43,6 +45,13 @@ export const ecrasPortal: EcraGoParts[] = [
     { id: 'v3', nota: 'A v2 com o pedido num painel à direita (13 out.): a lista fica à vista; o painel tem o percurso (recebido → entregue), os artigos com pedida, servida e pendente, os totais e repetir / guia / fatura; ↑ ↓ passam de pedido, Esc fecha', html: portal('pedidos', pedidosV3, undefined, { menu: true, rodape: false }) }],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
   ...estadosPedidos(),
-  { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('guias', guias) }],
+  { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('guias', guias) },
+    /* 13 out. 2026: ela, «faz este screen com exemplos e animações» e «coloca animações e todos os estados possíveis» */
+    { id: 'v2', nota: 'No estilo dos Pedidos v3 (13 out.): filtros no cartão azul com Todas / Faturas / Notas de crédito, as colunas do GO REPAIR com oito guias de exemplo, e a guia num painel à direita (documentos, artigos, valores a contar); estados 13.1 a 13.9', html: portal('guias', guiasV2, undefined, { menu: true, rodape: false }) }],
     objetivo: 'As guias de remessa e as notas de crédito: filtros, os totais faturados e a lista com bruto, desconto, portes e IVA.' },
+  ...estadosGuias(),
+  /* 13 out. 2026: ela, com a imagem das faturas do GO REPAIR: «para as faturas» (como nas guias) */
+  { id: 'faturas', nome: '14 · Faturas', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'No estilo das Guias v2 (13 out.): resumo com o que está em aberto, filtros no cartão azul, as colunas do GO REPAIR (três pares base/IVA) e o pagamento; a fatura num painel com a referência Multibanco; estados 14.1 a 14.9', html: portal('faturas', faturasV1, undefined, { menu: true, rodape: false }) }],
+    objetivo: 'As faturas e as notas de crédito: filtros, o total e o que está por pagar, e a lista com os valores e o estado do pagamento.' },
+  ...estadosFaturas(),
 ];

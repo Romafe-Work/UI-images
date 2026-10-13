@@ -7,7 +7,7 @@
    ========================================================= */
 import type { IdGoParts } from '../ids';
 
-export type IdPortal = Extract<IdGoParts, 'inicio' | 'catalogo' | 'pedidos' | 'guias'>;
+export type IdPortal = Extract<IdGoParts, 'inicio' | 'catalogo' | 'pedidos' | 'guias' | 'faturas'>;
 
 /** De que produto é o portal: o GoParts, ou o GoShop, que usa a mesma moldura
     (8 out. 2026, para os ecrãs de carregamento das duas apps). `ligar` diz se
@@ -24,7 +24,7 @@ const ABAS: [IdPortal | null, string, string][] = [
   ['catalogo', 'Catálogo', '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z"/><path d="m12 12 8-4.5M12 12v9M12 12 4 7.5"/>'],
   ['pedidos', 'Pedidos', '<path d="M6 3h9l4 4v14H6Z"/><path d="M9 12h7M9 16h7"/>'],
   ['guias', 'Guias de remessa', '<path d="M1.5 6.5h13v9h-13Z"/><path d="M14.5 9.5h4l3.5 3.5v2.5h-7.5Z"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>'],
-  [null, 'Faturas', '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"/><path d="M9 8h6M9 12h6"/>'],
+  ['faturas', 'Faturas', '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"/><path d="M9 8h6M9 12h6"/>'],
   [null, 'Devoluções', '<path d="M3 7v5h5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.2-5.7L3 9"/>'],
   [null, 'Inf. técnica', '<path d="m14 4 6 6-8.5 8.5a3 3 0 0 1-4.2 0l-1.8-1.8a3 3 0 0 1 0-4.2Z"/><path d="m12 6 6 6"/>'],
   [null, 'Minha lista', '<path d="m12 3.5 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.8l6-.8Z"/>'],

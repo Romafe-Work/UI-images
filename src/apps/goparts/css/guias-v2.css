@@ -1,0 +1,59 @@
+/* =========================================================
+   GOPARTS — 13 · Guias de remessa v2 (13 out. 2026)
+   Usa o cabeçalho, os filtros e a tabela da v2 dos Pedidos (pedidos-v2.css) e o
+   painel dos Pedidos v3 (pedidos-v3.css); aqui fica só o que é das guias.
+   Animações: as linhas entram em cascata ao abrir e depois de cada filtro; a
+   linha aberta ganha a barra laranja que cresce do meio; o painel entra da
+   direita; os documentos e os artigos entram em cascata e os valores contam.
+   ========================================================= */
+.gui2__tabela table { min-width: 1380px; }
+.gui2__tabela th, .gui2__tabela td { white-space: nowrap; }
+.gui2__tabela .ped2__obs, .gui2__tabela td:nth-child(4) { white-space: normal; min-width: 150px; }
+.gui2__abrir { padding: 0; }
+.portal--gui2 .ped2__linha td:first-child .ped2__discreto { display: block; }
+.gui2__pedido { font-variant-numeric: tabular-nums; color: var(--c-texto-2); }
+
+/* o tipo: fatura a azul, nota de crédito a âmbar */
+.gui2__tipo svg { width: 14px; height: 14px; }
+.gui2__tipo--fatura { background: var(--c-marca-suave); color: var(--c-marca); }
+.gui2__tipo--credito { background: var(--c-aviso-suave); color: var(--c-aviso); }
+
+/* as linhas: clicáveis, a aberta com a barra laranja */
+.portal--gui2 .gui2__linha { cursor: pointer; transition: background-color .2s ease, opacity .2s ease; }
+.portal--gui2 .gui2__linha[aria-selected="true"] { background: var(--c-marca-suave); }
+.portal--gui2 .gui2__linha > td:first-child { position: relative; }
+.portal--gui2 .gui2__linha > td:first-child::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c-acao); transform: scaleY(0); transition: transform .25s var(--ease-out); }
+.portal--gui2 .gui2__linha[aria-selected="true"] > td:first-child::before { transform: scaleY(1); }
+@media (hover: hover) and (pointer: fine) {
+  .portal--gui2 .gui2__linha:hover:not([aria-selected="true"]) { background: var(--c-superficie-2); }
+}
+/* a pesquisar: as linhas de antes esbatem enquanto se espera */
+.gui2__a-pesquisar .gui2__linha { opacity: .45; }
+.portal--gui2 .ped2__pe { display: flex; align-items: center; gap: var(--e-2); }
+.portal--gui2 .ped2__pe svg { width: 14px; height: 14px; margin-left: auto; color: var(--c-texto-3); }
+.gui2__pe-dica { font-size: 12px; color: var(--c-texto-3); }
+
+/* o painel: os documentos, a quantidade, o aviso da nota de crédito */
+.gui2__docs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-2); }
+.gui2__docs li { display: flex; align-items: center; gap: var(--e-3); padding: var(--e-3); border: 1px solid var(--c-borda); border-radius: var(--r-md); }
+.gui2__docs li > span:nth-child(2) { flex: 1; display: grid; font-size: 14px; }
+.gui2__docs small { font-size: 12px; color: var(--c-texto-3); }
+.gui2__doc-icone { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--c-marca-suave); color: var(--c-marca); flex: none; }
+.gui2__doc-icone svg { width: 18px; height: 18px; }
+.gui2__qt { color: var(--c-texto-2); font-weight: 400; font-variant-numeric: tabular-nums; }
+.gui2__artigo { gap: 0; }
+.gui2__base { padding-top: 4px; border-top: 1px dashed var(--c-borda); }
+.gui2__aviso { font-weight: 600; }
+body.editando .gui2__painel { position: absolute; top: 0; bottom: auto; height: min(100%, 100vh); }
+.portal--gui2 { position: relative; }
+
+/* ---------- animações ---------- */
+.portal--gui2 .gui2__linha { animation: ped3-entrar .3s var(--ease-out) calc(min(var(--i, 0), 10) * 40ms + 100ms) both; }
+.portal--gui2 tbody.is-a-entrar .gui2__linha:not([hidden]) { animation: gui2-reentrar .25s var(--ease-out) calc(min(var(--i, 0), 10) * 30ms) both; }
+@keyframes gui2-reentrar { from { opacity: 0; transform: translateY(6px); } }
+.gui2__docs li { animation: ped3-entrar .3s var(--ease-out) calc(var(--i, 0) * 60ms + 120ms) both; }
+.gui2__valores { animation: ped3-entrar .3s var(--ease-out) .25s both; }
+@media (prefers-reduced-motion: reduce) {
+  .portal--gui2 .gui2__linha, .portal--gui2 tbody.is-a-entrar .gui2__linha, .gui2__docs li, .gui2__valores { animation: none; }
+  .portal--gui2 .gui2__linha > td:first-child::before { transition: none; }
+}
