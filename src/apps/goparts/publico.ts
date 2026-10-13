@@ -18,6 +18,7 @@
    ========================================================= */
 import type { EcraGoParts } from './ids';
 import { htmlPublicoV2 } from './publico-v2';
+import { htmlPublicoV3 } from './publico-v3';
 import catalogoV2 from './portal/catalogo-v2.html?raw';
 import fachada from '../../comum/img/fachada.webp';
 import corredor from '../../comum/img/corredor.webp';
@@ -127,6 +128,7 @@ export function ecraPublico(): EcraGoParts {
     id: 'publico', nome: '00 · A página pública', fluxo: 'Página pública',
     objetivo: 'Antes de entrar: apresenta o GoParts e a Romafe com o estilo dos sites que ela mandou (letra enorme, fotografias que se transformam, scroll que conta a história) e leva a «Entrar».',
     versoes: [{ id: 'v1', nota: 'Pedida a 13 out. com imagens de vídeos de sites (Nike, Jordan, F1): herói, do armazém à oficina, a rota, as marcas e entrar; o material é o da Romafe', html },
-      { id: 'v2', nota: 'Os produtos Romafe (13 out.), pelo reel «LUNEA» que ela mandou: a peça ao centro transforma-se com o scroll — o rolamento roda e abre-se, o disco de travão, a distribuição, a chave —, um disco claro atrás, esferas a flutuar e o texto a trocar', html: htmlPublicoV2 }],
+      { id: 'v2', nota: 'Os produtos Romafe (13 out.), pelo reel «LUNEA» que ela mandou: a peça ao centro transforma-se com o scroll — o rolamento roda e abre-se, o disco de travão, a distribuição, a chave —, um disco claro atrás, esferas a flutuar e o texto a trocar', html: htmlPublicoV2 },
+      { id: 'v3', nota: 'A v2 realista (13 out.: «não gosto daquela lua, quero coisas realistas»): atrás das peças, as fotografias da Romafe de cada família; as peças com a luz parada, a folga do rolamento, reflexos, riscos do polimento, parafusos e sombra no chão; só esferas de aço', html: htmlPublicoV3 }],
   };
 }

@@ -22,18 +22,18 @@ import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
-const f = (n: number) => n.toFixed(1);
+export const f = (n: number) => n.toFixed(1);
 const rad = (g: number) => (g * Math.PI) / 180;
 /** um anel (coroa circular), para desenhar com fill-rule evenodd */
-const anel = (R: number, r: number, cx = 0, cy = 0) =>
+export const anel = (R: number, r: number, cx = 0, cy = 0) =>
   `M${cx + R} ${cy}A${R} ${R} 0 1 0 ${cx - R} ${cy}A${R} ${R} 0 1 0 ${cx + R} ${cy}ZM${cx + r} ${cy}A${r} ${r} 0 1 0 ${cx - r} ${cy}A${r} ${r} 0 1 0 ${cx + r} ${cy}Z`;
 /** um setor de coroa entre dois ângulos (graus, 0 = direita, sentido dos ponteiros) */
-const setor = (R1: number, R2: number, a1: number, a2: number) => {
+export const setor = (R1: number, R2: number, a1: number, a2: number) => {
   const p = (r: number, a: number) => `${f(r * Math.cos(rad(a)))} ${f(r * Math.sin(rad(a)))}`;
   const g = a2 - a1 > 180 ? 1 : 0;
   return `M${p(R2, a1)}A${R2} ${R2} 0 ${g} 1 ${p(R2, a2)}L${p(R1, a2)}A${R1} ${R1} 0 ${g} 0 ${p(R1, a1)}Z`;
 };
-const roda = (n: number, r: number, fn: (x: number, y: number, a: number, i: number) => string, a0 = -90) =>
+export const roda = (n: number, r: number, fn: (x: number, y: number, a: number, i: number) => string, a0 = -90) =>
   Array.from({ length: n }, (_, i) => { const a = a0 + (i * 360) / n; return fn(r * Math.cos(rad(a)), r * Math.sin(rad(a)), a, i); }).join('');
 
 /* o aço, comum às peças */
@@ -73,8 +73,8 @@ const DISCO = `<svg class="pp__peca pp__disco" data-de="2" data-ate="2" viewBox=
 
 /* 04 · o kit de distribuição: a correia à volta de duas polias e do tensor, que rodam */
 /* pela ordem dos ponteiros do relógio, para a correia passar por fora */
-const POLIAS: [number, number, number][] = [[-70, -40, 100], [128, -110, 38], [110, 120, 58]];
-function correia(): string {
+export const POLIAS: [number, number, number][] = [[-70, -40, 100], [128, -110, 38], [110, 120, 58]];
+export function correia(): string {
   const e = 10; /* meia espessura da correia */
   const c = POLIAS.map(([x, y, r]) => [x, y, r + e] as const);
   const tang = c.map(([x1, y1, r1], i) => {
@@ -133,7 +133,8 @@ const LINHAS = (t: string) => t.split(' ').reduce<string[]>((ls, p) => {
   return ls;
 }, []).map((l, i) => `<span class="pp__linha"><span style="--i:${i}">${l}</span></span>`).join('');
 
-export const htmlPublicoV2 = `<div class="pub pp">
+/** A página: as peças, o que fica atrás delas (a lua na v2, as fotografias na v3) e as esferas soltas. */
+export const paginaProdutos = (pecas: string, fundo: string, aco = false, cls = '') => `<div class="pub pp${cls}">
   <header class="pub__barra">
     <a class="pub__marca" href="#" aria-label="Romafe GoParts"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
     <nav class="pub__nav pp__nav" aria-label="Famílias">${CENAS.filter((_, i) => i !== 1).map(([nome]) => `<a href="#" data-cena="${CENAS.findIndex((c) => c[0] === nome)}">${nome}</a>`).join('')}</nav>
@@ -142,9 +143,9 @@ export const htmlPublicoV2 = `<div class="pub pp">
 
   <section class="pp__palco" aria-label="Os produtos Romafe" style="--n:${CENAS.length}">
     <div class="pp__fixo">
-      <div class="pp__lua" aria-hidden="true"></div>
-      <div class="pp__soltas" aria-hidden="true">${SOLTAS.map(([x, y, t, v, c]) => `<i class="pp__solta${c ? ' pp__solta--laranja' : ''}" data-v="${v}" style="left:${f(44 + x * 0.54)}%;top:${y}%;width:${t}px;height:${t}px"></i>`).join('')}</div>
-      <div class="pp__pecas">${ROLAMENTO}${DISCO}${DISTRIBUICAO}${CHAVE}</div>
+      ${fundo}
+      <div class="pp__soltas" aria-hidden="true">${SOLTAS.map(([x, y, t, v, c]) => `<i class="pp__solta${c && !aco ? ' pp__solta--laranja' : ''}" data-v="${v}" style="left:${f(44 + x * 0.54)}%;top:${y}%;width:${t}px;height:${t}px"></i>`).join('')}</div>
+      <div class="pp__pecas">${pecas}</div>
       <div class="pp__textos">${CENAS.map(([fam, titulo, texto], i) => `<article class="pp__cena" data-cena="${i}"${i ? '' : ' aria-current="true"'}>
         <p class="pp__familia"><span class="pp__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${fam} · Família ${String(i + 1).padStart(2, '0')}</p>
         <h2 class="pp__titulo">${LINHAS(titulo)}</h2>
@@ -164,3 +165,4 @@ export const htmlPublicoV2 = `<div class="pub pp">
   </section>
   <footer class="pub__rodape"><span>2026 © Romafe SA · Porto</span><nav class="pp__rodape-nav" aria-label="A Romafe"><a href="#" data-ir="publico-romafe">A Romafe</a><a href="#" data-ir="publico-entregas">Entregas</a><a href="#" data-ir="publico-marcas">Marcas</a><a href="#" data-ir="publico-contactos">Contactos</a></nav><span>Distribuidor SKF desde 1975 · ISO 9001 desde 2006</span></footer>
 </div>`;
+export const htmlPublicoV2 = paginaProdutos(ROLAMENTO + DISCO + DISTRIBUICAO + CHAVE, '<div class="pp__lua" aria-hidden="true"></div>');

@@ -107,3 +107,22 @@
 .pp__rodape-nav { display: flex; flex-wrap: wrap; gap: var(--e-2) var(--e-4); }
 .pp__rodape-nav a { color: var(--pub-tinta); text-decoration: none; background: linear-gradient(var(--c-acao), var(--c-acao)) left bottom / 0 1px no-repeat; transition: background-size .25s var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .pp__rodape-nav a:hover { background-size: 100% 1px; } }
+
+/* ---------- v3 (13 out.): as fotografias da Romafe no lugar da lua, e as peças realistas ----------
+   A fotografia é um retângulo grande atrás da peça (à direita, um pouco acima): troca de família em
+   família com o scroll (opacidade, comportamento/produtos.ts), a legenda numa caixa escura.
+   A peça leva uma sombra própria por baixo; nada brilha nem pulsa. */
+.pp--real .pp__lua--foto { width: min(34vw, 520px); height: min(66vh, 600px); border-radius: 28px; overflow: hidden; background: var(--pub-noite-2); }
+.pp__lua--foto figure { position: absolute; inset: 0; margin: 0; opacity: 0; }
+.pp__lua--foto figure:first-child { opacity: 1; }
+.pp__lua--foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pp__lua--foto figcaption { position: absolute; left: 16px; top: 16px; padding: 8px 12px; border-radius: 10px; background: rgba(8, 18, 32, .84); font-size: 13px; font-weight: 600; color: var(--pub-tinta); }
+.pp--real .pp__pecas { z-index: 1; }
+.pp--real .pp__peca { filter: drop-shadow(0 24px 30px rgba(0, 0, 0, .45)); }
+/* as peças ficam à frente e à esquerda da fotografia, a sobrepor-lhe o canto */
+.pp--real .pp__pecas { translate: -12% 6%; }
+.pp--real .pp__solta { background: radial-gradient(circle at 34% 30%, #fff 0, #dfe5ea 12%, #9aa4ae 42%, #3c444d 100%); }
+@media (max-width: 900px) {
+  .pp--real .pp__lua--foto { width: 70vw; height: 30vh; }
+  .pp--real .pp__pecas { translate: none; }
+}
