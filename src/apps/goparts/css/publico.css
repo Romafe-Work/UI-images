@@ -193,85 +193,17 @@
 .pub__topo svg { width: 18px; height: 18px; color: var(--c-acao); transition: transform .2s var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .pub__topo:hover { color: var(--pub-texto); } .pub__topo:hover svg { transform: translateY(-3px); } }
 
-/* ---------- o fluxo do herói (13 out.: «quero um flow») ----------
-   Os quatro passos do GoParts, à direita do texto, a acontecer sozinhos (data-passo, de 0 a 4,
-   comportamento/publico.ts): o passo atual fica em tinta e com o número laranja, os já feitos
-   ficam cheios e os seguintes ficam leves; a linha do lado enche de passo em passo.
-   Dentro de cada um: a referência escreve-se, a linha do stock aparece, o botão é carregado
-   e passa a «Encomenda feita», a carrinha anda até à oficina. Só transform e opacity. */
-.pub__heroi-topo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-7, 64px); align-items: center; padding: 0 var(--e-6); }
-.pub__heroi-topo .pub__heroi-texto { padding: 0; }
-.pub__flow { position: relative; list-style: none; margin: 0; padding: 0 0 0 var(--e-2); display: grid; gap: var(--e-3); }
-.pub__flow::before, .pub__flow::after { content: ""; position: absolute; left: calc(var(--e-2) + 17px); top: 20px; bottom: 20px; width: 2px; background: var(--pub-linha); }
-.pub__flow::after { background: var(--c-acao); transform-origin: top; transform: scaleY(0); transition: transform .6s var(--ease-in-out); }
-.pub__flow[data-passo="2"]::after { transform: scaleY(.333); } .pub__flow[data-passo="3"]::after { transform: scaleY(.666); } .pub__flow[data-passo="4"]::after { transform: scaleY(1); }
-.pub__flow-passo { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: var(--e-3); align-items: start; opacity: .38; transition: opacity .4s var(--ease-out); }
-.pub__flow-num { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--pub-fundo); border: 2px solid var(--pub-linha); font-weight: 700; font-size: 15px; transition: background-color .3s ease, border-color .3s ease, color .3s ease, transform .3s var(--ease-out); }
-.pub__flow-corpo { padding: 14px 18px; border-radius: 16px; background: var(--pub-fundo); border: 1px solid var(--pub-linha); box-shadow: 0 20px 40px -32px rgba(20, 20, 20, .5); }
-.pub__flow-tit { margin: 0 0 10px; font-family: var(--f-titulo); font-weight: 600; font-size: 17px; }
-/* o passo atual e os já feitos */
-.pub__flow[data-passo="1"] [data-n="1"], .pub__flow[data-passo="2"] :is([data-n="1"], [data-n="2"]), .pub__flow[data-passo="3"] :is([data-n="1"], [data-n="2"], [data-n="3"]), .pub__flow[data-passo="4"] .pub__flow-passo { opacity: 1; }
-.pub__flow[data-passo="1"] [data-n="1"] .pub__flow-num, .pub__flow[data-passo="2"] [data-n="2"] .pub__flow-num, .pub__flow[data-passo="3"] [data-n="3"] .pub__flow-num, .pub__flow[data-passo="4"] [data-n="4"] .pub__flow-num { background: var(--c-acao); border-color: var(--c-acao); color: #141414; transform: scale(1.08); }
-/* 1 · a referência a escrever-se, com o cursor */
-.pub__flow-campo { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--pub-linha); background: var(--pub-fundo-2); font-weight: 600; }
-.pub__flow-campo svg { width: 18px; height: 18px; color: var(--pub-texto-2); flex: none; }
-.pub__flow-cursor { width: 2px; height: 20px; background: var(--c-acao); animation: pub-cursor 1s steps(1) infinite; }
-@keyframes pub-cursor { 50% { opacity: 0; } }
-/* 2 · a linha do stock */
-.pub__flow-linha { display: grid; gap: 10px; }
-.pub__flow-linha strong { display: block; } .pub__flow-linha span { font-size: 14px; color: var(--pub-texto-2); }
-.pub__flow-linha dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
-.pub__flow-linha dl div { padding: 8px 10px; border-radius: 10px; background: var(--pub-fundo-2); }
-.pub__flow-linha dt { font-size: 12px; color: var(--pub-texto-2); } .pub__flow-linha dd { margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
-.pub__flow-linha > *, .pub__flow-linha dl div { opacity: 0; transform: translateY(8px); transition: opacity .4s var(--ease-out), transform .4s var(--ease-out); }
-.pub__flow:is([data-passo="2"], [data-passo="3"], [data-passo="4"]) .pub__flow-linha > *, .pub__flow:is([data-passo="2"], [data-passo="3"], [data-passo="4"]) .pub__flow-linha dl div { opacity: 1; transform: none; }
-.pub__flow-linha dl div:nth-child(2) { transition-delay: .08s; } .pub__flow-linha dl div:nth-child(3) { transition-delay: .16s; }
-/* 3 · o botão é carregado e muda */
-.pub__flow-botao { position: relative; display: inline-grid; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--c-acao); color: #141414; font-weight: 700; overflow: hidden; }
-.pub__flow-botao > span { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 8px; transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
-.pub__flow-botao svg { width: 18px; height: 18px; }
-.pub__flow-depois { opacity: 0; transform: translateY(100%); }
-.pub__flow:is([data-passo="3"], [data-passo="4"]) .pub__flow-botao { animation: pub-carregar .35s var(--ease-out); }
-.pub__flow:is([data-passo="3"], [data-passo="4"]) .pub__flow-antes { opacity: 0; transform: translateY(-100%); transition-delay: .3s; }
-.pub__flow:is([data-passo="3"], [data-passo="4"]) .pub__flow-depois { opacity: 1; transform: none; transition-delay: .3s; }
-@keyframes pub-carregar { 40% { transform: scale(.95); } }
-/* 4 · a carrinha anda até à oficina */
-.pub__flow-pista { position: relative; display: flex; align-items: center; justify-content: flex-end; min-height: 40px; border-bottom: 2px dashed var(--pub-linha); container-type: inline-size; }
-.pub__flow-carrinha { position: absolute; left: 0; bottom: 4px; color: var(--c-acao); transition: transform 1.4s var(--ease-in-out); }
-.pub__flow-carrinha svg { width: 26px; height: 26px; display: block; }
-.pub__flow-oficina { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
-.pub__flow-oficina svg { width: 16px; height: 16px; }
-.pub__flow[data-passo="4"] .pub__flow-carrinha { transform: translateX(calc(100cqi - 180px)); }
-
-@media (prefers-reduced-motion: reduce) {
-  .pub__flow-passo, .pub__flow-linha > *, .pub__flow-linha dl div { opacity: 1; transform: none; }
-  .pub__flow-cursor { animation: none; }
-}
-@media (max-width: 1000px) {
-  .pub__heroi-topo { grid-template-columns: minmax(0, 1fr); padding: 0 var(--e-5); }
-}
-@media (max-width: 640px) { .pub__flow-mais { display: none; } }
-
-/* ---------- o fluxo em cima da fotografia do armazém (13 out.) ---------- */
+/* ---------- o herói: o texto e a fotografia do armazém (13 out.) ----------
+   O fluxo de cartões que esteve por cima da fotografia saiu (ela: «não quero isto»). */
 .pub__heroi { padding: var(--e-6) 0 var(--e-7, 64px) !important; }
-.pub__heroi-topo { align-items: stretch; min-height: calc(100vh - 72px - var(--e-6) - var(--e-7, 64px)); }
-.pub__heroi-topo .pub__heroi-texto { align-self: center; }
-.pub__heroi-foto { position: relative; display: grid; align-items: center; padding: var(--e-6) var(--e-6) var(--e-6) var(--e-5); border-radius: 28px; overflow: hidden; background: var(--pub-fundo-2); }
+.pub__heroi-topo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-7, 64px); align-items: stretch; padding: 0 var(--e-6); min-height: calc(100vh - 72px - var(--e-6) - var(--e-7, 64px)); }
+.pub__heroi-topo .pub__heroi-texto { padding: 0; align-self: center; }
+.pub__heroi-foto { position: relative; min-height: 62vh; border-radius: 28px; overflow: hidden; background: var(--pub-fundo-2); }
 .pub__heroi-foto > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: pub-assentar 1.6s var(--ease-out) both; }
 @keyframes pub-assentar { from { transform: scale(1.08); } }
-.pub__heroi-foto .pub__flow { position: relative; }
-/* na fotografia, a linha dos passos é clara e os cartões levam mais sombra */
-.pub__heroi-foto .pub__flow::before { background: rgba(250, 248, 245, .7); }
-.pub__heroi-foto .pub__flow-corpo { box-shadow: 0 24px 48px -24px rgba(20, 20, 20, .6); }
-.pub__heroi-foto .pub__flow-passo { opacity: .82; }
-.pub__heroi-foto .pub__flow-passo .pub__flow-corpo { transition: transform .4s var(--ease-out); }
-.pub__heroi-foto .pub__flow-num { box-shadow: 0 4px 10px rgba(20, 20, 20, .3); }
+.pub__heroi-legenda { position: absolute; left: var(--e-5); bottom: var(--e-5); margin: 0; padding: 10px 16px; border-radius: 12px; background: var(--pub-fundo); color: var(--pub-texto); font-weight: 600; font-size: 15px; }
 @media (prefers-reduced-motion: reduce) { .pub__heroi-foto > img { animation: none; } }
-@media (max-width: 1000px) {
-  .pub__heroi-topo { min-height: 0; }
-  .pub__heroi-foto { padding: var(--e-4); }
-}
-.pub__flow-linha dd { white-space: nowrap; }
+@media (max-width: 1000px) { .pub__heroi-topo { grid-template-columns: minmax(0, 1fr); padding: 0 var(--e-5); min-height: 0; } .pub__heroi-foto { min-height: 46vh; } }
 
 /* ---------- como nasce um rolamento (13 out.) ----------
    Fica parada enquanto o scroll corre (--n passos). O vídeo está recortado em círculo (clip-path,
@@ -298,3 +230,30 @@
   .pub__nasce-frase { top: 36px; }
 }
 @media (max-width: 640px) { .pub__nasce-anel { aspect-ratio: 4 / 5; } }
+
+/* ---------- «A seguir»: a ligação entre as páginas (13 out.) ----------
+   Um cartão grande com a próxima página e a fotografia dela; com o rato, a fotografia aproxima-se e
+   a seta avança. Ao carregar, a fotografia cresce até ser a da página seguinte (::view-transition,
+   pub-foto). Por baixo, o percurso das cinco páginas, com a atual marcada. */
+.pub__seguinte { display: grid; gap: var(--e-4); padding-bottom: 0 !important; }
+.pub__seguinte-cartao { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); min-height: 300px; border-radius: 28px; overflow: hidden; background: var(--pub-fundo-2); color: var(--pub-texto); text-decoration: none; }
+.pub__seguinte-texto { display: grid; align-content: center; justify-items: start; gap: 8px; padding: var(--e-6); }
+.pub__seguinte-kicker { font-size: 14px; color: var(--c-acao); font-weight: 600; }
+.pub__seguinte-nome { font-family: var(--f-titulo); font-weight: 600; font-size: clamp(36px, 4vw, 64px); letter-spacing: -.02em; line-height: 1.02; }
+.pub__seguinte-frase { color: var(--pub-texto-2); font-size: 17px; max-width: 36ch; }
+.pub__seguinte-ir { display: grid; place-items: center; width: 52px; height: 52px; margin-top: var(--e-3); border-radius: 50%; background: var(--c-acao); color: #141414; }
+.pub__seguinte-ir svg { width: 22px; height: 22px; transition: transform .25s var(--ease-out); }
+.pub__seguinte-foto { overflow: hidden; }
+.pub__seguinte-foto img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .pub__seguinte-cartao:hover .pub__seguinte-foto img { transform: scale(1.05); } .pub__seguinte-cartao:hover .pub__seguinte-ir svg { transform: translateX(4px); } }
+.pub__percurso { display: flex; flex-wrap: wrap; gap: 6px var(--e-4); list-style: none; margin: 0; padding: 0; counter-reset: passo; }
+.pub__percurso li { counter-increment: passo; font-size: 14px; }
+.pub__percurso a { color: var(--pub-texto-2); text-decoration: none; }
+.pub__percurso a::before { content: counter(passo, decimal-leading-zero) " "; }
+.pub__percurso li[aria-current] a { color: var(--pub-texto); font-weight: 600; }
+.pub__percurso li[aria-current] a::before { color: var(--c-acao); }
+.pub__seguinte-cartao { opacity: 0; transform: translateY(24px); transition: opacity .8s var(--ease-out), transform .8s var(--ease-out); }
+.is-visivel .pub__seguinte-cartao { opacity: 1; transform: none; }
+::view-transition-group(pub-foto) { animation-duration: .7s; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
+@media (prefers-reduced-motion: reduce) { .pub__seguinte-cartao { opacity: 1; transform: none; transition: none; } }
+@media (max-width: 1000px) { .pub__seguinte-cartao { grid-template-columns: minmax(0, 1fr); } .pub__seguinte-foto { height: 220px; order: -1; } .pub__seguinte-texto { padding: var(--e-5); } }

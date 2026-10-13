@@ -36,11 +36,6 @@ import logIn from 'lucide-static/icons/log-in.svg?raw';
 import userPlus from 'lucide-static/icons/user-plus.svg?raw';
 import award from 'lucide-static/icons/award.svg?raw';
 import packageIcon from 'lucide-static/icons/package.svg?raw';
-import search from 'lucide-static/icons/search.svg?raw';
-import cart from 'lucide-static/icons/shopping-cart.svg?raw';
-import check from 'lucide-static/icons/check.svg?raw';
-import truck from 'lucide-static/icons/truck.svg?raw';
-import wrench from 'lucide-static/icons/wrench.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span style="--i:${i}">${texto}</span></span>`;
@@ -65,6 +60,29 @@ export const barraPublica = (atual = '', semSeta = false) => `<header class="pub
   <nav class="pub__nav" aria-label="Principal">${MENU.map(([id, nome]) => `<a href="#" data-ir="${id}"${semSeta ? ' data-sem-seta' : ''}${id === atual ? ' aria-current="page"' : ''}>${nome}</a>`).join('')}</nav>
   <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada"${semSeta ? ' data-sem-seta' : ''}>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
 </header>`;
+/* A ligação entre as páginas (ela, 13 out.: «quero que haja uma ligação entre as páginas»): cada página acaba
+   em «A seguir», com a fotografia da próxima; ao carregar, essa fotografia cresce até ser a fotografia grande
+   da página seguinte (View Transitions, comportamento/publico.ts). A ordem é a de uma visita: a página
+   pública, A Romafe, Entregas, Marcas, Contactos e, no fim, entrar. */
+const SEGUINTE: Record<string, [string, string, string, string]> = {
+  publico: ['publico-romafe', 'A Romafe', 'Oitenta anos de rolamentos, máquinas e ferramentas, no Porto.', fachada],
+  'publico-romafe': ['publico-entregas', 'Entregas', 'De onde sai cada peça e quando chega à sua oficina.', separacao],
+  'publico-entregas': ['publico-marcas', 'Marcas', 'As marcas de automóveis do catálogo, e a SKF.', skf],
+  'publico-marcas': ['publico-contactos', 'Contactos', 'O Porto, Sacavém, o telefone e o pedido de acesso.', oficina],
+  'publico-contactos': ['entrada', 'Entrar no GoParts', 'Com a sua conta, o stock e os preços da sua oficina.', corredor],
+};
+export const aSeguir = (atual: string) => {
+  const [id, nome, frase, img] = SEGUINTE[atual];
+  const ordem = ['publico', 'publico-romafe', 'publico-entregas', 'publico-marcas', 'publico-contactos'];
+  return `<section class="pub__seguinte" aria-label="A seguir">
+  <a class="pub__seguinte-cartao" href="#" data-ir="${id}">
+    <span class="pub__seguinte-texto"><span class="pub__seguinte-kicker">A seguir</span><span class="pub__seguinte-nome">${nome}</span><span class="pub__seguinte-frase">${frase}</span><span class="pub__seguinte-ir">${L(arrowRight)}</span></span>
+    <span class="pub__seguinte-foto"><img src="${img}" alt=""></span>
+  </a>
+  <ol class="pub__percurso" aria-label="As páginas">${ordem.map((o) => `<li${o === atual ? ' aria-current="step"' : ''}><a href="#" data-ir="${o}" data-sem-seta>${o === 'publico' ? 'Início' : MENU.find((m) => m[0] === o)![1]}</a></li>`).join('')}</ol>
+</section>`;
+};
+
 export const rodapePublico = `<footer class="pub__rodape"><span>2026 © Romafe SA · Porto</span><span>Distribuidor SKF desde 1975 · ISO 9001 desde 2006 · +351 226 158 300</span></footer>`;
 
 /* os capítulos da história: a fotografia, o número grande, a frase e o texto */
@@ -76,11 +94,8 @@ const CAPITULOS: [string, string, string, string, string][] = [
   [oficina, 'Amanhã', 'Na sua oficina amanhã.', 'O GoParts diz-lhe, antes de pedir, de onde sai cada peça e quando chega.', 'Uma oficina com um motor desmontado'],
 ];
 
-/* o fluxo do herói (ela, 13 out.: «ainda não gosto… quero um flow»): procurar, ver o stock, encomendar, receber,
-   a acontecer sozinho com uma referência verdadeira do catálogo (comportamento/publico.ts) */
-const REF = REFERENCIAS[0];
-/* depois: «isto devia estar com a imagem do armazém» — o fluxo passa para cima da fotografia do corredor
-   (os cartões levam o texto; nada escrito direto na fotografia) e sai o bloco de baixo, que repetia a imagem */
+/* o herói: o texto e a fotografia do armazém (ela, 13 out.). O fluxo de cartões que esteve por cima saiu
+   («não quero isto»); a ligação entre as páginas faz-se no fim de cada uma, com «A seguir» (aSeguir()). */
 
 /* como nasce um rolamento (ela, 13 out.: «podes meter um vídeo de um rolamento a ser feito… sê criativo»):
    não há vídeo livre de uma fábrica de rolamentos; há o de um torno a trabalhar um anel de aço (Pexels,
@@ -110,17 +125,8 @@ const html = `<div class="pub">
         <button type="button" class="btn btn--claro pub__cta pub__cta--claro" data-ir="publico-contactos">${L(userPlus, 'btn__icone')}<span class="btn__rotulo">Pedir acesso</span></button>
       </div>
     </div>
-    <div class="pub__heroi-foto"><img src="${corredor}" alt="Um corredor do armazém da Romafe, com caixas SKF">
-    <ol class="pub__flow" data-passo="0" aria-label="Como funciona o GoParts">
-      <li class="pub__flow-passo" data-n="1"><span class="pub__flow-num">1</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Procure a peça</p>
-        <div class="pub__flow-campo">${L(search)}<span class="pub__flow-escrito" data-texto="${REF[2]}"></span><i class="pub__flow-cursor"></i></div></div></li>
-      <li class="pub__flow-passo" data-n="2"><span class="pub__flow-num">2</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Veja o stock e o preço</p>
-        <div class="pub__flow-linha"><div><strong>${REF[1]} ${REF[2]}</strong><span>${REF[3]}</span></div><dl><div><dt>Porto</dt><dd>${REF[6]}</dd></div><div><dt>Sacavém</dt><dd>${REF[7]}</dd></div><div><dt>Preço</dt><dd>${euros(REF[4])}</dd></div></dl></div></div></li>
-      <li class="pub__flow-passo" data-n="3"><span class="pub__flow-num">3</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Encomende até às 16h</p>
-        <span class="pub__flow-botao"><span class="pub__flow-antes">${L(cart)}Encomendar</span><span class="pub__flow-depois">${L(check)}Encomenda feita<span class="pub__flow-mais"> · sai hoje do Porto</span></span></span></div></li>
-      <li class="pub__flow-passo" data-n="4"><span class="pub__flow-num">4</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Receba amanhã</p>
-        <div class="pub__flow-pista"><span class="pub__flow-carrinha">${L(truck)}</span><span class="pub__flow-oficina">${L(wrench)}A sua oficina</span></div></div></li>
-    </ol>
+    <div class="pub__heroi-foto"><img class="pub__vt" src="${corredor}" alt="Um corredor do armazém da Romafe, com caixas SKF">
+      <p class="pub__heroi-legenda">O armazém da Romafe, no Porto</p>
     </div>
   </div>
   </section>
@@ -177,6 +183,7 @@ const html = `<div class="pub">
     <div class="pub__faixa"><ul>${logos}</ul><ul aria-hidden="true">${logos}</ul></div>
   </section>
 
+  ${aSeguir('publico')}
   <section class="pub__fim" aria-label="Entrar">
     <h2 class="pub__h2 pub__fim-titulo">${LINHA('Entre no GoParts.', 0)}</h2>
     <p class="pub__fim-nota">Ainda não tem conta? <a href="#" data-ir="publico-contactos">Peça acesso</a> ou ligue +351 226 158 300.</p>

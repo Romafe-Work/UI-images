@@ -12,7 +12,7 @@
    Porto e Sacavém, +351 226 158 300.
    ========================================================= */
 import type { EcraGoParts, IdGoParts } from './ids';
-import { barraPublica, rodapePublico } from './publico';
+import { barraPublica, rodapePublico, aSeguir } from './publico';
 import catalogoV2 from './portal/catalogo-v2.html?raw';
 import { REFERENCIAS, saida } from './portal/catalogo-dados';
 import fachada from '../../comum/img/fachada.webp';
@@ -42,10 +42,10 @@ const fim = (texto: string) => `<section class="pubp__fim" aria-label="Entrar">
   <button type="button" class="btn btn--acao pub__cta pubp__cta" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar no GoParts</span></button>
 </section>
 ${rodapePublico}`;
-const pagina = (id: IdPagina, corpo: string) => `<div class="pub pubp pubp--${id.replace('publico-', '')}">${barra(id)}${corpo}${fim(id === 'publico-contactos' ? 'Já tem conta? Encomende com o stock à vista.' : '75 000 referências auto, com o stock do Porto e de Sacavém à vista.')}</div>`;
+const pagina = (id: IdPagina, corpo: string) => `<div class="pub pubp pubp--${id.replace('publico-', '')}">${barra(id)}${corpo}${aSeguir(id)}${fim(id === 'publico-contactos' ? 'Já tem conta? Encomende com o stock à vista.' : '75 000 referências auto, com o stock do Porto e de Sacavém à vista.')}</div>`;
 const heroi = (kicker: string, titulo: string, lead: string, img: string, alt: string, legenda: string) => `<section class="pubp__heroi">
   <div class="pubp__heroi-texto"><p class="pubp__kicker">${kicker}</p>${titulo}<p class="pubp__lead">${lead}</p></div>
-  <figure class="pubp__foto"><img src="${img}" alt="${alt}"><figcaption>${legenda}</figcaption></figure>
+  <figure class="pubp__foto"><img class="pub__vt" src="${img}" alt="${alt}"><figcaption>${legenda}</figcaption></figure>
 </section>`;
 
 /* ---------- 00.1 · A Romafe: a história em marcos, os números e o armazém ---------- */

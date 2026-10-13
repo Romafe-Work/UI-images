@@ -9,6 +9,8 @@
    Corre também no editor (o scroll não escolhe peças); um só rAF por frame.
    Com «reduzir movimento», as fotografias trocam sem deslizar.
    ========================================================= */
+import { mostrar } from '../../../comum/ecras';
+
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lim = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const BARRA = 72;
@@ -104,23 +106,26 @@ function irCapitulo(h: HTMLElement, i: number): void {
   window.scrollTo({ top: alvo, behavior: quieto() ? 'auto' : 'smooth' });
 }
 
-/* o fluxo do herói: um passo a cada 1,9 s (o 1 escreve a referência letra a letra), o 4 fica 3 s e recomeça.
-   Fora do ecrã, no editor ou com «reduzir movimento», fica tudo à vista (passo 4). */
-let flowPasso = 0, flowTempo = 0;
-function flow(): void {
-  const f = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub__flow');
-  window.clearTimeout(flowTempo);
-  if (!f) { flowTempo = window.setTimeout(flow, 1000); return; }
-  const escrito = f.querySelector<HTMLElement>('.pub__flow-escrito');
-  const texto = escrito?.dataset.texto ?? '';
-  if (quieto() || document.body.classList.contains('editando')) { f.dataset.passo = '4'; if (escrito) escrito.textContent = texto; flowTempo = window.setTimeout(flow, 2000); return; }
-  flowPasso = flowPasso >= 4 ? 1 : flowPasso + 1;
-  f.dataset.passo = String(flowPasso);
-  if (flowPasso === 1 && escrito) {
-    escrito.textContent = '';
-    [...texto].forEach((_, i) => window.setTimeout(() => { escrito.textContent = texto.slice(0, i + 1); }, 250 + i * 85));
-  }
-  flowTempo = window.setTimeout(flow, flowPasso === 4 ? 3200 : 1900);
+/** A ligação entre as páginas públicas: a fotografia em que se carrega cresce até ser a fotografia grande da
+ *  página seguinte (View Transitions; sem elas, ou com «reduzir movimento», troca-se logo). Corre na fase de
+ *  captura da janela, antes da navegação do protótipo, e só nas ligações das páginas públicas. */
+function ligar2(ev: MouseEvent): void {
+  if (document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo')) return;
+  const a = (ev.target as Element).closest?.<HTMLElement>('.pub [data-ir]');
+  const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
+  if (!a || !doc.startViewTransition || quieto()) return;
+  const destino = a.dataset.ir!;
+  if (!document.querySelector(`.ecra[data-ecra="${destino}"]`)) return;
+  ev.preventDefault(); ev.stopPropagation();
+  const daqui = a.querySelector<HTMLElement>('.pub__seguinte-foto img') ?? document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub__vt');
+  if (daqui) daqui.style.viewTransitionName = 'pub-foto';
+  const t = doc.startViewTransition(() => {
+    if (daqui) daqui.style.viewTransitionName = '';
+    mostrar(destino);
+    const ali = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub__vt');
+    if (ali) ali.style.viewTransitionName = 'pub-foto';
+  });
+  t.finished.finally(() => document.querySelectorAll<HTMLElement>('.pub__vt').forEach((el) => { el.style.viewTransitionName = ''; }));
 }
 
 export function iniciar(): void {
@@ -129,7 +134,7 @@ export function iniciar(): void {
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(pedir)));
   window.addEventListener('hashchange', () => requestAnimationFrame(pedir));
   requestAnimationFrame(pedir);
-  flow();
+  window.addEventListener('click', ligar2, true);
   document.addEventListener('click', (ev) => {
     if (document.body.classList.contains('editando')) return;
     /* «Voltar ao início»: a página sobe e o rolamento da barra rola de volta */
