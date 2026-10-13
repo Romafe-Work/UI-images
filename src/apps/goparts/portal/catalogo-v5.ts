@@ -24,7 +24,6 @@ import list from 'lucide-static/icons/list.svg?raw';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
 import scale from 'lucide-static/icons/scale.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
-import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
 import factory from 'lucide-static/icons/factory.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
 import eraser from 'lucide-static/icons/eraser.svg?raw';
@@ -33,7 +32,6 @@ import plus from 'lucide-static/icons/plus.svg?raw';
 import listTree from 'lucide-static/icons/list-tree.svg?raw';
 import columns3 from 'lucide-static/icons/columns-3.svg?raw';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
-import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import { GRUPOS, FABRICANTES, ARVORE } from './catalogo-dados';
 
 const barra = `
@@ -83,7 +81,7 @@ const resultados = `
 
 /* ---------- Referências (a quarta imagem dela) ----------
    Fabricantes em etiquetas (com «Adicionar»), Grupo de montagem, Agrupar;
-   à direita, Comparar (n), Ver próprias e Tabela / Grelha. «Ver próprias»
+   à direita, Comparar (n) e Ver próprias (13 out.: ela quis só em tabela, saiu a Grelha). «Ver próprias»
    mostra só o que tem stock nos armazéns da Romafe (é o que pareceu querer
    dizer; o «D» da imagem não se percebeu e ficou de fora). */
 const refsFiltros = `
@@ -98,10 +96,6 @@ const refsFiltros = `
         <div class="cat5__refs-accoes">
           <button type="button" class="btn btn--ghost cat5__comparar" disabled>${L(scale, 'btn__icone')}<span class="btn__rotulo">Comparar (<span class="cat5__n-comparar">0</span>)</span></button>
           <button type="button" class="btn btn--ghost cat5__proprias" aria-pressed="false" data-dica="Só as referências com stock nos armazéns da Romafe">${L(warehouse, 'btn__icone')}<span class="btn__rotulo">Ver próprias</span></button>
-          <div class="cat5__modos" role="group" aria-label="Ver como">
-            <button type="button" class="cat5__modo" data-modo="tabela" aria-pressed="true">${L(table)}Tabela</button>
-            <button type="button" class="cat5__modo" data-modo="grelha" aria-pressed="false">${L(layoutGrid)}Grelha</button>
-          </div>
         </div>
       </div>`;
 const ordRef = (k: string, t: string, cls = '') => `<th class="${cls}" aria-sort="none"><button type="button" class="cat5__ordenar" data-ordenar-ref="${k}">${t}${L(arrowUpDown)}</button></th>`;
@@ -142,13 +136,39 @@ const universal = `
           <p class="cat5__u-vazio" hidden>Nenhum grupo com esse nome.</p>
         </section>
         <aside class="cat5__u-lado" aria-live="polite">
-          <div class="cat5__u-cabeca"><h2 class="cat5__u-grupo">Escolha um grupo de montagem</h2>
-            <button type="button" class="btn btn--acao cat5__u-ver" disabled><span class="btn__rotulo">Ver referências</span>${L(arrowRight, 'btn__icone')}</button></div>
-          <p class="cat5__u-sub">Os fabricantes aparecem aqui. Escolha um, ou «Todos».</p>
+          <h2 class="cat5__u-grupo">Escolha um grupo de montagem</h2>
+          <p class="cat5__u-sub">Os fabricantes aparecem aqui. Clique num, ou em «Todos», para ver as referências.</p>
           <h3 class="cat5__u-titulo-fab">${L(factory)}Fabricantes</h3>
           <ul class="cat5__u-fabricantes"></ul>
         </aside>
       </div>`;
+
+/* ---------- Detalhes (a sexta imagem dela): a peça em cima, os separadores por baixo ----------
+   O conteúdo enche-se no comportamento (abrirDetalhes), porque muda com a referência. */
+const ABAS: [string, string][] = [['stock', 'Stock'], ['equivalencias', 'Equivalências'], ['oe', 'OE'], ['veiculos', 'Veículos aplicáveis'], ['caracteristicas', 'Características'], ['documentos', 'Documentos']];
+const peca = `
+      <div class="cat3__cartao cat5__cartao cat5__peca" data-so="detalhes" hidden></div>`;
+const detalhes = `
+      <div class="cat5__detalhes" data-so="detalhes" hidden>
+        <nav class="cat5__abas" role="tablist" aria-label="Sobre a peça">${ABAS.map(([k, t], i) => `<button type="button" class="cat5__aba" role="tab" id="cat5-aba-${k}" aria-controls="cat5-painel-${k}" aria-selected="${i === 0}" data-aba="${k}">${t}<span class="cat5__aba-n"></span></button>`).join('')}</nav>
+        ${ABAS.map(([k], i) => `<div class="cat5__aba-corpo" role="tabpanel" id="cat5-painel-${k}" aria-labelledby="cat5-aba-${k}" data-corpo="${k}"${i ? ' hidden' : ''}></div>`).join('')}
+      </div>`;
+
+/* ---------- o fluxo (ela, 13 out.: «este menu ainda salta de um para o outro… organiza o flow») ----------
+   Um só menu, sempre no mesmo sítio, com dois caminhos que só andam para a frente:
+   Por veículo — Marcas › Modelos › Veículos › Referências › Detalhes;
+   Universal — Grupos › Referências › Detalhes.
+   «Grupo montagem» sai dos passos (não está desenhado; as Referências têm o filtro do grupo).
+   Os data-passo são os mesmos dos outros passos (0 Marcas … 4 Referências, 5 Detalhes, 6 Universal). */
+const passo = (n: number, i: number, t: string) => `<li>${i ? L(chevronRight, 'cat5__seta-passo') : ''}<button type="button" class="cat2__passo cat5__passo" data-passo="${n}"${i ? ' disabled' : n === 0 ? ' aria-current="true"' : ''}><span class="cat5__passo-n">${i + 1}</span>${t}</button></li>`;
+const fluxo = `<nav class="cat2__passos cat5__fluxo" aria-label="Passos do catálogo">
+    <div class="cat5__caminhos" role="group" aria-label="Procurar peças">
+      <button type="button" class="cat5__caminho" data-caminho="veiculo" aria-pressed="true">${L(car)}Por veículo</button>
+      <button type="button" class="cat5__caminho" data-caminho="universal" aria-pressed="false">${L(listTree)}Universal</button>
+    </div>
+    <ol class="cat5__passos" data-de-caminho="veiculo">${[[0, 'Marcas'], [1, 'Modelos'], [2, 'Veículos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
+    <ol class="cat5__passos" data-de-caminho="universal" hidden>${[[6, 'Grupos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
+  </nav>`;
 
 /** Troca o bloco que começa em `de` e acaba antes de `ate` por `novo`. */
 function trocar(h: string, de: string, ate: string, novo: string): string {
@@ -160,13 +180,14 @@ function trocar(h: string, de: string, ate: string, novo: string): string {
 function construir(): string {
   let h = catalogoV4.replace(/\bcat4-/g, 'cat5-');
   h = h.replace('portal--cat4"', 'portal--cat4 portal--cat5"');
+  h = h.replace(/<nav class="cat2__passos"[\s\S]*?<\/nav>/, fluxo);
   h = h.replace('<main class="cat2 cat3 cat4"', '<main class="cat2 cat3 cat4 cat5"');
   /* o caminho e a faixa da marca ficam só nos Modelos; nos Veículos entra a barra */
   h = h.replace('<nav class="cat4__caminho" aria-label="Onde está" data-so="modelos veiculos"', '<nav class="cat4__caminho" aria-label="Onde está" data-so="modelos"');
   h = h.replace('<section class="cat4__heroi" data-so="modelos veiculos" hidden>', '<section class="cat4__heroi" data-so="modelos" hidden>');
-  h = h.replace(/(<section class="cat4__heroi"[\s\S]*?<\/section>)/, `$1${barra.replace('data-so="veiculos"', 'data-so="veiculos referencias"')}`);
-  h = trocar(h, '<div class="cat3__cartao" data-so="veiculos" hidden>', '</section>', filtros + refsFiltros + universalProcura);
-  h = trocar(h, '<div class="cat3__vista" data-so="veiculos" hidden>', '</section>', resultados + refsVista + universal);
+  h = h.replace(/(<section class="cat4__heroi"[\s\S]*?<\/section>)/, `$1${barra.replace('data-so="veiculos"', 'data-so="veiculos referencias detalhes"')}`);
+  h = trocar(h, '<div class="cat3__cartao" data-so="veiculos" hidden>', '</section>', filtros + refsFiltros + universalProcura + peca);
+  h = trocar(h, '<div class="cat3__vista" data-so="veiculos" hidden>', '</section>', resultados + refsVista + universal + detalhes);
   return h;
 }
 

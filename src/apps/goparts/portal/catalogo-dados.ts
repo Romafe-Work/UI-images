@@ -230,3 +230,35 @@ export function fabricantesDe(grupo: string): string[] {
   const k = grupo.length % OUTROS.length;
   return [0, 1, 2].map((j) => OUTROS[(k + j * 2) % OUTROS.length]).sort();
 }
+
+/* ---------- v5: os Detalhes de uma referência (a sexta imagem dela, 13 out.) ----------
+   Números OE, características e documentos de exemplo, por grupo de montagem. */
+const CARACTERISTICAS: Record<string, [string, string][]> = {
+  'Rolamento de roda': [['Diâmetro interior', '45 mm'], ['Diâmetro exterior', '84 mm'], ['Largura', '39 mm'], ['Lado de montagem', 'Eixo dianteiro, ambos os lados'], ['Com sensor ABS', 'Sim'], ['Peso', '1,3 kg']],
+  'Kit de distribuição': [['Número de dentes', '137'], ['Largura da correia', '25 mm'], ['Com bomba de água', 'Sim'], ['Peças incluídas', 'Correia, tensor, polia de inversão, bomba de água'], ['Peso', '3,4 kg']],
+  'Bomba de água': [['Número de pás', '7'], ['Material das pás', 'Metal'], ['Com junta', 'Sim'], ['Peso', '1,1 kg']],
+  'Correia de acessórios': [['Número de nervuras', '6'], ['Comprimento', '1873 mm'], ['Peso', '0,2 kg']],
+  'Tensor da correia': [['Diâmetro da polia', '70 mm'], ['Largura da polia', '26 mm'], ['Peso', '0,9 kg']],
+  'Homocinética': [['Dentado exterior (lado da roda)', '27'], ['Dentado interior', '30'], ['Diâmetro da vedação', '58 mm'], ['Peso', '2,2 kg']],
+};
+const OE: Record<string, string[]> = {
+  'Rolamento de roda': ['31 22 6 765 157', '31 22 1 095 702'], 'Kit de distribuição': ['11 31 7 797 893', '11 51 7 805 813'],
+  'Bomba de água': ['11 51 7 805 813', '11 51 8 516 204'], 'Correia de acessórios': ['11 28 7 800 594'],
+  'Tensor da correia': ['11 28 7 797 974', '11 28 7 790 645'], 'Homocinética': ['31 60 7 607 445'],
+};
+export interface Ficha { oe: string[]; caracteristicas: [string, string][]; documentos: [string, string][]; substituida: string; ean: string; garantia: string }
+export function fichaDe(r: Referencia): Ficha {
+  const n = r[2].replace(/\D/g, '').padEnd(9, '7').slice(0, 9);
+  return {
+    oe: OE[r[0]] || [],
+    caracteristicas: CARACTERISTICAS[r[0]] || [['Peso', '1,0 kg']],
+    documentos: [['Instruções de montagem', 'PDF · 1,2 MB'], ['Ficha técnica', 'PDF · 340 KB'], ...(r[1] === 'SKF' ? [['Declaração de conformidade', 'PDF · 95 KB'] as [string, string]] : [])],
+    substituida: r[2] === 'VKBA 6557' ? 'VKBA 6557 A' : '',
+    ean: '73162' + n.slice(0, 8),
+    garantia: r[1] === 'SKF' ? '2 anos' : '1 ano',
+  };
+}
+/** As equivalências: as do mesmo grupo que servem no mesmo sítio (o mesmo eixo; o kit com ou sem bomba de água). */
+const eixo = (d: string) => (/dianteiro/.test(d) ? 'd' : /traseiro/.test(d) ? 't' : '');
+const comBomba = (d: string) => /bomba de água/.test(d) && !/^Bomba/.test(d);
+export const equivalentes = (r: Referencia) => REFERENCIAS.filter((q) => q !== r && q[0] === r[0] && eixo(q[3]) === eixo(r[3]) && comBomba(q[3]) === comBomba(r[3]));

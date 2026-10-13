@@ -16,12 +16,12 @@ import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
 import { catalogoV5 } from './catalogo-v5';
-import { abrirReferencias, escolherGrupo, ramo } from '../comportamento/catalogo-v5';
+import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo } from '../comportamento/catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
 export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha';
-export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal';
+export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -275,7 +275,7 @@ const catalogoReferencias = () => catalogo(mudar(catalogoV5, 'e1111', (r) => {
   Object.assign(main.dataset, { marca: 'BMW', modelo: '1 (E81)', versao: '118d' });
   abrirReferencias(main, '', ['SKF'], 'veiculo');
   mostrar(main, 'referencias');
-  passos(r, 4);
+  fluxo(main, 'referencias');
   const logo = $(r, '.cat2__marca[data-nome="BMW"] .cat2__logo');
   $(r, '.cat5__logo').innerHTML = logo.outerHTML;
   $(r, '.cat5__m-marca').textContent = 'BMW';
@@ -291,10 +291,24 @@ const catalogoUniversal = () => catalogo(mudar(catalogoV5, 'e1112', (r) => {
   parado(r);
   const main = $(r, '.cat5');
   mostrar(main, 'universal');
-  passos(r, 6, 0);
+  fluxo(main, 'universal');
   const b = $$(r, '.cat5__abrir-ramo').find((x) => (x.textContent || '').includes('Comando da correia'))!;
   ramo(b, true);
   escolherGrupo(main, 'Kit de distribuição');
+}));
+
+/* 11.13 · v5: o detalhe do SKF VKBA 6556 vindo do BMW 1 (E81) 118d */
+const catalogoDetalhes = () => catalogo(mudar(catalogoV5, 'e1113', (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  Object.assign(main.dataset, { marca: 'BMW', modelo: '1 (E81)', versao: '118d' });
+  abrirReferencias(main, '', ['SKF'], 'veiculo');
+  abrirDetalhes(main, 'SKF', 'VKBA 6556');
+  mostrar(main, 'detalhes');
+  fluxo(main, 'detalhes');
+  $(r, '.cat5__logo').innerHTML = $(r, '.cat2__marca[data-nome="BMW"] .cat2__logo').outerHTML;
+  $(r, '.cat5__m-marca').textContent = 'BMW';
+  $(r, '.cat5__m-modelo').textContent = '1 (E81)';
 }));
 
 /* ================= 12 · Pedidos ================= */
@@ -393,7 +407,8 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-lista-modelos', '11.9 · Modelos da marca', 'Catálogo v3: escolhida a BMW, a tabela dos modelos com Fabricado desde e até; os filtros Modelo e Ano no cartão azul.', catalogoListaModelos),
   e('catalogo-veiculos', '11.10 · Veículos do modelo', 'Catálogo v3: os veículos do Scénic II com motor, kW, cv, cc, tração e carroçaria; o 1.5 dCi escolhido acende «Grupo montagem».', catalogoVeiculos),
   e('catalogo-referencias', '11.11 · Referências', 'Catálogo v5: as peças do BMW 1 (E81) 118d com a SKF, preço, desconto, líquido e stock no Porto e em Sacavém; duas marcadas para comparar.', catalogoReferencias),
-  e('catalogo-universal', '11.12 · Universal', 'Catálogo v5: os grupos de montagem sem veículo, em árvore; o Kit de distribuição escolhido mostra os fabricantes e «Ver referências».', catalogoUniversal),
+  e('catalogo-universal', '11.12 · Universal', 'Catálogo v5: os grupos de montagem sem veículo, em árvore; o Kit de distribuição escolhido mostra os fabricantes; cada um leva às referências.', catalogoUniversal),
+  e('catalogo-detalhes', '11.13 · Detalhes da referência', 'Catálogo v5: a peça em cima (preço, desconto, líquido, stock, quantidade, carrinho e minha lista) e os separadores Stock, Equivalências, OE, Veículos aplicáveis, Características e Documentos.', catalogoDetalhes),
 ];
 export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já à vista; o resumo e as linhas da tabela chegam em esqueleto.', pedidosCarga),

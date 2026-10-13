@@ -16,9 +16,9 @@ import car from 'lucide-static/icons/car.svg?raw';
 import carFront from 'lucide-static/icons/car-front.svg?raw';
 import van from 'lucide-static/icons/van.svg?raw';
 
-export type Vista = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'universal';
+export type Vista = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'detalhes' | 'universal';
 /* referencias e universal só existem na v5 */
-const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, universal: 6 };
+const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, detalhes: 5, universal: 6 };
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => r.querySelector<T>(s)!;
 const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.from(r.querySelectorAll<T>(s));
@@ -206,9 +206,10 @@ export function ir(main: HTMLElement, vista: Vista): void {
   const frente = PASSO[vista] > PASSO[antes];
   const portal = main.closest('.portal') || document;
   /* os passos já percorridos continuam à mão: volta-se às Marcas e pode-se ir de novo aos Modelos */
-  const feito = main.dataset.refs ? 4 : main.dataset.modelo ? 2 : main.dataset.marca ? 1 : 0;
+  const feito = main.dataset.ref ? 5 : main.dataset.refs ? 4 : main.dataset.modelo ? 2 : main.dataset.marca ? 1 : 0;
   const ate = vista === 'universal' ? feito : Math.max(PASSO[vista], feito);
   passos(portal, PASSO[vista], ate);
+  if (v5.eV5(main)) v5.fluxo(main, vista);
   const baixo = $(main, '.cat2__marcas');
   const conteudo = $$(main, '.cat2__pesquisa > [data-so]');
   if (quieto()) { mostrar(main, vista); return; }
@@ -250,6 +251,7 @@ export function clique(t: Element): boolean {
     else if (n === 1 && main.dataset.marca) ir(main, 'modelos');
     else if (n === 2 && main.dataset.modelo) ir(main, 'veiculos');
     else if (n === 4 && main.dataset.refs) ir(main, 'referencias');
+    else if (n === 5 && main.dataset.ref) ir(main, 'detalhes');
     else if (n === 6 && v5.eV5(main)) ir(main, 'universal');
     return true;
   }

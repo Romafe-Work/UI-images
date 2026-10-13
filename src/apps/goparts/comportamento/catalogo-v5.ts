@@ -15,13 +15,24 @@
      página (e ela não quer), por isso o painel desvanece e desce 6 px;
    - ordenar por Ano, kW, cv ou cc: as linhas deslizam para o sítio (220 ms).
    ========================================================= */
-import { linhasVeiculos5, veiculosDe, REFERENCIAS, linhaReferencia, fabricantesDe, euros, type Referencia } from '../portal/catalogo-dados';
+import { linhasVeiculos5, veiculosDe, REFERENCIAS, linhaReferencia, fabricantesDe, euros, fichaDe, equivalentes, type Referencia } from '../portal/catalogo-dados';
+import cart from 'lucide-static/icons/shopping-cart.svg?raw';
+import copy from 'lucide-static/icons/copy.svg?raw';
+import star from 'lucide-static/icons/star.svg?raw';
+import check from 'lucide-static/icons/check.svg?raw';
+import download from 'lucide-static/icons/download.svg?raw';
+import fileText from 'lucide-static/icons/file-text.svg?raw';
+import truck from 'lucide-static/icons/truck.svg?raw';
+import replace from 'lucide-static/icons/replace.svg?raw';
+import badgeCheck from 'lucide-static/icons/badge-check.svg?raw';
+import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
 import { ir } from './catalogo-v3';
 import pkg from 'lucide-static/icons/package.svg?raw';
 import boxes from 'lucide-static/icons/boxes.svg?raw';
 import x from 'lucide-static/icons/x.svg?raw';
 import minus from 'lucide-static/icons/minus.svg?raw';
 import plus from 'lucide-static/icons/plus.svg?raw';
+import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
 import { L } from '../portal/catalogo-v3';
 import info from 'lucide-static/icons/info.svg?raw';
 import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
@@ -156,9 +167,63 @@ function ordenar(botao: HTMLElement): void {
   });
 }
 
+/* =========================================================
+   O fluxo (13 out.): um só menu com dois caminhos, Por veículo e Universal,
+   que só andam para a frente. O caminho vem da vista (e, nas Referências e
+   nos Detalhes, de onde se veio); os passos acendem-se à medida que há o
+   que mostrar. Só o caminho à vista tem passo atual, para a risca não saltar.
+   ========================================================= */
+type VistaV5 = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'detalhes' | 'universal';
+export function fluxo(main: HTMLElement, vista: VistaV5): void {
+  const nav = (main.closest('.portal') || document).querySelector<HTMLElement>('.cat5__fluxo');
+  if (!nav) return;
+  const caminho = vista === 'universal' || ((vista === 'referencias' || vista === 'detalhes') && main.dataset.refs === 'universal') ? 'universal' : 'veiculo';
+  const doCaminho = main.dataset.refs === caminho;
+  const pode: Record<string, boolean> = caminho === 'veiculo'
+    ? { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 4: doCaminho, 5: doCaminho && !!main.dataset.ref }
+    : { 6: true, 4: doCaminho, 5: doCaminho && !!main.dataset.ref };
+  const atual = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, detalhes: 5, universal: 6 }[vista];
+  /* nos Veículos, a barra de cima volta a ser a do veículo (podia ter ficado a do Universal) */
+  if (vista === 'veiculos') {
+    const tMarca = main.querySelector<HTMLElement>('.cat5__t-marca');
+    if (tMarca) { tMarca.textContent = main.dataset.marca || ''; tMarca.dataset.irVista = 'modelos'; }
+    const tModelo = main.querySelector<HTMLElement>('.cat5__t-modelo');
+    if (tModelo) tModelo.textContent = main.dataset.modelo || '';
+    const direita = main.querySelector<HTMLElement>('.cat5__marca');
+    if (direita) direita.hidden = false;
+  }
+  $$<HTMLButtonElement>(nav, '.cat5__caminho').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.caminho === caminho)));
+  $$(nav, '[data-de-caminho]').forEach((ol) => {
+    const meu = ol.dataset.deCaminho === caminho;
+    ol.hidden = !meu;
+    $$<HTMLButtonElement>(ol, '.cat2__passo').forEach((b) => {
+      const n = Number(b.dataset.passo);
+      if (meu && n === atual) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+      b.disabled = !meu || !pode[n];
+      b.classList.toggle('is-feito', meu && !!pode[n] && n !== atual);
+    });
+  });
+}
+
+/** Um clique no menu do fluxo: o caminho ou um dos passos. */
+function cliqueFluxo(main: HTMLElement, t: Element): boolean {
+  if (!t.closest('.cat5__fluxo')) return false;
+  const c = t.closest<HTMLElement>('.cat5__caminho');
+  if (c) {
+    if (c.dataset.caminho === 'universal') ir(main, 'universal');
+    /* volta ao último passo por veículo que já tinha */
+    else ir(main, main.dataset.refs === 'veiculo' ? 'referencias' : main.dataset.modelo ? 'veiculos' : main.dataset.marca ? 'modelos' : 'marcas');
+    return true;
+  }
+  const p = t.closest<HTMLButtonElement>('.cat2__passo');
+  if (p && !p.disabled) ir(main, ({ 0: 'marcas', 1: 'modelos', 2: 'veiculos', 4: 'referencias', 5: 'detalhes', 6: 'universal' } as const)[Number(p.dataset.passo) as 0 | 1 | 2 | 4 | 5 | 6]);
+  return true;
+}
+
 /** Os cliques só da v5. Devolve true se tratou o clique. */
 export function clique(main: HTMLElement, t: Element): boolean {
   if (!eV5(main)) return false;
+  if (cliqueFluxo(main, t)) return true;
   const i = t.closest<HTMLElement>('.cat5__info');
   if (i) { detalhe(i.closest<HTMLElement>('.cat3__linha')!); return true; }
   const o = t.closest<HTMLElement>('[data-ordenar]');
@@ -166,8 +231,7 @@ export function clique(main: HTMLElement, t: Element): boolean {
   const m = t.closest<HTMLElement>('.cat5__modo');
   if (m) {
     $$(m.parentElement!, '.cat5__modo').forEach((b) => b.setAttribute('aria-pressed', String(b === m)));
-    /* o Tabela / Grelha das referências está no cartão de cima, não nos resultados */
-    const vista = m.closest<HTMLElement>('.cat5__resultados') || main.querySelector<HTMLElement>('.cat5__refs')!;
+    const vista = m.closest<HTMLElement>('.cat5__resultados')!;
     vista.dataset.modo = m.dataset.modo;
     if (!quieto()) vista.querySelector('.cat5__tabela')?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
     return true;
@@ -178,7 +242,7 @@ export function clique(main: HTMLElement, t: Element): boolean {
     ir(main, 'referencias');
     return true;
   }
-  if (cliqueReferencias(main, t) || cliqueUniversal(main, t)) return true;
+  if (cliqueDetalhes(main, t) || cliqueReferencias(main, t) || cliqueUniversal(main, t)) return true;
   if (t.closest('.cat5__detalhe')) return true;
   const l = t.closest<HTMLElement>('.cat3__linha');
   if (l && !l.dataset.modelo) { escolher(l); return false; /* o v3 marca o passo seguinte */ }
@@ -188,7 +252,7 @@ export function clique(main: HTMLElement, t: Element): boolean {
 /* =========================================================
    Referências (13 out., a quarta imagem): as peças do veículo ou do grupo.
    Etiquetas de fabricante, grupo, agrupar, ver próprias, ordenar por preço
-   ou stock, Tabela / Grelha e comparar as marcadas. A tabela refaz-se a cada
+   ou stock e comparar as marcadas; só em tabela. A tabela refaz-se a cada
    filtro (são poucas linhas) e as linhas entram em cascata, só as 8 primeiras.
    ========================================================= */
 const ICONES_REF = () => ({ imagem: L(pkg), caixa: L(boxes) });
@@ -213,6 +277,7 @@ export function abrirReferencias(main: HTMLElement, grupo: string, fabs: string[
   const tMarca = main.querySelector<HTMLElement>('.cat5__t-marca')!;
   const tModelo = main.querySelector<HTMLElement>('.cat5__t-modelo')!;
   const direita = main.querySelector<HTMLElement>('.cat5__marca')!;
+  delete main.dataset.ref;
   if (origem === 'universal') {
     tMarca.textContent = 'Universal'; tMarca.dataset.irVista = 'universal';
     tModelo.textContent = grupo || 'Todos os grupos';
@@ -222,6 +287,7 @@ export function abrirReferencias(main: HTMLElement, grupo: string, fabs: string[
     tModelo.textContent = `${main.dataset.modelo || ''} ${main.dataset.versao || ''}`.trim();
     direita.hidden = false;
   }
+  main.dataset.barra = tModelo.textContent || '';
   desenharRefs(main);
 }
 
@@ -313,14 +379,141 @@ function cliqueReferencias(main: HTMLElement, t: Element): boolean {
   }
   /* as caixas de marcar tratam-se no «change» */
   if (t.closest('.cat5__marcar')) return true;
+  /* a linha abre os Detalhes da referência */
+  const linha = t.closest<HTMLElement>('.cat5__ref');
+  if (linha) {
+    abrirDetalhes(main, linha.dataset.fabricante || '', linha.dataset.ref || '');
+    ir(main, 'detalhes');
+    return true;
+  }
   return false;
+}
+
+/* =========================================================
+   Detalhes (13 out., a sexta imagem: o detalhe do GO REPAIR, melhorado).
+   Em cima, a peça: fabricante, referência, descrição, ref. do fornecedor
+   (copiar), substituída por, EAN e garantia; à direita, o preço com o
+   desconto e o líquido, o stock e pedir (− 1 +, Adicionar, Minha lista).
+   Por baixo, os separadores: Stock por armazém com o prazo, Equivalências
+   (abrem o detalhe delas), OE, Veículos aplicáveis, Características e
+   Documentos. A risca laranja desliza entre separadores; o conteúdo desvanece.
+   ========================================================= */
+const quantidade = (q = 1) => `<span class="cat5__qtd" role="group" aria-label="Quantidade"><button type="button" class="cat5__qtd-menos" aria-label="Menos um">${L(minus)}</button><input class="cat5__qtd-n" type="number" min="1" value="${q}" aria-label="Quantidade"><button type="button" class="cat5__qtd-mais" aria-label="Mais um">${L(plus)}</button></span>`;
+const pastilha = (n: number) => `<span class="cat5__stock cat5__stock--${n === 0 ? 'sem' : n < 5 ? 'pouco' : 'ok'}">${L(boxes)}${n === 0 ? 'Sem stock' : `${n} un.`}</span>`;
+const prazo = (n: number, porto: boolean) => (n === 0 ? 'Por encomenda · 3 a 5 dias úteis' : porto ? 'Hoje, se pedir até às 16h' : 'Amanhã de manhã');
+
+export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void {
+  const r = REFERENCIAS.find((q) => q[1] === fab && q[2] === ref);
+  if (!r) return;
+  const [grupo, , , desc, preco, d, porto, sacavem] = r;
+  const f = fichaDe(r);
+  const liq = preco * (1 - d / 100);
+  main.dataset.ref = ref;
+  main.querySelector('.cat5__t-modelo')!.textContent = `${main.dataset.barra || ''} / ${ref}`;
+  main.querySelector('.cat5__peca')!.innerHTML = `
+    <div class="cat5__peca-imagem" aria-hidden="true">${L(pkg)}</div>
+    <div class="cat5__peca-info">
+      <p class="cat5__peca-fab">${fab}<span>${grupo}</span></p>
+      <h1 class="cat5__peca-ref">${ref}</h1>
+      <p class="cat5__peca-desc">${desc}</p>
+      <dl class="cat5__peca-dados">
+        <div><dt>Ref. do fornecedor</dt><dd>${fab}${ref.replace(/\s/g, '')}<button type="button" class="cat5__copiar" data-copiar="${fab}${ref.replace(/\s/g, '')}" aria-label="Copiar a referência">${L(copy)}</button></dd></div>
+        <div><dt>Substituída por</dt><dd>${f.substituida ? `${L(replace)}${f.substituida}` : '—'}</dd></div>
+        <div><dt>EAN</dt><dd>${L(scanBarcode)}${f.ean}</dd></div>
+        <div><dt>Garantia</dt><dd>${L(badgeCheck)}${f.garantia}</dd></div>
+      </dl>
+    </div>
+    <div class="cat5__peca-compra">
+      <p class="cat5__peca-preco"><span class="cat5__riscado">${euros(preco)}</span><span class="cat5__menos">−${d}%</span></p>
+      <p class="cat5__peca-liq">${euros(liq)}<span>líquido, sem IVA</span></p>
+      <p class="cat5__peca-stock">${pastilha(porto + sacavem)}<span>Porto ${porto} · Sacavém ${sacavem}</span></p>
+      <div class="cat5__peca-pedir">${quantidade()}<button type="button" class="btn btn--acao cat5__adicionar">${L(cart, 'btn__icone')}<span class="btn__rotulo">Adicionar ao carrinho</span></button></div>
+      <button type="button" class="btn btn--ghost cat5__lista" aria-pressed="false">${L(star, 'btn__icone')}<span class="btn__rotulo">Adicionar à minha lista</span></button>
+    </div>`;
+  const corpo = (k: string) => main.querySelector<HTMLElement>(`[data-corpo="${k}"]`)!;
+  const n = (k: string, v: number | string) => { main.querySelector(`.cat5__aba[data-aba="${k}"] .cat5__aba-n`)!.textContent = String(v); };
+  /* Stock */
+  corpo('stock').innerHTML = `<div class="cg-tabela erp-tabela cat5__tabela"><div class="erp-tabela__rolo"><table><thead><tr><th>Armazém</th><th>Stock</th><th>Entrega</th><th>Pedir</th></tr></thead><tbody>`
+    + ([['Porto', porto, true], ['Sacavém', sacavem, false]] as [string, number, boolean][]).map(([a, q, p], i) => `<tr class="cat5__arm" style="--i:${i}"><td><strong>${a}</strong></td><td>${pastilha(q)}</td><td>${L(truck)}${prazo(q, p)}</td><td><span class="cat5__pedir-linha">${quantidade()}<button type="button" class="btn btn--ghost btn--sm cat5__adicionar"${q ? '' : ' disabled'}>${L(cart, 'btn__icone')}<span class="btn__rotulo">Pedir</span></button></span></td></tr>`).join('')
+    + '</tbody></table></div></div>';
+  /* Equivalências */
+  const eq = equivalentes(r);
+  n('equivalencias', eq.length || '');
+  corpo('equivalencias').innerHTML = eq.length
+    ? `<div class="cg-tabela erp-tabela cat5__tabela cat5__tabela-refs"><div class="erp-tabela__rolo"><table><thead><tr><th class="cat5__marcar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th><th class="erp-num">Preço</th><th class="erp-num">Desc.</th><th class="erp-num">Líquido</th><th>Stock</th></tr></thead><tbody>${eq.map((q, i) => linhaReferencia(q, i, ICONES_REF()).replace('<input type="checkbox"', '<input type="checkbox" hidden')).join('')}</tbody></table></div></div>`
+    : '<p class="cat5__nada">Sem equivalências conhecidas para esta referência.</p>';
+  /* OE */
+  n('oe', f.oe.length || '');
+  corpo('oe').innerHTML = f.oe.length ? `<ul class="cat5__oe">${f.oe.map((o) => `<li><span>BMW</span><strong>${o}</strong></li>`).join('')}</ul>` : '<p class="cat5__nada">Sem números de origem.</p>';
+  /* Veículos aplicáveis: os do exemplo da BMW; o do cliente, se veio de um veículo, marcado */
+  const vs = [...veiculosDe('BMW', '1 (E81)'), ...veiculosDe('BMW', '1 (E87)')].slice(0, 6);
+  n('veiculos', vs.length);
+  const seu = main.dataset.refs === 'veiculo' ? `${main.dataset.modelo} ${main.dataset.versao}` : '';
+  corpo('veiculos').innerHTML = `<div class="cg-tabela erp-tabela cat5__tabela"><div class="erp-tabela__rolo"><table><thead><tr><th>Veículo</th><th>Ano</th><th class="erp-num">kW</th><th class="erp-num">cv</th><th>Motor</th></tr></thead><tbody>`
+    + vs.map((v, i) => `<tr class="cat5__aplic${v.nome === seu ? ' is-seu' : ''}" style="--i:${i}"><td><strong>BMW ${v.nome}</strong>${v.nome === seu ? `<span class="cat5__escolhido">${L(check)}O seu veículo</span>` : ''}</td><td>${v.anos}</td><td class="erp-num">${v.kw}</td><td class="erp-num">${v.cv}</td><td>${v.motor}</td></tr>`).join('')
+    + '</tbody></table></div></div>';
+  /* Características e Documentos */
+  corpo('caracteristicas').innerHTML = `<dl class="cat5__carac">${f.caracteristicas.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}<div><dt>Fabricante</dt><dd>${fab}</dd></div><div><dt>Grupo de montagem</dt><dd>${grupo}</dd></div></dl>`;
+  n('documentos', f.documentos.length);
+  corpo('documentos').innerHTML = `<ul class="cat5__docs">${f.documentos.map(([t, tam]) => `<li><span class="cat5__doc-icone" aria-hidden="true">${L(fileText)}</span><span class="cat5__doc-nome">${t}<small>${tam}</small></span><button type="button" class="btn btn--ghost btn--sm">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar</span></button></li>`).join('')}</ul>`;
+  aba(main, 'stock', false);
+}
+
+function aba(main: HTMLElement, k: string, animar = true): void {
+  $$(main, '.cat5__aba').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.aba === k)));
+  $$(main, '.cat5__aba-corpo').forEach((c) => { c.hidden = c.dataset.corpo !== k; });
+  const c = main.querySelector<HTMLElement>(`[data-corpo="${k}"]`);
+  if (animar && c && !quieto()) c.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: FACIL });
+}
+
+function cliqueDetalhes(main: HTMLElement, t: Element): boolean {
+  if (!t.closest('.cat5__peca, .cat5__detalhes')) return false;
+  const a = t.closest<HTMLElement>('.cat5__aba');
+  if (a) { aba(main, a.dataset.aba || 'stock'); return true; }
+  const q = t.closest<HTMLElement>('.cat5__qtd-menos, .cat5__qtd-mais');
+  if (q) {
+    const i = q.parentElement!.querySelector<HTMLInputElement>('input')!;
+    i.value = String(Math.max(1, Number(i.value || 1) + (q.classList.contains('cat5__qtd-mais') ? 1 : -1)));
+    return true;
+  }
+  const ad = t.closest<HTMLButtonElement>('.cat5__adicionar');
+  if (ad) {
+    /* a confirmação fica 1,5 s no próprio botão; não há carrinho desenhado */
+    const antes = ad.innerHTML;
+    ad.classList.add('is-feito');
+    ad.innerHTML = `${L(check, 'btn__icone')}<span class="btn__rotulo">Adicionado</span>`;
+    window.setTimeout(() => { ad.classList.remove('is-feito'); ad.innerHTML = antes; }, 1500);
+    return true;
+  }
+  const li = t.closest<HTMLElement>('.cat5__lista');
+  if (li) {
+    const sim = li.getAttribute('aria-pressed') !== 'true';
+    li.setAttribute('aria-pressed', String(sim));
+    li.querySelector('.btn__rotulo')!.textContent = sim ? 'Na minha lista' : 'Adicionar à minha lista';
+    return true;
+  }
+  const cp = t.closest<HTMLElement>('.cat5__copiar');
+  if (cp) {
+    navigator.clipboard?.writeText(cp.dataset.copiar || '').catch(() => undefined);
+    cp.innerHTML = L(check); cp.classList.add('is-feito');
+    window.setTimeout(() => { cp.innerHTML = L(copy); cp.classList.remove('is-feito'); }, 1200);
+    return true;
+  }
+  /* uma equivalência abre o seu próprio detalhe, a desvanecer */
+  const eq = t.closest<HTMLElement>('.cat5__detalhes .cat5__ref');
+  if (eq) {
+    abrirDetalhes(main, eq.dataset.fabricante || '', eq.dataset.ref || '');
+    if (!quieto()) $$(main, '.cat5__peca, .cat5__detalhes').forEach((x) => x.animate([{ opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'none' }], { duration: 250, easing: FACIL }));
+    return true;
+  }
+  return true;
 }
 
 /* =========================================================
    Universal (13 out., a quinta imagem): os grupos de montagem sem veículo.
    Árvore (abre e fecha com + / −), Lista ou Colunas; a procura mostra só os
-   grupos com aquele nome. Escolhido o grupo, à direita os fabricantes e
-   «Ver referências». A árvore abre sem animar a altura: os grupos aparecem a
+   grupos com aquele nome. Escolhido o grupo, à direita os fabricantes:
+   clicar num leva às referências dele. A árvore abre sem animar a altura: os grupos aparecem a
    desvanecer e a descer 4 px, em cascata curta.
    ========================================================= */
 export function ramo(b: HTMLElement, abrir?: boolean): void {
@@ -339,10 +532,10 @@ export function escolherGrupo(main: HTMLElement, grupo: string): void {
   main.dataset.uGrupo = grupo;
   const lado = main.querySelector<HTMLElement>('.cat5__u-lado')!;
   lado.querySelector('.cat5__u-grupo')!.textContent = grupo;
-  lado.querySelector('.cat5__u-sub')!.textContent = 'Escolha o fabricante, ou «Todos», e veja as referências.';
+  lado.querySelector('.cat5__u-sub')!.textContent = 'Clique no fabricante, ou em «Todos», para ver as referências.';
+  /* ela, 13 out.: sem o botão «Ver referências» — o fabricante leva logo às referências */
   lado.querySelector('.cat5__u-fabricantes')!.innerHTML = ['Todos', ...fabricantesDe(grupo)].map((f, i) =>
-    `<li style="--i:${i}"><button type="button" class="cat5__u-fab" data-fabricante="${i ? f : ''}" aria-pressed="${i === 0}">${f}</button></li>`).join('');
-  lado.querySelector<HTMLButtonElement>('.cat5__u-ver')!.disabled = false;
+    `<li style="--i:${i}"><button type="button" class="cat5__u-fab" data-fabricante="${i ? f : ''}">${f}${L(chevronRight)}</button></li>`).join('');
   if (!quieto() && lado.isConnected) lado.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
 }
 
@@ -365,6 +558,13 @@ function procurarGrupo(main: HTMLElement): void {
     const ul = caixa.querySelector<HTMLElement>(`[data-de-cat="${c.dataset.cat}"]`)!;
     c.closest('li')!.hidden = !$$(ul, 'li:not([hidden])').length;
   });
+  /* em Colunas, se a categoria aberta saiu da procura, abre a primeira que ficou */
+  const aberta = caixa.querySelector<HTMLElement>('.cat5__col-cat[aria-current="true"]');
+  if (aberta && aberta.closest('li')!.hidden) {
+    const outra = $$(caixa, '.cat5__col-cat').find((c) => !c.closest('li')!.hidden);
+    $$(caixa, '.cat5__col-cat').forEach((c) => { if (c === outra) c.setAttribute('aria-current', 'true'); else c.removeAttribute('aria-current'); });
+    $$(caixa, '[data-de-cat]').forEach((u) => { u.hidden = !outra || u.dataset.deCat !== outra.dataset.cat; });
+  }
   caixa.querySelector<HTMLElement>('.cat5__u-vazio')!.hidden = algum;
 }
 
@@ -390,10 +590,9 @@ function cliqueUniversal(main: HTMLElement, t: Element): boolean {
   const f = t.closest<HTMLElement>('.cat5__universal .cat5__folha');
   if (f) { escolherGrupo(main, f.dataset.grupo || ''); return true; }
   const fab = t.closest<HTMLElement>('.cat5__u-fab');
-  if (fab) { $$(main, '.cat5__u-fab').forEach((b) => b.setAttribute('aria-pressed', String(b === fab))); return true; }
-  if (t.closest('.cat5__u-ver')) {
-    const escolhido = main.querySelector<HTMLElement>('.cat5__u-fab[aria-pressed="true"]')?.dataset.fabricante || '';
-    abrirReferencias(main, main.dataset.uGrupo || '', escolhido ? [escolhido] : [], 'universal');
+  if (fab) {
+    const f = fab.dataset.fabricante || '';
+    abrirReferencias(main, main.dataset.uGrupo || '', f ? [f] : [], 'universal');
     ir(main, 'referencias');
     return true;
   }
