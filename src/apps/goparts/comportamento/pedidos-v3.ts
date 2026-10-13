@@ -58,7 +58,7 @@ function conteudo(tr: HTMLElement, p: Pedido, i: number, n: number): string {
     <div class="ped3__p-corpo">
       <section aria-label="Percurso do pedido"><h3 class="ped3__h">Percurso</h3><ol class="ped3__percurso">${passos}</ol></section>
       <section aria-label="Artigos"><h3 class="ped3__h">Artigos <span>${p.artigos.length}</span></h3><ul class="ped3__artigos">${artigos}</ul></section>
-      <dl class="ped3__totais"><div><dt>Total sem IVA</dt><dd>${euros(total)}</dd></div><div><dt>IVA (23%)</dt><dd>${euros(total * .23)}</dd></div><div class="ped3__total"><dt>Total</dt><dd>${euros(total * 1.23)}</dd></div></dl>
+      <dl class="ped3__totais"><div><dt>Total sem IVA</dt><dd data-valor="${total}">${euros(total)}</dd></div><div><dt>IVA (23%)</dt><dd data-valor="${total * .23}">${euros(total * .23)}</dd></div><div class="ped3__total"><dt>Total</dt><dd data-valor="${total * 1.23}">${euros(total * 1.23)}</dd></div></dl>
       <dl class="ped3__info">
         <div><dt>${L(mapPin)}Entrega</dt><dd>${esc(texto(tr, 3))}</dd></div>
         <div><dt>${L(messageSquare)}Observações</dt><dd>${esc(texto(tr, 5) || '—')}</dd></div>
@@ -71,24 +71,46 @@ function conteudo(tr: HTMLElement, p: Pedido, i: number, n: number): string {
     </footer>`;
 }
 
-/** Abre (ou troca) o painel para a linha do pedido. */
-function abrir(portal: HTMLElement, tr: HTMLElement): void {
+/** Os totais contam de 0 até ao valor (500 ms, a abrandar no fim). */
+function contarTotais(painel: HTMLElement): void {
+  const dds = Array.from(painel.querySelectorAll<HTMLElement>('.ped3__totais dd[data-valor]'));
+  const t0 = performance.now() + 150;
+  const passo = (t: number) => {
+    const k = Math.max(0, Math.min(1, (t - t0) / 500));
+    const e = 1 - Math.pow(1 - k, 3);
+    dds.forEach((dd) => { dd.textContent = euros(Number(dd.dataset.valor) * e); });
+    if (k < 1 && painel.isConnected && !painel.hidden) requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+}
+
+/** Enche o painel sem animar (também para o estado parado 12.7). */
+export function preencher(portal: HTMLElement, tr: HTMLElement): HTMLElement | null {
   const linhas = Array.from(portal.querySelectorAll<HTMLElement>('.ped2__linha:not([hidden])'));
-  const i = linhas.indexOf(tr);
   const num = (tr.querySelector('.ped2__num')?.textContent || '').trim();
   const p = PEDIDOS.find((q) => q.num === num);
   const painel = portal.querySelector<HTMLElement>('.ped3__painel');
-  if (!p || !painel) return;
-  const jaAberto = !painel.hidden;
+  if (!p || !painel) return null;
   portal.querySelectorAll('.ped2__linha').forEach((l) => l.removeAttribute('aria-selected'));
   portal.querySelectorAll('.ped2__abrir').forEach((b) => b.setAttribute('aria-expanded', 'false'));
   tr.setAttribute('aria-selected', 'true');
   tr.querySelector('.ped2__abrir')?.setAttribute('aria-expanded', 'true');
-  painel.innerHTML = conteudo(tr, p, i, linhas.length);
+  painel.innerHTML = conteudo(tr, p, linhas.indexOf(tr), linhas.length);
   painel.hidden = false;
+  return painel;
+}
+
+/** Abre (ou troca) o painel para a linha do pedido; `dir` é −1 / 1 quando se passa com ↑ ↓. */
+function abrir(portal: HTMLElement, tr: HTMLElement, dir = 0): void {
+  const jaAberto = !portal.querySelector<HTMLElement>('.ped3__painel')?.hidden;
+  const painel = preencher(portal, tr);
+  if (!painel) return;
   if (!quieto()) {
-    if (jaAberto) painel.querySelectorAll<HTMLElement>('.ped3__p-cabeca, .ped3__p-corpo').forEach((c) => c.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: EASE }));
+    /* a trocar de pedido, o conteúdo desliza na direção da seta (↓ vem de baixo, ↑ de cima) */
+    const dy = dir ? dir * 16 : 6;
+    if (jaAberto) painel.querySelectorAll<HTMLElement>('.ped3__p-cabeca, .ped3__p-corpo').forEach((c) => c.animate([{ opacity: 0, transform: `translateY(${dy}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: EASE }));
     else painel.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 280, easing: EASE });
+    contarTotais(painel);
   }
   painel.querySelector<HTMLElement>('.ped3__p-num')?.setAttribute('tabindex', '-1');
   painel.querySelector<HTMLElement>('.ped3__p-num')?.focus({ preventScroll: true });
@@ -113,7 +135,7 @@ function vizinho(portal: HTMLElement, passo: number): void {
   const linhas = Array.from(portal.querySelectorAll<HTMLElement>('.ped2__linha:not([hidden])'));
   const i = linhas.findIndex((l) => l.getAttribute('aria-selected') === 'true');
   const outra = linhas[i + passo];
-  if (outra) { abrir(portal, outra); outra.scrollIntoView({ block: 'nearest' }); }
+  if (outra) { abrir(portal, outra, passo); outra.scrollIntoView({ block: 'nearest' }); }
 }
 
 export function iniciar(): void {

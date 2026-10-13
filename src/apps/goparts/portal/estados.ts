@@ -18,9 +18,11 @@ import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento
 import { catalogoV5 } from './catalogo-v5';
 import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComparar } from '../comportamento/catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
+import { pedidosV3 } from './pedidos-v3';
+import { preencher } from '../comportamento/pedidos-v3';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
-export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha';
+export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
@@ -45,7 +47,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -410,6 +412,12 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-universal', '11.12 · Universal', 'Catálogo v5: os grupos de montagem sem veículo, em árvore; o Kit de distribuição escolhido mostra os fabricantes; cada um leva às referências.', catalogoUniversal),
   e('catalogo-detalhes', '11.13 · Detalhes da referência', 'Catálogo v5: a peça em cima (preço, desconto, líquido, stock, quantidade, carrinho e minha lista) e os separadores Stock, Equivalências, OE, Veículos aplicáveis, Características e Documentos.', catalogoDetalhes),
 ];
+/* 12.7 · v3: o painel do pedido aberto, para se ver no editor (onde o clique escolhe peças) */
+const pedidosAberto = () => pedidos(mudar(pedidosV3, 'e127', (r) => {
+  semPedidos(r);
+  preencher(r, $$(r, '.ped2__linha')[1]);
+}));
+
 export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já à vista; o resumo e as linhas da tabela chegam em esqueleto.', pedidosCarga),
   e('pedidos-filtrar', '12.2 · A pesquisar', 'Com uma referência escrita: o botão em «A pesquisar…», uma barra fina por cima da tabela e as linhas antigas esbatidas.', pedidosFiltrar),
@@ -417,4 +425,5 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-datas', '12.4 · Erro nos filtros', 'A data final antes da inicial e o n.º mal escrito: cada campo diz como deve ser.', pedidosDatas),
   e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa em cima, os pedidos de há pouco esbatidos e a pesquisa desligada.', pedidosRede),
   e('pedidos-falha', '12.6 · Os pedidos não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', pedidosFalha),
+  e('pedidos-aberto', '12.7 · Pedido aberto', 'Pedidos v3: o P2024/001233 aberto no painel — o percurso, os 12 artigos com um pendente, os totais e as ações. As animações correm ao mostrar o ecrã.', pedidosAberto),
 ];
