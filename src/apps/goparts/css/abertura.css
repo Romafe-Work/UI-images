@@ -78,3 +78,87 @@
   .abertura__produto span:last-child { flex-basis: 100%; text-align: center; }
   .abertura__risco { display: none; }
 }
+
+/* =========================================================
+   00 · Abertura v2 (13 out.), pela segunda imagem dela: fundo claro, dois rolamentos
+   grandes e suaves a sair dos cantos, a composição da v1 ao centro, «A carregar…» com a
+   percentagem e «Saltar» com contorno laranja. «Quero animações e coisas incríveis» —
+   numa só passagem, sem brilhos (3 s):
+     0–1,2 s   os rolamentos dos cantos entram a rolar (cada um do seu canto);
+     0–0,9 s   o rolamento do centro rola para o sítio; 0,5–1,0 s as esferas acendem
+               uma a uma (50 ms entre elas);
+     0,55–1,3 s as letras do ROMAFE sobem uma a uma, cada uma da sua janela;
+     1,0–1,5 s o risco cresce, o GoParts e o lema aparecem;
+     0,2–3,0 s a barra enche-se e a percentagem conta (abertura.ts);
+     3,0–3,45 s o rolamento do centro rola para fora pela direita, o resto desvanece.
+   Com o rato, os rolamentos dos cantos acompanham-no de leve (até 14 px).
+   ========================================================= */
+.abertura--v2 { grid-template-rows: minmax(0, 1fr) auto; align-content: stretch; gap: 0; padding: var(--e-6) var(--e-5) var(--e-7, 64px); }
+.abertura--v2 .abertura__centro { align-self: center; position: relative; z-index: 1; gap: var(--e-4); }
+.abertura--v2 .abertura__rolamento { width: 112px; height: 112px; }
+.abertura--v2 .abertura__romafe { font-size: 100px; display: inline-flex; }
+.abertura--v2 .abertura__produto strong { font-size: 40px; }
+.abertura--v2 .abertura__risco { height: 40px; transform-origin: center; }
+.abertura--v2 .abertura__lema { gap: 6px var(--e-4); font-size: 17px; margin-top: var(--e-3); }
+.abertura--v2 .abertura__lema i { width: 6px; height: 6px; border-radius: 50%; background: var(--c-acao); align-self: center; }
+
+/* os rolamentos grandes dos cantos */
+.ab2__cantos { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.ab2__grande { position: absolute; translate: calc(var(--px, 0) * -14px) calc(var(--py, 0) * -14px); transition: translate .6s var(--ease-out); }
+.ab2__grande--cima { width: 720px; height: 720px; left: -380px; top: -360px; }
+.ab2__grande--baixo { width: 680px; height: 680px; right: -330px; bottom: -380px; translate: calc(var(--px, 0) * 10px) calc(var(--py, 0) * 10px); }
+.ab2__g-anel { fill: none; stroke: #e2ebf6; stroke-width: 44; }
+.ab2__g-esfera { fill: #fbe5d4; }
+.ab2__g-furo { fill: #ebf1f9; }
+
+/* a barra, em baixo ao centro, e a percentagem */
+.ab2__carga { position: relative; z-index: 1; display: grid; justify-items: center; gap: var(--e-3); }
+.abertura--v2 .abertura__tempo { position: static; width: min(390px, 64vw); height: 6px; border-radius: var(--r-full); background: #dfe6ee; overflow: hidden; }
+.abertura--v2 .abertura__tempo span { border-radius: var(--r-full); }
+.ab2__carga p { margin: 0; font-size: 13px; letter-spacing: .32em; text-transform: uppercase; color: var(--ab-tinta-2); }
+.ab2__pct { display: inline-block; min-width: 4ch; letter-spacing: .08em; font-weight: 700; color: var(--ab-tinta); font-variant-numeric: tabular-nums; text-align: left; }
+.abertura--v2 .abertura__saltar.btn { min-height: 48px; padding: 0 var(--e-5); border-radius: var(--r-full); border: 1.5px solid var(--c-acao); background: #fff; font-size: 16px; }
+
+/* ---------- a animação ---------- */
+.ab2__grande--cima { animation: ab2-canto-cima 1.2s var(--ease-out) both; }
+.ab2__grande--baixo { animation: ab2-canto-baixo 1.2s var(--ease-out) .1s both; }
+@keyframes ab2-canto-cima { from { opacity: 0; transform: translate(-120px, -120px) rotate(-120deg); } }
+@keyframes ab2-canto-baixo { from { opacity: 0; transform: translate(120px, 120px) rotate(120deg); } }
+/* as esferas do rolamento do centro acendem uma a uma */
+.ab2__esfera { transform-box: fill-box; transform-origin: center; animation: ab2-esfera .3s var(--ease-out) calc(.5s + var(--i) * 50ms) both; }
+@keyframes ab2-esfera { from { opacity: .15; transform: scale(.55); } }
+/* as letras do ROMAFE: cada uma sobe da sua janela */
+.abertura--v2 .abertura__romafe { animation: none; }
+.ab2__letra { display: inline-block; overflow: hidden; padding: 0 .01em; }
+.ab2__letra > span { display: inline-block; animation: ab2-letra .55s var(--ease-out) calc(.55s + var(--i) * 45ms) both; }
+@keyframes ab2-letra { from { transform: translateY(105%); } }
+.abertura--v2 .abertura__risco { animation: ab2-risco .4s var(--ease-out) 1s both; }
+@keyframes ab2-risco { from { transform: scaleY(0); } }
+.abertura--v2 .abertura__produto { animation: ab-subir .45s var(--ease-out) 1.05s both; }
+.abertura--v2 .abertura__lema { animation: ab-subir .45s var(--ease-out) 1.25s both; }
+.ab2__carga { animation: ab-aparecer .4s var(--ease-out) .3s both; }
+.abertura--v2 .abertura__tempo span { animation: ab-tempo 2.8s linear .2s both; }
+/* a saída: o rolamento rola para fora pela direita (a rodar o que anda), o resto desvanece */
+.abertura--v2.is-a-sair > * { transition: opacity .3s var(--ease-out); transform: none; }
+.abertura--v2.is-a-sair .abertura__rolamento { animation: ab2-sair .45s var(--ease-out) both; }
+.abertura--v2.is-a-sair .abertura__centro > :not(.abertura__marca), .abertura--v2.is-a-sair .abertura__romafe { opacity: 0; transition: opacity .25s var(--ease-out); }
+.abertura--v2.is-a-sair .abertura__centro, .abertura--v2.is-a-sair .ab2__cantos { opacity: 1; }
+@keyframes ab2-sair { to { transform: translateX(70vw) rotate(540deg); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ab2__grande, .ab2__esfera, .ab2__letra > span, .abertura--v2 .abertura__risco { animation: ab-aparecer .2s ease both; transition: none; }
+  .abertura--v2.is-a-sair .abertura__rolamento { animation: none; }
+}
+@media (max-width: 900px) {
+  .abertura--v2 .abertura__romafe { font-size: 68px; }
+  .abertura--v2 .abertura__rolamento { width: 78px; height: 78px; }
+  .ab2__grande--cima { width: 480px; height: 480px; left: -280px; top: -260px; }
+  .ab2__grande--baixo { width: 460px; height: 460px; right: -260px; bottom: -280px; }
+}
+@media (max-width: 640px) {
+  .abertura--v2 .abertura__romafe { font-size: 48px; }
+  .abertura--v2 .abertura__rolamento { width: 56px; height: 56px; }
+  .abertura--v2 .abertura__produto strong { font-size: 28px; }
+  .abertura--v2 .abertura__lema { font-size: 14px; }
+  .abertura--v2 .abertura__saltar.btn { min-height: 40px; right: var(--e-4); top: var(--e-4); bottom: auto; }
+}

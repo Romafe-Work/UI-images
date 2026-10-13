@@ -12,6 +12,7 @@ import { catalogoV3 } from './catalogo-v3';
 import { catalogoV4 } from './catalogo-v4';
 import { catalogoV5 } from './catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
+import { pedidosV3 } from './pedidos-v3';
 import guias from './guias.html?raw';
 
 const FLUXO = 'Portal';
@@ -37,7 +38,9 @@ export const ecrasPortal: EcraGoParts[] = [
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [
     /* 12 out. 2026: ela pediu para tirar a v1 (a do Figma-WebShop-GoParts) */
-    { id: 'v2', nota: 'A partir dos Pedidos atuais do GO REPAIR, no estilo do Início v2.2 (12 out.): filtros no cartão azul, estado em separadores com contagem, resumo, e cada pedido abre os seus artigos', html: portal('pedidos', pedidosV2, undefined, { menu: true, rodape: false }) }],
+    { id: 'v2', nota: 'A partir dos Pedidos atuais do GO REPAIR, no estilo do Início v2.2 (12 out.): filtros no cartão azul, estado em separadores com contagem, resumo, e cada pedido abre os seus artigos', html: portal('pedidos', pedidosV2, undefined, { menu: true, rodape: false }) },
+    /* 13 out. 2026: ela, com a imagem do GO REPAIR, «quando clico num pedido queria mostrar de outra forma» */
+    { id: 'v3', nota: 'A v2 com o pedido num painel à direita (13 out.): a lista fica à vista; o painel tem o percurso (recebido → entregue), os artigos com pedida, servida e pendente, os totais e repetir / guia / fatura; ↑ ↓ passam de pedido, Esc fecha', html: portal('pedidos', pedidosV3, undefined, { menu: true, rodape: false }) }],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
   ...estadosPedidos(),
   { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('guias', guias) }],

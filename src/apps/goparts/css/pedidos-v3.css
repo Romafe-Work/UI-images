@@ -1,0 +1,94 @@
+/* =========================================================
+   GOPARTS — 12 · Pedidos v3: o painel do pedido (13 out. 2026)
+   O painel encosta à direita, por cima da tabela, com a altura da janela;
+   a lista fica à vista à esquerda e a linha aberta fica marcada. Por dentro:
+   cabeça fixa, corpo que rola, pé fixo com as ações. Claro e escuro.
+   ========================================================= */
+.portal--ped3 .ped2__linha { cursor: pointer; }
+.portal--ped3 .ped2__seta { display: none; }
+.portal--ped3 .ped2__linha[aria-selected="true"] { background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-acao); }
+@media (hover: hover) and (pointer: fine) {
+  .portal--ped3 .ped2__linha:hover:not([aria-selected="true"]) { background: var(--c-superficie-2); }
+}
+
+.ped3__painel {
+  position: fixed; z-index: 40; top: 0; right: 0; bottom: 0; width: min(460px, 100vw);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--c-superficie); color: var(--c-texto);
+  border-left: 1px solid var(--c-borda); box-shadow: -24px 0 48px -32px rgba(0, 20, 50, .45);
+}
+.ped3__painel[hidden] { display: none; }
+
+/* a cabeça: o número, a navegação, o estado */
+.ped3__p-cabeca { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--e-2) var(--e-3); padding: var(--e-4) var(--e-5) var(--e-3); border-bottom: 1px solid var(--c-borda); }
+.ped3__p-rotulo { margin: 0; font-size: 12px; color: var(--c-texto-3); }
+.ped3__p-num { margin: 2px 0; font-family: var(--f-titulo); font-size: 24px; line-height: 1.15; outline: none; font-variant-numeric: tabular-nums; }
+.ped3__p-meta { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 13px; color: var(--c-texto-2); }
+.ped3__p-meta svg { width: 14px; height: 14px; }
+.ped3__arm { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.ped3__p-nav { display: flex; gap: 4px; align-items: flex-start; }
+.ped3__ir, .ped3__fechar { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto-2); cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+.ped3__ir svg, .ped3__fechar svg { width: 18px; height: 18px; }
+.ped3__ir:disabled { opacity: .4; cursor: default; }
+.ped3__fechar { margin-left: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .ped3__ir:not(:disabled):hover, .ped3__fechar:hover { border-color: var(--c-marca); color: var(--c-texto); }
+}
+.ped3__p-estado { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
+.ped3__aviso { padding: 3px var(--e-2); border-radius: var(--r-full); font-size: 12px; font-weight: 700; background: var(--c-aviso-suave); color: var(--c-aviso); }
+
+/* o corpo, que rola */
+.ped3__p-corpo { overflow-y: auto; overscroll-behavior: contain; padding: var(--e-4) var(--e-5); display: grid; gap: var(--e-5); align-content: start; }
+.ped3__h { margin: 0 0 var(--e-3); display: flex; align-items: center; gap: var(--e-2); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--c-texto-2); }
+.ped3__h span { padding: 0 6px; border-radius: var(--r-full); background: var(--c-superficie-2); font-size: 11px; }
+
+/* o percurso: pontos ligados por uma linha; feito a azul, o atual a laranja */
+.ped3__percurso { list-style: none; margin: 0; padding: 0; display: grid; }
+.ped3__passo { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: var(--e-3); padding-bottom: var(--e-3); }
+.ped3__passo:not(:last-child)::before { content: ""; position: absolute; left: 10px; top: 22px; bottom: 0; width: 2px; background: var(--c-borda); }
+.ped3__passo--feito:not(:last-child)::before { background: var(--c-marca); }
+.ped3__ponto { display: grid; place-items: center; width: 22px; height: 22px; border-radius: var(--r-full); border: 2px solid var(--c-borda); background: var(--c-superficie); color: #fff; }
+.ped3__ponto svg { width: 12px; height: 12px; }
+.ped3__passo--feito .ped3__ponto { background: var(--c-marca); border-color: var(--c-marca); color: var(--c-superficie); }
+.ped3__passo--atual .ped3__ponto { border-color: var(--c-acao); box-shadow: inset 0 0 0 4px var(--c-superficie), inset 0 0 0 11px var(--c-acao); }
+.ped3__passo div { display: grid; gap: 1px; font-size: 14px; }
+.ped3__passo span { font-size: 12px; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
+.ped3__passo small { font-size: 12px; color: var(--c-texto-3); }
+.ped3__passo--por-fazer strong { color: var(--c-texto-3); font-weight: 600; }
+
+/* os artigos: descrição e valor; pedida, servida, pendente; a barra do que foi servido */
+.ped3__artigos { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.ped3__artigo { display: grid; gap: 4px; padding: var(--e-3) 0; border-bottom: 1px solid var(--c-borda); }
+.ped3__a-cima { display: flex; justify-content: space-between; gap: var(--e-3); font-size: 14px; }
+.ped3__a-desc { font-weight: 700; }
+.ped3__a-valor { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ped3__a-qt { display: flex; flex-wrap: wrap; gap: 2px var(--e-3); font-size: 12px; color: var(--c-texto-2); }
+.ped3__a-qt strong { color: var(--c-texto); font-variant-numeric: tabular-nums; }
+.ped3__falta, .ped3__falta strong { color: var(--c-aviso); }
+.ped3__barra { height: 4px; border-radius: var(--r-full); background: var(--c-superficie-3); overflow: hidden; }
+.ped3__barra span { display: block; height: 100%; background: var(--c-marca); transform-origin: left center; transform: scaleX(var(--f, 0)); }
+
+/* os totais e a morada */
+.ped3__totais { margin: 0; display: grid; gap: 4px; padding: var(--e-3) var(--e-4); border-radius: var(--r-md); background: var(--c-superficie-2); }
+.ped3__totais div, .ped3__info div { display: flex; justify-content: space-between; gap: var(--e-3); font-size: 14px; }
+.ped3__totais dd, .ped3__info dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.ped3__total { padding-top: 4px; border-top: 1px solid var(--c-borda); font-weight: 700; font-size: 16px !important; }
+.ped3__info { margin: 0; display: grid; gap: var(--e-2); }
+.ped3__info dt { display: inline-flex; align-items: center; gap: 6px; color: var(--c-texto-2); white-space: nowrap; }
+.ped3__info dt svg { width: 16px; height: 16px; }
+
+/* o pé, fixo, com as ações */
+.ped3__p-pe { display: flex; flex-wrap: wrap; gap: var(--e-2); padding: var(--e-3) var(--e-5) var(--e-4); border-top: 1px solid var(--c-borda); background: var(--c-superficie); }
+.ped3__p-pe .btn--acao { flex: 1 1 100%; justify-content: center; }
+.ped3__p-pe .btn--ghost { flex: 1 1 0; justify-content: center; min-width: 0; }
+.ped3__p-pe .btn--ghost .btn__rotulo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- animações: o percurso e as barras ao abrir (o painel desliza em pedidos-v3.ts) ---------- */
+.ped3__passo { animation: ped3-entrar .25s var(--ease-out) calc(var(--i, 0) * 40ms + 80ms) both; }
+.ped3__artigo { animation: ped3-entrar .25s var(--ease-out) calc(min(var(--i, 0), 8) * 30ms + 120ms) both; }
+.ped3__barra span { animation: ped3-barra .5s var(--ease-out) .25s both; }
+@keyframes ped3-entrar { from { opacity: 0; transform: translateY(6px); } }
+@keyframes ped3-barra { from { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .ped3__passo, .ped3__artigo, .ped3__barra span { animation: none; }
+}

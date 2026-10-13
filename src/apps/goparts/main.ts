@@ -17,6 +17,7 @@ import './css/catalogo-v3.css';
 import './css/catalogo-v4.css';
 import './css/catalogo-v5.css';
 import './css/pedidos-v2.css';
+import './css/pedidos-v3.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
@@ -34,8 +35,9 @@ import { iniciar as v2animacao } from './comportamento/v2-animacao';
 import { iniciar as catalogoV2 } from './comportamento/catalogo';
 import { iniciar as catalogoV4 } from './comportamento/catalogo-v4';
 import { iniciar as pedidosV2 } from './comportamento/pedidos';
+import { iniciar as pedidosV3 } from './comportamento/pedidos-v3';
 import { iniciar as selects } from './comportamento/select';
 import { iniciar as login } from './comportamento/login';
 import { iniciar as abertura } from './comportamento/abertura';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, selects, login, abertura]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, selects, login, abertura]);
