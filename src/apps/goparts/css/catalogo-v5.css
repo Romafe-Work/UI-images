@@ -384,3 +384,58 @@ th[aria-sort="descending"] .cat5__ordenar svg { transform: scaleY(-1); }
 .cat5 .cat4__vista-modelos .cat3__conta { margin-right: auto; font-size: 20px; font-family: var(--f-titulo); color: var(--c-texto); }
 @media (max-width: 1180px) { .cat5__filtros--modelos { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cat5__tipos-campo { grid-column: 1 / -1; } }
 @media (max-width: 640px) { .cat5__filtros--modelos { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- pedir a partir da tabela das Referências (crítica Impeccable, 13 out.) ----------
+   Cada linha tem − 1 + e «Pedir», com «Porto · hoje» / «Sacavém · amanhã» por baixo;
+   a ficha passa a ser opcional. */
+.cat5__tabela-refs table { min-width: 1080px; }
+.cat5__pedir-ref { white-space: nowrap; cursor: default; }
+.cat5__pedir-ref .cat5__pedir-linha { display: inline-flex; align-items: stretch; gap: var(--e-2); }
+.cat5__pedir-ref .cat5__qtd button { width: 30px; }
+.cat5__pedir-ref .cat5__qtd input { width: 38px; }
+.cat5__pedir-ref .btn--sm { min-height: 34px; }
+.cat5__saida { display: block; margin-top: 4px; font-size: 12px; color: var(--c-texto-2); }
+
+/* ---------- telemóvel (crítica Impeccable, 13 out.) ---------- */
+/* os Detalhes não alargam a página: separadores e tabelas rolam por dentro (em qualquer largura) */
+.cat5__tabela .erp-tabela__rolo { overflow-x: auto; position: relative; }
+.cat5__detalhes, .cat5__aba-corpo, .cat5__peca-info, .cat5__peca-compra { min-width: 0; }
+.cat5__abas { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; }
+.cat5__aba { flex: none; }
+
+@media (max-width: 640px) {
+  /* o cabeçalho: ROMAFE e GoParts mais pequenos; ficam o carrinho e a conta */
+  .portal--cat5 .portal__topo { grid-template-columns: minmax(0, 1fr) auto; }
+  .portal--cat5 .portal__marca { min-width: 0; gap: 6px; }
+  .portal--cat5 .portal__romafe { font-size: 24px; }
+  .portal--cat5 .portal__produto { font-size: 17px; white-space: nowrap; }
+  .portal--cat5 .portal__accoes .portal__icone:is([aria-label="Mensagens"], [aria-label="Definições"], [aria-label="Ajuda"]) { display: none; }
+  /* os dois menus numa linha que rola, em vez de 7 linhas */
+  .portal--cat5 .portal__abas, .portal--cat5 .cat2__passos { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
+  .portal--cat5 .portal__abas::-webkit-scrollbar, .portal--cat5 .cat2__passos::-webkit-scrollbar { display: none; }
+  .portal--cat5 .portal__abas > *, .portal--cat5 .cat2__passo { flex: none; }
+
+  /* as Referências (e as Equivalências) em cartões: referência e líquido em cima,
+     a descrição, o stock e «Pedir» por baixo; o preço de tabela e o desconto saem (o líquido diz o preço) */
+  .portal--cat5 .cat5__tabela-refs table { min-width: 0; }
+  .portal--cat5 .cat5__tabela-refs thead { display: none; }
+  .portal--cat5 .cat5__tabela-refs .erp-tabela__rolo { overflow: visible; }
+  .portal--cat5 .cat5__tabela-refs tbody { display: grid; gap: var(--e-2); padding: var(--e-2); }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e-2) var(--e-3); padding: var(--e-3); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td { border: 0; padding: 0; min-width: 0; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(2),
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(5),
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(6) { display: none; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(3) { grid-column: 2; grid-row: 1; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(7) { grid-column: 3; grid-row: 1; font-size: 17px; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(4) { grid-column: 1 / -1; grid-row: 2; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(8) { grid-column: 1 / -1; grid-row: 3; display: flex; align-items: center; gap: var(--e-2); }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(8) .cat5__armazens { display: inline; }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(9) { grid-column: 1 / -1; grid-row: 4; display: flex; align-items: center; justify-content: space-between; gap: var(--e-2); }
+  .portal--cat5 .cat5__tabela-refs tr.cat5__ref > td:nth-child(9) { flex-wrap: wrap; white-space: normal; }
+  .portal--cat5 .cat5__tabela-refs .cat5__saida { margin: 0; flex-basis: 100%; }
+  .portal--cat5 .cat5__tabela-refs .cat5__grupo-linha { display: block; }
+  .portal--cat5 .cat5__tabela-refs .cat5__grupo-linha th { display: block; border-radius: var(--r-sm); }
+  .portal--cat5 .cat5__refs .cat5__resultados-cabeca { gap: var(--e-1) var(--e-3); }
+}

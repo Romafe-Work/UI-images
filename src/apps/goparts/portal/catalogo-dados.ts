@@ -187,7 +187,10 @@ export const FABRICANTES = Array.from(new Set(REFERENCIAS.map((r) => r[1]))).sor
 export const euros = (n: number) => n.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
 /** v5: uma linha da tabela das referências. */
-export function linhaReferencia(r: Referencia, i: number, ic: { imagem: string; caixa: string }): string {
+/** De onde sai a peça: o Porto se tiver stock (hoje), senão Sacavém (amanhã), senão por encomenda. */
+export const saida = (porto: number, sacavem: number) => (porto ? 'Porto · hoje' : sacavem ? 'Sacavém · amanhã' : 'Por encomenda · 3 a 5 dias');
+
+export function linhaReferencia(r: Referencia, i: number, ic: { imagem: string; caixa: string; pedir?: string }): string {
   const [grupo, fab, ref, desc, preco, d, porto, sacavem] = r;
   const liquido = preco * (1 - d / 100);
   const stock = porto + sacavem;
@@ -199,7 +202,10 @@ export function linhaReferencia(r: Referencia, i: number, ic: { imagem: string; 
     + `<td data-r="Descrição">${esc(desc)}<span class="cat5__grupo">${esc(grupo)}</span></td>`
     + `<td class="erp-num" data-r="Preço">${euros(preco)}</td><td class="erp-num" data-r="Desc.">${d}%</td>`
     + `<td class="erp-num cat5__liquido" data-r="Líquido">${euros(liquido)}</td>`
-    + `<td data-r="Stock"><span class="cat5__stock cat5__stock--${estado}" title="Porto ${porto} · Sacavém ${sacavem}">${ic.caixa}${stock === 0 ? 'Sem stock' : `${stock} un.`}</span><span class="cat5__armazens">Porto ${porto} · Sacavém ${sacavem}</span></td></tr>`;
+    + `<td data-r="Stock"><span class="cat5__stock cat5__stock--${estado}" title="Porto ${porto} · Sacavém ${sacavem}">${ic.caixa}${stock === 0 ? 'Sem stock' : `${stock} un.`}</span><span class="cat5__armazens">Porto ${porto} · Sacavém ${sacavem}</span></td>`
+    /* pedir sem ir à ficha (crítica de 13 out.: a oficina sabe muitas vezes que peça quer) */
+    + (ic.pedir !== undefined ? `<td class="cat5__pedir-ref" data-r="Pedir">${ic.pedir}<span class="cat5__saida">${saida(porto, sacavem)}</span></td>` : '')
+    + '</tr>';
 }
 
 /* ---------- v5: o Universal (a quinta imagem dela, 13 out.) ----------

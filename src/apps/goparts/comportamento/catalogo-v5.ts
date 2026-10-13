@@ -236,12 +236,13 @@ export function clique(main: HTMLElement, t: Element): boolean {
     return true;
   }
   if (t.closest('.cat5__pecas')) {
-    /* o Grupo montagem ainda não está desenhado: vai-se às Referências do veículo, com a SKF */
-    abrirReferencias(main, '', ['SKF'], 'veiculo');
+    /* o Grupo montagem ainda não está desenhado: vai-se às Referências do veículo, com todos os
+       fabricantes (crítica de 13 out.: abrir só com a SKF escondia as equivalências e os preços) */
+    abrirReferencias(main, '', [], 'veiculo');
     ir(main, 'referencias');
     return true;
   }
-  if (cliqueDetalhes(main, t) || cliqueReferencias(main, t) || cliqueUniversal(main, t)) return true;
+  if (cliquePedir(t) || cliqueDetalhes(main, t) || cliqueReferencias(main, t) || cliqueUniversal(main, t)) return true;
   if (t.closest('.cat5__detalhe')) return true;
   const l = t.closest<HTMLElement>('.cat3__linha');
   if (l && !l.dataset.modelo) { escolher(l); return false; /* o v3 marca o passo seguinte */ }
@@ -254,7 +255,7 @@ export function clique(main: HTMLElement, t: Element): boolean {
    ou stock e comparar as marcadas; só em tabela. A tabela refaz-se a cada
    filtro (são poucas linhas) e as linhas entram em cascata, só as 8 primeiras.
    ========================================================= */
-const ICONES_REF = () => ({ imagem: L(pkg), caixa: L(boxes) });
+const ICONES_REF = () => ({ imagem: L(pkg), caixa: L(boxes), pedir: `<span class="cat5__pedir-linha">${quantidade()}<button type="button" class="btn btn--acao btn--sm cat5__adicionar">${L(cart, 'btn__icone')}<span class="btn__rotulo">Pedir</span></button></span>` });
 let ordemRef: { k: string; sobe: boolean } | null = null;
 
 function chips(main: HTMLElement): string[] {
@@ -309,14 +310,24 @@ function desenharRefs(main: HTMLElement): void {
     let i = 0;
     chaves.forEach((c) => {
       const destes = rs.filter((r) => r[k] === c);
-      html += `<tr class="cat5__grupo-linha"><th colspan="8" scope="colgroup">${c}<span>${destes.length}</span></th></tr>` + destes.map((r) => linhaReferencia(r, i++, ICONES_REF())).join('');
+      html += `<tr class="cat5__grupo-linha"><th colspan="9" scope="colgroup">${c}<span>${destes.length}</span></th></tr>` + destes.map((r) => linhaReferencia(r, i++, ICONES_REF())).join('');
     });
   } else html = rs.map((r, i) => linhaReferencia(r, i, ICONES_REF())).join('');
   vista.querySelector('tbody')!.innerHTML = html;
-  vista.querySelector('.cat5__refs-conta strong')!.textContent = String(rs.length);
+  /* a contagem diz se há filtro de fabricante e quantas há sem ele */
+  const semFab = REFERENCIAS.filter((r) => (!grupo || r[0] === grupo) && (!proprias || r[6] + r[7] > 0));
+  const nFab = new Set(rs.map((r) => r[1])).size;
+  vista.querySelector('.cat5__refs-conta')!.innerHTML = fabs.length
+    ? `<strong>${rs.length}</strong> de ${semFab.length} referências · ${fabs.join(', ')} <button type="button" class="cat3__ligacao cat5__refs-todos">Ver todos os fabricantes</button>`
+    : `<strong>${rs.length}</strong> referências · ${nFab} ${nFab === 1 ? 'fabricante' : 'fabricantes'}`;
   vista.querySelector<HTMLElement>('.cat5__refs-vazio')!.hidden = rs.length > 0;
   /* as opções do «Adicionar fabricante» são as que ainda não estão escolhidas */
-  $$<HTMLOptionElement>(main, '[data-mais-fabricante] option').forEach((o) => { if (o.value) o.disabled = fabs.includes(o.value); });
+  $$<HTMLOptionElement>(main, '[data-mais-fabricante] option').forEach((o) => {
+    if (!o.value) return;
+    const n = semFab.filter((r) => r[1] === o.value).length;
+    o.textContent = `${o.value} (${n})`;
+    o.disabled = fabs.includes(o.value) || n === 0;
+  });
   contarComparar(main);
 }
 
@@ -400,6 +411,7 @@ function cliqueReferencias(main: HTMLElement, t: Element): boolean {
     return true;
   }
 
+  if (t.closest('.cat5__refs-todos')) { porChips(main, []); desenharRefs(main); return true; }
   if (t.closest('.cat5__refs-limpar')) {
     porChips(main, []);
     const g = main.querySelector<HTMLSelectElement>('[data-ref-grupo]')!;
@@ -471,7 +483,7 @@ export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void
   const eq = equivalentes(r);
   n('equivalencias', eq.length || '');
   corpo('equivalencias').innerHTML = eq.length
-    ? `<div class="cg-tabela erp-tabela cat5__tabela cat5__tabela-refs"><div class="erp-tabela__rolo"><table><thead><tr><th class="cat5__marcar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th><th class="erp-num">Preço</th><th class="erp-num">Desc.</th><th class="erp-num">Líquido</th><th>Stock</th></tr></thead><tbody>${eq.map((q, i) => linhaReferencia(q, i, ICONES_REF())).join('')}</tbody></table></div></div>`
+    ? `<div class="cg-tabela erp-tabela cat5__tabela cat5__tabela-refs"><div class="erp-tabela__rolo"><table><thead><tr><th class="cat5__marcar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th><th class="erp-num">Preço</th><th class="erp-num">Desc.</th><th class="erp-num">Líquido</th><th>Stock</th><th>Pedir</th></tr></thead><tbody>${eq.map((q, i) => linhaReferencia(q, i, ICONES_REF())).join('')}</tbody></table></div></div>`
     : '<p class="cat5__nada">Sem equivalências conhecidas para esta referência.</p>';
   /* OE */
   n('oe', f.oe.length || '');
@@ -498,10 +510,8 @@ function aba(main: HTMLElement, k: string, animar = true): void {
   if (animar && c && !quieto()) c.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: FACIL });
 }
 
-function cliqueDetalhes(main: HTMLElement, t: Element): boolean {
-  if (!t.closest('.cat5__peca, .cat5__detalhes')) return false;
-  const a = t.closest<HTMLElement>('.cat5__aba');
-  if (a) { aba(main, a.dataset.aba || 'stock'); return true; }
+/** A quantidade (− 1 +) e o «Pedir» / «Adicionar ao carrinho», na ficha e nas linhas das tabelas. */
+function cliquePedir(t: Element): boolean {
   const q = t.closest<HTMLElement>('.cat5__qtd-menos, .cat5__qtd-mais');
   if (q) {
     const i = q.parentElement!.querySelector<HTMLInputElement>('input')!;
@@ -511,12 +521,21 @@ function cliqueDetalhes(main: HTMLElement, t: Element): boolean {
   const ad = t.closest<HTMLButtonElement>('.cat5__adicionar');
   if (ad) {
     /* a confirmação fica 1,5 s no próprio botão; não há carrinho desenhado */
+    if (ad.classList.contains('is-feito')) return true;
     const antes = ad.innerHTML;
     ad.classList.add('is-feito');
     ad.innerHTML = `${L(check, 'btn__icone')}<span class="btn__rotulo">Adicionado</span>`;
     window.setTimeout(() => { ad.classList.remove('is-feito'); ad.innerHTML = antes; }, 1500);
     return true;
   }
+  /* o resto da célula «Pedir» (o campo da quantidade, a linha «Porto · hoje») não abre a ficha */
+  return !!t.closest('.cat5__pedir-ref');
+}
+
+function cliqueDetalhes(main: HTMLElement, t: Element): boolean {
+  if (!t.closest('.cat5__peca, .cat5__detalhes')) return false;
+  const a = t.closest<HTMLElement>('.cat5__aba');
+  if (a) { aba(main, a.dataset.aba || 'stock'); return true; }
   const li = t.closest<HTMLElement>('.cat5__lista');
   if (li) {
     const sim = li.getAttribute('aria-pressed') !== 'true';

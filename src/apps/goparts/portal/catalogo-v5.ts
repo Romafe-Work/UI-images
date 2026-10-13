@@ -109,7 +109,7 @@ const refsFiltros = `
         <div class="cat5__refs-campos">
           <div class="campo cat5__campo-fab"><span class="campo__label" id="cat5-fab-rotulo">Fabricantes</span>
             <div class="cat5__chips" role="group" aria-labelledby="cat5-fab-rotulo"><span class="cat5__chips-lista"></span>
-              <span class="campo__caixa cat5__mais"><span class="campo__chip" aria-hidden="true">${L(factory)}</span><select class="input" id="cat5-mais-fab" aria-label="Adicionar fabricante" data-mais-fabricante><option value="">Adicionar fabricante</option>${FABRICANTES.map((f) => `<option>${f}</option>`).join('')}</select></span></div></div>
+              <span class="campo__caixa cat5__mais"><span class="campo__chip" aria-hidden="true">${L(factory)}</span><select class="input" id="cat5-mais-fab" aria-label="Adicionar fabricante" data-mais-fabricante><option value="">Adicionar fabricante</option>${FABRICANTES.map((f) => `<option value="${f}">${f}</option>`).join('')}</select></span></div></div>
           <div class="campo"><label class="campo__label" for="cat5-ref-grupo">Grupo de montagem</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(layers)}</span><select class="input" id="cat5-ref-grupo" data-ref-grupo><option value="">Todos os grupos</option>${GRUPOS.map((g) => `<option>${g}</option>`).join('')}</select></div></div>
           <div class="campo"><label class="campo__label" for="cat5-agrupar">Agrupar</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(listTree)}</span><select class="input" id="cat5-agrupar" data-agrupar><option value="">Sem agrupar</option><option value="fabricante">Por fabricante</option><option value="grupo">Por grupo de montagem</option></select></div></div>
         </div>
@@ -122,7 +122,7 @@ const refsVista = `
       <div class="cat3__vista cat5__resultados cat5__refs" data-so="referencias" data-modo="tabela" hidden>
         <div class="cat5__resultados-cabeca"><p class="cat3__conta cat5__refs-conta"><strong>0</strong> referências</p><span class="cat2__exemplo">exemplo</span></div>
         <div class="cg-tabela erp-tabela cat3__tabela cat5__tabela cat5__tabela-refs"><div class="erp-tabela__rolo"><table>
-          <thead><tr><th class="cat5__marcar"><input type="checkbox" class="cat5__todas" aria-label="Marcar todas para comparar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th>${ordRef('preco', 'Preço', 'erp-num')}<th class="erp-num">Desc.</th><th class="erp-num">Líquido</th>${ordRef('stock', 'Stock')}</tr></thead>
+          <thead><tr><th class="cat5__marcar"><input type="checkbox" class="cat5__todas" aria-label="Marcar todas para comparar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th>${ordRef('preco', 'Preço', 'erp-num')}<th class="erp-num">Desc.</th><th class="erp-num">Líquido</th>${ordRef('stock', 'Stock')}<th>Pedir</th></tr></thead>
           <tbody></tbody>
         </table></div></div>
         <p class="cat5__refs-vazio" hidden>Nenhuma referência com estes filtros. <button type="button" class="cat3__ligacao cat5__refs-limpar">Ver todos os fabricantes e grupos</button></p>
