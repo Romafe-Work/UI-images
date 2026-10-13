@@ -1,14 +1,37 @@
 import type { App } from '../../comum/tipos';
-import { ecrasCarregar, DESCRICAO_CARREGAR } from '../../comum/carregar/carregar';
+import { ecrasCarregar } from '../../comum/carregar/carregar';
 import { GOPARTS } from './portal/base';
 import { DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
-import type { IdGoParts } from './ids';
+import type { IdGoParts, EcraGoParts } from './ids';
 import { ecrasEntrar22 } from './entrar-v22';
 import { ecraAbertura } from './abertura';
 import { ecraPublico } from './publico';
 import { ecrasPublicoPaginas } from './publico-paginas';
 import { ecrasPortal } from './portal/ecras';
-import { ecrasErro, DESCRICAO_ERROS } from './erros/erros';
+import { ecrasErro } from './erros/erros';
+
+/** Os ecrãs de carregamento e de erro, cada um como estado da página que mostra, numerados a seguir
+ *  aos estados que ela já tem (10.8, 11.13, 12.7, 13.9, 14.9). */
+const ONDE: Record<string, [IdGoParts, string]> = {
+  'carga-pagina': ['inicio', '10.9 · A carregar o portal'], 'carga-inicio': ['inicio', '10.10 · Esqueleto do Início'], 'carga-pecas': ['inicio', '10.11 · Peças a carregar'],
+  'erro-404': ['inicio', '10.12 · Página não encontrada'], 'erro-500': ['inicio', '10.13 · Erro do servidor'], 'erro-sessao': ['inicio', '10.14 · Sessão expirada'],
+  'erro-formulario': ['inicio', '10.15 · Erros no formulário (página)'], 'erro-manutencao': ['inicio', '10.16 · Em manutenção'],
+  'carga-pesquisa': ['catalogo', '11.14 · Pesquisa em curso'], 'erro-vazio': ['catalogo', '11.15 · Pesquisa sem resultados'], 'erro-encomenda': ['catalogo', '11.16 · Encomenda não concluída'],
+  'carga-tabela': ['pedidos', '12.8 · Tabela a carregar'], 'carga-mais': ['pedidos', '12.9 · Carregar mais'], 'erro-rede': ['pedidos', '12.10 · Sem ligação'],
+  'erro-403': ['guias', '13.10 · Sem permissão'],
+  'carga-progresso': ['faturas', '14.10 · A gerar o PDF'],
+};
+function distribuir(): EcraGoParts[] {
+  const lista: EcraGoParts[] = [...ecrasPortal];
+  for (const e of [...ecrasCarregar(GOPARTS), ...ecrasErro()] as EcraGoParts[]) {
+    const [pai, nome] = ONDE[e.id] ?? ['inicio', e.nome];
+    let i = lista.length - 1;
+    while (i >= 0 && lista[i].id !== pai && lista[i].estadoDe !== pai) i--;
+    while (i + 1 < lista.length && lista[i + 1].estadoDe === pai) i++;
+    lista.splice(i + 1, 0, { ...e, nome, fluxo: 'Portal', estadoDe: pai });
+  }
+  return lista;
+}
 
 export const goparts: App<IdGoParts> = {
   id: 'goparts',
@@ -21,12 +44,12 @@ export const goparts: App<IdGoParts> = {
     'Página pública': 'Antes de entrar: a página pública e as páginas do menu dela (A Romafe, Entregas, Marcas, Contactos).',
     'Entrar': DESCRICAO_ENTRAR,
     'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos e as guias de remessa.',
-    'Carregamento': DESCRICAO_CARREGAR,
-    'Erros': DESCRICAO_ERROS,
   },
   /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a
      fotografia da oficina (entrar-v22.ts); a «Família Romafe» saiu (ela não gostou) */
   /* 13 out. 2026: a abertura animada antes do login (abertura.ts) */
   /* 13 out. 2026: a abertura passa à página pública (publico.ts), e o «Entrar» dela leva ao login */
-  ecras: [ecraAbertura(), ecraPublico(), ...ecrasPublicoPaginas(), ...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
+  /* 13 out. 2026: ela, «tudo o que seja carregamentos e erros deve estar distribuído pelas páginas» —
+     os grupos Carregamento e Erros saíram; cada ecrã passa a estado da página que mostra (distribuir()) */
+  ecras: [ecraAbertura(), ecraPublico(), ...ecrasPublicoPaginas(), ...ecrasEntrar22(), ...distribuir()],
 };

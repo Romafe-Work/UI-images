@@ -11,6 +11,8 @@
    Romafe, que foi pedido dela */
 .login23 { --l23-noite: #faf8f5; --l23-tinta-2: rgba(20, 20, 20, .62); }
 .login23 .login22__topo, .login23 .login22__rodape { background: #faf8f5; border-color: rgba(20, 20, 20, .12); }
+/* a barra e o rodapé são sempre claros (o ROMAFE): a tinta também, mesmo no tema escuro */
+.login23 .login22__topo, .login23 .login22__rodape { --c-texto: #141414; --c-texto-2: rgba(20, 20, 20, .62); --c-borda: rgba(20, 20, 20, .14); color: #141414; }
 .login23 .login23__palco { background: var(--l23-noite); }
 .login23 .portal__marca { text-decoration: none; color: inherit; }
 .login23__topo-dir { display: flex; align-items: center; gap: var(--e-3); }

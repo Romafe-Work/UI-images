@@ -29,10 +29,16 @@ import separacao from '../../comum/img/separacao.webp';
 import oficina from '../../comum/img/oficina.webp';
 import skf from '../../comum/img/skf-paletes.webp';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import arrowUp from 'lucide-static/icons/arrow-up.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
 import userPlus from 'lucide-static/icons/user-plus.svg?raw';
 import award from 'lucide-static/icons/award.svg?raw';
 import packageIcon from 'lucide-static/icons/package.svg?raw';
+import search from 'lucide-static/icons/search.svg?raw';
+import cart from 'lucide-static/icons/shopping-cart.svg?raw';
+import check from 'lucide-static/icons/check.svg?raw';
+import truck from 'lucide-static/icons/truck.svg?raw';
+import wrench from 'lucide-static/icons/wrench.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span style="--i:${i}">${texto}</span></span>`;
@@ -40,7 +46,19 @@ const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span styl
 /** A barra de cima, igual em todas as páginas públicas; a atual fica marcada. Nas páginas do menu
  *  as ligações repetem-se, por isso lá levam data-sem-seta (o mapa do fluxo desenha as desta). */
 export const MENU: [string, string][] = [['publico-romafe', 'A Romafe'], ['publico-entregas', 'Entregas'], ['publico-marcas', 'Marcas'], ['publico-contactos', 'Contactos']];
-export const barraPublica = (atual = '', semSeta = false) => `<header class="pub__barra">
+/* O scroll é um rolamento (ela, 13 out.: «coloca rolamentos como scroll»): uma linha fina por baixo da barra
+   enche a laranja com o scroll, e na ponta um rolamento rola — anda o que se desceu e roda o que andou
+   (comportamento/publico.ts). Aço com a luz parada, a folga escura, oito esferas. */
+/* (os ids dos gradientes levam o nome da página: repetidos, o Chrome lia os de um ecrã escondido e não pintava) */
+const esferas = (k: string) => Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 11.2).toFixed(2)}" cy="${(Math.sin(a) * 11.2).toFixed(2)}" r="3.1" fill="url(#rolo-esfera-${k})"/>`; }).join('');
+const ROLO = (k: string) => `<div class="pub__rolo" aria-hidden="true"><i class="pub__rolo-linha"></i><svg class="pub__rolo-rolamento" viewBox="-17 -17 34 34">
+  <defs><linearGradient id="rolo-aco-${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f9fb"/><stop offset=".4" stop-color="#8a95a0"/><stop offset=".55" stop-color="#e6ebef"/><stop offset="1" stop-color="#4e5761"/></linearGradient>
+  <radialGradient id="rolo-esfera-${k}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#b5bec7"/><stop offset="1" stop-color="#3a424b"/></radialGradient></defs>
+  <circle r="16" fill="url(#rolo-aco-${k})"/><circle r="13.6" fill="#1a1f25"/>
+  <g class="pub__rolo-gira">${esferas(k)}<circle r="8.2" fill="url(#rolo-aco-${k})"/><circle r="5" fill="#faf8f5"/><circle r="5" fill="none" stroke="#000" stroke-opacity=".3"/></g>
+</svg></div>`;
+
+export const barraPublica = (atual = '', semSeta = false) => `<header class="pub__barra">${ROLO(atual || 'inicio')}
   <a class="pub__marca" href="#" data-ir="publico"${semSeta || !atual ? ' data-sem-seta' : ''} aria-label="Romafe GoParts: a página inicial"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
   <nav class="pub__nav" aria-label="Principal">${MENU.map(([id, nome]) => `<a href="#" data-ir="${id}"${semSeta ? ' data-sem-seta' : ''}${id === atual ? ' aria-current="page"' : ''}>${nome}</a>`).join('')}</nav>
   <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada"${semSeta ? ' data-sem-seta' : ''}>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
@@ -51,10 +69,14 @@ export const rodapePublico = `<footer class="pub__rodape"><span>2026 © Romafe S
 const CAPITULOS: [string, string, string, string, string][] = [
   [fachada, '1945', 'Desde 1945, no Porto.', 'Rolamentos, Máquinas e Ferramentas: é daí que vem o nome. Oitenta anos depois, a mesma casa, na Rua Eng. Ezequiel de Campos.', 'A fachada da Romafe no Porto'],
   [skf, '1975', 'Distribuidor SKF desde 1975.', 'E SKF CMP desde 2007 — o único em Portugal. Rolamentos, kits de roda e de distribuição SKF, com o stock à vista.', 'Paletes e caixas SKF no armazém da Romafe'],
-  [corredor, '6 000 m²', 'Um armazém à sua medida.', 'Mais de 6 000 m² entre o Porto e Sacavém, com 75 000 referências auto arrumadas e prontas a sair.', 'Um corredor do armazém, com caixas SKF'],
+  [corredor, '6 000 m²', 'De armazém, no Porto e em Sacavém.', 'São 75 000 referências auto, com o stock de cada uma à vista no GoParts.', 'Um corredor do armazém, com caixas SKF'],
   [separacao, '16h', 'Pede até às 16h, sai hoje.', 'O que estiver no Porto é separado e sai no próprio dia; o de Sacavém, na manhã seguinte.', 'Uma colaboradora a separar caixas de peças'],
   [oficina, 'Amanhã', 'Na sua oficina amanhã.', 'O GoParts diz-lhe, antes de pedir, de onde sai cada peça e quando chega.', 'Uma oficina com um motor desmontado'],
 ];
+
+/* o fluxo do herói (ela, 13 out.: «ainda não gosto… quero um flow»): procurar, ver o stock, encomendar, receber,
+   a acontecer sozinho com uma referência verdadeira do catálogo (comportamento/publico.ts) */
+const REF = REFERENCIAS[0];
 
 /* três referências SKF do próprio catálogo (catalogo-dados.ts) */
 const SKF = REFERENCIAS.filter((r) => r[1] === 'SKF').slice(0, 3).map(([grupo, , ref, desc, preco, , porto, sacavem], i) =>
@@ -68,6 +90,7 @@ const html = `<div class="pub">
   ${barraPublica()}
 
   <section class="pub__heroi" aria-label="GoParts">
+    <div class="pub__heroi-topo">
     <div class="pub__heroi-texto">
       <p class="pub__kicker">O GoParts é a loja online da <span class="romafe">ROMAFE</span></p>
       <h1 class="pub__titulo">${LINHA('Peças auto com', 0)}${LINHA('o stock à vista.', 1)}</h1>
@@ -77,6 +100,17 @@ const html = `<div class="pub">
         <button type="button" class="btn btn--claro pub__cta pub__cta--claro" data-ir="publico-contactos">${L(userPlus, 'btn__icone')}<span class="btn__rotulo">Pedir acesso</span></button>
       </div>
     </div>
+    <ol class="pub__flow" data-passo="0" aria-label="Como funciona o GoParts">
+      <li class="pub__flow-passo" data-n="1"><span class="pub__flow-num">1</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Procure a peça</p>
+        <div class="pub__flow-campo">${L(search)}<span class="pub__flow-escrito" data-texto="${REF[2]}"></span><i class="pub__flow-cursor"></i></div></div></li>
+      <li class="pub__flow-passo" data-n="2"><span class="pub__flow-num">2</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Veja o stock e o preço</p>
+        <div class="pub__flow-linha"><div><strong>${REF[1]} ${REF[2]}</strong><span>${REF[3]}</span></div><dl><div><dt>Porto</dt><dd>${REF[6]}</dd></div><div><dt>Sacavém</dt><dd>${REF[7]}</dd></div><div><dt>Preço</dt><dd>${euros(REF[4])}</dd></div></dl></div></div></li>
+      <li class="pub__flow-passo" data-n="3"><span class="pub__flow-num">3</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Encomende até às 16h</p>
+        <span class="pub__flow-botao"><span class="pub__flow-antes">${L(cart)}Encomendar</span><span class="pub__flow-depois">${L(check)}Encomenda feita<span class="pub__flow-mais"> · sai hoje do Porto</span></span></span></div></li>
+      <li class="pub__flow-passo" data-n="4"><span class="pub__flow-num">4</span><div class="pub__flow-corpo"><p class="pub__flow-tit">Receba amanhã</p>
+        <div class="pub__flow-pista"><span class="pub__flow-carrinha">${L(truck)}</span><span class="pub__flow-oficina">${L(wrench)}A sua oficina</span></div></div></li>
+    </ol>
+  </div>
     <div class="pub__abrir" aria-hidden="true"><div class="pub__abrir-fixo"><img class="pub__abrir-img" src="${corredor}" alt=""><p class="pub__abrir-legenda">O armazém da Romafe, no Porto</p></div></div>
   </section>
 
@@ -118,6 +152,7 @@ const html = `<div class="pub">
     <h2 class="pub__h2 pub__fim-titulo">${LINHA('Entre no GoParts.', 0)}</h2>
     <p class="pub__fim-nota">Ainda não tem conta? <a href="#" data-ir="publico-contactos">Peça acesso</a> ou ligue +351 226 158 300.</p>
     <button type="button" class="btn btn--acao pub__cta pub__cta--grande" data-ir="entrada"><span class="btn__rotulo">Entrar</span>${L(arrowRight, 'btn__icone')}</button>
+    <button type="button" class="pub__topo" data-topo>${L(arrowUp)}Voltar ao início</button>
   </section>
   ${rodapePublico}
 </div>`;

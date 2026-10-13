@@ -52,7 +52,7 @@ const heroi = (kicker: string, titulo: string, lead: string, img: string, alt: s
 const MARCOS: [string, string, string][] = [
   ['1945', 'Fundada no Porto', 'Por Alfredo Pinto França: Rolamentos, Máquinas e Ferramentas — é daí que vem o nome.'],
   ['1975', 'Distribuidor SKF', 'Começa a parceria que dura até hoje.'],
-  ['2006', 'ISO 9001', 'A qualidade certificada, do armazém à entrega.'],
+  ['2006', 'ISO 9001', 'A certificação de qualidade da Romafe.'],
   ['2007', 'SKF CMP', 'O único em Portugal.'],
   ['Hoje', 'Porto e Sacavém', 'Dois centros logísticos e 75 000 referências auto.'],
 ];
@@ -71,8 +71,8 @@ ${heroi('A Romafe', TITULO('Desde', '1945.'), 'Uma casa do Porto que vende peça
   </ul>
 </section>
 <section class="pubp__galeria" aria-label="O armazém">
-  <figure style="--i:0"><img src="${corredor}" alt="Um corredor do armazém, com caixas SKF em estantes azuis e travessas laranja"><figcaption><strong>Estantes azuis, travessas laranja</strong>As cores da marca estão no próprio armazém.</figcaption></figure>
-  <figure style="--i:1"><img src="${separacao}" alt="Uma colaboradora a separar caixas de peças"><figcaption><strong>Separadas por quem as conhece</strong>No Porto e em Sacavém.</figcaption></figure>
+  <figure style="--i:0"><img src="${corredor}" alt="Um corredor do armazém, com caixas SKF em estantes azuis e travessas laranja"><figcaption><strong>O armazém do Porto</strong>Mais de 6 000 m² entre o Porto e Sacavém.</figcaption></figure>
+  <figure style="--i:1"><img src="${separacao}" alt="Uma colaboradora a separar caixas de peças"><figcaption><strong>A separação das encomendas</strong>O que pedir até às 16h, se estiver no Porto, sai no próprio dia.</figcaption></figure>
 </section>`);
 
 /* ---------- 00.2 · Entregas: de onde sai e quando chega ---------- */
@@ -107,7 +107,7 @@ ${heroi('Entregas', TITULO('Encomenda', 'hoje.', 'Monta amanhã.'), 'Antes de pe
 const logos = Array.from(catalogoV2.matchAll(/data-nome="([^"]+)">\s*<button[^>]*><span class="cat2__logo"[^>]*>(<svg[\s\S]*?<\/svg>)<\/span>/g))
   .map(([, nome, svg], i) => `<li style="--i:${i}" tabindex="0"><span class="pubp__logo">${svg}</span><span class="pubp__logo-nome">${nome}</span></li>`).join('');
 const marcas = pagina('publico-marcas', `
-${heroi('Marcas', TITULO('As marcas', 'da sua', 'oficina.'), 'Peças para os carros que lhe entram pela porta, de fabricantes que a Romafe conhece há décadas.', skf, 'Paletes e caixas SKF no armazém da Romafe', 'Paletes SKF no armazém da Romafe')}
+${heroi('Marcas', TITULO('As marcas', 'da sua', 'oficina.'), 'Procure as peças pela marca do carro, pelo modelo ou pela matrícula.', skf, 'Paletes e caixas SKF no armazém da Romafe', 'Paletes SKF no armazém da Romafe')}
 <section class="pubp__marcas" aria-label="Marcas de automóveis">
   <h2 class="pubp__h3">Procure pela marca do carro</h2>
   <ul class="pubp__logos">${logos}</ul>

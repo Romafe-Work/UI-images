@@ -177,3 +177,77 @@
 }
 .pub__numeros strong { white-space: nowrap; }
 @media (max-width: 640px) { .pub__numeros strong { font-size: 34px; } }
+
+/* ---------- o scroll é um rolamento (13 out.) ----------
+   A linha fica colada ao fundo da barra de cima (que é fixa); o rolamento senta-se nela, metade
+   por baixo, e rola da esquerda para a direita com o scroll. O anel de fora não roda (a luz fica
+   parada); rodam as esferas e o anel de dentro. */
+.pub__barra { position: sticky; }
+.pub__rolo { position: absolute; left: var(--e-6); right: var(--e-6); bottom: -1px; height: 0; pointer-events: none; }
+.pub__rolo-linha { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--c-acao); transform-origin: left; transform: scaleX(0); }
+.pub__rolo-rolamento { position: absolute; left: 0; bottom: -16px; width: 32px; height: 32px; overflow: visible; filter: drop-shadow(0 3px 4px rgba(20, 20, 20, .3)); }
+.pub__rolo-gira { transform-origin: 0 0; }
+@media (max-width: 640px) { .pub__rolo { left: var(--e-4); right: var(--e-4); } .pub__rolo-rolamento { width: 26px; height: 26px; bottom: -13px; } }
+/* «Voltar ao início», discreto: a seta sobe um pouco com o rato */
+.pub__topo { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--e-4); padding: 8px 4px; border: 0; background: none; font: inherit; font-size: 15px; color: var(--pub-texto-2); cursor: pointer; }
+.pub__topo svg { width: 18px; height: 18px; color: var(--c-acao); transition: transform .2s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .pub__topo:hover { color: var(--pub-texto); } .pub__topo:hover svg { transform: translateY(-3px); } }
+
+/* ---------- o fluxo do herói (13 out.: «quero um flow») ----------
+   Os quatro passos do GoParts, à direita do texto, a acontecer sozinhos (data-passo, de 0 a 4,
+   comportamento/publico.ts): o passo atual fica em tinta e com o número laranja, os já feitos
+   ficam cheios e os seguintes ficam leves; a linha do lado enche de passo em passo.
+   Dentro de cada um: a referência escreve-se, a linha do stock aparece, o botão é carregado
+   e passa a «Encomenda feita», a carrinha anda até à oficina. Só transform e opacity. */
+.pub__heroi-topo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-7, 64px); align-items: center; padding: 0 var(--e-6); }
+.pub__heroi-topo .pub__heroi-texto { padding: 0; }
+.pub__flow { position: relative; list-style: none; margin: 0; padding: 0 0 0 var(--e-2); display: grid; gap: var(--e-3); }
+.pub__flow::before, .pub__flow::after { content: ""; position: absolute; left: calc(var(--e-2) + 17px); top: 20px; bottom: 20px; width: 2px; background: var(--pub-linha); }
+.pub__flow::after { background: var(--c-acao); transform-origin: top; transform: scaleY(0); transition: transform .6s var(--ease-in-out); }
+.pub__flow[data-passo="2"]::after { transform: scaleY(.333); } .pub__flow[data-passo="3"]::after { transform: scaleY(.666); } .pub__flow[data-passo="4"]::after { transform: scaleY(1); }
+.pub__flow-passo { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: var(--e-3); align-items: start; opacity: .38; transition: opacity .4s var(--ease-out); }
+.pub__flow-num { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--pub-fundo); border: 2px solid var(--pub-linha); font-weight: 700; font-size: 15px; transition: background-color .3s ease, border-color .3s ease, color .3s ease, transform .3s var(--ease-out); }
+.pub__flow-corpo { padding: 14px 18px; border-radius: 16px; background: var(--pub-fundo); border: 1px solid var(--pub-linha); box-shadow: 0 20px 40px -32px rgba(20, 20, 20, .5); }
+.pub__flow-tit { margin: 0 0 10px; font-family: var(--f-titulo); font-weight: 600; font-size: 17px; }
+/* o passo atual e os já feitos */
+.pub__flow[data-passo="1"] [data-n="1"], .pub__flow[data-passo="2"] :is([data-n="1"], [data-n="2"]), .pub__flow[data-passo="3"] :is([data-n="1"], [data-n="2"], [data-n="3"]), .pub__flow[data-passo="4"] .pub__flow-passo { opacity: 1; }
+.pub__flow[data-passo="1"] [data-n="1"] .pub__flow-num, .pub__flow[data-passo="2"] [data-n="2"] .pub__flow-num, .pub__flow[data-passo="3"] [data-n="3"] .pub__flow-num, .pub__flow[data-passo="4"] [data-n="4"] .pub__flow-num { background: var(--c-acao); border-color: var(--c-acao); color: #141414; transform: scale(1.08); }
+/* 1 · a referência a escrever-se, com o cursor */
+.pub__flow-campo { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--pub-linha); background: var(--pub-fundo-2); font-weight: 600; }
+.pub__flow-campo svg { width: 18px; height: 18px; color: var(--pub-texto-2); flex: none; }
+.pub__flow-cursor { width: 2px; height: 20px; background: var(--c-acao); animation: pub-cursor 1s steps(1) infinite; }
+@keyframes pub-cursor { 50% { opacity: 0; } }
+/* 2 · a linha do stock */
+.pub__flow-linha { display: grid; gap: 10px; }
+.pub__flow-linha strong { display: block; } .pub__flow-linha span { font-size: 14px; color: var(--pub-texto-2); }
+.pub__flow-linha dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.pub__flow-linha dl div { padding: 8px 10px; border-radius: 10px; background: var(--pub-fundo-2); }
+.pub__flow-linha dt { font-size: 12px; color: var(--pub-texto-2); } .pub__flow-linha dd { margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pub__flow-linha > *, .pub__flow-linha dl div { opacity: 0; transform: translateY(8px); transition: opacity .4s var(--ease-out), transform .4s var(--ease-out); }
+.pub__flow:is([data-passo="2"], [data-passo="3"], [data-passo="4"]) .pub__flow-linha > *, .pub__flow:is([data-passo="2"], [data-passo="3"], [data-passo="4"]) .pub__flow-linha dl div { opacity: 1; transform: none; }
+.pub__flow-linha dl div:nth-child(2) { transition-delay: .08s; } .pub__flow-linha dl div:nth-child(3) { transition-delay: .16s; }
+/* 3 · o botão é carregado e muda */
+.pub__flow-botao { position: relative; display: inline-grid; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--c-acao); color: #141414; font-weight: 700; overflow: hidden; }
+.pub__flow-botao > span { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 8px; transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
+.pub__flow-botao svg { width: 18px; height: 18px; }
+.pub__flow-depois { opacity: 0; transform: translateY(100%); }
+.pub__flow:is([data-passo="3"], [data-passo="4"]) .pub__flow-botao { animation: pub-carregar .35s var(--ease-out); }
+.pub__flow:is([data-passo="3"], [data-passo="4"]) .pub__flow-antes { opacity: 0; transform: translateY(-100%); transition-delay: .3s; }
+.pub__flow:is([data-passo="3"], [data-passo="4"]) .pub__flow-depois { opacity: 1; transform: none; transition-delay: .3s; }
+@keyframes pub-carregar { 40% { transform: scale(.95); } }
+/* 4 · a carrinha anda até à oficina */
+.pub__flow-pista { position: relative; display: flex; align-items: center; justify-content: flex-end; min-height: 40px; border-bottom: 2px dashed var(--pub-linha); container-type: inline-size; }
+.pub__flow-carrinha { position: absolute; left: 0; bottom: 4px; color: var(--c-acao); transition: transform 1.4s var(--ease-in-out); }
+.pub__flow-carrinha svg { width: 26px; height: 26px; display: block; }
+.pub__flow-oficina { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
+.pub__flow-oficina svg { width: 16px; height: 16px; }
+.pub__flow[data-passo="4"] .pub__flow-carrinha { transform: translateX(calc(100cqi - 180px)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pub__flow-passo, .pub__flow-linha > *, .pub__flow-linha dl div { opacity: 1; transform: none; }
+  .pub__flow-cursor { animation: none; }
+}
+@media (max-width: 1000px) {
+  .pub__heroi-topo { grid-template-columns: minmax(0, 1fr); padding: 0 var(--e-5); }
+}
+@media (max-width: 640px) { .pub__flow-mais { display: none; } }

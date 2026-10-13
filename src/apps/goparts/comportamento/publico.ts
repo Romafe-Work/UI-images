@@ -52,6 +52,17 @@ function desenhar(): void {
   const pub = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub');
   if (!pub) return;
   ligar(pub);
+  /* o rolamento do scroll: anda até ao fim da linha e roda o que andou (ângulo = distância / raio) */
+  const rolo = pub.querySelector<HTMLElement>('.pub__rolo');
+  if (rolo) {
+    const t = lim(scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight));
+    const r = rolo.querySelector<SVGElement>('.pub__rolo-rolamento'), linha = rolo.querySelector<HTMLElement>('.pub__rolo-linha');
+    const tam = r?.getBoundingClientRect().width || 34, curso = rolo.clientWidth - tam, x = t * curso;
+    if (linha) linha.style.transform = `scaleX(${t.toFixed(4)})`;
+    if (r) r.style.transform = `translateX(${x.toFixed(1)}px)`;
+    const gira = rolo.querySelector<SVGElement>('.pub__rolo-gira');
+    if (gira) gira.style.transform = quieto() ? 'none' : `rotate(${((x / (tam / 2)) * 180 / Math.PI).toFixed(1)}deg)`;
+  }
   const abrir = pub.querySelector<HTMLElement>('.pub__abrir-fixo');
   if (abrir) abrir.style.setProperty('--k', (quieto() ? 1 : lim(progresso(abrir.parentElement!) * 1.6)).toFixed(3));
   const h = pub.querySelector<HTMLElement>('.pub__historia');
@@ -73,14 +84,36 @@ function irCapitulo(h: HTMLElement, i: number): void {
   window.scrollTo({ top: alvo, behavior: quieto() ? 'auto' : 'smooth' });
 }
 
+/* o fluxo do herói: um passo a cada 1,9 s (o 1 escreve a referência letra a letra), o 4 fica 3 s e recomeça.
+   Fora do ecrã, no editor ou com «reduzir movimento», fica tudo à vista (passo 4). */
+let flowPasso = 0, flowTempo = 0;
+function flow(): void {
+  const f = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub__flow');
+  window.clearTimeout(flowTempo);
+  if (!f) { flowTempo = window.setTimeout(flow, 1000); return; }
+  const escrito = f.querySelector<HTMLElement>('.pub__flow-escrito');
+  const texto = escrito?.dataset.texto ?? '';
+  if (quieto() || document.body.classList.contains('editando')) { f.dataset.passo = '4'; if (escrito) escrito.textContent = texto; flowTempo = window.setTimeout(flow, 2000); return; }
+  flowPasso = flowPasso >= 4 ? 1 : flowPasso + 1;
+  f.dataset.passo = String(flowPasso);
+  if (flowPasso === 1 && escrito) {
+    escrito.textContent = '';
+    [...texto].forEach((_, i) => window.setTimeout(() => { escrito.textContent = texto.slice(0, i + 1); }, 250 + i * 85));
+  }
+  flowTempo = window.setTimeout(flow, flowPasso === 4 ? 3200 : 1900);
+}
+
 export function iniciar(): void {
   window.addEventListener('scroll', pedir, { passive: true });
   window.addEventListener('resize', pedir);
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(pedir)));
   window.addEventListener('hashchange', () => requestAnimationFrame(pedir));
   requestAnimationFrame(pedir);
+  flow();
   document.addEventListener('click', (ev) => {
     if (document.body.classList.contains('editando')) return;
+    /* «Voltar ao início»: a página sobe e o rolamento da barra rola de volta */
+    if ((ev.target as Element).closest?.('.pub [data-topo]')) { window.scrollTo({ top: 0, behavior: quieto() ? 'auto' : 'smooth' }); return; }
     const b = (ev.target as Element).closest?.<HTMLElement>('.pub__caps button[data-cap]');
     const h = b?.closest<HTMLElement>('.pub__historia');
     if (b && h) irCapitulo(h, Number(b.dataset.cap));
