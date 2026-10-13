@@ -159,7 +159,8 @@ function contar(vista: HTMLElement): void {
 /** Aplica os filtros do cartão à tabela da vista atual. */
 function filtrar(main: HTMLElement): void {
   const vista = main.dataset.vista as Vista;
-  if (vista === 'marcas') return;
+  /* só os Modelos e os Veículos se filtram aqui (as Referências e o Universal têm os seus) */
+  if (vista !== 'modelos' && vista !== 'veiculos') return;
   const cartao = $(main, `.cat3__cartao[data-so="${vista}"]`);
   const tabela = $(main, `.cat3__vista[data-so="${vista}"]`);
   const texto = (cartao.querySelector<HTMLInputElement>('input[type="search"]')?.value || '').trim().toLowerCase();

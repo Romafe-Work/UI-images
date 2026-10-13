@@ -16,7 +16,7 @@ import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
 import { catalogoV5 } from './catalogo-v5';
-import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo } from '../comportamento/catalogo-v5';
+import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComparar } from '../comportamento/catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
@@ -281,9 +281,9 @@ const catalogoReferencias = () => catalogo(mudar(catalogoV5, 'e1111', (r) => {
   $(r, '.cat5__m-marca').textContent = 'BMW';
   $(r, '.cat5__m-modelo').textContent = '1 (E81)';
   /* duas marcadas: o «Comparar (2)» fica ativo */
-  $$<HTMLInputElement>(r, '.cat5__refs tbody input[type="checkbox"]').slice(0, 2).forEach((c) => { c.setAttribute('checked', ''); c.closest('tr')!.classList.add('is-marcada'); });
-  $(r, '.cat5__n-comparar').textContent = '2';
-  $(r, '.cat5__comparar').removeAttribute('disabled');
+  $$<HTMLInputElement>(r, '.cat5__refs tbody input[data-comparar]').slice(0, 2).forEach((c) => marcarComparar(main, c.dataset.comparar || '', true));
+  /* o estado é HTML: as caixas marcadas ficam escritas no atributo */
+  $$<HTMLInputElement>(r, 'input[data-comparar]').forEach((c) => { if (c.checked) c.setAttribute('checked', ''); });
 }));
 
 /* 11.12 · v5: o Universal, com «Comando da correia» aberto e o Kit de distribuição escolhido */

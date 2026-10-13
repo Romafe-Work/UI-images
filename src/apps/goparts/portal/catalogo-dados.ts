@@ -193,7 +193,7 @@ export function linhaReferencia(r: Referencia, i: number, ic: { imagem: string; 
   const stock = porto + sacavem;
   const estado = stock === 0 ? 'sem' : stock < 5 ? 'pouco' : 'ok';
   return `<tr class="cat5__ref" style="--i:${i}" data-grupo="${esc(grupo)}" data-fabricante="${esc(fab)}" data-ref="${esc(ref)}" data-preco="${liquido.toFixed(2)}" data-stock="${stock}">`
-    + `<td class="cat5__marcar"><input type="checkbox" aria-label="Comparar ${esc(fab)} ${esc(ref)}"></td>`
+    + `<td class="cat5__marcar"><input type="checkbox" data-comparar="${esc(fab)}|${esc(ref)}" aria-label="Comparar ${esc(fab)} ${esc(ref)}"></td>`
     + `<td><span class="cat5__imagem" aria-hidden="true">${ic.imagem}</span></td>`
     + `<td><span class="cat5__referencia">${esc(ref)}</span><span class="cat5__fabricante">${esc(fab)}</span></td>`
     + `<td data-r="Descrição">${esc(desc)}<span class="cat5__grupo">${esc(grupo)}</span></td>`

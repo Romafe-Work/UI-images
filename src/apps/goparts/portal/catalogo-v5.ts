@@ -23,6 +23,7 @@ import table from 'lucide-static/icons/table.svg?raw';
 import list from 'lucide-static/icons/list.svg?raw';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
 import scale from 'lucide-static/icons/scale.svg?raw';
+import x from 'lucide-static/icons/x.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 import factory from 'lucide-static/icons/factory.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
@@ -38,8 +39,13 @@ const barra = `
       <div class="cat5__barra" data-so="veiculos" hidden>
         <a href="#" class="cat5__casa" data-ir="inicio" aria-label="Início">${L(house)}</a>
         <h1 class="cat5__titulo"><button type="button" class="cat5__t-marca" data-ir-vista="modelos"></button><span aria-hidden="true">/</span><span class="cat5__t-modelo"></span></h1>
+        <button type="button" class="btn btn--ghost cat5__comparar" hidden disabled>${L(scale, 'btn__icone')}<span class="btn__rotulo">Comparar (<span class="cat5__n-comparar">0</span>)</span></button>
         <div class="cat5__marca"><span class="cat5__logo" aria-hidden="true"></span><strong class="cat5__m-marca"></strong><span class="cat5__m-modelo"></span></div>
-      </div>`;
+      </div>
+      <section class="cat5__comparacao" hidden aria-label="Comparação">
+        <div class="cat5__comparacao-cabeca"><h3 class="cat5__comparacao-titulo">${L(scale)}Comparar referências</h3><button type="button" class="btn btn--ghost btn--sm cat5__cmp-fechar">${L(x, 'btn__icone')}<span class="btn__rotulo">Fechar</span></button></div>
+        <div class="cat5__comparacao-grelha"></div>
+      </section>`;
 
 const lista = (id: string, rotulo: string, icone: string, chave: string, vazio: string) =>
   `<div class="campo"><label class="campo__label" for="cat5-${id}">${rotulo}</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(icone)}</span><select class="input" id="cat5-${id}" data-filtro="${chave}" data-vazio="${vazio}"><option value="">${vazio}</option></select></div></div>`;
@@ -94,7 +100,6 @@ const refsFiltros = `
           <div class="campo"><label class="campo__label" for="cat5-agrupar">Agrupar</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(listTree)}</span><select class="input" id="cat5-agrupar" data-agrupar><option value="">Sem agrupar</option><option value="fabricante">Por fabricante</option><option value="grupo">Por grupo de montagem</option></select></div></div>
         </div>
         <div class="cat5__refs-accoes">
-          <button type="button" class="btn btn--ghost cat5__comparar" disabled>${L(scale, 'btn__icone')}<span class="btn__rotulo">Comparar (<span class="cat5__n-comparar">0</span>)</span></button>
           <button type="button" class="btn btn--ghost cat5__proprias" aria-pressed="false" data-dica="Só as referências com stock nos armazéns da Romafe">${L(warehouse, 'btn__icone')}<span class="btn__rotulo">Ver próprias</span></button>
         </div>
       </div>`;
@@ -107,7 +112,6 @@ const refsVista = `
           <tbody></tbody>
         </table></div></div>
         <p class="cat5__refs-vazio" hidden>Nenhuma referência com estes filtros. <button type="button" class="cat3__ligacao cat5__refs-limpar">Ver todos os fabricantes e grupos</button></p>
-        <section class="cat5__comparacao" hidden aria-label="Comparação"><h3 class="cat5__comparacao-titulo">${L(scale)}Comparar referências</h3><div class="cat5__comparacao-grelha"></div></section>
       </div>`;
 
 /* ---------- Universal (a quinta imagem dela) ---------- */
@@ -170,6 +174,30 @@ const fluxo = `<nav class="cat2__passos cat5__fluxo" aria-label="Passos do catá
     <ol class="cat5__passos" data-de-caminho="universal" hidden>${[[6, 'Grupos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
   </nav>`;
 
+/* ---------- Modelos como os outros passos (ela, 13 out.: «coloca o modelos consistente
+   com as restantes tabs») ----------
+   Sai a faixa grande da marca e o painel à esquerda: em cima a barra (BMW, com
+   «Remover dos favoritos»), por baixo «Filtrar modelos» a toda a largura, como
+   «Filtrar veículos», e depois os resultados com a contagem e «Ordenar por». */
+const filtrarModelos = `
+      <div class="cat3__cartao cat5__cartao cat4__filtrar" data-so="modelos" hidden>
+        <div class="cat5__cartao-cabeca">
+          <span class="cat5__funil" aria-hidden="true">${L(funnel)}</span>
+          <div><h2 class="cat5__cartao-titulo">Filtrar modelos</h2><p class="cat5__cartao-sub">Encontre o modelo pelo nome, pelo ano de fabrico ou pela carroçaria.</p></div>
+          <button type="button" class="btn btn--ghost cat3__limpar cat5__limpar">${L(rotateCcw, 'btn__icone')}<span class="btn__rotulo">Limpar filtros</span></button>
+        </div>
+        <div class="cat5__filtros cat5__filtros--modelos">
+          <div class="campo"><label class="campo__label" for="cat5-modelo">Modelo</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(search)}</span><input class="input" type="search" id="cat5-modelo" placeholder="Pesquisar modelo" data-filtro="texto"></div></div>
+          <div class="campo"><span class="campo__label" id="cat5-ano-rotulo">Ano de fabrico</span>
+            <div class="cat4__de-ate" role="group" aria-labelledby="cat5-ano-rotulo">
+              <div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(calendar)}</span><select class="input" id="cat5-de" aria-label="Fabricado de" data-filtro="de"><option value="">De</option></select></div>
+              <span aria-hidden="true">–</span>
+              <div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(calendar)}</span><select class="input" id="cat5-ate" aria-label="Fabricado até" data-filtro="ate"><option value="">Até</option></select></div>
+            </div></div>
+          <div class="campo cat5__tipos-campo"><span class="campo__label" id="cat5-tipo-rotulo">Tipo de carroçaria</span><ul class="cat4__tipos" role="group" aria-labelledby="cat5-tipo-rotulo"></ul></div>
+        </div>
+      </div>`;
+
 /** Troca o bloco que começa em `de` e acaba antes de `ate` por `novo`. */
 function trocar(h: string, de: string, ate: string, novo: string): string {
   const a = h.indexOf(de), b = h.indexOf(ate, a);
@@ -181,11 +209,17 @@ function construir(): string {
   let h = catalogoV4.replace(/\bcat4-/g, 'cat5-');
   h = h.replace('portal--cat4"', 'portal--cat4 portal--cat5"');
   h = h.replace(/<nav class="cat2__passos"[\s\S]*?<\/nav>/, fluxo);
+  h = trocar(h, '<div class="cat3__cartao cat4__filtrar" data-so="modelos" hidden>', '<div class="cat3__cartao" data-so="veiculos" hidden>', filtrarModelos);
+  /* o «Remover dos favoritos» passa da faixa da marca para a barra; a faixa sai */
+  const fav = /<button type="button" class="btn btn--ghost cat4__favorita"[\s\S]*?<\/button>/.exec(h)![0];
+  h = h.replace(fav, '');
+  /* a tabela dos modelos com o cabeçalho azul, como as outras */
+  h = h.replace('class="cg-tabela erp-tabela cat3__tabela cat4__tabela"', 'class="cg-tabela erp-tabela cat3__tabela cat4__tabela cat5__tabela"');
   h = h.replace('<main class="cat2 cat3 cat4"', '<main class="cat2 cat3 cat4 cat5"');
-  /* o caminho e a faixa da marca ficam só nos Modelos; nos Veículos entra a barra */
-  h = h.replace('<nav class="cat4__caminho" aria-label="Onde está" data-so="modelos veiculos"', '<nav class="cat4__caminho" aria-label="Onde está" data-so="modelos"');
-  h = h.replace('<section class="cat4__heroi" data-so="modelos veiculos" hidden>', '<section class="cat4__heroi" data-so="modelos" hidden>');
-  h = h.replace(/(<section class="cat4__heroi"[\s\S]*?<\/section>)/, `$1${barra.replace('data-so="veiculos"', 'data-so="veiculos referencias detalhes"')}`);
+  /* o caminho e a faixa da marca da v4 não aparecem: em todos os passos está a barra */
+  h = h.replace('<nav class="cat4__caminho" aria-label="Onde está" data-so="modelos veiculos"', '<nav class="cat4__caminho" aria-label="Onde está" data-so="nenhuma"');
+  h = h.replace('<section class="cat4__heroi" data-so="modelos veiculos" hidden>', '<section class="cat4__heroi" data-so="nenhuma" hidden>');
+  h = h.replace(/(<section class="cat4__heroi"[\s\S]*?<\/section>)/, `$1${barra.replace('data-so="veiculos"', 'data-so="modelos veiculos referencias detalhes"').replace('<button type="button" class="btn btn--ghost cat5__comparar"', `${fav}<button type="button" class="btn btn--ghost cat5__comparar"`)}`);
   h = trocar(h, '<div class="cat3__cartao" data-so="veiculos" hidden>', '</section>', filtros + refsFiltros + universalProcura + peca);
   h = trocar(h, '<div class="cat3__vista" data-so="veiculos" hidden>', '</section>', resultados + refsVista + universal + detalhes);
   return h;

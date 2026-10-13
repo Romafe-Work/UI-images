@@ -56,14 +56,14 @@ export function encherVeiculos5(main: HTMLElement, marca: string, modelo: string
   main.querySelector('.cat5__m-modelo')!.textContent = modelo;
   const m = main.querySelector<HTMLElement>(`.cat2__marca[data-nome="${CSS.escape(marca)}"] .cat2__logo`);
   main.querySelector('.cat5__logo')!.innerHTML = m ? m.outerHTML : '';
-  $$<HTMLSelectElement>(main, '.cat5__cartao select[data-filtro]').forEach((s) => { s.value = ''; });
+  $$<HTMLSelectElement>(main, '.cat5__cartao[data-so="veiculos"] select[data-filtro]').forEach((s) => { s.value = ''; });
   progressivo(main, false);
   if (!veiculosDe(marca, modelo).length) vista.querySelector('tbody')!.innerHTML = '<tr class="cat3__sem"><td colspan="10">Ainda não há veículos de exemplo para este modelo.</td></tr>';
 }
 
 /** Filtros progressivos: cada lista mostra só os valores que ainda existem com os outros filtros. */
 export function progressivo(main: HTMLElement, animar = true): void {
-  const cartao = main.querySelector<HTMLElement>('.cat5__cartao');
+  const cartao = main.querySelector<HTMLElement>('.cat5__cartao[data-so="veiculos"]');
   if (!cartao) return;
   const linhas = $$(main, '.cat3__vista[data-so="veiculos"] tbody .cat3__linha');
   const sels = $$<HTMLSelectElement>(cartao, 'select[data-filtro]');
@@ -183,14 +183,23 @@ export function fluxo(main: HTMLElement, vista: VistaV5): void {
     ? { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 4: doCaminho, 5: doCaminho && !!main.dataset.ref }
     : { 6: true, 4: doCaminho, 5: doCaminho && !!main.dataset.ref };
   const atual = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, detalhes: 5, universal: 6 }[vista];
-  /* nos Veículos, a barra de cima volta a ser a do veículo (podia ter ficado a do Universal) */
-  if (vista === 'veiculos') {
+  /* a comparação só fica aberta nas Referências e nos Detalhes */
+  if (vista !== 'referencias' && vista !== 'detalhes') { const c = main.querySelector<HTMLElement>('.cat5__comparacao'); if (c) c.hidden = true; }
+  /* nos Modelos e nos Veículos, a barra de cima é a da marca e do modelo (podia ter ficado a do Universal) */
+  if (vista === 'modelos' || vista === 'veiculos') {
+    const modelo = vista === 'veiculos' ? main.dataset.modelo || '' : '';
     const tMarca = main.querySelector<HTMLElement>('.cat5__t-marca');
-    if (tMarca) { tMarca.textContent = main.dataset.marca || ''; tMarca.dataset.irVista = 'modelos'; }
+    if (tMarca) { tMarca.textContent = main.dataset.marca || ''; tMarca.dataset.irVista = vista === 'veiculos' ? 'modelos' : 'marcas'; }
     const tModelo = main.querySelector<HTMLElement>('.cat5__t-modelo');
-    if (tModelo) tModelo.textContent = main.dataset.modelo || '';
+    if (tModelo) tModelo.textContent = modelo;
     const direita = main.querySelector<HTMLElement>('.cat5__marca');
     if (direita) direita.hidden = false;
+    const mMarca = main.querySelector('.cat5__m-marca'), mModelo = main.querySelector('.cat5__m-modelo');
+    if (mMarca) mMarca.textContent = main.dataset.marca || '';
+    if (mModelo) mModelo.textContent = modelo;
+    const logo = main.querySelector<HTMLElement>(`.cat2__marca[data-nome="${CSS.escape(main.dataset.marca || '')}"] .cat2__logo`);
+    const onde = main.querySelector('.cat5__logo');
+    if (onde && logo) onde.innerHTML = logo.outerHTML;
   }
   $$<HTMLButtonElement>(nav, '.cat5__caminho').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.caminho === caminho)));
   $$(nav, '[data-de-caminho]').forEach((ol) => {
@@ -224,6 +233,12 @@ function cliqueFluxo(main: HTMLElement, t: Element): boolean {
 export function clique(main: HTMLElement, t: Element): boolean {
   if (!eV5(main)) return false;
   if (cliqueFluxo(main, t)) return true;
+  if (t.closest('.cat5__comparar')) { comparar(main); return true; }
+  if (t.closest('.cat5__cmp-fechar')) { main.querySelector<HTMLElement>('.cat5__comparacao')!.hidden = true; return true; }
+  const tirar = t.closest<HTMLElement>('.cat5__cmp-tirar');
+  if (tirar) { marcarComparar(main, tirar.dataset.tirar || '', false); return true; }
+  /* as caixas «Comparar» tratam-se no «change» */
+  if (t.closest('.cat5__marcar, .cat5__peca-comparar')) return true;
   const i = t.closest<HTMLElement>('.cat5__info');
   if (i) { detalhe(i.closest<HTMLElement>('.cat3__linha')!); return true; }
   const o = t.closest<HTMLElement>('[data-ordenar]');
@@ -316,31 +331,62 @@ function desenharRefs(main: HTMLElement): void {
   vista.querySelector('tbody')!.innerHTML = html;
   vista.querySelector('.cat5__refs-conta strong')!.textContent = String(rs.length);
   vista.querySelector<HTMLElement>('.cat5__refs-vazio')!.hidden = rs.length > 0;
-  vista.querySelector<HTMLInputElement>('.cat5__todas')!.checked = false;
-  vista.querySelector<HTMLElement>('.cat5__comparacao')!.hidden = true;
   /* as opções do «Adicionar fabricante» são as que ainda não estão escolhidas */
   $$<HTMLOptionElement>(main, '[data-mais-fabricante] option').forEach((o) => { if (o.value) o.disabled = fabs.includes(o.value); });
   contarComparar(main);
 }
 
-function contarComparar(main: HTMLElement): void {
-  const n = $$(main, '.cat5__refs tbody input[type="checkbox"]:checked').length;
-  main.querySelector('.cat5__n-comparar')!.textContent = String(n);
-  main.querySelector<HTMLButtonElement>('.cat5__comparar')!.disabled = n < 2;
-  $$(main, '.cat5__refs tbody .cat5__ref').forEach((l) => l.classList.toggle('is-marcada', !!l.querySelector<HTMLInputElement>('input:checked')));
+/* ---------- Comparar (13 out.: «se eu selecionar ali o SKF, ali em cima aparece comparar») ----------
+   Uma só lista por catálogo: marca-se a peça nas Referências, nos Detalhes ou nas
+   Equivalências, e «Comparar (n)» aparece na barra de cima, em qualquer passo.
+   Com duas ou mais, abre a comparação por baixo da barra. */
+const aComparar = new WeakMap<HTMLElement, string[]>();
+const chave = (fab: string, ref: string) => `${fab}|${ref}`;
+const lista = (main: HTMLElement) => aComparar.get(main) || [];
+
+export function marcarComparar(main: HTMLElement, k: string, sim: boolean): void {
+  const l = lista(main).filter((x) => x !== k);
+  if (sim) l.push(k);
+  aComparar.set(main, l);
+  contarComparar(main);
+}
+
+/** Acerta as caixas à vista com a lista, e o botão da barra. */
+export function contarComparar(main: HTMLElement): void {
+  const l = lista(main);
+  $$<HTMLInputElement>(main, 'input[data-comparar]').forEach((c) => {
+    c.checked = l.includes(c.dataset.comparar || '');
+    c.closest('.cat5__ref')?.classList.toggle('is-marcada', c.checked);
+  });
+  const todas = main.querySelector<HTMLInputElement>('.cat5__todas');
+  const visiveis = $$<HTMLInputElement>(main, '.cat5__refs tbody input[data-comparar]');
+  if (todas) todas.checked = visiveis.length > 0 && visiveis.every((c) => c.checked);
+  const b = main.querySelector<HTMLButtonElement>('.cat5__comparar')!;
+  const antes = b.hidden;
+  b.hidden = l.length === 0;
+  b.disabled = l.length < 2;
+  b.dataset.dica = l.length < 2 ? 'Marque mais uma peça para comparar' : 'Comparar as peças marcadas';
+  main.querySelector('.cat5__n-comparar')!.textContent = String(l.length);
+  if (antes && !b.hidden && !quieto() && b.isConnected) b.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: 'ease-out' });
+  /* a comparação aberta acompanha a lista; com menos de duas, fecha */
+  const caixa = main.querySelector<HTMLElement>('.cat5__comparacao')!;
+  if (!caixa.hidden) { if (l.length < 2) caixa.hidden = true; else desenharComparacao(main); }
+}
+
+function desenharComparacao(main: HTMLElement): void {
+  const rs = lista(main).map((k) => REFERENCIAS.find((q) => chave(q[1], q[2]) === k)!).filter(Boolean);
+  const barata = Math.min(...rs.map((r) => r[4] * (1 - r[5] / 100)));
+  main.querySelector('.cat5__comparacao-grelha')!.innerHTML = rs.map((r) => {
+    const liq = r[4] * (1 - r[5] / 100);
+    return `<article class="cat5__cmp${liq === barata ? ' is-barata' : ''}"><button type="button" class="cat5__cmp-tirar" data-tirar="${chave(r[1], r[2])}" aria-label="Tirar ${r[1]} ${r[2]} da comparação">${L(x)}</button><p class="cat5__cmp-fab">${r[1]}</p><h4 class="cat5__cmp-ref">${r[2]}</h4><p class="cat5__cmp-desc">${r[3]}</p>`
+      + `<dl><div><dt>Líquido</dt><dd>${euros(liq)}</dd></div><div><dt>Preço</dt><dd>${euros(r[4])} · −${r[5]}%</dd></div><div><dt>Stock</dt><dd>Porto ${r[6]} · Sacavém ${r[7]}</dd></div><div><dt>Grupo</dt><dd>${r[0]}</dd></div></dl>`
+      + (liq === barata ? '<p class="cat5__cmp-nota">A mais barata</p>' : '') + '</article>';
+  }).join('');
 }
 
 function comparar(main: HTMLElement): void {
-  const linhas = $$(main, '.cat5__refs tbody .cat5__ref.is-marcada');
   const caixa = main.querySelector<HTMLElement>('.cat5__comparacao')!;
-  const barata = Math.min(...linhas.map((l) => Number(l.dataset.preco)));
-  caixa.querySelector('.cat5__comparacao-grelha')!.innerHTML = linhas.map((l) => {
-    const r = REFERENCIAS.find((q) => q[2] === l.dataset.ref && q[1] === l.dataset.fabricante)!;
-    const liq = r[4] * (1 - r[5] / 100);
-    return `<article class="cat5__cmp${liq === barata ? ' is-barata' : ''}"><p class="cat5__cmp-fab">${r[1]}</p><h4 class="cat5__cmp-ref">${r[2]}</h4><p class="cat5__cmp-desc">${r[3]}</p>`
-      + `<dl><div><dt>Líquido</dt><dd>${euros(liq)}</dd></div><div><dt>Preço</dt><dd>${euros(r[4])} · −${r[5]}%</dd></div><div><dt>Stock</dt><dd>Porto ${r[6]} · Sacavém ${r[7]}</dd></div></dl>`
-      + (liq === barata ? '<p class="cat5__cmp-nota">A mais barata</p>' : '') + '</article>';
-  }).join('');
+  desenharComparacao(main);
   caixa.hidden = false;
   if (!quieto()) caixa.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 250, easing: FACIL });
   caixa.scrollIntoView({ behavior: quieto() ? 'auto' : 'smooth', block: 'nearest' });
@@ -369,7 +415,7 @@ function cliqueReferencias(main: HTMLElement, t: Element): boolean {
     desenharRefs(main);
     return true;
   }
-  if (t.closest('.cat5__comparar')) { comparar(main); return true; }
+
   if (t.closest('.cat5__refs-limpar')) {
     porChips(main, []);
     const g = main.querySelector<HTMLSelectElement>('[data-ref-grupo]')!;
@@ -411,7 +457,8 @@ export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void
   main.dataset.ref = ref;
   main.querySelector('.cat5__t-modelo')!.textContent = `${main.dataset.barra || ''} / ${ref}`;
   main.querySelector('.cat5__peca')!.innerHTML = `
-    <div class="cat5__peca-imagem" aria-hidden="true">${L(pkg)}</div>
+    <div class="cat5__peca-lado"><div class="cat5__peca-imagem" aria-hidden="true">${L(pkg)}</div>
+      <label class="cat5__peca-comparar"><input type="checkbox" data-comparar="${fab}|${ref}">Comparar</label></div>
     <div class="cat5__peca-info">
       <p class="cat5__peca-fab">${fab}<span>${grupo}</span></p>
       <h1 class="cat5__peca-ref">${ref}</h1>
@@ -440,7 +487,7 @@ export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void
   const eq = equivalentes(r);
   n('equivalencias', eq.length || '');
   corpo('equivalencias').innerHTML = eq.length
-    ? `<div class="cg-tabela erp-tabela cat5__tabela cat5__tabela-refs"><div class="erp-tabela__rolo"><table><thead><tr><th class="cat5__marcar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th><th class="erp-num">Preço</th><th class="erp-num">Desc.</th><th class="erp-num">Líquido</th><th>Stock</th></tr></thead><tbody>${eq.map((q, i) => linhaReferencia(q, i, ICONES_REF()).replace('<input type="checkbox"', '<input type="checkbox" hidden')).join('')}</tbody></table></div></div>`
+    ? `<div class="cg-tabela erp-tabela cat5__tabela cat5__tabela-refs"><div class="erp-tabela__rolo"><table><thead><tr><th class="cat5__marcar"></th><th>Imagem</th><th>Referência</th><th>Descrição</th><th class="erp-num">Preço</th><th class="erp-num">Desc.</th><th class="erp-num">Líquido</th><th>Stock</th></tr></thead><tbody>${eq.map((q, i) => linhaReferencia(q, i, ICONES_REF())).join('')}</tbody></table></div></div>`
     : '<p class="cat5__nada">Sem equivalências conhecidas para esta referência.</p>';
   /* OE */
   n('oe', f.oe.length || '');
@@ -457,6 +504,7 @@ export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void
   n('documentos', f.documentos.length);
   corpo('documentos').innerHTML = `<ul class="cat5__docs">${f.documentos.map(([t, tam]) => `<li><span class="cat5__doc-icone" aria-hidden="true">${L(fileText)}</span><span class="cat5__doc-nome">${t}<small>${tam}</small></span><button type="button" class="btn btn--ghost btn--sm">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar</span></button></li>`).join('')}</ul>`;
   aba(main, 'stock', false);
+  contarComparar(main);
 }
 
 function aba(main: HTMLElement, k: string, animar = true): void {
@@ -616,9 +664,9 @@ export function iniciar(): void {
       const novo = main.querySelector<HTMLElement>(`.cat5__chip[data-fabricante="${CSS.escape(v)}"]`);
       if (novo && !quieto()) novo.animate([{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: 'ease-out' });
     } else if (main && s.matches('.cat5__todas')) {
-      $$<HTMLInputElement>(main, '.cat5__refs tbody input[type="checkbox"]').forEach((c) => { c.checked = (s as HTMLInputElement).checked; });
-      contarComparar(main);
-    } else if (main && s.matches('.cat5__refs tbody input[type="checkbox"]')) contarComparar(main);
+      const sim = (s as HTMLInputElement).checked;
+      $$<HTMLInputElement>(main, '.cat5__refs tbody input[data-comparar]').forEach((c) => marcarComparar(main, c.dataset.comparar || '', sim));
+    } else if (main && s.matches('input[data-comparar]')) marcarComparar(main, s.dataset.comparar || '', (s as HTMLInputElement).checked);
   });
   /* a procura do Universal filtra enquanto se escreve, e Enter também */
   document.addEventListener('input', (ev) => {
