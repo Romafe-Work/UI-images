@@ -4,6 +4,7 @@ import { GOPARTS } from './portal/base';
 import { DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoParts } from './ids';
 import { ecrasEntrar22 } from './entrar-v22';
+import { ecraAbertura } from './abertura';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro, DESCRICAO_ERROS } from './erros/erros';
 
@@ -22,5 +23,6 @@ export const goparts: App<IdGoParts> = {
   },
   /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a
      fotografia da oficina (entrar-v22.ts); a «Família Romafe» saiu (ela não gostou) */
-  ecras: [...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
+  /* 13 out. 2026: a abertura animada antes do login (abertura.ts) */
+  ecras: [ecraAbertura(), ...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
 };

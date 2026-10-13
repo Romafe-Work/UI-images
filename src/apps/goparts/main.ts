@@ -22,6 +22,7 @@ import '../../comum/carregar/carregar.css';
 import './css/estados.css';
 import './css/select.css';
 import './css/entrar-v22.css';
+import './css/abertura.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -35,5 +36,6 @@ import { iniciar as catalogoV4 } from './comportamento/catalogo-v4';
 import { iniciar as pedidosV2 } from './comportamento/pedidos';
 import { iniciar as selects } from './comportamento/select';
 import { iniciar as login } from './comportamento/login';
+import { iniciar as abertura } from './comportamento/abertura';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, selects, login]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, selects, login, abertura]);

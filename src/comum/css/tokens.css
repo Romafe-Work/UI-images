@@ -60,6 +60,10 @@
   --f-base: 'Lato', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --f-titulo: 'Jost', 'Lato', ui-sans-serif, system-ui, sans-serif;
   --f-marca: 'Motor', 'Jost', sans-serif;
+  /* curvas de animação (13 out. 2026, pela skill animate do Emil Kowalski): saída forte para
+     entradas e saídas, e entrada-e-saída para o que se move no ecrã */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --f-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Consolas, monospace;
   --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem;
   --t-lg: 1.125rem; --t-xl: 1.375rem; --t-2xl: 1.75rem; --t-3xl: 2.25rem;

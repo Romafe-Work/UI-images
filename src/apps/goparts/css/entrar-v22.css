@@ -162,3 +162,36 @@
 .login22 .login22__botao .btn__icone { animation: l22-seta 4s ease-in-out 2s infinite; }
 @keyframes l22-seta { 0%, 76%, 100% { transform: none; } 82% { transform: translateX(4px); } 88% { transform: none; } 94% { transform: translateX(4px); } }
 .login22 .login22__botao:hover .btn__icone { animation: none; transform: translateX(3px); }
+
+/* ---------- o cartão mais pequeno (ela, 13 out.: «o card de login deve ser mais pequeno») ----------
+   De 540 px para 420 px de largura, sem altura mínima, com menos folga e letra um pouco menor;
+   os campos e o botão continuam com 44–46 px de altura, bons para tocar. */
+/* a faixa dos números tem a largura do conteúdo e alargava a coluna; o limite vai para o cartão */
+.login22 .login22__centro { width: min(900px, 100%); grid-template-columns: minmax(0, 1fr); }
+.c22__cartao.login22__cartao { width: min(420px, 100%); justify-self: center; min-height: 0; padding: var(--e-4) var(--e-5) var(--e-5); gap: var(--e-3); }
+.login22 .login22__titulo { font-size: 22px; }
+.login22 .login22__sub { font-size: 14px; }
+.login22 .login22__icone { width: 44px; height: 44px; border-radius: 12px; }
+.login22 .login22__icone svg { width: 22px; height: 22px; }
+.login22 .login22__cartao-titulo { font-size: 20px; }
+.login22 .login22__cartao-sub { font-size: 13px; }
+.portal--v22 .login22__cartao .input { min-height: 44px; font-size: 15px; }
+.portal--v22 .login22__cartao .campo__chip { width: 44px; }
+.login22 .login22__botao { min-height: 46px; font-size: 16px; }
+.login22 .login22__ligacao { font-size: 14px; }
+.login22 .login22__opcoes { padding-top: var(--e-2); }
+
+/* ---------- a entrada do login, depois da abertura (13 out.) ----------
+   O cartão sobe 16 px e aparece com a curva de saída forte (450 ms); o que está dentro
+   entra em cascata de 50 ms; a faixa dos números vem no fim. Sem 3D: mais calmo. */
+.login22 .login22__cartao { animation: l22-entrar .45s var(--ease-out) .1s both; }
+.login22 .login22__cartao > * { animation: l22-subir .35s var(--ease-out) both; }
+.login22 .login22__cartao > :nth-child(1) { animation-delay: .2s; }
+.login22 .login22__cartao > :nth-child(2) { animation-delay: .25s; }
+.login22 .login22__cartao > :nth-child(3) { animation-delay: .3s; }
+.login22 .login22__cartao > :nth-child(4) { animation-delay: .35s; }
+.login22 .login22__cartao > :nth-child(5) { animation-delay: .4s; }
+.login22 .login22__vender { animation: l22-subir .35s var(--ease-out) .45s both; }
+.login22 .login22__factos { animation: l22-subir .4s var(--ease-out) .5s both; }
+@keyframes l22-entrar { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .login22 .login22__cartao, .login22 .login22__cartao > * { animation: none; } }

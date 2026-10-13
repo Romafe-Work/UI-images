@@ -1,0 +1,80 @@
+/* =========================================================
+   GOPARTS — 00 · Abertura (13 out. 2026)
+   Sempre em fundo claro: o ROMAFE só vai em fundo claro, também no tema escuro.
+   A animação (CSS, fora da thread principal; só transform, opacity e clip-path):
+     0–0,9 s   o rolamento entra a rolar da esquerda e para (roda o que andou:
+               320 px num raio de 60 px são 305°), curva de saída forte;
+     0,55–1,15 s o ROMAFE aparece da esquerda para a direita, atrás do rolamento;
+     1,0–1,4 s   o GoParts sobe 8 px e aparece; 1,25 s o lema;
+     0,2–3,0 s   a linha do tempo enche-se, a velocidade constante;
+     3,0 s       sai tudo a desvanecer (250 ms) e passa ao login (abertura.ts).
+   Com «reduzir movimento»: nada anda nem roda; só aparece, e passa ao login a 1,5 s.
+   ========================================================= */
+.abertura {
+  --ab-fundo: #f5f8fc; --ab-tinta: #1d2a3a; --ab-tinta-2: #5b6878; --ab-linha: #d9e1ea;
+  position: relative; min-height: 100vh; display: grid; place-items: center; align-content: center; gap: var(--e-6);
+  padding: var(--e-6) var(--e-5); background: var(--ab-fundo); color: var(--ab-tinta); overflow: hidden;
+}
+.abertura__centro { display: grid; justify-items: center; gap: var(--e-4); }
+.abertura__marca { display: flex; align-items: center; gap: var(--e-4); }
+
+/* o rolamento: o azul da Romafe, o furo e as esferas a laranja */
+.abertura__rolamento { width: 96px; height: 96px; flex: none; overflow: visible; }
+.abertura__anel { fill: none; stroke: var(--c-logotipo); stroke-width: 9; }
+.abertura__esferas circle { fill: var(--c-acao); }
+.abertura__furo { fill: var(--c-logotipo); }
+
+.abertura__romafe { font-family: var(--f-marca); font-size: 88px; line-height: 1; color: var(--c-logotipo); letter-spacing: .01em; }
+.abertura__produto { margin: 0; display: flex; align-items: center; gap: var(--e-3); font-family: var(--f-titulo); }
+.abertura__risco { width: 2px; height: 34px; background: var(--ab-linha); }
+.abertura__produto strong { font-size: 34px; font-weight: 700; color: var(--ab-tinta); }
+.abertura__produto span:last-child { font-size: 15px; color: var(--ab-tinta-2); }
+.abertura__lema { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px var(--e-3); font-size: 14px; color: var(--ab-tinta-2); }
+.abertura__lema em { font-style: normal; font-weight: 700; color: var(--c-logotipo); }
+
+/* a linha do tempo, em baixo, fina */
+.abertura__tempo { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ab-linha); }
+.abertura__tempo span { display: block; height: 100%; background: var(--c-acao); transform-origin: left center; transform: scaleX(0); }
+.abertura__saltar.btn { position: absolute; right: var(--e-5); bottom: var(--e-5); color: var(--ab-tinta); border-color: var(--ab-linha); background: #fff; }
+.abertura__saltar .btn__icone { width: 16px; height: 16px; }
+
+/* ---------- a animação ---------- */
+.abertura__rolamento { animation: ab-rolar .9s var(--ease-out) both; }
+.abertura__romafe { animation: ab-revelar .6s var(--ease-out) .55s both; }
+.abertura__produto { animation: ab-subir .4s var(--ease-out) 1s both; }
+.abertura__lema { animation: ab-subir .4s var(--ease-out) 1.25s both; }
+.abertura__tempo span { animation: ab-tempo 2.8s linear .2s both; }
+.abertura__saltar { animation: ab-aparecer .3s var(--ease-out) .8s both; }
+.abertura.is-a-sair > * { opacity: 0; transform: scale(.98); transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
+
+@keyframes ab-rolar {
+  0% { opacity: 0; transform: translateX(-320px) rotate(-305deg); }
+  20% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ab-revelar { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes ab-subir { from { opacity: 0; transform: translateY(8px); } }
+@keyframes ab-aparecer { from { opacity: 0; } }
+@keyframes ab-tempo { to { transform: scaleX(1); } }
+
+@media (hover: hover) and (pointer: fine) {
+  .abertura__saltar.btn { transition: border-color .15s ease, transform .15s var(--ease-out); }
+  .abertura__saltar.btn:hover { border-color: var(--c-logotipo); }
+  .abertura__saltar.btn:hover .btn__icone { transform: translateX(3px); }
+  .abertura__saltar .btn__icone { transition: transform .15s var(--ease-out); }
+}
+/* «reduzir movimento»: menos e mais suave, não zero — só aparece, sem andar nem rodar */
+@media (prefers-reduced-motion: reduce) {
+  .abertura__rolamento, .abertura__romafe, .abertura__produto, .abertura__lema, .abertura__saltar { animation: ab-aparecer .2s ease both; }
+  .abertura__tempo span { animation-duration: 1.3s; }
+  .abertura.is-a-sair > * { transform: none; }
+}
+
+@media (max-width: 640px) {
+  .abertura__rolamento { width: 64px; height: 64px; }
+  .abertura__romafe { font-size: 56px; }
+  .abertura__produto { flex-wrap: wrap; justify-content: center; }
+  .abertura__produto strong { font-size: 26px; }
+  .abertura__produto span:last-child { flex-basis: 100%; text-align: center; }
+  .abertura__risco { display: none; }
+}
