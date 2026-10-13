@@ -169,53 +169,82 @@ th[aria-sort="descending"] .cat5__ordenar svg { transform: scaleY(-1); }
 /* =========================================================
    Universal (a quinta imagem dela, 13 out.)
    ========================================================= */
-.cat5__u-procura { grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--e-3); }
-.cat5__u-campo .input { min-height: 46px; }
-.cat5__u-procura .btn { min-height: 46px; padding: 0 var(--e-5); }
-.cat5__universal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 1fr); gap: var(--e-4); align-items: start; }
-.cat5__u-grupos, .cat5__u-lado { display: grid; gap: var(--e-3); align-content: start; }
-.cat5__u-lado { position: sticky; top: var(--e-4); padding: var(--e-4); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
-.cat5__formas { display: flex; justify-content: flex-end; gap: var(--e-1); border-bottom: 1px solid var(--c-borda); }
-.cat5__forma { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 15px; padding: var(--e-2) var(--e-3); border: 0; background: none; color: var(--c-texto-2); cursor: pointer; box-shadow: inset 0 -2px 0 transparent; transition: color .2s ease, box-shadow .2s ease; }
+.cat5[data-vista="universal"] .cat2__pesquisa { display: none; }
+/* os dois painéis já são cartões: a secção de fora deixa de o ser */
+.portal--cat5 .cat5[data-vista="universal"] .cat2__marcas { padding: 0; border: 0; background: none; }
+.cat5__universal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-4); align-items: start; }
+.cat5__u-grupos, .cat5__u-lado { display: grid; gap: var(--e-3); align-content: start; padding: var(--e-4) var(--e-5); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.cat5__u-lado { position: sticky; top: var(--e-4); gap: var(--e-3); padding: var(--e-5); }
+/* o painel da esquerda: o título, Árvore / Lista / Colunas e a procura */
+.cat5__u-topo { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--e-2) var(--e-4); }
+.cat5__u-titulo { margin: 0 0 var(--e-2); font-family: var(--f-titulo); font-size: 22px; }
+.cat5__formas { display: flex; gap: var(--e-1); }
+.cat5__forma { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 15px; padding: var(--e-2) var(--e-3); border: 0; background: none; color: var(--c-texto-2); cursor: pointer; box-shadow: inset 0 -3px 0 transparent; transition: color .2s ease, box-shadow .2s ease; }
 .cat5__forma svg { width: 16px; height: 16px; }
+.cat5__forma:hover { color: var(--c-texto); }
 .cat5__forma[aria-current="true"] { color: var(--c-texto); font-weight: 700; box-shadow: inset 0 -3px 0 var(--c-acao); }
+.cat5__u-campo .input { min-height: 44px; }
+/* a árvore em linhas: seta, ícone e nome; a seta roda ao abrir */
 .cat5__arvore, .cat5__folhas, .cat5__lista-grupos, .cat5__col { list-style: none; margin: 0; padding: 0; }
-.cat5__arvore { display: grid; gap: 4px; }
-.cat5__abrir-ramo { width: 100%; display: flex; align-items: center; gap: var(--e-3); font: inherit; font-size: 15px; text-align: left; padding: 0 var(--e-3) 0 0; min-height: 38px; border: 1px solid var(--c-borda); border-radius: var(--r-sm); background: var(--c-superficie); color: var(--c-texto); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
-.cat5__abrir-ramo:hover { border-color: var(--c-marca); background: var(--c-superficie-2); }
-.cat5__mais-menos { display: grid; place-items: center; align-self: stretch; width: 36px; border-radius: var(--r-sm) 0 0 var(--r-sm); background: var(--c-marca); color: var(--c-superficie); }
-.cat5__mais-menos svg { width: 16px; height: 16px; }
-.cat5__abrir-ramo[aria-expanded="true"] { font-weight: 700; border-color: var(--c-marca); }
-.cat5__folhas { display: grid; gap: 2px; padding: 4px 0 6px 48px; }
-.cat5__folha { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); font: inherit; font-size: 14px; text-align: left; padding: 7px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease, box-shadow .15s ease; }
-.cat5__folha:hover { background: var(--c-marca-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
-.cat5__folha[aria-current="true"] { background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-marca); font-weight: 700; color: var(--c-marca); }
+.cat5__arvore { display: grid; }
+.cat5__ramo { border-bottom: 1px solid var(--c-borda); }
+.cat5__abrir-ramo { width: 100%; display: flex; align-items: center; gap: var(--e-3); font: inherit; font-size: 15px; text-align: left; padding: 10px var(--e-2); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease; }
+.cat5__abrir-ramo:hover { background: var(--c-superficie-2); }
+.cat5__abrir-ramo[aria-expanded="true"] { background: var(--c-marca-suave); font-weight: 700; }
+.cat5__seta-ramo { display: grid; place-items: center; width: 20px; color: var(--c-texto-2); }
+.cat5__seta-ramo svg { width: 18px; height: 18px; transition: transform .2s ease; }
+.cat5__abrir-ramo[aria-expanded="true"] .cat5__seta-ramo svg { transform: rotate(90deg); }
+.cat5__ramo-icone, .cat5__folha-icone { display: grid; place-items: center; width: 24px; color: var(--c-texto-2); flex: none; }
+.cat5__ramo-icone svg, .cat5__folha-icone svg { width: 20px; height: 20px; }
+.cat5__abrir-ramo[aria-expanded="true"] .cat5__ramo-icone { color: var(--c-marca); }
+/* os grupos: ligados por uma linha de pontos, o escolhido com a barra laranja */
+.cat5__folhas { position: relative; display: grid; gap: 2px; padding: var(--e-1) 0 var(--e-2) 44px; }
+.cat5__folhas::before { content: ""; position: absolute; left: 21px; top: 0; bottom: var(--e-3); border-left: 2px dotted var(--c-borda); }
+.cat5__folha { width: 100%; display: flex; align-items: center; gap: var(--e-3); font: inherit; font-size: 14px; text-align: left; padding: 8px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease, box-shadow .15s ease; }
+.cat5__folha-nome { flex: 1; }
+.cat5__folha:hover { background: var(--c-superficie-2); }
+.cat5__folha[aria-current="true"] { background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-acao); font-weight: 700; color: var(--c-marca); }
+.cat5__folha[aria-current="true"] .cat5__folha-icone { color: var(--c-marca); }
 .cat5__folha-cat { font-size: 12px; font-weight: 400; color: var(--c-texto-3); }
 .cat5__lista-grupos { display: grid; gap: 2px; }
 .cat5__colunas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-3); align-items: start; }
 .cat5__colunas .cat5__col--grupos { grid-column: 2; grid-row: 1; }
 .cat5__col { display: grid; gap: 2px; }
-.cat5__col-cat { width: 100%; display: flex; align-items: center; justify-content: space-between; font: inherit; font-size: 14px; text-align: left; padding: 8px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease; }
-.cat5__col-cat svg { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform .15s ease-out; }
+.cat5__col-cat { width: 100%; display: flex; align-items: center; gap: var(--e-3); font: inherit; font-size: 14px; text-align: left; padding: 8px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease; }
+.cat5__col-cat > svg { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform .15s ease-out; }
 .cat5__col-cat:hover { background: var(--c-superficie-2); }
-.cat5__col-cat:hover svg { transform: translateX(3px); }
+.cat5__col-cat:hover > svg { transform: translateX(3px); }
 .cat5__col-cat[aria-current="true"] { background: var(--c-marca-suave); font-weight: 700; color: var(--c-marca); }
 .cat5__u-vazio { margin: 0; color: var(--c-texto-2); }
-.cat5__u-grupo { margin: 0; font-family: var(--f-titulo); font-size: 21px; }
-.cat5__u-sub { margin: 0; font-size: 14px; color: var(--c-texto-2); }
-.cat5__u-titulo-fab { display: flex; align-items: center; gap: var(--e-2); margin: var(--e-2) 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--c-texto-2); }
-.cat5__u-titulo-fab svg { width: 16px; height: 16px; }
-.cat5__u-fabricantes { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+/* a direita: o caminho, o grupo em grande e os fabricantes em cartões */
+.cat5__u-caminho { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); font-size: 14px; color: var(--c-texto-2); }
+.cat5__u-caminho a { display: inline-flex; color: var(--c-texto-2); }
+.cat5__u-caminho a svg { width: 18px; height: 18px; }
+.cat5__u-sep { width: 14px; height: 14px; color: var(--c-texto-3); }
+.cat5__u-cat { font: inherit; color: var(--c-marca); text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; cursor: pointer; }
+.cat5__u-grupo-c { color: var(--c-texto); }
+.cat5__u-grupo { margin: 0; font-family: var(--f-titulo); font-size: 32px; line-height: 1.15; }
+.cat5__u-sub { margin: 0; padding-bottom: var(--e-4); font-size: 15px; color: var(--c-texto-2); border-bottom: 1px solid var(--c-borda); }
+.cat5__u-fab-caixa { display: grid; gap: var(--e-3); }
+.cat5__u-titulo-fab { display: flex; align-items: center; gap: var(--e-2); margin: 0; font-family: var(--f-titulo); font-size: 18px; }
+.cat5__u-titulo-fab svg { width: 22px; height: 22px; color: var(--c-texto-2); }
+.cat5__u-fabricantes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: var(--e-3); }
 .cat5__u-fabricantes li { animation: cat3-linha .18s ease-out calc(min(var(--i, 0), 8) * 25ms) both; }
-.cat5__u-fab { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); text-align: left; font: inherit; font-size: 14px; padding: 8px var(--e-3); border: 1px solid var(--c-borda); border-radius: var(--r-sm); background: var(--c-superficie); color: var(--c-texto); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
-.cat5__u-fab svg { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform .15s ease-out, color .15s ease; }
-/* o fabricante leva às referências: ao passar o rato, como as linhas das tabelas */
-.cat5__u-fab:hover { border-color: var(--c-marca); background: var(--c-marca-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
-.cat5__u-fab:hover svg { transform: translateX(4px); color: var(--c-acao); }
+.cat5__u-fab { width: 100%; min-height: 120px; display: grid; justify-items: center; align-content: center; gap: var(--e-2); font: inherit; font-size: 15px; font-weight: 700; padding: var(--e-4) var(--e-2); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto); cursor: pointer; transition: transform .18s ease-out, border-color .18s ease, background-color .18s ease; }
+.cat5__u-logo { display: grid; place-items: center; height: 44px; color: var(--c-texto); }
+.cat5__u-logo svg { width: 40px; height: 40px; fill: currentColor; }
+.cat5__u-fabricantes li:first-child .cat5__u-logo { color: var(--c-marca); }
+.cat5__u-fabricantes li:first-child .cat5__u-logo svg { fill: none; }
+.cat5__u-palavra { font-family: var(--f-titulo); font-size: 24px; font-weight: 800; letter-spacing: .02em; }
+.cat5__u-fab-nome { font-size: 14px; color: var(--c-texto-2); }
+/* o cartão leva às referências: sobe 3 px e a borda fica azul, como as marcas */
+.cat5__u-fab:hover { transform: translateY(-3px); border-color: var(--c-marca); background: var(--c-superficie-2); }
+.cat5__u-fab:hover .cat5__u-fab-nome { color: var(--c-texto); }
+.cat5__u-fab:focus-visible { outline: 2px solid var(--c-marca); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   .cat5__ref, .cat5__u-fabricantes li { animation: none; }
-  .cat5__chip, .cat5__abrir-ramo, .cat5__folha, .cat5__forma, .cat5__col-cat, .cat5__col-cat svg, .cat5__u-fab, .cat5__u-fab svg { transition: none; }
+  .cat5__chip, .cat5__abrir-ramo, .cat5__seta-ramo svg, .cat5__folha, .cat5__forma, .cat5__col-cat, .cat5__col-cat svg, .cat5__u-fab, .cat5__u-fab svg { transition: none; }
 }
 @media (max-width: 1180px) {
   .cat5__refs-filtros { grid-template-columns: minmax(0, 1fr); }
@@ -229,19 +258,18 @@ th[aria-sort="descending"] .cat5__ordenar svg { transform: scaleY(-1); }
 @media (max-width: 640px) {
   .cat5__refs-campos, .cat5__colunas { grid-template-columns: minmax(0, 1fr); }
   .cat5__colunas .cat5__col--grupos { grid-column: auto; grid-row: auto; }
-  .cat5__u-procura { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* =========================================================
    O fluxo (13 out.: «organiza o flow»): um só menu, sempre à vista.
-   À esquerda, o caminho (Por veículo / Universal); à direita, os passos
-   numerados desse caminho, que só andam para a frente. Saem os passos em
+   À esquerda, os passos numerados do caminho, que só andam para a frente;
+   à direita, o interruptor Por veículo / Universal (ela, 13 out.). Saem os passos em
    botões da faixa da marca e o caminho «Catálogo › Marcas…» da v4.
    ========================================================= */
 .portal--cat5 .cat2__passos { display: flex !important; }
 .portal--cat5 .cat4__pilulas, .portal--cat5 .cat4__caminho { display: none !important; }
 .cat5__fluxo { position: relative; align-items: center; gap: var(--e-4); }
-.cat5__caminhos { display: flex; padding: 3px; gap: 3px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); flex: none; }
+.cat5__caminhos { margin-left: auto; display: flex; padding: 3px; gap: 3px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); flex: none; }
 .cat5__caminho { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; padding: 6px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto-2); cursor: pointer; transition: background-color .2s ease, color .2s ease; }
 .cat5__caminho svg { width: 16px; height: 16px; }
 .cat5__caminho[aria-pressed="true"] { background: var(--c-marca); color: var(--c-superficie); font-weight: 700; }

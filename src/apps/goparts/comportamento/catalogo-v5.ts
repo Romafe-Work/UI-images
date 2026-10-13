@@ -32,7 +32,8 @@ import boxes from 'lucide-static/icons/boxes.svg?raw';
 import x from 'lucide-static/icons/x.svg?raw';
 import minus from 'lucide-static/icons/minus.svg?raw';
 import plus from 'lucide-static/icons/plus.svg?raw';
-import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
+import globe from 'lucide-static/icons/globe.svg?raw';
+import bosch from 'simple-icons/icons/bosch.svg?raw';
 import { L } from '../portal/catalogo-v3';
 import info from 'lucide-static/icons/info.svg?raw';
 import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
@@ -558,11 +559,12 @@ function cliqueDetalhes(main: HTMLElement, t: Element): boolean {
 }
 
 /* =========================================================
-   Universal (13 out., a quinta imagem): os grupos de montagem sem veículo.
-   Árvore (abre e fecha com + / −), Lista ou Colunas; a procura mostra só os
-   grupos com aquele nome. Escolhido o grupo, à direita os fabricantes:
-   clicar num leva às referências dele. A árvore abre sem animar a altura: os grupos aparecem a
-   desvanecer e a descer 4 px, em cascata curta.
+   Universal (13 out., a quinta imagem; redesenhado pela do «pode ser»): os grupos
+   de montagem sem veículo. Árvore (a seta roda ao abrir), Lista ou Colunas; a
+   procura, dentro do painel, mostra só os grupos com aquele nome. Escolhido o
+   grupo, à direita o caminho, o grupo em grande e os fabricantes em cartões:
+   clicar num leva às referências dele. A árvore abre sem animar a altura: os
+   grupos aparecem a desvanecer e a descer 4 px, em cascata curta.
    ========================================================= */
 export function ramo(b: HTMLElement, abrir?: boolean): void {
   /* pelo ramo e não pelo id: os estados parados montam-se fora do documento */
@@ -570,20 +572,31 @@ export function ramo(b: HTMLElement, abrir?: boolean): void {
   if (!ul) return;
   const sim = abrir ?? b.getAttribute('aria-expanded') !== 'true';
   b.setAttribute('aria-expanded', String(sim));
-  b.querySelector('.cat5__mais-menos')!.innerHTML = L(sim ? minus : plus);
   ul.hidden = !sim;
   if (sim && !quieto() && ul.isConnected) $$(ul, 'li:not([hidden])').slice(0, 8).forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 180, delay: i * 25, easing: 'ease-out', fill: 'backwards' }));
 }
 
+/** O logótipo do fabricante: o do simple-icons, se houver (só a Bosch); senão, o nome escrito. */
+const LOGOS: Record<string, string> = { Bosch: bosch.replace(/<title>[\s\S]*?<\/title>/, '') };
+const logoFab = (f: string) => (f ? (LOGOS[f] ? L(LOGOS[f]) : `<span class="cat5__u-palavra">${f}</span>`) : L(globe));
+
 export function escolherGrupo(main: HTMLElement, grupo: string): void {
-  $$(main, '.cat5__universal .cat5__folha').forEach((f) => { if (f.dataset.grupo === grupo) f.setAttribute('aria-current', 'true'); else f.removeAttribute('aria-current'); });
+  let cat = '';
+  $$(main, '.cat5__universal .cat5__folha').forEach((f) => {
+    if (f.dataset.grupo === grupo) { f.setAttribute('aria-current', 'true'); cat = f.dataset.cat || cat; } else f.removeAttribute('aria-current');
+  });
   main.dataset.uGrupo = grupo;
   const lado = main.querySelector<HTMLElement>('.cat5__u-lado')!;
+  const caminho = lado.querySelector<HTMLElement>('.cat5__u-caminho')!;
+  caminho.hidden = false;
+  caminho.querySelector('.cat5__u-cat')!.textContent = cat;
+  caminho.querySelector('.cat5__u-grupo-c')!.textContent = grupo;
   lado.querySelector('.cat5__u-grupo')!.textContent = grupo;
   lado.querySelector('.cat5__u-sub')!.textContent = 'Clique no fabricante, ou em «Todos», para ver as referências.';
+  lado.querySelector<HTMLElement>('.cat5__u-fab-caixa')!.hidden = false;
   /* ela, 13 out.: sem o botão «Ver referências» — o fabricante leva logo às referências */
-  lado.querySelector('.cat5__u-fabricantes')!.innerHTML = ['Todos', ...fabricantesDe(grupo)].map((f, i) =>
-    `<li style="--i:${i}"><button type="button" class="cat5__u-fab" data-fabricante="${i ? f : ''}">${f}${L(chevronRight)}</button></li>`).join('');
+  lado.querySelector('.cat5__u-fabricantes')!.innerHTML = ['', ...fabricantesDe(grupo)].map((f, i) =>
+    `<li style="--i:${i}"><button type="button" class="cat5__u-fab" data-fabricante="${f}"><span class="cat5__u-logo" aria-hidden="true">${logoFab(f)}</span><span class="cat5__u-fab-nome">${f || 'Todos'}</span></button></li>`).join('');
   if (!quieto() && lado.isConnected) lado.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
 }
 
@@ -644,7 +657,14 @@ function cliqueUniversal(main: HTMLElement, t: Element): boolean {
     ir(main, 'referencias');
     return true;
   }
-  if (t.closest('.cat5__u-pesquisar')) { procurarGrupo(main); return true; }
+  /* o caminho da direita: a categoria abre na árvore */
+  const uc = t.closest<HTMLElement>('.cat5__u-cat');
+  if (uc) {
+    main.querySelector<HTMLElement>('.cat5__forma[data-forma="arvore"]')?.click();
+    const b = $$(main, '.cat5__abrir-ramo').find((x) => (x.textContent || '').trim() === (uc.textContent || '').trim());
+    if (b) { ramo(b, true); b.scrollIntoView({ behavior: quieto() ? 'auto' : 'smooth', block: 'nearest' }); b.focus(); }
+    return true;
+  }
   if (t.closest('.cat5__u-limpar')) { main.querySelector<HTMLInputElement>('.cat5__u-campo input')!.value = ''; procurarGrupo(main); return true; }
   return false;
 }

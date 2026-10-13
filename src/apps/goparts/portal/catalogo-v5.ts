@@ -27,10 +27,24 @@ import x from 'lucide-static/icons/x.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 import factory from 'lucide-static/icons/factory.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
-import eraser from 'lucide-static/icons/eraser.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
-import plus from 'lucide-static/icons/plus.svg?raw';
 import listTree from 'lucide-static/icons/list-tree.svg?raw';
+import armchair from 'lucide-static/icons/armchair.svg?raw';
+import fuel from 'lucide-static/icons/fuel.svg?raw';
+import fan from 'lucide-static/icons/fan.svg?raw';
+import cog from 'lucide-static/icons/cog.svg?raw';
+import link2 from 'lucide-static/icons/link-2.svg?raw';
+import linkI from 'lucide-static/icons/link.svg?raw';
+import circleDot from 'lucide-static/icons/circle-dot.svg?raw';
+import disc from 'lucide-static/icons/disc.svg?raw';
+import disc3 from 'lucide-static/icons/disc-3.svg?raw';
+import wrench from 'lucide-static/icons/wrench.svg?raw';
+import lightbulb from 'lucide-static/icons/lightbulb.svg?raw';
+import arrowDownUp from 'lucide-static/icons/arrow-down-up.svg?raw';
+import gitCommit from 'lucide-static/icons/git-commit-horizontal.svg?raw';
+import droplets from 'lucide-static/icons/droplets.svg?raw';
+import droplet from 'lucide-static/icons/droplet.svg?raw';
+import battery from 'lucide-static/icons/battery.svg?raw';
 import columns3 from 'lucide-static/icons/columns-3.svg?raw';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
 import { GRUPOS, FABRICANTES, ARVORE } from './catalogo-dados';
@@ -114,36 +128,51 @@ const refsVista = `
         <p class="cat5__refs-vazio" hidden>Nenhuma referência com estes filtros. <button type="button" class="cat3__ligacao cat5__refs-limpar">Ver todos os fabricantes e grupos</button></p>
       </div>`;
 
-/* ---------- Universal (a quinta imagem dela) ---------- */
-const arvore = ARVORE.map(([cat, grupos], i) => `<li class="cat5__ramo"><button type="button" class="cat5__abrir-ramo" aria-expanded="false" aria-controls="cat5-ramo-${i}"><span class="cat5__mais-menos" aria-hidden="true">${L(plus)}</span>${cat}</button><ul class="cat5__folhas" id="cat5-ramo-${i}" hidden>${grupos.map((g) => `<li><button type="button" class="cat5__folha" data-grupo="${g}">${g}</button></li>`).join('')}</ul></li>`).join('');
+/* ---------- Universal (a quinta imagem dela; redesenhado a 13 out. pela imagem do «pode ser») ----------
+   À esquerda, «Grupos de montagem» com Árvore / Lista / Colunas e a procura dentro do
+   painel; a árvore em linhas, com seta e um ícone por categoria e por grupo, e o grupo
+   escolhido com a barra laranja. À direita, o caminho, o grupo em grande e os
+   fabricantes em cartões. Sem o «Ver referências» da imagem: ela já tinha pedido
+   que o fabricante levasse logo às referências. */
+const ICONE_CAT: Record<string, string> = {
+  'Acessórios': armchair, 'Alimentação de combustível': fuel, 'Aquecimento e ventilação': fan, 'Caixa de velocidades': cog,
+  'Carroçaria': car, 'Circuitos elétricos': zap, 'Comando da correia': link2, 'Direção': circleDot, 'Embraiagem': disc,
+  'Equipamento para a oficina': wrench, 'Iluminação e sinalização': lightbulb, 'Jantes e pneus': disc3,
+  'Suspensão e amortecimento': arrowDownUp, 'Transmissão': gitCommit,
+};
+const ICONE_GRUPO: [RegExp, string][] = [[/^Bomba/, droplets], [/Correia/, linkI], [/Kit de distribuição/, cog], [/Tensor|Volante|Kit de embraiagem/, disc], [/Filtro/, layers], [/Bateria/, battery], [/Lâmpada|Faróis/, lightbulb], [/Amortecedor/, arrowDownUp], [/Rolamento|Pesos|Válvula/, disc3], [/Óleo|Massa/, droplet]];
+const iconeGrupo = (g: string, cat: string) => L((ICONE_GRUPO.find(([r]) => r.test(g)) || [null, ICONE_CAT[cat] || circleDot])[1]);
+const folha = (g: string, cat: string, extra = '') => `<li><button type="button" class="cat5__folha" data-grupo="${g}" data-cat="${cat}"><span class="cat5__folha-icone" aria-hidden="true">${iconeGrupo(g, cat)}</span><span class="cat5__folha-nome">${g}</span>${extra}</button></li>`;
+const arvore = ARVORE.map(([cat, grupos], i) => `<li class="cat5__ramo"><button type="button" class="cat5__abrir-ramo" aria-expanded="false" aria-controls="cat5-ramo-${i}"><span class="cat5__seta-ramo" aria-hidden="true">${L(chevronRight)}</span><span class="cat5__ramo-icone" aria-hidden="true">${L(ICONE_CAT[cat] || circleDot)}</span><span class="cat5__folha-nome">${cat}</span></button><ul class="cat5__folhas" id="cat5-ramo-${i}" hidden>${grupos.map((g) => folha(g, cat)).join('')}</ul></li>`).join('');
 const todos = ARVORE.flatMap(([cat, gs]) => gs.map((g) => [g, cat] as const)).sort((a, b) => a[0].localeCompare(b[0], 'pt'));
-const listaGrupos = todos.map(([g, cat]) => `<li><button type="button" class="cat5__folha" data-grupo="${g}">${g}<span class="cat5__folha-cat">${cat}</span></button></li>`).join('');
-const colunas = `<ul class="cat5__col cat5__col--cat">${ARVORE.map(([cat], i) => `<li><button type="button" class="cat5__col-cat" data-cat="${i}"${i === 0 ? ' aria-current="true"' : ''}>${cat}${L(chevronRight)}</button></li>`).join('')}</ul>`
-  + ARVORE.map(([, gs], i) => `<ul class="cat5__col cat5__col--grupos" data-de-cat="${i}"${i ? ' hidden' : ''}>${gs.map((g) => `<li><button type="button" class="cat5__folha" data-grupo="${g}">${g}</button></li>`).join('')}</ul>`).join('');
-const universalProcura = `
-      <div class="cat3__cartao cat5__cartao cat5__u-procura" data-so="universal" hidden>
-        <div class="campo__caixa cat5__u-campo"><span class="campo__chip" aria-hidden="true">${L(search)}</span><input class="input" type="search" id="cat5-u-procura" placeholder="Introduza grupo de montagem" aria-label="Grupo de montagem"></div>
-        <button type="button" class="btn btn--acao cat5__u-pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Pesquisar</span></button>
-        <button type="button" class="btn btn--ghost cat5__u-limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-      </div>`;
+const listaGrupos = todos.map(([g, cat]) => folha(g, cat, `<span class="cat5__folha-cat">${cat}</span>`)).join('');
+const colunas = `<ul class="cat5__col cat5__col--cat">${ARVORE.map(([cat], i) => `<li><button type="button" class="cat5__col-cat" data-cat="${i}"${i === 0 ? ' aria-current="true"' : ''}><span class="cat5__ramo-icone" aria-hidden="true">${L(ICONE_CAT[cat] || circleDot)}</span><span class="cat5__folha-nome">${cat}</span>${L(chevronRight)}</button></li>`).join('')}</ul>`
+  + ARVORE.map(([cat, gs], i) => `<ul class="cat5__col cat5__col--grupos" data-de-cat="${i}"${i ? ' hidden' : ''}>${gs.map((g) => folha(g, cat)).join('')}</ul>`).join('');
 const universal = `
       <div class="cat5__universal" data-so="universal" hidden>
         <section class="cat5__u-grupos" aria-label="Grupos de montagem">
-          <nav class="cat5__formas" aria-label="Ver os grupos como">
-            <button type="button" class="cat5__forma" data-forma="arvore" aria-current="true">${L(listTree)}Árvore</button>
-            <button type="button" class="cat5__forma" data-forma="lista">${L(list)}Lista</button>
-            <button type="button" class="cat5__forma" data-forma="colunas">${L(columns3)}Colunas</button>
-          </nav>
+          <div class="cat5__u-topo">
+            <h2 class="cat5__u-titulo">Grupos de montagem</h2>
+            <nav class="cat5__formas" aria-label="Ver os grupos como">
+              <button type="button" class="cat5__forma" data-forma="arvore" aria-current="true">${L(listTree)}Árvore</button>
+              <button type="button" class="cat5__forma" data-forma="lista">${L(list)}Lista</button>
+              <button type="button" class="cat5__forma" data-forma="colunas">${L(columns3)}Colunas</button>
+            </nav>
+          </div>
+          <div class="campo__caixa cat5__u-campo"><span class="campo__chip" aria-hidden="true">${L(search)}</span><input class="input" type="search" id="cat5-u-procura" placeholder="Pesquisar grupo de montagem…" aria-label="Pesquisar grupo de montagem"></div>
           <ul class="cat5__arvore" data-de-forma="arvore">${arvore}</ul>
           <ul class="cat5__lista-grupos" data-de-forma="lista" hidden>${listaGrupos}</ul>
           <div class="cat5__colunas" data-de-forma="colunas" hidden>${colunas}</div>
-          <p class="cat5__u-vazio" hidden>Nenhum grupo com esse nome.</p>
+          <p class="cat5__u-vazio" hidden>Nenhum grupo com esse nome. <button type="button" class="cat3__ligacao cat5__u-limpar">Limpar a pesquisa</button></p>
         </section>
         <aside class="cat5__u-lado" aria-live="polite">
+          <nav class="cat5__u-caminho" aria-label="Onde está" hidden><a href="#" data-ir="inicio" aria-label="Início">${L(house)}</a>${L(chevronRight, 'cat5__u-sep')}<button type="button" class="cat5__u-cat"></button><span aria-hidden="true">/</span><strong class="cat5__u-grupo-c"></strong></nav>
           <h2 class="cat5__u-grupo">Escolha um grupo de montagem</h2>
-          <p class="cat5__u-sub">Os fabricantes aparecem aqui. Clique num, ou em «Todos», para ver as referências.</p>
-          <h3 class="cat5__u-titulo-fab">${L(factory)}Fabricantes</h3>
-          <ul class="cat5__u-fabricantes"></ul>
+          <p class="cat5__u-sub">Abra uma categoria à esquerda e escolha o grupo; os fabricantes aparecem aqui.</p>
+          <div class="cat5__u-fab-caixa" hidden>
+            <h3 class="cat5__u-titulo-fab">${L(factory)}Fabricantes</h3>
+            <ul class="cat5__u-fabricantes"></ul>
+          </div>
         </aside>
       </div>`;
 
@@ -159,19 +188,20 @@ const detalhes = `
       </div>`;
 
 /* ---------- o fluxo (ela, 13 out.: «este menu ainda salta de um para o outro… organiza o flow») ----------
-   Um só menu, sempre no mesmo sítio, com dois caminhos que só andam para a frente:
+   Um só menu, sempre no mesmo sítio, com dois caminhos que só andam para a frente
+   (o interruptor Por veículo / Universal à direita dos passos — ela, 13 out.):
    Por veículo — Marcas › Modelos › Veículos › Referências › Detalhes;
    Universal — Grupos › Referências › Detalhes.
    «Grupo montagem» sai dos passos (não está desenhado; as Referências têm o filtro do grupo).
    Os data-passo são os mesmos dos outros passos (0 Marcas … 4 Referências, 5 Detalhes, 6 Universal). */
 const passo = (n: number, i: number, t: string) => `<li>${i ? L(chevronRight, 'cat5__seta-passo') : ''}<button type="button" class="cat2__passo cat5__passo" data-passo="${n}"${i ? ' disabled' : n === 0 ? ' aria-current="true"' : ''}><span class="cat5__passo-n">${i + 1}</span>${t}</button></li>`;
 const fluxo = `<nav class="cat2__passos cat5__fluxo" aria-label="Passos do catálogo">
+    <ol class="cat5__passos" data-de-caminho="veiculo">${[[0, 'Marcas'], [1, 'Modelos'], [2, 'Veículos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
+    <ol class="cat5__passos" data-de-caminho="universal" hidden>${[[6, 'Grupos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
     <div class="cat5__caminhos" role="group" aria-label="Procurar peças">
       <button type="button" class="cat5__caminho" data-caminho="veiculo" aria-pressed="true">${L(car)}Por veículo</button>
       <button type="button" class="cat5__caminho" data-caminho="universal" aria-pressed="false">${L(listTree)}Universal</button>
     </div>
-    <ol class="cat5__passos" data-de-caminho="veiculo">${[[0, 'Marcas'], [1, 'Modelos'], [2, 'Veículos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
-    <ol class="cat5__passos" data-de-caminho="universal" hidden>${[[6, 'Grupos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
   </nav>`;
 
 /* ---------- Modelos como os outros passos (ela, 13 out.: «coloca o modelos consistente
@@ -220,7 +250,7 @@ function construir(): string {
   h = h.replace('<nav class="cat4__caminho" aria-label="Onde está" data-so="modelos veiculos"', '<nav class="cat4__caminho" aria-label="Onde está" data-so="nenhuma"');
   h = h.replace('<section class="cat4__heroi" data-so="modelos veiculos" hidden>', '<section class="cat4__heroi" data-so="nenhuma" hidden>');
   h = h.replace(/(<section class="cat4__heroi"[\s\S]*?<\/section>)/, `$1${barra.replace('data-so="veiculos"', 'data-so="modelos veiculos referencias detalhes"').replace('<button type="button" class="btn btn--ghost cat5__comparar"', `${fav}<button type="button" class="btn btn--ghost cat5__comparar"`)}`);
-  h = trocar(h, '<div class="cat3__cartao" data-so="veiculos" hidden>', '</section>', filtros + refsFiltros + universalProcura + peca);
+  h = trocar(h, '<div class="cat3__cartao" data-so="veiculos" hidden>', '</section>', filtros + refsFiltros + peca);
   h = trocar(h, '<div class="cat3__vista" data-so="veiculos" hidden>', '</section>', resultados + refsVista + universal + detalhes);
   return h;
 }
