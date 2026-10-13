@@ -7,7 +7,10 @@
    claro direto no fundo. Só transform e opacity; com «reduzir movimento» as
    colunas param e a barra aparece já cheia.
    ========================================================= */
-.login23 { --l23-noite: #0a1525; --l23-tinta-2: #9db0c7; }
+/* 13 out.: clara como a página pública (papel, tinta, o laranja como acento); o cartão continua no azul da
+   Romafe, que foi pedido dela */
+.login23 { --l23-noite: #faf8f5; --l23-tinta-2: rgba(20, 20, 20, .62); }
+.login23 .login22__topo, .login23 .login22__rodape { background: #faf8f5; border-color: rgba(20, 20, 20, .12); }
 .login23 .login23__palco { background: var(--l23-noite); }
 .login23 .portal__marca { text-decoration: none; color: inherit; }
 .login23__topo-dir { display: flex; align-items: center; gap: var(--e-3); }
@@ -39,11 +42,11 @@
 .login23__factos { list-style: none; margin: var(--e-3) 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-2) var(--e-5); max-width: 640px; }
 .login23__factos li { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--l23-tinta-2); white-space: nowrap; animation: l22-subir .4s var(--ease-out) both; }
 .login23__factos li:nth-child(1) { animation-delay: .5s; } .login23__factos li:nth-child(2) { animation-delay: .56s; } .login23__factos li:nth-child(3) { animation-delay: .62s; } .login23__factos li:nth-child(4) { animation-delay: .68s; }
-.login23__factos strong { font-family: var(--f-titulo); font-size: 17px; color: #f3f6fa; }
+.login23__factos strong { font-family: var(--f-titulo); font-size: 17px; color: #141414; }
 .login23__factos svg { width: 16px; height: 16px; color: var(--c-acao); }
-.login23 .login22__vender { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .14); color: var(--l23-tinta-2); }
-.login23 .login22__vender a { color: #f3f6fa; }
-.login23 .c22__cartao.login22__cartao { box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .7); }
+.login23 .login22__vender { background: transparent; border-color: rgba(20, 20, 20, .14); color: var(--l23-tinta-2); }
+.login23 .login22__vender a { color: #141414; }
+.login23 .c22__cartao.login22__cartao { box-shadow: 0 40px 80px -30px rgba(20, 20, 20, .45); }
 
 @media (prefers-reduced-motion: reduce) {
   .login23__coluna > div, .login23__passo b { animation: none !important; }

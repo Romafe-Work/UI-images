@@ -10,6 +10,8 @@
    se abrem com um círculo, uma de cada vez, e a marca numa placa branca (o ROMAFE só
    vai em fundo claro); em baixo, a linha laranja com a percentagem. À saída, a
    moldura cresce. Os factos das legendas são os da página pública.
+   Depois (13 out.), clara como a página pública: papel, tinta e o laranja só na linha do
+   tempo; o lema em frase («Rolling your way.»), sem maiúsculas de cartaz.
    ========================================================= */
 import type { EcraGoParts } from './ids';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
@@ -23,7 +25,7 @@ const FOTOS: [string, string][] = [[fachada, 'Desde 1945, no Porto'], [corredor,
 
 const html = `<main class="abertura abertura--v3" aria-label="GoParts, da Romafe: a abrir">
   <p class="ab3__placa"><span class="romafe">ROMAFE</span><span class="ab3__risco" aria-hidden="true"></span><span class="ab3__produto">GoParts</span></p>
-  <h1 class="ab3__titulo">${LINHA('Rolling', 0)}${LINHA('your', 1)}${LINHA('way.', 2)}</h1>
+  <h1 class="ab3__titulo">${LINHA('Rolling', 0)}${LINHA('your way.', 1)}</h1>
   <div class="ab3__moldura" aria-hidden="true">${FOTOS.map(([img, t], i) => `<figure class="ab3__foto" style="--i:${i}"><img src="${img}" alt=""><figcaption>${t}</figcaption></figure>`).join('')}</div>
   <div class="ab3__carga"><span class="abertura__tempo" role="progressbar" aria-label="A carregar"><span></span></span><p>A carregar o GoParts <b class="ab2__pct">0%</b></p></div>
   <button type="button" class="btn btn--ghost abertura__saltar" data-ir="publico"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>

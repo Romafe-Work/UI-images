@@ -12,13 +12,14 @@
    Porto e Sacavém, +351 226 158 300.
    ========================================================= */
 import type { EcraGoParts, IdGoParts } from './ids';
+import { barraPublica, rodapePublico } from './publico';
 import catalogoV2 from './portal/catalogo-v2.html?raw';
 import { REFERENCIAS, saida } from './portal/catalogo-dados';
 import fachada from '../../comum/img/fachada.webp';
 import corredor from '../../comum/img/corredor.webp';
 import separacao from '../../comum/img/separacao.webp';
-import armazem from '../../comum/img/armazem.webp';
 import oficina from '../../comum/img/oficina.webp';
+import skf from '../../comum/img/skf-paletes.webp';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
 import truck from 'lucide-static/icons/truck.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
@@ -34,20 +35,13 @@ const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span styl
 const TITULO = (...linhas: string[]) => `<h1 class="pub__h2 pubp__titulo">${linhas.map(LINHA).join('')}</h1>`;
 
 type IdPagina = Extract<IdGoParts, `publico-${string}`>;
-const MENU: [IdPagina, string][] = [['publico-romafe', 'A Romafe'], ['publico-entregas', 'Entregas'], ['publico-marcas', 'Marcas'], ['publico-contactos', 'Contactos']];
 
-/** A barra de cima, a mesma da página pública, com a página atual marcada; as ligações repetem-se em
- *  todas as páginas, por isso levam data-sem-seta (o mapa do fluxo só desenha as da página pública). */
-const barra = (atual: IdPagina) => `<header class="pub__barra">
-  <a class="pub__marca" href="#" data-ir="publico" data-sem-seta aria-label="Romafe GoParts: a página inicial"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
-  <nav class="pub__nav pubp__nav" aria-label="Principal">${MENU.map(([id, nome]) => `<a href="#" data-ir="${id}" data-sem-seta${id === atual ? ' aria-current="page"' : ''}>${nome}</a>`).join('')}</nav>
-  <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada" data-sem-seta>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
-</header>`;
+const barra = (atual: IdPagina) => barraPublica(atual, true);
 const fim = (texto: string) => `<section class="pubp__fim" aria-label="Entrar">
   <p class="pubp__fim-texto">${texto}</p>
   <button type="button" class="btn btn--acao pub__cta pubp__cta" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar no GoParts</span></button>
 </section>
-<footer class="pub__rodape"><span>2026 © Romafe SA · Porto</span><span>Distribuidor SKF desde 1975 · ISO 9001 desde 2006</span></footer>`;
+${rodapePublico}`;
 const pagina = (id: IdPagina, corpo: string) => `<div class="pub pubp pubp--${id.replace('publico-', '')}">${barra(id)}${corpo}${fim(id === 'publico-contactos' ? 'Já tem conta? Encomende com o stock à vista.' : '75 000 referências auto, com o stock do Porto e de Sacavém à vista.')}</div>`;
 const heroi = (kicker: string, titulo: string, lead: string, img: string, alt: string, legenda: string) => `<section class="pubp__heroi">
   <div class="pubp__heroi-texto"><p class="pubp__kicker">${kicker}</p>${titulo}<p class="pubp__lead">${lead}</p></div>
@@ -113,7 +107,7 @@ ${heroi('Entregas', TITULO('Encomenda', 'hoje.', 'Monta amanhã.'), 'Antes de pe
 const logos = Array.from(catalogoV2.matchAll(/data-nome="([^"]+)">\s*<button[^>]*><span class="cat2__logo"[^>]*>(<svg[\s\S]*?<\/svg>)<\/span>/g))
   .map(([, nome, svg], i) => `<li style="--i:${i}" tabindex="0"><span class="pubp__logo">${svg}</span><span class="pubp__logo-nome">${nome}</span></li>`).join('');
 const marcas = pagina('publico-marcas', `
-${heroi('Marcas', TITULO('As marcas', 'da sua', 'oficina.'), 'Peças para os carros que lhe entram pela porta, de fabricantes que a Romafe conhece há décadas.', corredor, 'Um corredor do armazém, com caixas SKF', 'Caixas SKF no armazém do Porto')}
+${heroi('Marcas', TITULO('As marcas', 'da sua', 'oficina.'), 'Peças para os carros que lhe entram pela porta, de fabricantes que a Romafe conhece há décadas.', skf, 'Paletes e caixas SKF no armazém da Romafe', 'Paletes SKF no armazém da Romafe')}
 <section class="pubp__marcas" aria-label="Marcas de automóveis">
   <h2 class="pubp__h3">Procure pela marca do carro</h2>
   <ul class="pubp__logos">${logos}</ul>
@@ -128,7 +122,7 @@ const contactos = pagina('publico-contactos', `
 ${heroi('Contactos', TITULO('Fale com', 'a Romafe.'), 'Para abrir conta no GoParts, tirar uma dúvida sobre uma peça ou saber de uma encomenda.', oficina, 'Uma oficina', 'Para oficinas, frotas e indústria')}
 <section class="pubp__casas" aria-label="Onde estamos">
   <article class="pubp__casa" style="--i:0"><img src="${fachada}" alt="A fachada da Romafe no Porto"><div><p class="pubp__kicker">${L(mapPin)}Porto</p><strong>Sede e centro logístico</strong><p>Rua Eng. Ezequiel de Campos, 164-182<br>Porto</p></div></article>
-  <article class="pubp__casa" style="--i:1"><img src="${armazem}" alt="O armazém da Romafe"><div><p class="pubp__kicker">${L(mapPin)}Sacavém</p><strong>Centro logístico</strong><p>O que sai daqui chega<br>na manhã seguinte</p></div></article>
+  <article class="pubp__casa pubp__casa--sem-foto" style="--i:1"><span class="pubp__casa-pino">${L(mapPin)}</span><div><p class="pubp__kicker">${L(mapPin)}Sacavém</p><strong>Centro logístico</strong><p>O que sai daqui chega<br>na manhã seguinte</p></div></article>
   <a class="pubp__telefone" href="tel:+351226158300" style="--i:2">${L(phone)}<span>Ligue-nos</span><strong>+351 226 158 300</strong></a>
 </section>
 <section class="pubp__acesso" aria-label="Pedir acesso">

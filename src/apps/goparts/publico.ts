@@ -1,134 +1,132 @@
 /* =========================================================
    GOPARTS — 00 · A página pública (13 out. 2026)
-   Ela mandou imagens de vídeos de sites (Nike, Jordan, o site de um piloto de F1)
-   e disse «quero a app web como estes vídeos… desse jeito em termos de animações
-   e UI». Ficou combinado pôr esse estilo onde se apresenta o GoParts, antes de
-   entrar; o catálogo e os pedidos ficam rápidos. Com o material da Romafe:
-     herói — «Rolling your way.» em letra enorme, linha a linha, e uma colagem de
-       fotografias da Romafe que reage ao rato (camadas, legendas, pontos no
-       armazém); os números contam ao aparecer e mostram um detalhe com o rato;
-     do armazém à oficina — uma secção que fica parada enquanto se faz scroll:
-       quatro fotografias verdadeiras trocam com uma revelação em círculo e o
-       texto acompanha (fachada, corredor, separação, oficina);
-     a rota — a linha Porto → Sacavém → oficina desenha-se com o scroll;
-     as marcas — uma faixa que desliza devagar (para com o rato);
-     o fim — «Entre no GoParts», grande.
-   O ROMAFE fica azul, em Motor, na barra branca (nunca sobre o escuro).
+   A história desta página, numa linha cada:
+     v1 — no estilo dos sites dos vídeos dela (Nike, F1): escuro, letra enorme, colagem de fotos;
+     v2 — o reel «LUNEA»: peças desenhadas a transformar-se ao centro e uma lua atrás;
+     v3 — a v2 com as fotografias no lugar da lua e as peças mais realistas.
+   Ela, da v3: as peças parecem desenho, a peça por cima da fotografia confunde, não parece
+   da Romafe, o texto e as letras não convencem — «mete algo da SKF» — «e não faças só na
+   página pública, faz o mesmo nas outras páginas, e só quero uma versão».
+   Esta é a única: clara como romafe.com (branco, o azul e o laranja da Romafe, o ROMAFE no
+   próprio herói), nada desenhado — só fotografias verdadeiras da Romafe, incluindo a das
+   paletes SKF de romafe.com —, frases simples e factuais. Do vídeo fica o efeito, não o estilo:
+     o herói — a fotografia do corredor abre de cartão para a largura toda com o scroll;
+     a história — fica parada enquanto o scroll corre: cada capítulo troca o texto e a
+       fotografia entra por baixo da anterior a deslizar (fachada, paletes SKF, corredor,
+       separação, oficina);
+     a SKF — a fotografia das paletes a toda a largura com o cartão «Distribuidor SKF desde
+       1975 · SKF CMP desde 2007» e três referências SKF verdadeiras do catálogo;
+     os números contam; as marcas deslizam; no fim, «Entrar no GoParts».
+   As páginas do menu (00.1 a 00.4, publico-paginas.ts) usam a mesma linguagem.
    Comportamento: comportamento/publico.ts.
    ========================================================= */
 import type { EcraGoParts } from './ids';
-import { htmlPublicoV2 } from './publico-v2';
-import { htmlPublicoV3 } from './publico-v3';
 import catalogoV2 from './portal/catalogo-v2.html?raw';
+import { REFERENCIAS, saida, euros } from './portal/catalogo-dados';
 import fachada from '../../comum/img/fachada.webp';
 import corredor from '../../comum/img/corredor.webp';
 import separacao from '../../comum/img/separacao.webp';
 import oficina from '../../comum/img/oficina.webp';
+import skf from '../../comum/img/skf-paletes.webp';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
-import arrowDown from 'lucide-static/icons/arrow-down.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
-import phone from 'lucide-static/icons/phone.svg?raw';
+import userPlus from 'lucide-static/icons/user-plus.svg?raw';
+import award from 'lucide-static/icons/award.svg?raw';
+import packageIcon from 'lucide-static/icons/package.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span style="--i:${i}">${texto}</span></span>`;
 
-/* a colagem do herói (ela, 13 out.: «quero imagens relacionadas com a empresa e quando passo
-   o rato mostrar coisas»): três fotografias verdadeiras da Romafe em camadas; ao passar o rato,
-   a que está por baixo vem para a frente e mostra a legenda, e a colagem segue o rato com
-   profundidade; no corredor, pontos que se abrem com o que se vê */
-const PONTOS: [number, number, string, string][] = [
-  [24, 44, 'Caixas SKF', 'A Romafe distribui SKF desde 1975.'],
-  [58, 30, 'Estantes azuis, travessas laranja', 'As cores da marca estão no próprio armazém.'],
-  [70, 72, '6 000 m² de armazém', 'Entre o Porto e Sacavém, com 75 000 referências auto.'],
+/** A barra de cima, igual em todas as páginas públicas; a atual fica marcada. Nas páginas do menu
+ *  as ligações repetem-se, por isso lá levam data-sem-seta (o mapa do fluxo desenha as desta). */
+export const MENU: [string, string][] = [['publico-romafe', 'A Romafe'], ['publico-entregas', 'Entregas'], ['publico-marcas', 'Marcas'], ['publico-contactos', 'Contactos']];
+export const barraPublica = (atual = '', semSeta = false) => `<header class="pub__barra">
+  <a class="pub__marca" href="#" data-ir="publico"${semSeta || !atual ? ' data-sem-seta' : ''} aria-label="Romafe GoParts: a página inicial"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
+  <nav class="pub__nav" aria-label="Principal">${MENU.map(([id, nome]) => `<a href="#" data-ir="${id}"${semSeta ? ' data-sem-seta' : ''}${id === atual ? ' aria-current="page"' : ''}>${nome}</a>`).join('')}</nav>
+  <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada"${semSeta ? ' data-sem-seta' : ''}>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
+</header>`;
+export const rodapePublico = `<footer class="pub__rodape"><span>2026 © Romafe SA · Porto</span><span>Distribuidor SKF desde 1975 · ISO 9001 desde 2006 · +351 226 158 300</span></footer>`;
+
+/* os capítulos da história: a fotografia, o número grande, a frase e o texto */
+const CAPITULOS: [string, string, string, string, string][] = [
+  [fachada, '1945', 'Desde 1945, no Porto.', 'Rolamentos, Máquinas e Ferramentas: é daí que vem o nome. Oitenta anos depois, a mesma casa, na Rua Eng. Ezequiel de Campos.', 'A fachada da Romafe no Porto'],
+  [skf, '1975', 'Distribuidor SKF desde 1975.', 'E SKF CMP desde 2007 — o único em Portugal. Rolamentos, kits de roda e de distribuição SKF, com o stock à vista.', 'Paletes e caixas SKF no armazém da Romafe'],
+  [corredor, '6 000 m²', 'Um armazém à sua medida.', 'Mais de 6 000 m² entre o Porto e Sacavém, com 75 000 referências auto arrumadas e prontas a sair.', 'Um corredor do armazém, com caixas SKF'],
+  [separacao, '16h', 'Pede até às 16h, sai hoje.', 'O que estiver no Porto é separado e sai no próprio dia; o de Sacavém, na manhã seguinte.', 'Uma colaboradora a separar caixas de peças'],
+  [oficina, 'Amanhã', 'Na sua oficina amanhã.', 'O GoParts diz-lhe, antes de pedir, de onde sai cada peça e quando chega.', 'Uma oficina com um motor desmontado'],
 ];
-const ponto = ([x, y, t, d]: [number, number, string, string], i: number) =>
-  `<button type="button" class="pub__ponto" style="--x:${x}%; --y:${y}%; --i:${i}" aria-label="${t}"><span class="pub__ponto-mais" aria-hidden="true"></span><span class="pub__ponto-dica" role="tooltip"><strong>${t}</strong>${d}</span></button>`;
-const COLAGEM = `<div class="pub__colagem">
-  <figure class="pub__ft pub__ft--grande" style="--prof:0.5"><img src="${corredor}" alt="Um corredor do armazém da Romafe, com caixas SKF em estantes azuis e travessas laranja" loading="eager"><figcaption><strong>Armazém do Porto</strong>Rua Eng. Ezequiel de Campos</figcaption>${PONTOS.map(ponto).join('')}</figure>
-  <figure class="pub__ft pub__ft--separacao" style="--prof:1.2"><img src="${separacao}" alt="Uma colaboradora da Romafe a separar caixas de peças numa estante" loading="eager"><figcaption><strong>Separação</strong>O que pedir até às 16h sai hoje</figcaption></figure>
-  <figure class="pub__ft pub__ft--fachada" style="--prof:2"><img src="${fachada}" alt="A fachada da Romafe com o letreiro" loading="eager"><figcaption><strong>Desde 1945</strong>Rolamentos, Máquinas e Ferramentas</figcaption></figure>
-  <p class="pub__selo"><strong>SKF</strong>Distribuidor<br>desde 1975</p>
-</div>`;
+
+/* três referências SKF do próprio catálogo (catalogo-dados.ts) */
+const SKF = REFERENCIAS.filter((r) => r[1] === 'SKF').slice(0, 3).map(([grupo, , ref, desc, preco, , porto, sacavem], i) =>
+  `<li class="pub__ref" style="--i:${i}"><span class="pub__ref-icone">${L(packageIcon)}</span><p class="pub__ref-grupo">${grupo}</p><strong>SKF ${ref}</strong><p class="pub__ref-desc">${desc}</p><p class="pub__ref-pe"><span class="pub__ref-preco">${euros(preco)}</span><span class="pub__ref-sai${porto ? ' pub__ref-sai--hoje' : ''}">${saida(porto, sacavem)}</span></p></li>`).join('');
 
 /* os logótipos das marcas, os mesmos do Catálogo v2 */
 const logos = Array.from(catalogoV2.matchAll(/data-nome="([^"]+)">\s*<button[^>]*><span class="cat2__logo"[^>]*>(<svg[\s\S]*?<\/svg>)<\/span>/g))
-  .slice(0, 14).map(([, nome, svg]) => `<li>${svg}<span class="pub__marca-nome">${nome}</span></li>`).join('');
-
-const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span style="--i:${i}">${texto}</span></span>`;
-const CENAS: [string, string, string, string][] = [
-  [fachada, 'Desde 1945', 'No Porto, Rua Eng. Ezequiel de Campos.', 'Rolamentos, Máquinas e Ferramentas: é daí que vem o nome. Oitenta anos depois, a mesma casa.'],
-  [corredor, '6 000 m²', 'De armazém, entre o Porto e Sacavém.', 'Estantes azuis, travessas laranja — as cores da marca estão no próprio armazém.'],
-  [separacao, '75 000', 'Referências auto, prontas a sair.', 'Separadas por quem as conhece. Distribuidor SKF desde 1975.'],
-  [oficina, 'Amanhã', 'Na sua oficina.', 'Peça até às 16h no Porto e sai no próprio dia.'],
-];
+  .slice(0, 16).map(([, nome, svg]) => `<li>${svg}<span class="pub__marca-nome">${nome}</span></li>`).join('');
 
 const html = `<div class="pub">
-  <header class="pub__barra">
-    <a class="pub__marca" href="#" aria-label="Romafe GoParts"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
-    <nav class="pub__nav" aria-label="Principal"><a href="#" data-ir="publico-romafe">A Romafe</a><a href="#" data-ir="publico-entregas">Entregas</a><a href="#" data-ir="publico-marcas">Marcas</a><a href="#" data-ir="publico-contactos">Contactos</a></nav>
-    <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
-  </header>
+  ${barraPublica()}
 
   <section class="pub__heroi" aria-label="GoParts">
     <div class="pub__heroi-texto">
-      <h1 class="pub__titulo">${LINHA('Rolling', 0)}${LINHA('your', 1)}${LINHA('way.', 2)}</h1>
-      <p class="pub__lead">O marketplace de peças auto da Romafe: 75 000 referências, com o stock do Porto e de Sacavém à vista, preço líquido e entrega no dia seguinte. Para oficinas que não podem esperar.</p>
+      <p class="pub__kicker">O GoParts é a loja online da <span class="romafe">ROMAFE</span></p>
+      <h1 class="pub__titulo">${LINHA('Peças auto com', 0)}${LINHA('o stock à vista.', 1)}</h1>
+      <p class="pub__lead">75 000 referências, com o stock do Porto e de Sacavém, o preço líquido da sua oficina e a entrega no dia seguinte.</p>
       <div class="pub__accoes">
         <button type="button" class="btn btn--acao pub__cta" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar no GoParts</span></button>
-        <a class="pub__ligacao" href="tel:+351226158300">${L(phone)}Pedir acesso · 226 158 300</a>
+        <button type="button" class="btn btn--claro pub__cta pub__cta--claro" data-ir="publico-contactos">${L(userPlus, 'btn__icone')}<span class="btn__rotulo">Pedir acesso</span></button>
       </div>
     </div>
-    ${COLAGEM}
-    <ul class="pub__numeros" aria-label="A Romafe em números">
-      <li tabindex="0"><strong data-contar="75000" data-mil>0</strong><span>referências auto</span><em class="pub__mais">Travões, suspensão, distribuição, filtros, embraiagens, iluminação…</em></li>
-      <li tabindex="0"><strong data-contar="1945">0</strong><span>o ano em que começou</span><em class="pub__mais">Fundada no Porto por Alfredo Pinto França.</em></li>
-      <li tabindex="0"><strong data-contar="14000" data-mil data-mais>0</strong><span>clientes</span><em class="pub__mais">Oficinas, frotas e indústria, de norte a sul.</em></li>
-      <li tabindex="0"><strong data-contar="2">0</strong><span>armazéns: Porto e Sacavém</span><em class="pub__mais">O Porto expede no próprio dia; Sacavém na manhã seguinte.</em></li>
-    </ul>
-    <a class="pub__descer" href="#pub-historia" aria-label="Descer">${L(arrowDown)}</a>
+    <div class="pub__abrir" aria-hidden="true"><div class="pub__abrir-fixo"><img class="pub__abrir-img" src="${corredor}" alt=""><p class="pub__abrir-legenda">O armazém da Romafe, no Porto</p></div></div>
   </section>
 
-  <section class="pub__historia" id="pub-historia" aria-label="Do armazém à oficina">
+  <section class="pub__historia" aria-label="A Romafe" style="--n:${CAPITULOS.length}">
     <div class="pub__fixo">
-      <div class="pub__fotos" aria-hidden="true">${CENAS.map(([img], i) => `<div class="pub__foto" style="--i:${i}; background-image:url('${img}')"></div>`).join('')}</div>
-      <div class="pub__cenas">${CENAS.map(([, grande, linha, texto], i) => `<article class="pub__cena" data-cena="${i}"${i ? '' : ' aria-current="true"'}><p class="pub__cena-grande">${grande}</p><p class="pub__cena-linha">${linha}</p><p class="pub__cena-texto">${texto}</p></article>`).join('')}</div>
-      <ol class="pub__progresso" aria-hidden="true">${CENAS.map((_, i) => `<li data-cena="${i}"></li>`).join('')}</ol>
+      <div class="pub__textos">${CAPITULOS.map(([, num, frase, texto], i) => `<article class="pub__cap" data-cap="${i}"${i ? '' : ' aria-current="true"'}><p class="pub__cap-num">${num}</p><h2 class="pub__cap-frase">${frase}</h2><p class="pub__cap-texto">${texto}</p></article>`).join('')}
+        <ol class="pub__caps" aria-label="Capítulos">${CAPITULOS.map(([, num], i) => `<li><button type="button" data-cap="${i}"${i ? '' : ' aria-current="true"'}><span class="pub__caps-barra" aria-hidden="true"><i></i></span>${num}</button></li>`).join('')}</ol>
+      </div>
+      <div class="pub__fotos">${CAPITULOS.map(([img, , , , alt], i) => `<figure class="pub__foto" style="--i:${i}"><img src="${img}" alt="${alt}"></figure>`).join('')}</div>
     </div>
   </section>
 
-  <section class="pub__rota" id="pub-rota" aria-label="Entregas">
-    <div class="pub__rota-texto">
-      <h2 class="pub__h2">${LINHA('Encomenda', 0)}${LINHA('hoje.', 1)}${LINHA('Monta amanhã.', 2)}</h2>
-      <p>Até às 16h, o que está no Porto sai no próprio dia. O que está em Sacavém chega na manhã seguinte. O GoParts diz-lhe de onde sai cada peça antes de a pedir.</p>
+  <section class="pub__skf" aria-label="SKF">
+    <figure class="pub__skf-foto"><img src="${skf}" alt="Paletes e caixas SKF no armazém da Romafe"></figure>
+    <div class="pub__skf-cartao">
+      <span class="pub__skf-selo">${L(award)}</span>
+      <p class="pub__skf-marca">SKF</p>
+      <h2 class="pub__h2">Distribuidor SKF desde 1975</h2>
+      <p>SKF CMP desde 2007 — o único em Portugal. No GoParts encontra os rolamentos, os kits de roda e de distribuição e as bombas de água SKF, com o stock à vista.</p>
     </div>
-    <svg class="pub__mapa" viewBox="0 0 520 620" aria-hidden="true">
-      <path class="pub__mapa-costa" d="M150 20 C 130 120, 160 180, 140 260 S 110 420, 150 520 S 200 600, 230 610"/>
-      <path class="pub__mapa-rota" d="M190 120 C 260 160, 300 240, 250 330 S 200 470, 260 520"/>
-      <circle class="pub__mapa-ponto" cx="190" cy="120" r="9"/><text x="210" y="112">Porto · hoje</text>
-      <circle class="pub__mapa-ponto" cx="260" cy="520" r="9"/><text x="282" y="526">Sacavém · amanhã</text>
-      <circle class="pub__mapa-oficina" cx="250" cy="330" r="13"/><text x="276" y="336">A sua oficina</text>
-    </svg>
+    <ul class="pub__refs" aria-label="Referências SKF no GoParts">${SKF}</ul>
   </section>
 
-  <section class="pub__marcas" id="pub-marcas" aria-label="Marcas">
+  <section class="pub__numeros-sec" aria-label="A Romafe em números">
+    <ul class="pub__numeros">
+      <li><strong data-contar="75000" data-mil>0</strong><span>referências auto</span></li>
+      <li><strong data-contar="14000" data-mil data-mais>0</strong><span>clientes</span></li>
+      <li><strong data-contar="6000" data-mil data-mais>0</strong><span>m² de armazém</span></li>
+      <li><strong data-contar="1945">0</strong><span>o ano em que começou</span></li>
+    </ul>
+  </section>
+
+  <section class="pub__marcas" aria-label="Marcas">
     <p class="pub__marcas-titulo">Peças para as marcas que entram na sua oficina</p>
     <div class="pub__faixa"><ul>${logos}</ul><ul aria-hidden="true">${logos}</ul></div>
   </section>
 
   <section class="pub__fim" aria-label="Entrar">
-    <h2 class="pub__h2 pub__h2--fim">${LINHA('Entre no', 0)}${LINHA('GoParts.', 1)}</h2>
+    <h2 class="pub__h2 pub__fim-titulo">${LINHA('Entre no GoParts.', 0)}</h2>
+    <p class="pub__fim-nota">Ainda não tem conta? <a href="#" data-ir="publico-contactos">Peça acesso</a> ou ligue +351 226 158 300.</p>
     <button type="button" class="btn btn--acao pub__cta pub__cta--grande" data-ir="entrada"><span class="btn__rotulo">Entrar</span>${L(arrowRight, 'btn__icone')}</button>
-    <p class="pub__fim-nota">Ainda não tem conta? Apoio Romafe · <a href="tel:+351226158300">+351 226 158 300</a></p>
   </section>
-
-  <footer class="pub__rodape"><span>2026 © Romafe SA · Porto</span><span>Distribuidor SKF desde 1975 · ISO 9001 desde 2006</span></footer>
+  ${rodapePublico}
 </div>`;
 
 export function ecraPublico(): EcraGoParts {
   return {
     id: 'publico', nome: '00 · A página pública', fluxo: 'Página pública',
-    objetivo: 'Antes de entrar: apresenta o GoParts e a Romafe com o estilo dos sites que ela mandou (letra enorme, fotografias que se transformam, scroll que conta a história) e leva a «Entrar».',
-    versoes: [{ id: 'v1', nota: 'Pedida a 13 out. com imagens de vídeos de sites (Nike, Jordan, F1): herói, do armazém à oficina, a rota, as marcas e entrar; o material é o da Romafe', html },
-      { id: 'v2', nota: 'Os produtos Romafe (13 out.), pelo reel «LUNEA» que ela mandou: a peça ao centro transforma-se com o scroll — o rolamento roda e abre-se, o disco de travão, a distribuição, a chave —, um disco claro atrás, esferas a flutuar e o texto a trocar', html: htmlPublicoV2 },
-      { id: 'v3', nota: 'A v2 realista (13 out.: «não gosto daquela lua, quero coisas realistas»): atrás das peças, as fotografias da Romafe de cada família; as peças com a luz parada, a folga do rolamento, reflexos, riscos do polimento, parafusos e sombra no chão; só esferas de aço', html: htmlPublicoV3 }],
+    objetivo: 'Antes de entrar: apresenta o GoParts e a Romafe com fotografias verdadeiras (o armazém, as paletes SKF, a separação, a oficina), conta a história com o scroll e leva a «Entrar».',
+    /* 13 out. 2026: ela, «só quero uma versão» — saíram a v1, a v2 e a v3 */
+    versoes: [{ id: 'v4', nota: 'A única (13 out.): clara como romafe.com, só fotografias verdadeiras, a SKF; do vídeo, o efeito — o herói que abre com o scroll e a história que troca fotografia e texto', html }],
   };
 }

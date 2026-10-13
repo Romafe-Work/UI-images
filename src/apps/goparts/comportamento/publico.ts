@@ -1,26 +1,28 @@
 /* =========================================================
-   GOPARTS — 00 · A página pública: as animações ligadas ao scroll (13 out. 2026)
+   GOPARTS — 00 · A página pública e as do menu: o que mexe com o scroll (13 out. 2026)
    - cada secção ganha .is-visivel quando entra no ecrã (as entradas são CSS);
    - os números contam de 0 até ao valor quando aparecem (1,4 s);
-   - a colagem do herói segue o rato com profundidade (--px, --py, de −0,5 a 0,5);
-   - «do armazém à oficina»: o progresso do scroll na secção (0 a 3) revela cada
-     fotografia com um círculo (--r) e troca a cena do texto e a barra ao lado;
-   - a rota desenha-se com o scroll (--traco, de 0 a 1).
+   - o herói: a fotografia abre de cartão para a largura toda (--k, de 0 a 1);
+   - a história: o progresso (0 ao último capítulo) faz entrar cada fotografia por baixo
+     (--r), enche a barra de cada capítulo (--f) e marca o capítulo atual;
+   - os capítulos levam o scroll ao sítio; «Pedir acesso» (00.4) mostra a confirmação.
    Corre também no editor (o scroll não escolhe peças); um só rAF por frame.
-   Com «reduzir movimento»: as fotografias e as cenas trocam sem círculo nem rodar.
+   Com «reduzir movimento», as fotografias trocam sem deslizar.
    ========================================================= */
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const limitar = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lim = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const BARRA = 72;
 
 function contar(el: HTMLElement): void {
   if (el.dataset.contado) return;
   el.dataset.contado = '1';
   const fim = Number(el.dataset.contar), mil = el.hasAttribute('data-mil'), mais = el.hasAttribute('data-mais');
-  const fmt = (n: number) => (mil ? Math.round(n).toLocaleString('pt-PT').replace(/\s|\./g, ' ') : String(Math.round(n))) + (mais ? '+' : '');
+  /* (à mão: o pt-PT não agrupa os números de quatro algarismos, e «6000» ao lado de «75 000» parecia erro) */
+  const fmt = (n: number) => (mil ? String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : String(Math.round(n))) + (mais ? '+' : '');
   if (quieto()) { el.textContent = fmt(fim); return; }
   const t0 = performance.now();
   const passo = (t: number) => {
-    const k = limitar((t - t0) / 1400), e = 1 - Math.pow(1 - k, 4);
+    const k = lim((t - t0) / 1400), e = 1 - Math.pow(1 - k, 4);
     el.textContent = fmt(fim * e);
     if (k < 1) requestAnimationFrame(passo);
   };
@@ -31,72 +33,63 @@ let observador: IntersectionObserver | null = null;
 function ligar(pub: HTMLElement): void {
   if (pub.dataset.ligada) return;
   pub.dataset.ligada = '1';
+  /* (com 25 % visível, uma secção mais alta do que quatro ecrãs nunca aparecia no telemóvel) */
   observador = observador || new IntersectionObserver((entradas) => entradas.forEach((e) => {
     if (!e.isIntersecting) return;
     const s = e.target as HTMLElement;
     s.classList.add('is-visivel');
     s.querySelectorAll<HTMLElement>('[data-contar]').forEach(contar);
-  }), { threshold: 0, rootMargin: '0px 0px -12% 0px' }); /* (com 25 %, uma secção mais alta do que 4 ecrãs nunca aparecia no telemóvel) */
+  }), { threshold: 0, rootMargin: '0px 0px -12% 0px' });
   pub.querySelectorAll<HTMLElement>('section').forEach((s) => observador!.observe(s));
 }
 
+/** O progresso numa secção alta com uma parte parada: 0 quando a parte prende, 1 quando solta. */
+const progresso = (sec: HTMLElement) => { const r = sec.getBoundingClientRect(); return lim((BARRA - r.top) / Math.max(1, r.height - (innerHeight - BARRA))); };
+
 let pedido = 0;
-function aoScroll(): void {
-  if (pedido) return;
-  pedido = requestAnimationFrame(() => {
-    pedido = 0;
-    const pub = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub');
-    if (!pub) return;
-    ligar(pub);
-    const vh = innerHeight;
-    /* a história: 0 no início da secção, 3 quando a última cena está à vista */
-    const h = pub.querySelector<HTMLElement>('.pub__historia');
-    if (h) {
-      const r = h.getBoundingClientRect();
-      const p = limitar(-r.top / (r.height - vh), 0, 1) * 3;
-      h.querySelectorAll<HTMLElement>('.pub__foto').forEach((f, i) => {
-        const v = i === 0 ? 1 : quieto() ? (p >= i - 0.5 ? 1 : 0) : limitar((p - i + 0.85) / 0.7);
-        f.style.setProperty('--r', v.toFixed(3));
-      });
-      const atual = Math.min(3, Math.round(p));
-      h.querySelectorAll<HTMLElement>('.pub__cena').forEach((c, i) => { if (i === atual) c.setAttribute('aria-current', 'true'); else c.removeAttribute('aria-current'); });
-      h.querySelectorAll<HTMLElement>('.pub__progresso li').forEach((l, i) => l.style.setProperty('--f', limitar(p - i + 1).toFixed(3)));
-    }
-    /* a rota: desenha-se enquanto a secção atravessa o ecrã */
-    const rota = pub.querySelector<HTMLElement>('.pub__rota');
-    if (rota) {
-      const r = rota.getBoundingClientRect();
-      const t = quieto() ? 1 : limitar((vh - r.top) / (vh + r.height * 0.4));
-      rota.style.setProperty('--traco', t.toFixed(3));
-    }
-  });
+function desenhar(): void {
+  pedido = 0;
+  const pub = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub');
+  if (!pub) return;
+  ligar(pub);
+  const abrir = pub.querySelector<HTMLElement>('.pub__abrir-fixo');
+  if (abrir) abrir.style.setProperty('--k', (quieto() ? 1 : lim(progresso(abrir.parentElement!) * 1.6)).toFixed(3));
+  const h = pub.querySelector<HTMLElement>('.pub__historia');
+  if (h) {
+    const fotos = h.querySelectorAll<HTMLElement>('.pub__foto'), n = fotos.length;
+    const p = progresso(h) * (n - 1);
+    fotos.forEach((f, i) => { if (i) f.style.setProperty('--r', (quieto() ? (p >= i - 0.5 ? 1 : 0) : lim(p - i + 1)).toFixed(3)); });
+    const atual = Math.round(p);
+    h.querySelectorAll<HTMLElement>('[data-cap]').forEach((el) => { if (Number(el.dataset.cap) === atual) el.setAttribute('aria-current', 'true'); else el.removeAttribute('aria-current'); });
+    h.querySelectorAll<HTMLElement>('.pub__caps-barra i').forEach((b, i) => b.style.setProperty('--f', lim(p - i + 1).toFixed(3)));
+  }
 }
+const pedir = () => { if (!pedido) pedido = requestAnimationFrame(desenhar); };
 
-/** A colagem do herói segue o rato (só com rato e sem «reduzir movimento»). */
-function aoRato(ev: PointerEvent): void {
-  if (ev.pointerType !== 'mouse' || quieto()) return;
-  const heroi = (ev.target as Element).closest?.('.pub__heroi');
-  const col = heroi?.querySelector<HTMLElement>('.pub__colagem');
-  if (!heroi || !col) return;
-  const r = heroi.getBoundingClientRect();
-  col.style.setProperty('--px', ((ev.clientX - r.left) / r.width - 0.5).toFixed(3));
-  col.style.setProperty('--py', ((ev.clientY - r.top) / r.height - 0.5).toFixed(3));
-}
-
-/** 00.4 · Contactos: o pedido de acesso não sai daqui (é um protótipo); mostra a confirmação. */
-function aoEnviar(ev: SubmitEvent): void {
-  const form = (ev.target as Element).closest?.<HTMLFormElement>('.pubp__form');
-  if (!form) return;
-  ev.preventDefault();
-  form.querySelector<HTMLElement>('.pubp__enviado')?.removeAttribute('hidden');
+/** Um capítulo: leva o scroll ao ponto em que ele fica atual. */
+function irCapitulo(h: HTMLElement, i: number): void {
+  const n = h.querySelectorAll('.pub__foto').length, r = h.getBoundingClientRect();
+  const alvo = scrollY + r.top - BARRA + (i / (n - 1)) * (r.height - (innerHeight - BARRA)) + 1;
+  window.scrollTo({ top: alvo, behavior: quieto() ? 'auto' : 'smooth' });
 }
 
 export function iniciar(): void {
-  document.addEventListener('submit', aoEnviar);
-  document.addEventListener('pointermove', aoRato, { passive: true });
-  window.addEventListener('scroll', aoScroll, { passive: true });
-  window.addEventListener('resize', aoScroll);
-  ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(aoScroll)));
-  window.addEventListener('hashchange', () => requestAnimationFrame(aoScroll));
-  requestAnimationFrame(aoScroll);
+  window.addEventListener('scroll', pedir, { passive: true });
+  window.addEventListener('resize', pedir);
+  ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(pedir)));
+  window.addEventListener('hashchange', () => requestAnimationFrame(pedir));
+  requestAnimationFrame(pedir);
+  document.addEventListener('click', (ev) => {
+    if (document.body.classList.contains('editando')) return;
+    const b = (ev.target as Element).closest?.<HTMLElement>('.pub__caps button[data-cap]');
+    const h = b?.closest<HTMLElement>('.pub__historia');
+    if (b && h) irCapitulo(h, Number(b.dataset.cap));
+  });
+  /* 00.4 · Contactos: o pedido de acesso não sai daqui (é um protótipo); mostra a confirmação */
+  document.addEventListener('submit', (ev) => {
+    const form = (ev.target as Element).closest?.<HTMLFormElement>('.pubp__form');
+    if (!form) return;
+    ev.preventDefault();
+    form.querySelector<HTMLElement>('.pubp__enviado')?.removeAttribute('hidden');
+  });
 }
