@@ -40,6 +40,7 @@ function procurar(c: HTMLElement): void {
     marcas.forEach((m) => { m.classList.remove('is-a-sair'); m.hidden = !fica(m); });
     const vazio = c.querySelector<HTMLElement>('.cat2__vazio');
     if (vazio) vazio.hidden = marcas.some((m) => !m.hidden);
+    total(c, marcas.filter((m) => !m.hidden).length);
     marcas.filter((m) => !m.hidden).forEach((m) => {
       const a = antes.get(m);
       const d = m.getBoundingClientRect();
@@ -64,6 +65,12 @@ function deslizar(sai: HTMLElement, entra: HTMLElement, frente: boolean, antes: 
   }, 200);
 }
 
+/** A contagem das marcas à vista (só a v4 a mostra). */
+function total(c: HTMLElement, n: number): void {
+  const t = c.querySelector('.cat2__total');
+  if (t) t.textContent = String(n);
+}
+
 function aplicar(c: HTMLElement): void {
   const grelha = c.querySelector<HTMLElement>('.cat2__grelha')!;
   const filtro = grelha.dataset.filtroAtivo || 'favoritas';
@@ -80,6 +87,7 @@ function aplicar(c: HTMLElement): void {
   grelha.classList.remove('is-a-entrar'); void grelha.offsetWidth; grelha.classList.add('is-a-entrar');
   const vazio = c.querySelector<HTMLElement>('.cat2__vazio');
   if (vazio) vazio.hidden = k > 0;
+  total(c, k);
 }
 
 function passo(portal: Element | null, i: number): void {

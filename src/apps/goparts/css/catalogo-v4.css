@@ -1,0 +1,205 @@
+/* =========================================================
+   GOPARTS — 11 · Catálogo v4 (13 out. 2026), a partir da imagem dela
+   «Encontrar veículo» num painel à esquerda, na cor das superfícies (já não
+   no azul), e as Marcas à direita. Parte da v3 (catalogo-v3.css), por isso
+   os passos Modelos e Veículos e os filtros no painel continuam.
+   Animações (a proposta que ela colou, sem brilhos nem movimento contínuo):
+   - cartão de marca: sobe 3 px, borda azul, logótipo a 1,03 — 180 ms;
+   - estrela: fica laranja e cresce até 1,15 — 180 ms;
+   - procura e Favoritas/Todas: as do catálogo v2 (desvanecer e deslizar);
+   - Marca → Modelo → Veículo: a secção desliza na horizontal (v3);
+   - risca laranja dos passos: desliza (v2-animacao.ts);
+   - painel que recolhe: sem animar a largura (comportamento/catalogo-v4.ts).
+   ========================================================= */
+.cat4 { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); align-items: start; }
+.cat4.is-recolhido { grid-template-columns: 56px minmax(0, 1fr); }
+
+/* ---------- o painel «Encontrar veículo» ---------- */
+.portal--cat4 .cat2__pesquisa.c22__cartao.c22__cartao--azul {
+  position: sticky; top: var(--e-4); padding: var(--e-5); gap: var(--e-4);
+  background: var(--c-superficie); color: var(--c-texto); border: 1px solid var(--c-borda); box-shadow: none;
+}
+.portal--cat4 .cat2__pesquisa .cat2__pesquisa-cabeca { align-items: flex-start; padding-right: var(--e-6); }
+.portal--cat4 .cat2__pesquisa .cat2__titulo { font-size: 22px; color: var(--c-texto); }
+.portal--cat4 .cat2__pesquisa .cat2__sub { font-size: 13px; color: var(--c-texto-2); }
+.portal--cat4 .cat2__pesquisa .cat3__de { color: var(--c-texto-2); }
+.portal--cat4 .cat2__pesquisa .cat2__icone { width: 48px; height: 48px; flex: none; background: var(--c-marca); color: var(--c-superficie); }
+.portal--cat4 .cat2__pesquisa .cat2__icone svg { width: 26px; height: 26px; }
+.portal--cat4 .cat2__pesquisa .campo__label { color: var(--c-texto); }
+.portal--cat4 .cat2__pesquisa .campo__contador { color: var(--c-texto-3); }
+.portal--cat4 .cat2__pesquisa .input { color: var(--c-texto); background: var(--c-superficie); border-color: var(--c-borda); }
+.portal--cat4 .cat2__pesquisa .input::placeholder { color: var(--c-texto-3); }
+.portal--cat4 .cat2__pesquisa .campo__chip { background: var(--c-superficie-2); color: var(--c-texto-2); border-color: var(--c-borda); }
+.portal--cat4 .cat2__pesquisa .campo__chip--pais { background: var(--c-marca); color: var(--c-superficie); border-color: var(--c-marca); font-weight: 700; }
+/* os campos uns por baixo dos outros, o «Pesquisar» a toda a largura */
+.portal--cat4 .cat2__campos, .portal--cat4 .cat3__filtros { grid-template-columns: minmax(0, 1fr); gap: var(--e-3); }
+.portal--cat4 .cat2__campos > *, .portal--cat4 .cat3__filtros > * { grid-column: auto !important; grid-row: auto !important; }
+.portal--cat4 .cat2__pesquisa .cat3__limpar.btn { color: var(--c-texto); border-color: var(--c-borda); }
+.portal--cat4 .cat2__pesquisa .cat3__limpar.btn:hover { background: var(--c-superficie-2); }
+
+/* o botão de recolher, no canto do painel */
+.cat4__recolher {
+  position: absolute; z-index: 2; top: var(--e-3); right: var(--e-3); display: grid; place-items: center; width: 36px; height: 36px;
+  border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto-2); cursor: pointer;
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+.cat4__recolher:hover { background: var(--c-superficie-2); color: var(--c-texto); border-color: var(--c-marca); }
+.cat4__recolher:focus-visible { outline: 2px solid var(--c-marca); outline-offset: 2px; }
+.cat4__recolher svg { width: 18px; height: 18px; }
+.cat4__recolher-abrir, .cat4.is-recolhido .cat4__recolher-fechar { display: none; }
+.cat4.is-recolhido .cat4__recolher-abrir { display: block; }
+/* recolhido: só a barra com o botão */
+.cat4.is-recolhido .cat4__painel { padding: var(--e-3) 0; min-height: 120px; justify-items: center; }
+.cat4.is-recolhido .cat4__painel > :not(.cat4__recolher) { display: none !important; }
+.cat4.is-recolhido .cat4__recolher { position: static; margin: 0 auto; }
+
+/* ---------- as marcas ---------- */
+.portal--cat4 .cat2__marcas { padding: var(--e-5); }
+.portal--cat4 .cat2__marcas-titulo { font-size: 28px; }
+.portal--cat4 .cat2__marcas-sub { font-size: 14px; }
+.portal--cat4 .cat2__procura { width: 300px; }
+.cat4__total { margin: 0; font-size: 14px; color: var(--c-texto-2); white-space: nowrap; }
+.cat4__total .cat2__total { font-variant-numeric: tabular-nums; }
+/* Favoritas / Todas: a escolhida com a borda laranja */
+.portal--cat4 .cat2__filtro-aba[aria-current="true"] { box-shadow: inset 0 0 0 1px var(--c-acao); }
+
+.cat4__faixa {
+  display: flex; align-items: center; gap: var(--e-3); margin: 0; padding: var(--e-3) var(--e-4);
+  font-size: 14px; color: var(--c-texto); background: var(--c-marca-suave); border: 1px solid var(--c-borda); border-radius: var(--r-md);
+}
+.cat4__faixa svg { width: 20px; height: 20px; flex: none; color: var(--c-marca); }
+
+/* os cartões maiores, o nome por baixo, a estrela sempre à vista */
+.portal--cat4 .cat2__grelha { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--e-3); }
+.portal--cat4 .cat2__marca-botao { gap: var(--e-3); padding: var(--e-6) var(--e-3) var(--e-4); min-height: 176px; align-content: center; }
+.portal--cat4 .cat2__logo { height: 72px; }
+.portal--cat4 .cat2__logo svg { width: 64px; height: 64px; }
+.portal--cat4 .cat2__logo--palavra { font-size: 20px; }
+.portal--cat4 .cat2__marca-nome { font-size: 14px; font-weight: 600; letter-spacing: .04em; color: var(--c-texto); }
+.portal--cat4 .cat2__estrela { top: var(--e-2); right: var(--e-2); width: 32px; height: 32px; opacity: 1; }
+.portal--cat4 .cat2__estrela svg { width: 20px; height: 20px; }
+
+/* 1 · o cartão: sobe 3 px, a borda azul, o logótipo a 1,03 (180 ms) */
+.portal--cat4 .cat2__marca-botao { transition: transform .18s ease-out, border-color .18s ease, background-color .18s ease; }
+.portal--cat4 .cat2__logo { transition: transform .18s ease-out, color .18s ease; }
+.portal--cat4 .cat2__marca-botao:hover { transform: translateY(-3px); border-color: var(--c-marca); }
+.portal--cat4 .cat2__marca-botao:hover .cat2__logo { transform: scale(1.03); }
+/* 3 · a estrela: laranja e até 1,15 (180 ms); ao tirar, volta sem saltar */
+.portal--cat4 .cat2__estrela { transition: color .18s ease; }
+.portal--cat4 .cat2__estrela.is-a-marcar[aria-pressed="true"] svg { animation: cat4-estrela .18s ease-out; }
+.portal--cat4 .cat2__estrela.is-a-marcar[aria-pressed="false"] svg { animation: none; }
+@keyframes cat4-estrela { 50% { transform: scale(1.15); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .portal--cat4 .cat2__marca-botao, .portal--cat4 .cat2__logo, .portal--cat4 .cat2__estrela, .cat4__recolher { transition: none; }
+  .portal--cat4 .cat2__marca-botao:hover, .portal--cat4 .cat2__marca-botao:hover .cat2__logo { transform: none; }
+  .portal--cat4 .cat2__estrela svg { animation: none !important; }
+}
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 900px) {
+  .cat4, .cat4.is-recolhido { grid-template-columns: minmax(0, 1fr); }
+  .portal--cat4 .cat2__pesquisa.c22__cartao.c22__cartao--azul { position: static; }
+}
+@media (max-width: 640px) {
+  .portal--cat4 .cat2__procura { width: 100%; }
+  .portal--cat4 .cat2__grelha { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+}
+
+/* =========================================================
+   Os Modelos (e os Veículos) como na segunda imagem dela, 13 out.
+   O caminho toma o lugar dos passos de cima; a faixa da marca e o
+   caminho ocupam as duas colunas. Não há fotografia do carro atrás da
+   marca: não a temos.
+   ========================================================= */
+.portal--cat4:has(.cat4:not([data-vista="marcas"])) .cat2__passos { display: none; }
+.cat4__caminho, .cat4__heroi { grid-column: 1 / -1; }
+
+/* ---------- o caminho ---------- */
+.cat4__caminho ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); font-size: 15px; color: var(--c-texto-2); }
+.cat4__caminho li { display: inline-flex; align-items: center; gap: var(--e-2); }
+.cat4__caminho a { display: inline-flex; color: var(--c-texto-2); }
+.cat4__caminho a svg { width: 18px; height: 18px; }
+.cat4__caminho .cat4__sep { width: 14px; height: 14px; color: var(--c-texto-3); }
+.cat4__caminho button { font: inherit; color: var(--c-texto-2); background: none; border: 0; padding: 2px 4px; border-radius: var(--r-sm); cursor: pointer; transition: color .18s ease, background-color .18s ease; }
+.cat4__caminho button:hover, .cat4__caminho a:hover { color: var(--c-texto); background: var(--c-superficie-2); }
+.cat4__c-atual { color: var(--c-texto); font-weight: 700; }
+
+/* ---------- a faixa da marca ---------- */
+.cat4__heroi { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e-3) var(--e-5); }
+.cat4__heroi-logo { display: grid; place-items: center; width: 88px; height: 88px; border-radius: var(--r-full); background: var(--c-superficie); border: 1px solid var(--c-borda); }
+.cat4__heroi-logo .cat2__logo { height: auto; width: auto; color: var(--c-texto); }
+.cat4__heroi-logo .cat2__logo svg { width: 60px; height: 60px; }
+.cat4__heroi-logo .cat2__logo--palavra { font-size: 15px; }
+.cat4__heroi-titulo { margin: 0; font-family: var(--f-titulo); font-size: 34px; line-height: 1.1; }
+.cat4__heroi-sub { margin: 4px 0 0; font-size: 15px; color: var(--c-texto-2); }
+.cat4__favorita.btn { align-self: start; }
+.cat4__favorita[aria-pressed="true"] .btn__icone { color: var(--c-acao); fill: currentColor; }
+/* os passos em botões; o escolhido cheio de azul */
+.cat4__pilulas { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--e-3); }
+.portal--cat4 .cat4__pilula {
+  padding: 9px var(--e-4); font-size: 15px; border: 1px solid var(--c-borda); border-radius: var(--r-md);
+  background: var(--c-superficie); color: var(--c-texto); box-shadow: none;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.portal--cat4 .cat4__pilula:hover:not(:disabled) { border-color: var(--c-marca); background: var(--c-superficie-2); }
+.portal--cat4 .cat4__pilula[aria-current="true"] { background: var(--c-marca); border-color: var(--c-marca); color: var(--c-superficie); font-weight: 700; box-shadow: none; }
+.portal--cat4 .cat4__pilula:disabled { color: var(--c-texto-3); background: transparent; }
+
+/* ---------- «Filtrar modelos» ---------- */
+.cat4__filtrar-titulo { display: flex; align-items: center; gap: var(--e-2); margin: 0; padding-right: var(--e-6); font-family: var(--f-titulo); font-size: 21px; }
+.cat4__filtrar-titulo svg { width: 20px; height: 20px; }
+.cat4__procura { position: relative; }
+.cat4__procura .input { width: 100%; min-height: 44px; padding-right: 48px; }
+.cat4__procura-lupa { position: absolute; top: 0; right: 0; bottom: 0; display: grid; place-items: center; width: 44px; color: var(--c-texto-2); border-left: 1px solid var(--c-borda); pointer-events: none; }
+.cat4__procura-lupa svg { width: 18px; height: 18px; }
+.cat4__grupo { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: var(--e-2); }
+.cat4__grupo legend { padding: 0; margin-bottom: var(--e-2); font-weight: 700; font-size: 15px; }
+.cat4__de-ate { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--e-2); color: var(--c-texto-3); }
+.portal--cat4 .cat4__de-ate .campo__chip { width: 38px; }
+.cat4__tipos { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.cat4__tipo-opcao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e-3); padding: 6px var(--e-2); border-radius: var(--r-sm); cursor: pointer; transition: background-color .15s ease; }
+.cat4__tipo-opcao:hover { background: var(--c-superficie-2); }
+.cat4__tipo-opcao input { width: 18px; height: 18px; margin: 0; accent-color: var(--c-marca); }
+.cat4__n { font-size: 14px; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
+.cat4__limpar.btn { width: 100%; justify-content: center; }
+
+/* ---------- a tabela dos modelos ---------- */
+.cat4__cabeca { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3) var(--e-4); }
+.cat4__cabeca > div { margin-right: auto; }
+.cat4__cabeca-icone { width: 48px; height: 48px; background: var(--c-marca); color: var(--c-superficie); }
+.cat4__cabeca-icone svg { width: 24px; height: 24px; }
+.cat4__cabeca-titulo { margin: 0; font-family: var(--f-titulo); font-size: 22px; }
+.cat4__cabeca-sub { margin: 2px 0 0; font-size: 14px; color: var(--c-texto-2); }
+.cat4__vista-modelos .cat3__conta { font-size: 13px; }
+.cat4__ordem { width: auto; }
+.cat4__ordem .cat4__ordem-rotulo { width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 0 var(--e-3); font-size: 14px; font-weight: 700; color: var(--c-texto); white-space: nowrap; cursor: default; }
+.cat4__ordem .cat4__ordem-rotulo svg { width: 16px; height: 16px; }
+.cat4__ordem .input { min-width: 170px; }
+.cat4__tabela table { min-width: 760px; }
+.cat4__modelo { display: inline-flex; align-items: center; gap: var(--e-4); }
+.cat4__silhueta { display: grid; place-items: center; width: 64px; height: 40px; border-radius: var(--r-sm); background: var(--c-superficie-2); color: var(--c-texto-2); flex: none; transition: color .18s ease; }
+.cat4__silhueta svg { width: 26px; height: 26px; }
+.cat4__modelo-nome { font-weight: 700; color: var(--c-texto); }
+.cat4__codigo { color: var(--c-texto-2); }
+.cat4__tipo { display: inline-block; padding: 3px var(--e-3); border-radius: var(--r-sm); font-size: 13px; font-weight: 700; background: var(--c-superficie-3); color: var(--c-texto); white-space: nowrap; }
+.cat4__accoes { width: 64px; text-align: right; }
+.cat4__abrir {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--c-borda); border-radius: var(--r-md);
+  background: var(--c-superficie); color: var(--c-texto); cursor: pointer; transition: border-color .18s ease, color .18s ease, transform .18s ease-out;
+}
+.cat4__abrir svg { width: 18px; height: 18px; }
+.cat4__tabela .cat3__linha:hover .cat4__abrir { border-color: var(--c-marca); color: var(--c-acao); transform: translateX(2px); }
+.cat4__tabela .cat3__linha:hover .cat4__silhueta { color: var(--c-marca); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat4__pilula, .cat4__abrir, .cat4__silhueta, .cat4__tipo-opcao, .cat4__caminho button { transition: none; }
+  .cat4__tabela .cat3__linha:hover .cat4__abrir { transform: none; }
+}
+@media (max-width: 640px) {
+  .cat4__heroi { grid-template-columns: auto minmax(0, 1fr); }
+  .cat4__favorita.btn { grid-column: 1 / -1; }
+  .cat4__heroi-logo { width: 64px; height: 64px; }
+  .cat4__heroi-logo .cat2__logo svg { width: 44px; height: 44px; }
+  .cat4__heroi-titulo { font-size: 26px; }
+}

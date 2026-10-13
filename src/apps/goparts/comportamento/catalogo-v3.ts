@@ -9,7 +9,11 @@
    No editor (body.editando) nada disto corre: para ver os passos parados
    estão os estados 11.9 e 11.10.
    ========================================================= */
-import { linhasModelos, linhasVeiculos, MODELOS, veiculosDe, anos, ano, ANO_HOJE } from '../portal/catalogo-dados';
+import { linhasModelos, linhasModelos4, carrocarias, linhasVeiculos, MODELOS, veiculosDe, anos, ano, ANO_HOJE } from '../portal/catalogo-dados';
+import { L } from '../portal/catalogo-v3';
+import car from 'lucide-static/icons/car.svg?raw';
+import carFront from 'lucide-static/icons/car-front.svg?raw';
+import van from 'lucide-static/icons/van.svg?raw';
 
 type Vista = 'marcas' | 'modelos' | 'veiculos';
 const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2 };
@@ -29,7 +33,9 @@ export function passos(portal: ParentNode, atual: number, ate = atual): void {
 /** Mostra uma vista: o que é dela aparece, o resto esconde-se. */
 export function mostrar(main: HTMLElement, vista: Vista): void {
   main.dataset.vista = vista;
-  $$(main, '[data-so]').forEach((x) => { x.hidden = x.dataset.so !== vista; });
+  /* data-so pode ter mais de uma vista («modelos veiculos», o caminho e a faixa da marca da v4) */
+  $$(main, '[data-so]').forEach((x) => { x.hidden = !(x.dataset.so || '').split(' ').includes(vista); });
+  if (main.classList.contains('cat4')) caminho(main, vista);
   const vazio = main.querySelector<HTMLElement>('.cat2__vazio');
   if (vazio && vista !== 'marcas') vazio.hidden = true;
 }
@@ -38,9 +44,73 @@ function opcoes(sel: HTMLSelectElement, valores: (string | number)[]): void {
   sel.innerHTML = '<option value="">Todos</option>' + valores.map((v) => `<option value="${v}">${v}</option>`).join('');
 }
 
+/* ---------- v4: o caminho, a faixa da marca e os filtros dos Modelos ---------- */
+const SILHUETA: Record<string, string> = { SUV: carFront, Furgão: van, Monovolume: van };
+const silhueta = (carrocaria: string) => L(SILHUETA[carrocaria] || car);
+
+function caminho(main: HTMLElement, vista: Vista): void {
+  const marca = main.dataset.marca || '';
+  main.querySelector('.cat4__c-marca')!.textContent = marca;
+  const mod = main.querySelector<HTMLElement>('.cat4__c-modelo')!;
+  mod.hidden = vista !== 'veiculos';
+  mod.querySelector('span')!.textContent = main.dataset.modelo || '';
+  main.querySelector('.cat4__c-atual')!.textContent = vista === 'veiculos' ? 'Veículos' : 'Modelos';
+  main.querySelector('.cat4__heroi-titulo')!.textContent = vista === 'veiculos' ? `${marca} ${main.dataset.modelo || ''}` : marca;
+  main.querySelector('.cat4__heroi-sub')!.textContent = vista === 'veiculos' ? 'Escolha a versão do veículo: o motor e a potência que estão no livrete.' : 'Encontre o modelo do seu veículo para ver as peças disponíveis.';
+}
+
+/** A faixa da marca: o logótipo da grelha e o botão das favoritas, que segue a estrela. */
+function heroi(main: HTMLElement, marca: string): void {
+  const m = main.querySelector<HTMLElement>(`.cat2__marca[data-nome="${CSS.escape(marca)}"]`);
+  main.querySelector('.cat4__heroi-logo')!.innerHTML = m?.querySelector('.cat2__logo')?.outerHTML || '';
+  favorita(main, m?.querySelector('.cat2__estrela')?.getAttribute('aria-pressed') === 'true');
+}
+function favorita(main: HTMLElement, sim: boolean): void {
+  const b = main.querySelector<HTMLElement>('.cat4__favorita')!;
+  b.setAttribute('aria-pressed', String(sim));
+  b.querySelector('.btn__rotulo')!.textContent = sim ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
+}
+
+function encherModelos4(main: HTMLElement, marca: string): void {
+  heroi(main, marca);
+  main.querySelector('.cat4__de-marca')!.textContent = marca;
+  const vista = $(main, '.cat3__vista[data-so="modelos"]');
+  $(vista, 'tbody').innerHTML = linhasModelos4(marca, silhueta) || '<tr class="cat3__sem"><td colspan="6">Ainda não há modelos de exemplo para esta marca: os exemplos são das oito favoritas de origem.</td></tr>';
+  const cartao = $(main, '.cat3__cartao[data-so="modelos"]');
+  const m = MODELOS[marca] || [];
+  const anosM = anos(m.length ? Math.min(...m.map((x) => ano(x[1]))) : ANO_HOJE, ANO_HOJE);
+  $<HTMLSelectElement>(cartao, 'select[data-filtro="de"]').innerHTML = '<option value="">De</option>' + anosM.slice().reverse().map((a) => `<option>${a}</option>`).join('');
+  $<HTMLSelectElement>(cartao, 'select[data-filtro="ate"]').innerHTML = '<option value="">Até</option>' + anosM.map((a) => `<option>${a}</option>`).join('');
+  $(cartao, '.cat4__tipos').innerHTML = carrocarias(marca).map(([t, n], i) =>
+    `<li><label class="cat4__tipo-opcao"><input type="checkbox" value="${t}" data-filtro="carrocaria" id="cat4-tipo-${i}"><span>${t}</span><span class="cat4__n">${n}</span></label></li>`).join('');
+  $<HTMLInputElement>(cartao, 'input[data-filtro="texto"]').value = '';
+  const ordem = main.querySelector<HTMLSelectElement>('[data-ordem]');
+  if (ordem && ordem.value !== 'az') { ordem.value = 'az'; ordem.dispatchEvent(new Event('change', { bubbles: true })); }
+  contar(vista);
+}
+
+/** Ordena as linhas dos modelos (v4): pelo nome ou pela data de fabrico. */
+function ordenar(main: HTMLElement): void {
+  const o = main.querySelector<HTMLSelectElement>('[data-ordem]')?.value || 'az';
+  const corpo = $(main, '.cat3__vista[data-so="modelos"] tbody');
+  const linhas = $$(corpo, '.cat3__linha');
+  const antes = new Map(linhas.map((l) => [l, l.getBoundingClientRect().top]));
+  const nome = (l: HTMLElement) => l.dataset.modelo || '';
+  linhas.sort((a, b) => o === 'az' ? nome(a).localeCompare(nome(b), 'pt') : o === 'za' ? nome(b).localeCompare(nome(a), 'pt')
+    : o === 'novos' ? Number(b.dataset.mes) - Number(a.dataset.mes) : Number(a.dataset.mes) - Number(b.dataset.mes));
+  linhas.forEach((l) => corpo.appendChild(l));
+  if (quieto()) return;
+  /* as linhas deslizam para o sítio novo (FLIP, só transform) */
+  linhas.forEach((l) => {
+    const dy = antes.get(l)! - l.getBoundingClientRect().top;
+    if (dy && !l.hidden) l.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+  });
+}
+
 /** Preenche a vista dos modelos de uma marca. */
 export function encherModelos(main: HTMLElement, marca: string): void {
   main.dataset.marca = marca;
+  if (main.classList.contains('cat4')) { encherModelos4(main, marca); return; }
   $$(main, '[data-so="modelos"] .cat3__de').forEach((s) => { s.textContent = '· ' + marca; });
   const vista = $(main, '.cat3__vista[data-so="modelos"]');
   const corpo = $(vista, 'tbody');
@@ -84,13 +154,19 @@ function filtrar(main: HTMLElement): void {
   if (vista === 'marcas') return;
   const cartao = $(main, `.cat3__cartao[data-so="${vista}"]`);
   const tabela = $(main, `.cat3__vista[data-so="${vista}"]`);
-  const texto = ($<HTMLInputElement>(cartao, 'input').value || '').trim().toLowerCase();
+  const texto = ($<HTMLInputElement>(cartao, 'input[type="search"]').value || '').trim().toLowerCase();
   const valor = (k: string) => cartao.querySelector<HTMLSelectElement>(`select[data-filtro="${k}"]`)?.value || '';
   const a = Number(valor('ano'));
+  /* v4: de um ano a outro, e as carroçarias marcadas */
+  const de = Number(valor('de')), ate = Number(valor('ate'));
+  const tipos = $$<HTMLInputElement>(cartao, 'input[data-filtro="carrocaria"]:checked').map((c) => c.value);
   $$(tabela, 'tbody .cat3__linha').forEach((l) => {
     const nome = (l.dataset.modelo || l.dataset.nome || '').toLowerCase();
     let ver = !texto || nome.includes(texto);
     if (a) ver = ver && Number(l.dataset.desde) <= a && a <= Number(l.dataset.ate);
+    if (de) ver = ver && Number(l.dataset.ate) >= de;
+    if (ate) ver = ver && Number(l.dataset.desde) <= ate;
+    if (tipos.length) ver = ver && tipos.includes(l.dataset.carrocaria || '');
     (['motor', 'kw', 'cv', 'cc'] as const).forEach((k) => { const v = valor(k); if (v) ver = ver && l.dataset[k] === v; });
     l.hidden = !ver;
   });
@@ -100,7 +176,7 @@ function filtrar(main: HTMLElement): void {
 function limpar(main: HTMLElement): void {
   const cartao = main.querySelector<HTMLElement>(`.cat3__cartao[data-so="${main.dataset.vista}"]`);
   if (!cartao) return;
-  $$<HTMLInputElement>(cartao, 'input').forEach((i) => { i.value = ''; });
+  $$<HTMLInputElement>(cartao, 'input').forEach((i) => { if (i.type === 'checkbox') i.checked = false; else i.value = ''; });
   $$<HTMLSelectElement>(cartao, 'select').forEach((s) => { s.value = ''; s.dispatchEvent(new Event('change', { bubbles: true })); });
   filtrar(main);
 }
@@ -161,6 +237,16 @@ export function clique(t: Element): boolean {
     ir(main, 'modelos');
     return true;
   }
+  /* v4: o caminho e o botão das favoritas na faixa da marca */
+  const irVista = t.closest<HTMLElement>('[data-ir-vista]');
+  if (irVista) { ir(main, irVista.dataset.irVista as Vista); return true; }
+  if (t.closest('.cat4__favorita')) {
+    const estrela = main.querySelector<HTMLElement>(`.cat2__marca[data-nome="${CSS.escape(main.dataset.marca || '')}"] .cat2__estrela`);
+    const sim = estrela?.getAttribute('aria-pressed') !== 'true';
+    estrela?.setAttribute('aria-pressed', String(sim));
+    favorita(main, sim);
+    return true;
+  }
   const voltar = t.closest<HTMLElement>('.cat3__voltar');
   if (voltar) { ir(main, voltar.dataset.voltar as Vista); return true; }
   if (t.closest('.cat3__limpar')) { limpar(main); return true; }
@@ -183,7 +269,9 @@ export function iniciar(): void {
   });
   document.addEventListener('change', (ev) => {
     const i = ev.target as HTMLElement;
-    if (document.body.classList.contains('editando') || !i.matches('.cat3__cartao select[data-filtro]')) return;
+    if (document.body.classList.contains('editando')) return;
+    if (i.matches('[data-ordem]')) { ordenar(i.closest<HTMLElement>('.cat3')!); return; }
+    if (!i.matches('.cat3__cartao select[data-filtro], .cat3__cartao input[type="checkbox"]')) return;
     filtrar(i.closest<HTMLElement>('.cat3')!);
   });
   /* Enter numa linha da tabela abre-a, como o clique */

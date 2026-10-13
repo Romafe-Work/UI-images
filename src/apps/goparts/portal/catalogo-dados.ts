@@ -21,8 +21,8 @@ export const MODELOS: Record<string, Modelo[]> = {
     ['1 (E81)', '09/2006', '09/2012', 'Hatchback'], ['1 (E87)', '02/2003', '12/2013', 'Hatchback'], ['1 (F20)', '07/2011', '06/2019', 'Hatchback'],
     ['1 (F21)', '12/2011', '12/2019', 'Hatchback'], ['1 (F40)', '07/2019', '', 'Hatchback'], ['1 (F70)', '07/2024', '', 'Hatchback'],
     ['1 Coupé (E82)', '10/2006', '10/2013', 'Coupé'], ['1 Cabriolet (E88)', '12/2007', '12/2013', 'Cabriolet'],
-    ['3 (E90)', '12/2004', '12/2011', 'Sedan'], ['3 Touring (E91)', '09/2005', '06/2012', 'Carrinha'], ['3 (F30, F80)', '10/2011', '10/2018', 'Sedan'],
-    ['3 (G20, G80)', '11/2018', '', 'Sedan'], ['5 (F10)', '01/2009', '02/2017', 'Sedan'], ['X1 (E84)', '03/2009', '06/2015', 'SUV'],
+    ['3 (E90)', '12/2004', '12/2011', 'Berlina'], ['3 Touring (E91)', '09/2005', '06/2012', 'Carrinha'], ['3 (F30, F80)', '10/2011', '10/2018', 'Berlina'],
+    ['3 (G20, G80)', '11/2018', '', 'Berlina'], ['5 (F10)', '01/2009', '02/2017', 'Berlina'], ['X1 (E84)', '03/2009', '06/2015', 'SUV'],
     ['X1 (F48)', '07/2014', '06/2022', 'SUV'], ['X3 (F25)', '09/2010', '08/2017', 'SUV'],
   ],
   'Citroën': [
@@ -32,14 +32,14 @@ export const MODELOS: Record<string, Modelo[]> = {
   ],
   'Mercedes-Benz': [
     ['Classe A (W169)', '09/2004', '06/2012', 'Hatchback'], ['Classe A (W176)', '06/2012', '05/2018', 'Hatchback'], ['Classe A (W177)', '03/2018', '', 'Hatchback'],
-    ['Classe C (W204)', '01/2007', '12/2014', 'Sedan'], ['Classe C (W205)', '02/2014', '06/2021', 'Sedan'], ['Classe E (W212)', '01/2009', '12/2016', 'Sedan'],
-    ['Classe E (W213)', '03/2016', '', 'Sedan'], ['GLA (X156)', '12/2013', '12/2019', 'SUV'], ['Vito (W639)', '09/2003', '10/2014', 'Furgão'],
+    ['Classe C (W204)', '01/2007', '12/2014', 'Berlina'], ['Classe C (W205)', '02/2014', '06/2021', 'Berlina'], ['Classe E (W212)', '01/2009', '12/2016', 'Berlina'],
+    ['Classe E (W213)', '03/2016', '', 'Berlina'], ['GLA (X156)', '12/2013', '12/2019', 'SUV'], ['Vito (W639)', '09/2003', '10/2014', 'Furgão'],
     ['Sprinter 3,5-t (906)', '06/2006', '12/2018', 'Furgão'],
   ],
   Opel: [
     ['Corsa D (S07)', '07/2006', '08/2014', 'Hatchback'], ['Corsa E (X15)', '09/2014', '06/2019', 'Hatchback'], ['Corsa F (P2JO)', '06/2019', '', 'Hatchback'],
     ['Astra H (A04)', '03/2004', '05/2014', 'Hatchback'], ['Astra J (P10)', '09/2009', '10/2015', 'Hatchback'], ['Astra K (B16)', '06/2015', '12/2021', 'Hatchback'],
-    ['Insignia A (G09)', '07/2008', '03/2017', 'Sedan'], ['Mokka / Mokka X (J13)', '06/2012', '12/2019', 'SUV'], ['Combo Tour (X12)', '02/2012', '12/2018', 'Monovolume'],
+    ['Insignia A (G09)', '07/2008', '03/2017', 'Berlina'], ['Mokka / Mokka X (J13)', '06/2012', '12/2019', 'SUV'], ['Combo Tour (X12)', '02/2012', '12/2018', 'Monovolume'],
   ],
   Peugeot: [
     ['206 (2A/C)', '08/1998', '12/2012', 'Hatchback'], ['207 (WA_, WC_)', '02/2006', '12/2015', 'Hatchback'], ['208 I (CA_, CC_)', '03/2012', '12/2019', 'Hatchback'],
@@ -92,7 +92,9 @@ export function veiculosDe(marca: string, modelo: string): Veiculo[] {
     const [mot, comb, kw, cv, cc, cod] = motores[(i + j) % motores.length];
     /* cada motor numa parte dos anos do modelo, para o filtro do ano ter efeito */
     const d = a0 + Math.floor(((a1 - a0) * j) / (n + 1));
-    const desdeV = j === 0 ? desde : '0' + ((j * 3) % 9 + 1) + '/' + d;
+    /* no ano em que o modelo começa, nunca antes do mês dele */
+    const mesV = Math.max((j * 3) % 9 + 1, d === a0 ? Number(desde.slice(0, 2)) : 1);
+    const desdeV = j === 0 ? desde : String(mesV).padStart(2, '0') + '/' + d;
     return { nome: `${nome} ${mot}`, anos: `${desdeV} – ${ate || '…'}`, combustivel: comb, kw, cv, cc,
       tracao: marca === 'BMW' && !nome.startsWith('X') ? 'Tração traseira' : 'Tração dianteira', carrocaria, motor: cod, desde: ano(desdeV), ate: a1 };
   });
@@ -104,6 +106,27 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 export function linhasModelos(marca: string): string {
   return (MODELOS[marca] || []).map((m, i) =>
     `<tr class="cat3__linha" style="--i:${i}" data-modelo="${esc(m[0])}" data-desde="${ano(m[1])}" data-ate="${ano(m[2])}" tabindex="0"><td><span class="cat3__nome">${esc(m[0])}</span></td><td>${m[1]}</td><td>${m[2] || '<span class="cat3__ainda">em produção</span>'}</td><td class="cat3__ir" aria-hidden="true">${SETA}</td></tr>`).join('');
+}
+
+/** O código do modelo: o que está entre parênteses no nome («1 (E87)» → «E87»). */
+export const codigo = (nome: string) => (/\(([^)]+)\)\s*$/.exec(nome) || ['', '—'])[1];
+const mes = (mmaaaa: string) => (mmaaaa ? Number(mmaaaa.slice(-4)) * 100 + Number(mmaaaa.slice(0, 2)) : 999999);
+
+/** v4: as carroçarias da marca com quantos modelos têm, pela ordem da lista. */
+export function carrocarias(marca: string): [string, number][] {
+  const n = new Map<string, number>();
+  (MODELOS[marca] || []).forEach((m) => n.set(m[3], (n.get(m[3]) || 0) + 1));
+  return Array.from(n);
+}
+
+/** v4: as linhas dos modelos com a silhueta, o código, o tipo e o botão de abrir (a imagem dela, 13 out.). */
+export function linhasModelos4(marca: string, icone: (carrocaria: string) => string): string {
+  return (MODELOS[marca] || []).map((m, i) =>
+    `<tr class="cat3__linha" style="--i:${i}" data-modelo="${esc(m[0])}" data-desde="${ano(m[1])}" data-ate="${ano(m[2])}" data-carrocaria="${esc(m[3])}" data-mes="${mes(m[1])}" tabindex="0">`
+    + `<td><span class="cat4__modelo"><span class="cat4__silhueta" aria-hidden="true">${icone(m[3])}</span><span class="cat4__modelo-nome">${esc(m[0])}</span></span></td>`
+    + `<td class="cat4__codigo">${esc(codigo(m[0]))}</td><td>${m[1]}</td><td>${m[2] || '<span class="cat3__ainda">em produção</span>'}</td>`
+    + `<td><span class="cat4__tipo">${esc(m[3])}</span></td>`
+    + `<td class="cat4__accoes"><button type="button" class="cat4__abrir" aria-label="Ver os veículos do ${esc(m[0])}" tabindex="-1">${SETA}</button></td></tr>`).join('');
 }
 
 /** As linhas da tabela dos veículos. */
