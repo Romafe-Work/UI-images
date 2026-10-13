@@ -126,8 +126,6 @@
 .login22 .login22__facto:nth-child(2) { animation-delay: 1.05s; }
 .login22 .login22__facto:nth-child(3) { animation-delay: 1.15s; }
 .login22 .login22__facto:nth-child(4) { animation-delay: 1.25s; }
-/* o cartão inclina-se até 1,5° com o rato, como o do Início */
-.login22 .login22__cartao { transition: transform .2s ease-out; }
 @keyframes l22-respirar { from { transform: scale(1); } to { transform: scale(1.06) translateX(-1%); } }
 .login22 .login22__cartao { animation: l22-cartao .65s cubic-bezier(.2, .8, .2, 1) .2s both; }
 .login22 .login22__cartao > * { animation: l22-subir .4s ease-out both; }
@@ -149,8 +147,12 @@
   .login22__factos { border-radius: var(--r-md); }
   .login22 .portal__produto-sub { display: none; }
 }
-/* a inclinação: depois da entrada (a animação l22-cartao acaba em «none») */
-.login22 .login22__cartao:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+/* com o rato, o cartão fica quieto e é o que está dentro que o segue (ela, 13 out.:
+   «prefiro que seja o que está dentro do card»): os títulos até 3 px, o ícone até 7 px;
+   os campos e o botão não se mexem, para não fugirem do clique. Usa «translate», que
+   soma ao «transform» das animações de entrada e do ícone a flutuar. */
+.login22 .login22__boas, .login22 .login22__cabeca { translate: calc(var(--mx, 0) * 6px) calc(var(--my, 0) * 6px); transition: translate .3s ease-out; }
+.login22 .login22__icone { translate: calc(var(--mx, 0) * 8px) calc(var(--my, 0) * 8px); transition: translate .3s ease-out; }
 
 /* o cartão no azul da Romafe, RGB(0, 99, 170), liso — sem o degradê para o azul mais
    escuro dos cartões do carrossel (ela, 12 out.: «o azul do card em login deve ser da cor da Romafe») */

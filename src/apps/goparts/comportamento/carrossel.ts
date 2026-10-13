@@ -114,7 +114,8 @@ export function iniciar(): void {
     trocar(c, atual(c) + (ev.key === 'ArrowLeft' ? -1 : 1));
   });
 
-  /* a inclinação 3D do cartão do centro, só com rato e sem «reduzir movimento» */
+  /* a inclinação 3D do cartão do centro, só com rato e sem «reduzir movimento»;
+     no login o cartão fica quieto e é o que está dentro que segue o rato (--mx, --my) */
   const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
   document.addEventListener('pointermove', (ev) => {
     if (quieto.matches || ev.pointerType !== 'mouse') return;
@@ -123,6 +124,11 @@ export function iniciar(): void {
     const r = cartao.getBoundingClientRect();
     const x = (ev.clientX - r.left) / r.width - 0.5;
     const y = (ev.clientY - r.top) / r.height - 0.5;
+    if (cartao.classList.contains('login22__cartao')) {
+      cartao.style.setProperty('--mx', x.toFixed(3));
+      cartao.style.setProperty('--my', y.toFixed(3));
+      return;
+    }
     cartao.style.setProperty('--ry', (x * 3).toFixed(2) + 'deg');   // até 1,5° (ela: «1–2 graus»)
     cartao.style.setProperty('--rx', (-y * 3).toFixed(2) + 'deg');
   });
@@ -130,6 +136,7 @@ export function iniciar(): void {
     const cartao = (ev.target as Element).closest<HTMLElement>('.carrossel__cartao.is-atual, .login22__cartao');
     if (cartao && !cartao.contains(ev.relatedTarget as Node)) {
       cartao.style.removeProperty('--rx'); cartao.style.removeProperty('--ry');
+      cartao.style.removeProperty('--mx'); cartao.style.removeProperty('--my');
     }
   });
 }
