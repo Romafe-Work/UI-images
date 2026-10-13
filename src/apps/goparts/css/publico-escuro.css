@@ -21,7 +21,7 @@
   }
 }
 /* o que só muda no escuro: a barra fica com os valores do claro (o ROMAFE), placas claras, campos e linhas */
-:is([data-theme="dark"]) .pub__kicker .romafe, :is([data-theme="dark"]) .ab3__placa { background: #faf8f5; border-radius: 8px; padding: 2px 8px; }
+:is([data-theme="dark"]) .pub__kicker .romafe, :is([data-theme="dark"]) :is([data-theme="dark"]) .ab3__placa { background: #faf8f5; border-radius: 8px; padding: 2px 8px; }
 :is([data-theme="dark"]) .ab3__placa { padding: 10px 18px; border-radius: 12px; --ab-tinta: #141414; }
 :is([data-theme="dark"]) .ab3__risco { background: rgba(20, 20, 20, .14); }
 :is([data-theme="dark"]) .ab3__moldura { background: #1d1b18; }
@@ -29,16 +29,16 @@
 :is([data-theme="dark"]) .abertura--v3 .abertura__saltar.btn { border-color: rgba(243, 239, 232, .3); }
 :is([data-theme="dark"]) .pubp__input { background: #1d1b18; border-color: rgba(243, 239, 232, .25); }
 :is([data-theme="dark"]) .pubp__input::placeholder { color: rgba(243, 239, 232, .45); }
-:is([data-theme="dark"]) .login23__factos strong, :is([data-theme="dark"]) .login23 .login22__vender a { color: #f3efe8; }
+:is([data-theme="dark"]) .login23__factos strong, :is([data-theme="dark"]) :is([data-theme="dark"]) .login23 .login22__vender a { color: #f3efe8; }
 :is([data-theme="dark"]) .login23 .login22__vender { border-color: rgba(243, 239, 232, .16); }
-:is([data-theme="dark"]) .pub__barra .romafe, .login23 .portal__romafe { background: #faf8f5; border-radius: 8px; padding: 4px 10px; }
-:is([data-theme="dark"]) .login23 .login22__topo, .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
+:is([data-theme="dark"]) .pub__barra .romafe, :is([data-theme="dark"]) .login23 .portal__romafe { background: #faf8f5; border-radius: 8px; padding: 4px 10px; }
+:is([data-theme="dark"]) .login23 .login22__topo, :is([data-theme="dark"]) .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
 :is([data-theme="dark"]) .pub__rolo-rolamento circle[r="5"][fill="#faf8f5"] { fill: #141311; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .pub__barra .romafe, .login23 .portal__romafe { background: #faf8f5; border-radius: 8px; padding: 4px 10px; }
-  :root:not([data-theme="light"]) .login23 .login22__topo, .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
+  :root:not([data-theme="light"]) .pub__barra .romafe, :root:not([data-theme="light"]) .login23 .portal__romafe { background: #faf8f5; border-radius: 8px; padding: 4px 10px; }
+  :root:not([data-theme="light"]) .login23 .login22__topo, :root:not([data-theme="light"]) .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
   :root:not([data-theme="light"]) .pub__rolo-rolamento circle[r="5"][fill="#faf8f5"] { fill: #141311; }
-  :root:not([data-theme="light"]) .pub__kicker .romafe, :root:not([data-theme="light"]) .ab3__placa { background: #faf8f5; border-radius: 8px; padding: 2px 8px; }
+  :root:not([data-theme="light"]) .pub__kicker .romafe, :root:not([data-theme="light"]) :root:not([data-theme="light"]) .ab3__placa { background: #faf8f5; border-radius: 8px; padding: 2px 8px; }
   :root:not([data-theme="light"]) .ab3__placa { padding: 10px 18px; border-radius: 12px; --ab-tinta: #141414; }
   :root:not([data-theme="light"]) .ab3__risco { background: rgba(20, 20, 20, .14); }
   :root:not([data-theme="light"]) .ab3__moldura { background: #1d1b18; }
@@ -46,6 +46,6 @@
   :root:not([data-theme="light"]) .abertura--v3 .abertura__saltar.btn { border-color: rgba(243, 239, 232, .3); }
   :root:not([data-theme="light"]) .pubp__input { background: #1d1b18; border-color: rgba(243, 239, 232, .25); }
   :root:not([data-theme="light"]) .pubp__input::placeholder { color: rgba(243, 239, 232, .45); }
-  :root:not([data-theme="light"]) .login23__factos strong, :root:not([data-theme="light"]) .login23 .login22__vender a { color: #f3efe8; }
+  :root:not([data-theme="light"]) .login23__factos strong, :root:not([data-theme="light"]) :root:not([data-theme="light"]) .login23 .login22__vender a { color: #f3efe8; }
   :root:not([data-theme="light"]) .login23 .login22__vender { border-color: rgba(243, 239, 232, .16); }
 }

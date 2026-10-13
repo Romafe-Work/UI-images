@@ -30,6 +30,7 @@ import './css/publico.css';
 import './css/publico-paginas.css';
 import './css/entrar-v23.css';
 import './css/publico-escuro.css';
+import './css/estados-animacoes.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';

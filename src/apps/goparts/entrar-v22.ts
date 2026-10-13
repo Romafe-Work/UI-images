@@ -163,8 +163,13 @@ export function ecrasEntrar22(): EcraGoParts[] {
   const NOTA2 = 'Melhorada a 13 out. («melhora a página de login»): o mesmo cartão ao meio, no azul-noite da página pública, com as fotografias da Romafe a deslizar dos lados, o passo em que se está e «Voltar à página»';
   const e = (id: 'entrada' | 'palavra-passe' | 'federado' | 'ajuda', nome: string, objetivo: string, fn: (m?: typeof moldura2) => string): EcraGoParts =>
     ({ id, nome, fluxo: 'Entrar', objetivo, versoes: [{ id: 'v2', nota: NOTA2, html: fn(moldura2) }] });
+  /* 01.1 · sem dados (13 out.: «exemplos com e sem dados para todos os ecrãs»): o campo ainda por preencher;
+     «Continuar» só acende com um endereço */
+  const vazio = entrada(moldura2).replace('value="ana.ribeiro@exemplo.pt" ', 'placeholder="o.seu@endereco.pt" ').replace(/id="l22-/g, 'id="l22v-').replace(/for="l22-/g, 'for="l22v-')
+    .replace('class="btn btn--acao login22__botao" data-ir="palavra-passe"', 'class="btn btn--acao login22__botao" disabled aria-disabled="true"');
   return [
     e('entrada', '01 · Entrar', 'O primeiro passo: o endereço de correio. Daqui segue-se para a palavra-passe, para a conta da empresa, ou para a ajuda.', entrada),
+    { id: 'entrada-vazio', nome: '01.1 · Sem dados', fluxo: 'Entrar', estadoDe: 'entrada', objetivo: 'O primeiro passo antes de escrever: o campo vazio com um exemplo, «Continuar» apagado até haver um endereço.', versoes: [{ id: 'v2', nota: NOTA2, html: vazio }] },
     e('palavra-passe', '02 · A palavra-passe', 'A conta é nossa: a palavra-passe, manter a sessão, e entrar no Início.', palavraPasse),
     e('federado', '03 · O início de sessão da empresa', 'A conta é de uma empresa com a sua própria página de entrar: segue-se para ela, com o segundo fator.', federado),
     e('ajuda', '04 · Precisa de ajuda?', 'Os três casos mais comuns e o telefone do apoio; o botão volta a entrar.', ajuda),

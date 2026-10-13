@@ -1,0 +1,60 @@
+/* =========================================================
+   GOPARTS — as animações dos estados (13 out. 2026)
+   Ela: «exemplos com e sem dados para todos os ecrãs, tudo com animações!!!». Os
+   esqueletos já brilham e os giradores já rodam (comum/carregar); faltavam as entradas.
+   Cada estado entra uma vez quando aparece, em cascata, e fica quieto:
+     sem dados (.est-vazio, .er-vazio) — o ícone cresce de 0,85, o texto e os botões sobem;
+     falhas (.est-falha, .cg-falha) e avisos — descem 8 px e aparecem;
+     sem ligação (.est-faixa, .er-faixa) — a faixa desce do topo;
+     erros nos campos — o campo dá um toque para o lado (uma vez) e a mensagem sobe;
+     linhas esbatidas (a pesquisar) — esbatem devagar, não de repente;
+     páginas de erro (404, 500, 403, manutenção) — o ícone, o código, o título, o texto
+       e os botões em cascata; o diálogo da sessão — o véu escurece e o diálogo cresce de 0,96.
+   Só transform e opacity; curvas de saída fortes. Com «reduzir movimento», só aparecem.
+   ========================================================= */
+@keyframes est-subir { from { opacity: 0; transform: translateY(10px); } }
+@keyframes est-descer { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes est-crescer { from { opacity: 0; transform: scale(.85); } }
+@keyframes est-faixa { from { transform: translateY(-100%); } }
+@keyframes est-toque { 0%, 100% { transform: none; } 25% { transform: translateX(-4px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-2px); } }
+@keyframes est-esbater { from { opacity: 1; } }
+@keyframes est-veu { from { opacity: 0; } }
+@keyframes est-dialogo { from { opacity: 0; transform: scale(.96) translateY(8px); } }
+
+/* sem dados */
+.est-vazio > svg, .er-vazio > svg, .er-vazio .er-icone { animation: est-crescer .5s var(--ease-out) .1s both; }
+.est-vazio > p, .er-vazio > p { animation: est-subir .5s var(--ease-out) .2s both; }
+.est-vazio .est-aviso__botoes, .er-vazio .er-botoes { animation: est-subir .5s var(--ease-out) .32s both; }
+.er-sugestoes > * { animation: est-subir .45s var(--ease-out) both; }
+.er-sugestoes > :nth-child(2) { animation-delay: .06s; } .er-sugestoes > :nth-child(3) { animation-delay: .12s; } .er-sugestoes > :nth-child(4) { animation-delay: .18s; }
+/* falhas e avisos */
+.est-falha, .cg-falha, .er-cartao, .er-carrinho { animation: est-descer .45s var(--ease-out) .1s both; }
+/* sem ligação */
+.est-faixa, .er-faixa { animation: est-faixa .5s var(--ease-out) both; }
+.est-desligado { animation: est-esbater .6s ease both; }
+/* erros nos campos */
+.campo--erro .campo__caixa { animation: est-toque .4s var(--ease-out) .25s both; }
+.campo--erro .campo__erro, .est-com-erros { animation: est-subir .4s var(--ease-out) .15s both; }
+/* a pesquisar: as linhas antigas esbatem devagar */
+.est-esbatido { animation: est-esbater .6s ease both; }
+/* páginas de erro */
+.er-pagina .er-icone { animation: est-crescer .55s var(--ease-out) .05s both; }
+.er-pagina .er-codigo { animation: est-subir .5s var(--ease-out) .12s both; }
+.er-pagina .er-titulo { animation: est-subir .5s var(--ease-out) .18s both; }
+.er-pagina .er-texto { animation: est-subir .5s var(--ease-out) .24s both; }
+.er-pagina .er-botoes, .er-pagina .er-ref, .er-pagina .er-apoio { animation: est-subir .5s var(--ease-out) .3s both; }
+.er-veu { animation: est-veu .4s ease both; }
+.er-dialogo { animation: est-dialogo .45s var(--ease-out) .1s both; }
+.er-manutencao > * { animation: est-subir .5s var(--ease-out) both; }
+.er-manutencao > :nth-child(2) { animation-delay: .08s; } .er-manutencao > :nth-child(3) { animation-delay: .16s; } .er-manutencao > :nth-child(4) { animation-delay: .24s; }
+
+/* com dados: as linhas das tabelas dos estados entram em cascata (as primeiras dez) */
+.portal--estado tbody tr { animation: est-subir .4s var(--ease-out) both; }
+.portal--estado tbody tr:nth-child(2) { animation-delay: .03s; } .portal--estado tbody tr:nth-child(3) { animation-delay: .06s; } .portal--estado tbody tr:nth-child(4) { animation-delay: .09s; }
+.portal--estado tbody tr:nth-child(5) { animation-delay: .12s; } .portal--estado tbody tr:nth-child(6) { animation-delay: .15s; } .portal--estado tbody tr:nth-child(7) { animation-delay: .18s; }
+.portal--estado tbody tr:nth-child(8) { animation-delay: .21s; } .portal--estado tbody tr:nth-child(9) { animation-delay: .24s; } .portal--estado tbody tr:nth-child(10) { animation-delay: .27s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .est-vazio > *, .er-vazio > *, .er-vazio .er-icone, .er-sugestoes > *, .est-falha, .cg-falha, .er-cartao, .er-carrinho, .est-faixa, .er-faixa, .campo--erro .campo__caixa, .campo--erro .campo__erro, .est-com-erros,
+  .er-pagina .er-icone, .er-pagina .er-codigo, .er-pagina .er-titulo, .er-pagina .er-texto, .er-pagina .er-botoes, .er-pagina .er-ref, .er-pagina .er-apoio, .er-dialogo, .er-manutencao > *, .portal--estado tbody tr { animation: est-veu .2s ease both; }
+}

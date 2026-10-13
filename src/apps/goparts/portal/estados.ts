@@ -26,10 +26,10 @@ import { faturasV1 } from './faturas-v1';
 import { preencher as preencherFatura } from '../comportamento/faturas';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
-export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto';
+export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
-export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes';
+export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -319,6 +319,40 @@ const catalogoDetalhes = () => catalogo(mudar(catalogoV5, 'e1113', (r) => {
   $(r, '.cat5__m-modelo').textContent = '1 (E81)';
 }));
 
+/* 11.14 · sem dados: os filtros dos veículos não deixam nenhum (13 out.: «exemplos com e sem dados para todos os ecrãs») */
+const catalogoSemVeiculos = () => catalogo(mudar(catalogoV3, 'e1117', (r) => {
+  parado(r);
+  const main = $(r, '.cat3');
+  main.dataset.marca = 'Renault';
+  encherModelos(main, 'Renault');
+  encherVeiculos(main, 'Renault', 'Scénic II (JM0/1_)');
+  mostrar(main, 'veiculos');
+  passos(r, 2);
+  const corpo = $(r, '.cat3__vista[data-so="veiculos"] tbody');
+  corpo.innerHTML = '';
+  /* o filtro escrito e as contagens a zero, para o ecrã dizer o mesmo que a frase */
+  $$<HTMLInputElement>(r, '.cat3__vista[data-so="veiculos"] input[type="text"], .cat3__cartao input[placeholder*="1.5 dCi"]').slice(0, 1).forEach((i) => i.setAttribute('value', '2.0 16V Turbo'));
+  const conta = $(r, '.cat3__vista[data-so="veiculos"] .cat3__conta strong'); conta.textContent = '0';
+  corpo.closest('table')!.insertAdjacentHTML('afterend', `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.lupa)}<p><strong>Nenhum Scénic II «2.0 16V Turbo».</strong> Experimente só «2.0» ou limpe o filtro para ver as quatro versões.</p><div class="est-aviso__botoes">${BOTAO('Limpar os filtros', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver todos os Scénic II', IC.grelha, 'btn--acao btn--sm')}</div></div>`);
+}));
+
+/* 11.15 · sem dados: o grupo escolhido não tem referências para este veículo */
+const catalogoSemReferencias = () => catalogo(mudar(catalogoV5, 'e1118', (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  Object.assign(main.dataset, { marca: 'BMW', modelo: '1 (E81)', versao: '118d' });
+  abrirReferencias(main, '', [], 'veiculo');
+  mostrar(main, 'referencias');
+  fluxo(main, 'referencias');
+  $(r, '.cat5__logo').innerHTML = $(r, '.cat2__marca[data-nome="BMW"] .cat2__logo').outerHTML;
+  $(r, '.cat5__m-marca').textContent = 'BMW';
+  $(r, '.cat5__m-modelo').textContent = '1 (E81)';
+  const corpo = $(r, '.cat5__refs tbody');
+  corpo.innerHTML = '';
+  $(r, '.cat5__refs-conta').innerHTML = '<strong>0</strong> referências · Bomba de água';
+  corpo.closest('table')!.insertAdjacentHTML('afterend', `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não há referências de «Bomba de água» para o BMW 1 (E81) 118d.</strong> A Romafe pode procurá-la ao fabricante: diga a matrícula e ligamos com o preço e o prazo.</p><div class="est-aviso__botoes">${BOTAO('Ver o grupo Universal', IC.grelha, 'btn--ghost btn--sm')}${BOTAO('Pedir à Romafe', IC.denovo, 'btn--acao btn--sm')}</div></div>`);
+}));
+
 /* ================= 12 · Pedidos ================= */
 const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
 const semPedidos = (r: HTMLElement) => $$(r, '[data-pedidos]').forEach((x) => x.removeAttribute('data-pedidos'));
@@ -473,6 +507,16 @@ const guiasPrimeira = () => guias(mudar(guiasV2, 'e139', (r) => {
   $(r, '.ped2__pe').remove();
 }));
 
+/* 12.8 · primeira vez: uma conta nova, ainda sem nenhum pedido */
+const pedidosPrimeira = () => pedidos(mudar(pedidosV2, 'e1211', (r) => {
+  semPedidos(r);
+  $(r, '.ped2__resumo').innerHTML = '';
+  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
+  $(r, 'tbody').innerHTML = '';
+  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não fez nenhum pedido no GoParts.</strong> Cada encomenda aparece aqui, com o estado, o que já foi servido e a guia de remessa.</p><div class="est-aviso__botoes">${BOTAO('Procurar uma peça', IC.lupa, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
+  $(r, '.ped2__pe').remove();
+}));
+
 /* ================= 14 · Faturas ================= */
 const faturas = (html: string) => portal('faturas', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
 const semFaturas = (r: HTMLElement) => $$(r, '[data-faturas]').forEach((x) => x.removeAttribute('data-faturas'));
@@ -574,6 +618,8 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-referencias', '11.11 · Referências', 'Catálogo v5: as peças do BMW 1 (E81) 118d de todos os fabricantes, preço, desconto, líquido e stock no Porto e em Sacavém; duas marcadas para comparar.', catalogoReferencias),
   e('catalogo-universal', '11.12 · Universal', 'Catálogo v5: os grupos de montagem sem veículo, em árvore; o Kit de distribuição escolhido mostra os fabricantes; cada um leva às referências.', catalogoUniversal),
   e('catalogo-detalhes', '11.13 · Detalhes da referência', 'Catálogo v5: a peça em cima (preço, desconto, líquido, stock, quantidade, carrinho e minha lista) e os separadores Stock, Equivalências, OE, Veículos aplicáveis, Características e Documentos.', catalogoDetalhes),
+  e('catalogo-sem-veiculos', '11.14 · Nenhum veículo com estes filtros', 'Sem dados: os filtros dos veículos não deixam nenhum; diz porquê e dá duas saídas.', catalogoSemVeiculos),
+  e('catalogo-sem-referencias', '11.15 · Grupo sem referências', 'Sem dados: o grupo escolhido não tem peças para o veículo; a Romafe procura-a ao fabricante.', catalogoSemReferencias),
 ];
 /* 12.7 · v3: o painel do pedido aberto, para se ver no editor (onde o clique escolhe peças) */
 const pedidosAberto = () => pedidos(mudar(pedidosV3, 'e127', (r) => {
@@ -589,6 +635,7 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa em cima, os pedidos de há pouco esbatidos e a pesquisa desligada.', pedidosRede),
   e('pedidos-falha', '12.6 · Os pedidos não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', pedidosFalha),
   e('pedidos-aberto', '12.7 · Pedido aberto', 'Pedidos v3: o P2024/001233 aberto no painel — o percurso, os 12 artigos com um pendente, os totais e as ações. As animações correm ao mostrar o ecrã.', pedidosAberto),
+  e('pedidos-primeira', '12.8 · Primeira vez', 'Sem dados: uma conta nova, sem nenhum pedido; diz o que vai aparecer e leva ao catálogo.', pedidosPrimeira),
 ];
 export const estadosGuias = (): EcraGoParts[] => [
   e('guias-carga', '13.1 · A carregar as guias', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', guiasCarga),
