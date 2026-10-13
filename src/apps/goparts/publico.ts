@@ -4,8 +4,9 @@
    e disse «quero a app web como estes vídeos… desse jeito em termos de animações
    e UI». Ficou combinado pôr esse estilo onde se apresenta o GoParts, antes de
    entrar; o catálogo e os pedidos ficam rápidos. Com o material da Romafe:
-     herói — «Rolling your way.» em letra enorme, linha a linha, e um rolamento
-       grande que roda com o scroll; os números contam ao aparecer;
+     herói — «Rolling your way.» em letra enorme, linha a linha, e uma colagem de
+       fotografias da Romafe que reage ao rato (camadas, legendas, pontos no
+       armazém); os números contam ao aparecer e mostram um detalhe com o rato;
      do armazém à oficina — uma secção que fica parada enquanto se faz scroll:
        quatro fotografias verdadeiras trocam com uma revelação em círculo e o
        texto acompanha (fachada, corredor, separação, oficina);
@@ -28,20 +29,27 @@ import phone from 'lucide-static/icons/phone.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
-/* o rolamento grande do herói: anéis, 12 esferas, o furo; em desenho, como a abertura */
-const esferas = Array.from({ length: 12 }, (_, i) => {
-  const a = (i / 12) * Math.PI * 2;
-  return `<circle cx="${(300 + 205 * Math.cos(a)).toFixed(1)}" cy="${(300 + 205 * Math.sin(a)).toFixed(1)}" r="44"/>`;
-}).join('');
-const ROLAMENTO = `<svg class="pub__rolamento" viewBox="0 0 600 600" aria-hidden="true">
-  <circle class="pub__r-anel" cx="300" cy="300" r="280"/><circle class="pub__r-anel" cx="300" cy="300" r="128"/>
-  <g class="pub__r-esferas">${esferas}</g><circle class="pub__r-furo" cx="300" cy="300" r="62"/>
-  <circle class="pub__r-fino" cx="300" cy="300" r="250"/><circle class="pub__r-fino" cx="300" cy="300" r="160"/>
-</svg>`;
+/* a colagem do herói (ela, 13 out.: «quero imagens relacionadas com a empresa e quando passo
+   o rato mostrar coisas»): três fotografias verdadeiras da Romafe em camadas; ao passar o rato,
+   a que está por baixo vem para a frente e mostra a legenda, e a colagem segue o rato com
+   profundidade; no corredor, pontos que se abrem com o que se vê */
+const PONTOS: [number, number, string, string][] = [
+  [24, 44, 'Caixas SKF', 'A Romafe distribui SKF desde 1975.'],
+  [58, 30, 'Estantes azuis, travessas laranja', 'As cores da marca estão no próprio armazém.'],
+  [70, 72, '6 000 m² de armazém', 'Entre o Porto e Sacavém, com 75 000 referências auto.'],
+];
+const ponto = ([x, y, t, d]: [number, number, string, string], i: number) =>
+  `<button type="button" class="pub__ponto" style="--x:${x}%; --y:${y}%; --i:${i}" aria-label="${t}"><span class="pub__ponto-mais" aria-hidden="true"></span><span class="pub__ponto-dica" role="tooltip"><strong>${t}</strong>${d}</span></button>`;
+const COLAGEM = `<div class="pub__colagem">
+  <figure class="pub__ft pub__ft--grande" style="--prof:0.5"><img src="${corredor}" alt="Um corredor do armazém da Romafe, com caixas SKF em estantes azuis e travessas laranja" loading="eager"><figcaption><strong>Armazém do Porto</strong>Rua Eng. Ezequiel de Campos</figcaption>${PONTOS.map(ponto).join('')}</figure>
+  <figure class="pub__ft pub__ft--separacao" style="--prof:1.2"><img src="${separacao}" alt="Uma colaboradora da Romafe a separar caixas de peças numa estante" loading="eager"><figcaption><strong>Separação</strong>O que pedir até às 16h sai hoje</figcaption></figure>
+  <figure class="pub__ft pub__ft--fachada" style="--prof:2"><img src="${fachada}" alt="A fachada da Romafe com o letreiro" loading="eager"><figcaption><strong>Desde 1945</strong>Rolamentos, Máquinas e Ferramentas</figcaption></figure>
+  <p class="pub__selo"><strong>SKF</strong>Distribuidor<br>desde 1975</p>
+</div>`;
 
 /* os logótipos das marcas, os mesmos do Catálogo v2 */
 const logos = Array.from(catalogoV2.matchAll(/data-nome="([^"]+)">\s*<button[^>]*><span class="cat2__logo"[^>]*>(<svg[\s\S]*?<\/svg>)<\/span>/g))
-  .slice(0, 14).map(([, nome, svg]) => `<li title="${nome}">${svg}</li>`).join('');
+  .slice(0, 14).map(([, nome, svg]) => `<li>${svg}<span class="pub__marca-nome">${nome}</span></li>`).join('');
 
 const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span style="--i:${i}">${texto}</span></span>`;
 const CENAS: [string, string, string, string][] = [
@@ -55,7 +63,7 @@ const html = `<div class="pub">
   <header class="pub__barra">
     <a class="pub__marca" href="#" aria-label="Romafe GoParts"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
     <nav class="pub__nav" aria-label="Principal"><a href="#pub-historia">A Romafe</a><a href="#pub-rota">Entregas</a><a href="#pub-marcas">Marcas</a><a href="tel:+351226158300">Contactos</a></nav>
-    <button type="button" class="btn btn--acao pub__entrar" data-ir="abertura">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
+    <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
   </header>
 
   <section class="pub__heroi" aria-label="GoParts">
@@ -63,16 +71,16 @@ const html = `<div class="pub">
       <h1 class="pub__titulo">${LINHA('Rolling', 0)}${LINHA('your', 1)}${LINHA('way.', 2)}</h1>
       <p class="pub__lead">O marketplace de peças auto da Romafe: 75 000 referências, com o stock do Porto e de Sacavém à vista, preço líquido e entrega no dia seguinte. Para oficinas que não podem esperar.</p>
       <div class="pub__accoes">
-        <button type="button" class="btn btn--acao pub__cta" data-ir="abertura">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar no GoParts</span></button>
+        <button type="button" class="btn btn--acao pub__cta" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar no GoParts</span></button>
         <a class="pub__ligacao" href="tel:+351226158300">${L(phone)}Pedir acesso · 226 158 300</a>
       </div>
     </div>
-    <div class="pub__heroi-roda" aria-hidden="true">${ROLAMENTO}</div>
+    ${COLAGEM}
     <ul class="pub__numeros" aria-label="A Romafe em números">
-      <li><strong data-contar="75000" data-mil>0</strong><span>referências auto</span></li>
-      <li><strong data-contar="1945">0</strong><span>o ano em que começou</span></li>
-      <li><strong data-contar="14000" data-mil data-mais>0</strong><span>clientes</span></li>
-      <li><strong data-contar="2">0</strong><span>armazéns: Porto e Sacavém</span></li>
+      <li tabindex="0"><strong data-contar="75000" data-mil>0</strong><span>referências auto</span><em class="pub__mais">Travões, suspensão, distribuição, filtros, embraiagens, iluminação…</em></li>
+      <li tabindex="0"><strong data-contar="1945">0</strong><span>o ano em que começou</span><em class="pub__mais">Fundada no Porto por Alfredo Pinto França.</em></li>
+      <li tabindex="0"><strong data-contar="14000" data-mil data-mais>0</strong><span>clientes</span><em class="pub__mais">Oficinas, frotas e indústria, de norte a sul.</em></li>
+      <li tabindex="0"><strong data-contar="2">0</strong><span>armazéns: Porto e Sacavém</span><em class="pub__mais">O Porto expede no próprio dia; Sacavém na manhã seguinte.</em></li>
     </ul>
     <a class="pub__descer" href="#pub-historia" aria-label="Descer">${L(arrowDown)}</a>
   </section>
@@ -106,7 +114,7 @@ const html = `<div class="pub">
 
   <section class="pub__fim" aria-label="Entrar">
     <h2 class="pub__h2 pub__h2--fim">${LINHA('Entre no', 0)}${LINHA('GoParts.', 1)}</h2>
-    <button type="button" class="btn btn--acao pub__cta pub__cta--grande" data-ir="abertura"><span class="btn__rotulo">Entrar</span>${L(arrowRight, 'btn__icone')}</button>
+    <button type="button" class="btn btn--acao pub__cta pub__cta--grande" data-ir="entrada"><span class="btn__rotulo">Entrar</span>${L(arrowRight, 'btn__icone')}</button>
     <p class="pub__fim-nota">Ainda não tem conta? Apoio Romafe · <a href="tel:+351226158300">+351 226 158 300</a></p>
   </section>
 

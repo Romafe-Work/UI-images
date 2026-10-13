@@ -2,7 +2,7 @@
    GOPARTS — 00 · A página pública: as animações ligadas ao scroll (13 out. 2026)
    - cada secção ganha .is-visivel quando entra no ecrã (as entradas são CSS);
    - os números contam de 0 até ao valor quando aparecem (1,4 s);
-   - o rolamento do herói roda com o scroll (--rot);
+   - a colagem do herói segue o rato com profundidade (--px, --py, de −0,5 a 0,5);
    - «do armazém à oficina»: o progresso do scroll na secção (0 a 3) revela cada
      fotografia com um círculo (--r) e troca a cena do texto e a barra ao lado;
    - a rota desenha-se com o scroll (--traco, de 0 a 1).
@@ -49,8 +49,6 @@ function aoScroll(): void {
     if (!pub) return;
     ligar(pub);
     const vh = innerHeight;
-    /* o rolamento roda 0,12° por píxel de scroll */
-    if (!quieto()) pub.querySelector<HTMLElement>('.pub__rolamento')?.style.setProperty('--rot', String(Math.round(scrollY * 0.12)));
     /* a história: 0 no início da secção, 3 quando a última cena está à vista */
     const h = pub.querySelector<HTMLElement>('.pub__historia');
     if (h) {
@@ -74,7 +72,19 @@ function aoScroll(): void {
   });
 }
 
+/** A colagem do herói segue o rato (só com rato e sem «reduzir movimento»). */
+function aoRato(ev: PointerEvent): void {
+  if (ev.pointerType !== 'mouse' || quieto()) return;
+  const heroi = (ev.target as Element).closest?.('.pub__heroi');
+  const col = heroi?.querySelector<HTMLElement>('.pub__colagem');
+  if (!heroi || !col) return;
+  const r = heroi.getBoundingClientRect();
+  col.style.setProperty('--px', ((ev.clientX - r.left) / r.width - 0.5).toFixed(3));
+  col.style.setProperty('--py', ((ev.clientY - r.top) / r.height - 0.5).toFixed(3));
+}
+
 export function iniciar(): void {
+  document.addEventListener('pointermove', aoRato, { passive: true });
   window.addEventListener('scroll', aoScroll, { passive: true });
   window.addEventListener('resize', aoScroll);
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(aoScroll)));

@@ -15,10 +15,8 @@ import { catalogoV4 } from './catalogo-v4';
 import { catalogoV5 } from './catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
 import { pedidosV3 } from './pedidos-v3';
-import guias from './guias.html?raw';
 
 const FLUXO = 'Portal';
-const NOTA = 'Do Figma-WebShop-GoParts, com o ROMAFE azul em Motor e botões com ícone e texto';
 
 export const ecrasPortal: EcraGoParts[] = [
   { id: 'inicio', nome: '10 · Início', fluxo: FLUXO, versoes: [
@@ -45,7 +43,8 @@ export const ecrasPortal: EcraGoParts[] = [
     { id: 'v3', nota: 'A v2 com o pedido num painel à direita (13 out.): a lista fica à vista; o painel tem o percurso (recebido → entregue), os artigos com pedida, servida e pendente, os totais e repetir / guia / fatura; ↑ ↓ passam de pedido, Esc fecha', html: portal('pedidos', pedidosV3, undefined, { menu: true, rodape: false }) }],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
   ...estadosPedidos(),
-  { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [{ id: 'v1', nota: NOTA, html: portal('guias', guias) },
+  /* 13 out. 2026: ela não gostou da v1 (a do Figma-WebShop-GoParts) — fica só a v2 */
+  { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [
     /* 13 out. 2026: ela, «faz este screen com exemplos e animações» e «coloca animações e todos os estados possíveis» */
     { id: 'v2', nota: 'No estilo dos Pedidos v3 (13 out.): filtros no cartão azul com Todas / Faturas / Notas de crédito, as colunas do GO REPAIR com oito guias de exemplo, e a guia num painel à direita (documentos, artigos, valores a contar); estados 13.1 a 13.9', html: portal('guias', guiasV2, undefined, { menu: true, rodape: false }) }],
     objetivo: 'As guias de remessa e as notas de crédito: filtros, os totais faturados e a lista com bruto, desconto, portes e IVA.' },

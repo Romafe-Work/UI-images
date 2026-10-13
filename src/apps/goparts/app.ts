@@ -25,6 +25,6 @@ export const goparts: App<IdGoParts> = {
   /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a
      fotografia da oficina (entrar-v22.ts); a «Família Romafe» saiu (ela não gostou) */
   /* 13 out. 2026: a abertura animada antes do login (abertura.ts) */
-  /* 13 out. 2026: a página pública (publico.ts) antes da abertura e do login */
-  ecras: [ecraPublico(), ecraAbertura(), ...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
+  /* 13 out. 2026: a abertura passa à página pública (publico.ts), e o «Entrar» dela leva ao login */
+  ecras: [ecraAbertura(), ecraPublico(), ...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
 };

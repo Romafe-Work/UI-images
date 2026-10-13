@@ -42,13 +42,38 @@
 .pub__ligacao svg { width: 16px; height: 16px; }
 @media (hover: hover) and (pointer: fine) { .pub__ligacao:hover { border-color: var(--c-acao); } }
 
-/* o rolamento grande, à direita, que roda com o scroll */
-.pub__heroi-roda { position: relative; align-self: center; justify-self: end; width: min(46vw, 680px); aspect-ratio: 1; margin-right: calc(var(--e-6) * -1 - 8vw); }
-.pub__rolamento { width: 100%; height: 100%; transform: rotate(calc(var(--rot, 0) * 1deg)); }
-.pub__r-anel { fill: none; stroke: #1d4f86; stroke-width: 40; }
-.pub__r-fino { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: 1.5; }
-.pub__r-esferas circle { fill: var(--c-acao); }
-.pub__r-furo { fill: var(--pub-noite-2); stroke: #1d4f86; stroke-width: 10; }
+/* a colagem das fotografias da Romafe, à direita (ela, 13 out.: «imagens relacionadas com a
+   empresa e quando passo o rato mostrar coisas»): três camadas que seguem o rato com
+   profundidade (--px, --py, cada uma com a sua --prof); a que está debaixo do rato vem para
+   a frente, as outras escurecem e aparece a legenda; no corredor, pontos que se abrem */
+.pub__colagem { position: relative; align-self: center; height: min(64vh, 620px); --px: 0; --py: 0; }
+.pub__ft { position: absolute; margin: 0; translate: calc(var(--px) * var(--prof, 1) * -18px) calc(var(--py) * var(--prof, 1) * -18px); transition: translate .5s var(--ease-out), scale .35s var(--ease-out); }
+.pub__ft img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 22px; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7); transition: filter .35s ease; }
+.pub__ft--grande { inset: 0 16% 12% 0; z-index: 1; }
+.pub__ft--separacao { width: 44%; height: 48%; right: 0; bottom: 0; z-index: 2; }
+.pub__ft--fachada { width: 36%; height: 30%; right: 4%; top: -3%; z-index: 3; }
+.pub__ft figcaption { position: absolute; left: 14px; bottom: 14px; display: grid; gap: 2px; padding: 10px 14px; border-radius: 12px; background: rgba(8, 18, 32, .82); font-size: 13px; color: var(--pub-tinta-2); opacity: 0; transform: translateY(8px); transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); pointer-events: none; }
+.pub__ft figcaption strong { font-size: 15px; color: var(--pub-tinta); }
+.pub__ft--grande figcaption { opacity: 1; transform: none; }
+@media (hover: hover) and (pointer: fine) {
+  .pub__ft:hover { z-index: 5; scale: 1.03; }
+  .pub__colagem:hover .pub__ft:not(:hover) img { filter: brightness(.55) saturate(.8); }
+  .pub__ft:hover figcaption { opacity: 1; transform: none; }
+}
+/* os pontos no corredor: um laranja com um +, que se abre num cartão */
+.pub__ponto { position: absolute; left: var(--x); top: var(--y); width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 0; padding: 0; border-radius: 50%; background: var(--c-acao); cursor: pointer; z-index: 2; }
+.pub__ponto::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--c-acao); opacity: 0; animation: pub-ponto 2.6s var(--ease-out) calc(1.6s + var(--i, 0) * .4s) infinite; }
+@keyframes pub-ponto { 0% { opacity: .7; transform: scale(.8); } 60%, 100% { opacity: 0; transform: scale(1.6); } }
+.pub__ponto-mais::before, .pub__ponto-mais::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 2px; margin: -1px 0 0 -6px; background: #fff; transition: transform .25s var(--ease-out); }
+.pub__ponto-mais::after { transform: rotate(90deg); }
+.pub__ponto:hover .pub__ponto-mais::after, .pub__ponto:focus-visible .pub__ponto-mais::after { transform: rotate(0deg); }
+.pub__ponto-dica { position: absolute; left: 50%; bottom: calc(100% + 12px); width: 220px; margin-left: -110px; display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; background: #fff; color: #18263a; font-size: 13px; line-height: 1.4; text-align: left; box-shadow: 0 18px 40px -20px rgba(0, 0, 0, .6); opacity: 0; transform: translateY(6px) scale(.97); transform-origin: bottom center; transition: opacity .2s var(--ease-out), transform .2s var(--ease-out); pointer-events: none; }
+.pub__ponto-dica strong { font-size: 14px; }
+.pub__ponto:hover .pub__ponto-dica, .pub__ponto:focus-visible .pub__ponto-dica { opacity: 1; transform: none; }
+.pub__ponto:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+/* o selo: um círculo branco, ao canto */
+.pub__selo { position: absolute; left: -5%; top: 4%; z-index: 6; display: grid; place-items: center; align-content: center; width: 124px; height: 124px; margin: 0; border-radius: 50%; background: #fff; color: #18263a; text-align: center; font-size: 12px; line-height: 1.25; box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .7); translate: calc(var(--px) * -30px) calc(var(--py) * -30px); transition: translate .5s var(--ease-out); }
+.pub__selo strong { font-family: var(--f-titulo); font-size: 30px; line-height: 1; color: var(--c-logotipo); }
 
 /* os números, em baixo, separados por linhas finas */
 .pub__numeros { grid-column: 1 / -1; list-style: none; margin: 0; padding: var(--e-5) 0 var(--e-6); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--pub-linha); position: relative; z-index: 1; }
@@ -114,16 +139,31 @@
 .pub__lead, .pub__accoes, .pub__rota-texto p, .pub__fim-nota, .pub__fim .pub__cta { opacity: 0; transform: translateY(16px); transition: opacity .7s var(--ease-out) .35s, transform .7s var(--ease-out) .35s; }
 .pub__accoes { transition-delay: .45s; }
 .is-visivel .pub__lead, .is-visivel .pub__accoes, .is-visivel .pub__rota-texto p, .is-visivel .pub__fim-nota, .is-visivel .pub__cta { opacity: 1; transform: none; }
-.pub__heroi-roda { opacity: 0; transform: translateX(18%) rotate(40deg); transition: opacity 1s var(--ease-out) .1s, transform 1.4s var(--ease-out) .1s; }
-.is-visivel .pub__heroi-roda { opacity: 1; transform: none; }
+.pub__ft, .pub__selo { opacity: 0; transform: translateY(40px) scale(.96); }
+.is-visivel .pub__ft, .is-visivel .pub__selo { opacity: 1; transform: none; transition: opacity .9s var(--ease-out), transform 1.1s var(--ease-out); }
+.is-visivel .pub__ft--grande { transition-delay: .15s; }
+.is-visivel .pub__ft--separacao { transition-delay: .3s; }
+.is-visivel .pub__ft--fachada { transition-delay: .45s; }
+.is-visivel .pub__selo { transition-delay: .7s; }
+/* os números: com o rato (ou o foco), aparece um detalhe por baixo */
+.pub__mais { font-style: normal; font-size: 13px; line-height: 1.4; color: var(--pub-tinta-2); max-width: 30ch; opacity: 0; transform: translateY(-4px); transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
+.pub__numeros li { cursor: default; border-radius: 4px; }
+.pub__numeros li:hover .pub__mais, .pub__numeros li:focus-visible .pub__mais { opacity: 1; transform: none; }
+.pub__numeros li:hover strong { color: var(--c-acao); }
+.pub__numeros strong { transition: color .2s ease; }
+/* as marcas: com o rato, o nome aparece por baixo do logótipo */
+.pub__faixa li { position: relative; }
+.pub__marca-nome { position: absolute; top: 100%; left: 50%; translate: -50% 0; margin-top: 8px; white-space: nowrap; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--pub-tinta); opacity: 0; transform: translateY(-4px); transition: opacity .2s var(--ease-out), transform .2s var(--ease-out); }
+.pub__faixa li:hover .pub__marca-nome { opacity: 1; transform: none; }
+.pub__faixa { padding-bottom: 28px; }
 .pub__numeros li { opacity: 0; transform: translateY(12px); transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); }
 .is-visivel .pub__numeros li { opacity: 1; transform: none; }
 .pub__numeros li:nth-child(2) { transition-delay: .08s; } .pub__numeros li:nth-child(3) { transition-delay: .16s; } .pub__numeros li:nth-child(4) { transition-delay: .24s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pub .pub__linha > span, .pub__lead, .pub__accoes, .pub__rota-texto p, .pub__fim-nota, .pub__fim .pub__cta, .pub__heroi-roda, .pub__numeros li, .pub__cena { transition: none; transform: none; opacity: 1; }
+  .pub .pub__linha > span, .pub__lead, .pub__accoes, .pub__rota-texto p, .pub__fim-nota, .pub__fim .pub__cta, .pub__ft, .pub__selo, .pub__numeros li, .pub__cena { transition: none; transform: none; opacity: 1; }
+  .pub__ponto::before { animation: none; }
   .pub__cena:not([aria-current="true"]) { opacity: 0; }
-  .pub__rolamento { transform: none; }
   .pub__faixa ul { animation: none; }
   .pub__foto { transform: none; }
 }
@@ -131,8 +171,9 @@
 /* ---------- onde se dobra ---------- */
 @media (max-width: 1000px) {
   .pub__heroi { grid-template-columns: minmax(0, 1fr); }
-  .pub__heroi-roda { position: absolute; right: -30vw; top: 8vh; width: 80vw; opacity: .35; }
-  .is-visivel .pub__heroi-roda { opacity: .35; }
+  .pub__colagem { height: 56vh; margin-top: var(--e-4); }
+  .pub__selo { left: 0; width: 96px; height: 96px; }
+  .pub__selo strong { font-size: 22px; }
   .pub__numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--e-4); }
   .pub__numeros li:nth-child(3) { border-left: 0; }
   .pub__fixo { grid-template-columns: minmax(0, 1fr); grid-template-rows: 55% 1fr; padding: var(--e-4); gap: var(--e-3); }
@@ -149,7 +190,8 @@
   .pub__produto { font-size: 17px; }
   .pub__heroi { padding: var(--e-6) var(--e-4) 0; }
   .pub__lead { font-size: 16px; }
-  .pub__heroi-roda, .is-visivel .pub__heroi-roda { opacity: .18; }
+  .pub__colagem { height: 46vh; }
+  .pub__ponto-dica { width: 180px; margin-left: -90px; }
   .pub__cena-linha { font-size: 18px; }
   .pub__rota, .pub__fim { padding: var(--e-6) var(--e-4); }
 }
