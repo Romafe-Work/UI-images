@@ -49,8 +49,10 @@ export const MENU: [string, string][] = [['publico-romafe', 'A Romafe'], ['publi
    Depois (13 out.: «quero a cena do rolamento desde o início até ao fim, de um ecrã para o outro, ele vai-se
    formando de acordo com o scroll»): monta-se ao longo da visita às cinco páginas — no início só o anel de
    fora; as esferas entram uma a uma; nos Contactos, o anel de dentro; no fim, completo, dá uma volta.
-   E «quero em screen também»: na história há outro, maior, que rola por cima das barras dos capítulos e
-   se monta de 1945 (só o anel de fora) a Amanhã (completo). */
+   E «quero em ecrã também»: há outro, maior, dentro do ecrã — na história (a rolar pelos capítulos) e no
+   «A seguir» de cada página (a rolar pelo percurso das cinco). A montagem é a das cinco páginas juntas:
+   oco no início da página pública, completo no fim dos Contactos. O da barra ficou sempre completo
+   («o rolamento no scroll em cima estava top»). */
 /* (os ids dos gradientes levam o nome da página: repetidos, o Chrome lia os de um ecrã escondido e não pintava) */
 const esferas = (k: string) => Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * Math.PI * 2; return `<circle class="pub__rolo-esfera" data-a="${a.toFixed(3)}" cx="${(Math.cos(a) * 11.2).toFixed(2)}" cy="${(Math.sin(a) * 11.2).toFixed(2)}" r="3.1" fill="url(#rolo-esfera-${k})"/>`; }).join('');
 /** O rolamento, para a barra de cima e para a história (cls diz onde está). */
@@ -86,6 +88,7 @@ export const aSeguir = (atual: string) => {
     <span class="pub__seguinte-texto"><span class="pub__seguinte-kicker">A seguir</span><span class="pub__seguinte-nome">${nome}</span><span class="pub__seguinte-frase">${frase}</span><span class="pub__seguinte-ir">${L(arrowRight)}</span></span>
     <span class="pub__seguinte-foto"><img src="${img}" alt=""></span>
   </a>
+  <div class="pub__percurso-pista" aria-hidden="true">${rolamentoSvg('seguinte-' + atual, 'pub__caps-rolo')}</div>
   <ol class="pub__percurso" aria-label="As páginas">${ordem.map((o) => `<li${o === atual ? ' aria-current="step"' : ''}><a href="#" data-ir="${o}" data-sem-seta>${o === 'publico' ? 'Início' : MENU.find((m) => m[0] === o)![1]}</a></li>`).join('')}</ol>
 </section>`;
 };

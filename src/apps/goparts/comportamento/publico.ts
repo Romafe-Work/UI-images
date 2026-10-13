@@ -70,6 +70,20 @@ function desenhar(): void {
   const pub = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub');
   if (!pub) return;
   ligar(pub);
+  /* a montagem ao longo das cinco páginas (ela: «o rolamento vai-se construindo ao longo dos ecrãs»):
+     g de 0 (início da página pública) a 1 (fim dos Contactos) */
+  const ordem = ['publico', 'publico-romafe', 'publico-entregas', 'publico-marcas', 'publico-contactos'];
+  const tPag = lim(scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight));
+  const g = (Math.max(0, ordem.indexOf(pub.closest<HTMLElement>('.ecra')?.dataset.ecra ?? 'publico')) + tPag) / ordem.length;
+  const seg = pub.querySelector<HTMLElement>('.pub__percurso-pista'), sr = seg?.querySelector<SVGElement>('.pub__caps-rolo');
+  if (seg && sr) {
+    /* (anda só a largura do percurso: do «01 Início» ao «05 Contactos») */
+    const lista = seg.nextElementSibling as HTMLElement | null, ult = lista?.lastElementChild as HTMLElement | null;
+    const larg = ult && lista ? ult.getBoundingClientRect().right - lista.getBoundingClientRect().left : seg.clientWidth;
+    const tam = sr.getBoundingClientRect().width || 44, x = g * Math.max(0, larg - tam);
+    sr.style.transform = `translateX(${x.toFixed(1)}px)`;
+    montar(sr, g, x, tam);
+  }
   /* o rolamento do scroll: anda até ao fim da linha e roda o que andou (ângulo = distância / raio) */
   const rolo = pub.querySelector<HTMLElement>('.pub__rolo');
   if (rolo) {
@@ -78,12 +92,8 @@ function desenhar(): void {
     const tam = r?.getBoundingClientRect().width || 34, curso = rolo.clientWidth - tam, x = t * curso;
     if (linha) linha.style.transform = `scaleX(${t.toFixed(4)})`;
     if (r) { r.style.transform = `translateX(${x.toFixed(1)}px)`; r.style.setProperty('--rolo-x', `translateX(${x.toFixed(1)}px)`); }
-    /* a montagem, ao longo das cinco páginas: g de 0 (início da página pública) a 1 (fim dos Contactos) */
-    const ordem = ['publico', 'publico-romafe', 'publico-entregas', 'publico-marcas', 'publico-contactos'];
-    const ecra = pub.closest<HTMLElement>('.ecra')?.dataset.ecra ?? 'publico';
-    const g = (Math.max(0, ordem.indexOf(ecra)) + t) / ordem.length;
-    montar(rolo, g, x, tam);
-    rolo.classList.toggle('is-completo', g >= 0.985);
+    /* o da barra está sempre completo (ela: «o rolamento no scroll em cima estava top») */
+    montar(rolo, 1, x, tam);
   }
   const abrir = pub.querySelector<HTMLElement>('.pub__abrir-fixo');
   if (abrir) abrir.style.setProperty('--k', (quieto() ? 1 : lim(progresso(abrir.parentElement!) * 1.6)).toFixed(3));
@@ -120,8 +130,8 @@ function desenhar(): void {
     if (pista && cr) {
       const t2 = lim(p / (n - 1)), tam = cr.getBoundingClientRect().width || 44, x = t2 * (pista.clientWidth - tam);
       cr.style.transform = `translateX(${x.toFixed(1)}px)`;
+      /* o da história monta-se nos próprios capítulos: oco em 1945, completo em Amanhã */
       montar(cr, t2, x, tam);
-      pista.classList.toggle('is-completo', t2 >= 0.985);
     }
   }
 }

@@ -269,3 +269,6 @@
 .pub__caps-rolo { position: absolute; left: 0; bottom: 0; width: 52px; height: 52px; overflow: visible; filter: drop-shadow(0 6px 8px rgba(20, 20, 20, .28)); }
 .pub__caps-rolo .pub__rolo-esfera, .pub__caps-rolo .pub__rolo-int, .pub__caps-rolo .pub__rolo-gira { transform-box: view-box; transform-origin: 0 0; }
 @media (max-width: 1000px) { .pub__caps-pista { bottom: 34px; height: 40px; } .pub__caps-rolo { width: 40px; height: 40px; } }
+/* o rolamento do percurso, no «A seguir»: rola por cima dos nomes das cinco páginas */
+.pub__percurso-pista { position: relative; height: 52px; margin-bottom: -8px; }
+.pub__percurso-pista .pub__caps-rolo { bottom: 0; }
