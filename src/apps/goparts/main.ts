@@ -15,6 +15,7 @@ import './css/inicio-v4.css';
 import './css/catalogo-v2.css';
 import './css/catalogo-v3.css';
 import './css/catalogo-v4.css';
+import './css/catalogo-v5.css';
 import './css/pedidos-v2.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';

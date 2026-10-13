@@ -14,7 +14,7 @@ export type Modelo = [string, string, string, string];
 /** nome · combustível · kW · cv · cc · códigos do motor */
 type Motor = [string, string, number, number, number, string];
 
-export interface Veiculo { nome: string; anos: string; combustivel: string; kw: number; cv: number; cc: number; tracao: string; carrocaria: string; motor: string; desde: number; ate: number }
+export interface Veiculo { nome: string; versao: string; anos: string; combustivel: string; kw: number; cv: number; cc: number; tracao: string; carrocaria: string; motor: string; desde: number; ate: number }
 
 export const MODELOS: Record<string, Modelo[]> = {
   BMW: [
@@ -95,7 +95,7 @@ export function veiculosDe(marca: string, modelo: string): Veiculo[] {
     /* no ano em que o modelo começa, nunca antes do mês dele */
     const mesV = Math.max((j * 3) % 9 + 1, d === a0 ? Number(desde.slice(0, 2)) : 1);
     const desdeV = j === 0 ? desde : String(mesV).padStart(2, '0') + '/' + d;
-    return { nome: `${nome} ${mot}`, anos: `${desdeV} – ${ate || '…'}`, combustivel: comb, kw, cv, cc,
+    return { nome: `${nome} ${mot}`, versao: mot, anos: `${desdeV} – ${ate || '…'}`, combustivel: comb, kw, cv, cc,
       tracao: marca === 'BMW' && !nome.startsWith('X') ? 'Tração traseira' : 'Tração dianteira', carrocaria, motor: cod, desde: ano(desdeV), ate: a1 };
   });
 }
@@ -129,6 +129,23 @@ export function linhasModelos4(marca: string, icone: (carrocaria: string) => str
     + `<td class="cat4__accoes"><button type="button" class="cat4__abrir" aria-label="Ver os veículos do ${esc(m[0])}" tabindex="-1">${SETA}</button></td></tr>`).join('');
 }
 
+/** v5: as linhas dos veículos como na terceira imagem dela (13 out.): o (i) abre os detalhes
+    numa linha por baixo, o nome é só a versão (o modelo está na barra de cima). */
+export function linhasVeiculos5(marca: string, modelo: string, ic: { info: string; visto: string; seta: string }): string {
+  return veiculosDe(marca, modelo).map((v, i) =>
+    `<tr class="cat3__linha" style="--i:${i}" data-nome="${esc(v.versao)}" data-versao="${esc(v.versao)}" data-desde="${v.desde}" data-ate="${v.ate}" data-motor="${esc(v.motor)}" data-kw="${v.kw}" data-cv="${v.cv}" data-cc="${v.cc}" tabindex="0">`
+    + `<td class="cat5__i"><button type="button" class="cat5__info" aria-expanded="false" aria-label="Detalhes do ${esc(v.versao)}">${ic.info}</button></td>`
+    /* data-r: o rótulo de cada valor quando se vê em «Lista» */
+    + `<td><span class="cat5__versao">${esc(v.versao)}</span><span class="cat5__escolhido">${ic.visto}Selecionado</span></td><td class="cat3__nowrap" data-r="Ano">${v.anos}</td><td data-r="Combustível">${v.combustivel}</td>`
+    + `<td class="erp-num" data-r="kW">${v.kw}</td><td class="erp-num" data-r="cv">${v.cv}</td><td class="erp-num" data-r="cc">${v.cc}</td><td data-r="Tração">${v.tracao}</td><td data-r="Carroçaria">${v.carrocaria}</td><td class="cat3__nowrap" data-r="Motor">${esc(v.motor)}</td></tr>`
+    + `<tr class="cat5__detalhe" hidden><td></td><td colspan="9"><div class="cat5__painel"><dl class="cat5__ficha">`
+    + `<div><dt>Veículo</dt><dd>${esc(marca)} ${esc(v.nome)}</dd></div><div><dt>Fabricado</dt><dd>${v.anos}</dd></div>`
+    + `<div><dt>Potência</dt><dd>${v.kw} kW · ${v.cv} cv</dd></div><div><dt>Cilindrada</dt><dd>${v.cc} cc</dd></div>`
+    + `<div><dt>Combustível</dt><dd>${v.combustivel}</dd></div><div><dt>Motor</dt><dd>${esc(v.motor)}</dd></div>`
+    + `<div><dt>Tração</dt><dd>${v.tracao}</dd></div><div><dt>Carroçaria</dt><dd>${v.carrocaria}</dd></div></dl>`
+    + `<button type="button" class="btn btn--acao btn--sm cat5__pecas"><span class="btn__rotulo">Encontrar peças compatíveis</span>${ic.seta}</button></div></td></tr>`).join('');
+}
+
 /** As linhas da tabela dos veículos. */
 export function linhasVeiculos(marca: string, modelo: string): string {
   return veiculosDe(marca, modelo).map((v, i) =>
@@ -145,3 +162,71 @@ export function anos(desde: number, ate: number): number[] {
 }
 
 const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-right"><path d="m9 18 6-6-6-6"/></svg>';
+
+/* ---------- v5: as referências (a quarta imagem dela, 13 out.) ----------
+   Peças de exemplo para qualquer veículo: grupo de montagem, fabricante,
+   referência, descrição, preço de tabela, desconto (%) e stock no Porto e em
+   Sacavém. As referências têm o formato de cada marca, mas são inventadas. */
+export type Referencia = [string, string, string, string, number, number, number, number];
+export const REFERENCIAS: Referencia[] = [
+  ['Rolamento de roda', 'SKF', 'VKBA 6556', 'Kit de rolamento de roda, eixo dianteiro', 89.9, 40, 12, 4],
+  ['Rolamento de roda', 'SKF', 'VKBA 6557', 'Kit de rolamento de roda, eixo traseiro', 94.5, 40, 6, 0],
+  ['Rolamento de roda', 'FAG', '713 6497 00', 'Kit de rolamento de roda, eixo dianteiro', 84.5, 35, 3, 0],
+  ['Kit de distribuição', 'SKF', 'VKMC 01250-2', 'Kit de distribuição com bomba de água', 245, 40, 5, 2],
+  ['Kit de distribuição', 'INA', '530 0089 10', 'Kit de distribuição', 168.3, 35, 0, 3],
+  ['Kit de distribuição', 'Gates', 'K015569XS', 'Kit de distribuição', 152.1, 30, 2, 0],
+  ['Bomba de água', 'SKF', 'VKPC 88618', 'Bomba de água', 112.4, 40, 7, 5],
+  ['Bomba de água', 'INA', '538 0001 10', 'Bomba de água', 98, 35, 0, 0],
+  ['Correia de acessórios', 'SKF', 'VKMV 6PK1873', 'Correia poli-V, 6 nervuras, 1873 mm', 24.6, 40, 30, 18],
+  ['Correia de acessórios', 'Gates', '6PK1873', 'Correia poli-V, 6 nervuras, 1873 mm', 22.9, 30, 10, 6],
+  ['Tensor da correia', 'SKF', 'VKM 38236', 'Tensor da correia de acessórios', 58.7, 40, 4, 1],
+  ['Homocinética', 'SKF', 'VKJA 5446', 'Kit de junta homocinética, lado da roda', 79.9, 40, 2, 2],
+];
+export const GRUPOS = Array.from(new Set(REFERENCIAS.map((r) => r[0])));
+export const FABRICANTES = Array.from(new Set(REFERENCIAS.map((r) => r[1]))).sort();
+export const euros = (n: number) => n.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+/** v5: uma linha da tabela das referências. */
+export function linhaReferencia(r: Referencia, i: number, ic: { imagem: string; caixa: string }): string {
+  const [grupo, fab, ref, desc, preco, d, porto, sacavem] = r;
+  const liquido = preco * (1 - d / 100);
+  const stock = porto + sacavem;
+  const estado = stock === 0 ? 'sem' : stock < 5 ? 'pouco' : 'ok';
+  return `<tr class="cat5__ref" style="--i:${i}" data-grupo="${esc(grupo)}" data-fabricante="${esc(fab)}" data-ref="${esc(ref)}" data-preco="${liquido.toFixed(2)}" data-stock="${stock}">`
+    + `<td class="cat5__marcar"><input type="checkbox" aria-label="Comparar ${esc(fab)} ${esc(ref)}"></td>`
+    + `<td><span class="cat5__imagem" aria-hidden="true">${ic.imagem}</span></td>`
+    + `<td><span class="cat5__referencia">${esc(ref)}</span><span class="cat5__fabricante">${esc(fab)}</span></td>`
+    + `<td data-r="Descrição">${esc(desc)}<span class="cat5__grupo">${esc(grupo)}</span></td>`
+    + `<td class="erp-num" data-r="Preço">${euros(preco)}</td><td class="erp-num" data-r="Desc.">${d}%</td>`
+    + `<td class="erp-num cat5__liquido" data-r="Líquido">${euros(liquido)}</td>`
+    + `<td data-r="Stock"><span class="cat5__stock cat5__stock--${estado}" title="Porto ${porto} · Sacavém ${sacavem}">${ic.caixa}${stock === 0 ? 'Sem stock' : `${stock} un.`}</span><span class="cat5__armazens">Porto ${porto} · Sacavém ${sacavem}</span></td></tr>`;
+}
+
+/* ---------- v5: o Universal (a quinta imagem dela, 13 out.) ----------
+   As peças sem veículo: os grupos de montagem numa árvore (categoria → grupo).
+   As categorias são as da imagem do GO REPAIR; os grupos são de exemplo e
+   incluem os das referências acima. */
+export const ARVORE: [string, string[]][] = [
+  ['Acessórios', ['Almofada para o pescoço', 'Capas de banco', 'Tapetes']],
+  ['Alimentação de combustível', ['Bomba de combustível', 'Filtro de combustível']],
+  ['Aquecimento e ventilação', ['Filtro de habitáculo', 'Radiador de aquecimento']],
+  ['Caixa de velocidades', ['Apoio da caixa', 'Óleo da caixa']],
+  ['Carroçaria', ['Escovas limpa-vidros', 'Espelho retrovisor']],
+  ['Circuitos elétricos', ['Baterias', 'Fusíveis']],
+  ['Comando da correia', ['Bomba de água', 'Correia de acessórios', 'Kit de distribuição', 'Tensor da correia']],
+  ['Direção', ['Bomba da direção', 'Rótula de direção']],
+  ['Embraiagem', ['Kit de embraiagem', 'Volante bimassa']],
+  ['Equipamento para a oficina', ['Ferramentas de montagem', 'Massa lubrificante']],
+  ['Iluminação e sinalização', ['Faróis', 'Lâmpadas']],
+  ['Jantes e pneus', ['Pesos de equilibragem', 'Válvulas']],
+  ['Suspensão e amortecimento', ['Amortecedor', 'Rolamento de roda']],
+  ['Transmissão', ['Fole de transmissão', 'Homocinética']],
+];
+const OUTROS = ['Bosch', 'HELLA', 'SKF', 'STC', 'Valeo'];
+/** Os fabricantes de um grupo: os das referências de exemplo, ou três de uma lista fixa. */
+export function fabricantesDe(grupo: string): string[] {
+  const das = Array.from(new Set(REFERENCIAS.filter((r) => r[0] === grupo).map((r) => r[1]))).sort();
+  if (das.length) return das;
+  const k = grupo.length % OUTROS.length;
+  return [0, 1, 2].map((j) => OUTROS[(k + j * 2) % OUTROS.length]).sort();
+}

@@ -10,13 +10,15 @@
    código mudar as opções ou o desligar, a lista acompanha.
    A lista vive no <body> (os cartões cortam o que sai deles) e copia as
    cores do ecrã onde está. Teclado: ↑ ↓ Enter Esc Tab. No editor
-   (body.editando) não abre. Com «reduzir movimento», abre sem animar.
+   (body.editando) abre com um segundo clique na lista já escolhida. Com «reduzir movimento», abre sem animar.
    ========================================================= */
 const editando = () => document.body.classList.contains('editando');
 const VISTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg>';
 const SETA = '<svg class="sel__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6"/></svg>';
 const CORES = ['--c-superficie', '--c-superficie-2', '--c-superficie-3', '--c-borda', '--c-borda-forte', '--c-texto', '--c-texto-2', '--c-texto-3', '--c-marca', '--c-marca-suave', '--c-acao'];
 let n = 0;
+/** o select de cada botão (para o editor abrir a lista pelo segundo clique) */
+const doBotao = new WeakMap<HTMLButtonElement, HTMLSelectElement>();
 let aberta: { sel: HTMLSelectElement; botao: HTMLButtonElement; lista: HTMLUListElement; ativa: number } | null = null;
 
 function pintarBotao(sel: HTMLSelectElement, botao: HTMLButtonElement): void {
@@ -101,6 +103,7 @@ function melhorar(sel: HTMLSelectElement): void {
   sel.dataset.sel = '1';
   const id = `sel-${++n}`;
   const botao = document.createElement('button');
+  doBotao.set(botao, sel);
   botao.type = 'button';
   botao.className = 'input sel__botao';
   botao.setAttribute('aria-haspopup', 'listbox');
@@ -144,6 +147,20 @@ function melhorar(sel: HTMLSelectElement): void {
 
 export function iniciar(): void {
   document.querySelectorAll<HTMLSelectElement>('.portal--v22 select.input').forEach(melhorar);
+  /* No editor (ela, 13 out.: «quero animações nos selects»): o primeiro clique escolhe a
+     peça, como sempre; clicar outra vez numa lista já escolhida abre-a, a animar.
+     Corre antes do editor (na janela, em captura) e só nesse caso lhe tira o clique. */
+  window.addEventListener('click', (ev) => {
+    if (!editando()) return;
+    const botao = (ev.target as Element).closest<HTMLButtonElement>('.sel__botao');
+    const sel = botao && doBotao.get(botao);
+    if (!botao || !sel || botao.disabled) return;
+    const escolhida = botao.closest('[data-ed-sel]');
+    if (!escolhida || !(escolhida === botao || escolhida.matches('.campo, .campo *, .sel'))) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (aberta?.botao === botao) fechar(); else abrir(sel, botao);
+  }, true);
   document.addEventListener('pointerdown', (ev) => {
     if (!aberta) return;
     const t = ev.target as Element;

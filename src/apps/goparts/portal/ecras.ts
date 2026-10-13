@@ -10,6 +10,7 @@ import inicioV22 from './inicio-v22.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { catalogoV4 } from './catalogo-v4';
+import { catalogoV5 } from './catalogo-v5';
 import pedidosV2 from './pedidos-v2.html?raw';
 import guias from './guias.html?raw';
 
@@ -29,7 +30,9 @@ export const ecrasPortal: EcraGoParts[] = [
     /* 13 out. 2026: ela, com as imagens do GO REPAIR, «faz os modelos e veiculos no catalogo» */
     { id: 'v3', nota: 'A v2 com os passos Modelos e Veículos do GO REPAIR (13 out.): a marca abre a tabela dos modelos, o modelo a dos veículos; os filtros de cada passo no cartão azul, que fica no sítio', html: portal('catalogo', catalogoV3, undefined, { menu: true, rodape: false }) },
     /* 13 out. 2026: ela mandou a imagem de um catálogo novo e a proposta das animações */
-    { id: 'v4', nota: 'A partir da imagem dela (13 out.): «Encontrar veículo» num painel à esquerda que recolhe, as Marcas à direita com a contagem e uma faixa, cartões maiores; animações só quando se mexe (cartão, estrela, procura, Marca → Modelo, risca). Com os Modelos e Veículos da v3', html: portal('catalogo', catalogoV4, undefined, { menu: true, rodape: false }) }],
+    { id: 'v4', nota: 'A partir da imagem dela (13 out.): «Encontrar veículo» num painel à esquerda que recolhe, as Marcas à direita com a contagem e uma faixa, cartões maiores; animações só quando se mexe (cartão, estrela, procura, Marca → Modelo, risca). Com os Modelos e Veículos da v3', html: portal('catalogo', catalogoV4, undefined, { menu: true, rodape: false }) },
+    /* 13 out. 2026: a terceira imagem dela (Veículos) e a proposta das animações para Modelos e Veículos */
+    { id: 'v5', nota: 'A v4 com os Veículos da terceira imagem (13 out.): barra BMW / 1 (E81), «Filtrar veículos» a toda a largura com listas que se ajustam umas às outras, Tabela/Lista, resultados por página, ordenar por ano, kW, cv e cc, e o (i) que abre os dados do motor; animações da proposta dela nos Modelos e nos Veículos. Também as Referências (fabricantes em etiquetas, agrupar, ver próprias, comparar, Tabela/Grelha) e o Universal (grupos em Árvore, Lista ou Colunas, e os fabricantes de cada grupo)', html: portal('catalogo', catalogoV5, undefined, { menu: true, rodape: false }) }],
     objetivo: 'O catálogo de peças: a pesquisa por veículo ou por referência num só sítio, e as marcas de automóveis para escolher.' },
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [

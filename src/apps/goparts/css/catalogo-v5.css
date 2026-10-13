@@ -1,0 +1,242 @@
+/* =========================================================
+   GOPARTS — 11 · Catálogo v5 (13 out. 2026)
+   Os Veículos da terceira imagem dela, a toda a largura, e as animações da
+   proposta para Modelos e Veículos (azul da Romafe, detalhes laranja, sem
+   brilhos nem sombras). Tudo preso a .portal--cat5: a v4 não muda.
+   ========================================================= */
+
+/* ---------- os Veículos a toda a largura, com os passos de cima à vista ---------- */
+.cat5:is([data-vista="veiculos"], [data-vista="referencias"], [data-vista="universal"]) { grid-template-columns: minmax(0, 1fr) !important; }
+.portal--cat5:has(.cat5:is([data-vista="veiculos"], [data-vista="referencias"], [data-vista="universal"])) .cat2__passos { display: flex; }
+.portal--cat5 .cat5:not([data-vista="marcas"]):not([data-vista="modelos"]) .cat2__pesquisa.c22__cartao.c22__cartao--azul { position: static; }
+.cat5:not([data-vista="marcas"]):not([data-vista="modelos"]) .cat4__recolher { display: none; }
+.cat5.is-recolhido:not([data-vista="marcas"]):not([data-vista="modelos"]) .cat4__painel { padding: var(--e-5); justify-items: stretch; }
+.cat5.is-recolhido .cat4__painel > .cat5__cartao:not([hidden]) { display: grid !important; }
+
+/* a barra «BMW / 1 (E81)» com a marca à direita */
+.cat5__barra { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--e-4); }
+.cat5__casa { display: inline-flex; padding: var(--e-2) var(--e-4) var(--e-2) 0; color: var(--c-texto-2); border-right: 1px solid var(--c-borda); }
+.cat5__casa svg { width: 22px; height: 22px; }
+.cat5__casa:hover { color: var(--c-texto); }
+.cat5__titulo { display: flex; align-items: baseline; gap: var(--e-3); margin: 0; font-family: var(--f-titulo); font-size: 26px; }
+.cat5__titulo > span[aria-hidden] { color: var(--c-texto-3); }
+.cat5__t-marca { font: inherit; color: var(--c-texto); background: none; border: 0; padding: 0; cursor: pointer; }
+.cat5__t-marca:hover { color: var(--c-marca); }
+.cat5__marca { margin-left: auto; display: flex; align-items: center; gap: var(--e-3); font-size: 18px; }
+.cat5__logo { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-full); background: var(--c-superficie); border: 1px solid var(--c-borda); }
+.cat5__logo .cat2__logo { height: auto; width: auto; }
+.cat5__logo .cat2__logo svg { width: 30px; height: 30px; }
+.cat5__logo .cat2__logo--palavra { font-size: 10px; }
+.cat5__m-modelo { padding-left: var(--e-3); border-left: 1px solid var(--c-borda); color: var(--c-texto-2); }
+
+/* «Filtrar veículos»: três listas por linha, «Limpar filtros» em cima à direita */
+.cat5__cartao { display: grid; gap: var(--e-4); }
+.cat5__cartao-cabeca { display: flex; align-items: flex-start; gap: var(--e-3); }
+.cat5__cartao-cabeca > div { margin-right: auto; }
+.cat5__funil { display: grid; place-items: center; width: 40px; height: 40px; color: var(--c-marca); }
+.cat5__funil svg { width: 26px; height: 26px; }
+.cat5__cartao-titulo { margin: 0; font-family: var(--f-titulo); font-size: 21px; }
+.cat5__cartao-sub { margin: 2px 0 0; font-size: 14px; color: var(--c-texto-2); }
+.portal--cat5 .cat5__limpar.btn { width: auto; color: var(--c-marca); border-color: var(--c-marca); }
+.cat5__filtros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-3) var(--e-5); }
+
+/* os resultados: contagem, por página, Tabela / Lista */
+.cat5__resultados-cabeca { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3) var(--e-4); }
+.cat5__resultados .cat3__conta { margin-right: auto; font-size: 20px; font-family: var(--f-titulo); color: var(--c-texto); }
+.cat5__por-pagina { display: inline-flex; align-items: center; gap: var(--e-2); font-size: 14px; color: var(--c-texto-2); }
+.cat5__por-pagina .input { min-width: 84px; min-height: 40px; }
+.cat5__modos { display: flex; padding: 3px; gap: 3px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); }
+.cat5__modo { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; padding: 7px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto-2); cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+.cat5__modo svg { width: 16px; height: 16px; }
+.cat5__modo[aria-pressed="true"] { background: var(--c-marca); color: var(--c-superficie); font-weight: 700; }
+
+/* a tabela: o cabeçalho azul, como na imagem; as colunas que se ordenam */
+.cat5__tabela table { min-width: 980px; }
+.cat5__tabela thead th { background: var(--c-marca); color: var(--c-superficie); text-transform: none; letter-spacing: 0; font-size: 14px; }
+.cat5__ordenar { display: inline-flex; align-items: center; gap: 4px; font: inherit; font-weight: 700; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.cat5__ordenar svg { width: 14px; height: 14px; opacity: .6; transition: transform .2s ease, opacity .2s ease; }
+th[aria-sort="ascending"] .cat5__ordenar svg, th[aria-sort="descending"] .cat5__ordenar svg { opacity: 1; }
+th[aria-sort="descending"] .cat5__ordenar svg { transform: scaleY(-1); }
+.cat5__i { width: 44px; }
+.cat5__info { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: var(--r-full); background: none; color: var(--c-marca); cursor: pointer; transition: background-color .15s ease, transform .2s ease; }
+.cat5__info svg { width: 20px; height: 20px; }
+.cat5__info:hover { background: var(--c-marca-suave); }
+.cat5__info[aria-expanded="true"] { background: var(--c-marca); color: var(--c-superficie); }
+.cat5__versao { font-weight: 700; color: var(--c-texto); }
+.cat3__linha.is-fora { display: none; }
+
+/* ---------- animações (a proposta dela) ---------- */
+/* entrada: 25 ms entre linhas, só as 8 primeiras; as outras aparecem já */
+.portal--cat5 .cat3__linha { animation: cat3-linha .18s ease-out calc(min(var(--i, 0), 8) * 25ms) both; }
+.portal--cat5 .cat4__tabela tbody tr:nth-child(n+9),
+.portal--cat5 .cat5__tabela tbody tr:nth-child(n+17) { animation: none; }
+
+/* hover de linha: azul mais claro, barra laranja à esquerda, a seta avança 4 px (150 ms) */
+.portal--cat5 .cat3__linha { transition: background-color .15s ease, box-shadow .15s ease; }
+.portal--cat5 .cat3__linha:hover { background: var(--c-marca-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
+.portal--cat5 .cat4__abrir svg { transition: transform .15s ease-out; }
+.portal--cat5 .cat4__tabela .cat3__linha:hover .cat4__abrir { transform: none; }
+.portal--cat5 .cat4__tabela .cat3__linha:hover .cat4__abrir svg { transform: translateX(4px); }
+
+/* o veículo escolhido: fundo, borda azul ao lado e «Selecionado» (180 ms); fica marcado */
+.portal--cat5 .cat5__tabela .cat3__linha[aria-selected="true"] { background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-marca); }
+.cat5__escolhido { display: none; align-items: center; gap: 4px; margin-left: var(--e-2); padding: 2px var(--e-2); border-radius: var(--r-full); font-size: 12px; font-weight: 700; color: var(--c-marca); background: var(--c-superficie); vertical-align: middle; }
+.cat5__escolhido svg { width: 14px; height: 14px; }
+.cat3__linha[aria-selected="true"] .cat5__escolhido { display: inline-flex; animation: cat5-escolhido .18s ease-out; }
+@keyframes cat5-escolhido { from { opacity: 0; transform: translateX(-4px); } }
+
+/* os detalhes: o painel com os dados do motor e «Encontrar peças compatíveis» */
+.cat5__detalhe > td { padding-top: 0; background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-marca); }
+.cat5__painel { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--e-4); padding: var(--e-3) var(--e-4); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.cat5__ficha { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--e-3) var(--e-4); margin: 0; }
+.cat5__ficha dt { font-size: 12px; color: var(--c-texto-3); text-transform: uppercase; letter-spacing: .04em; }
+.cat5__ficha dd { margin: 2px 0 0; font-weight: 700; }
+
+/* «Lista»: cada veículo numa linha com os valores rotulados */
+.cat5__resultados[data-modo="lista"] table { min-width: 0; }
+.cat5__resultados[data-modo="lista"] thead { display: none; }
+.cat5__resultados[data-modo="lista"] tr.cat3__linha:not([hidden]):not(.is-fora) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-1) var(--e-4); padding: var(--e-3) var(--e-2); border-bottom: 1px solid var(--c-borda); }
+.cat5__resultados[data-modo="lista"] tr.cat3__linha td { border: 0; padding: 0; }
+.cat5__resultados[data-modo="lista"] tr.cat3__linha td:nth-child(2) { flex-basis: calc(100% - 60px); font-size: 16px; }
+.cat5__resultados[data-modo="lista"] td[data-r]::before { content: attr(data-r) " "; font-size: 12px; color: var(--c-texto-3); }
+.cat5__resultados[data-modo="lista"] .cat5__detalhe:not([hidden]) { display: block; }
+.cat5__resultados[data-modo="lista"] .cat5__detalhe td { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .portal--cat5 .cat3__linha, .cat3__linha[aria-selected="true"] .cat5__escolhido { animation: none; }
+  .portal--cat5 .cat3__linha, .cat5__info, .cat5__modo, .portal--cat5 .cat4__abrir svg, .cat5__ordenar svg { transition: none; }
+}
+@media (max-width: 1180px) { .cat5__ficha { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .cat5__filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .cat5__filtros { grid-template-columns: minmax(0, 1fr); }
+  .cat5__barra { flex-wrap: wrap; }
+  .cat5__marca { margin-left: 0; }
+  .cat5__titulo { font-size: 22px; }
+}
+
+/* =========================================================
+   Referências (a quarta imagem dela, 13 out.)
+   ========================================================= */
+.cat5__refs-filtros { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+.cat5__refs-campos { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-3) var(--e-4); align-items: end; }
+.cat5__chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); min-height: 46px; padding: 4px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.cat5__chips-lista { display: contents; }
+.cat5__chip { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; font-weight: 700; padding: 5px 8px 5px var(--e-3); border: 1px solid var(--c-marca); border-radius: var(--r-full); background: var(--c-marca-suave); color: var(--c-marca); cursor: pointer; transition: background-color .15s ease; }
+.cat5__chip svg { width: 14px; height: 14px; }
+.cat5__chip:hover { background: var(--c-superficie-2); }
+.cat5__mais { flex: 1; min-width: 190px; }
+.cat5__mais .input { min-height: 36px; border: 0; }
+.portal--cat5 .cat5__mais .campo__chip { border: 0; width: 34px; }
+.cat5__refs-accoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
+.cat5__proprias[aria-pressed="true"] { border-color: var(--c-marca); background: var(--c-marca-suave); color: var(--c-marca); }
+.cat5__comparar:not(:disabled) { border-color: var(--c-acao); }
+
+.cat5__tabela-refs table { min-width: 900px; }
+.cat5__marcar { width: 44px; }
+.cat5__marcar input { width: 18px; height: 18px; margin: 0; accent-color: var(--c-marca); }
+.cat5__ref { transition: background-color .15s ease, box-shadow .15s ease; animation: cat3-linha .18s ease-out calc(min(var(--i, 0), 8) * 25ms) both; }
+.cat5__ref:hover { background: var(--c-marca-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
+.cat5__ref.is-marcada { background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-marca); }
+.cat5__imagem { display: grid; place-items: center; width: 56px; height: 44px; border-radius: var(--r-sm); background: var(--c-superficie-2); color: var(--c-texto-2); }
+.cat5__imagem svg { width: 24px; height: 24px; }
+.cat5__referencia { display: block; font-weight: 700; color: var(--c-marca); white-space: nowrap; }
+.cat5__fabricante, .cat5__grupo, .cat5__armazens { display: block; font-size: 12px; color: var(--c-texto-3); }
+.cat5__liquido { font-weight: 700; }
+.cat5__stock { display: inline-flex; align-items: center; gap: 5px; padding: 3px var(--e-2); border-radius: var(--r-full); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.cat5__stock svg { width: 14px; height: 14px; }
+.cat5__stock--ok { background: var(--c-ok-suave); color: var(--c-ok); }
+.cat5__stock--pouco { background: var(--c-aviso-suave); color: var(--c-aviso); }
+.cat5__stock--sem { background: var(--c-superficie-3); color: var(--c-texto-2); }
+.cat5__grupo-linha th { text-align: left; font-family: var(--f-titulo); font-size: 15px; background: var(--c-superficie-2) !important; color: var(--c-texto) !important; }
+.cat5__grupo-linha span { margin-left: var(--e-2); font-family: var(--f-texto, inherit); font-size: 12px; color: var(--c-texto-3); }
+.cat5__refs-vazio { margin: 0; color: var(--c-texto-2); }
+/* Grelha: cada referência num cartão */
+.cat5__refs[data-modo="grelha"] table { min-width: 0; }
+.cat5__refs[data-modo="grelha"] thead { display: none; }
+.cat5__refs[data-modo="grelha"] tbody { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--e-3); padding: var(--e-3); }
+.cat5__refs[data-modo="grelha"] tr.cat5__ref { display: grid; gap: var(--e-1); padding: var(--e-3); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); position: relative; }
+.cat5__refs[data-modo="grelha"] tr.cat5__ref td { border: 0; padding: 0; text-align: left; }
+.cat5__refs[data-modo="grelha"] .cat5__marcar { position: absolute; top: var(--e-3); right: var(--e-3); width: auto; }
+.cat5__refs[data-modo="grelha"] td[data-r]::before { content: attr(data-r) " "; font-size: 12px; color: var(--c-texto-3); }
+.cat5__refs[data-modo="grelha"] .cat5__grupo-linha { grid-column: 1 / -1; display: block; }
+.cat5__refs[data-modo="grelha"] .cat5__grupo-linha th { display: block; border-radius: var(--r-sm); }
+/* a comparação */
+.cat5__comparacao { display: grid; gap: var(--e-3); padding-top: var(--e-3); border-top: 1px solid var(--c-borda); }
+.cat5__comparacao-titulo { display: flex; align-items: center; gap: var(--e-2); margin: 0; font-family: var(--f-titulo); font-size: 18px; }
+.cat5__comparacao-titulo svg { width: 20px; height: 20px; color: var(--c-marca); }
+.cat5__comparacao-grelha { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--e-3); }
+.cat5__cmp { display: grid; gap: var(--e-1); padding: var(--e-4); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.cat5__cmp.is-barata { border-color: var(--c-acao); }
+.cat5__cmp-fab { margin: 0; font-size: 12px; color: var(--c-texto-3); text-transform: uppercase; letter-spacing: .04em; }
+.cat5__cmp-ref { margin: 0; font-size: 18px; color: var(--c-marca); }
+.cat5__cmp-desc { margin: 0; font-size: 14px; color: var(--c-texto-2); }
+.cat5__cmp dl { margin: var(--e-2) 0 0; display: grid; gap: var(--e-1); }
+.cat5__cmp dt { display: inline; font-size: 12px; color: var(--c-texto-3); }
+.cat5__cmp dd { display: inline; margin: 0 0 0 6px; font-weight: 700; }
+.cat5__cmp-nota { margin: var(--e-2) 0 0; font-size: 13px; font-weight: 700; color: var(--c-acao-traco, var(--c-acao)); }
+
+/* =========================================================
+   Universal (a quinta imagem dela, 13 out.)
+   ========================================================= */
+.cat5__u-procura { grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--e-3); }
+.cat5__u-campo .input { min-height: 46px; }
+.cat5__u-procura .btn { min-height: 46px; padding: 0 var(--e-5); }
+.cat5__universal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 1fr); gap: var(--e-4); align-items: start; }
+.cat5__u-grupos, .cat5__u-lado { display: grid; gap: var(--e-3); align-content: start; }
+.cat5__u-lado { position: sticky; top: var(--e-4); padding: var(--e-4); border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.cat5__formas { display: flex; justify-content: flex-end; gap: var(--e-1); border-bottom: 1px solid var(--c-borda); }
+.cat5__forma { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 15px; padding: var(--e-2) var(--e-3); border: 0; background: none; color: var(--c-texto-2); cursor: pointer; box-shadow: inset 0 -2px 0 transparent; transition: color .2s ease, box-shadow .2s ease; }
+.cat5__forma svg { width: 16px; height: 16px; }
+.cat5__forma[aria-current="true"] { color: var(--c-texto); font-weight: 700; box-shadow: inset 0 -3px 0 var(--c-acao); }
+.cat5__arvore, .cat5__folhas, .cat5__lista-grupos, .cat5__col { list-style: none; margin: 0; padding: 0; }
+.cat5__arvore { display: grid; gap: 4px; }
+.cat5__abrir-ramo { width: 100%; display: flex; align-items: center; gap: var(--e-3); font: inherit; font-size: 15px; text-align: left; padding: 0 var(--e-3) 0 0; min-height: 38px; border: 1px solid var(--c-borda); border-radius: var(--r-sm); background: var(--c-superficie); color: var(--c-texto); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+.cat5__abrir-ramo:hover { border-color: var(--c-marca); background: var(--c-superficie-2); }
+.cat5__mais-menos { display: grid; place-items: center; align-self: stretch; width: 36px; border-radius: var(--r-sm) 0 0 var(--r-sm); background: var(--c-marca); color: var(--c-superficie); }
+.cat5__mais-menos svg { width: 16px; height: 16px; }
+.cat5__abrir-ramo[aria-expanded="true"] { font-weight: 700; border-color: var(--c-marca); }
+.cat5__folhas { display: grid; gap: 2px; padding: 4px 0 6px 48px; }
+.cat5__folha { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); font: inherit; font-size: 14px; text-align: left; padding: 7px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease, box-shadow .15s ease; }
+.cat5__folha:hover { background: var(--c-marca-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
+.cat5__folha[aria-current="true"] { background: var(--c-marca-suave); box-shadow: inset 4px 0 0 var(--c-marca); font-weight: 700; color: var(--c-marca); }
+.cat5__folha-cat { font-size: 12px; font-weight: 400; color: var(--c-texto-3); }
+.cat5__lista-grupos { display: grid; gap: 2px; }
+.cat5__colunas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-3); align-items: start; }
+.cat5__colunas .cat5__col--grupos { grid-column: 2; grid-row: 1; }
+.cat5__col { display: grid; gap: 2px; }
+.cat5__col-cat { width: 100%; display: flex; align-items: center; justify-content: space-between; font: inherit; font-size: 14px; text-align: left; padding: 8px var(--e-3); border: 0; border-radius: var(--r-sm); background: none; color: var(--c-texto); cursor: pointer; transition: background-color .15s ease; }
+.cat5__col-cat svg { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform .15s ease-out; }
+.cat5__col-cat:hover { background: var(--c-superficie-2); }
+.cat5__col-cat:hover svg { transform: translateX(3px); }
+.cat5__col-cat[aria-current="true"] { background: var(--c-marca-suave); font-weight: 700; color: var(--c-marca); }
+.cat5__u-vazio { margin: 0; color: var(--c-texto-2); }
+.cat5__u-cabeca { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--e-3); }
+.cat5__u-grupo { margin: 0; font-family: var(--f-titulo); font-size: 21px; }
+.cat5__u-sub { margin: 0; font-size: 14px; color: var(--c-texto-2); }
+.cat5__u-titulo-fab { display: flex; align-items: center; gap: var(--e-2); margin: var(--e-2) 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--c-texto-2); }
+.cat5__u-titulo-fab svg { width: 16px; height: 16px; }
+.cat5__u-fabricantes { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.cat5__u-fabricantes li { animation: cat3-linha .18s ease-out calc(min(var(--i, 0), 8) * 25ms) both; }
+.cat5__u-fab { width: 100%; text-align: left; font: inherit; font-size: 14px; padding: 8px var(--e-3); border: 1px solid var(--c-borda); border-radius: var(--r-sm); background: var(--c-superficie); color: var(--c-texto); cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+.cat5__u-fab:hover { border-color: var(--c-marca); }
+.cat5__u-fab[aria-pressed="true"] { border-color: var(--c-marca); background: var(--c-marca-suave); color: var(--c-marca); font-weight: 700; box-shadow: inset 3px 0 0 var(--c-acao); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat5__ref, .cat5__u-fabricantes li { animation: none; }
+  .cat5__chip, .cat5__abrir-ramo, .cat5__folha, .cat5__forma, .cat5__col-cat, .cat5__col-cat svg, .cat5__u-fab { transition: none; }
+}
+@media (max-width: 1180px) {
+  .cat5__refs-filtros { grid-template-columns: minmax(0, 1fr); }
+  .cat5__refs-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cat5__campo-fab { grid-column: 1 / -1; }
+}
+@media (max-width: 900px) {
+  .cat5__universal { grid-template-columns: minmax(0, 1fr); }
+  .cat5__u-lado { position: static; }
+}
+@media (max-width: 640px) {
+  .cat5__refs-campos, .cat5__colunas { grid-template-columns: minmax(0, 1fr); }
+  .cat5__colunas .cat5__col--grupos { grid-column: auto; grid-row: auto; }
+  .cat5__u-procura { grid-template-columns: minmax(0, 1fr); }
+}

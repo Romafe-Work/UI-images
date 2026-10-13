@@ -11,12 +11,14 @@
    ========================================================= */
 import { linhasModelos, linhasModelos4, carrocarias, linhasVeiculos, MODELOS, veiculosDe, anos, ano, ANO_HOJE } from '../portal/catalogo-dados';
 import { L } from '../portal/catalogo-v3';
+import * as v5 from './catalogo-v5';
 import car from 'lucide-static/icons/car.svg?raw';
 import carFront from 'lucide-static/icons/car-front.svg?raw';
 import van from 'lucide-static/icons/van.svg?raw';
 
-type Vista = 'marcas' | 'modelos' | 'veiculos';
-const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2 };
+export type Vista = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'universal';
+/* referencias e universal só existem na v5 */
+const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, universal: 6 };
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => r.querySelector<T>(s)!;
 const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.from(r.querySelectorAll<T>(s));
@@ -125,6 +127,12 @@ export function encherModelos(main: HTMLElement, marca: string): void {
 /** Preenche a vista dos veículos de um modelo. */
 export function encherVeiculos(main: HTMLElement, marca: string, modelo: string): void {
   main.dataset.modelo = modelo;
+  if (v5.eV5(main)) {
+    v5.encherVeiculos5(main, marca, modelo);
+    const vista = $(main, '.cat3__vista[data-so="veiculos"]');
+    contar(vista); v5.paginar(vista);
+    return;
+  }
   $$(main, '[data-so="veiculos"] .cat3__de').forEach((s) => { s.textContent = '· ' + marca + ' ' + modelo; });
   const vista = $(main, '.cat3__vista[data-so="veiculos"]');
   $(vista, 'tbody').innerHTML = linhasVeiculos(marca, modelo);
@@ -154,22 +162,32 @@ function filtrar(main: HTMLElement): void {
   if (vista === 'marcas') return;
   const cartao = $(main, `.cat3__cartao[data-so="${vista}"]`);
   const tabela = $(main, `.cat3__vista[data-so="${vista}"]`);
-  const texto = ($<HTMLInputElement>(cartao, 'input[type="search"]').value || '').trim().toLowerCase();
+  const texto = (cartao.querySelector<HTMLInputElement>('input[type="search"]')?.value || '').trim().toLowerCase();
   const valor = (k: string) => cartao.querySelector<HTMLSelectElement>(`select[data-filtro="${k}"]`)?.value || '';
+  const versao = valor('versao');
   const a = Number(valor('ano'));
   /* v4: de um ano a outro, e as carroçarias marcadas */
   const de = Number(valor('de')), ate = Number(valor('ate'));
   const tipos = $$<HTMLInputElement>(cartao, 'input[data-filtro="carrocaria"]:checked').map((c) => c.value);
+  const novo = new Map<HTMLElement, boolean>();
   $$(tabela, 'tbody .cat3__linha').forEach((l) => {
     const nome = (l.dataset.modelo || l.dataset.nome || '').toLowerCase();
     let ver = !texto || nome.includes(texto);
+    if (versao) ver = ver && l.dataset.versao === versao;
     if (a) ver = ver && Number(l.dataset.desde) <= a && a <= Number(l.dataset.ate);
     if (de) ver = ver && Number(l.dataset.ate) >= de;
     if (ate) ver = ver && Number(l.dataset.desde) <= ate;
     if (tipos.length) ver = ver && tipos.includes(l.dataset.carrocaria || '');
     (['motor', 'kw', 'cv', 'cc'] as const).forEach((k) => { const v = valor(k); if (v) ver = ver && l.dataset[k] === v; });
-    l.hidden = !ver;
+    novo.set(l, ver);
   });
+  /* v5: as que saem desvanecem e as outras deslizam; e as listas só oferecem o que ainda existe */
+  if (v5.eV5(main)) {
+    v5.aplicar(tabela, novo, () => { contar(tabela); v5.paginar(tabela); });
+    if (vista === 'veiculos') v5.progressivo(main);
+    return;
+  }
+  novo.forEach((v, l) => { l.hidden = !v; });
   contar(tabela);
 }
 
@@ -182,25 +200,28 @@ function limpar(main: HTMLElement): void {
 }
 
 /** Troca de vista: o cartão azul fica e troca o conteúdo; a secção de baixo desliza. */
-function ir(main: HTMLElement, vista: Vista): void {
+export function ir(main: HTMLElement, vista: Vista): void {
   const antes = (main.dataset.vista || 'marcas') as Vista;
   if (antes === vista) return;
   const frente = PASSO[vista] > PASSO[antes];
   const portal = main.closest('.portal') || document;
   /* os passos já percorridos continuam à mão: volta-se às Marcas e pode-se ir de novo aos Modelos */
-  const ate = Math.max(PASSO[vista], main.dataset.modelo ? 2 : main.dataset.marca ? 1 : 0);
+  const feito = main.dataset.refs ? 4 : main.dataset.modelo ? 2 : main.dataset.marca ? 1 : 0;
+  const ate = vista === 'universal' ? feito : Math.max(PASSO[vista], feito);
   passos(portal, PASSO[vista], ate);
   const baixo = $(main, '.cat2__marcas');
   const conteudo = $$(main, '.cat2__pesquisa > [data-so]');
   if (quieto()) { mostrar(main, vista); return; }
-  const dx = frente ? 24 : -24;
-  const sai = baixo.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dx}px)` }], { duration: 160, easing: 'ease-in', fill: 'forwards' });
+  /* v5: 20 px e 280 ms a entrar (a proposta dela); antes, 24 px e 220 ms */
+  const e5 = v5.eV5(main);
+  const dx = (frente ? 1 : -1) * (e5 ? 20 : 24);
+  const sai = baixo.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dx}px)` }], { duration: e5 ? 120 : 160, easing: 'ease-in', fill: 'forwards' });
   conteudo.forEach((c) => { if (!c.hidden) c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease-in', fill: 'forwards' }); });
   sai.onfinish = () => {
     mostrar(main, vista);
     baixo.getAnimations().forEach((x) => x.cancel());
     conteudo.forEach((c) => c.getAnimations().forEach((x) => x.cancel()));
-    baixo.animate([{ opacity: 0, transform: `translateX(${dx}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+    baixo.animate([{ opacity: 0, transform: `translateX(${dx}px)` }, { opacity: 1, transform: 'none' }], { duration: e5 ? 280 : 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });
     conteudo.forEach((c) => { if (!c.hidden) c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' }); });
   };
 }
@@ -220,6 +241,7 @@ function escolherVeiculo(main: HTMLElement, linha: HTMLElement): void {
 export function clique(t: Element): boolean {
   const main = t.closest<HTMLElement>('.cat3') || t.closest('.portal--cat3')?.querySelector<HTMLElement>('.cat3') || null;
   if (!main || !main.hasAttribute('data-vista')) return false;
+  if (v5.clique(main, t)) return true;
   const passo = t.closest<HTMLButtonElement>('.cat2__passo');
   if (passo) {
     if (passo.disabled) return true;
@@ -227,6 +249,8 @@ export function clique(t: Element): boolean {
     if (n === 0) ir(main, 'marcas');
     else if (n === 1 && main.dataset.marca) ir(main, 'modelos');
     else if (n === 2 && main.dataset.modelo) ir(main, 'veiculos');
+    else if (n === 4 && main.dataset.refs) ir(main, 'referencias');
+    else if (n === 6 && v5.eV5(main)) ir(main, 'universal');
     return true;
   }
   const marca = t.closest<HTMLElement>('.cat2__marca-botao');
@@ -262,6 +286,7 @@ export function clique(t: Element): boolean {
 }
 
 export function iniciar(): void {
+  v5.iniciar();
   document.addEventListener('input', (ev) => {
     const i = ev.target as HTMLElement;
     if (document.body.classList.contains('editando') || !i.matches('.cat3__cartao [data-filtro]')) return;
