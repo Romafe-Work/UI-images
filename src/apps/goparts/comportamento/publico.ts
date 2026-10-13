@@ -48,6 +48,22 @@ function ligar(pub: HTMLElement): void {
 /** O progresso numa secção alta com uma parte parada: 0 quando a parte prende, 1 quando solta. */
 const progresso = (sec: HTMLElement) => { const r = sec.getBoundingClientRect(); return lim((BARRA - r.top) / Math.max(1, r.height - (innerHeight - BARRA))); };
 
+/** Monta o rolamento até g (0: só o anel de fora; as esferas entram uma a uma; 0,74–0,86 o anel de dentro)
+ *  e roda as esferas e o anel de dentro o que o rolamento andou (x px, com tam px de diâmetro). */
+function montar(el: Element, g: number, x: number, tam: number): void {
+  el.querySelectorAll<SVGElement>('.pub__rolo-esfera').forEach((b, i) => {
+    const k = lim((g - (0.03 + i * 0.085)) / 0.05), a = Number(b.dataset.a), d = (1 - k) * 9;
+    b.style.opacity = k.toFixed(3);
+    b.style.transform = `translate(${(Math.cos(a) * d).toFixed(2)}px, ${(Math.sin(a) * d).toFixed(2)}px)`;
+  });
+  /* o escuro entre os anéis só aparece com a primeira esfera: antes é só o anel de aço, com o furo */
+  const folga = el.querySelector<SVGElement>('.pub__rolo-folga'); if (folga) folga.style.opacity = lim(g / 0.06).toFixed(3);
+  const int = el.querySelector<SVGElement>('.pub__rolo-int');
+  if (int) { const k = lim((g - 0.74) / 0.12); int.style.opacity = k.toFixed(3); int.style.transform = `scale(${(0.4 + k * 0.6).toFixed(3)})`; }
+  const gira = el.querySelector<SVGElement>('.pub__rolo-gira');
+  if (gira) gira.style.transform = quieto() ? 'none' : `rotate(${((x / (tam / 2)) * 180 / Math.PI).toFixed(1)}deg)`;
+}
+
 let pedido = 0;
 function desenhar(): void {
   pedido = 0;
@@ -61,9 +77,13 @@ function desenhar(): void {
     const r = rolo.querySelector<SVGElement>('.pub__rolo-rolamento'), linha = rolo.querySelector<HTMLElement>('.pub__rolo-linha');
     const tam = r?.getBoundingClientRect().width || 34, curso = rolo.clientWidth - tam, x = t * curso;
     if (linha) linha.style.transform = `scaleX(${t.toFixed(4)})`;
-    if (r) r.style.transform = `translateX(${x.toFixed(1)}px)`;
-    const gira = rolo.querySelector<SVGElement>('.pub__rolo-gira');
-    if (gira) gira.style.transform = quieto() ? 'none' : `rotate(${((x / (tam / 2)) * 180 / Math.PI).toFixed(1)}deg)`;
+    if (r) { r.style.transform = `translateX(${x.toFixed(1)}px)`; r.style.setProperty('--rolo-x', `translateX(${x.toFixed(1)}px)`); }
+    /* a montagem, ao longo das cinco páginas: g de 0 (início da página pública) a 1 (fim dos Contactos) */
+    const ordem = ['publico', 'publico-romafe', 'publico-entregas', 'publico-marcas', 'publico-contactos'];
+    const ecra = pub.closest<HTMLElement>('.ecra')?.dataset.ecra ?? 'publico';
+    const g = (Math.max(0, ordem.indexOf(ecra)) + t) / ordem.length;
+    montar(rolo, g, x, tam);
+    rolo.classList.toggle('is-completo', g >= 0.985);
   }
   const abrir = pub.querySelector<HTMLElement>('.pub__abrir-fixo');
   if (abrir) abrir.style.setProperty('--k', (quieto() ? 1 : lim(progresso(abrir.parentElement!) * 1.6)).toFixed(3));
@@ -95,6 +115,14 @@ function desenhar(): void {
     const atual = Math.round(p);
     h.querySelectorAll<HTMLElement>('[data-cap]').forEach((el) => { if (Number(el.dataset.cap) === atual) el.setAttribute('aria-current', 'true'); else el.removeAttribute('aria-current'); });
     h.querySelectorAll<HTMLElement>('.pub__caps-barra i').forEach((b, i) => b.style.setProperty('--f', lim(p - i + 1).toFixed(3)));
+    /* o rolamento da história: rola por cima das barras e monta-se de 1945 a Amanhã */
+    const pista = h.querySelector<HTMLElement>('.pub__caps-pista'), cr = pista?.querySelector<SVGElement>('.pub__caps-rolo');
+    if (pista && cr) {
+      const t2 = lim(p / (n - 1)), tam = cr.getBoundingClientRect().width || 44, x = t2 * (pista.clientWidth - tam);
+      cr.style.transform = `translateX(${x.toFixed(1)}px)`;
+      montar(cr, t2, x, tam);
+      pista.classList.toggle('is-completo', t2 >= 0.985);
+    }
   }
 }
 const pedir = () => { if (!pedido) pedido = requestAnimationFrame(desenhar); };

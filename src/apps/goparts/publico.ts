@@ -45,15 +45,22 @@ const LINHA = (texto: string, i: number) => `<span class="pub__linha"><span styl
 export const MENU: [string, string][] = [['publico-romafe', 'A Romafe'], ['publico-entregas', 'Entregas'], ['publico-marcas', 'Marcas'], ['publico-contactos', 'Contactos']];
 /* O scroll é um rolamento (ela, 13 out.: «coloca rolamentos como scroll»): uma linha fina por baixo da barra
    enche a laranja com o scroll, e na ponta um rolamento rola — anda o que se desceu e roda o que andou
-   (comportamento/publico.ts). Aço com a luz parada, a folga escura, oito esferas. */
+   (comportamento/publico.ts). Aço com a luz parada, a folga escura, oito esferas.
+   Depois (13 out.: «quero a cena do rolamento desde o início até ao fim, de um ecrã para o outro, ele vai-se
+   formando de acordo com o scroll»): monta-se ao longo da visita às cinco páginas — no início só o anel de
+   fora; as esferas entram uma a uma; nos Contactos, o anel de dentro; no fim, completo, dá uma volta.
+   E «quero em screen também»: na história há outro, maior, que rola por cima das barras dos capítulos e
+   se monta de 1945 (só o anel de fora) a Amanhã (completo). */
 /* (os ids dos gradientes levam o nome da página: repetidos, o Chrome lia os de um ecrã escondido e não pintava) */
-const esferas = (k: string) => Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 11.2).toFixed(2)}" cy="${(Math.sin(a) * 11.2).toFixed(2)}" r="3.1" fill="url(#rolo-esfera-${k})"/>`; }).join('');
-const ROLO = (k: string) => `<div class="pub__rolo" aria-hidden="true"><i class="pub__rolo-linha"></i><svg class="pub__rolo-rolamento" viewBox="-17 -17 34 34">
+const esferas = (k: string) => Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * Math.PI * 2; return `<circle class="pub__rolo-esfera" data-a="${a.toFixed(3)}" cx="${(Math.cos(a) * 11.2).toFixed(2)}" cy="${(Math.sin(a) * 11.2).toFixed(2)}" r="3.1" fill="url(#rolo-esfera-${k})"/>`; }).join('');
+/** O rolamento, para a barra de cima e para a história (cls diz onde está). */
+const rolamentoSvg = (k: string, cls = 'pub__rolo-rolamento') => `<svg class="${cls}" viewBox="-17 -17 34 34" aria-hidden="true">
   <defs><linearGradient id="rolo-aco-${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f9fb"/><stop offset=".4" stop-color="#8a95a0"/><stop offset=".55" stop-color="#e6ebef"/><stop offset="1" stop-color="#4e5761"/></linearGradient>
   <radialGradient id="rolo-esfera-${k}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#b5bec7"/><stop offset="1" stop-color="#3a424b"/></radialGradient></defs>
-  <circle r="16" fill="url(#rolo-aco-${k})"/><circle r="13.6" fill="#1a1f25"/>
-  <g class="pub__rolo-gira">${esferas(k)}<circle r="8.2" fill="url(#rolo-aco-${k})"/><circle r="5" fill="#faf8f5"/><circle r="5" fill="none" stroke="#000" stroke-opacity=".3"/></g>
-</svg></div>`;
+  <circle r="14.8" fill="none" stroke="url(#rolo-aco-${k})" stroke-width="2.4"/><circle class="pub__rolo-folga" r="13.6" fill="#1a1f25"/>
+  <g class="pub__rolo-gira">${esferas(k)}<g class="pub__rolo-int"><circle r="8.2" fill="url(#rolo-aco-${k})"/><circle r="5" fill="#faf8f5"/><circle r="5" fill="none" stroke="#000" stroke-opacity=".3"/></g></g>
+</svg>`;
+const ROLO = (k: string) => `<div class="pub__rolo" aria-hidden="true"><i class="pub__rolo-linha"></i>${rolamentoSvg(k)}</div>`;
 
 export const barraPublica = (atual = '', semSeta = false) => `<header class="pub__barra">${ROLO(atual || 'inicio')}
   <a class="pub__marca" href="#" data-ir="publico"${semSeta || !atual ? ' data-sem-seta' : ''} aria-label="Romafe GoParts: a página inicial"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
@@ -134,6 +141,7 @@ const html = `<div class="pub">
   <section class="pub__historia" aria-label="A Romafe" style="--n:${CAPITULOS.length}">
     <div class="pub__fixo">
       <div class="pub__textos">${CAPITULOS.map(([, num, frase, texto], i) => `<article class="pub__cap" data-cap="${i}"${i ? '' : ' aria-current="true"'}><p class="pub__cap-num">${num}</p><h2 class="pub__cap-frase">${frase}</h2><p class="pub__cap-texto">${texto}</p></article>`).join('')}
+        <div class="pub__caps-pista">${rolamentoSvg('historia', 'pub__caps-rolo')}</div>
         <ol class="pub__caps" aria-label="Capítulos">${CAPITULOS.map(([, num], i) => `<li><button type="button" data-cap="${i}"${i ? '' : ' aria-current="true"'}><span class="pub__caps-barra" aria-hidden="true"><i></i></span>${num}</button></li>`).join('')}</ol>
       </div>
       <div class="pub__fotos">${CAPITULOS.map(([img, , , , alt], i) => `<figure class="pub__foto" style="--i:${i}"><img src="${img}" alt="${alt}"></figure>`).join('')}</div>

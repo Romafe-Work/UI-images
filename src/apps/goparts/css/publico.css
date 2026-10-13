@@ -257,3 +257,15 @@
 ::view-transition-group(pub-foto) { animation-duration: .7s; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
 @media (prefers-reduced-motion: reduce) { .pub__seguinte-cartao { opacity: 1; transform: none; transition: none; } }
 @media (max-width: 1000px) { .pub__seguinte-cartao { grid-template-columns: minmax(0, 1fr); } .pub__seguinte-foto { height: 220px; order: -1; } .pub__seguinte-texto { padding: var(--e-5); } }
+/* o rolamento a montar-se (13 out.): as esferas deslizam de fora para o lugar, o anel de dentro cresce;
+   completo, cresce um instante no sítio onde está (--rolo-x, a posição na linha) */
+.pub__rolo-esfera, .pub__rolo-int { transform-box: view-box; transform-origin: 0 0; }
+.pub__rolo.is-completo .pub__rolo-rolamento { animation: pub-rolo-pronto .9s var(--ease-out); }
+@keyframes pub-rolo-pronto { 40% { transform: var(--rolo-x, none) scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .pub__rolo.is-completo .pub__rolo-rolamento { animation: none; } }
+/* o rolamento da história (13 out.: «quero em screen também»): maior, rola por cima das barras dos
+   capítulos e monta-se com eles; completo em «Amanhã» */
+.pub__caps-pista { position: absolute; left: 0; right: 0; bottom: calc(var(--e-5) + 44px); height: 52px; pointer-events: none; }
+.pub__caps-rolo { position: absolute; left: 0; bottom: 0; width: 52px; height: 52px; overflow: visible; filter: drop-shadow(0 6px 8px rgba(20, 20, 20, .28)); }
+.pub__caps-rolo .pub__rolo-esfera, .pub__caps-rolo .pub__rolo-int, .pub__caps-rolo .pub__rolo-gira { transform-box: view-box; transform-origin: 0 0; }
+@media (max-width: 1000px) { .pub__caps-pista { bottom: 34px; height: 40px; } .pub__caps-rolo { width: 40px; height: 40px; } }
