@@ -279,7 +279,10 @@ th[aria-sort="descending"] .cat5__ordenar svg { transform: scaleY(-1); }
 .cat5__passo { display: inline-flex; align-items: center; gap: var(--e-2); }
 .cat5__passo-n { display: grid; place-items: center; width: 22px; height: 22px; border-radius: var(--r-full); font-size: 12px; font-weight: 700; border: 1px solid var(--c-borda); color: var(--c-texto-3); transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
 .cat5__passo.is-feito .cat5__passo-n { background: var(--c-marca-suave); border-color: var(--c-marca); color: var(--c-marca); }
-.cat5__passo[aria-current="true"] .cat5__passo-n { background: var(--c-acao); border-color: var(--c-acao); color: #fff; }
+/* o passo atual com o mesmo aspeto dos outros (ela, 13 out.: «não quero isto diferente»):
+   sem caixa de fundo nem número laranja; só o texto a negrito e a risca laranja por baixo */
+.portal--cat5 .cat5__passo[aria-current="true"] { background: none; }
+.cat5__passo[aria-current="true"] .cat5__passo-n { background: var(--c-marca-suave); border-color: var(--c-marca); color: var(--c-marca); }
 .cat5__passos[hidden] { display: none; }
 
 /* =========================================================
