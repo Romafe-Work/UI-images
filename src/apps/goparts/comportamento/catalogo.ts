@@ -6,6 +6,8 @@
    Os modelos são de exemplo, só para as marcas favoritas de origem.
    No editor (body.editando) nada disto corre.
    ========================================================= */
+import * as v3 from './catalogo-v3';
+
 const MODELOS: Record<string, [string, string][]> = {
   Renault: [['Clio IV', '2012–2019'], ['Clio V', '2019–'], ['Mégane IV', '2016–'], ['Captur', '2013–'], ['Kangoo', '2008–']],
   Peugeot: [['208', '2012–'], ['308', '2013–'], ['2008', '2013–'], ['3008', '2016–'], ['Partner', '2008–']],
@@ -120,9 +122,12 @@ function fecharModelos(c: HTMLElement): void {
 
 export function iniciar(): void {
   document.querySelectorAll<HTMLElement>('[data-catalogo]').forEach(aplicar);
+  v3.iniciar();
   document.addEventListener('click', (ev) => {
     if (editando()) return;
     const t = ev.target as Element;
+    /* a v3 tem os seus Modelos e Veículos (catalogo-v3.ts) */
+    if (v3.clique(t)) return;
     const c = t.closest<HTMLElement>('[data-catalogo]');
     const p = t.closest<HTMLButtonElement>('.cat2__passo');
     if (p && !p.disabled) {

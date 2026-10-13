@@ -8,6 +8,7 @@ import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos } from './estados';
 import inicioV22 from './inicio-v22.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
+import { catalogoV3 } from './catalogo-v3';
 import pedidosV2 from './pedidos-v2.html?raw';
 import guias from './guias.html?raw';
 
@@ -23,7 +24,9 @@ export const ecrasPortal: EcraGoParts[] = [
   ...estadosInicio(),
   { id: 'catalogo', nome: '11 · Catálogo', fluxo: FLUXO, versoes: [
     /* 12 out. 2026: ela pediu para tirar a v1 (a do Figma-WebShop-GoParts) */
-    { id: 'v2', nota: 'A partir do catálogo atual do GO REPAIR, no estilo do Início v2.2 (12 out.): passos do catálogo, pesquisa por veículo no cartão azul, marcas com Favoritas/Todas e procura; a marca abre os modelos', html: portal('catalogo', catalogoV2, undefined, { menu: true, rodape: false }) }],
+    { id: 'v2', nota: 'A partir do catálogo atual do GO REPAIR, no estilo do Início v2.2 (12 out.): passos do catálogo, pesquisa por veículo no cartão azul, marcas com Favoritas/Todas e procura; a marca abre os modelos', html: portal('catalogo', catalogoV2, undefined, { menu: true, rodape: false }) },
+    /* 13 out. 2026: ela, com as imagens do GO REPAIR, «faz os modelos e veiculos no catalogo» */
+    { id: 'v3', nota: 'A v2 com os passos Modelos e Veículos do GO REPAIR (13 out.): a marca abre a tabela dos modelos, o modelo a dos veículos; os filtros de cada passo no cartão azul, que fica no sítio', html: portal('catalogo', catalogoV3, undefined, { menu: true, rodape: false }) }],
     objetivo: 'O catálogo de peças: a pesquisa por veículo ou por referência num só sítio, e as marcas de automóveis para escolher.' },
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [

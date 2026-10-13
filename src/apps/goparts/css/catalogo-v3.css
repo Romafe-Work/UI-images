@@ -1,0 +1,88 @@
+/* =========================================================
+   GOPARTS — 11 · Catálogo v3 (13 out. 2026): os passos Modelos e Veículos
+   Parte da v2 (catalogo-v2.css) e junta-lhe as duas tabelas do GO REPAIR.
+   O cartão azul fica no sítio e troca de conteúdo: em Marcas, Identificar
+   veículo; em Modelos e Veículos, os filtros. As tabelas rolam na
+   horizontal quando a janela é estreita; a página rola na vertical.
+   Animações (comportamento/catalogo-v3.ts): a secção de baixo desliza
+   24 px ao trocar de passo, o conteúdo do cartão desvanece; as linhas
+   entram em cascata. Nada anima alturas nem larguras.
+   ========================================================= */
+.cat3 [hidden] { display: none !important; }
+.cat3 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- no cartão azul ---------- */
+.cat3__cartao { display: grid; gap: var(--e-4); }
+.cat3__de { color: rgba(255, 255, 255, .85); font-weight: 400; }
+.cat3__filtros { display: grid; gap: var(--e-3) var(--e-4); align-items: end; }
+.cat3__filtros--modelos { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; }
+.cat3__filtros--veiculos { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
+/* Veículo, Ano e Motor numa linha; kW, cv e cc por baixo; «Limpar» à direita das duas */
+.cat3__filtros--veiculos > :nth-child(4), .cat3__filtros--veiculos > :nth-child(5), .cat3__filtros--veiculos > :nth-child(6) { grid-row: 2; }
+.cat3__filtros--veiculos > :nth-child(4) { grid-column: 1; }
+.cat3__filtros--veiculos > :nth-child(5) { grid-column: 2; }
+.cat3__filtros--veiculos > :nth-child(6) { grid-column: 3; }
+.cat3__filtros--veiculos .cat3__limpar { grid-column: 4; grid-row: 1 / span 2; align-self: end; }
+/* o «Limpar filtros» no azul: fantasma claro, com a altura dos campos */
+.cat2__pesquisa .cat3__limpar.btn { min-height: 46px; color: #fff; border-color: rgba(255, 255, 255, .4); background: transparent; }
+.cat2__pesquisa .cat3__limpar.btn:hover { background: rgba(255, 255, 255, .12); }
+
+/* ---------- a secção de baixo: o topo e as tabelas ---------- */
+.cat3__vista { display: grid; gap: var(--e-3); min-width: 0; }
+/* a tabela larga rola dentro do seu rolo, não empurra a página */
+.portal--cat3 .cat2__marcas, .cat3__vista > * { min-width: 0; }
+.cat3__topo { display: flex; align-items: center; gap: var(--e-3); flex-wrap: wrap; }
+.cat3__conta { margin: 0; font-size: 14px; color: var(--c-texto-2); }
+.cat3__conta strong { color: var(--c-texto); font-variant-numeric: tabular-nums; }
+
+.cat3__tabela .erp-tabela__rolo { overflow-x: auto; position: relative; }
+.cat3__tabela--modelos table { min-width: 560px; }
+.cat3__tabela--veiculos table { min-width: 1080px; }
+.cat3__tabela thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.cat3__tabela td { vertical-align: middle; font-size: 14px; }
+.cat3 .erp-num { text-align: right; font-variant-numeric: tabular-nums; }
+.cat3__nowrap { white-space: nowrap; }
+.cat3__ir { width: 40px; text-align: right; color: var(--c-texto-3); }
+.cat3__ir svg { width: 18px; height: 18px; vertical-align: middle; transition: transform .18s ease-out, color .18s ease; }
+
+.cat3__linha { cursor: pointer; transition: background-color .15s ease; animation: cat3-linha .2s ease-out calc(var(--i, 0) * 18ms) both; }
+.cat3__linha:hover { background: var(--c-superficie-2); }
+.cat3__linha:hover .cat3__ir svg { transform: translateX(3px); color: var(--c-acao); }
+.cat3__linha:focus-visible { outline: 2px solid var(--c-marca); outline-offset: -2px; }
+.cat3__nome { font-weight: 700; color: var(--c-marca); }
+.cat3__ainda { color: var(--c-texto-3); font-style: italic; }
+@keyframes cat3-linha { from { opacity: 0; transform: translateY(4px); } }
+
+/* o veículo escolhido: a linha fica marcada, com o visto no lugar da seta */
+.cat3__linha[aria-selected="true"] { background: var(--c-marca-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
+.cat3__linha[aria-selected="true"] .cat3__ir svg { color: var(--c-acao); }
+
+/* o combustível numa pastilha */
+.cat3__comb { display: inline-block; padding: 2px var(--e-2); border-radius: var(--r-full); font-size: 12px; font-weight: 700; white-space: nowrap; background: var(--c-superficie-3); color: var(--c-texto-2); }
+.cat3__comb--diesel { background: var(--c-marca-suave); color: var(--c-marca); }
+.cat3__comb--hibrido { background: var(--c-ok-suave); color: var(--c-ok); }
+.cat3__linha[aria-selected="true"] .cat3__comb { background: var(--c-superficie); }
+
+.cat3__sem td { color: var(--c-texto-2); }
+.cat3__vazio { margin: 0; color: var(--c-texto-2); }
+.cat3__ligacao { font: inherit; color: var(--c-marca); font-weight: 700; border: 0; background: none; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* o passo «Grupo montagem» acende quando se escolhe o veículo */
+.cat2__passo.is-a-chamar { animation: cat3-chamar .6s ease-out; }
+@keyframes cat3-chamar { 40% { background: var(--c-acao-suave); color: var(--c-texto); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat3__linha, .cat2__passo.is-a-chamar { animation: none; }
+  .cat3__linha, .cat3__ir svg { transition: none; }
+}
+
+/* ---------- onde se dobra ---------- */
+@media (max-width: 1180px) {
+  .cat3__filtros--veiculos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cat3__filtros--veiculos > * { grid-column: auto !important; grid-row: auto !important; }
+  .cat3__filtros--veiculos .cat3__limpar { grid-column: span 2 !important; }
+}
+@media (max-width: 640px) {
+  .cat3__filtros--modelos, .cat3__filtros--veiculos { grid-template-columns: minmax(0, 1fr); }
+  .cat3__filtros--veiculos .cat3__limpar { grid-column: auto !important; }
+}

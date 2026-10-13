@@ -13,11 +13,13 @@ import type { EcraGoParts, IdGoParts } from '../ids';
 import { portal } from './base';
 import inicioV22 from './inicio-v22.html?raw';
 import catalogoV2 from './catalogo-v2.html?raw';
+import { catalogoV3 } from './catalogo-v3';
+import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
 import pedidosV2 from './pedidos-v2.html?raw';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
 export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha';
-export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha';
+export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -41,7 +43,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|ped2)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|ped2)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -243,6 +245,27 @@ const catalogoFalha = () => catalogo(mudar(catalogoV2, 'e118', (r) => {
   $(r, '.cat2__grelha').outerHTML = `<div class="cg-falha est-falha est-falha--largo">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar as marcas</p><p class="cg-falha__texto">A pesquisa por matrícula, chassis ou motor continua a funcionar em cima. Referência do erro: <code>GP-20261012-B7D2</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
 }));
 
+/* 11.9 · v3: os modelos da BMW, como no GO REPAIR */
+const catalogoListaModelos = () => catalogo(mudar(catalogoV3, 'e119', (r) => {
+  parado(r);
+  const main = $(r, '.cat3');
+  encherModelos(main, 'BMW');
+  mostrar(main, 'modelos');
+  passos(r, 1);
+}));
+
+/* 11.10 · v3: os veículos do Renault Scénic II, com o 1.5 dCi de 78 kW escolhido */
+const catalogoVeiculos = () => catalogo(mudar(catalogoV3, 'e1110', (r) => {
+  parado(r);
+  const main = $(r, '.cat3');
+  main.dataset.marca = 'Renault';
+  encherModelos(main, 'Renault');
+  encherVeiculos(main, 'Renault', 'Scénic II (JM0/1_)');
+  mostrar(main, 'veiculos');
+  passos(r, 2, 3);
+  $$(r, '.cat3__vista[data-so="veiculos"] .cat3__linha').find((l) => l.dataset.kw === '78')?.setAttribute('aria-selected', 'true');
+}));
+
 /* ================= 12 · Pedidos ================= */
 const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
 const semPedidos = (r: HTMLElement) => $$(r, '[data-pedidos]').forEach((x) => x.removeAttribute('data-pedidos'));
@@ -336,6 +359,8 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-procura', '11.6 · Marca não encontrada', 'A procura de marca não encontra nada: sugere a escrita certa e outro caminho.', catalogoProcura),
   e('catalogo-sem-favoritas', '11.7 · Sem favoritas', 'Ainda sem favoritas: explica a estrela e leva a «Todas».', catalogoSemFavoritas),
   e('catalogo-falha', '11.8 · As marcas não carregaram', 'A grelha falhou: o que continua a funcionar, a referência do erro, o apoio e «Tentar de novo».', catalogoFalha),
+  e('catalogo-lista-modelos', '11.9 · Modelos da marca', 'Catálogo v3: escolhida a BMW, a tabela dos modelos com Fabricado desde e até; os filtros Modelo e Ano no cartão azul.', catalogoListaModelos),
+  e('catalogo-veiculos', '11.10 · Veículos do modelo', 'Catálogo v3: os veículos do Scénic II com motor, kW, cv, cc, tração e carroçaria; o 1.5 dCi escolhido acende «Grupo montagem».', catalogoVeiculos),
 ];
 export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já à vista; o resumo e as linhas da tabela chegam em esqueleto.', pedidosCarga),
