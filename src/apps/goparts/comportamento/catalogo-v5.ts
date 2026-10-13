@@ -169,20 +169,15 @@ function ordenar(botao: HTMLElement): void {
 }
 
 /* =========================================================
-   O fluxo (13 out.): um só menu com dois caminhos, Por veículo e Universal,
-   que só andam para a frente. O caminho vem da vista (e, nas Referências e
-   nos Detalhes, de onde se veio); os passos acendem-se à medida que há o
-   que mostrar. Só o caminho à vista tem passo atual, para a risca não saltar.
+   O menu dos passos (13 out.): a linha de sempre, Marcas … Universal; os
+   passos acendem-se à medida que há o que mostrar.
    ========================================================= */
 type VistaV5 = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'detalhes' | 'universal';
 export function fluxo(main: HTMLElement, vista: VistaV5): void {
   const nav = (main.closest('.portal') || document).querySelector<HTMLElement>('.cat5__fluxo');
   if (!nav) return;
-  const caminho = vista === 'universal' || ((vista === 'referencias' || vista === 'detalhes') && main.dataset.refs === 'universal') ? 'universal' : 'veiculo';
-  const doCaminho = main.dataset.refs === caminho;
-  const pode: Record<string, boolean> = caminho === 'veiculo'
-    ? { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 4: doCaminho, 5: doCaminho && !!main.dataset.ref }
-    : { 6: true, 4: doCaminho, 5: doCaminho && !!main.dataset.ref };
+  /* a linha de sempre: cada passo acende-se quando há o que mostrar; o Grupo montagem não está desenhado */
+  const pode: Record<string, boolean> = { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 3: false, 4: !!main.dataset.refs, 5: !!main.dataset.ref, 6: true };
   const atual = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, detalhes: 5, universal: 6 }[vista];
   /* a comparação só fica aberta nas Referências e nos Detalhes */
   if (vista !== 'referencias' && vista !== 'detalhes') { const c = main.querySelector<HTMLElement>('.cat5__comparacao'); if (c) c.hidden = true; }
@@ -202,31 +197,19 @@ export function fluxo(main: HTMLElement, vista: VistaV5): void {
     const onde = main.querySelector('.cat5__logo');
     if (onde && logo) onde.innerHTML = logo.outerHTML;
   }
-  $$<HTMLButtonElement>(nav, '.cat5__caminho').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.caminho === caminho)));
-  $$(nav, '[data-de-caminho]').forEach((ol) => {
-    const meu = ol.dataset.deCaminho === caminho;
-    ol.hidden = !meu;
-    $$<HTMLButtonElement>(ol, '.cat2__passo').forEach((b) => {
-      const n = Number(b.dataset.passo);
-      if (meu && n === atual) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
-      b.disabled = !meu || !pode[n];
-      b.classList.toggle('is-feito', meu && !!pode[n] && n !== atual);
-    });
+  $$<HTMLButtonElement>(nav, '.cat2__passo').forEach((b) => {
+    const n = Number(b.dataset.passo);
+    if (n === atual) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+    b.disabled = !pode[n];
   });
 }
 
-/** Um clique no menu do fluxo: o caminho ou um dos passos. */
+/** Um clique num passo do menu. */
 function cliqueFluxo(main: HTMLElement, t: Element): boolean {
   if (!t.closest('.cat5__fluxo')) return false;
-  const c = t.closest<HTMLElement>('.cat5__caminho');
-  if (c) {
-    if (c.dataset.caminho === 'universal') ir(main, 'universal');
-    /* volta ao último passo por veículo que já tinha */
-    else ir(main, main.dataset.refs === 'veiculo' ? 'referencias' : main.dataset.modelo ? 'veiculos' : main.dataset.marca ? 'modelos' : 'marcas');
-    return true;
-  }
   const p = t.closest<HTMLButtonElement>('.cat2__passo');
-  if (p && !p.disabled) ir(main, ({ 0: 'marcas', 1: 'modelos', 2: 'veiculos', 4: 'referencias', 5: 'detalhes', 6: 'universal' } as const)[Number(p.dataset.passo) as 0 | 1 | 2 | 4 | 5 | 6]);
+  const vista = ({ 0: 'marcas', 1: 'modelos', 2: 'veiculos', 4: 'referencias', 5: 'detalhes', 6: 'universal' } as const)[Number(p?.dataset.passo) as 0 | 1 | 2 | 4 | 5 | 6];
+  if (p && !p.disabled && vista) ir(main, vista);
   return true;
 }
 

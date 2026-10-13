@@ -187,21 +187,15 @@ const detalhes = `
         ${ABAS.map(([k], i) => `<div class="cat5__aba-corpo" role="tabpanel" id="cat5-painel-${k}" aria-labelledby="cat5-aba-${k}" data-corpo="${k}"${i ? ' hidden' : ''}></div>`).join('')}
       </div>`;
 
-/* ---------- o fluxo (ela, 13 out.: «este menu ainda salta de um para o outro… organiza o flow») ----------
-   Um só menu, sempre no mesmo sítio, com dois caminhos que só andam para a frente
-   (o interruptor Por veículo / Universal à direita dos passos — ela, 13 out.):
-   Por veículo — Marcas › Modelos › Veículos › Referências › Detalhes;
-   Universal — Grupos › Referências › Detalhes.
-   «Grupo montagem» sai dos passos (não está desenhado; as Referências têm o filtro do grupo).
-   Os data-passo são os mesmos dos outros passos (0 Marcas … 4 Referências, 5 Detalhes, 6 Universal). */
-const passo = (n: number, i: number, t: string) => `<li>${i ? L(chevronRight, 'cat5__seta-passo') : ''}<button type="button" class="cat2__passo cat5__passo" data-passo="${n}"${i ? ' disabled' : n === 0 ? ' aria-current="true"' : ''}><span class="cat5__passo-n">${i + 1}</span>${t}</button></li>`;
+/* ---------- o menu dos passos ----------
+   Ela, 13 out.: primeiro «organiza o flow» (ficou um interruptor Por veículo / Universal
+   com dois caminhos); depois, com a imagem do menu da v4, «quero em todos os ecrãs
+   assim»: a linha de sempre, Marcas · Modelos · Veículos · Grupo montagem · Referências
+   · Detalhes · Universal, só com o nome; o atual com o fundo e a risca laranja.
+   «Grupo montagem» fica desligado: não está desenhado. */
+const passo = (n: number, t: string) => `<li><button type="button" class="cat2__passo cat5__passo" data-passo="${n}"${n === 0 ? ' aria-current="true"' : n === 6 ? '' : ' disabled'}>${t}</button></li>`;
 const fluxo = `<nav class="cat2__passos cat5__fluxo" aria-label="Passos do catálogo">
-    <ol class="cat5__passos" data-de-caminho="veiculo">${[[0, 'Marcas'], [1, 'Modelos'], [2, 'Veículos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
-    <ol class="cat5__passos" data-de-caminho="universal" hidden>${[[6, 'Grupos'], [4, 'Referências'], [5, 'Detalhes']].map(([n, t], i) => passo(n as number, i, t as string)).join('')}</ol>
-    <div class="cat5__caminhos" role="group" aria-label="Procurar peças">
-      <button type="button" class="cat5__caminho" data-caminho="veiculo" aria-pressed="true">${L(car)}Por veículo</button>
-      <button type="button" class="cat5__caminho" data-caminho="universal" aria-pressed="false">${L(listTree)}Universal</button>
-    </div>
+    <ol class="cat5__passos">${([[0, 'Marcas'], [1, 'Modelos'], [2, 'Veículos'], [3, 'Grupo montagem'], [4, 'Referências'], [5, 'Detalhes'], [6, 'Universal']] as [number, string][]).map(([n, t]) => passo(n, t)).join('')}</ol>
   </nav>`;
 
 /* ---------- Modelos como os outros passos (ela, 13 out.: «coloca o modelos consistente
