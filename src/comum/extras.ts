@@ -8,15 +8,17 @@
 import type { App, Versao } from './tipos';
 
 export interface EcraExtra { id: string; nome: string; fluxo: string; objetivo: string; depois: string; versoes: Versao[] }
-export interface Extras { versoes: Record<string, Versao[]>; ecras: EcraExtra[] }
+/** nomes: o nome dado no editor a um ecrã («ecra») ou a nota de uma versão («ecra|v2»),
+    também aos que vêm do código (ela, 13 out.: «permite aqui mudar») */
+export interface Extras { versoes: Record<string, Versao[]>; ecras: EcraExtra[]; nomes: Record<string, string> }
 
 const chave = (app: string) => 'romafe:' + app + ':extras:v1';
 
 export function lerExtras(app: string): Extras {
   try {
     const g = JSON.parse(localStorage.getItem(chave(app)) || '{}') as Partial<Extras>;
-    return { versoes: g.versoes || {}, ecras: g.ecras || [] };
-  } catch (e) { return { versoes: {}, ecras: [] }; }
+    return { versoes: g.versoes || {}, ecras: g.ecras || [], nomes: g.nomes || {} };
+  } catch (e) { return { versoes: {}, ecras: [], nomes: {} }; }
 }
 
 export function gravarExtras(app: string, x: Extras): void {
@@ -38,6 +40,14 @@ export function juntarExtras(app: App): Set<string> {
     const ecra = app.ecras.find((e) => e.id === id);
     if (!ecra) return;
     x.versoes[id].forEach((v) => { ecra.versoes.push({ ...v }); locais.add(id + '|' + v.id); });
+  });
+  Object.keys(x.nomes).forEach((k) => {
+    const [id, versao] = k.split('|');
+    const ecra = app.ecras.find((e) => e.id === id);
+    if (!ecra) return;
+    if (!versao) { ecra.nome = x.nomes[k]; return; }
+    const v = ecra.versoes.find((c) => c.id === versao);
+    if (v) v.nota = x.nomes[k];
   });
   return locais;
 }

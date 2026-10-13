@@ -1150,8 +1150,7 @@ function montar(): void {
   accoesVersao = el('div', 'ed-accoes-versao');
   accoesVersao.appendChild(botaoIcone('Duplicar versão', I_DUPLICAR, duplicarVersao, 'Uma versão nova, igual à que se vê, no fim da lista'));
   accoesVersao.appendChild(botaoIcone('Copiar ecrã', I_ECRA, copiarEcra, 'Um ecrã novo com todas as versões deste'));
-  const bNome = botaoIcone('Mudar nome', I_NOME, mudarNome, 'O nome do ecrã copiado e a nota da versão criada aqui');
-  bNome.dataset.soLocal = '1';
+  const bNome = botaoIcone('Mudar nome', I_NOME, mudarNome, 'A nota desta versão e o nome do ecrã (ficam neste navegador; saem no Exportar)');
   const bApagar = botaoIcone('Apagar', I_APAGAR, apagar, 'Apaga a versão ou o ecrã criados aqui');
   bApagar.dataset.soLocal = '1';
   accoesVersao.appendChild(bNome);
@@ -1398,17 +1397,17 @@ function mudarNome(): void {
   const id = e.dataset.ecra || '';
   const x: Extras = lerExtras(APP);
   const copia = x.ecras.find((c) => c.id === id);
-  if (v.dataset.local) {
-    const nota = window.prompt('O que é esta versão?', v.dataset.nota || '');
-    if (nota === null) return;
-    const lista = (x.versoes[id] || []).concat(copia ? copia.versoes : []);
-    const alvo = lista.find((c) => c.id === v.dataset.versao);
-    if (alvo) alvo.nota = nota;
-  }
-  if (copia) {
-    const nome = window.prompt('O nome do ecrã', copia.nome);
-    if (nome) copia.nome = nome;
-  }
+  /* a nota da versão; nas que vêm do código fica por cima, em «nomes» (vazia volta à de origem) */
+  const nota = window.prompt('O que é esta versão?', v.dataset.nota || '');
+  if (nota === null) return;
+  const lista = (x.versoes[id] || []).concat(copia ? copia.versoes : []);
+  const alvo = v.dataset.local ? lista.find((c) => c.id === v.dataset.versao) : undefined;
+  const kv = id + '|' + (v.dataset.versao || '');
+  if (alvo) alvo.nota = nota;
+  else if (nota.trim()) x.nomes[kv] = nota.trim(); else delete x.nomes[kv];
+  const nome = window.prompt('O nome do ecrã', e.dataset.nome || '');
+  if (nome && copia) copia.nome = nome;
+  else if (nome && nome !== e.dataset.nome) x.nomes[id] = nome;
   gravarExtras(APP, x);
   irERecarregar(id, v.dataset.versao || '');
 }
