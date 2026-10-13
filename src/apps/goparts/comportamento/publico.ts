@@ -36,7 +36,7 @@ function ligar(pub: HTMLElement): void {
     const s = e.target as HTMLElement;
     s.classList.add('is-visivel');
     s.querySelectorAll<HTMLElement>('[data-contar]').forEach(contar);
-  }), { threshold: 0.25 });
+  }), { threshold: 0, rootMargin: '0px 0px -12% 0px' }); /* (com 25 %, uma secção mais alta do que 4 ecrãs nunca aparecia no telemóvel) */
   pub.querySelectorAll<HTMLElement>('section').forEach((s) => observador!.observe(s));
 }
 
@@ -83,7 +83,16 @@ function aoRato(ev: PointerEvent): void {
   col.style.setProperty('--py', ((ev.clientY - r.top) / r.height - 0.5).toFixed(3));
 }
 
+/** 00.4 · Contactos: o pedido de acesso não sai daqui (é um protótipo); mostra a confirmação. */
+function aoEnviar(ev: SubmitEvent): void {
+  const form = (ev.target as Element).closest?.<HTMLFormElement>('.pubp__form');
+  if (!form) return;
+  ev.preventDefault();
+  form.querySelector<HTMLElement>('.pubp__enviado')?.removeAttribute('hidden');
+}
+
 export function iniciar(): void {
+  document.addEventListener('submit', aoEnviar);
   document.addEventListener('pointermove', aoRato, { passive: true });
   window.addEventListener('scroll', aoScroll, { passive: true });
   window.addEventListener('resize', aoScroll);

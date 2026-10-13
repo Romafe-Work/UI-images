@@ -17,6 +17,7 @@
    Comportamento: comportamento/publico.ts.
    ========================================================= */
 import type { EcraGoParts } from './ids';
+import { htmlPublicoV2 } from './publico-v2';
 import catalogoV2 from './portal/catalogo-v2.html?raw';
 import fachada from '../../comum/img/fachada.webp';
 import corredor from '../../comum/img/corredor.webp';
@@ -62,7 +63,7 @@ const CENAS: [string, string, string, string][] = [
 const html = `<div class="pub">
   <header class="pub__barra">
     <a class="pub__marca" href="#" aria-label="Romafe GoParts"><span class="romafe">ROMAFE</span><span class="pub__risco" aria-hidden="true"></span><span class="pub__produto">GoParts</span></a>
-    <nav class="pub__nav" aria-label="Principal"><a href="#pub-historia">A Romafe</a><a href="#pub-rota">Entregas</a><a href="#pub-marcas">Marcas</a><a href="tel:+351226158300">Contactos</a></nav>
+    <nav class="pub__nav" aria-label="Principal"><a href="#" data-ir="publico-romafe">A Romafe</a><a href="#" data-ir="publico-entregas">Entregas</a><a href="#" data-ir="publico-marcas">Marcas</a><a href="#" data-ir="publico-contactos">Contactos</a></nav>
     <button type="button" class="btn btn--acao pub__entrar" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Entrar</span></button>
   </header>
 
@@ -123,8 +124,9 @@ const html = `<div class="pub">
 
 export function ecraPublico(): EcraGoParts {
   return {
-    id: 'publico', nome: '00 · A página pública', fluxo: 'Entrar',
+    id: 'publico', nome: '00 · A página pública', fluxo: 'Página pública',
     objetivo: 'Antes de entrar: apresenta o GoParts e a Romafe com o estilo dos sites que ela mandou (letra enorme, fotografias que se transformam, scroll que conta a história) e leva a «Entrar».',
-    versoes: [{ id: 'v1', nota: 'Pedida a 13 out. com imagens de vídeos de sites (Nike, Jordan, F1): herói, do armazém à oficina, a rota, as marcas e entrar; o material é o da Romafe', html }],
+    versoes: [{ id: 'v1', nota: 'Pedida a 13 out. com imagens de vídeos de sites (Nike, Jordan, F1): herói, do armazém à oficina, a rota, as marcas e entrar; o material é o da Romafe', html },
+      { id: 'v2', nota: 'Os produtos Romafe (13 out.), pelo reel «LUNEA» que ela mandou: a peça ao centro transforma-se com o scroll — o rolamento roda e abre-se, o disco de travão, a distribuição, a chave —, um disco claro atrás, esferas a flutuar e o texto a trocar', html: htmlPublicoV2 }],
   };
 }

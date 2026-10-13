@@ -6,6 +6,7 @@ import type { IdGoParts } from './ids';
 import { ecrasEntrar22 } from './entrar-v22';
 import { ecraAbertura } from './abertura';
 import { ecraPublico } from './publico';
+import { ecrasPublicoPaginas } from './publico-paginas';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro, DESCRICAO_ERROS } from './erros/erros';
 
@@ -17,6 +18,7 @@ export const goparts: App<IdGoParts> = {
   marca: 'GOPARTS',
   tela: { l: 1440, a: 900 },
   fluxos: {
+    'Página pública': 'Antes de entrar: a página pública e as páginas do menu dela (A Romafe, Entregas, Marcas, Contactos).',
     'Entrar': DESCRICAO_ENTRAR,
     'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos e as guias de remessa.',
     'Carregamento': DESCRICAO_CARREGAR,
@@ -26,5 +28,5 @@ export const goparts: App<IdGoParts> = {
      fotografia da oficina (entrar-v22.ts); a «Família Romafe» saiu (ela não gostou) */
   /* 13 out. 2026: a abertura animada antes do login (abertura.ts) */
   /* 13 out. 2026: a abertura passa à página pública (publico.ts), e o «Entrar» dela leva ao login */
-  ecras: [ecraAbertura(), ecraPublico(), ...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
+  ecras: [ecraAbertura(), ecraPublico(), ...ecrasPublicoPaginas(), ...ecrasEntrar22(), ...ecrasPortal, ...ecrasCarregar(GOPARTS), ...ecrasErro()],
 };

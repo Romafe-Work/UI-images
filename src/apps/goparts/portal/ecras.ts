@@ -3,6 +3,7 @@
    Vieram do Figma-WebShop-GoParts a 8 out. 2026; o HTML de cada um está no
    .html ao lado, e a base põe o topo, as abas e o rodapé.
    ========================================================= */
+import type { Versao } from '../../../comum/tipos';
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
@@ -25,6 +26,8 @@ export const ecrasPortal: EcraGoParts[] = [
     objetivo: 'O que se vê depois de entrar: três caminhos para chegar à peça — identificar o veículo (matrícula, chassis, descrição, motor), selecioná-lo (tipo, marca, modelo, veículo) ou pesquisar a referência (IAM, OE ou todas, com equivalências).' },
   /* os estados do Início (10.1, 10.2…), logo a seguir a ele (12 out. 2026) */
   ...estadosInicio(),
+  /* 13 out. 2026: ela, «mostra só a v2» — a v3, a v4 e a v5 ficam aqui escritas mas fora da lista
+     (o filtro no fim); para voltarem, basta tirar o filtro */
   { id: 'catalogo', nome: '11 · Catálogo', fluxo: FLUXO, versoes: [
     /* 12 out. 2026: ela pediu para tirar a v1 (a do Figma-WebShop-GoParts) */
     { id: 'v2', nota: 'A partir do catálogo atual do GO REPAIR, no estilo do Início v2.2 (12 out.): passos do catálogo, pesquisa por veículo no cartão azul, marcas com Favoritas/Todas e procura; a marca abre os modelos', html: portal('catalogo', catalogoV2, undefined, { menu: true, rodape: false }) },
@@ -33,7 +36,7 @@ export const ecrasPortal: EcraGoParts[] = [
     /* 13 out. 2026: ela mandou a imagem de um catálogo novo e a proposta das animações */
     { id: 'v4', nota: 'A partir da imagem dela (13 out.): «Encontrar veículo» num painel à esquerda que recolhe, as Marcas à direita com a contagem e uma faixa, cartões maiores; animações só quando se mexe (cartão, estrela, procura, Marca → Modelo, risca). Com os Modelos e Veículos da v3', html: portal('catalogo', catalogoV4, undefined, { menu: true, rodape: false }) },
     /* 13 out. 2026: a terceira imagem dela (Veículos) e a proposta das animações para Modelos e Veículos */
-    { id: 'v5', nota: 'A v4 com os Veículos da terceira imagem (13 out.): barra BMW / 1 (E81), «Filtrar veículos» a toda a largura com listas que se ajustam umas às outras, Tabela/Lista, resultados por página, ordenar por ano, kW, cv e cc, e o (i) que abre os dados do motor; animações da proposta dela nos Modelos e nos Veículos. Também as Referências (fabricantes em etiquetas, agrupar, ver próprias, comparar; só em tabela) e o Universal (grupos em Árvore, Lista ou Colunas, e os fabricantes de cada grupo)', html: portal('catalogo', catalogoV5, undefined, { menu: true, rodape: false }) }],
+    { id: 'v5', nota: 'A v4 com os Veículos da terceira imagem (13 out.): barra BMW / 1 (E81), «Filtrar veículos» a toda a largura com listas que se ajustam umas às outras, Tabela/Lista, resultados por página, ordenar por ano, kW, cv e cc, e o (i) que abre os dados do motor; animações da proposta dela nos Modelos e nos Veículos. Também as Referências (fabricantes em etiquetas, agrupar, ver próprias, comparar; só em tabela) e o Universal (grupos em Árvore, Lista ou Colunas, e os fabricantes de cada grupo)', html: portal('catalogo', catalogoV5, undefined, { menu: true, rodape: false }) }].filter((v) => v.id === 'v2') as [Versao],
     objetivo: 'O catálogo de peças: a pesquisa por veículo ou por referência num só sítio, e as marcas de automóveis para escolher.' },
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [
