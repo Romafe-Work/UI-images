@@ -126,16 +126,18 @@ const catalogoFormulario = () => catalogo(mudar(catalogoV2, 'e114', (r) => {
 }));
 
 /* 11.5 · a carregar os modelos da marca escolhida */
-const catalogoModelos = () => catalogo(mudar(catalogoV2, 'e115', (r) => {
+/* (14 out.) os modelos em cartões, a chegar: a mesma grelha em esqueleto, com a proporção da imagem guardada */
+const catalogoModelos = () => catalogo(mudar(catalogoV5, 'e115', (r) => {
   parado(r);
-  $$(r, '.cat2__passo').forEach((b) => { b.removeAttribute('aria-current'); if (b.dataset.passo === '1') { b.setAttribute('aria-current', 'true'); b.removeAttribute('disabled'); } });
-  $(r, '.cat2__marcas-cabeca').setAttribute('hidden', '');
-  $(r, '.cat2__grelha').setAttribute('hidden', '');
-  const m = $(r, '.cat2__modelos');
-  m.removeAttribute('hidden');
-  $(r, '.cat2__escolhida').textContent = '· Renault';
-  $(r, '.cat2__exemplo').innerHTML = `${GIRADOR('girador--pequeno')} A carregar modelos…`;
-  $(r, '.cat2__lista-modelos').innerHTML = Array.from({ length: 5 }, () => `<li class="est-modelo">${E('60%', 'esq--titulo')}${E('35%', 'esq--texto')}</li>`).join('');
+  const main = $(r, '.cat5');
+  main.dataset.marca = 'BMW';
+  encherModelos(main, 'BMW');
+  mostrar(main, 'modelos');
+  fluxo(main, 'modelos');
+  const vista = $(r, '.cat3__vista[data-so="modelos"]');
+  vista.classList.add('cat6__a-carregar'); vista.setAttribute('aria-busy', 'true');
+  $$(vista, 'tbody .cat3__linha').slice(8).forEach((l) => l.remove());
+  $(vista, '.cat3__conta').innerHTML = `${GIRADOR('girador--pequeno')} A carregar os modelos BMW…`;
 }));
 
 /* 11.6 · a procura de marca não encontra nada */
@@ -166,12 +168,13 @@ const catalogoFalha = () => catalogo(mudar(catalogoV2, 'e118', (r) => {
 }));
 
 /* 11.9 · v3: os modelos da BMW, como no GO REPAIR */
-const catalogoListaModelos = () => catalogo(mudar(catalogoV3, 'e119', (r) => {
+const catalogoListaModelos = () => catalogo(mudar(catalogoV5, 'e119', (r) => {
   parado(r);
-  const main = $(r, '.cat3');
+  const main = $(r, '.cat5');
+  main.dataset.marca = 'BMW';
   encherModelos(main, 'BMW');
   mostrar(main, 'modelos');
-  passos(r, 1);
+  fluxo(main, 'modelos');
 }));
 
 /* 11.10 · v3: os veículos do Renault Scénic II, com o 1.5 dCi de 78 kW escolhido */
@@ -585,7 +588,7 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-identificar', '11.2 · A identificar o veículo', 'A matrícula escrita, o botão em «A identificar…» e uma barra fina.', catalogoIdentificar),
   e('catalogo-nao-encontrada', '11.3 · Matrícula não encontrada', 'Nenhum veículo com aquela matrícula: porquê pode ser e o que tentar.', catalogoNaoEncontrada),
   e('catalogo-formulario', '11.4 · Erros no formulário', 'Matrícula e chassis com o formato errado, cada um com a correção.', catalogoFormulario),
-  e('catalogo-modelos', '11.5 · A carregar modelos', 'Escolhida a marca, o passo Modelos fica ativo e os modelos chegam em esqueleto.', catalogoModelos),
+  e('catalogo-modelos', '11.5 · A carregar modelos', 'Escolhida a marca, os cartões dos modelos chegam em esqueleto, com a proporção da imagem guardada (nada salta); o rolamento ao pé da contagem.', catalogoModelos),
   e('catalogo-procura', '11.6 · Marca não encontrada', 'A procura de marca não encontra nada: sugere a escrita certa e outro caminho.', catalogoProcura),
   e('catalogo-sem-favoritas', '11.7 · Sem favoritas', 'Ainda sem favoritas: explica a estrela e leva a «Todas».', catalogoSemFavoritas),
   e('catalogo-falha', '11.8 · As marcas não carregaram', 'A grelha falhou: o que continua a funcionar, a referência do erro, o apoio e «Tentar de novo».', catalogoFalha),

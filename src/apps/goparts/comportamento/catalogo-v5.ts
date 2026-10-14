@@ -102,7 +102,7 @@ export function aplicar(tabela: HTMLElement, ver: Map<HTMLElement, boolean>, dep
   const saem = Array.from(ver).filter(([l, v]) => !v && !l.hidden).map(([l]) => l);
   const entram = Array.from(ver).filter(([l, v]) => v && l.hidden).map(([l]) => l);
   const acabar = () => {
-    const antes = new Map(Array.from(ver.keys()).filter((l) => !l.hidden).map((l) => [l, l.getBoundingClientRect().top]));
+    const antes = new Map(Array.from(ver.keys()).filter((l) => !l.hidden).map((l) => [l, l.getBoundingClientRect()]));
     ver.forEach((v, l) => { l.hidden = !v; l.style.opacity = ''; });
     depois();
     if (quieto()) return;
@@ -110,8 +110,9 @@ export function aplicar(tabela: HTMLElement, ver: Map<HTMLElement, boolean>, dep
       if (!v || l.classList.contains('is-fora')) return;
       const a = antes.get(l);
       if (a === undefined) { l.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' }); return; }
-      const dy = a - l.getBoundingClientRect().top;
-      if (dy) l.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 180, easing: FACIL });
+      /* (14 out.) em 2D: nos cartões dos modelos as linhas mudam também de coluna */
+      const d = l.getBoundingClientRect(), dx = a.left - d.left, dy = a.top - d.top;
+      if (dx || dy) l.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 240, easing: FACIL });
     });
   };
   if (quieto() || !saem.length) { acabar(); return; }

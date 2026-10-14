@@ -170,3 +170,73 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
   .portal--cat6 .cat2__marca, .portal--cat6 .cat2__marca > .cat2__marca-botao, .portal--cat6 .cat2__marca .cat2__logo, .cat6__seg { transition: none !important; transform: none !important; }
   .portal--cat6 .cat2__estrela svg, .cat6__lupa { animation: none !important; }
 }
+
+/* =========================================================
+   Os Modelos em cartões (14 out., o briefing da montra): a mesma tabela (os filtros e a ordenação não mudam),
+   desenhada como grelha — 4 por linha num ecrã largo, 3 / 2 em tablet, 1–2 no telemóvel. Em cima o nome e o
+   código, depois o período, ao meio o carro (60 %, proporção fixa: nada salta quando a imagem chega), em baixo o
+   tipo e a seta. Hover 280 ms: o carro 1,06 e 8 px para a direita, borda azul, linha laranja, seta, sobe 3 px.
+   ========================================================= */
+.cat6 .cat3__vista[data-so="modelos"] .erp-tabela__rolo { overflow: visible; }
+.cat6 .cat3__vista[data-so="modelos"] .cg-tabela { border: 0; background: none; }
+.cat6 .cat3__vista[data-so="modelos"] table, .cat6 .cat3__vista[data-so="modelos"] tbody { display: block; width: 100%; }
+.cat6 .cat3__vista[data-so="modelos"] thead { display: none; }
+.cat6 .cat3__vista[data-so="modelos"] tbody { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha { position: relative; display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; grid-template-areas: "nome nome codigo" "desde ate ate" "foto foto foto" "tipo tipo seta"; gap: 2px 6px; padding: 14px 14px 12px; border: 1px solid var(--i3-borda); border-radius: 10px; background: var(--i3-sup); cursor: pointer; overflow: hidden;
+  transition: transform 280ms cubic-bezier(.22, 1, .36, 1), border-color 200ms ease, opacity 260ms ease; }
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha[hidden], .cat6 .cat3__vista[data-so="modelos"] tbody tr.is-fora { display: none; }
+.cat6 .cat3__vista[data-so="modelos"] tbody td { display: block; padding: 0; border: 0; background: none; }
+.cat6 .cat3__vista[data-so="modelos"] tbody td:nth-child(2) { grid-area: nome; min-width: 0; }
+.cat6 .cat3__vista[data-so="modelos"] .cat4__silhueta { display: none; }
+.cat6 .cat3__vista[data-so="modelos"] .cat4__modelo-nome { display: block; font-family: var(--f-titulo); font-size: 17px; font-weight: 600; color: var(--i3-tinta); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat6 .cat3__vista[data-so="modelos"] .cat4__codigo { grid-area: codigo; align-self: center; font-family: var(--f-mono); font-size: 12px; color: var(--i3-tinta-3); }
+.cat6 .cat3__vista[data-so="modelos"] tbody td:nth-child(4) { grid-area: desde; font-size: 13px; color: var(--i3-tinta-2); }
+.cat6 .cat3__vista[data-so="modelos"] tbody td:nth-child(5) { grid-area: ate; font-size: 13px; color: var(--i3-tinta-2); }
+.cat6 .cat3__vista[data-so="modelos"] tbody td:nth-child(5)::before { content: "– "; }
+.cat6 .cat3__vista[data-so="modelos"] tbody td:nth-child(6) { grid-area: tipo; align-self: center; }
+.cat6 .cat3__vista[data-so="modelos"] .cat4__tipo { font-size: 12px; }
+.cat6 .cat3__vista[data-so="modelos"] .cat4__accoes { grid-area: seta; }
+.cat6 .cat3__vista[data-so="modelos"] .cat4__abrir { transition: transform 280ms cubic-bezier(.22, 1, .36, 1), border-color 200ms ease, color 200ms ease; }
+.cat6__foto { grid-area: foto; display: grid !important; place-items: center; aspect-ratio: 12 / 5; margin: 8px -4px 6px; }
+.cat6__carro { display: block; width: 100%; transform: translate(0, var(--py, 0px)); transition: transform 280ms cubic-bezier(.22, 1, .36, 1); }
+.cat6__carro img, .cat6__carro .cat6__silhueta { display: block; width: 100%; height: auto; transition: transform 280ms cubic-bezier(.22, 1, .36, 1); }
+.cat6__silhueta { overflow: visible; }
+.cat6__corpo { fill: var(--i3-sup-2); stroke: var(--i3-tinta-2); stroke-width: 1.6; stroke-linejoin: round; }
+.cat6__janelas { fill: none; stroke: var(--i3-tinta-3); stroke-width: 1.4; stroke-linejoin: round; }
+.cat6__roda { fill: var(--i3-sup); stroke: var(--i3-tinta-2); stroke-width: 1.6; }
+.cat6__jante { fill: none; stroke: var(--i3-tinta-3); stroke-width: 1.2; }
+.cat6__chao { stroke: var(--i3-borda-forte); stroke-width: 1; }
+/* a linha laranja que se desenha no fundo do cartão */
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--c-acao); transform: scaleX(0); transform-origin: left; transition: transform 280ms cubic-bezier(.22, 1, .36, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:hover { transform: translateY(-3px); border-color: var(--c-logotipo); background: var(--i3-sup); }
+  .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:hover::after { transform: scaleX(1); }
+  .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:hover .cat6__carro > * { transform: translateX(8px) scale(1.06); }
+  .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:hover .cat4__abrir { transform: translateX(3px); border-color: var(--c-acao); color: var(--c-acao); }
+  .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:hover .cat6__corpo { stroke: var(--i3-tinta); }
+}
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha:focus-visible::after { transform: scaleX(1); }
+/* escolhido: a borda de baixo laranja, o carro maior; os outros recuam */
+.cat6 .cat3__vista[data-so="modelos"].is-a-escolher tbody tr.cat3__linha:not(.is-modelo-escolhido) { opacity: .4; }
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.is-modelo-escolhido { border-color: var(--c-acao); }
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.is-modelo-escolhido::after { transform: scaleX(1); height: 3px; }
+.cat6 .cat3__vista[data-so="modelos"] tbody tr.is-modelo-escolhido .cat6__carro > * { transform: translateX(8px) scale(1.12); }
+/* o carro na barra do contexto */
+.cat6__ctx-carro { display: block; width: 72px; flex: none; }
+.cat6__ctx-carro .cat6__silhueta { display: block; width: 100%; height: auto; }
+::view-transition-group(cat-carro), ::view-transition-group(cat-modelo) { animation-duration: 520ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+/* a carregar: os cartões em esqueleto, com a mesma proporção (nada salta) */
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar tbody tr.cat3__linha { pointer-events: none; }
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar tbody td:not(.cat6__foto) > *, .cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar tbody td:nth-child(4), .cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar tbody td:nth-child(5) { color: transparent !important; border-radius: 4px; background: var(--i3-sup-2); animation: i3-pulsar 1.6s ease-in-out infinite alternate; }
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar .cat6__foto { border-radius: 8px; background: var(--i3-sup-2); animation: i3-pulsar 1.6s ease-in-out infinite alternate; }
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar .cat6__carro { opacity: 0; }
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar tbody td:nth-child(5)::before { content: none; }
+@media (prefers-reduced-motion: reduce) { .cat6__carro, .cat6__carro > *, .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha { transition: none !important; transform: none !important; } }
+@media (max-width: 1280px) { .cat6 .cat3__vista[data-so="modelos"] tbody { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .cat6 .cat3__vista[data-so="modelos"] tbody { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .cat6 .cat3__vista[data-so="modelos"] tbody { grid-template-columns: minmax(0, 1fr); } }
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar .cat4__modelo-nome { color: transparent; }
+.cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar .cat3__conta { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
+.cat6 .cat3__vista[data-so="modelos"] .cg-tabela { overflow: visible; }
+.cat6 .cat3__vista[data-so="modelos"] table { min-width: 0 !important; max-width: 100%; table-layout: auto; } .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha { min-width: 0; }

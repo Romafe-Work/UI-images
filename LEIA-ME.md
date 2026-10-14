@@ -240,6 +240,13 @@ e afastam-se, e o logótipo voa para o cabeçalho dos Modelos; a grelha entra em
 estrela acende (1,25 e 12°) ou apaga (encolhe); Favoritas / Todas com o fundo a deslizar; a contagem passa do
 número antigo ao novo; a procura vazia com «Limpar pesquisa» e Esc para limpar.
 
+**Os Modelos em cartões** (o briefing da montra, 14 out.): cada modelo num cartão — o nome e o código, o período,
+a imagem do carro (60 %, proporção fixa) e o tipo com a seta; 4 por linha (3 / 2 / 1 conforme a largura). Hover:
+o carro cresce a 1,06 e anda 8 px, borda azul, linha laranja, sobe 3 px; ao escolher, os outros recuam e o carro e o
+nome voam para a barra do contexto dos Veículos (e voltam). Ao rolar, os carros mexem-se até 6 px. **As imagens são
+silhuetas por categoria** (`portal/carros.ts`): o briefing pede fotografias licenciadas da geração exata e, sem
+elas, silhuetas; quando houver fotografias, põem-se em `FOTOS` (com carregamento preguiçoso e a silhueta se falhar).
+
 **Matriz de estados** (barra «Estados» do ecrã; os de carregamento usam o rolamento):
 
 | Estado | Gatilho | O que se vê | Recuperação |

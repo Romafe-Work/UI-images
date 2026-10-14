@@ -19,6 +19,7 @@
    ========================================================= */
 import { partilhado, encherVeiculos, ir, type Vista } from './catalogo-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
+import { imagemModelo, silhueta } from '../portal/carros';
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const editando = () => document.body.classList.contains('editando');
@@ -44,7 +45,8 @@ function contexto(main: HTMLElement, vista: Vista): void {
     ? parte('Universal', 'universal', false) + parte(main.dataset.uGrupo || 'Todos os grupos', 'universal', vista === 'referencias')
     : parte(main.dataset.marca || '', 'modelos', vista === 'modelos') + parte(main.dataset.modelo || '', 'veiculos', vista === 'veiculos') + parte(main.dataset.versao || '', 'grupos', vista === 'grupos');
   const ref = vista === 'detalhes' && main.dataset.ref ? `<li><span class="cat6__ctx-ref">${main.dataset.ref}</span></li>` : '';
-  barra.innerHTML = `<span class="cat6__ctx-logo">${logo || '<span class="cat6__ctx-u">U</span>'}</span><ol class="cat6__ctx-caminho">${partes}${ref}</ol>${main.dataset.identificado ? `<span class="cat6__ctx-ok" role="status">${rolamentoSvg('ctx-' + ++n, 'carregar', 'cat6__rs-ok')}Veículo identificado · ${main.dataset.identificado}</span>` : ''}`;
+  const carro = !universal && main.dataset.modelo && vista !== 'modelos' ? `<span class="cat6__ctx-carro">${silhueta(main.dataset.carrocaria || '')}</span>` : '';
+  barra.innerHTML = `<span class="cat6__ctx-logo">${logo || '<span class="cat6__ctx-u">U</span>'}</span>${carro}<ol class="cat6__ctx-caminho">${partes}${ref}</ol>${main.dataset.identificado ? `<span class="cat6__ctx-ok" role="status">${rolamentoSvg('ctx-' + ++n, 'carregar', 'cat6__rs-ok')}Veículo identificado · ${main.dataset.identificado}</span>` : ''}`;
 }
 
 /* ---------- as transições partilhadas ---------- */
@@ -59,6 +61,9 @@ function ligarGanchos(): void {
     else nomear($(main, '.cat6__ctx-logo'), 'cat-marca');
     if (para === 'detalhes' && main.dataset.ref) nomear($(main, `.cat5__ref[data-ref="${CSS.escape(main.dataset.ref)}"] .cat5__referencia`), 'cat-ref');
     if (de === 'detalhes') nomear($(main, '.cat5__peca-ref'), 'cat-ref');
+    /* o carro e o nome do modelo: do cartão para a barra do contexto (e de volta) */
+    if (de === 'modelos' && para === 'veiculos') { const c = cartaoModelo(main); nomear(c?.querySelector('.cat6__foto'), 'cat-carro'); nomear(c?.querySelector('.cat4__modelo-nome'), 'cat-modelo'); }
+    if (de === 'veiculos' && para === 'modelos') { nomear($(main, '.cat6__ctx-carro'), 'cat-carro'); nomear($(main, '.cat6__ctx-parte[data-ir-vista="veiculos"]'), 'cat-modelo'); }
   };
   partilhado.depois = (main, de, para) => {
     nomes.forEach((el) => { el.style.viewTransitionName = ''; });
@@ -71,6 +76,11 @@ function ligarGanchos(): void {
     else nomear($(main, '.cat6__ctx-logo'), 'cat-marca');
     if (para === 'detalhes') nomear($(main, '.cat5__peca-ref'), 'cat-ref');
     if (de === 'detalhes' && main.dataset.ref) nomear($(main, `.cat5__ref[data-ref="${CSS.escape(main.dataset.ref)}"] .cat5__referencia`), 'cat-ref');
+    if (de === 'modelos' && para === 'veiculos') { nomear($(main, '.cat6__ctx-carro'), 'cat-carro'); nomear($(main, '.cat6__ctx-parte[data-ir-vista="veiculos"]'), 'cat-modelo'); }
+    if (de === 'veiculos' && para === 'modelos') { decorarModelos(main); const c = cartaoModelo(main); nomear(c?.querySelector('.cat6__foto'), 'cat-carro'); nomear(c?.querySelector('.cat4__modelo-nome'), 'cat-modelo'); }
+    if (para === 'modelos' || de === 'modelos') main.querySelectorAll('.is-modelo-escolhido').forEach((x) => x.classList.remove('is-modelo-escolhido'));
+    main.querySelector('.cat3__vista[data-so="modelos"]')?.classList.remove('is-a-escolher');
+    if (para === 'modelos') decorarModelos(main);
     riscas(main.closest('.portal') as HTMLElement);
   };
   partilhado.fim = () => { nomes.forEach((el) => { el.style.viewTransitionName = ''; }); nomes.clear(); };
@@ -245,19 +255,63 @@ function limparEscolha(main: HTMLElement): void {
   main.querySelector('.cat2__grelha')?.classList.remove('is-a-escolher');
 }
 
+/* =========================================================
+   Os Modelos em cartões (14 out., o briefing da montra): cada linha da tabela passa a cartão — em cima o nome
+   e o período, ao meio a imagem do carro (60 %), em baixo o tipo e a seta. A filtragem e a ordenação são as de
+   sempre (as linhas continuam a ser as mesmas); só se acrescenta a imagem.
+   - hover: o carro cresce a 1,06 e anda 8 px para a direita, a borda azul, a linha laranja, a seta anda, sobe 3 px;
+   - escolher: o cartão fica laranja e o carro cresce, os outros recuam; depois o carro e o nome voam para a barra
+     do contexto dos Veículos (e voltam para trás);
+   - ao rolar, os carros mexem-se uns píxeis (até 6) conforme a posição no ecrã.
+   ========================================================= */
+function decorarModelos(main: HTMLElement): void {
+  main.querySelectorAll<HTMLElement>('.cat3__vista[data-so="modelos"] tbody .cat3__linha[data-modelo]').forEach((tr) => {
+    if (tr.querySelector('.cat6__foto')) return;
+    tr.insertAdjacentHTML('afterbegin', `<td class="cat6__foto" aria-hidden="true"><span class="cat6__carro">${imagemModelo(tr.dataset.modelo || '', tr.dataset.carrocaria || '')}</span></td>`);
+    const img = tr.querySelector('img');
+    img?.addEventListener('error', () => { img.outerHTML = silhueta(img.dataset.silhueta || ''); }, { once: true });
+  });
+}
+const cartaoModelo = (main: HTMLElement) => main.querySelector<HTMLElement>(`.cat3__vista[data-so="modelos"] .cat3__linha[data-modelo="${CSS.escape(main.dataset.modelo || '')}"]`);
+let aEscolherModelo = false;
+function escolherModelo(main: HTMLElement, tr: HTMLElement): boolean {
+  if (aEscolherModelo || quieto()) return false;
+  main.dataset.carrocaria = tr.dataset.carrocaria || '';
+  tr.classList.add('is-modelo-escolhido');
+  tr.closest('.cat3__vista')?.classList.add('is-a-escolher');
+  aEscolherModelo = true;
+  window.setTimeout(() => { tr.click(); aEscolherModelo = false; }, 200);
+  return true;
+}
+function profundidade(): void {
+  let pedido = 0;
+  const fazer = () => {
+    pedido = 0;
+    const main = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .cat6[data-vista="modelos"]');
+    if (!main || quieto()) return;
+    const meio = innerHeight / 2;
+    main.querySelectorAll<HTMLElement>('.cat6__carro').forEach((c) => {
+      const r = c.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+      c.style.setProperty('--py', `${Math.max(-6, Math.min(6, (r.top + r.height / 2 - meio) * -0.015)).toFixed(1)}px`);
+    });
+  };
+  window.addEventListener('scroll', () => { if (!pedido) pedido = requestAnimationFrame(fazer); }, { passive: true });
+}
+
 /* ---------- ligar ---------- */
 function armar(): void {
   const portal = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .portal--cat6');
   if (!portal) return;
   if (!portal.querySelector('.cat6__aviso')) portal.insertAdjacentHTML('beforeend', '<p class="cat6__aviso sr-only" role="status" aria-live="polite"></p>');
   const main = portal.querySelector<HTMLElement>('.cat6');
-  if (main) { contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
+  if (main) { decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
   requestAnimationFrame(() => riscas(portal));
 }
 
 export function iniciar(): void {
   ligarGanchos();
   inclinar();
+  profundidade();
   document.addEventListener('keydown', (ev) => { const i = ev.target as HTMLInputElement; if (ev.key === 'Escape' && i.matches?.('.cat6 .cat2__procura input') && i.value) { ev.preventDefault(); limparProcura(i.closest<HTMLElement>('.cat6')!); } });
   document.addEventListener('click', (ev) => { const t = ev.target as Element; const m = t.closest?.<HTMLElement>('.cat6'); if (m && t.closest('.cat2__filtro-aba')) requestAnimationFrame(() => segmento(m)); });
   window.addEventListener('resize', () => { const m = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .cat6'); if (m) segmento(m); });
@@ -280,6 +334,8 @@ export function iniciar(): void {
     const est = t.closest<HTMLElement>('.cat2__estrela');
     if (est && !quieto()) { const liga = est.getAttribute('aria-pressed') !== 'true'; est.classList.remove('is-ligar', 'is-desligar'); void est.offsetWidth; est.classList.add(liga ? 'is-ligar' : 'is-desligar'); return; }
     if (t.closest('[data-limpar-marca]')) { ev.preventDefault(); ev.stopPropagation(); limparProcura(main); return; }
+    const mod = t.closest<HTMLElement>('.cat3__vista[data-so="modelos"] .cat3__linha[data-modelo]');
+    if (mod) { main.dataset.carrocaria = mod.dataset.carrocaria || ''; if (!aEscolherModelo && escolherModelo(main, mod)) { ev.preventDefault(); ev.stopPropagation(); return; } }
     const marca = t.closest<HTMLElement>('.cat2__marca-botao');
     if (marca && !aEscolher && escolherMarca(main, marca)) { ev.preventDefault(); ev.stopPropagation(); return; }
     const parte = t.closest<HTMLElement>('.cat6__ctx-parte');
