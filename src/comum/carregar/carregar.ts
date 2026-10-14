@@ -35,7 +35,7 @@ function pagina(p: Produto): string {
     <span class="carga-pagina__risco" aria-hidden="true"></span>
     <p class="carga-pagina__produto">${p.nome}</p>
     ${rolamentoSvg('carga-' + p.nome, 'carregar', 'carga-pagina__rolamento')}
-    <p class="carga-pagina__texto">A preparar a sua conta…</p>
+    <p class="carga-pagina__texto">A preparar o portal…</p>
   </div>`;
 }
 

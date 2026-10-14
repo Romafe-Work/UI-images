@@ -196,8 +196,16 @@ efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `
 - Ctrl+K / ⌘K (ou a caixa de procura do topo): a pesquisa global, modal (o resto fica inerte).
 - Por baixo: categorias (sobem 2 px), pesquisas recentes com «Repetir», últimos pedidos (a seta anda 3 px)
   e veículos guardados. Os dados são os de exemplo do protótipo.
-- Estados 10.1–10.9 tirados do mesmo desenho (esqueleto, sugestões, a pesquisar, sem resultados, erro no
-  formulário, sem ligação, pedidos que não carregaram, primeira vez, Ctrl+K aberto).
+- **Os 17 estados** (10.1–10.17, do briefing dela, 14 out.) numa só linguagem mecânica: o rolamento desenhado
+  (`src/comum/rolamento-svg.ts` + `css/rolamento-svg.css`) muda de comportamento conforme o estado — monta-se a
+  carregar (10.1, 10.10), roda por dentro a pesquisar (10.3, 10.12), abranda até parar sem ligação (10.6),
+  encrava a meio no erro do servidor (10.14), falta-lhe uma esfera no 404 (10.13), desmonta-se devagar na
+  manutenção (10.17). E ainda: sugestões agrupadas com a risca laranja (10.2), o disco inspecionado uma vez
+  (10.4), erros com o ícone que se desenha (10.5) e o resumo que leva a cada campo (10.16), os pedidos que não
+  carregaram só na sua zona (10.7), a visita guiada da primeira vez (10.8), a pesquisa global que cresce de
+  0,98 (10.9), o esqueleto com pulsar lento (10.11) e a sessão expirada num diálogo calmo (10.15). Os 10.11–10.17
+  do GoParts passam a usar o desenho do Início v3 (`NOVOS` em `app.ts`); o GoShop mantém a moldura comum.
+  Tokens de movimento em `.portal--ini3` (`--m-hover` 150 ms … `--m-revelar` 700 ms).
 
 ## Como está feito
 

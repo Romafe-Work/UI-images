@@ -20,4 +20,18 @@
 @keyframes rs-montar { from { --rs-g: 0; } to { --rs-g: 1; } }
 @keyframes rs-afinar { 0%, 15% { --rs-g: 1; } 85%, 100% { --rs-g: .3; } }
 @keyframes rs-girar { to { transform: rotate(360deg); } }
+/* a pesquisar: só o conjunto de dentro roda, depressa e certo */
+.rs--pesquisar .rs__gira { animation: rs-girar .9s linear infinite; }
+/* sem ligação: roda e abranda até parar (3 s); ao voltar a ligação, retoma */
+.rs--offline .rs__gira { animation: rs-parar 3s cubic-bezier(.15, .7, .3, 1) both; }
+.rs--offline.is-retomar .rs__gira { animation: rs-girar 1.2s cubic-bezier(.5, 0, 1, 1) 1, rs-girar .9s linear 1.2s infinite; }
+@keyframes rs-parar { from { transform: rotate(0deg); } to { transform: rotate(560deg); } }
+/* erro: roda e pára a meio, com um pequeno recuo; uma vez */
+.rs--erro .rs__gira { animation: rs-encravar 1.4s cubic-bezier(.3, .6, .4, 1) both; }
+@keyframes rs-encravar { 0% { transform: rotate(0); } 70% { transform: rotate(250deg); } 78% { transform: rotate(238deg); } 100% { transform: rotate(240deg); } }
+.rs--erro .rs__gaiola { stroke: var(--c-erro, #c0392b); }
+/* 404: falta uma esfera; o conjunto roda uma vez e o lugar vazio para à frente */
+.rs--404 .rs__esfera[style*="--i:4;"] { opacity: 0 !important; }
+.rs--404 .rs__gira { animation: rs-procurar 1.6s cubic-bezier(.25, .8, .3, 1) both; }
+@keyframes rs-procurar { from { transform: rotate(-200deg); } to { transform: rotate(0deg); } }
 @media (prefers-reduced-motion: reduce) { .rs, .rs__gira { animation: none !important; --rs-g: 1; } }

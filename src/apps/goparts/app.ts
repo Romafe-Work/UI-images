@@ -7,6 +7,8 @@ import { ecrasEntrar } from './entrar-3d';
 import { ecraAbertura } from './abertura';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro } from './erros/erros';
+import { portal } from './portal/base';
+import { inicioV3, manutencaoV3, type EstadoInicio } from './portal/inicio-v3';
 
 /** Os ecrãs de carregamento e de erro, cada um como estado da página que mostra, numerados a seguir
  *  aos estados que ela já tem (10.8, 11.15, 12.8, 13.9, 14.9). */
@@ -19,6 +21,22 @@ const ONDE: Record<string, [IdGoParts, string]> = {
   'erro-403': ['guias', '13.10 · Sem permissão'],
   'carga-progresso': ['faturas', '14.10 · A gerar o PDF'],
 };
+/* 14 out. 2026 (o briefing dos 17 estados do Início): no GoParts, estes estados passam a ser do Início v3, na
+   mesma linguagem mecânica (o rolamento); a moldura comum fica para o GoShop */
+const ini3 = (est: EstadoInicio) => () => {
+  const html = portal('inicio', inicioV3(est), undefined, { menu: true, rodape: false });
+  /* com o diálogo da sessão expirada (modal), o resto da página fica inerte */
+  return est === 'sessao' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
+};
+const NOVOS: Record<string, [() => string, string]> = {
+  'carga-inicio': [ini3('esqueleto'), 'A forma exata do Início em esqueleto, com um pulsar lento: cada zona troca quando os dados chegam, sem saltos.'],
+  'carga-pecas': [ini3('pecas'), 'Os resultados a chegar: os filtros e o cabeçalho da tabela ficam; as linhas em esqueleto; o rolamento ao pé da contagem.'],
+  'erro-404': [ini3('404'), 'O rolamento a que falta uma esfera roda uma vez e mostra o lugar vazio: «Esta página saiu da rota.»'],
+  'erro-500': [ini3('500'), 'O rolamento encrava a meio do movimento: o pedido não se concluiu; «Tentar novamente» ou voltar ao início.'],
+  'erro-sessao': [ini3('sessao'), 'Um diálogo calmo por cima do Início: o cadeado fecha-se e «Iniciar sessão»; depois volta à mesma página.'],
+  'erro-formulario': [ini3('erros'), 'Dois campos errados: o resumo diz quantos são e cada erro leva ao seu campo; o que se escreveu fica.'],
+  'erro-manutencao': [manutencaoV3, 'Sem o portal: o rolamento em vista explodida, devagar — «Estamos a afinar o motor.» — e quando volta.'],
+};
 function distribuir(): EcraGoParts[] {
   const lista: EcraGoParts[] = [...ecrasPortal];
   for (const e of [...ecrasCarregar(GOPARTS), ...ecrasErro()] as EcraGoParts[]) {
@@ -26,7 +44,9 @@ function distribuir(): EcraGoParts[] {
     let i = lista.length - 1;
     while (i >= 0 && lista[i].id !== pai && lista[i].estadoDe !== pai) i--;
     while (i + 1 < lista.length && lista[i + 1].estadoDe === pai) i++;
-    lista.splice(i + 1, 0, { ...e, nome, fluxo: 'Portal', estadoDe: pai });
+    const novo = NOVOS[e.id];
+    const versoes = novo ? [{ id: 'v1', nota: 'Do briefing dos estados do Início (14 out.), na linguagem mecânica do rolamento', html: novo[0]() }] as EcraGoParts['versoes'] : e.versoes;
+    lista.splice(i + 1, 0, { ...e, nome, fluxo: 'Portal', estadoDe: pai, versoes, objetivo: novo ? novo[1] : e.objetivo });
   }
   return lista;
 }

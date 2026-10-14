@@ -17,7 +17,8 @@
      de uma navegação). No editor nada disto rouba o clique.
    ========================================================= */
 import { mostrar } from '../../../comum/ecras';
-import { listaReferencias } from '../portal/inicio-v3';
+import { listaReferencias, GUIA_TEXTOS } from '../portal/inicio-v3';
+import { rolamentoSvg } from '../../../comum/rolamento-svg';
 
 const editando = () => document.body.classList.contains('editando');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -125,7 +126,7 @@ function pesquisar(card: HTMLElement): void {
   if (!b || b.disabled) return;
   const antes = b.innerHTML;
   b.disabled = true; b.setAttribute('aria-busy', 'true'); b.classList.add('is-a-pesquisar');
-  b.innerHTML = '<span class="ini3__roda" aria-hidden="true"></span><span class="btn__rotulo">A pesquisar…</span>';
+  b.innerHTML = `${rolamentoSvg('i3-b-' + Date.now(), 'pesquisar', 'ini3__rs-botao')}<span class="btn__rotulo">A pesquisar…</span>`;
   const aviso = visivel()?.parentElement?.querySelector<HTMLElement>('.ini3__aviso'); if (aviso) aviso.textContent = 'A pesquisar…';
   window.setTimeout(() => { b.innerHTML = antes; b.disabled = false; b.removeAttribute('aria-busy'); b.classList.remove('is-a-pesquisar'); mostrar('catalogo'); }, quieto() ? 200 : 700);
 }
@@ -180,6 +181,47 @@ function escolherComando(p: HTMLElement): void {
   else if (it.dataset.repetir) { const ini = visivel(); if (ini) repetir(ini, it.dataset.repetir, it.dataset.valor ?? ''); }
 }
 
+
+/* ---------- os estados (14 out., o briefing dos 17 estados) ---------- */
+/** Um botão em carregamento: o rolamento pequeno no lugar do ícone; devolve a função que o repõe. */
+function aCarregar(b: HTMLElement, texto: string): () => void {
+  const antes = b.innerHTML;
+  b.setAttribute('aria-busy', 'true'); (b as HTMLButtonElement).disabled = true;
+  b.innerHTML = `${rolamentoSvg('i3-t-' + Date.now(), 'pesquisar')}<span>${texto}</span>`;
+  return () => { b.innerHTML = antes; b.removeAttribute('aria-busy'); (b as HTMLButtonElement).disabled = false; };
+}
+/** 10.6: «Tentar novamente» — o rolamento retoma, confirma-se a ligação e a faixa sai. */
+function religar(b: HTMLElement): void {
+  const faixa = b.closest<HTMLElement>('.ini3__rede')!, repor = aCarregar(b, 'A ligar…');
+  window.setTimeout(() => {
+    repor(); b.hidden = true;
+    faixa.classList.add('is-ligado');
+    faixa.querySelector('.rs')?.classList.add('is-retomar');
+    faixa.querySelector('.ini3__rede-texto')!.innerHTML = '<b>Ligação recuperada.</b><span>Já podes continuar.</span>';
+    faixa.closest('.ini3')?.classList.remove('is-offline');
+    window.setTimeout(() => { faixa.classList.add('is-a-sair'); window.setTimeout(() => faixa.remove(), 400); }, 2400);
+  }, quieto() ? 200 : 900);
+}
+/** 10.7: «Tentar novamente» nos pedidos — o seu carregamento, e depois os pedidos no lugar do erro. */
+function tentarPedidos(b: HTMLElement): void {
+  const falha = b.closest<HTMLElement>('.ini3__falha')!, repor = aCarregar(b, 'A carregar…');
+  window.setTimeout(() => { repor(); const lista = falha.nextElementSibling as HTMLElement | null; falha.remove(); if (lista) lista.hidden = false; }, quieto() ? 200 : 900);
+}
+/** 10.8: a visita guiada — passo a passo, cada passo põe o seu cartão ao centro; no fim (ou «Saltar») não volta. */
+function guiar(ini: HTMLElement, passo: number | 'saltar'): void {
+  const g = ini.querySelector<HTMLElement>('.ini3__guia'); if (!g) return;
+  const n = passo === 'saltar' ? 3 : Number(g.dataset.guia) + passo;
+  if (n < 0) return;
+  if (n > 2) { try { localStorage.setItem('goparts:guia-vista', '1'); } catch { /* sem armazenamento */ } g.remove(); ini.classList.remove('is-guia'); return; }
+  g.dataset.guia = String(n);
+  g.querySelector('.ini3__guia-passo b')!.textContent = String(n + 1);
+  g.querySelector('.ini3__guia-titulo')!.textContent = GUIA_TEXTOS[n][0];
+  g.querySelector('.ini3__guia-texto p:last-child')!.textContent = GUIA_TEXTOS[n][1];
+  (g.querySelector('[data-guia-passo="-1"]') as HTMLButtonElement).disabled = n === 0;
+  g.querySelector('.ini3__guia-seguinte .btn__rotulo')!.textContent = n === 2 ? 'Começar' : 'Seguinte';
+  porModo(ini, n);
+}
+
 /* ---------- ligar ---------- */
 let atual: HTMLElement | null = null;
 function armar(): void {
@@ -214,7 +256,14 @@ export function iniciar(): void {
     const lado = alvo.closest<HTMLElement>('.ini3__cartao[inert]'); if (lado) { porModo(ini, Number(lado.dataset.cartao)); return; }
     const tipo = alvo.closest<HTMLElement>('.ini3__tipo'); if (tipo) { tipo.parentElement!.querySelectorAll('.ini3__tipo').forEach((t) => t.setAttribute('aria-checked', String(t === tipo))); trocarTipo(tipo); return; }
     const sug = alvo.closest<HTMLElement>('.ini3__sug'); if (sug) { const inp = sug.closest('.ini3__campo')!.querySelector<HTMLInputElement>('input')!; usar(inp, sug.dataset.valor!); inp.focus(); return; }
-    const limpar = alvo.closest<HTMLElement>('[data-limpar]'); if (limpar) { limpar.closest('.ini3__cartao')!.querySelectorAll<HTMLInputElement>('input:not([type="radio"]):not([type="checkbox"])').forEach((x) => { x.value = ''; }); return; }
+    const religa = alvo.closest<HTMLElement>('[data-religar]'); if (religa) { religar(religa); return; }
+    const tp = alvo.closest<HTMLElement>('[data-tentar-pedidos]'); if (tp) { tentarPedidos(tp); return; }
+    const tpag = alvo.closest<HTMLElement>('[data-tentar-pagina]'); if (tpag) { const repor = aCarregar(tpag, 'A tentar…'); window.setTimeout(() => { repor(); mostrar('inicio'); }, quieto() ? 200 : 800); return; }
+    const foc = alvo.closest<HTMLElement>('[data-focar]'); if (foc) { ev.preventDefault(); document.getElementById(foc.dataset.focar!)?.focus(); return; }
+    const gp = alvo.closest<HTMLElement>('[data-guia-passo]'); if (gp) { guiar(ini, Number(gp.dataset.guiaPasso)); return; }
+    if (alvo.closest('[data-guia-saltar]')) { guiar(ini, 'saltar'); return; }
+    const eq = alvo.closest<HTMLElement>('[data-equivalencias]'); if (eq) { const c = eq.closest<HTMLElement>('.ini3__cartao')!; c.querySelectorAll<HTMLInputElement>('.ini3__marcar input[type="checkbox"]').forEach((x, i) => { if (i === 0) x.checked = true; }); c.querySelector('.ini3__nada')?.remove(); pesquisar(c); return; }
+    const limpar = alvo.closest<HTMLElement>('[data-limpar]'); if (limpar) { limpar.closest('.ini3__cartao')!.querySelector('.ini3__nada')?.remove(); limpar.closest('.ini3__cartao')!.querySelectorAll<HTMLInputElement>('input:not([type="radio"]):not([type="checkbox"])').forEach((x) => { x.value = ''; }); return; }
     const pes = alvo.closest<HTMLElement>('[data-pesquisar]'); if (pes) { pesquisar(pes.closest('.ini3__cartao')!); return; }
     const rep = alvo.closest<HTMLElement>('[data-repetir]'); if (rep) { ev.preventDefault(); ev.stopPropagation(); repetir(ini, rep.dataset.repetir!, rep.dataset.valor ?? ''); return; }
     if (!alvo.closest('.ini3__sugere')) ini.querySelectorAll<HTMLInputElement>('[data-sugerir]').forEach(fechar);

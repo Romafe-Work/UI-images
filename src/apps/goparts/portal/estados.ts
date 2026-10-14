@@ -505,15 +505,15 @@ const ini3 = (est: EstadoInicio) => () => {
   return est === 'comando' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
 };
 export const estadosInicio = (): EcraGoParts[] => [
-  e('inicio-carga', '10.1 · A carregar o Início', 'A pesquisa, as categorias e as três listas em esqueleto, com a mesma forma: quando chegam, nada salta.', ini3('carga')),
-  e('inicio-modelos', '10.2 · Sugestões ao escrever', 'Na referência, «VKBA»: as referências que começam assim, com o grupo, o preço e de onde sai; ↑ ↓ e Enter.', ini3('sugestoes')),
-  e('inicio-pesquisa', '10.3 · A pesquisar a referência', 'O botão em «A pesquisar…», com o círculo que roda; depois vêm os resultados verdadeiros.', ini3('pesquisa')),
-  e('inicio-sem-resultados', '10.4 · Referência sem resultados', 'Nenhuma referência começa assim: a lista diz porquê pode ser e o que tentar, sem fechar o cartão.', ini3('sem-resultados')),
-  e('inicio-formulario', '10.5 · Erro no formulário', 'Identificar: a matrícula com o formato errado, e o campo diz como deve ser.', ini3('erro')),
-  e('inicio-rede', '10.6 · Sem ligação', 'Uma faixa em cima; o que já está no ecrã continua à vista, e as pesquisas voltam com a ligação.', ini3('rede')),
-  e('inicio-falha', '10.7 · Os pedidos não carregaram', 'Só uma parte falhou: a zona dos pedidos diz qual, o resto continua a funcionar, e «Tentar de novo».', ini3('falha')),
-  e('inicio-vazio', '10.8 · Primeira vez', 'Um cliente novo: sem pesquisas, pedidos nem veículos guardados; cada zona diz o que vai aparecer ali.', ini3('vazio')),
-  e('inicio-comando', '10.9 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K) em qualquer sítio: as pesquisas recentes e as páginas, com ↑ ↓, Enter e Esc.', ini3('comando')),
+  e('inicio-carga', '10.1 · A carregar o Início', 'O rolamento monta-se e roda no lugar da pesquisa — «A preparar o teu espaço…» — e as zonas aparecem à medida que os dados chegam.', ini3('carga')),
+  e('inicio-modelos', '10.2 · Sugestões ao escrever', 'Na referência, «VKBA»: as sugestões agrupadas (referências, fabricantes, pesquisas recentes), a parte escrita destacada, a escolhida com a risca laranja; ↑ ↓ Enter Esc.', ini3('sugestoes')),
+  e('inicio-pesquisa', '10.3 · A pesquisar a referência', 'O rolamento roda no lugar do ícone do campo e no botão: «A procurar referências…». Sem cobrir a página.', ini3('pesquisa')),
+  e('inicio-sem-resultados', '10.4 · Referência sem resultados', 'O contorno de um disco inspecionado uma vez; «Não encontrámos resultados…» e três saídas: limpar, equivalências, catálogo.', ini3('sem-resultados')),
+  e('inicio-formulario', '10.5 · Erro no formulário', 'Identificar: a matrícula incompleta — borda, ícone que se desenha e a explicação por baixo; o que se escreveu fica.', ini3('erro')),
+  e('inicio-rede', '10.6 · Sem ligação', 'O rolamento abranda até parar: «Estás sem ligação à Internet.» «Tentar novamente» volta a pô-lo a rodar e confirma a ligação.', ini3('rede')),
+  e('inicio-falha', '10.7 · Os pedidos não carregaram', 'Só a zona dos pedidos: a caixa cai uma vez, «Não foi possível carregar os pedidos.» e «Tentar novamente» com o seu próprio carregamento.', ini3('falha')),
+  e('inicio-vazio', '10.8 · Primeira vez', 'A visita guiada pelas três formas de encontrar peças, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete.', ini3('vazio')),
+  e('inicio-comando', '10.9 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K): o fundo escurece e a caixa cresce de 0,98 para 1; recentes, pedidos, marcas e modelos, categorias e páginas; ↑ ↓ Enter Esc.', ini3('comando')),
 ];
 export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-carga', '11.1 · A carregar o Catálogo', 'O cartão da pesquisa e a grelha das marcas em esqueleto.', catalogoCarga),
