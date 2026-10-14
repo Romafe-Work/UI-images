@@ -150,7 +150,8 @@ a abertura aparece (`src/apps/goparts/comportamento/abertura-cena.ts`; o resto e
 `comportamento/abertura.ts` e `css/abertura.css`). Em ~7 s: uma esfera sozinha → o rolamento (um
 SKF 6206 à escala) monta-se → vista explodida com as cotas a laranja → monta-se outra vez e desfaz-se
 em partículas → as partículas formam o ROMAFE (tirado da letra Motor) e dão lugar ao logótipo
-verdadeiro, com o GoParts e a linha laranja → passa à página pública, com a marca a voar para a barra.
+verdadeiro, com o GoParts e a linha laranja → passa ao 01 · Entrar, com a marca a voar para a barra
+(a página pública foi apagada a 14 out., a pedido dela).
 
 - Arrasta-se o rolamento e a cena segue o rato; «Saltar» ou Esc vão já.
 - Passa inteira uma vez por sessão; depois mostra o logótipo, com «Ver outra vez».

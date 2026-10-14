@@ -26,10 +26,8 @@ import './css/estados.css';
 import './css/select.css';
 import './css/entrar-v22.css';
 import './css/abertura.css';
-import './css/publico.css';
-import './css/publico-paginas.css';
 import './css/entrar-v23.css';
-import './css/publico-escuro.css';
+import './css/entrar-escuro.css';
 import './css/estados-animacoes.css';
 import '../../comum/css/editor.css';
 
@@ -48,6 +46,5 @@ import { iniciar as faturas } from './comportamento/faturas';
 import { iniciar as selects } from './comportamento/select';
 import { iniciar as login } from './comportamento/login';
 import { iniciar as abertura } from './comportamento/abertura';
-import { iniciar as publico } from './comportamento/publico';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, login, abertura, publico]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, login, abertura]);

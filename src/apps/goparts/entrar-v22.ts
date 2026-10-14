@@ -75,18 +75,18 @@ function moldura(titulo: string, sub: string, corpo: string, rodapeCartao = '', 
    O cartão continua ao meio e no azul da Romafe (os dois foram pedidos dela). À volta: o azul-noite da
    página pública, duas colunas de fotografias da Romafe que deslizam devagar em sentidos opostos (o
    armazém a mexer, sem tapar o cartão), o passo em que se está (1 de 2, 2 de 2) com a barra a encher,
-   «Voltar à página» para a página pública, e os números em texto claro direto no fundo liso. */
+   e os números em texto claro direto no fundo liso. */
 const FOTOS = [fachada, corredor, separacao, oficina];
 const coluna = (lado: string, ordem: number[]) => `<div class="login23__coluna login23__coluna--${lado}" aria-hidden="true"><div>${[...ordem, ...ordem].map((i) => `<img src="${FOTOS[i]}" alt="">`).join('')}</div></div>`;
 function moldura2(titulo: string, sub: string, corpo: string, rodapeCartao = '', passo = 0): string {
   return `<div class="portal portal--v22 portal--noite login22 login23">
   <header class="login22__topo">
-    <a class="portal__marca" href="#" data-ir="publico" data-sem-seta aria-label="Romafe GoParts: a página pública">
+    <div class="portal__marca">
       <span class="romafe portal__romafe">ROMAFE</span>
       <span class="portal__risco" aria-hidden="true"></span>
       <span class="portal__produto">GoParts<span class="portal__produto-sub">O marketplace de peças auto</span></span>
-    </a>
-    <div class="login23__topo-dir"><button type="button" class="login23__voltar" data-ir="publico" data-sem-seta>${L(arrowLeft)}Voltar<span class="login23__mais"> à página</span></button><button type="button" class="login22__idioma">${L(globe)}Português</button></div>
+    </div>
+    <div class="login23__topo-dir"><button type="button" class="login22__idioma">${L(globe)}Português</button></div>
   </header>
   <main class="login22__palco login23__palco">
     ${coluna('esq', [0, 2, 1, 3])}${coluna('dir', [1, 3, 0, 2])}
@@ -160,7 +160,7 @@ const ajuda = (m: typeof moldura2 = moldura) => m('Precisa de ajuda?', 'Os casos
 export function ecrasEntrar22(): EcraGoParts[] {
   /* 13 out. 2026: fica só a v2 (ela: «escolhe o que achares melhor»); a v1, o cartão azul sobre a
      fotografia da oficina, saiu da lista — a moldura dela continua aqui, por omissão */
-  const NOTA2 = 'Melhorada a 13 out. («melhora a página de login»): o mesmo cartão ao meio, no azul-noite da página pública, com as fotografias da Romafe a deslizar dos lados, o passo em que se está e «Voltar à página»';
+  const NOTA2 = 'Melhorada a 13 out. («melhora a página de login»): o mesmo cartão ao meio, no azul-noite da página pública, com as fotografias da Romafe a deslizar dos lados, o passo em que se está';
   const e = (id: 'entrada' | 'palavra-passe' | 'federado' | 'ajuda', nome: string, objetivo: string, fn: (m?: typeof moldura2) => string): EcraGoParts =>
     ({ id, nome, fluxo: 'Entrar', objetivo, versoes: [{ id: 'v2', nota: NOTA2, html: fn(moldura2) }] });
   /* 01.1 · sem dados (13 out.: «exemplos com e sem dados para todos os ecrãs»): o campo ainda por preencher;

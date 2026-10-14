@@ -18,7 +18,8 @@
                exata do ROMAFE (tirada da própria letra Motor);
      5,5–6,4 s as partículas dão lugar ao logótipo verdadeiro (HTML, azul, Motor); o GoParts aparece
                por baixo e a linha laranja desenha-se;
-     6,6 s     passa à página pública: a marca voa para a barra de cima (View Transitions).
+     6,6 s     passa ao 01 · Entrar: a marca voa para a barra de cima (View Transitions).
+   (14 out.: ela mandou apagar a página pública; a abertura leva ao login.)
    Antes do logótipo, o rolamento roda com o arrasto (rato ou dedo) e a cena segue o rato.
    «Saltar» (ou Esc) vai já. A sequência inteira só passa uma vez por sessão; depois mostra o
    logótipo, com «Ver outra vez». Com «reduzir movimento», ou sem WebGL, mostra só o logótipo.
@@ -52,15 +53,15 @@ const html = `<main class="abertura abertura--v5" aria-label="GoParts, da Romafe
   <p class="ab5__espera" role="status">A preparar a cena…</p>
   <div class="ab5__accoes">
     <button type="button" class="btn ab5__botao ab5__repetir" data-repetir hidden>${L(rotateCcw, 'btn__icone')}<span class="btn__rotulo">Ver outra vez</span></button>
-    <button type="button" class="btn ab5__botao abertura__saltar" data-ir="publico"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
+    <button type="button" class="btn ab5__botao abertura__saltar" data-ir="entrada"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
   </div>
 </main>`;
 
 export function ecraAbertura(): EcraGoParts {
   return {
     id: 'abertura', nome: '00 · Abertura', fluxo: 'Entrar',
-    objetivo: 'A entrada no GoParts, na primeira visita: um rolamento 3D monta-se, desmonta-se em vista explodida com as cotas, desfaz-se em partículas que formam o ROMAFE, e passa à página pública. Salta-se com «Saltar» ou Esc.',
+    objetivo: 'A entrada no GoParts, na primeira visita: um rolamento 3D monta-se, desmonta-se em vista explodida com as cotas, desfaz-se em partículas que formam o ROMAFE, e passa ao 01 · Entrar. Salta-se com «Saltar» ou Esc.',
     /* 14 out. 2026: «só quero uma versão por screen» — as anteriores saíram */
-    versoes: [{ id: 'v5', nota: 'A única (14 out.): abertura cinematográfica em 3D (Three.js) — o rolamento SKF 6206 monta-se, abre em vista explodida com as cotas a laranja, desfaz-se em partículas que formam o ROMAFE; o GoParts e a linha laranja; passa à página pública', html }],
+    versoes: [{ id: 'v5', nota: 'A única (14 out.): abertura cinematográfica em 3D (Three.js) — o rolamento SKF 6206 monta-se, abre em vista explodida com as cotas a laranja, desfaz-se em partículas que formam o ROMAFE; o GoParts e a linha laranja; passa ao login', html }],
   };
 }

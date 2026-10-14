@@ -2,15 +2,15 @@
    GOPARTS — 00 · Abertura: quando e como corre a cena 3D (14 out. 2026)
    - Quando a abertura aparece, escolhe o modo:
        «completa» — na primeira vez da sessão: carrega a cena (import dinâmico de abertura-cena.ts,
-                    com o Three.js) e corre a sequência; no fim passa à página pública;
+                    com o Three.js) e corre a sequência; no fim passa à login;
        «curta»    — já se viu nesta sessão (sessionStorage): mostra só o logótipo e «Ver outra vez»;
        «parada»   — «reduzir movimento», sem WebGL, ou um aparelho fraco (pouca memória, poupança de
                     dados): o logótipo aparece com um desvanecer curto.
      Não há percentagem: enquanto a cena carrega, se demorar, aparece «A preparar a cena…».
-   - «Saltar» e Esc passam já à página pública. A passagem é um elemento partilhado: a marca do centro
-     voa para a barra da página pública (View Transitions).
+   - «Saltar» e Esc passam já à login. A passagem é um elemento partilhado: a marca do centro
+     voa para a barra da login (View Transitions).
    - Ao sair da abertura, a cena larga tudo (o ciclo, os ouvintes e o contexto WebGL).
-   - No editor não passa sozinha à página pública. Com #…&pausa=3.3 no endereço, a sequência fica
+   - No editor não passa sozinha à login. Com #…&pausa=3.3 no endereço, a sequência fica
      parada nesse instante (para rever um momento).
    ========================================================= */
 import { mostrar } from '../../../comum/ecras';
@@ -46,17 +46,17 @@ function largar(): void {
   raiz = null;
 }
 
-/** Passa à página pública: a marca do centro voa para a da barra. */
+/** Passa à login: a marca do centro voa para a da barra. */
 function seguir(): void {
   const ab = raiz;
-  if (!ab) { mostrar('publico'); return; }
+  if (!ab) { mostrar('entrada'); return; }
   const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
   const daqui = ab.querySelector<HTMLElement>('.ab5__marca');
   const ir = () => {
     if (daqui) daqui.style.viewTransitionName = '';
     largar();
-    mostrar('publico');
-    const ali = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pub__marca');
+    mostrar('entrada');
+    const ali = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .login22__topo .portal__marca');
     if (ali) { ali.style.viewTransitionName = 'goparts-marca'; window.setTimeout(() => { ali.style.viewTransitionName = ''; }, 1200); }
   };
   if (!doc.startViewTransition || quieto() || !daqui) { ir(); return; }
@@ -65,7 +65,7 @@ function seguir(): void {
   doc.startViewTransition(ir);
 }
 
-/** A sequência acabou (ou é a curta): o logótipo fica, e passa sozinha à página pública. */
+/** A sequência acabou (ou é a curta): o logótipo fica, e passa sozinha à login. */
 function mostrarFinal(depois: number): void {
   if (!raiz) return;
   raiz.classList.add('is-marca', 'is-goparts', 'is-linha', 'is-final');

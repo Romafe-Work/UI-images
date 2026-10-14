@@ -10,40 +10,18 @@
    (sem mapas de fora), com uma luz principal branca e um contraluz laranja fraco.
    ========================================================= */
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, InstancedMesh, LatheGeometry, SphereGeometry, TorusGeometry,
-  MeshPhysicalMaterial, DirectionalLight, Vector2, Vector3, Matrix4, Object3D, Color, PMREMGenerator, BufferGeometry,
-  BufferAttribute, Points, ShaderMaterial, ACESFilmicToneMapping, SRGBColorSpace, DoubleSide, NormalBlending,
+  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, InstancedMesh,
+  MeshPhysicalMaterial, Vector2, Vector3, Matrix4, Object3D, Color, BufferGeometry,
+  BufferAttribute, Points, ShaderMaterial, ACESFilmicToneMapping, SRGBColorSpace, NormalBlending,
 } from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
+import { R, N_ESFERAS, criarRolamento, ambiente } from './rolamento-3d';
 
 /* ---------- a linha do tempo (s) ---------- */
 export const T = { montar: 1, explodir: 2.5, cotas: 2.9, juntar: 3.7, particulas: 4.2, logotipo: 5.5, goparts: 5.75, linha: 6.0, fim: 6.6 };
 const lim = (v: number) => Math.max(0, Math.min(1, v));
 const curva = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const mix = (a: number, b: number, k: number) => a + (b - a) * k;
-
-/* ---------- o rolamento ---------- */
-const R = { ext: 1, furo: 30 / 62, meia: 8 / 31, primitivo: 23 / 31, esfera: 4.7625 / 31, pista: 4.9 / 31 };
-const N_ESFERAS = 9;
-const CHANF = 0.015;
-
-/** Os perfis dos anéis (x = raio, y = eixo) para a LatheGeometry: um contorno fechado com chanfros, e a
- *  pista das esferas cavada na face que dá para elas (um arco de raio R.pista à volta do diâmetro primitivo). */
-const P = R.primitivo, TERRA = 0.118;
-function pistaArco(sentido: 1 | -1, de: number, ate: number): Vector2[] {
-  return Array.from({ length: 17 }, (_, i) => { const a = mix(de, ate, i / 16); return new Vector2(P + sentido * R.pista * Math.cos(a), R.pista * Math.sin(a)); });
-}
-function perfilExterior(): Vector2[] {
-  const m = R.meia, C = CHANF, lo = P + TERRA, a0 = Math.acos(TERRA / R.pista), gy = R.pista * Math.sin(a0);
-  return [new Vector2(lo + C, -m), new Vector2(R.ext - C, -m), new Vector2(R.ext, -m + C), new Vector2(R.ext, m - C), new Vector2(R.ext - C, m),
-    new Vector2(lo + C, m), new Vector2(lo, m - C), new Vector2(lo, gy), ...pistaArco(1, a0, -a0), new Vector2(lo, -gy), new Vector2(lo, -m + C), new Vector2(lo + C, -m)];
-}
-function perfilInterior(): Vector2[] {
-  const m = R.meia, C = CHANF, li = P - TERRA, a0 = Math.acos(TERRA / R.pista), gy = R.pista * Math.sin(a0);
-  return [new Vector2(R.furo + C, -m), new Vector2(li - C, -m), new Vector2(li, -m + C), new Vector2(li, -gy), ...pistaArco(-1, -a0, a0), new Vector2(li, gy),
-    new Vector2(li, m - C), new Vector2(li - C, m), new Vector2(R.furo + C, m), new Vector2(R.furo, m - C), new Vector2(R.furo, -m + C), new Vector2(R.furo + C, -m)];
-}
 
 export interface Opcoes { /** um instante (s) em que a sequência fica parada, para rever (#…&pausa=3.3) */ pausa?: number; canvas: HTMLCanvasElement; marca: HTMLElement; cotas: Map<string, { linha: SVGLineElement; ponto: SVGCircleElement; rotulo: HTMLElement }>; fundo: () => string }
 
@@ -69,23 +47,11 @@ export class Cena {
     this.r = new WebGLRenderer({ canvas: o.canvas, antialias: true, powerPreference: 'high-performance' });
     this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.r.toneMapping = ACESFilmicToneMapping; this.r.toneMappingExposure = 1.05; this.r.outputColorSpace = SRGBColorSpace;
-    const pmrem = new PMREMGenerator(this.r);
-    this.cena.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    pmrem.dispose();
+    ambiente(this.r, this.cena);
     this.pintarFundo();
-    const luz = new DirectionalLight('#ffffff', 1.4); luz.position.set(3, 4, 5); this.cena.add(luz);
-    const contra = new DirectionalLight('#ef7b10', 0.55); contra.position.set(-4, -2, -3); this.cena.add(contra);
-
-    const aco = new MeshPhysicalMaterial({ color: '#d4dae0', metalness: 1, roughness: 0.3, clearcoat: 0.25, side: DoubleSide });
-    const cromado = new MeshPhysicalMaterial({ color: '#f3f5f7', metalness: 1, roughness: 0.07 });
-    const escuro = new MeshPhysicalMaterial({ color: '#5a636c', metalness: 0.9, roughness: 0.42 });
-    const torno = (g: LatheGeometry) => { g.rotateX(Math.PI / 2); return g; };
-    this.ext = new Mesh(torno(new LatheGeometry(perfilExterior(), 160)), aco);
-    this.int = new Mesh(torno(new LatheGeometry(perfilInterior(), 160)), aco);
-    this.esferas = new InstancedMesh(new SphereGeometry(R.esfera, 40, 28), cromado, N_ESFERAS);
-    this.gaiola = new Group();
-    [-1, 1].forEach((s) => { const g = new Mesh(new TorusGeometry(R.primitivo, 0.014, 10, 160), escuro); g.position.z = s * 0.1; this.gaiola.add(g); });
-    this.rol.add(this.ext, this.int, this.esferas, this.gaiola);
+    const rol = criarRolamento();
+    this.ext = rol.ext; this.int = rol.int; this.esferas = rol.esferas; this.gaiola = rol.gaiola;
+    this.rol.add(...rol.grupo.children);
     this.cena.add(this.rol);
     this.prepararAmostras();
 

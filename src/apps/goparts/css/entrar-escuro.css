@@ -1,0 +1,24 @@
+/* =========================================================
+   GOPARTS — os ecrãs de entrar no tema escuro (13 out. 2026)
+   Ela: «a página de login no escuro deve ter background escuro e não branco» — a barra, o
+   rodapé e o fundo escurecem; o cartão azul fica. O ROMAFE azul vai direto no fundo escuro,
+   sem placa clara («ROMAFE não deve ter bg white»).
+   (14 out.: estava no CSS da página pública, que ela mandou apagar.)
+   ========================================================= */
+[data-theme="dark"] .login23 {
+  --l23-noite: #141311; --l23-tinta: #f3efe8; --l23-tinta-2: rgba(243, 239, 232, .64);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .login23 {
+    --l23-noite: #141311; --l23-tinta: #f3efe8; --l23-tinta-2: rgba(243, 239, 232, .64);
+  }
+}
+/* o que só muda no escuro: a barra e o rodapé do login, campos e linhas */
+:is([data-theme="dark"]) .login23__factos strong, :is([data-theme="dark"]) :is([data-theme="dark"]) .login23 .login22__vender a { color: #f3efe8; }
+:is([data-theme="dark"]) .login23 .login22__vender { border-color: rgba(243, 239, 232, .16); }
+:is([data-theme="dark"]) .login23 .login22__topo, :is([data-theme="dark"]) .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .login23 .login22__topo, :root:not([data-theme="light"]) .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
+  :root:not([data-theme="light"]) .login23__factos strong, :root:not([data-theme="light"]) :root:not([data-theme="light"]) .login23 .login22__vender a { color: #f3efe8; }
+  :root:not([data-theme="light"]) .login23 .login22__vender { border-color: rgba(243, 239, 232, .16); }
+}
