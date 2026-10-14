@@ -52,12 +52,23 @@ function moldura(fase: Fase, corpo: string, k: string): string {
   const faixa = m ? m[1] : '';
   if (m) corpo = corpo.slice(m[0].length);
   return `<div class="ent3" data-fase="${fase}">
-  <section class="ent3__palco" aria-hidden="true">
-    <div class="ent3__lugar"></div>
-    <svg class="ent3__grafismo" viewBox="-100 -100 200 200" preserveAspectRatio="xMidYMid meet"><circle class="ent3__orbita" r="88"/><circle class="ent3__orbita ent3__orbita--fina" r="96"/><path class="ent3__mira" d="M-100 0h18M82 0h18M0 -100v18M0 82v18"/></svg>
-    ${fase === 'empresa' ? `<svg class="ent3__cotas">${COTAS.map(([c]) => `<g class="ent3__cota" data-cota="${c}"><line pathLength="1"/><circle r="3"/></g>`).join('')}</svg><div class="ent3__rotulos">${COTAS.map(([c, t]) => `<span class="ent3__rotulo" data-cota="${c}">${t}</span>`).join('')}</div>` : ''}
-    <p class="ent3__ficha">SKF 6206 · D 62 · d 30 · B 16 mm</p>
-    <ol class="ent3__passos">${(Object.keys(FASES) as Fase[]).map((f) => `<li${f === fase ? ' aria-current="step"' : ''}></li>`).join('')}</ol>
+  <section class="ent3__palco" aria-label="Romafe">
+    <div class="ent3__texto">
+      <p class="ent3__desde">Romafe · desde 1945</p>
+      <h2 class="ent3__lema">Peças auto com quem distribui SKF desde 1975.</h2>
+      <p class="ent3__frase">O nome vem de <b>Ro</b>lamentos, <b>Ma</b>quinas e <b>Fe</b>rramentas. Hoje, no GoParts, encomenda as peças da oficina e acompanha cada pedido até à entrega.</p>
+      <dl class="ent3__factos">
+        <div><dt>75 000+</dt><dd>referências auto</dd></div>
+        <div><dt>14 000+</dt><dd>clientes</dd></div>
+        <div><dt>Porto · Sacavém</dt><dd>centros logísticos</dd></div>
+      </dl>
+      <p class="ent3__assina">Rolling your way</p>
+    </div>
+    <div class="ent3__lugar" aria-hidden="true"></div>
+    <svg class="ent3__grafismo" aria-hidden="true" viewBox="-100 -100 200 200" preserveAspectRatio="xMidYMid meet"><circle class="ent3__orbita" r="88"/><circle class="ent3__orbita ent3__orbita--fina" r="96"/><path class="ent3__mira" d="M-100 0h18M82 0h18M0 -100v18M0 82v18"/></svg>
+    ${fase === 'empresa' ? `<svg class="ent3__cotas" aria-hidden="true">${COTAS.map(([c]) => `<g class="ent3__cota" data-cota="${c}"><line pathLength="1"/><circle r="3"/></g>`).join('')}</svg><div class="ent3__rotulos" aria-hidden="true">${COTAS.map(([c, t]) => `<span class="ent3__rotulo" data-cota="${c}">${t}</span>`).join('')}</div>` : ''}
+    <p class="ent3__ficha" aria-hidden="true">SKF 6206 · D 62 · d 30 · B 16 mm</p>
+    <ol class="ent3__passos" aria-hidden="true">${(Object.keys(FASES) as Fase[]).map((f) => `<li${f === fase ? ' aria-current="step"' : ''}></li>`).join('')}</ol>
   </section>
   <header class="ent3__topo"><div class="ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__risco" aria-hidden="true"></span><span class="ent3__produto">GoParts</span></div></header>
   <main class="ent3__lado">

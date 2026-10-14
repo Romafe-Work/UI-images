@@ -233,3 +233,47 @@
   .ent3__lado { grid-column: 1; grid-row: 2; margin-top: 0; border-left: 1px solid var(--ent3-borda); border-top: 1px solid var(--ent3-borda); border-radius: 0 0 14px 14px; }
   .ent3__grafismo { left: 50%; top: 50%; width: min(70vw, 30vh); }
 }
+
+/* =========================================================
+   (15 out. 2026, ela: «quero o conteúdo do login do lado direito e o objeto do lado esquerdo e coloca texto
+   para não ficar muito vazio») — o cartão ocupa quase o ecrã todo: na metade da esquerda o texto (factos de
+   romafe.com: desde 1945, SKF desde 1975, 75 000+ referências auto, 14 000+ clientes, Porto e Sacavém, «Rolling
+   your way») e o rolamento à direita dele; na metade da direita o login, ao centro.
+   ========================================================= */
+.ent3 { grid-template-columns: minmax(0, 1.25fr) minmax(380px, 1fr); justify-content: stretch; max-width: 1480px; width: 100%; margin: 0 auto; padding-left: clamp(16px, 3vw, 48px); padding-right: clamp(16px, 3vw, 48px); box-sizing: border-box; }
+.ent3__palco { min-height: 600px; }
+.ent3__lado { justify-items: center; padding-left: clamp(24px, 4vw, 64px); padding-right: clamp(24px, 4vw, 64px); }
+.ent3__lado > * { width: min(420px, 100%); }
+.ent3__lado > .ent3__faixa { width: auto; justify-self: stretch; margin: 0 calc(-1 * clamp(24px, 4vw, 64px)); }
+.ent3__grafismo { left: 66%; width: min(52%, 56vh); }
+.ent3__texto { position: absolute; z-index: 1; left: clamp(24px, 3vw, 44px); top: 50%; width: min(34%, 300px); transform: translateY(-50%); display: grid; gap: 14px; color: var(--ent3-tinta); animation: ent3-aparecer .5s ease .15s both; }
+.ent3__desde { margin: 0; font-family: var(--f-mono); font-size: 12px; letter-spacing: .04em; color: var(--c-acao); }
+.ent3__lema { margin: 0; font-family: var(--f-titulo); font-size: clamp(22px, 2vw, 30px); line-height: 1.15; color: var(--ent3-tinta); }
+.ent3__frase { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ent3-tinta-2); }
+.ent3__frase b { color: var(--c-logotipo); font-weight: 700; }
+[data-theme="dark"] .ent3__frase b { color: var(--g-azul-tinta); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ent3__frase b { color: var(--g-azul-tinta); } }
+.ent3__factos { display: grid; gap: 10px; margin: 4px 0 0; padding: 14px 0 0; border-top: 1px solid var(--ent3-borda); }
+.ent3__factos div { display: flex; align-items: baseline; gap: 8px; }
+.ent3__factos dt { font-family: var(--f-titulo); font-size: 18px; font-weight: 700; color: var(--ent3-tinta); }
+.ent3__factos dd { margin: 0; font-size: 13px; color: var(--ent3-tinta-3); }
+.ent3__assina { margin: 4px 0 0; font-family: var(--f-titulo); font-size: 14px; font-style: italic; color: var(--ent3-tinta-2); }
+.ent3__ficha { left: auto; right: 22px; top: 18px; bottom: auto; }
+@media (max-width: 1100px) {
+  .ent3 { grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr); }
+  .ent3__texto { width: min(40%, 260px); } .ent3__lema { font-size: 22px; } .ent3__factos dt { font-size: 16px; }
+}
+@media (max-width: 800px) {
+  .ent3 { grid-template-columns: minmax(0, 460px); justify-content: center; }
+  .ent3__palco { height: auto; min-height: 0; padding: 20px 18px 0; display: grid; grid-template-rows: auto 220px; }
+  .ent3__texto { position: relative; left: auto; top: auto; width: auto; transform: none; gap: 8px; }
+  .ent3__frase, .ent3__factos, .ent3__assina { display: none; }
+  .ent3__lema { font-size: 20px; }
+  .ent3__lugar { top: auto; height: 220px; bottom: 0; }
+  .ent3__grafismo { left: 50%; top: auto; bottom: 0; transform: translate(-50%, 0); width: 200px; }
+
+}
+@media (prefers-reduced-motion: reduce) { .ent3__texto { animation: none; } }
+@media (max-width: 1100px) { .ent3__grafismo { left: 68%; width: min(46%, 50vh); } }
+@media (max-width: 800px) { .ent3__grafismo { left: 50%; width: 200px; } }
+.ent3__factos div { flex-wrap: wrap; column-gap: 8px; row-gap: 0; } .ent3__factos dt { white-space: nowrap; }
