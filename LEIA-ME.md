@@ -142,6 +142,23 @@ não há componente e fica em CSS nosso. «A confirmar» é nome que ainda falta
 | Faixa de aviso | `— (CSS nosso)` | `— (CSS nosso)` |  |
 | Contador | `— (badge do DxButton não existe: CSS nosso)` | `— (CSS nosso)` |  |
 
+## Ecrãs iniciais do GoParts no estilo do getlayers.ai (14 out. 2026)
+
+Ela pediu para o GoParts «este tipo de UIs» (https://www.getlayers.ai/), principalmente nos ecrãs
+iniciais. São versões novas, ao lado das que ela já viu: **00 · Abertura v4**, **00 · A página
+pública v5** e os ecrãs de entrar **01–04 v3** (e o estado 01.1). Código em
+`src/apps/goparts/camadas.ts`, `css/camadas.css` e `comportamento/camadas.ts`.
+
+- O herói é um painel de cantos redondos com um **gradiente granulado em WebGL** que se mexe devagar
+  e segue o rato — prata no claro, grafite azulado no escuro (as cores são os tokens `--ly-s1..3`).
+  Só se desenham os painéis à vista; com «reduzir movimento» fica uma imagem parada; sem WebGL fica o
+  gradiente do CSS.
+- Títulos em Jost 300 (`'Jost Fino'`, o mesmo ficheiro com o peso todo), pílulas, letra de máquina
+  nas legendas, cartões com as fotografias e o vídeo da Romafe, os quatro passos, perguntas.
+- As ligações levam à versão certa com `data-ir-v` (por exemplo, a Abertura v4 passa à página
+  pública v5, e esta ao login v3) — vale para qualquer ecrã (`src/comum/ecras.ts`).
+- Passam a zero no `npm run medir`.
+
 ## Como está feito
 
 ```

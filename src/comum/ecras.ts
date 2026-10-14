@@ -228,8 +228,10 @@ export function iniciar(): void {
     if (!peca || !existe(peca.dataset.ir)) return;
     ev.preventDefault();
     ev.stopPropagation();
-    const destino = peca.dataset.ir;
-    transitar(() => { mostrar(destino); }, 'frente');
+    const destino = peca.dataset.ir, versao = peca.dataset.irV;
+    /* data-ir-v (14 out. 2026): a ligação diz também a versão do destino — as versões no estilo do
+       getlayers.ai do GoParts levam umas às outras, e não à versão que tiver o mesmo número */
+    transitar(() => { mostrar(destino); if (versao) mostrarVersao(versao); }, 'frente');
   }, true);
 
   if (so === 'fluxo') fluxo.ligar({});
