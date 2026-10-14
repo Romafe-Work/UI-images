@@ -258,6 +258,23 @@ estrela salta ao acender; a árvore com a seta que roda e a linha da hierarquia 
 Sem servidor: as confirmações (identificar, carrinho) chegam ao fim de 0,7–0,9 s neste protótipo. O
 carregamento em todos os estados do GoParts passou a ser o rolamento (`GIRADOR` em `portal/estados.ts`).
 
+## 15 · Minha lista (14 out. 2026)
+
+Ecrã novo, do briefing dela (a aba «Minha lista» passou a ter ecrã). Ela não mandou o ecrã antigo; os campos e
+as operações são os do briefing. `portal/lista.ts`, `css/lista.css`, `comportamento/lista.ts`.
+
+- Cabeçalho: o nome editável, o estado (guardada / alterações por guardar / a guardar), o n.º; «Guardar»
+  (laranja, com um ponto quando há alterações) e «Enviar» distintos; «Abrir lista» e «Eliminar» discretos.
+- Peças: Marca, Referência, Descrição, Qtd., «Romafe» (preço líquido) e «Cliente» (PVP, Desc. %, Total), com
+  os cabeçalhos agrupados e a explicação de cada grupo. Mão de obra com o mesmo padrão.
+- As contas: Total = Qtd. × PVP × (1 − Desc.); Subtotal antes de descontos; Descontos; Total sem IVA; e, à
+  parte, o custo das peças na Romafe. Os números passam do valor antigo para o novo (420 ms).
+- Edição na linha (vírgula decimal, validação com a mensagem por baixo, Enter e ↑ ↓ entre linhas), adicionar
+  pela referência (sugestões do catálogo; a peça voa para a tabela, a linha entra e a quantidade recebe o
+  foco), remover com «Remover? Sim / Não» no sítio, duplicar; guardar e enviar com o rolamento no botão e só
+  depois a confirmação; eliminar com um diálogo que diz o nome; aviso ao sair com alterações por guardar.
+- Estados 15.1–15.18 na barra «Estados». No telemóvel as linhas passam a cartões e «Guardar» fica em baixo.
+
 ## Como está feito
 
 ```

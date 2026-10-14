@@ -28,6 +28,7 @@ import './css/abertura.css';
 import './css/entrar-3d.css';
 import './css/inicio-v3-trabalho.css';
 import './css/catalogo-v6.css';
+import './css/lista.css';
 import './css/estados-animacoes.css';
 import '../../comum/css/editor.css';
 
@@ -47,6 +48,7 @@ import { iniciar as selects } from './comportamento/select';
 import { iniciar as entrar3d } from './comportamento/entrar-3d';
 import { iniciar as inicioV3 } from './comportamento/inicio-v3';
 import { iniciar as catalogoV6 } from './comportamento/catalogo-v6';
+import { iniciar as lista } from './comportamento/lista';
 import { iniciar as abertura } from './comportamento/abertura';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, entrar3d, abertura, inicioV3, catalogoV6]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, entrar3d, abertura, inicioV3, catalogoV6, lista]);
