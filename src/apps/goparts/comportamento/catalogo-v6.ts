@@ -63,6 +63,8 @@ function ligarGanchos(): void {
     else nomear($(main, '.cat6__ctx-logo'), 'cat-marca');
     if (para === 'detalhes' && main.dataset.ref) nomear($(main, `.cat5__ref[data-ref="${CSS.escape(main.dataset.ref)}"] .cat5__referencia`), 'cat-ref');
     if (de === 'detalhes') nomear($(main, '.cat5__peca-ref'), 'cat-ref');
+    if (para === 'detalhes' && main.dataset.ref) nomear($(main, `.cat5__ref[data-ref="${CSS.escape(main.dataset.ref)}"] .cat5__imagem`), 'cat-foto');
+    if (de === 'detalhes') nomear($(main, '.cat5__peca-imagem'), 'cat-foto');
     /* o carro e o nome do modelo: do cartão para a barra do contexto (e de volta) */
     if (de === 'modelos' && para === 'veiculos') { const c = cartaoModelo(main); nomear(c?.querySelector('.cat6__foto'), 'cat-carro'); nomear(c?.querySelector('.cat4__modelo-nome'), 'cat-modelo'); }
     if (de === 'veiculos' && para === 'modelos') { nomear($(main, '.cat6__ctx-carro'), 'cat-carro'); nomear($(main, '.cat6__ctx-parte[data-ir-vista="veiculos"]'), 'cat-modelo'); }
@@ -76,7 +78,8 @@ function ligarGanchos(): void {
     if (para === 'marcas') nomear($(main, `.cat2__marca[data-nome="${CSS.escape(main.dataset.marca || '')}"] .cat2__logo`), 'cat-marca');
     else if (de === 'marcas') nomear($(main, '.cat6__ctx-logo .cat2__logo'), 'cat-marca');
     else nomear($(main, '.cat6__ctx-logo'), 'cat-marca');
-    if (para === 'detalhes') nomear($(main, '.cat5__peca-ref'), 'cat-ref');
+    if (para === 'detalhes') { fichaV6(main); nomear($(main, '.cat5__peca-ref'), 'cat-ref'); nomear($(main, '.cat5__peca-imagem'), 'cat-foto'); }
+    if (de === 'detalhes' && main.dataset.ref) nomear($(main, `.cat5__ref[data-ref="${CSS.escape(main.dataset.ref)}"] .cat5__imagem`), 'cat-foto');
     if (de === 'detalhes' && main.dataset.ref) nomear($(main, `.cat5__ref[data-ref="${CSS.escape(main.dataset.ref)}"] .cat5__referencia`), 'cat-ref');
     if (de === 'modelos' && para === 'veiculos') { nomear($(main, '.cat6__ctx-carro'), 'cat-carro'); nomear($(main, '.cat6__ctx-parte[data-ir-vista="veiculos"]'), 'cat-modelo'); }
     if (de === 'veiculos' && para === 'modelos') { decorarModelos(main); const c = cartaoModelo(main); nomear(c?.querySelector('.cat6__foto'), 'cat-carro'); nomear(c?.querySelector('.cat4__modelo-nome'), 'cat-modelo'); }
@@ -157,8 +160,10 @@ function pedir(botao: HTMLButtonElement): void {
     const carrinho = document.querySelector<HTMLElement>('.ecra:not([hidden]) .portal__icone[aria-label^="Carrinho"]');
     const selo = carrinho?.querySelector<HTMLElement>('.portal__selo');
     const subir = () => { if (selo) { const v = Number(selo.textContent || 0) + qtd; selo.textContent = String(v); carrinho!.setAttribute('aria-label', `Carrinho, ${v} artigos`); selo.classList.remove('is-subir'); void selo.offsetWidth; selo.classList.add('is-subir'); } };
-    const aviso = document.querySelector<HTMLElement>('.ecra:not([hidden]) .cat6__aviso');
-    if (aviso) aviso.textContent = `${qtd} ${qtd > 1 ? 'unidades adicionadas' : 'unidade adicionada'} ao carrinho.`;
+    const mainP = botao.closest<HTMLElement>('.cat6');
+    if (mainP && botao.closest('.cat5__peca-compra')) { aviso(mainP, `${VISTO}${qtd} ${qtd > 1 ? 'unidades adicionadas' : 'unidade adicionada'} ao carrinho. <button type="button" class="cat3__ligacao" disabled title="Ainda sem ecrã">Ver carrinho</button>`); mainP.querySelector('.cat5__peca-imagem')?.animate([{ transform: 'scale(1)' }, { transform: 'scale(.95)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'ease-out' }); }
+    const avisoSr = document.querySelector<HTMLElement>('.ecra:not([hidden]) .cat6__aviso');
+    if (avisoSr) avisoSr.textContent = `${qtd} ${qtd > 1 ? 'unidades adicionadas' : 'unidade adicionada'} ao carrinho.`;
     if (carrinho && !quieto()) {
       const de = botao.getBoundingClientRect(), para = carrinho.getBoundingClientRect();
       const peca = document.createElement('span');
@@ -337,6 +342,12 @@ function ladoGrupo(main: HTMLElement): void {
     <div class="cat6__u-pe"><span>${ver.length} ${ver.length === 1 ? 'referência' : 'referências'}${fabU ? ` da ${fabU}` : ''}${ver.length > 4 ? ' · as primeiras 4' : ''}</span><button type="button" class="btn btn--acao cat6__u-ver" data-ver-refs><span class="btn__rotulo">Ver referências</span><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-i="arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button></div>`
     : `<p class="cat6__u-vazio">O grupo «${grupo}» ainda não tem referências no catálogo de exemplo. Escolha outro grupo, ou peça a peça ao apoio da Romafe.</p><div class="cat6__u-pe"><span></span><button type="button" class="btn btn--acao cat6__u-ver" disabled><span class="btn__rotulo">Ver referências</span></button></div>`;
   if (!lado.querySelector('.cat6__u-voltar')) lado.insertAdjacentHTML('afterbegin', '<button type="button" class="cat6__u-voltar" data-u-voltar><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-i="chevron-left"><path d="m15 18-6-6 6-6"/></svg>Grupos</button>');
+  /* o ícone do grupo ao lado do título (o mesmo da linha da árvore) */
+  const tit = lado.querySelector<HTMLElement>('.cat5__u-grupo');
+  const icone = main.querySelector('.cat5__folha[aria-current="true"] .cat5__folha-icone')?.innerHTML || '';
+  let ic = lado.querySelector<HTMLElement>('.cat6__u-icone');
+  if (!ic && tit) { tit.insertAdjacentHTML('beforebegin', '<span class="cat6__u-icone" aria-hidden="true"></span>'); ic = lado.querySelector<HTMLElement>('.cat6__u-icone'); }
+  if (ic) ic.innerHTML = icone;
   const sub = lado.querySelector('.cat5__u-sub'); if (sub) sub.textContent = refs.length ? 'Escolha o fabricante e veja as referências deste grupo.' : '';
   main.querySelector('.cat5__universal')?.classList.add('is-com-grupo');
 }
@@ -346,9 +357,10 @@ function escolherGrupoV6(main: HTMLElement, folha: HTMLElement): void {
   fabU = '';
   const fazer = () => { escolherGrupo(main, grupo); ladoGrupo(main); };
   if (!doc.startViewTransition || quieto()) { fazer(); return; }
-  const de = folha.querySelector<HTMLElement>('.cat5__folha-nome')!; de.style.viewTransitionName = 'cat-grupo';
-  const t = doc.startViewTransition(() => { de.style.viewTransitionName = ''; fazer(); const para = $(main, '.cat5__u-grupo'); if (para) para.style.viewTransitionName = 'cat-grupo'; });
-  t.finished.finally(() => { const para = $(main, '.cat5__u-grupo'); if (para) para.style.viewTransitionName = ''; });
+  const de = folha.querySelector<HTMLElement>('.cat5__folha-nome')!, deIc = folha.querySelector<HTMLElement>('.cat5__folha-icone');
+  de.style.viewTransitionName = 'cat-grupo'; if (deIc) deIc.style.viewTransitionName = 'cat-grupo-ic';
+  const t = doc.startViewTransition(() => { de.style.viewTransitionName = ''; if (deIc) deIc.style.viewTransitionName = ''; fazer(); const para = $(main, '.cat5__u-grupo'); if (para) para.style.viewTransitionName = 'cat-grupo'; const ic = $(main, '.cat6__u-icone'); if (ic) ic.style.viewTransitionName = 'cat-grupo-ic'; });
+  t.finished.finally(() => { const para = $(main, '.cat5__u-grupo'); if (para) para.style.viewTransitionName = ''; const ic = $(main, '.cat6__u-icone'); if (ic) ic.style.viewTransitionName = ''; });
 }
 function tecladoArvore(ev: KeyboardEvent): void {
   const el = ev.target as HTMLElement; if (!el.matches?.('.cat6 .cat5__arvore :is(.cat5__abrir-ramo, .cat5__folha)')) return;
@@ -360,13 +372,122 @@ function tecladoArvore(ev: KeyboardEvent): void {
   else if (ev.key === 'ArrowLeft') { ev.preventDefault(); if (el.matches('.cat5__abrir-ramo') && el.getAttribute('aria-expanded') === 'true') ramo(el, false); else el.closest('.cat5__ramo')?.querySelector<HTMLElement>('.cat5__abrir-ramo')?.focus(); }
 }
 
+/* =========================================================
+   (14 out., o segundo briefing do explorador) — as colunas: num ecrã largo, as famílias (A) e os grupos da família
+   aberta (B) ficam lado a lado; a coluna B entra da direita (320 ms); com procura, volta a árvore (os caminhos
+   abertos e o texto destacado). O fabricante (C) está no painel da direita.
+   ========================================================= */
+const largo = () => window.matchMedia('(min-width: 1100px)').matches;
+function colunaB(main: HTMLElement, botao: HTMLElement): void {
+  const uni = $(main, '.cat5__universal'), sec = $(main, '.cat5__u-grupos'); if (!uni || !sec) return;
+  const termo = $<HTMLInputElement>(main, '.cat5__u-campo input')?.value.trim();
+  if (!largo() || termo) { uni.classList.remove('is-colunas'); return; }
+  /* uma família aberta de cada vez */
+  main.querySelectorAll<HTMLElement>('.cat5__arvore .cat5__abrir-ramo[aria-expanded="true"]').forEach((b) => { if (b !== botao) ramo(b, false); });
+  ramo(botao, true);
+  uni.classList.add('is-colunas');
+  let col = sec.querySelector<HTMLElement>('.cat6__col-b');
+  if (!col) { col = document.createElement('div'); col.className = 'cat6__col-b'; sec.querySelector('.cat5__arvore')?.after(col); }
+  const li = botao.closest('.cat5__ramo')!;
+  const nome = botao.querySelector('.cat5__folha-nome')?.textContent || '';
+  col.innerHTML = `<p class="cat6__col-b-titulo"><span aria-hidden="true">${botao.querySelector('.cat5__ramo-icone')?.innerHTML || ''}</span>${nome}</p><ul>${Array.from(li.querySelectorAll('.cat5__folhas > li')).map((x) => x.outerHTML).join('')}</ul>`;
+  if (!quieto()) col.animate([{ opacity: 0, transform: 'translateX(16px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+}
+
+/* =========================================================
+   A ficha da peça em três regiões (14 out.): à esquerda a imagem, ao centro a informação e os separadores, à
+   direita a compra (presa ao rolar). A imagem e a referência voam da linha da tabela para a ficha. Nos veículos
+   aplicáveis, uma procura.
+   ========================================================= */
+function fichaV6(main: HTMLElement): void {
+  const peca = $(main, '.cat5__peca'), det = $(main, '.cat5__detalhes'); if (!peca || !det) return;
+  let f = main.querySelector<HTMLElement>('.cat6__ficha');
+  if (!f) { f = document.createElement('div'); f.className = 'cat6__ficha'; f.dataset.so = 'detalhes'; peca.before(f); f.append(peca, det); }
+  f.hidden = main.dataset.vista !== 'detalhes';
+  /* a ficha refaz-se a cada referência (abrirDetalhes): as melhorias voltam a pôr-se sozinhas */
+  if (!f.dataset.obs) { f.dataset.obs = '1'; new MutationObserver(() => decorarFicha(main)).observe(f, { childList: true, subtree: false }); new MutationObserver(() => decorarFicha(main)).observe($(main, '.cat5__peca')!, { childList: true }); main.querySelectorAll('.cat5__aba-corpo').forEach((c) => new MutationObserver(() => decorarFicha(main)).observe(c, { childList: true })); }
+  decorarFicha(main);
+  const aplic = main.querySelector<HTMLElement>('[data-corpo="veiculos"]');
+  if (aplic && !aplic.querySelector('.cat6__aplic-procura')) aplic.insertAdjacentHTML('afterbegin', '<label class="cat6__aplic-procura"><span class="sr-only">Procurar nos veículos aplicáveis</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-i="search"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg><input type="search" placeholder="Procurar modelo ou motor…" data-aplic-procura></label>');
+}
+
+/* =========================================================
+   A ficha da peça (14 out., o briefing da ficha): a escolha do armazém (a linha e a barra da distribuição do stock
+   andam juntas; o painel de compra diz de onde sai), copiar com «Copiado», a quantidade com o − desligado no 1,
+   o separador com a risca que desliza, «Adicionar à minha lista» com o seu fluxo, e o carrinho com a confirmação
+   visível. Sem fotografias da peça: a imagem diz «Fotografia indisponível» (nada de zoom nem 360° falsos).
+   ========================================================= */
+let armazem = '';
+function decorarFicha(main: HTMLElement): void {
+  const corpo = main.querySelector<HTMLElement>('[data-corpo="stock"]'); if (!corpo) return;
+  const linhas = Array.from(corpo.querySelectorAll<HTMLElement>('tbody tr.cat5__arm'));
+  const qtd = linhas.map((tr) => Number((tr.querySelector('.cat5__stock')?.textContent || '').replace(/\D/g, '')) || 0);
+  const nomes = linhas.map((tr) => tr.querySelector('strong')?.textContent || '');
+  const total = qtd.reduce((a, b) => a + b, 0);
+  if (!armazem || !nomes.includes(armazem)) armazem = nomes[qtd.findIndex((q) => q > 0)] || nomes[0] || '';
+  /* a barra da distribuição, por cima da tabela */
+  if (!corpo.querySelector('.cat6__dist')) corpo.insertAdjacentHTML('afterbegin', `<div class="cat6__dist" role="img" aria-label="${nomes.map((n, i) => `${n}: ${qtd[i]} unidades`).join('; ')}">${nomes.map((n, i) => `<span class="cat6__dist-seg" data-armazem="${n}" style="flex:${Math.max(qtd[i], total ? 0 : 1)}"><b>${n}</b> ${qtd[i]} un.</span>`).join('')}</div>`);
+  linhas.forEach((tr, i) => {
+    tr.dataset.armazem = nomes[i];
+    tr.tabIndex = 0;
+    tr.setAttribute('aria-selected', String(nomes[i] === armazem));
+  });
+  corpo.querySelectorAll<HTMLElement>('.cat6__dist-seg').forEach((sg) => sg.classList.toggle('is-escolhido', sg.dataset.armazem === armazem));
+  /* o painel de compra: de onde sai */
+  const compra = main.querySelector<HTMLElement>('.cat5__peca-compra');
+  if (compra) {
+    const tr = linhas.find((l) => l.dataset.armazem === armazem);
+    const prazo = tr?.querySelectorAll('td')[2]?.textContent?.trim() || '';
+    let sai = compra.querySelector<HTMLElement>('.cat6__sai');
+    if (!sai) { compra.querySelector('.cat5__peca-pedir')?.insertAdjacentHTML('beforebegin', '<p class="cat6__sai" aria-live="polite"></p>'); sai = compra.querySelector<HTMLElement>('.cat6__sai'); }
+    if (sai) sai.innerHTML = armazem ? `Sai de <b>${armazem}</b> · ${prazo}` : '';
+    const q = compra.querySelector<HTMLInputElement>('.cat5__qtd-n'); const menos = compra.querySelector<HTMLButtonElement>('.cat5__qtd-menos');
+    if (q && menos) menos.disabled = Number(q.value) <= 1;
+  }
+  /* o separador ativo: a risca que desliza */
+  const abas = main.querySelector<HTMLElement>('.cat5__abas');
+  if (abas) { let r = abas.querySelector<HTMLElement>('.cat6__aba-risca'); if (!r) { r = document.createElement('i'); r.className = 'cat6__aba-risca'; r.setAttribute('aria-hidden', 'true'); abas.appendChild(r); } const a = abas.querySelector<HTMLElement>('.cat5__aba[aria-selected="true"]'); if (a) { r.style.setProperty('--x', `${a.offsetLeft}px`); r.style.setProperty('--w', `${a.offsetWidth}px`); } }
+  /* OE: copiar cada número */
+  main.querySelectorAll<HTMLElement>('.cat5__oe li').forEach((li) => { if (li.querySelector('[data-copiar]')) return; const n = li.querySelector('strong')?.textContent || ''; li.insertAdjacentHTML('beforeend', `<button type="button" class="cat5__copiar" data-copiar="${n}" aria-label="Copiar ${n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-i="copy"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>`); });
+}
+function escolherArmazem(main: HTMLElement, nome: string): void { armazem = nome; decorarFicha(main); }
+const VISTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="cat6__visto" d="M20 6 9 17l-5-5"/></svg>';
+function copiar(b: HTMLElement): void {
+  const t = b.dataset.copiar || ''; navigator.clipboard?.writeText(t).catch(() => {});
+  if (b.classList.contains('is-copiado')) return;
+  const antes = b.innerHTML; b.classList.add('is-copiado'); b.innerHTML = `${VISTO}<span>Copiado</span>`;
+  window.setTimeout(() => { b.innerHTML = antes; b.classList.remove('is-copiado'); }, 1600);
+}
+function aviso(main: HTMLElement, html: string): void {
+  const compra = main.querySelector<HTMLElement>('.cat5__peca-compra'); if (!compra) return;
+  compra.querySelector('.cat6__toast')?.remove();
+  compra.insertAdjacentHTML('beforeend', `<p class="cat6__toast" role="status"><span>${html}</span></p>`);
+  const t = compra.querySelector<HTMLElement>('.cat6__toast')!;
+  window.setTimeout(() => { t.classList.add('is-a-sair'); window.setTimeout(() => t.remove(), 300); }, 3200);
+}
+function guardarNaLista(main: HTMLElement, b: HTMLButtonElement): void {
+  if (b.dataset.pendente) return;
+  const ja = b.getAttribute('aria-pressed') === 'true';
+  b.dataset.pendente = '1'; b.setAttribute('aria-busy', 'true');
+  const antes = b.innerHTML;
+  b.innerHTML = `${rolamentoSvg('ls-' + ++n, 'pesquisar', 'cat6__rs-botao')}<span class="btn__rotulo">${ja ? 'A tirar…' : 'A guardar…'}</span>`;
+  window.setTimeout(() => {
+    delete b.dataset.pendente; b.removeAttribute('aria-busy');
+    b.setAttribute('aria-pressed', String(!ja));
+    b.innerHTML = antes.replace(/Adicionar à minha lista|Na minha lista/, ja ? 'Adicionar à minha lista' : 'Na minha lista');
+    b.classList.toggle('is-na-lista', !ja);
+    if (!ja) { b.querySelector('svg')?.classList.add('is-ligar'); aviso(main, `${VISTO}Guardada na minha lista. <button type="button" class="cat3__ligacao" data-ir="lista">Abrir a lista</button>`); }
+    else aviso(main, 'Tirada da minha lista.');
+  }, quieto() ? 150 : 700);
+}
+
 /* ---------- ligar ---------- */
 function armar(): void {
   const portal = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .portal--cat6');
   if (!portal) return;
   if (!portal.querySelector('.cat6__aviso')) portal.insertAdjacentHTML('beforeend', '<p class="cat6__aviso sr-only" role="status" aria-live="polite"></p>');
   const main = portal.querySelector<HTMLElement>('.cat6');
-  if (main) { if (main.dataset.uGrupo) ladoGrupo(main); decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
+  if (main) { fichaV6(main); if (main.dataset.uGrupo) ladoGrupo(main); const aberto = main.querySelector<HTMLElement>('.cat5__arvore .cat5__abrir-ramo[aria-expanded="true"]'); if (aberto && !main.querySelector('.cat6__col-b')) colunaB(main, aberto); decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
   requestAnimationFrame(() => riscas(portal));
 }
 
@@ -375,6 +496,14 @@ export function iniciar(): void {
   inclinar();
   profundidade();
   document.addEventListener('keydown', tecladoArvore);
+  document.addEventListener('keydown', (ev) => { const tr = (ev.target as Element).closest?.<HTMLElement>('.cat6 [data-corpo="stock"] tr[data-armazem]'); if (tr && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); escolherArmazem(tr.closest<HTMLElement>('.cat6')!, tr.dataset.armazem || ''); } });
+  document.addEventListener('pointerover', (ev) => { const el = (ev.target as Element).closest?.<HTMLElement>('.cat6 [data-corpo="stock"] [data-armazem]'); const corpo = el?.closest('[data-corpo="stock"]'); if (!corpo) return; corpo.querySelectorAll<HTMLElement>('[data-armazem]').forEach((x) => x.classList.toggle('is-sobre', x.dataset.armazem === el!.dataset.armazem)); });
+  document.addEventListener('pointerout', (ev) => { const corpo = (ev.target as Element).closest?.('.cat6 [data-corpo="stock"]'); if (corpo && !corpo.contains(ev.relatedTarget as Node)) corpo.querySelectorAll('.is-sobre').forEach((x) => x.classList.remove('is-sobre')); });
+  document.addEventListener('input', (ev) => {
+    const i = ev.target as HTMLInputElement, m = i.closest?.<HTMLElement>('.cat6'); if (!m) return;
+    if (i.matches('.cat5__u-campo input')) { const uni = $(m, '.cat5__universal'); if (i.value.trim()) uni?.classList.remove('is-colunas'); else { const b = m.querySelector<HTMLElement>('.cat5__arvore .cat5__abrir-ramo[aria-expanded="true"]'); if (b) colunaB(m, b); } }
+    if (i.matches('[data-aplic-procura]')) { const q = i.value.trim().toLowerCase(); i.closest('[data-corpo]')!.querySelectorAll<HTMLElement>('tbody tr').forEach((tr) => { tr.hidden = !!q && !tr.textContent!.toLowerCase().includes(q); }); }
+  });
   ['input', 'change'].forEach((t) => document.addEventListener(t, (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar')) temFiltros(m); }));
   document.addEventListener('click', (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar .cat3__limpar')) requestAnimationFrame(() => temFiltros(m)); });
   document.addEventListener('keydown', (ev) => { const i = ev.target as HTMLInputElement; if (ev.key === 'Escape' && i.matches?.('.cat6 .cat2__procura input') && i.value) { ev.preventDefault(); limparProcura(i.closest<HTMLElement>('.cat6')!); } });
@@ -399,6 +528,13 @@ export function iniciar(): void {
     const est = t.closest<HTMLElement>('.cat2__estrela');
     if (est && !quieto()) { const liga = est.getAttribute('aria-pressed') !== 'true'; est.classList.remove('is-ligar', 'is-desligar'); void est.offsetWidth; est.classList.add(liga ? 'is-ligar' : 'is-desligar'); return; }
     if (t.closest('[data-limpar-marca]')) { ev.preventDefault(); ev.stopPropagation(); limparProcura(main); return; }
+    const cp = t.closest<HTMLElement>('.cat6 [data-copiar]'); if (cp) { ev.preventDefault(); ev.stopPropagation(); copiar(cp); return; }
+    const lista = t.closest<HTMLButtonElement>('.cat5__lista'); if (lista) { ev.preventDefault(); ev.stopPropagation(); guardarNaLista(main, lista); return; }
+    const arm = t.closest<HTMLElement>('[data-corpo="stock"] tr[data-armazem], .cat6__dist-seg'); if (arm && !t.closest('button, input')) { escolherArmazem(main, arm.dataset.armazem || ''); return; }
+    if (t.closest('.cat5__aba')) requestAnimationFrame(() => decorarFicha(main));
+    if (t.closest('.cat5__peca-compra .cat5__qtd-menos, .cat5__peca-compra .cat5__qtd-mais')) requestAnimationFrame(() => decorarFicha(main));
+    const fam = t.closest<HTMLElement>('.cat5__arvore .cat5__abrir-ramo');
+    if (fam && largo() && !$<HTMLInputElement>(main, '.cat5__u-campo input')?.value.trim()) { ev.preventDefault(); ev.stopPropagation(); colunaB(main, fam); return; }
     const folha = t.closest<HTMLElement>('.cat5__universal .cat5__folha');
     if (folha) { ev.preventDefault(); ev.stopPropagation(); escolherGrupoV6(main, folha); return; }
     const uf = t.closest<HTMLElement>('[data-u-fab]');

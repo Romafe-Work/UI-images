@@ -341,3 +341,97 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
 .cat6__arv-esq { display: flex; align-items: center; gap: 12px; height: 45px; padding: 0 12px; border-bottom: 1px solid var(--i3-borda); list-style: none; }
 .cat6__arv-esq i { display: block; height: 12px; border-radius: 4px; background: var(--i3-sup-2); animation: i3-pulsar 1.6s ease-in-out infinite alternate; }
 .cat6__arv-esq i:first-child { width: 20px; height: 20px; } .cat6__arv-esq i:last-child { width: var(--w); }
+
+/* =========================================================
+   (14 out., o segundo briefing do explorador e da ficha)
+   As colunas: num ecrã largo, as famílias (A) e os grupos da família aberta (B) lado a lado, no painel da esquerda
+   (45 %); à direita (55 %) o grupo e os fabricantes (C). O título do grupo mais compacto, com o ícone.
+   ========================================================= */
+.cat6 .cat5__universal { grid-template-columns: minmax(0, 9fr) minmax(0, 11fr); }
+.cat6 .cat5__universal.is-colunas .cat5__u-grupos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 14px; }
+.cat6 .cat5__universal.is-colunas .cat5__u-grupos > :not(.cat5__arvore, .cat6__col-b) { grid-column: 1 / -1; }
+.cat6 .cat5__universal.is-colunas .cat5__arvore .cat5__folhas { display: none !important; }
+.cat6 .cat5__universal.is-colunas .cat5__arvore .cat5__abrir-ramo[aria-expanded="true"] .cat5__seta-ramo { transform: none; }
+.cat6 .cat5__universal.is-colunas .cat5__arvore .cat5__seta-ramo { order: 9; margin-left: 4px; }
+.cat6__col-b { display: none; align-self: start; border-left: 1px solid var(--i3-borda); padding-left: 12px; }
+.cat6 .cat5__universal.is-colunas .cat6__col-b { display: block; }
+.cat6__col-b-titulo { display: flex; align-items: center; gap: 8px; margin: 6px 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--i3-tinta-3); }
+.cat6__col-b-titulo span { display: inline-flex; color: var(--c-logotipo); }
+.cat6__col-b-titulo svg { width: 16px; height: 16px; }
+.cat6__col-b ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.cat6__col-b li { animation: cat6-revelar 240ms cubic-bezier(.22, 1, .36, 1) both; }
+.cat6__col-b li:nth-child(2) { animation-delay: 30ms; } .cat6__col-b li:nth-child(3) { animation-delay: 60ms; } .cat6__col-b li:nth-child(4) { animation-delay: 90ms; } .cat6__col-b li:nth-child(5) { animation-delay: 120ms; }
+.cat6 .cat5__u-grupo { font-size: 24px !important; line-height: 1.15; margin: 0; }
+.cat6 .cat5__u-lado { grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: center; }
+.cat6 .cat5__u-lado > :not(.cat5__u-grupo, .cat6__u-icone) { grid-column: 1 / -1; }
+.cat6__u-icone { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: color-mix(in srgb, var(--c-logotipo) 14%, var(--i3-sup)); color: var(--c-logotipo); }
+.cat6__u-icone:empty { display: none; }
+.cat6__u-icone svg { width: 22px; height: 22px; }
+::view-transition-group(cat-grupo-ic) { animation-duration: 420ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+
+/* =========================================================
+   A ficha da peça em três regiões: a imagem (esquerda), a informação e os separadores (centro), a compra (direita,
+   presa ao rolar). A imagem e a referência voam da linha da tabela (cat-foto, cat-ref).
+   ========================================================= */
+.cat6__ficha { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(260px, 320px); grid-template-areas: "lado info compra" "lado abas compra"; gap: 16px 20px; align-items: start; }
+.cat6__ficha[hidden] { display: none; }
+.cat6__ficha > .cat5__peca { display: contents; }
+.cat6__ficha .cat5__peca-lado { grid-area: lado; position: sticky; top: 12px; display: grid; gap: 10px; }
+.cat6__ficha .cat5__peca-imagem { position: relative; display: grid; place-items: center; width: 100%; height: auto; aspect-ratio: 1; border: 1px solid var(--i3-borda); border-radius: 12px; background: var(--i3-sup); }
+.cat6__ficha .cat5__peca-imagem svg { width: 40%; height: 40%; color: var(--i3-tinta-3); }
+.cat6__ficha .cat5__peca-imagem::after { content: "Fotografia indisponível"; position: absolute; left: 10px; bottom: 10px; padding: 2px 8px; border-radius: 999px; background: var(--i3-sup-2); font-size: 11px; color: var(--i3-tinta-3); }
+.cat6__ficha .cat5__peca-info { grid-area: info; padding: 18px 20px; border: 1px solid var(--i3-borda); border-radius: 12px; background: var(--i3-sup); }
+.cat6__ficha .cat5__peca-ref { font-size: 32px; }
+.cat6__ficha .cat5__peca-compra { grid-area: compra; position: sticky; top: 12px; padding: 18px; border: 1px solid var(--i3-borda-forte); border-radius: 12px; background: var(--i3-sup); }
+.cat6__ficha > .cat5__detalhes { grid-area: abas; margin: 0; }
+.cat6__ficha .cat5__peca-info, .cat6__ficha .cat5__peca-compra, .cat6__ficha > .cat5__detalhes { animation: cat6-revelar 340ms cubic-bezier(.22, 1, .36, 1) both; }
+.cat6__ficha .cat5__peca-compra { animation-delay: 80ms; } .cat6__ficha > .cat5__detalhes { animation-delay: 140ms; }
+::view-transition-group(cat-foto) { animation-duration: 500ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+.cat6__aplic-procura { display: flex; align-items: center; gap: 8px; height: 38px; margin: 0 0 10px; padding: 0 12px; max-width: 360px; border: 1px solid var(--i3-borda); border-radius: 8px; background: var(--i3-sup); }
+.cat6__aplic-procura:focus-within { border-color: var(--c-logotipo); }
+.cat6__aplic-procura svg { width: 16px; height: 16px; color: var(--i3-tinta-3); }
+.cat6__aplic-procura input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 14px; color: var(--i3-tinta); }
+@media (max-width: 1280px) { .cat6__ficha { grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); grid-template-areas: "lado info" "compra compra" "abas abas"; } .cat6__ficha .cat5__peca-compra { position: static; } }
+@media (max-width: 800px) { .cat6__ficha { grid-template-columns: minmax(0, 1fr); grid-template-areas: "lado" "info" "compra" "abas"; } .cat6__ficha .cat5__peca-lado { position: static; } .cat6__ficha .cat5__peca-imagem { max-height: 260px; } }
+
+/* ---------- a ficha da peça, 2.ª parte (14 out.): o painel do catálogo fica de fora, a escolha do armazém,
+   a barra da distribuição do stock, copiar, a lista, a confirmação do carrinho e a risca dos separadores ---------- */
+.cat6[data-vista="detalhes"] > .cat2__marcas { display: none; }
+.portal--cat6 .cat6[data-vista="detalhes"] > .cat2__pesquisa.c22__cartao { padding: 0; border: 0; background: none; box-shadow: none; }
+.cat6[data-vista="detalhes"] > .cat2__pesquisa::before, .cat6[data-vista="detalhes"] > .cat2__pesquisa::after { display: none; }
+/* escolhe-se o armazém na linha; o «Pedir» de cada linha sai (a compra faz-se no painel da direita) */
+.cat6__ficha [data-corpo="stock"] th:nth-child(4), .cat6__ficha [data-corpo="stock"] td:nth-child(4) { display: none; }
+.cat6__ficha tr[data-armazem] { cursor: pointer; transition: background-color .16s ease; }
+.cat6__ficha tr[data-armazem]:hover, .cat6__ficha tr[data-armazem].is-sobre { background: var(--i3-sup-2); }
+.cat6__ficha tr[data-armazem][aria-selected="true"] { background: var(--i3-azul-suave); box-shadow: inset 3px 0 0 var(--c-acao); }
+.cat6__ficha tr[data-armazem]:focus-visible { outline: 2px solid var(--i3-azul); outline-offset: -2px; }
+.cat6__dist { display: flex; gap: 3px; height: 30px; margin: 0 0 12px; border-radius: 8px; overflow: hidden; }
+.cat6__dist-seg { display: flex; align-items: center; gap: 6px; min-width: 96px; padding: 0 10px; background: var(--i3-sup-2); border: 1px solid var(--i3-borda); color: var(--i3-tinta-2); font-size: 12px; white-space: nowrap; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+.cat6__dist-seg:first-child { border-radius: 8px 0 0 8px; } .cat6__dist-seg:last-child { border-radius: 0 8px 8px 0; }
+.cat6__dist-seg b { color: var(--i3-tinta); }
+.cat6__dist-seg.is-sobre { border-color: var(--i3-borda-forte); }
+.cat6__dist-seg.is-escolhido { background: var(--i3-azul); border-color: var(--i3-azul); color: #fff; }
+.cat6__dist-seg.is-escolhido b { color: #fff; }
+.cat6__sai { margin: 0 0 10px; font-size: 13px; color: var(--i3-tinta-2); }
+.cat6__sai b { color: var(--i3-tinta); }
+.cat6__ficha .cat5__qtd-menos:disabled { opacity: .4; cursor: not-allowed; }
+.cat6__ficha .cat5__qtd-n { transition: transform .16s ease; }
+/* copiar: o ícone passa a visto e diz «Copiado» */
+.cat6 .cat5__copiar.is-copiado { display: inline-flex; align-items: center; gap: 4px; width: auto; padding: 0 8px; color: var(--c-ok); font-size: 12px; font-weight: 600; }
+.cat6 .cat5__copiar.is-copiado svg { width: 14px; height: 14px; }
+.cat6__visto { stroke-dasharray: 24; stroke-dashoffset: 24; animation: cat6-tracar .32s ease-out forwards; }
+@keyframes cat6-tracar { to { stroke-dashoffset: 0; } }
+/* a lista: a guardar → na lista */
+.cat6 .cat5__lista.is-na-lista { color: var(--c-acao); border-color: var(--c-acao); }
+.cat6 .cat5__lista.is-na-lista svg { fill: currentColor; }
+.cat6 .cat5__lista svg.is-ligar { animation: cat6-encaixar .45s cubic-bezier(.22, 1, .36, 1); }
+.cat6__rs-botao { width: 18px; height: 18px; }
+/* a confirmação visível, debaixo dos botões da compra */
+.cat6__toast { display: block; margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--c-ok-suave); color: var(--i3-tinta); font-size: 13px; animation: cat6-revelar .28s cubic-bezier(.22, 1, .36, 1) both; }
+.cat6__toast svg { width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; color: var(--c-ok); }
+.cat6__toast.is-a-sair { opacity: 0; transform: translateY(4px); transition: opacity .25s ease, transform .25s ease; }
+/* a risca laranja dos separadores desliza para o escolhido */
+.cat6__ficha .cat5__abas { position: relative; }
+.cat6__aba-risca { position: absolute; left: 0; bottom: 0; width: var(--w, 0); height: 2px; background: var(--c-acao); transform: translateX(var(--x, 0)); transition: transform .28s cubic-bezier(.22, 1, .36, 1), width .28s cubic-bezier(.22, 1, .36, 1); pointer-events: none; }
+.cat6__ficha .cat5__aba[aria-selected="true"] { box-shadow: none; border-bottom-color: transparent; }
+@media (prefers-reduced-motion: reduce) { .cat6__aba-risca, .cat6__toast, .cat6__visto { transition: none; animation: none; stroke-dashoffset: 0; } }

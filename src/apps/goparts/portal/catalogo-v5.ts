@@ -163,7 +163,7 @@ const universal = `
           <ul class="cat5__arvore" data-de-forma="arvore">${arvore}</ul>
           <ul class="cat5__lista-grupos" data-de-forma="lista" hidden>${listaGrupos}</ul>
           <div class="cat5__colunas" data-de-forma="colunas" hidden>${colunas}</div>
-          <p class="cat5__u-vazio" hidden>Nenhum grupo com esse nome. <button type="button" class="cat3__ligacao cat5__u-limpar">Limpar a pesquisa</button></p>
+          <p class="cat5__u-vazio" hidden>Não encontrámos grupos de montagem. <button type="button" class="cat3__ligacao cat5__u-limpar">Limpar pesquisa</button></p>
         </section>
         <aside class="cat5__u-lado" aria-live="polite">
           <nav class="cat5__u-caminho" aria-label="Onde está" hidden><a href="#" data-ir="inicio" aria-label="Início">${L(house)}</a>${L(chevronRight, 'cat5__u-sep')}<button type="button" class="cat5__u-cat"></button><span aria-hidden="true">/</span><strong class="cat5__u-grupo-c"></strong></nav>

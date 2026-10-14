@@ -440,3 +440,14 @@ abas e o rodapé estão uma vez só em `portal/base.ts`. O CSS antigo está em `
 e o que mudou em `melhorias.css`: ROMAFE em Motor no topo, botões com ícone e texto, sem scroll.
 
 A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.ttf`).
+
+### A ficha da peça (Detalhes do 11 · Catálogo v3, 14 out. 2026)
+- Três regiões: a imagem à esquerda, a informação e os separadores ao centro, a compra à direita (presa ao rolar). Abaixo de 1280 px a compra desce; abaixo de 800 px fica tudo numa coluna. A imagem e a referência voam da linha da tabela para a ficha (View Transitions).
+- **Escolher o armazém:** clica-se na linha (ou Enter/Espaço) ou no segmento da barra da distribuição do stock; os dois andam juntos e o painel de compra diz «Sai de Porto · Hoje, se pedir até às 16h». O «Pedir» de cada linha saiu da ficha (continua nas tabelas das referências).
+- **Copiar:** o ícone passa a visto e diz «Copiado» durante 1,6 s; os números OE também têm o botão.
+- **Quantidade:** o − fica desligado no 1.
+- **Carrinho:** a imagem encolhe um instante e aparece a confirmação por baixo da compra. «Ver carrinho» está desligado porque o carrinho ainda não está desenhado.
+- **Minha lista:** «A guardar…» com o rolamento, depois «Na minha lista» com a estrela cheia e a ligação «Abrir a lista» (vai ao 15 · Minha lista).
+- A risca laranja desliza entre os separadores. Um MutationObserver volta a pôr tudo isto quando a ficha se refaz (por exemplo, ao abrir uma equivalência).
+- **Limites:** não há fotografias reais das peças (fica «Fotografia indisponível»), por isso não há zoom nem 360°; não há modelos 3D verificados para uma vista explodida; as confirmações são simuladas, porque não há servidor.
+- Código: `comportamento/catalogo-v6.ts` (`fichaV6`, `decorarFicha`) e `css/catalogo-v6.css`.
