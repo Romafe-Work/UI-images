@@ -39,7 +39,8 @@ export const ecrasPortal: EcraGoParts[] = [
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [
     /* 15 out. 2026: do briefing dela («Histórico de Pedidos»); uma só versão por ecrã — saíram a v2 e a v3 (o código fica) */
-    { id: 'v4', nota: 'Filtros compactos num painel liso, o estado com a risca laranja e as etiquetas dos filtros aplicados; a tabela ordena-se e cada pedido abre-se na linha (resumo, percurso com o camião ou a embalagem, artigos, entrega, documentos) ou no painel à direita.', html: portal('pedidos', pedidosV4(), undefined, { menu: true, rodape: false }) }],
+    /* 15 out. (tarde): o segundo briefing dela, «Order journey» — a cronologia passa a ser o ecrã; a tabela fica como alternativa */
+    { id: 'v5', nota: 'Cronologia: os pedidos do mais recente para o mais antigo, por mês, numa linha vertical que se desenha com o scroll; o pedido ativo a laranja; cada cartão abre-se no sítio (resumo, percurso só com os passos confirmados, artigos, entrega, documentos). Filtros compactos com etiquetas; «Tabela» como alternativa.', html: portal('pedidos', pedidosV4(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
   ...estadosPedidos(),
   /* 13 out. 2026: ela não gostou da v1 (a do Figma-WebShop-GoParts) — fica só a v2 */

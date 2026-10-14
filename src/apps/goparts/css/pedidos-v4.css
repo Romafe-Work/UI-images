@@ -225,3 +225,76 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 }
 .ped4 > *, .ped4__baixo > * { min-width: 0; }
 .ped4__filtros, .ped4__lista { grid-template-columns: minmax(0, 1fr); } .ped4__baixo { min-width: 0; }
+
+/* =========================================================
+   15 out. — a cronologia (comportamento/pedidos-v4.ts): os meses, a linha vertical que se desenha com o
+   scroll (--prog), os marcadores que acendem e o pedido ativo a laranja. A Tabela fica como alternativa.
+   ========================================================= */
+.ped4__lista-cabeca { flex-wrap: wrap; }
+.ped4__vistas { display: flex; gap: 2px; margin-left: auto; padding: 3px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); }
+.ped4__vista { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 6px; background: none; color: var(--c-texto-2); font: inherit; font-size: 14px; cursor: pointer; transition: background-color var(--p4-rapido) ease, color var(--p4-rapido) ease; }
+.ped4__vista svg { width: 15px; height: 15px; }
+.ped4__vista:hover { color: var(--c-texto); background: var(--c-superficie-2); }
+.ped4__vista[aria-pressed="true"] { background: var(--azul-fundo); color: #fff; font-weight: 600; }
+.ped4__lista[data-vista="cronologia"] .ped4__tabela, .ped4__lista[data-vista="tabela"] .ped4__crono { display: none; }
+.ped4__crono[hidden], .ped4__mes[hidden], .ped4__c-item[hidden], .ped4__c-det[hidden], .ped4__c-encontrado[hidden] { display: none; }
+.ped4__crono { --data: 56px; --eixo: 28px; position: relative; display: grid; gap: 8px; }
+/* a linha: cinzenta por baixo, azul até onde se leu */
+.ped4__c-linha { position: absolute; top: 46px; bottom: 14px; left: calc(var(--data) + var(--eixo) / 2 - 1px); width: 2px; background: var(--c-borda); }
+.ped4__c-linha-cheia { position: absolute; inset: 0; background: var(--azul-fundo); transform-origin: top; transform: scaleY(var(--prog, 0)); }
+/* o mês: preso em cima enquanto os seus pedidos passam */
+.ped4__mes-t { position: sticky; top: 0; z-index: 2; display: flex; align-items: baseline; gap: 10px; margin: 0; padding: 10px 0 8px calc(var(--data) + var(--eixo) + 4px); background: var(--c-portal-fundo); font-family: var(--f-titulo); font-size: 16px; color: var(--c-texto); }
+.ped4__mes-t small { font-family: var(--f-texto, inherit); font-size: 13px; font-weight: 400; color: var(--c-texto-3); }
+.ped4__mes-t small b { color: var(--c-texto-2); }
+.ped4__c-lista { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ped4__c-item { position: relative; display: grid; grid-template-columns: var(--data) var(--eixo) minmax(0, 1fr); align-items: start; }
+/* a entrada: uma vez, com 12 px na horizontal */
+.ped4__c-item:not(.is-entrou) { opacity: 0; transform: translateX(-12px); }
+.ped4__c-item.is-entrou { opacity: 1; transform: none; transition: opacity 320ms var(--p4-curva), transform 320ms var(--p4-curva); }
+.ped4__c-data { display: grid; justify-items: end; padding-top: 12px; padding-right: 6px; font-size: 12px; line-height: 1.1; color: var(--c-texto-3); text-transform: lowercase; }
+.ped4__c-data b { font-family: var(--f-titulo); font-size: 18px; color: var(--c-texto-2); }
+.ped4__c-marca { position: relative; z-index: 1; justify-self: center; width: 12px; height: 12px; margin-top: 18px; border: 2px solid var(--c-borda-forte); border-radius: 50%; background: var(--c-portal-fundo); transition: border-color 200ms ease, background-color 200ms ease, transform 200ms var(--p4-curva); }
+.ped4__c-item.is-passado .ped4__c-marca { border-color: var(--azul-fundo); background: var(--azul-fundo); }
+.ped4__c-item.is-ativo .ped4__c-marca { border-color: var(--c-acao); background: var(--c-acao); transform: scale(1.25); }
+.ped4__c-cartao { min-width: 0; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); transition: border-color 200ms ease, box-shadow 200ms ease; }
+.ped4__c-item.is-ativo .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-acao) 55%, var(--c-borda)); box-shadow: inset 2px 0 0 var(--c-acao); }
+.ped4__c-item.is-aberto .ped4__c-cartao { border-color: var(--c-borda-forte); }
+.ped4__c-cabeca { display: grid; grid-template-columns: minmax(200px, 1.2fr) minmax(0, 1fr) auto minmax(110px, auto) 24px; align-items: center; gap: 8px 20px; width: 100%; padding: 12px 14px 12px 16px; border: 0; border-radius: 8px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background-color var(--p4-rapido) ease; }
+.ped4__c-cabeca:hover { background: var(--c-superficie-2); }
+.ped4__c-cabeca:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: -2px; }
+.ped4__c-id { display: grid; gap: 2px; min-width: 0; }
+.ped4__c-meta { font-size: 13px; color: var(--c-texto-2); }
+.ped4__c-encontrado { font-size: 12px; color: var(--c-texto-2); }
+.ped4 mark { padding: 0 2px; border-radius: 3px; background: color-mix(in srgb, var(--c-acao) 28%, transparent); color: inherit; }
+.ped4__c-obs { font-size: 13px; color: var(--c-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ped4__c-selos { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.ped4__selo--neutro { color: var(--c-texto-2); border-color: var(--c-borda-forte); background: none; }
+.ped4__c-valor { font-family: var(--f-titulo); font-size: 16px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ped4__c-seta { display: grid; place-items: center; color: var(--c-texto-3); }
+.ped4__c-seta svg { width: 16px; height: 16px; transition: transform 220ms var(--p4-curva); }
+.ped4__c-cabeca:hover .ped4__c-seta svg { transform: translateX(2px); }
+.ped4__c-item.is-aberto .ped4__c-seta svg { transform: rotate(90deg); }
+.ped4__c-det { border-top: 1px solid var(--c-borda); }
+.ped4__c-det .ped4__det { padding: 16px; }
+.ped4__c-fim { position: relative; display: grid; grid-template-columns: var(--data) var(--eixo) minmax(0, 1fr); align-items: center; margin: 4px 0 0; font-size: 13px; color: var(--c-texto-3); }
+.ped4__c-fim .ped4__c-marca { grid-column: 2; margin: 0; width: 8px; height: 8px; }
+.ped4__c-esq .ped4__c-cabeca { cursor: default; }
+@media (max-width: 1100px) {
+  .ped4__c-cabeca { grid-template-columns: minmax(0, 1fr) auto 24px; grid-template-areas: "id valor seta" "selos selos selos"; }
+  .ped4__c-id { grid-area: id; } .ped4__c-valor { grid-area: valor; } .ped4__c-seta { grid-area: seta; } .ped4__c-selos { grid-area: selos; justify-content: flex-start; } .ped4__c-obs { display: none; }
+}
+@media (max-width: 760px) {
+  .ped4__crono { --data: 40px; --eixo: 20px; }
+  .ped4__c-data b { font-size: 15px; }
+  .ped4__mes-t { padding-left: calc(var(--data) + var(--eixo)); font-size: 15px; }
+  .ped4__c-cabeca { padding: 12px; }
+  .ped4__vistas { margin-left: 0; }
+  .ped4__c-det .ped4__det { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ped4__c-item:not(.is-entrou) { opacity: 1; transform: none; }
+}
+/* os estados são parados: os cartões já lá estão (a entrada é só do ecrã vivo) */
+.portal--estado .ped4__c-item:not(.is-entrou) { opacity: 1; transform: none; }
+.ped4__conta { display: inline-flex; align-items: center; gap: 8px; }
+.ped4__c-esq .ped4__c-cabeca { grid-template-columns: 1fr 1fr 120px 80px; }

@@ -30,6 +30,8 @@ import store from 'lucide-static/icons/store.svg?raw';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
 import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import layoutList from 'lucide-static/icons/list.svg?raw';
+import table from 'lucide-static/icons/table.svg?raw';
+import history from 'lucide-static/icons/history.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -123,7 +125,40 @@ export function linha(p: Pedido, l: LinhaPedido, i: number): string {
 }
 const campo = (id: string, rotulo: string, icone: string, extra: string) => `<div class="ped4__campo"><label for="${id}">${rotulo}</label><span class="ped4__caixa">${L(icone)}<input class="ped4__input" id="${id}" ${extra}></span><small class="ped4__erro" id="${id}-erro" hidden></small></div>`;
 
-export interface OpcoesPedidos { linhas?: string; conta?: number; total?: number }
+/* ---------- a cronologia (15 out., o segundo briefing dela: «Order journey») ----------
+   Os pedidos do mais recente para o mais antigo, agrupados por mês, ligados por uma linha vertical que se desenha
+   com o scroll. Cada cartão abre-se no sítio com o mesmo detalhe da tabela. */
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+export function item(p: Pedido, l: LinhaPedido, i: number): string {
+  const [d, m] = l.data.split('/');
+  const id = `ped4-c-${p.num.replace(/\D/g, '')}`;
+  return `<li class="ped4__c-item" data-num="${p.num}" data-estado="${l.estado}" style="--i:${i}">
+      <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}</span>
+      <span class="ped4__c-marca" aria-hidden="true"></span>
+      <article class="ped4__c-cartao">
+        <button type="button" class="ped4__c-cabeca" aria-expanded="false" aria-controls="${id}">
+          <span class="ped4__c-id"><span class="ped4__ref">${p.num}</span><span class="ped4__c-meta">${l.data} · ${esc(l.armazem)} · ${p.artigos.length} ${p.artigos.length === 1 ? 'artigo' : 'artigos'}</span><span class="ped4__c-encontrado" hidden></span></span>
+          <span class="ped4__c-obs">${l.obs ? esc(l.obs) : ''}</span>
+          <span class="ped4__c-selos">${ESTADO(l.estado)}${l.recolher ? RECOLHA(true) : `<span class="ped4__selo ped4__selo--neutro">${L(mapPin)}Entrega</span>`}</span>
+          <span class="ped4__c-valor">${euros(valorDe(p))}</span>
+          <span class="ped4__c-seta" aria-hidden="true">${L(chevronRight)}</span>
+        </button>
+        <div class="ped4__c-det" id="${id}" hidden></div>
+      </article>
+    </li>`;
+}
+export function cronologia(): string {
+  const meses = new Map<string, LinhaPedido[]>();
+  [...LINHAS].sort((a, b) => aaaammdd(b.data).localeCompare(aaaammdd(a.data))).forEach((l) => { const [, m, a] = l.data.split('/'); const k = `${a}-${m}`; meses.set(k, [...(meses.get(k) || []), l]); });
+  let i = 0;
+  return `<div class="ped4__crono">
+      <span class="ped4__c-linha" aria-hidden="true"><span class="ped4__c-linha-cheia"></span></span>
+      ${Array.from(meses).map(([k, ls]) => { const [a, m] = k.split('-'); return `<section class="ped4__mes" data-mes="${k}" aria-label="${MESES[+m - 1]} de ${a}"><h2 class="ped4__mes-t"><span>${MESES[+m - 1][0].toUpperCase()}${MESES[+m - 1].slice(1)} de ${a}</span><small><b>${ls.length}</b> ${ls.length === 1 ? 'pedido' : 'pedidos'}</small></h2><ol class="ped4__c-lista">${ls.map((l) => item(pedidoDe(l.num), l, i++)).join('')}</ol></section>`; }).join('')}
+      <p class="ped4__c-fim"><span class="ped4__c-marca" aria-hidden="true"></span>Não há pedidos mais antigos neste período.</p>
+    </div>`;
+}
+
+export interface OpcoesPedidos { linhas?: string; conta?: number; total?: number; vista?: 'cronologia' | 'tabela' }
 export function pedidosV4(op: OpcoesPedidos = {}): string {
   const total = LINHAS.reduce((s, l) => s + valorDe(pedidoDe(l.num)), 0);
   const n = (e: string) => LINHAS.filter((l) => e === 'todos' || l.estado === e).length;
@@ -161,8 +196,10 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
       </div>
     </section>
 
-    <section class="ped4__lista" aria-label="Pedidos">
-      <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${op.conta ?? LINHAS.length}</b> de ${LINHAS.length} pedidos</p><p class="ped4__a-atualizar" role="status" hidden></p></div>
+    <section class="ped4__lista" aria-label="Pedidos" data-vista="${op.vista ?? 'cronologia'}">
+      <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${op.conta ?? LINHAS.length}</b> de ${LINHAS.length} pedidos</p><p class="ped4__a-atualizar" role="status" hidden></p>
+        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${(op.vista ?? 'cronologia') === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${op.vista === 'tabela'}">${L(table)}Tabela</button></div></div>
+      ${cronologia()}
       <div class="ped4__tabela"><table>
         <thead><tr><th class="ped4__c-abrir"><span class="sr-only">Abrir</span></th>${ord('num', 'Pedido')}${ord('data', 'Data')}<th class="ped4__c-arm">Armazém</th><th class="ped4__c-ent">Entrega</th><th class="ped4__num ped4__c-art">Artigos</th><th class="ped4__c-obs">Observações</th>${ord('valor', 'Valor', 'ped4__num')}<th class="ped4__c-est">Estado</th><th class="ped4__c-rec">Recolha</th></tr></thead>
         <tbody>${linhas}</tbody>

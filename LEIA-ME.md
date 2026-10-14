@@ -487,3 +487,12 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - O fundo do portal claro passa de azul-claro a neutro (#f3f4f6). Os painéis de filtros deixam de ser azuis nos dois temas: superfície lisa com uma risca azul fina em cima (`css/noite.css`, só com tokens).
 - Marcas e Modelos abrem em **Tabela** por omissão (ela: «default não é tabela, é cards!!!»).
 - Veículos em «Lista» (ela: «não gosto desta lista»): um cartão por veículo, com a silhueta, a versão e os dados em colunas com o rótulo por cima. O escolhido leva a risca azul fina, sem fundo azul. Corrigido também «1 veículos encontrados».
+
+### 12 · Pedidos v5 — a cronologia (15 out. 2026, tarde)
+- Do segundo briefing dela («Order journey»). A cronologia passa a ser o ecrã de Pedidos (v5; a v4 sai da lista, como manda «uma versão por ecrã»). A tabela da v4 fica como alternativa no botão «Cronologia | Tabela», que se lembra da escolha.
+- Os pedidos aparecem do mais recente para o mais antigo, agrupados por mês. O nome do mês fica preso em cima enquanto os seus pedidos passam.
+- **Com o scroll:** a linha vertical desenha-se até à altura de leitura (55% da janela) e recua ao subir. Os marcadores acima dessa altura ficam azuis e o pedido mais perto dela fica ativo, a laranja. Cada cartão entra uma vez, com 12 px na horizontal (IntersectionObserver), e não volta a animar.
+- **Abrir um cartão:** o detalhe aparece no sítio e os cartões e meses de baixo deslizam (FLIP; a altura não se anima). O percurso mostra só os passos confirmados; os outros ficam «Ainda não» ou «—», nunca como feitos.
+- **Filtros e pesquisa:** valem para as duas vistas. Os cartões que não passam saem, os meses vazios escondem-se e as contagens são as reais. O número do pedido procurado aparece marcado e, na pesquisa por referência, o cartão diz «Contém …» com a parte encontrada marcada.
+- Não há paginação, porque só há 6 pedidos de exemplo; o fim diz «Não há pedidos mais antigos neste período».
+- Estados: os 12.x passaram à cronologia (a carregar com o esqueleto em forma de linha, pedidos abertos no cartão); o 12.17 mostra a vista em tabela.

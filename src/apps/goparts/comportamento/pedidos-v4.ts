@@ -78,11 +78,13 @@ async function aplicar(main: HTMLElement, animar = true): Promise<void> {
     const det = tr.nextElementSibling as HTMLElement;
     if (!sim && !det.hidden) fechar(main, tr, false);
     tr.getAnimations().forEach((a) => a.cancel());
+    $(tr, '.ped4__ref')!.innerHTML = marcar(tr.dataset.num!, c.num);
   });
   if (mexer) {
     linhas.filter((tr) => !tr.hidden && antes.has(tr)).forEach((tr) => { const dy = antes.get(tr)! - tr.getBoundingClientRect().top; if (dy) tr.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 240, easing: SAIDA }); });
     entram.forEach((tr, i) => tr.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: SAIDA, fill: 'backwards' }));
   }
+  aplicarCrono(main, (n) => passa(n, c, estado), c, mexer);
   /* as contagens */
   const vis = linhas.filter((tr) => !tr.hidden);
   const conta = $(main, '.ped4__conta b'); if (conta) contar(conta, vis.length, (n) => String(Math.round(n)));
@@ -228,6 +230,101 @@ function repetir(b: HTMLButtonElement): void {
   }, quieto() ? 150 : 700);
 }
 
+/* =========================================================
+   A cronologia (15 out., o segundo briefing dela: «Order journey»)
+   - a linha vertical desenha-se com o scroll (scaleY, ida e volta) até à altura de leitura (55% da janela);
+   - os marcadores acima dessa altura acendem; o pedido mais perto dela fica ativo (laranja);
+   - cada cartão entra uma vez, com 12 px na horizontal (IntersectionObserver), e não volta a animar;
+   - abrir um cartão: o detalhe aparece no sítio e os de baixo deslizam (FLIP, sem animar a altura);
+   - os filtros tiram os cartões que não passam, escondem os meses vazios e destacam o que se procurou.
+   ========================================================= */
+const marcar = (texto: string, q: string) => {
+  if (!q) return texto;
+  const s = simples(q), alvo = simples(texto); const i = alvo.indexOf(s); if (i < 0) return texto;
+  /* mapa entre o texto simplificado e o original (sem espaços, barras, pontos e hífenes) */
+  const pos: number[] = []; for (let k = 0; k < texto.length; k++) if (!/[\s/.-]/.test(texto[k])) pos.push(k);
+  const a = pos[i], b = pos[i + s.length - 1] + 1;
+  return `${texto.slice(0, a)}<mark>${texto.slice(a, b)}</mark>${texto.slice(b)}`;
+};
+function aplicarCrono(main: HTMLElement, fica: (num: string) => boolean, c: Criterios, mexer: boolean): void {
+  const cr = $(main, '.ped4__crono'); if (!cr) return;
+  const itens = $$(cr, '.ped4__c-item');
+  const antes = new Map(itens.filter((li) => !li.hidden).map((li) => [li, li.getBoundingClientRect().top]));
+  const entram: HTMLElement[] = [];
+  itens.forEach((li) => {
+    const num = li.dataset.num!, sim = fica(num);
+    if (sim && li.hidden) entram.push(li);
+    if (!sim && li.classList.contains('is-aberto')) fecharItem(main, li, false);
+    li.hidden = !sim;
+    $(li, '.ped4__ref')!.innerHTML = marcar(num, c.num);
+    const enc = $(li, '.ped4__c-encontrado')!, art = c.ref ? pedidoDe(num).artigos.find((a) => simples(a[2]).includes(simples(c.ref))) : undefined;
+    enc.hidden = !art; enc.innerHTML = art ? `Contém ${marcar(art[2], c.ref)}` : '';
+  });
+  $$(cr, '.ped4__mes').forEach((m) => { const n = $$(m, '.ped4__c-item:not([hidden])').length; m.hidden = !n; $(m, '.ped4__mes-t small')!.innerHTML = `<b>${n}</b> ${n === 1 ? 'pedido' : 'pedidos'}`; });
+  cr.hidden = !itens.some((li) => !li.hidden);
+  if (mexer) {
+    itens.filter((li) => !li.hidden && antes.has(li)).forEach((li) => { const dy = antes.get(li)! - li.getBoundingClientRect().top; if (dy) li.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 260, easing: SAIDA }); });
+    entram.forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateX(-12px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: Math.min(i, 6) * 30, easing: SAIDA, fill: 'backwards' }));
+  }
+  requestAnimationFrame(() => rolar(main));
+}
+
+/** A linha que se desenha, os marcadores que acendem e o pedido ativo — conforme o scroll (e ao contrário). */
+function rolar(main: HTMLElement): void {
+  const cr = $(main, '.ped4__crono'); if (!cr || cr.hidden || main.querySelector('.ped4__lista')?.getAttribute('data-vista') !== 'cronologia') return;
+  const r = cr.getBoundingClientRect(), leitura = innerHeight * 0.55;
+  const prog = Math.max(0, Math.min(1, (leitura - r.top) / Math.max(1, r.height)));
+  cr.style.setProperty('--prog', prog.toFixed(4));
+  let ativo: HTMLElement | null = null, melhor = Infinity;
+  $$(cr, '.ped4__c-item:not([hidden])').forEach((li) => {
+    const t = li.getBoundingClientRect().top + 22;
+    li.classList.toggle('is-passado', t <= leitura);
+    const d = Math.abs(t - leitura); if (t <= leitura + 40 && d < melhor) { melhor = d; ativo = li; }
+  });
+  $$(cr, '.ped4__c-item.is-ativo').forEach((li) => { if (li !== ativo) li.classList.remove('is-ativo'); });
+  (ativo as HTMLElement | null)?.classList.add('is-ativo');
+}
+let pedidoRolar = 0;
+const aoRolar = () => { if (pedidoRolar) return; pedidoRolar = requestAnimationFrame(() => { pedidoRolar = 0; const m = vivo(); if (m) rolar(m); }); };
+
+/** Cada cartão entra uma vez, quando chega à janela (nunca volta a animar). */
+const entrada = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-entrou"); entrada?.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' }) : null;
+function observar(main: HTMLElement): void {
+  $$(main, '.ped4__c-item:not(.is-entrou)').forEach((li) => { if (quieto() || !entrada) li.classList.add('is-entrou'); else entrada.observe(li); });
+}
+
+function abrirItem(main: HTMLElement, li: HTMLElement): void {
+  const det = $(li, '.ped4__c-det')!;
+  if (!det.firstElementChild) det.innerHTML = detalhe(pedidoDe(li.dataset.num!), linhaDe(li.dataset.num!));
+  deslizarDepois(main, li, () => { det.hidden = false; li.classList.add('is-aberto'); $(li, '.ped4__c-cabeca')!.setAttribute('aria-expanded', 'true'); });
+  if (!quieto()) $(det, '.ped4__det')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: SAIDA });
+  animarPercurso(det);
+  requestAnimationFrame(() => rolar(main));
+}
+function fecharItem(main: HTMLElement, li: HTMLElement, animar = true): void {
+  const topo = li.getBoundingClientRect().top;
+  const mudar = () => { $(li, '.ped4__c-det')!.hidden = true; li.classList.remove('is-aberto'); $(li, '.ped4__c-cabeca')!.setAttribute('aria-expanded', 'false'); };
+  if (animar) deslizarDepois(main, li, mudar); else mudar();
+  if (animar && topo < 0) li.scrollIntoView({ block: 'start' });
+  requestAnimationFrame(() => rolar(main));
+}
+/** Os cartões e os meses de baixo deslizam do sítio onde estavam (FLIP). */
+function deslizarDepois(main: HTMLElement, li: HTMLElement, mudar: () => void): void {
+  const depois = $$(main, '.ped4__c-item:not([hidden]), .ped4__mes-t, .ped4__c-fim').filter((x) => li.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING && !li.contains(x));
+  const antes = new Map(depois.map((x) => [x, x.getBoundingClientRect().top]));
+  mudar();
+  if (quieto()) return;
+  depois.forEach((x) => { const dy = antes.get(x)! - x.getBoundingClientRect().top; if (dy) x.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 320, easing: SAIDA }); });
+}
+const lidaVista = () => { try { return localStorage.getItem('goparts-pedidos-vista'); } catch { return null; } };
+function vista(main: HTMLElement, v: string, guardar = true): void {
+  const l = $(main, '.ped4__lista')!; l.dataset.vista = v;
+  $$(main, '.ped4__vista').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.vista === v)));
+  if (guardar) try { localStorage.setItem('goparts-pedidos-vista', v); } catch { /* fica só nesta visita */ }
+  if (!quieto() && guardar) $(main, v === 'tabela' ? '.ped4__tabela' : '.ped4__crono')?.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: SAIDA });
+  observar(main); requestAnimationFrame(() => rolar(main));
+}
+
 /* ---------- ligar ---------- */
 function armar(): void {
   const main = vivo(); if (!main) return;
@@ -235,7 +332,9 @@ function armar(): void {
   if (!criterios.has(main)) criterios.set(main, ler(main));
   if (!main.dataset.entrou) { main.dataset.entrou = '1'; if (!quieto()) main.classList.add('ped4--entrar'); window.setTimeout(() => main.classList.remove('ped4--entrar'), 900); }
   $$(main, '[data-kpi]').forEach((d) => { if (!d.dataset.valor) d.dataset.valor = d.dataset.kpi === 'n' ? String(LINHAS.length) : String(LINHAS.reduce((s, l) => s + valorDe(pedidoDe(l.num)), 0)); });
-  requestAnimationFrame(() => risca(main));
+  if (!main.dataset.vistaLida) { main.dataset.vistaLida = '1'; const v = lidaVista(); if (v === 'tabela' || v === 'cronologia') vista(main, v, false); }
+  observar(main);
+  requestAnimationFrame(() => { risca(main); rolar(main); });
 }
 
 export function iniciar(): void {
@@ -253,6 +352,9 @@ export function iniciar(): void {
     const rep = t.closest<HTMLButtonElement>('[data-repetir]'); if (rep) { repetir(rep); return; }
     const gv = t.closest<HTMLElement>('[data-gaveta]'); if (gv) { gaveta(main, gv.dataset.gaveta!, gv); return; }
     if (t.closest('.ped4__g-fechar, .ped4__veu')) { fecharGaveta(main); return; }
+    const vb = t.closest<HTMLElement>('.ped4__vista'); if (vb) { vista(main, vb.dataset.vista!); return; }
+    const cc = t.closest<HTMLElement>('.ped4__c-cabeca');
+    if (cc) { const li = cc.closest<HTMLElement>('.ped4__c-item')!; if (li.classList.contains('is-aberto')) fecharItem(main, li); else abrirItem(main, li); return; }
     if (t.closest('.ped4__linha-det, .ped4__gaveta')) return;
     const tr = t.closest<HTMLElement>('tr.ped4__linha');
     if (tr && !t.closest('a, input')) { if (tr.classList.contains('is-aberto')) fechar(main, tr); else abrir(main, tr); }
@@ -266,5 +368,6 @@ export function iniciar(): void {
   requestAnimationFrame(armar);
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(armar)));
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
-  window.addEventListener('resize', () => { const m = vivo(); if (m) risca(m); });
+  window.addEventListener('resize', () => { const m = vivo(); if (m) { risca(m); rolar(m); } });
+  document.addEventListener('scroll', aoRolar, { capture: true, passive: true });
 }
