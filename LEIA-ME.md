@@ -233,6 +233,13 @@ matrícula e o chassis (resumo dos erros, foco no primeiro) e o veículo encaixa
 pendente (rolamento no botão) e só depois da confirmação a peça voa para o carrinho e o número sobe; a
 estrela salta ao acender; a árvore com a seta que roda e a linha da hierarquia que se desenha.
 
+**As Marcas, vivas** (o briefing da galeria, 14 out.; o mesmo desenho, só o movimento): o cartão sobe 3 px, a
+borda fica azul, a linha laranja desenha-se no fundo e o logótipo cresce a 1,08; inclina até 3° para o lado do
+rato (o logótipo com um fator maior; só com rato fino); ao escolher, o cartão fica laranja e os outros vão a 40 %
+e afastam-se, e o logótipo voa para o cabeçalho dos Modelos; a grelha entra em cascata (só a primeira vez); a
+estrela acende (1,25 e 12°) ou apaga (encolhe); Favoritas / Todas com o fundo a deslizar; a contagem passa do
+número antigo ao novo; a procura vazia com «Limpar pesquisa» e Esc para limpar.
+
 **Matriz de estados** (barra «Estados» do ecrã; os de carregamento usam o rolamento):
 
 | Estado | Gatilho | O que se vê | Recuperação |

@@ -64,6 +64,7 @@ function ligarGanchos(): void {
     nomes.forEach((el) => { el.style.viewTransitionName = ''; });
     nomes.clear();
     contexto(main, para);
+    if (para === 'marcas' || de === 'marcas') limparEscolha(main);
     nomear(main, 'cat-conteudo');
     if (para === 'marcas') nomear($(main, `.cat2__marca[data-nome="${CSS.escape(main.dataset.marca || '')}"] .cat2__logo`), 'cat-marca');
     else if (de === 'marcas') nomear($(main, '.cat6__ctx-logo .cat2__logo'), 'cat-marca');
@@ -167,18 +168,99 @@ function pedir(botao: HTMLButtonElement): void {
   }, quieto() ? 150 : 700);
 }
 
+/* =========================================================
+   As Marcas, vivas (14 out., o briefing da galeria das marcas) — sem mudar o desenho:
+   - a inclinação: o cartão inclina até 3° para o lado do rato e o logótipo mexe-se um pouco mais (profundidade),
+     com inércia; volta ao sítio ao sair. Só com rato fino e sem «reduzir movimento». Variáveis CSS, sem estado.
+   - a escolha: o cartão escolhido fica laranja e cresce; os outros vão a 40 % e afastam-se um pouco; depois o
+     logótipo voa para o cabeçalho dos Modelos (a transição partilhada de cima). Para trás, o caminho inverso.
+   - a entrada: o título, a procura e o filtro aparecem; os cartões visíveis entram 8 px por baixo, 25 ms entre
+     cada (só os primeiros 24), tudo em ~650 ms. Só na primeira vez que o ecrã aparece.
+   - a estrela: ao acender cresce a 1,25 e roda 12°, fica laranja e assenta; ao apagar encolhe.
+   - Favoritas / Todas: o fundo do escolhido desliza com a risca laranja por baixo (250 ms).
+   - a procura vazia: a lupa procura uma vez e «Limpar pesquisa»; Esc limpa a procura.
+   ========================================================= */
+const fino = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches && !quieto();
+function inclinar(): void {
+  let alvo: HTMLElement | null = null, x = 0, y = 0, rx = 0, ry = 0, ciclo = 0;
+  const passo = () => {
+    rx += (x - rx) * 0.18; ry += (y - ry) * 0.18;
+    alvo?.style.setProperty('--tx', rx.toFixed(3)); alvo?.style.setProperty('--ty', ry.toFixed(3));
+    ciclo = Math.abs(x - rx) + Math.abs(y - ry) > 0.002 ? requestAnimationFrame(passo) : 0;
+  };
+  document.addEventListener('pointermove', (ev) => {
+    if (!fino()) return;
+    const li = (ev.target as Element).closest?.<HTMLElement>('.cat6 .cat2__marca');
+    if (li !== alvo) { if (alvo) { alvo.style.setProperty('--tx', '0'); alvo.style.setProperty('--ty', '0'); } alvo = li; rx = ry = 0; }
+    if (!li) return;
+    const r = li.getBoundingClientRect();
+    x = ((ev.clientX - r.left) / r.width) * 2 - 1; y = ((ev.clientY - r.top) / r.height) * 2 - 1;
+    if (!ciclo) ciclo = requestAnimationFrame(passo);
+  }, { passive: true });
+}
+const entrou = new WeakSet<HTMLElement>();
+function entradaMarcas(main: HTMLElement): void {
+  if (entrou.has(main) || quieto() || (main.dataset.vista || 'marcas') !== 'marcas') return;
+  entrou.add(main);
+  const sec = $(main, '.cat2__marcas'); if (!sec) return;
+  [$(sec, '.cat2__marcas-cabeca'), $(sec, '.cat2__procura'), $(sec, '.cat2__filtro')].forEach((el, i) => el?.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: i * 50, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'backwards' }));
+  Array.from(sec.querySelectorAll<HTMLElement>('.cat2__marca:not([hidden])')).slice(0, 24).forEach((m, i) => m.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 320, delay: 120 + i * 25, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'backwards' }));
+}
+/** O fundo e a risca do Favoritas / Todas, no escolhido. */
+function segmento(main: HTMLElement): void {
+  const nav = $(main, '.cat2__filtro'); if (!nav) return;
+  let s = nav.querySelector<HTMLElement>(':scope > .cat6__seg');
+  if (!s) { s = document.createElement('i'); s.className = 'cat6__seg'; s.setAttribute('aria-hidden', 'true'); nav.prepend(s); }
+  const a = nav.querySelector<HTMLElement>('.cat2__filtro-aba[aria-current]'); if (!a) return;
+  s.style.setProperty('--x', `${a.offsetLeft}px`); s.style.setProperty('--w', `${a.offsetWidth}px`); s.style.setProperty('--h', `${a.offsetHeight}px`); s.style.setProperty('--y', `${a.offsetTop}px`);
+}
+/** A procura vazia: a lupa e «Limpar pesquisa». */
+function vazioMarcas(main: HTMLElement): void {
+  const v = $(main, '.cat2__vazio'); if (!v || v.dataset.v6) return;
+  v.dataset.v6 = '1';
+  v.innerHTML = '<svg class="cat6__lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>Nenhuma marca com esse nome.</span><button type="button" class="btn btn--ghost btn--sm cat6__limpar-marca" data-limpar-marca><span class="btn__rotulo">Limpar pesquisa</span></button>';
+}
+function limparProcura(main: HTMLElement): void {
+  const i = $<HTMLInputElement>(main, '.cat2__procura input'); if (!i) return;
+  i.value = ''; i.dispatchEvent(new Event('input', { bubbles: true })); i.focus();
+}
+/** A escolha em foco: o cartão fica laranja e cresce, os outros recuam e afastam-se; depois o clique segue. */
+let aEscolher = false;
+function escolherMarca(main: HTMLElement, botao: HTMLElement): boolean {
+  if (aEscolher || quieto() || (main.dataset.vista || 'marcas') !== 'marcas') return false;
+  const li = botao.closest<HTMLElement>('.cat2__marca')!, grelha = li.parentElement!;
+  const c = li.getBoundingClientRect(), cx = c.left + c.width / 2, cy = c.top + c.height / 2;
+  grelha.querySelectorAll<HTMLElement>('.cat2__marca:not([hidden])').forEach((m) => {
+    if (m === li) return;
+    const r = m.getBoundingClientRect(), dx = r.left + r.width / 2 - cx, dy = r.top + r.height / 2 - cy, d = Math.hypot(dx, dy) || 1;
+    m.style.setProperty('--ox', `${(dx / d * 6).toFixed(1)}px`); m.style.setProperty('--oy', `${(dy / d * 6).toFixed(1)}px`);
+  });
+  li.classList.add('is-escolhida'); grelha.classList.add('is-a-escolher');
+  aEscolher = true;
+  window.setTimeout(() => { botao.click(); aEscolher = false; }, 200);
+  return true;
+}
+function limparEscolha(main: HTMLElement): void {
+  main.querySelectorAll('.cat2__marca.is-escolhida').forEach((m) => m.classList.remove('is-escolhida'));
+  main.querySelector('.cat2__grelha')?.classList.remove('is-a-escolher');
+}
+
 /* ---------- ligar ---------- */
 function armar(): void {
   const portal = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .portal--cat6');
   if (!portal) return;
   if (!portal.querySelector('.cat6__aviso')) portal.insertAdjacentHTML('beforeend', '<p class="cat6__aviso sr-only" role="status" aria-live="polite"></p>');
   const main = portal.querySelector<HTMLElement>('.cat6');
-  if (main) contexto(main, (main.dataset.vista || 'marcas') as Vista);
+  if (main) { contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
   requestAnimationFrame(() => riscas(portal));
 }
 
 export function iniciar(): void {
   ligarGanchos();
+  inclinar();
+  document.addEventListener('keydown', (ev) => { const i = ev.target as HTMLInputElement; if (ev.key === 'Escape' && i.matches?.('.cat6 .cat2__procura input') && i.value) { ev.preventDefault(); limparProcura(i.closest<HTMLElement>('.cat6')!); } });
+  document.addEventListener('click', (ev) => { const t = ev.target as Element; const m = t.closest?.<HTMLElement>('.cat6'); if (m && t.closest('.cat2__filtro-aba')) requestAnimationFrame(() => segmento(m)); });
+  window.addEventListener('resize', () => { const m = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .cat6'); if (m) segmento(m); });
   requestAnimationFrame(armar);
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(armar)));
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
@@ -196,7 +278,10 @@ export function iniciar(): void {
     const foc = t.closest<HTMLElement>('[data-focar]');
     if (foc) { ev.preventDefault(); ev.stopPropagation(); document.getElementById(foc.dataset.focar!)?.focus(); return; }
     const est = t.closest<HTMLElement>('.cat2__estrela');
-    if (est && !quieto()) { est.classList.remove('is-saltar'); void est.offsetWidth; est.classList.add('is-saltar'); }
+    if (est && !quieto()) { const liga = est.getAttribute('aria-pressed') !== 'true'; est.classList.remove('is-ligar', 'is-desligar'); void est.offsetWidth; est.classList.add(liga ? 'is-ligar' : 'is-desligar'); return; }
+    if (t.closest('[data-limpar-marca]')) { ev.preventDefault(); ev.stopPropagation(); limparProcura(main); return; }
+    const marca = t.closest<HTMLElement>('.cat2__marca-botao');
+    if (marca && !aEscolher && escolherMarca(main, marca)) { ev.preventDefault(); ev.stopPropagation(); return; }
     const parte = t.closest<HTMLElement>('.cat6__ctx-parte');
     if (parte?.dataset.irVista) { ev.preventDefault(); ev.stopPropagation(); ir(main, parte.dataset.irVista as Vista); }
   }, true);

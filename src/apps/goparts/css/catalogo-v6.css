@@ -125,3 +125,48 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
 .portal--cat6 .cat5__adicionar.cat6__nao { background: transparent; border: 1px solid var(--c-erro); color: var(--c-erro); }
 .portal--cat6 .cat5__adicionar.cat6__nao svg { width: 16px; height: 16px; }
 @media (max-width: 640px) { .cat6__faixa { flex-wrap: wrap; } }
+
+/* =========================================================
+   As Marcas, vivas (14 out., o briefing da galeria) — o mesmo desenho; só o movimento
+   Hover 180 ms (sobe 3 px, borda azul da Romafe, a linha laranja desenha-se no fundo, o nome mais claro);
+   logótipo 220 ms (1 → 1,08); inclinação até 3° com --tx/--ty (comportamento/catalogo-v6.ts), o logótipo com um
+   fator maior; o foco do teclado tem o mesmo tratamento. Sem brilhos, sem sombras.
+   ========================================================= */
+.portal--cat6 .cat2__marca { position: relative; --tx: 0; --ty: 0; perspective: 700px; transition: opacity 260ms ease, transform 300ms cubic-bezier(.22, 1, .36, 1); }
+.portal--cat6 .cat2__marca > .cat2__marca-botao { position: relative; overflow: hidden; transform: translateY(0) rotateX(calc(var(--ty) * -3deg)) rotateY(calc(var(--tx) * 3deg)); transition: transform 180ms cubic-bezier(.22, 1, .36, 1), border-color 180ms ease, background-color 180ms ease; }
+.portal--cat6 .cat2__marca > .cat2__marca-botao::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--c-acao); transform: scaleX(0); transform-origin: left; transition: transform 260ms cubic-bezier(.22, 1, .36, 1); }
+.portal--cat6 .cat2__marca .cat2__logo { transform: translate(calc(var(--tx) * 3px), calc(var(--ty) * 3px)) scale(1); transition: transform 220ms cubic-bezier(.22, 1, .36, 1); }
+.portal--cat6 .cat2__marca-nome { transition: color 180ms ease, letter-spacing 180ms ease; }
+.portal--cat6 .cat2__marca:is(:hover, :focus-within) > .cat2__marca-botao { transform: translateY(-3px) rotateX(calc(var(--ty) * -3deg)) rotateY(calc(var(--tx) * 3deg)); border-color: var(--c-logotipo); }
+.portal--cat6 .cat2__marca:is(:hover, :focus-within) > .cat2__marca-botao::after { transform: scaleX(1); }
+.portal--cat6 .cat2__marca:is(:hover, :focus-within) .cat2__logo { transform: translate(calc(var(--tx) * 3px), calc(var(--ty) * 3px)) scale(1.08); }
+.portal--cat6 .cat2__marca:is(:hover, :focus-within) .cat2__marca-nome { color: var(--i3-tinta); }
+.portal--cat6 .cat2__marca-botao:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+/* a escolha: o escolhido laranja e maior; os outros a 40 %, a afastar-se um pouco */
+.portal--cat6 .cat2__grelha.is-a-escolher .cat2__marca:not(.is-escolhida) { opacity: .4; transform: translate(var(--ox, 0), var(--oy, 0)); }
+.portal--cat6 .cat2__marca.is-escolhida > .cat2__marca-botao { border-color: var(--c-acao); transform: translateY(-3px) scale(1.03); }
+.portal--cat6 .cat2__marca.is-escolhida .cat2__logo { transform: scale(1.12); }
+/* a estrela: acende (1,25 e 12°, fica laranja, assenta) ou apaga (encolhe) */
+.portal--cat6 .cat2__estrela svg { transition: fill 250ms ease, color 250ms ease; }
+.portal--cat6 .cat2__estrela.is-ligar svg { animation: cat6-ligar 300ms cubic-bezier(.3, 1.4, .5, 1); }
+.portal--cat6 .cat2__estrela.is-desligar svg { animation: cat6-desligar 220ms ease-out; }
+@keyframes cat6-ligar { 45% { transform: scale(1.25) rotate(12deg); } }
+@keyframes cat6-desligar { 50% { transform: scale(.82); } }
+.portal--cat6 .cat2__estrela:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; border-radius: 4px; }
+/* Favoritas / Todas: o fundo do escolhido desliza, com a risca laranja por baixo */
+.portal--cat6 .cat2__filtro { position: relative; isolation: isolate; }
+.cat6__seg { position: absolute; z-index: -1; left: 0; top: 0; width: var(--w, 0); height: var(--h, 0); border-radius: 6px; background: var(--i3-sup-2); transform: translate(var(--x, 0), var(--y, 0)); transition: transform 250ms cubic-bezier(.22, 1, .36, 1), width 250ms cubic-bezier(.22, 1, .36, 1); box-shadow: inset 0 -2px 0 var(--c-acao); }
+.portal--cat6 .cat2__filtro-aba { background: transparent !important; border-bottom-color: transparent !important; box-shadow: none !important; }
+/* a procura: borda azul, a lupa anda um pouco, o fundo aclara */
+.portal--cat6 .cat2__procura { transition: border-color 180ms ease, background-color 180ms ease; }
+.portal--cat6 .cat2__procura .procura__lupa { transition: transform 200ms cubic-bezier(.22, 1, .36, 1), color 180ms ease; }
+.portal--cat6 .cat2__procura:focus-within { border-color: var(--c-logotipo); background: var(--i3-sup-2); }
+.portal--cat6 .cat2__procura:focus-within .procura__lupa { transform: translateX(2px); color: var(--c-logotipo); }
+/* a procura vazia */
+.portal--cat6 .cat2__vazio:not([hidden]) { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; animation: cat6-revelar 220ms ease-out both; }
+.cat6__lupa { width: 22px; height: 22px; color: var(--i3-tinta-3); animation: cat6-procurar 900ms cubic-bezier(.45, 0, .55, 1) 1; }
+@keyframes cat6-procurar { 25% { transform: translateX(-4px) rotate(-8deg); } 60% { transform: translateX(4px) rotate(6deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .portal--cat6 .cat2__marca, .portal--cat6 .cat2__marca > .cat2__marca-botao, .portal--cat6 .cat2__marca .cat2__logo, .cat6__seg { transition: none !important; transform: none !important; }
+  .portal--cat6 .cat2__estrela svg, .cat6__lupa { animation: none !important; }
+}

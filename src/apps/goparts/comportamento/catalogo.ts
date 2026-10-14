@@ -66,9 +66,16 @@ function deslizar(sai: HTMLElement, entra: HTMLElement, frente: boolean, antes: 
 }
 
 /** A contagem das marcas à vista (só a v4 a mostra). */
+/** A contagem passa do número que lá estava para o novo (350 ms), nunca do zero (o briefing das marcas, 14 out.). */
 function total(c: HTMLElement, n: number): void {
-  const t = c.querySelector('.cat2__total');
-  if (t) t.textContent = String(n);
+  const t = c.querySelector<HTMLElement>('.cat2__total');
+  if (!t) return;
+  const de = Number(t.dataset.n ?? t.textContent) || 0;
+  t.dataset.n = String(n);
+  if (quieto() || de === n || !t.isConnected) { t.textContent = String(n); return; }
+  const t0 = performance.now();
+  const passo = (agora: number) => { const k = Math.min(1, (agora - t0) / 350), e = 1 - Math.pow(1 - k, 3); t.textContent = String(Math.round(de + (n - de) * e)); if (k < 1 && t.dataset.n === String(n)) requestAnimationFrame(passo); };
+  requestAnimationFrame(passo);
 }
 
 function aplicar(c: HTMLElement): void {
