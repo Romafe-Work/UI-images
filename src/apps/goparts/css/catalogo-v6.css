@@ -240,3 +240,12 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
 .cat6 .cat3__vista[data-so="modelos"].cat6__a-carregar .cat3__conta { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
 .cat6 .cat3__vista[data-so="modelos"] .cg-tabela { overflow: visible; }
 .cat6 .cat3__vista[data-so="modelos"] table { min-width: 0 !important; max-width: 100%; table-layout: auto; } .cat6 .cat3__vista[data-so="modelos"] tbody tr.cat3__linha { min-width: 0; }
+
+/* (ela, 14 out.: «quero que a marca se destaque sempre que passo o rato») — a marca debaixo do rato (ou com o foco)
+   ganha a sua cor: o logótipo e o nome na cor da marca, o logótipo maior (1,14), um fundo muito leve dessa cor e a
+   borda na cor da marca; as outras marcas apagam-se um pouco (70 %) para ela sobressair. */
+.portal--cat6 .cat2__grelha .cat2__marca { transition: opacity 200ms ease, transform 300ms cubic-bezier(.22, 1, .36, 1); }
+.portal--cat6 .cat2__grelha:has(.cat2__marca:hover) .cat2__marca:not(:hover):not(.is-escolhida) { opacity: .7; }
+.portal--cat6 .cat2__grelha .cat2__marca:is(:hover, :focus-within) > .cat2__marca-botao { border-color: var(--cor) !important; background: color-mix(in srgb, var(--cor) 9%, var(--i3-sup)) !important; }
+.portal--cat6 .cat2__grelha .cat2__marca:is(:hover, :focus-within) .cat2__logo { color: var(--cor) !important; transform: translate(calc(var(--tx) * 3px), calc(var(--ty) * 3px)) scale(1.14) !important; }
+.portal--cat6 .cat2__grelha .cat2__marca:is(:hover, :focus-within) .cat2__marca-nome { color: var(--cor) !important; font-weight: 700; }
