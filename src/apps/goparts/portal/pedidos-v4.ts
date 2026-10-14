@@ -129,15 +129,27 @@ const campo = (id: string, rotulo: string, icone: string, extra: string) => `<di
    Os pedidos do mais recente para o mais antigo, agrupados por mês, ligados por uma linha vertical que se desenha
    com o scroll. Cada cartão abre-se no sítio com o mesmo detalhe da tabela. */
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+/** O estado do pedido no percurso, só pelos passos confirmados (com hora): concluído, expedido, pronto a levantar,
+    preparado ou em preparação. (Ela, 15 out.: «aqui quero estados de done, em prep…» nos marcadores.) */
+export function etapa(p: Pedido): { k: string; nome: string; icone: string } {
+  const n = p.percurso.length, ultimo = p.percurso.reduce((k, s, i) => (s[1] ? i : k), 0);
+  if (p.percurso[n - 1][1]) return { k: 'concluido', nome: 'Concluído', icone: L(check) };
+  const feito = p.percurso[ultimo][0];
+  if (/Expedido/i.test(feito)) return { k: 'expedido', nome: /parte/i.test(feito) ? 'Expedido em parte' : 'Expedido', icone: L(truck) };
+  if (/levantar/i.test(feito)) return { k: 'recolher', nome: 'Pronto a levantar', icone: L(packageCheck) };
+  if (/Separado/i.test(feito)) return { k: 'preparado', nome: 'Preparado', icone: L(pkg) };
+  return { k: 'preparacao', nome: 'Em preparação', icone: L(clock) };
+}
 export function item(p: Pedido, l: LinhaPedido, i: number): string {
+  const e = etapa(p);
   const [d, m] = l.data.split('/');
   const id = `ped4-c-${p.num.replace(/\D/g, '')}`;
   return `<li class="ped4__c-item" data-num="${p.num}" data-estado="${l.estado}" style="--i:${i}">
-      <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}</span>
-      <span class="ped4__c-marca" aria-hidden="true"></span>
+      <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}<em class="ped4__c-etapa ped4__c-etapa--${e.k}">${e.nome}</em></span>
+      <span class="ped4__c-marca ped4__c-marca--${e.k}" title="${e.nome}" aria-hidden="true">${e.icone}</span>
       <article class="ped4__c-cartao">
         <button type="button" class="ped4__c-cabeca" aria-expanded="false" aria-controls="${id}">
-          <span class="ped4__c-id"><span class="ped4__ref">${p.num}</span><span class="ped4__c-meta">${l.data} · ${esc(l.armazem)} · ${p.artigos.length} ${p.artigos.length === 1 ? 'artigo' : 'artigos'}</span><span class="ped4__c-encontrado" hidden></span></span>
+          <span class="ped4__c-id"><span class="ped4__ref">${p.num}</span><span class="sr-only">${e.nome}. </span><span class="ped4__c-meta">${l.data} · ${esc(l.armazem)} · ${p.artigos.length} ${p.artigos.length === 1 ? 'artigo' : 'artigos'}</span><span class="ped4__c-encontrado" hidden></span></span>
           <span class="ped4__c-obs">${l.obs ? esc(l.obs) : ''}</span>
           <span class="ped4__c-selos">${ESTADO(l.estado)}${l.recolher ? RECOLHA(true) : `<span class="ped4__selo ped4__selo--neutro">${L(mapPin)}Entrega</span>`}</span>
           <span class="ped4__c-valor">${euros(valorDe(p))}</span>
