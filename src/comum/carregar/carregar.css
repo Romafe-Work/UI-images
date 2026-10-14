@@ -148,3 +148,9 @@
   .esq, .girador, .progresso--indeterminado > span { animation: none; }
   .progresso--indeterminado > span { left: 0; width: 100%; opacity: .35; }
 }
+
+/* (ela, 14 out.: «o fundo aqui não devia ser cinza») — o carregamento do portal no fundo do portal: azul-noite
+   no escuro, o fundo claro do portal no claro */
+.carga-pagina { background: #f3f5f8; }
+[data-theme="dark"] .carga-pagina { background: #0a1420; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .carga-pagina { background: #0a1420; } }
