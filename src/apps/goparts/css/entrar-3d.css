@@ -190,3 +190,21 @@
   .ent3__lado { margin-top: 38vh; padding: 22px 18px 18px; }
   .ent3__ficha, .ent3__passos { display: none; }
 }
+
+/* (ela, 14 out.: «aqui preciso de mais azul da Romafe, e isto [a marca] no header») — a marca num cabeçalho no
+   topo da página; o cartão abre com uma faixa no azul da Romafe (o «Voltar», o título e o subtítulo, a branco),
+   como os cartões do Início */
+.ent3__topo { position: absolute; z-index: 2; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: center; height: 64px; border-bottom: 1px solid var(--ent3-borda); background: var(--ent3-lado); }
+.ent3__topo .ent3__marca { width: auto; }
+.ent3 { padding-top: 96px; }
+.ent3__lado { padding-top: 0; overflow: hidden; gap: 20px; }
+.ent3__faixa { display: grid; justify-items: center; gap: 6px; margin: 0 -32px; padding: 22px 32px 20px; background: linear-gradient(135deg, #0063aa 0%, #004a80 100%); color: #fff; text-align: center; }
+.ent3__faixa .ent3__titulo { color: #fff; font-size: clamp(24px, 2.2vw, 30px); }
+.ent3__faixa .ent3__sub { margin: 0; color: rgba(255, 255, 255, .85); font-size: 15px; }
+.ent3__faixa .ent3__voltar { margin: 0 0 2px; color: rgba(255, 255, 255, .9); }
+.ent3__faixa .ent3__voltar svg { color: #fff; }
+@media (hover: hover) and (pointer: fine) { .ent3__faixa .ent3__voltar:hover { color: #fff; } }
+.ent3__form > :first-child { margin-top: 2px; }
+@media (max-width: 800px) { .ent3 { padding-top: 64px; } .ent3__faixa { margin: 0 -18px; padding: 18px; } }
+.ent3__lado > .ent3__faixa { justify-self: stretch; width: auto; }
+.ent3__faixa .ent3__voltar { justify-self: center; }

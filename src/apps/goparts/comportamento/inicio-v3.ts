@@ -43,6 +43,10 @@ function porModo(ini: HTMLElement, m: number, focar = false): void {
   });
   requestAnimationFrame(() => ini.querySelectorAll('.is-sem-transicao').forEach((c) => c.classList.remove('is-sem-transicao')));
   ini.querySelectorAll<HTMLElement>('.ini3__separador').forEach((t, i) => { t.setAttribute('aria-selected', String(i === m)); t.tabIndex = i === m ? 0 : -1; if (i === m && focar) t.focus(); });
+  /* as pílulas das setas dizem o nome do modo vizinho */
+  const nomes = Array.from(ini.querySelectorAll<HTMLElement>('.ini3__cartao h2')).map((h) => h.textContent ?? '');
+  const ant = ini.querySelector('.ini3__seta--ant span'), seg = ini.querySelector('.ini3__seta--seg span');
+  if (ant) ant.textContent = nomes[(m + 2) % 3]; if (seg) seg.textContent = nomes[(m + 1) % 3];
   medirRisca(ini);
   if (!ini.dataset.estado) guardarModo(m);
 }
@@ -210,6 +214,7 @@ export function iniciar(): void {
     const lado = alvo.closest<HTMLElement>('.ini3__cartao[inert]'); if (lado) { porModo(ini, Number(lado.dataset.cartao)); return; }
     const tipo = alvo.closest<HTMLElement>('.ini3__tipo'); if (tipo) { tipo.parentElement!.querySelectorAll('.ini3__tipo').forEach((t) => t.setAttribute('aria-checked', String(t === tipo))); trocarTipo(tipo); return; }
     const sug = alvo.closest<HTMLElement>('.ini3__sug'); if (sug) { const inp = sug.closest('.ini3__campo')!.querySelector<HTMLInputElement>('input')!; usar(inp, sug.dataset.valor!); inp.focus(); return; }
+    const limpar = alvo.closest<HTMLElement>('[data-limpar]'); if (limpar) { limpar.closest('.ini3__cartao')!.querySelectorAll<HTMLInputElement>('input:not([type="radio"]):not([type="checkbox"])').forEach((x) => { x.value = ''; }); return; }
     const pes = alvo.closest<HTMLElement>('[data-pesquisar]'); if (pes) { pesquisar(pes.closest('.ini3__cartao')!); return; }
     const rep = alvo.closest<HTMLElement>('[data-repetir]'); if (rep) { ev.preventDefault(); ev.stopPropagation(); repetir(ini, rep.dataset.repetir!, rep.dataset.valor ?? ''); return; }
     if (!alvo.closest('.ini3__sugere')) ini.querySelectorAll<HTMLInputElement>('[data-sugerir]').forEach(fechar);

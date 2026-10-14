@@ -46,6 +46,11 @@ const FASES: Record<Fase, [string, string]> = {
 const COTAS: [string, string][] = [['ext', 'Anel exterior · D 62 mm'], ['int', 'Anel interior · d 30 mm'], ['esf', '9 esferas · Ø 9,525 mm'], ['gai', 'Gaiola']];
 
 function moldura(fase: Fase, corpo: string, k: string): string {
+  /* (ela, 14 out.: «aqui preciso de mais azul da Romafe, e isto no header») — a marca vai para o cabeçalho da
+     página; o «Voltar», o título e o subtítulo vão para a faixa azul no topo do cartão */
+  const m = /^\s*((?:<button type="button" class="ent3__voltar"[\s\S]*?<\/button>\s*)?<h1 class="ent3__titulo">[\s\S]*?<\/h1>\s*<p class="ent3__sub">[\s\S]*?<\/p>)/.exec(corpo);
+  const faixa = m ? m[1] : '';
+  if (m) corpo = corpo.slice(m[0].length);
   return `<div class="ent3" data-fase="${fase}">
   <section class="ent3__palco" aria-hidden="true">
     <div class="ent3__lugar"></div>
@@ -54,8 +59,9 @@ function moldura(fase: Fase, corpo: string, k: string): string {
     <p class="ent3__ficha">SKF 6206 · D 62 · d 30 · B 16 mm</p>
     <ol class="ent3__passos">${(Object.keys(FASES) as Fase[]).map((f) => `<li${f === fase ? ' aria-current="step"' : ''}></li>`).join('')}</ol>
   </section>
+  <header class="ent3__topo"><div class="ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__risco" aria-hidden="true"></span><span class="ent3__produto">GoParts</span></div></header>
   <main class="ent3__lado">
-    <header class="ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__risco" aria-hidden="true"></span><span class="ent3__produto">GoParts</span></header>
+    <div class="ent3__faixa">${faixa}</div>
     <div class="ent3__form" id="ent3-${k}">${corpo}</div>
     <footer class="ent3__rodape"><span>2026 © Romafe SA</span><a href="tel:+351226158300">${L(phone)}+351 226 158 300</a></footer>
   </main>

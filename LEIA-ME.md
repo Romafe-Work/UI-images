@@ -175,7 +175,7 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
 - 03 vista explodida com as cotas e a câmara rodada ~20°; ao continuar, as peças juntam-se.
 - 04 as peças suspensas; a opção em foco (ou debaixo do rato) traz a sua peça à frente.
 - O login é um cartão ao centro do ecrã (ela: «quero o login com um cartão no centro»), com o texto
-  centrado; o rolamento fica no fundo, à esquerda do cartão (no telemóvel, por cima), e continua a
+  centrado e uma faixa no azul da Romafe em cima (o título); a marca está no cabeçalho da página; o rolamento fica no fundo, à esquerda do cartão (no telemóvel, por cima), e continua a
   montar-se de passo em passo. Sem a etiqueta «01 / 04 · Anel exterior».
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
@@ -186,8 +186,10 @@ efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `
 
 - Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza; as
   setas aos lados do cartão; o Início ocupa a largura toda; os cartões têm as cores da v2.2 (azul, azul, laranja), ocupam a largura toda e mostram
-  todos os campos (ela: «tudo o que der para escrever deve aparecer no card»); o ativo ao centro e os
-  outros dois a espreitar dos lados com a sua cor e o título («a ver que outros existiam»); 280 ms;
+  todos os campos (ela: «tudo o que der para escrever deve aparecer no card»); como na v2.2 (ela, com uma
+  imagem: «assim»): faixa colorida com o ícone, o título e o desenho de linhas; os campos um por linha com o
+  seu ícone; «Limpar» / «Pesquisa avançada» e a ação a laranja; os outros dois inclinados dos lados; as setas
+  são pílulas com o nome do modo vizinho; 280 ms;
   setas, ← → Home End nos separadores, arrastar no tátil; só o ativo recebe o foco (`inert`); o que se
   escreveu fica; abre no último modo usado (localStorage).
 - Sugestões ao escrever (referências e marcas) com a carregar, sem resultados e recentes; ↑ ↓ Enter Esc.

@@ -186,14 +186,15 @@ export class CenaEntrar {
     };
     const [cx, cy] = proj(v.set(0, 0, 0).applyMatrix4(this.eixo.matrixWorld));
     const raio = Math.min(cv.width * 0.17, cv.height * 0.34);
-    const desvio: Record<string, number> = { ext: -0.3, int: 0.4, esf: 0.15, gai: -0.15 };
+    const desvio: Record<string, number> = { ext: -0.35, int: 0.55, esf: -0.1, gai: 1.1 };
     this.cotas.forEach(({ linha, ponto, rotulo }, k) => {
       if (!ancora[k]) return;
       const [x, y] = proj(ancora[k]());
       const ang = Math.atan2(y - cy, x - cx) + desvio[k];
       const esq = cx + Math.cos(ang) * raio < cx, larg = rotulo.offsetWidth + 14;
-      /* o rótulo nunca sai do palco: limita-se pela largura do próprio texto */
-      const lx = esq ? Math.max(larg, cx + Math.cos(ang) * raio) : Math.min(cv.width - larg, cx + Math.cos(ang) * raio), ly = Math.max(60, Math.min(cv.height - 60, cy + Math.sin(ang) * raio));
+      /* o rótulo nunca sai do palco nem vai para baixo do cartão do login (que começa a ~37 % da largura) */
+      const direita = Math.min(cv.width, cv.width * 0.36) - larg;
+      const lx = esq ? Math.max(larg, cx + Math.cos(ang) * raio) : Math.min(direita, cx + Math.cos(ang) * raio), ly = Math.max(80, Math.min(cv.height - 60, cy + Math.sin(ang) * raio));
       linha.setAttribute('x1', x.toFixed(1)); linha.setAttribute('y1', y.toFixed(1)); linha.setAttribute('x2', lx.toFixed(1)); linha.setAttribute('y2', ly.toFixed(1));
       ponto.setAttribute('cx', x.toFixed(1)); ponto.setAttribute('cy', y.toFixed(1));
       rotulo.style.transform = `translate(${lx.toFixed(1)}px, ${ly.toFixed(1)}px) translate(${esq ? '-100%' : '0'}, -50%)`;
