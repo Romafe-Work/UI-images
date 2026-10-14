@@ -172,20 +172,21 @@ function ordenar(botao: HTMLElement): void {
    O menu dos passos (13 out.): a linha de sempre, Marcas … Universal; os
    passos acendem-se à medida que há o que mostrar.
    ========================================================= */
-type VistaV5 = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'detalhes' | 'universal';
+type VistaV5 = 'marcas' | 'modelos' | 'veiculos' | 'grupos' | 'referencias' | 'detalhes' | 'universal';
 export function fluxo(main: HTMLElement, vista: VistaV5): void {
   const nav = (main.closest('.portal') || document).querySelector<HTMLElement>('.cat5__fluxo');
   if (!nav) return;
   /* a linha de sempre: cada passo acende-se quando há o que mostrar; o Grupo montagem não está desenhado */
-  const pode: Record<string, boolean> = { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 3: false, 4: !!main.dataset.refs, 5: !!main.dataset.ref, 6: true };
-  const atual = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, detalhes: 5, universal: 6 }[vista];
+  /* (14 out.) o Grupo montagem passa a existir: os grupos do veículo escolhido */
+  const pode: Record<string, boolean> = { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 3: !!main.dataset.versao, 4: !!main.dataset.refs, 5: !!main.dataset.ref, 6: true };
+  const atual = { marcas: 0, modelos: 1, veiculos: 2, grupos: 3, referencias: 4, detalhes: 5, universal: 6 }[vista];
   /* a comparação só fica aberta nas Referências e nos Detalhes */
   if (vista !== 'referencias' && vista !== 'detalhes') { const c = main.querySelector<HTMLElement>('.cat5__comparacao'); if (c) c.hidden = true; }
   /* nos Modelos e nos Veículos, a barra de cima é a da marca e do modelo (podia ter ficado a do Universal) */
-  if (vista === 'modelos' || vista === 'veiculos') {
-    const modelo = vista === 'veiculos' ? main.dataset.modelo || '' : '';
+  if (vista === 'modelos' || vista === 'veiculos' || vista === 'grupos') {
+    const modelo = vista === 'veiculos' ? main.dataset.modelo || '' : vista === 'grupos' ? `${main.dataset.modelo || ''} ${main.dataset.versao || ''}`.trim() : '';
     const tMarca = main.querySelector<HTMLElement>('.cat5__t-marca');
-    if (tMarca) { tMarca.textContent = main.dataset.marca || ''; tMarca.dataset.irVista = vista === 'veiculos' ? 'modelos' : 'marcas'; }
+    if (tMarca) { tMarca.textContent = main.dataset.marca || ''; tMarca.dataset.irVista = vista === 'grupos' ? 'veiculos' : vista === 'veiculos' ? 'modelos' : 'marcas'; }
     const tModelo = main.querySelector<HTMLElement>('.cat5__t-modelo');
     if (tModelo) tModelo.textContent = modelo;
     const direita = main.querySelector<HTMLElement>('.cat5__marca');
@@ -208,7 +209,7 @@ export function fluxo(main: HTMLElement, vista: VistaV5): void {
 function cliqueFluxo(main: HTMLElement, t: Element): boolean {
   if (!t.closest('.cat5__fluxo')) return false;
   const p = t.closest<HTMLButtonElement>('.cat2__passo');
-  const vista = ({ 0: 'marcas', 1: 'modelos', 2: 'veiculos', 4: 'referencias', 5: 'detalhes', 6: 'universal' } as const)[Number(p?.dataset.passo) as 0 | 1 | 2 | 4 | 5 | 6];
+  const vista = ({ 0: 'marcas', 1: 'modelos', 2: 'veiculos', 3: 'grupos', 4: 'referencias', 5: 'detalhes', 6: 'universal' } as const)[Number(p?.dataset.passo) as 0 | 1 | 2 | 3 | 4 | 5 | 6];
   if (p && !p.disabled && vista) ir(main, vista);
   return true;
 }
@@ -236,10 +237,9 @@ export function clique(main: HTMLElement, t: Element): boolean {
     return true;
   }
   if (t.closest('.cat5__pecas')) {
-    /* o Grupo montagem ainda não está desenhado: vai-se às Referências do veículo, com todos os
-       fabricantes (crítica de 13 out.: abrir só com a SKF escondia as equivalências e os preços) */
-    abrirReferencias(main, '', [], 'veiculo');
-    ir(main, 'referencias');
+    /* (14 out.) «Encontrar peças compatíveis» abre o Grupo montagem do veículo: a árvore do Universal, com o
+       veículo na barra de cima; escolhido o grupo e o fabricante, as Referências são as do veículo */
+    ir(main, 'grupos');
     return true;
   }
   if (cliquePedir(t) || cliqueDetalhes(main, t) || cliqueReferencias(main, t) || cliqueUniversal(main, t)) return true;
@@ -655,7 +655,7 @@ function cliqueUniversal(main: HTMLElement, t: Element): boolean {
   const fab = t.closest<HTMLElement>('.cat5__u-fab');
   if (fab) {
     const f = fab.dataset.fabricante || '';
-    abrirReferencias(main, main.dataset.uGrupo || '', f ? [f] : [], 'universal');
+    abrirReferencias(main, main.dataset.uGrupo || '', f ? [f] : [], main.dataset.vista === 'grupos' ? 'veiculo' : 'universal');
     ir(main, 'referencias');
     return true;
   }

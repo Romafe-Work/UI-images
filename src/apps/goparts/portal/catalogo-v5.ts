@@ -50,7 +50,7 @@ import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
 import { GRUPOS, FABRICANTES, ARVORE } from './catalogo-dados';
 
 const barra = `
-      <div class="cat5__barra" data-so="veiculos" hidden>
+      <div class="cat5__barra" data-so="veiculos grupos" hidden>
         <a href="#" class="cat5__casa" data-ir="inicio" aria-label="Início">${L(house)}</a>
         <h1 class="cat5__titulo"><button type="button" class="cat5__t-marca" data-ir-vista="modelos"></button><span aria-hidden="true">/</span><span class="cat5__t-modelo"></span></h1>
         <button type="button" class="btn btn--ghost cat5__comparar" hidden disabled>${L(scale, 'btn__icone')}<span class="btn__rotulo">Comparar (<span class="cat5__n-comparar">0</span>)</span></button>
@@ -149,7 +149,7 @@ const listaGrupos = todos.map(([g, cat]) => folha(g, cat, `<span class="cat5__fo
 const colunas = `<ul class="cat5__col cat5__col--cat">${ARVORE.map(([cat], i) => `<li><button type="button" class="cat5__col-cat" data-cat="${i}"${i === 0 ? ' aria-current="true"' : ''}><span class="cat5__ramo-icone" aria-hidden="true">${L(ICONE_CAT[cat] || circleDot)}</span><span class="cat5__folha-nome">${cat}</span>${L(chevronRight)}</button></li>`).join('')}</ul>`
   + ARVORE.map(([cat, gs], i) => `<ul class="cat5__col cat5__col--grupos" data-de-cat="${i}"${i ? ' hidden' : ''}>${gs.map((g) => folha(g, cat)).join('')}</ul>`).join('');
 const universal = `
-      <div class="cat5__universal" data-so="universal" hidden>
+      <div class="cat5__universal" data-so="universal grupos" hidden>
         <section class="cat5__u-grupos" aria-label="Grupos de montagem">
           <div class="cat5__u-topo">
             <h2 class="cat5__u-titulo">Grupos de montagem</h2>

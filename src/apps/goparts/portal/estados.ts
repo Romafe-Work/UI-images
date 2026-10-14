@@ -12,6 +12,7 @@
 import type { EcraGoParts, IdGoParts } from '../ids';
 import { portal } from './base';
 import { inicioV3, type EstadoInicio } from './inicio-v3';
+import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
@@ -29,7 +30,8 @@ export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquis
 export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
-export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias';
+export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
+  | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -45,7 +47,11 @@ const IC = {
   telefone: '<path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>',
 };
 const BOTAO = (texto: string, icone: string, tipo = 'btn--acao', extra = '') => `<button type="button" class="btn ${tipo}"${extra}>${I(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
-const GIRADOR = (cls = '') => `<span class="girador${cls ? ' ' + cls : ''}" aria-hidden="true"></span>`;
+/* (14 out. 2026) o carregamento é sempre o rolamento (ela: «carregar deve ser com um rolamento»; o briefing do
+   catálogo: uma só linguagem mecânica) — o anel exterior parado e o conjunto de dentro a rodar */
+let nGir = 0;
+const GIRADOR = (cls = '') => rolamentoSvg(`est-${++nGir}`, 'pesquisar', `girador-rs${cls ? ' ' + cls : ''}`);
+/* a barra fina indeterminada dá lugar a uma linha laranja fina que corre (sem percentagem inventada) */
 const E = (largura: number | string, cls = '') => `<span class="esq${cls ? ' ' + cls : ''}" style="width:${typeof largura === 'number' ? largura + '%' : largura}"></span>`;
 const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <strong>+351 226 158 300</strong></span></p>`;
 
@@ -67,7 +73,8 @@ function aCarregar(b: HTMLElement, texto: string): void {
   b.setAttribute('disabled', '');
   b.innerHTML = `${GIRADOR('girador--claro')}<span class="btn__rotulo">${texto}</span>`;
 }
-const catalogo = (html: string, extra = '') => portal('catalogo', html.replace('portal--noite', `portal--noite portal--estado ${extra}`), undefined, { menu: true, rodape: false });
+/* (14 out.) os estados do catálogo com o desenho do v6: liso, o contexto do veículo, a risca laranja */
+const catalogo = (html: string, extra = '') => portal('catalogo', html.replace('portal--noite', `portal--noite portal--ini3 portal--cat6 portal--estado ${extra}`).replace('<main class="cat2', '<main class="cat6 cat2'), undefined, { menu: true, rodape: false });
 /** Os estados do catálogo são parados: sem data-catalogo, o comportamento não lhes mexe. */
 const parado = (r: HTMLElement) => {
   $$(r, '[data-catalogo]').forEach((x) => x.removeAttribute('data-catalogo'));
@@ -196,6 +203,64 @@ const catalogoReferencias = () => catalogo(mudar(catalogoV5, 'e1111', (r) => {
   /* o estado é HTML: as caixas marcadas ficam escritas no atributo */
   $$<HTMLInputElement>(r, 'input[data-comparar]').forEach((c) => { if (c.checked) c.setAttribute('checked', ''); });
 }));
+
+/* ---------- (14 out., o briefing do catálogo) os estados que faltavam, na linguagem do rolamento ---------- */
+/** As referências do BMW 1 (E81) 118d, prontas a mudar (a base dos estados 11.17–11.20). */
+const refsBase = (prefixo: string, f: (r: HTMLElement) => void) => catalogo(mudar(catalogoV5, prefixo, (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  Object.assign(main.dataset, { marca: 'BMW', modelo: '1 (E81)', versao: '118d' });
+  abrirReferencias(main, '', [], 'veiculo');
+  mostrar(main, 'referencias');
+  fluxo(main, 'referencias');
+  f(r);
+}));
+const faixa = (tipo: 'erro' | 'aviso', icone: string, titulo: string, texto: string, botao = '') =>
+  `<div class="cat6__faixa cat6__faixa--${tipo}" role="${tipo === 'erro' ? 'alert' : 'status'}">${icone}<div><b>${titulo}</b><span>${texto}</span></div>${botao}</div>`;
+
+/* 11.16 · veículo identificado: o veículo encaixa na barra do contexto e o catálogo passa aos Veículos */
+const catalogoIdentificado = () => catalogo(mudar(catalogoV3, 'e1119', (r) => {
+  parado(r);
+  const main = $(r, '.cat3');
+  Object.assign(main.dataset, { marca: 'Renault', identificado: '12-AB-34' });
+  encherModelos(main, 'Renault');
+  encherVeiculos(main, 'Renault', 'Scénic II (JM0/1_)');
+  mostrar(main, 'veiculos');
+  passos(r, 2, 3);
+  $$(r, '.cat3__vista[data-so="veiculos"] .cat3__linha').find((l) => l.dataset.kw === '78')?.setAttribute('aria-selected', 'true');
+}));
+
+/* 11.17 · a adicionar ao carrinho: o rolamento no botão, à espera da confirmação */
+const catalogoAPedir = () => refsBase('e1120', (r) => {
+  const b = $(r, '.cat5__adicionar');
+  b.setAttribute('aria-busy', 'true'); b.setAttribute('disabled', '');
+  b.innerHTML = `${GIRADOR('girador--claro')}<span class="btn__rotulo">A adicionar…</span>`;
+});
+
+/* 11.18 · o carrinho não aceitou: nada se finge — o botão diz que não, a faixa explica e deixa tentar de novo */
+const catalogoCarrinhoFalhou = () => refsBase('e1121', (r) => {
+  const b = $(r, '.cat5__adicionar');
+  b.classList.add('cat6__nao');
+  b.innerHTML = `${I(IC.aviso)}<span class="btn__rotulo">Não adicionado</span>`;
+  $(r, '.cat5__refs').insertAdjacentHTML('afterbegin', faixa('erro', rolamentoSvg('e1121-rs', 'erro', 'cat6__rs-faixa'), 'O carrinho não aceitou a VKBA 6556.', 'Nada foi adicionado; a quantidade escolhida continua na linha.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+
+/* 11.19 · os preços não chegaram: o resto (referências, stock) continua certo; «Pedir» espera pelo preço */
+const catalogoPrecos = () => refsBase('e1122', (r) => {
+  $$(r, '.cat5__ref').forEach((l) => {
+    const c = l.querySelectorAll('td');
+    [4, 5, 6].forEach((i) => { if (c[i]) c[i].innerHTML = '<span class="cat6__sem-preco" aria-label="Preço indisponível">—</span>'; });
+    l.querySelector('.cat5__adicionar')?.setAttribute('disabled', '');
+  });
+  $(r, '.cat5__refs').insertAdjacentHTML('afterbegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'Os preços estão indisponíveis de momento.', 'As referências e o stock estão certos; os preços voltam assim que o serviço responder.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+
+/* 11.20 · sem ligação: o rolamento abranda até parar; as referências de há pouco ficam à vista, esbatidas */
+const catalogoOffline = () => refsBase('e1123', (r) => {
+  $(r, '.cat5__refs').classList.add('cat6__guardado');
+  $$(r, '.cat5__adicionar').forEach((b) => b.setAttribute('disabled', ''));
+  $(r, '.cat5__refs').insertAdjacentHTML('beforebegin', faixa('aviso', rolamentoSvg('e1123-rs', 'offline', 'cat6__rs-faixa'), 'Estás sem ligação à Internet.', 'Vês as referências de há pouco (podem já não estar certas); pedir volta quando a ligação voltar.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
 
 /* 11.12 · v5: o Universal, com «Comando da correia» aberto e o Kit de distribuição escolhido */
 const catalogoUniversal = () => catalogo(mudar(catalogoV5, 'e1112', (r) => {
@@ -531,6 +596,11 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-detalhes', '11.13 · Detalhes da referência', 'Catálogo v5: a peça em cima (preço, desconto, líquido, stock, quantidade, carrinho e minha lista) e os separadores Stock, Equivalências, OE, Veículos aplicáveis, Características e Documentos.', catalogoDetalhes),
   e('catalogo-sem-veiculos', '11.14 · Nenhum veículo com estes filtros', 'Sem dados: os filtros dos veículos não deixam nenhum; diz porquê e dá duas saídas.', catalogoSemVeiculos),
   e('catalogo-sem-referencias', '11.15 · Grupo sem referências', 'Sem dados: o grupo escolhido não tem peças para o veículo; a Romafe procura-a ao fabricante.', catalogoSemReferencias),
+  e('catalogo-identificado', '11.16 · Veículo identificado', 'Sucesso: o veículo encaixa na barra do contexto (o rolamento monta-se) e o catálogo passa aos Veículos, já filtrados.', catalogoIdentificado),
+  e('catalogo-a-pedir', '11.17 · A adicionar ao carrinho', 'Pendente: o rolamento no botão; a peça só voa para o carrinho depois da confirmação.', catalogoAPedir),
+  e('catalogo-carrinho-falhou', '11.18 · O carrinho não aceitou', 'Falha: o botão diz «Não adicionado», a faixa explica e deixa tentar de novo; nada se finge.', catalogoCarrinhoFalhou),
+  e('catalogo-precos', '11.19 · Preços indisponíveis', 'Falha parcial: os preços não chegaram; as referências e o stock continuam; «Pedir» espera pelo preço.', catalogoPrecos),
+  e('catalogo-offline', '11.20 · Sem ligação no catálogo', 'O rolamento abranda até parar; as referências de há pouco ficam à vista, esbatidas; pedir volta com a ligação.', catalogoOffline),
 ];
 /* 12.7 · v3: o painel do pedido aberto, para se ver no editor (onde o clique escolhe peças) */
 const pedidosAberto = () => pedidos(mudar(pedidosV3, 'e127', (r) => {

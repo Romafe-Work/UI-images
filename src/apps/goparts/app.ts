@@ -16,7 +16,7 @@ const ONDE: Record<string, [IdGoParts, string]> = {
   'carga-pagina': ['inicio', '10.10 · A carregar o portal'], 'carga-inicio': ['inicio', '10.11 · Esqueleto do Início'], 'carga-pecas': ['inicio', '10.12 · Peças a carregar'],
   'erro-404': ['inicio', '10.13 · Página não encontrada'], 'erro-500': ['inicio', '10.14 · Erro do servidor'], 'erro-sessao': ['inicio', '10.15 · Sessão expirada'],
   'erro-formulario': ['inicio', '10.16 · Erros no formulário (página)'], 'erro-manutencao': ['inicio', '10.17 · Em manutenção'],
-  'carga-pesquisa': ['catalogo', '11.16 · Pesquisa em curso'], 'erro-vazio': ['catalogo', '11.17 · Pesquisa sem resultados'], 'erro-encomenda': ['catalogo', '11.18 · Encomenda não concluída'],
+  'carga-pesquisa': ['catalogo', '11.21 · Pesquisa em curso'], 'erro-vazio': ['catalogo', '11.22 · Pesquisa sem resultados'], 'erro-encomenda': ['catalogo', '11.23 · Encomenda não concluída'],
   'carga-tabela': ['pedidos', '12.9 · Tabela a carregar'], 'carga-mais': ['pedidos', '12.10 · Carregar mais'], 'erro-rede': ['pedidos', '12.11 · Sem ligação'],
   'erro-403': ['guias', '13.10 · Sem permissão'],
   'carga-progresso': ['faturas', '14.10 · A gerar o PDF'],

@@ -210,6 +210,54 @@ efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `
   altura dos campos e da faixa segue a altura (vh); até 900 px de altura os campos ficam 2 × 2; até 760 px a faixa
   perde o subtítulo e o desenho.
 
+## 11 · Catálogo do GoParts, v3: o ciclo completo (14 out. 2026)
+
+Do briefing dela («todo o ciclo do catálogo»). Uma só versão: o percurso da antiga v5 (Marcas → Modelos →
+Veículos → **Grupo montagem** → Referências → Detalhes, e o Universal) com o desenho do Início v3 por cima
+(`css/catalogo-v6.css`, `comportamento/catalogo-v6.ts`; a v2–v5 saíram da lista, o código fica porque a v5 é
+montada por cima dele).
+
+**Auditoria (o que havia, verificado no protótipo):** as Marcas com identificação, favoritas e procura; os
+Modelos e os Veículos com filtros e ordenação; as Referências com fabricantes, agrupar, comparar e pedir;
+os Detalhes com separadores; o Universal em árvore, lista e colunas. Faltavam: o passo Grupo montagem (estava
+desligado), o contexto do veículo entre passos (cada passo tinha o seu cabeçalho), transições partilhadas,
+o carrinho (o «Pedir» só mudava o texto), validação a sério da identificação, e os estados de sucesso,
+pendente e falha parcial. Havia gradientes e brilho nos cartões azuis e cabeçalhos de tabela azuis.
+
+**O que mudou:** liso (sem gradientes nem brilho); uma barra de **contexto do veículo** (logótipo › marca ›
+modelo › veículo › referência), cada parte leva ao seu passo; **transições partilhadas** (View Transitions):
+o logótipo da marca voa do cartão para a barra, a referência voa da linha para o título dos Detalhes, só o
+conteúdo desliza (para a frente ou para trás); a **risca laranja** desliza nas abas e nos passos; o **Grupo
+montagem** do veículo (a árvore do Universal, que leva às Referências do veículo); **identificar** valida a
+matrícula e o chassis (resumo dos erros, foco no primeiro) e o veículo encaixa na barra; o **carrinho** fica
+pendente (rolamento no botão) e só depois da confirmação a peça voa para o carrinho e o número sobe; a
+estrela salta ao acender; a árvore com a seta que roda e a linha da hierarquia que se desenha.
+
+**Matriz de estados** (barra «Estados» do ecrã; os de carregamento usam o rolamento):
+
+| Estado | Gatilho | O que se vê | Recuperação |
+| --- | --- | --- | --- |
+| 11.1 A carregar | abrir | esqueleto da identificação e das marcas | — |
+| 11.2 A identificar | Pesquisar | rolamento no botão, linha laranja | — |
+| 11.3 Matrícula não encontrada | resposta vazia | porquê pode ser | chassis, ou marca e modelo |
+| 11.4 Erros no formulário | formato errado | cada campo diz como deve ser | o que se escreveu fica |
+| 11.5 A carregar modelos | escolher a marca | esqueleto da lista | — |
+| 11.6 Marca não encontrada | procura sem resultado | sugestão de escrita | outro caminho |
+| 11.7 Sem favoritas | primeira vez | explica a estrela | «Todas» |
+| 11.8 Marcas não carregaram | falha | o que continua a funcionar | tentar de novo, apoio |
+| 11.9–11.13 | navegação | Modelos, Veículos, Referências, Universal, Detalhes | — |
+| 11.14 Nenhum veículo | filtros | diz que filtro tirar | limpar filtros |
+| 11.15 Grupo sem referências | grupo vazio | a Romafe procura ao fabricante | outro grupo |
+| 11.16 Veículo identificado | sucesso | o veículo na barra, Veículos filtrados | — |
+| 11.17 A adicionar | Pedir | rolamento no botão | — |
+| 11.18 Carrinho não aceitou | falha | «Não adicionado» e faixa | tentar de novo (a quantidade fica) |
+| 11.19 Preços indisponíveis | serviço de preços | «—» nos preços, «Pedir» desligado | tentar de novo |
+| 11.20 Sem ligação | offline | rolamento a parar, resultados de há pouco esbatidos | tentar de novo |
+| 11.21–11.23 | pesquisa, sem resultados, encomenda | (da moldura comum) | — |
+
+Sem servidor: as confirmações (identificar, carrinho) chegam ao fim de 0,7–0,9 s neste protótipo. O
+carregamento em todos os estados do GoParts passou a ser o rolamento (`GIRADOR` em `portal/estados.ts`).
+
 ## Como está feito
 
 ```

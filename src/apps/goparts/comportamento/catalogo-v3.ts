@@ -16,9 +16,9 @@ import car from 'lucide-static/icons/car.svg?raw';
 import carFront from 'lucide-static/icons/car-front.svg?raw';
 import van from 'lucide-static/icons/van.svg?raw';
 
-export type Vista = 'marcas' | 'modelos' | 'veiculos' | 'referencias' | 'detalhes' | 'universal';
+export type Vista = 'marcas' | 'modelos' | 'veiculos' | 'grupos' | 'referencias' | 'detalhes' | 'universal';
 /* referencias e universal só existem na v5 */
-const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2, referencias: 4, detalhes: 5, universal: 6 };
+const PASSO: Record<Vista, number> = { marcas: 0, modelos: 1, veiculos: 2, grupos: 3, referencias: 4, detalhes: 5, universal: 6 };
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => r.querySelector<T>(s)!;
 const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.from(r.querySelectorAll<T>(s));
@@ -200,6 +200,10 @@ function limpar(main: HTMLElement): void {
   filtrar(main);
 }
 
+/** (14 out. 2026) O catálogo v6 troca de passo com View Transitions: estes ganchos (comportamento/catalogo-v6.ts)
+ *  dizem que elementos voam de um passo para o outro (o logótipo da marca, a referência) e atualizam o contexto. */
+export const partilhado: { antes?: (main: HTMLElement, de: Vista, para: Vista) => void; depois?: (main: HTMLElement, de: Vista, para: Vista) => void; fim?: (main: HTMLElement) => void } = {};
+
 /** Troca de vista: o cartão azul fica e troca o conteúdo; a secção de baixo desliza. */
 export function ir(main: HTMLElement, vista: Vista): void {
   const antes = (main.dataset.vista || 'marcas') as Vista;
@@ -210,10 +214,20 @@ export function ir(main: HTMLElement, vista: Vista): void {
   const feito = main.dataset.ref ? 5 : main.dataset.refs ? 4 : main.dataset.modelo ? 2 : main.dataset.marca ? 1 : 0;
   const ate = vista === 'universal' ? feito : Math.max(PASSO[vista], feito);
   passos(portal, PASSO[vista], ate);
+  /* v6: a troca é uma View Transition — só o conteúdo do catálogo desliza (para a frente ou para trás), a barra,
+     as abas e os passos ficam; o logótipo e a referência voam para o sítio novo */
+  const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
+  if (main.classList.contains('cat6') && doc.startViewTransition && !quieto() && main.isConnected) {
+    document.documentElement.dataset.catSentido = frente ? 'frente' : 'tras';
+    partilhado.antes?.(main, antes, vista);
+    const t = doc.startViewTransition(() => { if (v5.eV5(main)) v5.fluxo(main, vista); mostrar(main, vista); partilhado.depois?.(main, antes, vista); });
+    t.finished.finally(() => { partilhado.fim?.(main); delete document.documentElement.dataset.catSentido; });
+    return;
+  }
   if (v5.eV5(main)) v5.fluxo(main, vista);
   const baixo = $(main, '.cat2__marcas');
   const conteudo = $$(main, '.cat2__pesquisa > [data-so]');
-  if (quieto()) { mostrar(main, vista); return; }
+  if (quieto()) { mostrar(main, vista); partilhado.depois?.(main, antes, vista); return; }
   /* v5: 20 px e 280 ms a entrar (a proposta dela); antes, 24 px e 220 ms */
   const e5 = v5.eV5(main);
   const dx = (frente ? 1 : -1) * (e5 ? 20 : 24);
@@ -221,6 +235,7 @@ export function ir(main: HTMLElement, vista: Vista): void {
   conteudo.forEach((c) => { if (!c.hidden) c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease-in', fill: 'forwards' }); });
   sai.onfinish = () => {
     mostrar(main, vista);
+    partilhado.depois?.(main, antes, vista);
     baixo.getAnimations().forEach((x) => x.cancel());
     conteudo.forEach((c) => c.getAnimations().forEach((x) => x.cancel()));
     baixo.animate([{ opacity: 0, transform: `translateX(${dx}px)` }, { opacity: 1, transform: 'none' }], { duration: e5 ? 280 : 220, easing: 'cubic-bezier(.2, .8, .2, 1)' });

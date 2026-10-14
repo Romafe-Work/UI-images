@@ -3,17 +3,17 @@
    Vieram do Figma-WebShop-GoParts a 8 out. 2026; o HTML de cada um está no
    .html ao lado, e a base põe o topo, as abas e o rodapé.
    ========================================================= */
-import type { Versao } from '../../../comum/tipos';
+
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
 import { faturasV1 } from './faturas-v1';
 import { guiasV2 } from './guias-v2';
 import { inicioV3 } from './inicio-v3';
-import catalogoV2 from './catalogo-v2.html?raw';
-import { catalogoV3 } from './catalogo-v3';
-import { catalogoV4 } from './catalogo-v4';
 import { catalogoV5 } from './catalogo-v5';
+
+/** O catálogo v6: o da v5 com as classes do desenho novo (o Início v3) e do motor de transições. */
+export const catalogoV6 = () => catalogoV5.replace('class="portal ', 'class="portal portal--ini3 portal--cat6 ').replace('<main class="cat2 cat3 cat4 cat5"', '<main class="cat2 cat3 cat4 cat5 cat6"');
 import pedidosV2 from './pedidos-v2.html?raw';
 import { pedidosV3 } from './pedidos-v3';
 
@@ -28,15 +28,13 @@ export const ecrasPortal: EcraGoParts[] = [
   ...estadosInicio(),
   /* 13 out. 2026: ela, «mostra só a v2» — a v3, a v4 e a v5 ficam aqui escritas mas fora da lista
      (o filtro no fim); para voltarem, basta tirar o filtro */
+  /* 14 out. 2026: do briefing dela («todo o ciclo do catálogo»), uma só versão: o percurso completo da v5
+     (Marcas → Modelos → Veículos → Grupo montagem → Referências → Detalhes, e o Universal) com o desenho do
+     Início v3, transições partilhadas e os estados na linguagem do rolamento (catalogo-v6.css,
+     comportamento/catalogo-v6.ts); a v2 (só Marcas) e as v3–v4 saíram — o código delas fica, a v5 é feita
+     por cima delas */
   { id: 'catalogo', nome: '11 · Catálogo', fluxo: FLUXO, versoes: [
-    /* 12 out. 2026: ela pediu para tirar a v1 (a do Figma-WebShop-GoParts) */
-    { id: 'v2', nota: 'A partir do catálogo atual do GO REPAIR, no estilo do Início v2.2 (12 out.): passos do catálogo, pesquisa por veículo no cartão azul, marcas com Favoritas/Todas e procura; a marca abre os modelos', html: portal('catalogo', catalogoV2, undefined, { menu: true, rodape: false }) },
-    /* 13 out. 2026: ela, com as imagens do GO REPAIR, «faz os modelos e veiculos no catalogo» */
-    { id: 'v3', nota: 'A v2 com os passos Modelos e Veículos do GO REPAIR (13 out.): a marca abre a tabela dos modelos, o modelo a dos veículos; os filtros de cada passo no cartão azul, que fica no sítio', html: portal('catalogo', catalogoV3, undefined, { menu: true, rodape: false }) },
-    /* 13 out. 2026: ela mandou a imagem de um catálogo novo e a proposta das animações */
-    { id: 'v4', nota: 'A partir da imagem dela (13 out.): «Encontrar veículo» num painel à esquerda que recolhe, as Marcas à direita com a contagem e uma faixa, cartões maiores; animações só quando se mexe (cartão, estrela, procura, Marca → Modelo, risca). Com os Modelos e Veículos da v3', html: portal('catalogo', catalogoV4, undefined, { menu: true, rodape: false }) },
-    /* 13 out. 2026: a terceira imagem dela (Veículos) e a proposta das animações para Modelos e Veículos */
-    { id: 'v5', nota: 'A v4 com os Veículos da terceira imagem (13 out.): barra BMW / 1 (E81), «Filtrar veículos» a toda a largura com listas que se ajustam umas às outras, Tabela/Lista, resultados por página, ordenar por ano, kW, cv e cc, e o (i) que abre os dados do motor; animações da proposta dela nos Modelos e nos Veículos. Também as Referências (fabricantes em etiquetas, agrupar, ver próprias, comparar; só em tabela) e o Universal (grupos em Árvore, Lista ou Colunas, e os fabricantes de cada grupo)', html: portal('catalogo', catalogoV5, undefined, { menu: true, rodape: false }) }].filter((v) => v.id === 'v2') as [Versao],
+    { id: 'v3', nota: 'O ciclo completo do catálogo (14 out.): Marcas → Modelos → Veículos → Grupo montagem → Referências → Detalhes e o Universal; liso, sem gradientes; o logótipo da marca voa para o cabeçalho dos Modelos, a referência para os Detalhes; o veículo fica sempre à vista; o carrinho confirma e a peça voa para ele', html: portal('catalogo', catalogoV6(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'O catálogo de peças: a pesquisa por veículo ou por referência num só sítio, e as marcas de automóveis para escolher.' },
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [

@@ -154,3 +154,6 @@
 .carga-pagina { background: #f3f5f8; }
 [data-theme="dark"] .carga-pagina { background: #0a1420; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .carga-pagina { background: #0a1420; } }
+/* o rolamento no lugar do girador (os estados do GoParts, 14 out.) */
+.rs.girador-rs { width: 20px; height: 20px; flex: none; vertical-align: -5px; }
+.rs.girador-rs.girador--pequeno { width: 16px; height: 16px; }
