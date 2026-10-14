@@ -100,10 +100,8 @@ function risca(nav: HTMLElement | null, itens: string, ativo: string): void {
   ir2(atual());
 }
 function riscas(portal: HTMLElement | null): void {
-  if (!portal || !portal.classList.contains('portal--cat6')) return;
-  risca(portal.querySelector('.portal__abas'), '.aba', '.aba[aria-current]');
-  const fluxo = portal.querySelector<HTMLElement>('.cat5__fluxo');
-  risca(fluxo?.querySelector('ol, ul') ?? fluxo, '.cat2__passo', '.cat2__passo[aria-current]');
+  /* (ela, 14 out.: «só quero uma barra») — a risca que desliza é a da v2 (v2-animacao.ts); esta não se desenha */
+  void portal; void risca;
 }
 
 /* ---------- identificar o veículo ---------- */

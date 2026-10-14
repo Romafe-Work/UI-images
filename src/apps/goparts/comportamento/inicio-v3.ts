@@ -231,7 +231,8 @@ function armar(): void {
   atual = ini;
   const m = ini.dataset.estado ? Number(ini.dataset.modo) : lerModo() ?? Number(ini.dataset.modo ?? 2);
   porModo(ini, m);
-  rIscaAbas(ini.closest('.portal')!);
+  /* (14 out.: «só quero uma barra») a risca das abas é a da v2; rIscaAbas fica por chamar */
+  void rIscaAbas;
   /* o foco no primeiro campo só quando o Início abre e nada mais o tem */
   if (primeira && !ini.dataset.estado && !editando() && (document.activeElement === document.body || !document.activeElement)) {
     ini.querySelectorAll<HTMLElement>('.ini3__cartao')[m]?.querySelector<HTMLInputElement>('input:not([type="checkbox"])')?.focus({ preventScroll: true });

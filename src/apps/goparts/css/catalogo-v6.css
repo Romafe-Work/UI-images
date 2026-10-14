@@ -19,7 +19,6 @@
 .portal--cat6 .cat5__passos { position: relative; }
 .portal--cat6 .cat2__passo { border-bottom-color: transparent !important; transition: color 150ms ease, background-color 150ms ease; }
 .portal--cat6 .cat2__passo[aria-current] { background: var(--i3-sup-2); color: var(--i3-tinta); }
-.portal--cat6 .aba[aria-current="true"] { border-bottom-color: transparent; }
 .portal--cat6 .i3-risca-abas { opacity: 0; }
 
 /* ---------- o contexto do veículo ---------- */
