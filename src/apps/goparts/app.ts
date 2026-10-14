@@ -3,7 +3,7 @@ import { ecrasCarregar } from '../../comum/carregar/carregar';
 import { GOPARTS } from './portal/base';
 import { DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoParts, EcraGoParts } from './ids';
-import { ecrasEntrar22 } from './entrar-v22';
+import { ecrasEntrar } from './entrar-3d';
 import { ecraAbertura } from './abertura';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro } from './erros/erros';
@@ -42,6 +42,7 @@ export const goparts: App<IdGoParts> = {
     'Entrar': DESCRICAO_ENTRAR,
     'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos e as guias de remessa.',
   },
+  /* 14 out. 2026: os quatro ecrãs de entrar à volta do rolamento 3D (entrar-3d.ts), do briefing dela; saíram a v1 e a v2 */
   /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a
      fotografia da oficina (entrar-v22.ts); a «Família Romafe» saiu (ela não gostou) */
   /* 13 out. 2026: a abertura animada antes do login (abertura.ts) */
@@ -50,5 +51,5 @@ export const goparts: App<IdGoParts> = {
      Entregas, Marcas, Contactos); a abertura volta a levar ao login */
   /* 13 out. 2026: ela, «tudo o que seja carregamentos e erros deve estar distribuído pelas páginas» —
      os grupos Carregamento e Erros saíram; cada ecrã passa a estado da página que mostra (distribuir()) */
-  ecras: [ecraAbertura(), ...ecrasEntrar22(), ...distribuir()],
+  ecras: [ecraAbertura(), ...ecrasEntrar(), ...distribuir()],
 };

@@ -56,7 +56,7 @@ function seguir(): void {
     if (daqui) daqui.style.viewTransitionName = '';
     largar();
     mostrar('entrada');
-    const ali = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .login22__topo .portal__marca');
+    const ali = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ent3__marca');
     if (ali) { ali.style.viewTransitionName = 'goparts-marca'; window.setTimeout(() => { ali.style.viewTransitionName = ''; }, 1200); }
   };
   if (!doc.startViewTransition || quieto() || !daqui) { ir(); return; }

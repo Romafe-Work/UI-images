@@ -24,10 +24,8 @@ import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
 import './css/select.css';
-import './css/entrar-v22.css';
 import './css/abertura.css';
-import './css/entrar-v23.css';
-import './css/entrar-escuro.css';
+import './css/entrar-3d.css';
 import './css/estados-animacoes.css';
 import '../../comum/css/editor.css';
 
@@ -44,7 +42,7 @@ import { iniciar as pedidosV3 } from './comportamento/pedidos-v3';
 import { iniciar as guiasV2 } from './comportamento/guias-v2';
 import { iniciar as faturas } from './comportamento/faturas';
 import { iniciar as selects } from './comportamento/select';
-import { iniciar as login } from './comportamento/login';
+import { iniciar as entrar3d } from './comportamento/entrar-3d';
 import { iniciar as abertura } from './comportamento/abertura';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, login, abertura]);
+montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, guiasV2, faturas, selects, entrar3d, abertura]);

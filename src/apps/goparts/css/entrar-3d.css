@@ -1,0 +1,145 @@
+/* =========================================================
+   GOPARTS — os quatro ecrãs de entrar (14 out. 2026): o palco do rolamento e o formulário
+   À esquerda (55 %), o palco azul-noite com o canvas partilhado (comportamento/entrar-3d.ts), as
+   órbitas finas, a fase da montagem, a ficha do rolamento e os quatro passos; à direita (45 %), o
+   formulário, liso: claro no tema claro, carvão-azulado no escuro. O palco é escuro nos dois temas
+   (é a montagem; o rolamento de aço lê-se melhor no escuro). Sem vidro, sem brilhos, sem sombras.
+   Tempos: o formulário entra em 380 ms (desliza 16 px e aparece); o foco do campo, 150 ms; o hover
+   dos botões, 160 ms; o premir, escala 0,98.
+   Ecrã ajustável: a altura rola (o palco fica preso enquanto o formulário rola); em 1100 px as duas
+   colunas ficam a meias; em 800 px o palco sobe para cima do formulário, mais baixo (34vh).
+   Com «reduzir movimento» ou sem WebGL (.is-parado), o palco mostra um rolamento desenhado, parado.
+   ========================================================= */
+.ent3 {
+  --ent3-palco: #071a2e; --ent3-lado: #f6f8fb; --ent3-tinta: #0d1520; --ent3-tinta-2: rgba(13, 21, 32, .66); --ent3-tinta-3: rgba(13, 21, 32, .46);
+  --ent3-borda: rgba(13, 21, 32, .16); --ent3-campo: #ffffff; --ent3-azul: #0063aa; --ent3-curva: cubic-bezier(.22, 1, .36, 1);
+  min-height: 100vh; display: grid; grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); background: var(--ent3-lado); color: var(--ent3-tinta);
+}
+[data-theme="dark"] .ent3 { --ent3-palco: #06131f; --ent3-lado: #0d1622; --ent3-tinta: #eef2f7; --ent3-tinta-2: rgba(238, 242, 247, .66); --ent3-tinta-3: rgba(238, 242, 247, .44); --ent3-borda: rgba(255, 255, 255, .14); --ent3-campo: #122030; --ent3-azul: #3d95dd; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ent3 { --ent3-palco: #06131f; --ent3-lado: #0d1622; --ent3-tinta: #eef2f7; --ent3-tinta-2: rgba(238, 242, 247, .66); --ent3-tinta-3: rgba(238, 242, 247, .44); --ent3-borda: rgba(255, 255, 255, .14); --ent3-campo: #122030; --ent3-azul: #3d95dd; }
+}
+
+/* ---------- o palco ---------- */
+.ent3__palco { position: sticky; top: 0; align-self: start; height: max(100vh, 560px); overflow: hidden; background: var(--ent3-palco); color: #eef2f7; }
+.ent3__lugar, .ent3__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ent3__canvas { opacity: 0; transition: opacity .6s ease; }
+.is-cena .ent3__canvas { opacity: 1; }
+/* as órbitas finas à volta do rolamento: rodam muito devagar (é o único movimento contínuo do palco) */
+.ent3__grafismo { position: absolute; left: 50%; top: 50%; width: min(86%, 78vh); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; overflow: visible; }
+.ent3__orbita { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: .3; stroke-dasharray: 1 3; transform-origin: center; animation: ent3-orbita 90s linear infinite; }
+.ent3__orbita--fina { stroke: rgba(255, 255, 255, .06); stroke-dasharray: .4 6; animation-direction: reverse; }
+.ent3__mira { fill: none; stroke: rgba(239, 123, 16, .55); stroke-width: .35; }
+@keyframes ent3-orbita { to { transform: rotate(360deg); } }
+.ent3__fase { position: absolute; left: 32px; top: 28px; margin: 0; font-family: var(--f-mono); font-size: 13px; color: rgba(238, 242, 247, .72); animation: ent3-aparecer .4s ease both; }
+.ent3__fase b { color: var(--c-acao); font-weight: 600; }
+.ent3__ficha { position: absolute; left: 32px; bottom: 28px; margin: 0; font-family: var(--f-mono); font-size: 12px; color: rgba(238, 242, 247, .5); }
+.ent3__passos { position: absolute; right: 32px; bottom: 32px; display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.ent3__passos li { width: 22px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .18); transition: background-color .3s ease; }
+.ent3__passos li[aria-current] { background: var(--c-acao); }
+/* as cotas da vista explodida (03) */
+.ent3__cotas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.ent3__cota line { stroke: var(--c-acao); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; animation: ent3-desenhar .7s var(--ent3-curva) .7s forwards; }
+.ent3__cota circle { fill: none; stroke: var(--c-acao); stroke-width: 1.25; opacity: 0; animation: ent3-aparecer .3s ease .7s forwards; }
+.ent3__cota:nth-child(2) line { animation-delay: .78s; } .ent3__cota:nth-child(3) line { animation-delay: .86s; } .ent3__cota:nth-child(4) line { animation-delay: .94s; }
+@keyframes ent3-desenhar { to { stroke-dashoffset: 0; } }
+.ent3__rotulos { position: absolute; inset: 0; pointer-events: none; }
+.ent3__rotulo { position: absolute; left: 0; top: 0; padding: 3px 8px; font-family: var(--f-mono); font-size: 12px; color: #eef2f7; white-space: nowrap; border-left: 1px solid var(--c-acao); opacity: 0; animation: ent3-aparecer .3s ease 1s forwards; }
+.ent3__rotulo.is-esq { border-left: 0; border-right: 1px solid var(--c-acao); }
+/* sem WebGL ou com «reduzir movimento»: um rolamento desenhado, parado */
+.is-parado .ent3__lugar { background:
+  radial-gradient(circle at 50% 50%, transparent 0 13%, #c7ced6 13.2% 17.5%, #0a2a4a 17.7% 21%, transparent 21.2%),
+  radial-gradient(circle at 50% 50%, transparent 0 24%, #0a2a4a 24.2% 25.6%, #c7ced6 25.8% 31%, transparent 31.2%); background-size: min(70vh, 90%) min(70vh, 90%); background-position: center; background-repeat: no-repeat; }
+/* o fim do «Entrar»: depois de a câmara atravessar o rolamento, o palco escurece e segue o Início */
+.ent3__palco::after { content: ""; position: absolute; inset: 0; background: var(--ent3-palco); opacity: 0; pointer-events: none; transition: opacity .4s ease; }
+.is-voo .ent3__palco::after { opacity: 1; }
+
+/* ---------- o formulário ---------- */
+.ent3__lado { display: grid; grid-template-rows: auto 1fr auto; gap: 24px; min-height: 100vh; padding: 28px clamp(24px, 5vw, 72px); }
+.ent3__marca { display: flex; align-items: center; gap: 12px; }
+.ent3__marca .romafe { font-size: 30px; line-height: 1; }
+.ent3__risco { width: 1px; height: 24px; background: var(--ent3-borda); }
+.ent3__produto { font-family: var(--f-titulo); font-weight: 600; font-size: 20px; }
+.ent3__form { align-self: center; width: min(420px, 100%); display: grid; gap: 14px; }
+.ent3__form > * { animation: ent3-entrar .38s var(--ent3-curva) both; }
+.ent3__form > :nth-child(2) { animation-delay: .03s; } .ent3__form > :nth-child(3) { animation-delay: .06s; } .ent3__form > :nth-child(4) { animation-delay: .09s; }
+.ent3__form > :nth-child(5) { animation-delay: .12s; } .ent3__form > :nth-child(6) { animation-delay: .15s; } .ent3__form > :nth-child(7) { animation-delay: .18s; }
+@keyframes ent3-entrar { from { opacity: 0; transform: translateX(16px); } }
+@keyframes ent3-aparecer { from { opacity: 0; } to { opacity: 1; } }
+.ent3__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 600; font-size: clamp(28px, 2.6vw, 36px); letter-spacing: -.02em; line-height: 1.1; }
+.ent3__sub { margin: -6px 0 6px; font-size: 16px; color: var(--ent3-tinta-2); }
+.ent3__voltar { justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 6px 2px; border: 0; background: none; font: inherit; font-size: 14px; color: var(--ent3-tinta-2); cursor: pointer; transition: color .16s ease; }
+.ent3__voltar svg { width: 16px; height: 16px; color: var(--c-acao); transition: transform .16s ease; }
+@media (hover: hover) and (pointer: fine) { .ent3__voltar:hover { color: var(--ent3-tinta); } .ent3__voltar:hover svg { transform: translateX(-3px); } }
+
+.ent3__campos { display: grid; gap: 14px; }
+.ent3__campo { display: grid; gap: 6px; }
+.ent3__campo label { font-size: 14px; font-weight: 600; }
+.ent3__caixa { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 14px; border: 1px solid var(--ent3-borda); border-radius: 8px; background: var(--ent3-campo); transition: border-color .15s ease, box-shadow .15s ease; }
+.ent3__caixa:focus-within { border-color: var(--ent3-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ent3-azul) 22%, transparent); }
+.ent3__campo-icone { width: 18px; height: 18px; flex: none; color: var(--ent3-tinta-3); transition: color .15s ease; }
+.ent3__caixa:focus-within .ent3__campo-icone { color: var(--ent3-azul); }
+.ent3__caixa input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ent3-tinta); }
+.ent3__caixa input::placeholder { color: var(--ent3-tinta-3); }
+.ent3__olho { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 6px; background: none; color: var(--ent3-tinta-2); cursor: pointer; }
+.ent3__olho svg { width: 18px; height: 18px; }
+.ent3__olho:focus-visible { outline: 2px solid var(--ent3-azul); }
+.ent3__campo.is-erro .ent3__caixa { border-color: var(--c-erro); }
+.ent3__erro { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 14px; color: var(--c-erro); animation: ent3-aparecer .2s ease both; }
+.ent3__erro svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+
+.ent3__botao.btn { width: 100%; min-height: 52px; border-radius: 8px; font-size: 16px; gap: 10px; transition: background-color .16s ease, transform .1s ease; }
+.ent3__botao .btn__icone { width: 18px; height: 18px; transition: transform .16s ease; }
+@media (hover: hover) and (pointer: fine) { .ent3__botao.btn:not(:disabled):hover .btn__icone { transform: translateX(2px); } }
+.ent3__botao.btn:not(:disabled):active { transform: scale(.98); }
+.ent3__botao.btn:disabled { opacity: .45; cursor: not-allowed; }
+/* a carregar (enquanto o rolamento trava): o ícone dá lugar a um círculo que roda */
+.ent3__botao.is-a-carregar .btn__icone { opacity: 0; }
+.ent3__botao.is-a-carregar { position: relative; }
+.ent3__botao.is-a-carregar::after { content: ""; position: absolute; right: 18px; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #fff; border-radius: 50%; animation: ent3-roda .7s linear infinite; }
+@keyframes ent3-roda { to { transform: rotate(360deg); } }
+
+.ent3__ligacoes { display: grid; gap: 2px; padding-top: 6px; border-top: 1px solid var(--ent3-borda); }
+.ent3__ligacao { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 2px; border: 0; background: none; font: inherit; font-size: 15px; color: var(--ent3-tinta); cursor: pointer; text-align: left; }
+.ent3__ligacao svg { width: 18px; height: 18px; color: var(--c-acao); flex: none; transition: transform .16s ease; }
+@media (hover: hover) and (pointer: fine) { .ent3__ligacao:hover { text-decoration: underline; text-underline-offset: 3px; } .ent3__ligacao:hover svg { transform: translateX(2px); } }
+.ent3__conta { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--ent3-borda); border-radius: 8px; font-size: 15px; }
+.ent3__conta svg { width: 16px; height: 16px; color: var(--ent3-tinta-3); }
+.ent3__conta span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ent3__mudar { border: 0; background: none; font: inherit; font-size: 14px; color: var(--ent3-azul); text-decoration: underline; cursor: pointer; }
+.ent3__nota { display: flex; gap: 10px; margin: 0; font-size: 15px; line-height: 1.5; color: var(--ent3-tinta-2); }
+.ent3__nota svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--c-acao); }
+.ent3__manter { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; cursor: pointer; }
+.ent3__manter input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c-acao); }
+.ent3__manter small { display: block; font-size: 13px; color: var(--ent3-tinta-3); }
+.ent3__vender { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; font-size: 14px; color: var(--ent3-tinta-2); }
+.ent3__vender svg { width: 16px; height: 16px; color: var(--c-acao); }
+.ent3__vender a { color: var(--ent3-tinta); font-weight: 600; }
+
+.ent3__ajudas { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ent3__ajudas li { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px; border: 1px solid var(--ent3-borda); border-radius: 8px; cursor: default; transition: border-color .16s ease, background-color .16s ease; }
+.ent3__ajudas li > svg { width: 20px; height: 20px; color: var(--c-acao); margin-top: 1px; }
+.ent3__ajudas p { margin: 0 0 2px; font-weight: 600; font-size: 15px; }
+.ent3__ajudas span { display: block; font-size: 14px; color: var(--ent3-tinta-2); }
+.ent3__ajudas li:focus-visible { outline: 2px solid var(--ent3-azul); outline-offset: 2px; }
+.ent3__ajudas li:hover, .ent3__ajudas li:focus-visible { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 6%, transparent); }
+.ent3__telefone { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 700; font-size: 15px; color: var(--ent3-tinta); text-decoration: none; }
+.ent3__telefone svg { width: 16px; height: 16px; color: var(--c-acao); }
+
+.ent3__rodape { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-family: var(--f-mono); font-size: 12px; color: var(--ent3-tinta-3); }
+.ent3__rodape a { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; }
+.ent3__rodape svg { width: 14px; height: 14px; color: var(--c-acao); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ent3__form > *, .ent3__fase, .ent3__erro { animation: ent3-aparecer .2s ease both; }
+  .ent3__orbita { animation: none; }
+  .ent3__cota line { animation: none; stroke-dashoffset: 0; } .ent3__cota circle, .ent3__rotulo { animation: none; opacity: 1; }
+}
+@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .ent3__fase, .ent3__ficha { left: 20px; } .ent3__passos { right: 20px; } }
+@media (max-width: 800px) {
+  .ent3 { grid-template-columns: minmax(0, 1fr); }
+  .ent3__palco { position: relative; height: 34vh; min-height: 240px; }
+  .ent3__lado { min-height: 0; padding: 20px 16px 24px; }
+  .ent3__ficha, .ent3__rotulo, .ent3__cotas { display: none; }
+  .ent3__fase { top: 16px; left: 16px; font-size: 12px; }
+}

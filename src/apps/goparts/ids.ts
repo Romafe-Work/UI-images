@@ -6,7 +6,10 @@ import type { IdEstadoInicio, IdEstadoCatalogo, IdEstadoPedidos, IdEstadoGuias, 
 
 /** Os ecrãs do GoParts: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */
-export type IdGoParts = 'entrada-vazio' | 'abertura' | IdEntrar | IdCarregar | IdErro | 'inicio' | IdEstadoInicio | 'catalogo' | IdEstadoCatalogo | 'pedidos' | IdEstadoPedidos | 'guias' | IdEstadoGuias | 'faturas' | IdEstadoFaturas;
+/** Os estados dos ecrãs de entrar (01.1 sem dados, 02.1 palavra-passe errada). */
+export type IdEstadoEntrar = 'entrada-vazio' | 'palavra-passe-erro';
+
+export type IdGoParts = IdEstadoEntrar | 'abertura' | IdEntrar | IdCarregar | IdErro | 'inicio' | IdEstadoInicio | 'catalogo' | IdEstadoCatalogo | 'pedidos' | IdEstadoPedidos | 'guias' | IdEstadoGuias | 'faturas' | IdEstadoFaturas;
 
 export type EcraGoParts = Ecra<IdGoParts>;
 

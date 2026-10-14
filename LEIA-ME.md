@@ -150,7 +150,7 @@ a abertura aparece (`src/apps/goparts/comportamento/abertura-cena.ts`; o resto e
 `comportamento/abertura.ts` e `css/abertura.css`). Em ~7 s: uma esfera sozinha → o rolamento (um
 SKF 6206 à escala) monta-se → vista explodida com as cotas a laranja → monta-se outra vez e desfaz-se
 em partículas → as partículas formam o ROMAFE (tirado da letra Motor) e dão lugar ao logótipo
-verdadeiro, com o GoParts e a linha laranja → passa ao 01 · Entrar, com a marca a voar para a barra
+verdadeiro, com o GoParts e a linha laranja → passa ao 01 · Entrar, com a marca a voar para o lado do formulário
 (a página pública foi apagada a 14 out., a pedido dela).
 
 - Arrasta-se o rolamento e a cena segue o rato; «Saltar» ou Esc vão já.
@@ -158,6 +158,24 @@ verdadeiro, com o GoParts e a linha laranja → passa ao 01 · Entrar, com a mar
 - Com «reduzir movimento», sem WebGL ou num aparelho fraco: só o logótipo.
 - Para rever um instante: `#so=ecra&ecra=abertura&pausa=3.4` congela a sequência aos 3,4 s.
 - Sem percentagem de carregamento (não havia o que medir de verdade).
+
+## Os quatro ecrãs de entrar do GoParts em 3D (14 out. 2026)
+
+Do briefing dela («Engineering your access»): 01 Entrar, 02 A palavra-passe, 03 O início de sessão da
+empresa e 04 Precisa de ajuda? são uma só viagem à volta do mesmo rolamento 3D, que **nunca recomeça**:
+há um só canvas e uma só cena (`comportamento/entrar-cena.ts`), e o controlador
+(`comportamento/entrar-3d.ts`) muda o canvas para o palco do ecrã à vista (mudar um canvas de sítio
+não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alvos com uma mola.
+
+- 01 o anel exterior entra e roda, as esferas giram à volta; com o campo em foco abranda; «Continuar»
+  trava o anel e a câmara avança.
+- 02 o anel interior entra pelo eixo e roda até alinhar; as esferas assentam. «Entrar» completa o
+  rolamento, acende a marca laranja e a câmara atravessa o centro até ao Início. 02.1 é a palavra-passe
+  errada: o aviso no campo e o anel interior a resistir (sem abanar o ecrã).
+- 03 vista explodida com as cotas e a câmara rodada ~20°; ao continuar, as peças juntam-se.
+- 04 as peças suspensas; a opção em foco (ou debaixo do rato) traz a sua peça à frente.
+- Palco escuro nos dois temas, formulário claro ou escuro; em 800 px o palco sobe para cima.
+- Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
 ## Como está feito
 
