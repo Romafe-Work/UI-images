@@ -142,30 +142,21 @@ não há componente e fica em CSS nosso. «A confirmar» é nome que ainda falta
 | Faixa de aviso | `— (CSS nosso)` | `— (CSS nosso)` |  |
 | Contador | `— (badge do DxButton não existe: CSS nosso)` | `— (CSS nosso)` |  |
 
-## Ecrãs iniciais do GoParts no estilo do getlayers.ai (14 out. 2026)
+## 00 · Abertura do GoParts em 3D (14 out. 2026)
 
-Ela pediu para o GoParts «este tipo de UIs» (https://www.getlayers.ai/), principalmente nos ecrãs
-iniciais. São versões novas, ao lado das que ela já viu: **00 · Abertura v4**, **00 · A página
-pública v5** e os ecrãs de entrar **01–04 v3** (e o estado 01.1). Código em
-`src/apps/goparts/camadas.ts`, `css/camadas.css` e `comportamento/camadas.ts`.
+Uma versão por ecrã (ela, 14 out.: «só quero uma versão por screen» e «vamos a um screen de cada vez»).
+A abertura é uma cena 3D em **Three.js** (sem React: o projeto não o usa), carregada à parte só quando
+a abertura aparece (`src/apps/goparts/comportamento/abertura-cena.ts`; o resto em `abertura.ts`,
+`comportamento/abertura.ts` e `css/abertura.css`). Em ~7 s: uma esfera sozinha → o rolamento (um
+SKF 6206 à escala) monta-se → vista explodida com as cotas a laranja → monta-se outra vez e desfaz-se
+em partículas → as partículas formam o ROMAFE (tirado da letra Motor) e dão lugar ao logótipo
+verdadeiro, com o GoParts e a linha laranja → passa à página pública, com a marca a voar para a barra.
 
-- O herói é um painel de cantos redondos com um **gradiente granulado em WebGL** que se mexe devagar
-  e segue o rato — azul da Romafe com veios laranja (ela: «o tema é azul e laranja», «está muito escuro»),
-  mais fundo no escuro (as cores são os tokens `--ly-s1..3`).
-  Só se desenham os painéis à vista; com «reduzir movimento» fica uma imagem parada; sem WebGL fica o
-  gradiente do CSS.
-- Títulos em Jost 300 (`'Jost Fino'`, o mesmo ficheiro com o peso todo), pílulas, letra de máquina
-  nas legendas, cartões com as fotografias e o vídeo da Romafe, os quatro passos, perguntas.
-- **O rolamento monta-se ao longo dos passos de entrar** (ela: «quero que um ecrã seja o seguimento do
-  outro, tipo rolamento a ser construído — referia-me isso para o ecrã 01»): 01.1 só o anel exterior,
-  01 e 04 as primeiras esferas, 02 e 03 a gaiola laranja e o anel interior; «Entrar» completa-o e só
-  depois passa ao Início. De um passo para o outro continua de onde estava (`--ly-g`, uma `@property`
-  com transição).
-- Na página pública fica só um «Entrar» na barra e outro no painel final; o herói leva «Pedir acesso»
-  e «Como funciona».
-- As ligações levam à versão certa com `data-ir-v` (por exemplo, a Abertura v4 passa à página
-  pública v5, e esta ao login v3) — vale para qualquer ecrã (`src/comum/ecras.ts`).
-- Passam a zero no `npm run medir`.
+- Arrasta-se o rolamento e a cena segue o rato; «Saltar» ou Esc vão já.
+- Passa inteira uma vez por sessão; depois mostra o logótipo, com «Ver outra vez».
+- Com «reduzir movimento», sem WebGL ou num aparelho fraco: só o logótipo.
+- Para rever um instante: `#so=ecra&ecra=abertura&pausa=3.4` congela a sequência aos 3,4 s.
+- Sem percentagem de carregamento (não havia o que medir de verdade).
 
 ## Como está feito
 

@@ -9,13 +9,9 @@ import { ecraPublico } from './publico';
 import { ecrasPublicoPaginas } from './publico-paginas';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro } from './erros/erros';
-import { versaoAberturaLy, versaoPublicoLy } from './camadas';
 
 /** Os ecrãs de carregamento e de erro, cada um como estado da página que mostra, numerados a seguir
  *  aos estados que ela já tem (10.8, 11.15, 12.8, 13.9, 14.9). */
-/** 14 out. 2026: as versões no estilo do getlayers.ai juntam-se no fim das que ela já viu (camadas.ts). */
-const comVersao = (e: EcraGoParts, v: EcraGoParts['versoes'][number]): EcraGoParts => ({ ...e, versoes: [...e.versoes, v] });
-
 const ONDE: Record<string, [IdGoParts, string]> = {
   'carga-pagina': ['inicio', '10.9 · A carregar o portal'], 'carga-inicio': ['inicio', '10.10 · Esqueleto do Início'], 'carga-pecas': ['inicio', '10.11 · Peças a carregar'],
   'erro-404': ['inicio', '10.12 · Página não encontrada'], 'erro-500': ['inicio', '10.13 · Erro do servidor'], 'erro-sessao': ['inicio', '10.14 · Sessão expirada'],
@@ -55,5 +51,5 @@ export const goparts: App<IdGoParts> = {
   /* 13 out. 2026: a abertura passa à página pública (publico.ts), e o «Entrar» dela leva ao login */
   /* 13 out. 2026: ela, «tudo o que seja carregamentos e erros deve estar distribuído pelas páginas» —
      os grupos Carregamento e Erros saíram; cada ecrã passa a estado da página que mostra (distribuir()) */
-  ecras: [comVersao(ecraAbertura(), versaoAberturaLy()), comVersao(ecraPublico(), versaoPublicoLy()), ...ecrasPublicoPaginas(), ...ecrasEntrar22(), ...distribuir()],
+  ecras: [ecraAbertura(), ecraPublico(), ...ecrasPublicoPaginas(), ...ecrasEntrar22(), ...distribuir()],
 };

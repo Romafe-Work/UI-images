@@ -8,23 +8,17 @@
    background escuro e não branco» — a barra e o rodapé do login também escurecem.)
    Vale para data-theme="dark" e para o modo automático com o sistema em escuro.
    ========================================================= */
-[data-theme="dark"] .pub, [data-theme="dark"] .abertura--v3, [data-theme="dark"] .login23 {
+[data-theme="dark"] .pub, [data-theme="dark"] .login23 {
   --pub-fundo: #141311; --pub-fundo-2: #1d1b18; --pub-texto: #f3efe8; --pub-texto-2: rgba(243, 239, 232, .64); --pub-linha: rgba(243, 239, 232, .14);
-  --ab-noite: #141311; --ab-tinta: #f3efe8; --ab-tinta-2: rgba(243, 239, 232, .64);
   --l23-noite: #141311; --l23-tinta: #f3efe8; --l23-tinta-2: rgba(243, 239, 232, .64);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .pub, :root:not([data-theme="light"]) .abertura--v3, :root:not([data-theme="light"]) .login23 {
+  :root:not([data-theme="light"]) .pub, :root:not([data-theme="light"]) .login23 {
     --pub-fundo: #141311; --pub-fundo-2: #1d1b18; --pub-texto: #f3efe8; --pub-texto-2: rgba(243, 239, 232, .64); --pub-linha: rgba(243, 239, 232, .14);
-    --ab-noite: #141311; --ab-tinta: #f3efe8; --ab-tinta-2: rgba(243, 239, 232, .64);
     --l23-noite: #141311; --l23-tinta: #f3efe8; --l23-tinta-2: rgba(243, 239, 232, .64);
   }
 }
 /* o que só muda no escuro: a barra e o rodapé do login, campos e linhas */
-:is([data-theme="dark"]) .ab3__risco { background: rgba(20, 20, 20, .14); }
-:is([data-theme="dark"]) .ab3__moldura { background: #1d1b18; }
-:is([data-theme="dark"]) .abertura--v3 .abertura__tempo { background: rgba(243, 239, 232, .14); }
-:is([data-theme="dark"]) .abertura--v3 .abertura__saltar.btn { border-color: rgba(243, 239, 232, .3); }
 :is([data-theme="dark"]) .pubp__input { background: #1d1b18; border-color: rgba(243, 239, 232, .25); }
 :is([data-theme="dark"]) .pubp__input::placeholder { color: rgba(243, 239, 232, .45); }
 :is([data-theme="dark"]) .login23__factos strong, :is([data-theme="dark"]) :is([data-theme="dark"]) .login23 .login22__vender a { color: #f3efe8; }
@@ -34,10 +28,6 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .login23 .login22__topo, :root:not([data-theme="light"]) .login23 .login22__rodape { background: #141311; border-color: rgba(243, 239, 232, .14); --c-texto: #f3efe8; --c-texto-2: rgba(243, 239, 232, .64); --c-borda: rgba(243, 239, 232, .18); color: #f3efe8; }
   :root:not([data-theme="light"]) .pub__rolo-rolamento circle[r="5"][fill="#faf8f5"] { fill: #141311; }
-  :root:not([data-theme="light"]) .ab3__risco { background: rgba(20, 20, 20, .14); }
-  :root:not([data-theme="light"]) .ab3__moldura { background: #1d1b18; }
-  :root:not([data-theme="light"]) .abertura--v3 .abertura__tempo { background: rgba(243, 239, 232, .14); }
-  :root:not([data-theme="light"]) .abertura--v3 .abertura__saltar.btn { border-color: rgba(243, 239, 232, .3); }
   :root:not([data-theme="light"]) .pubp__input { background: #1d1b18; border-color: rgba(243, 239, 232, .25); }
   :root:not([data-theme="light"]) .pubp__input::placeholder { color: rgba(243, 239, 232, .45); }
   :root:not([data-theme="light"]) .login23__factos strong, :root:not([data-theme="light"]) :root:not([data-theme="light"]) .login23 .login22__vender a { color: #f3efe8; }

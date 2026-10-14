@@ -1,92 +1,79 @@
 /* =========================================================
-   GOPARTS — 00 · Abertura v3 (13 out. 2026), na linguagem da página pública
-   A animação, uma só passagem (3 s; CSS, só transform, opacity e clip-path):
-     0,1–0,7 s  a placa ROMAFE | GoParts desce;
-     0,25–1,3 s as linhas do título sobem, 90 ms entre elas;
-     0,1–1,0 s  a moldura sobe; 0,2 s a fachada abre-se num círculo;
-     1,1 s      abre-se o corredor por cima; 2,0 s a separação;
-     cada foto  entra a 1,08 e assenta a 1, e a legenda aparece;
-     0,2–3,0 s  a linha laranja enche-se e a percentagem conta (comportamento/abertura.ts);
-     3,0 s      a moldura cresce e tudo desvanece (450 ms), e passa à página pública.
-   Com «reduzir movimento»: as fotos trocam sem círculo, nada sobe nem cresce.
+   GOPARTS — 00 · Abertura v5 (14 out. 2026): a abertura cinematográfica em 3D
+   O fundo é liso, sem gradientes nem brilhos: azul-noite no escuro, cinza-azulado claro no claro (a
+   cena lê --ab5-fundo). O canvas da cena ocupa o ecrã todo; por cima, em HTML: as cotas da vista
+   explodida (linhas laranja finas que se desenham), o logótipo verdadeiro (o ROMAFE em Motor, azul),
+   o GoParts, a linha laranja, a dica do arrasto e os botões.
+   Os estados vêm de comportamento/abertura.ts: .is-cena (a cena corre), .is-cotas (vista explodida),
+   .is-marca / .is-goparts / .is-linha (o logótipo, ao relógio da cena), .is-final (acabou: «Ver outra
+   vez»), .is-parada (sem animação: só o logótipo), .is-espera (a cena demora a carregar).
+   Só transform, opacity e stroke-dashoffset. Ecrã ajustável: o canvas segue a janela (100 % × 100vh,
+   min 520 px de altura); em 640 px o logótipo e os rótulos encolhem e as cotas laterais saem.
    ========================================================= */
-.abertura--v3 {
-  /* 13 out.: clara, com as três cores da página pública — papel, tinta e o laranja só na linha do tempo */
-  --ab-noite: #faf8f5; --ab-tinta: #141414; --ab-tinta-2: rgba(20, 20, 20, .62);
-  position: relative; min-height: 100vh; overflow: hidden; display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); grid-template-rows: auto 1fr auto;
-  gap: var(--e-5) var(--e-7, 64px); padding: var(--e-6) var(--e-7, 64px);
-  background: var(--ab-noite); color: var(--ab-tinta);
+.abertura--v5 {
+  --ab5-fundo: #e8edf3; --ab5-tinta: #0d1520; --ab5-tinta-2: rgba(13, 21, 32, .6); --ab5-linha: rgba(13, 21, 32, .16);
+  position: relative; min-height: max(100vh, 520px); overflow: hidden; background: var(--ab5-fundo); color: var(--ab5-tinta);
 }
-/* a placa branca da marca, em cima à esquerda (o ROMAFE só em fundo claro) */
-.ab3__placa { grid-column: 1; grid-row: 1; justify-self: start; align-self: start; display: flex; align-items: center; gap: var(--e-3); margin: 0; padding: 0; color: var(--ab-tinta); }
-.ab3__placa .romafe { font-size: 34px; line-height: 1; }
-.ab3__risco { width: 1px; height: 26px; background: rgba(20, 20, 20, .14); }
-.ab3__produto { font-family: var(--f-titulo); font-weight: 700; font-size: 22px; }
-/* o título enorme; a última linha a laranja, como na página pública */
-.ab3__titulo { grid-column: 1; grid-row: 2; align-self: center; margin: 0; font-family: var(--f-titulo); font-weight: 600; letter-spacing: -.03em; line-height: 1; font-size: clamp(56px, 7.6vw, 128px); }
-.ab3__linha { display: block; overflow: hidden; padding-bottom: .04em; }
-.ab3__linha > span { display: inline-block; }
-/* a moldura das fotografias, à direita */
-.ab3__moldura { grid-column: 2; grid-row: 1 / 3; position: relative; min-height: 60vh; border-radius: 28px; overflow: hidden; background: #f1ede6; }
-.ab3__foto { position: absolute; inset: 0; margin: 0; }
-.ab3__foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ab3__foto figcaption { position: absolute; left: 22px; bottom: 22px; padding: 10px 16px; border-radius: 12px; background: var(--ab-noite); color: var(--ab-tinta); font-family: var(--f-titulo); font-size: 18px; font-weight: 600; }
-/* em baixo: a linha laranja e a percentagem; «Saltar» em cima à direita */
-.ab3__carga { grid-column: 1 / -1; grid-row: 3; display: flex; align-items: center; gap: var(--e-4); }
-.abertura--v3 .abertura__tempo { flex: 1; height: 3px; border-radius: 3px; background: rgba(20, 20, 20, .12); overflow: hidden; }
-.abertura--v3 .abertura__tempo span { display: block; height: 100%; background: var(--c-acao); transform-origin: left center; transform: scaleX(0); }
-.ab3__carga p { margin: 0; font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--ab-tinta-2); white-space: nowrap; }
-.ab2__pct { display: inline-block; min-width: 4ch; margin-left: 6px; color: var(--ab-tinta); letter-spacing: .06em; font-variant-numeric: tabular-nums; }
-.abertura--v3 .abertura__saltar.btn { position: absolute; right: calc(var(--e-7, 64px) + 16px); top: calc(var(--e-6) + 16px); z-index: 2; min-height: 44px; padding: 0 var(--e-5); border-radius: var(--r-full); color: var(--ab-tinta); background: var(--ab-noite); border: 1px solid rgba(20, 20, 20, .3); }
-.abertura__saltar .btn__icone { width: 16px; height: 16px; transition: transform .15s var(--ease-out); }
+[data-theme="dark"] .abertura--v5 { --ab5-fundo: #06131f; --ab5-tinta: #eef2f7; --ab5-tinta-2: rgba(238, 242, 247, .6); --ab5-linha: rgba(255, 255, 255, .16); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .abertura--v5 { --ab5-fundo: #06131f; --ab5-tinta: #eef2f7; --ab5-tinta-2: rgba(238, 242, 247, .6); --ab5-linha: rgba(255, 255, 255, .16); }
+}
+
+.ab5__cena { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; opacity: 0; transition: opacity .6s ease; }
+.ab5__cena.is-arrastar { cursor: grabbing; }
+.is-cena .ab5__cena { opacity: 1; }
+.is-marca .ab5__cena { cursor: default; }
+
+/* ---------- as cotas da vista explodida ---------- */
+.ab5__cotas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.ab5__cota line { stroke: var(--c-acao); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s cubic-bezier(.22, 1, .36, 1); }
+.ab5__cota circle { fill: none; stroke: var(--c-acao); stroke-width: 1.25; opacity: 0; transition: opacity .3s ease; }
+.is-cotas .ab5__cota line { stroke-dashoffset: 0; }
+.is-cotas .ab5__cota circle { opacity: 1; }
+.is-cotas .ab5__cota:nth-child(2) line { transition-delay: .06s; } .is-cotas .ab5__cota:nth-child(3) line { transition-delay: .12s; }
+.is-cotas .ab5__cota:nth-child(4) line { transition-delay: .18s; } .is-cotas .ab5__cota:nth-child(5) line { transition-delay: .24s; }
+.ab5__rotulos { position: absolute; inset: 0; pointer-events: none; }
+.ab5__rotulo { position: absolute; left: 0; top: 0; padding: 3px 8px; font-family: var(--f-mono); font-size: 12px; color: var(--ab5-tinta); white-space: nowrap; border-left: 1px solid var(--c-acao); opacity: 0; transition: opacity .3s ease .25s; }
+.ab5__rotulo.is-esq { border-left: 0; border-right: 1px solid var(--c-acao); }
+.ab5__rotulo--titulo { left: 32px; top: 32px; transform: none !important; color: var(--ab5-tinta-2); border-left-color: var(--ab5-linha); }
+.is-cotas .ab5__rotulo { opacity: 1; }
+
+/* ---------- o logótipo: o verdadeiro, em HTML, por cima do sítio onde as partículas assentam ---------- */
+.ab5__marca { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 10px; pointer-events: none; }
+.ab5__romafe.romafe { font-size: clamp(64px, 11vw, 168px); line-height: .9; opacity: 0; transition: opacity .45s ease; }
+.ab5__goparts { font-family: var(--f-titulo); font-weight: 600; font-size: clamp(22px, 2.6vw, 36px); letter-spacing: .02em; color: var(--ab5-tinta); opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .6s cubic-bezier(.22, 1, .36, 1); }
+.ab5__linha { display: block; width: min(420px, 60vw); height: 2px; background: var(--c-acao); transform: scaleX(0); transform-origin: left center; transition: transform .6s cubic-bezier(.65, 0, .35, 1); }
+.is-marca .ab5__romafe { opacity: 1; }
+.is-goparts .ab5__goparts { opacity: 1; transform: none; }
+.is-linha .ab5__linha { transform: scaleX(1); }
+
+/* ---------- a dica, a espera e os botões ---------- */
+.ab5__dica { position: absolute; left: 50%; bottom: 40px; display: inline-flex; align-items: center; gap: 8px; margin: 0; transform: translateX(-50%); font-family: var(--f-mono); font-size: 12px; color: var(--ab5-tinta-2); opacity: 0; transition: opacity .4s ease; pointer-events: none; white-space: nowrap; }
+.ab5__dica svg { width: 16px; height: 16px; color: var(--c-acao); }
+.is-cena:not(.is-marca) .ab5__dica { opacity: 1; transition-delay: 1.2s; }
+.ab5__espera { position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%); font-family: var(--f-mono); font-size: 13px; color: var(--ab5-tinta-2); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+.is-espera .ab5__espera { opacity: 1; }
+.ab5__accoes { position: absolute; right: 24px; top: 20px; display: flex; gap: 8px; }
+.ab5__botao.btn { min-height: 42px; padding: 0 18px; border-radius: 999px; background: transparent; color: var(--ab5-tinta); border: 1px solid var(--ab5-linha); gap: 10px; }
+.ab5__botao .btn__icone { width: 16px; height: 16px; color: var(--c-acao); transition: transform .2s var(--ease-out); }
+.ab5__repetir[hidden] { display: none; }
 @media (hover: hover) and (pointer: fine) {
-  .abertura--v3 .abertura__saltar.btn { transition: border-color .15s ease; }
-  .abertura--v3 .abertura__saltar.btn:hover { border-color: var(--c-acao); }
+  .ab5__botao.btn { transition: border-color .15s ease; }
+  .ab5__botao.btn:hover { border-color: var(--c-acao); background: transparent; }
   .abertura__saltar.btn:hover .btn__icone { transform: translateX(3px); }
 }
+.ab5__botao.btn:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
 
-/* ---------- a animação ---------- */
-.ab3__placa { animation: ab3-descer .6s var(--ease-out) .1s both; }
-.ab3__linha > span { animation: ab3-subir .9s var(--ease-out) calc(.25s + var(--i) * 90ms) both; }
-.ab3__moldura { animation: ab3-moldura .9s var(--ease-out) .1s both; }
-.ab3__foto { animation: ab3-abrir 1s var(--ease-out) calc(.2s + var(--i) * .9s) both; }
-.ab3__foto img { animation: ab3-assentar 1.6s var(--ease-out) calc(.2s + var(--i) * .9s) both; }
-.ab3__foto figcaption { animation: ab3-legenda .5s var(--ease-out) calc(.7s + var(--i) * .9s) both; }
-.abertura--v3 .abertura__tempo span { animation: ab3-tempo 2.8s linear .2s both; }
-.ab3__carga, .abertura--v3 .abertura__saltar { animation: ab3-aparecer .5s var(--ease-out) .6s both; }
-@keyframes ab3-descer { from { opacity: 0; transform: translateY(-16px); } }
-@keyframes ab3-subir { from { transform: translateY(108%); } }
-@keyframes ab3-moldura { from { opacity: 0; transform: translateY(40px) scale(.97); } }
-@keyframes ab3-abrir { from { clip-path: circle(0% at 50% 55%); } to { clip-path: circle(80% at 50% 55%); } }
-@keyframes ab3-assentar { from { transform: scale(1.08); } }
-@keyframes ab3-legenda { from { opacity: 0; transform: translateY(8px); } }
-@keyframes ab3-tempo { to { transform: scaleX(1); } }
-@keyframes ab3-aparecer { from { opacity: 0; } }
-/* a saída: a moldura cresce e tudo desvanece */
-.abertura--v3.is-a-sair > * { opacity: 0; transition: opacity .4s var(--ease-out); }
-.abertura--v3.is-a-sair .ab3__moldura { transform: scale(1.06); transition: opacity .45s var(--ease-out), transform .45s var(--ease-out); }
+/* parada (reduzir movimento, sem WebGL, aparelho fraco): só o logótipo, com um desvanecer curto */
+.is-parada .ab5__romafe, .is-parada .ab5__goparts, .is-parada .ab5__linha { transition: opacity .35s ease; transform: none; }
 
-@media (prefers-reduced-motion: reduce) {
-  .ab3__placa, .ab3__linha > span, .ab3__moldura, .ab3__foto figcaption, .ab3__carga, .abertura--v3 .abertura__saltar { animation: ab3-aparecer .2s ease both; }
-  .ab3__foto { animation: ab3-aparecer .2s ease calc(var(--i) * .45s) both; }
-  .ab3__foto img { animation: none; }
-  .abertura--v3 .abertura__tempo span { animation-duration: 1.3s; }
-  .abertura--v3.is-a-sair .ab3__moldura { transform: none; }
-}
-@media (max-width: 900px) {
-  .abertura--v3 { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; padding: var(--e-5); gap: var(--e-4); }
-  .ab3__titulo { grid-row: 2; font-size: clamp(52px, 14vw, 110px); }
-  .ab3__moldura { grid-column: 1; grid-row: 3; min-height: 34vh; border-radius: 20px; }
-  .ab3__carga { grid-row: 4; }
-  .abertura--v3 .abertura__saltar.btn { right: var(--e-5); top: var(--e-5); }
-}
 @media (max-width: 640px) {
-  .ab3__placa { padding: 8px 14px; border-radius: 10px; }
-  .ab3__placa .romafe { font-size: 24px; }
-  .ab3__produto { font-size: 17px; }
-  .ab3__risco { height: 20px; }
-  .ab3__foto figcaption { left: 12px; bottom: 12px; font-size: 15px; padding: 8px 12px; }
-  .abertura--v3 .abertura__saltar.btn { min-height: 40px; padding: 0 var(--e-3); }
-  .ab3__carga p { letter-spacing: .1em; font-size: 12px; }
+  .ab5__accoes { right: 12px; top: 12px; }
+  .ab5__botao.btn { padding: 0 14px; }
+  .ab5__rotulo { font-size: 11px; }
+  .ab5__cota[data-cota="gai"], .ab5__rotulo[data-cota="gai"], .ab5__cota[data-cota="lar"], .ab5__rotulo[data-cota="lar"], .ab5__rotulo--titulo { display: none; }
 }
+
+/* a passagem à página pública: a marca do centro voa para a barra (comportamento/abertura.ts) */
+::view-transition-group(goparts-marca) { animation-duration: .75s; animation-timing-function: cubic-bezier(.65, 0, .35, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .45s; }

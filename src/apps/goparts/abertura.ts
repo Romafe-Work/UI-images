@@ -1,41 +1,66 @@
 /* =========================================================
-   GOPARTS — 00 · Abertura (13 out. 2026)
-   O que se vê ao abrir o GoParts, uma vez por sessão; ao fim de 3 s passa sozinha à
-   página pública (comportamento/abertura.ts). «Saltar» vai já.
-   Ela teve a v1 (o rolamento em fundo claro) e a v2 (pela imagem dela, com os
-   rolamentos grandes nos cantos) — «só queria uma versão na abertura» — e depois,
-   ao lado da página pública escura: «a abertura está feia». Esta v3 fica na mesma
-   linguagem da página pública: azul-noite, «Rolling your way.» a subir linha a linha,
-   uma moldura grande em que as fotografias da Romafe (fachada, corredor, separação)
-   se abrem com um círculo, uma de cada vez, e a marca numa placa branca (o ROMAFE só
-   vai em fundo claro); em baixo, a linha laranja com a percentagem. À saída, a
-   moldura cresce. Os factos das legendas são os da página pública.
-   Depois (13 out.), clara como a página pública: papel, tinta e o laranja só na linha do
-   tempo; o lema em frase («Rolling your way.»), sem maiúsculas de cartaz.
+   GOPARTS — 00 · Abertura (14 out. 2026): a abertura cinematográfica em 3D
+   A história: v1 o rolamento em fundo claro; v2 pela imagem dela; v3 as fotografias da Romafe
+   numa moldura; v4 no estilo do getlayers.ai com um fumo azul e laranja («não gosto»). Depois ela
+   mandou o briefing: «um rolamento mecânico 3D que se desmonta, transforma as suas peças em
+   partículas e revela o logótipo ROMAFE, antes de entrar suavemente no GoParts» — abertura de
+   cerca de 7 s, fundo azul-noite liso, sem brilhos nem gradientes, laranja contido, o logótipo
+   verdadeiro (não refeito em 3D), saltar, e não repetir em cada navegação. E «só quero uma
+   versão por screen»: esta é a única.
+
+   A sequência (comportamento/abertura-cena.ts, Three.js, um só ciclo de animação):
+     0–1 s     uma esfera de aço sozinha, a flutuar e a rodar, com profundidade;
+     1–2,5 s   o rolamento monta-se: o anel exterior, as 9 esferas uma a uma, a gaiola, o anel interior
+               (as medidas são as de um SKF 6206: D 62, d 30, B 16 mm, esferas de 9,525 mm);
+     2,5–4,2 s vista explodida: as peças afastam-se ao longo do eixo e as cotas aparecem a laranja,
+               finas, ligadas às peças; depois voltam a montar-se;
+     4,2–5,5 s as peças desfazem-se em partículas, a câmara avança, e as partículas voam até à forma
+               exata do ROMAFE (tirada da própria letra Motor);
+     5,5–6,4 s as partículas dão lugar ao logótipo verdadeiro (HTML, azul, Motor); o GoParts aparece
+               por baixo e a linha laranja desenha-se;
+     6,6 s     passa à página pública: a marca voa para a barra de cima (View Transitions).
+   Antes do logótipo, o rolamento roda com o arrasto (rato ou dedo) e a cena segue o rato.
+   «Saltar» (ou Esc) vai já. A sequência inteira só passa uma vez por sessão; depois mostra o
+   logótipo, com «Ver outra vez». Com «reduzir movimento», ou sem WebGL, mostra só o logótipo.
    ========================================================= */
 import type { EcraGoParts } from './ids';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
-import fachada from '../../comum/img/fachada.webp';
-import corredor from '../../comum/img/corredor.webp';
-import separacao from '../../comum/img/separacao.webp';
+import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
+import move3d from 'lucide-static/icons/move-3d.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
-const LINHA = (t: string, i: number) => `<span class="ab3__linha"><span style="--i:${i}">${t}</span></span>`;
-const FOTOS: [string, string][] = [[fachada, 'Desde 1945, no Porto'], [corredor, '6 000 m² de armazém'], [separacao, '75 000 referências auto']];
 
-const html = `<main class="abertura abertura--v3" aria-label="GoParts, da Romafe: a abrir">
-  <p class="ab3__placa"><span class="romafe">ROMAFE</span><span class="ab3__risco" aria-hidden="true"></span><span class="ab3__produto">GoParts</span></p>
-  <h1 class="ab3__titulo">${LINHA('Rolling', 0)}${LINHA('your way.', 1)}</h1>
-  <div class="ab3__moldura" aria-hidden="true">${FOTOS.map(([img, t], i) => `<figure class="ab3__foto" style="--i:${i}"><img src="${img}" alt=""><figcaption>${t}</figcaption></figure>`).join('')}</div>
-  <div class="ab3__carga"><span class="abertura__tempo" role="progressbar" aria-label="A carregar"><span></span></span><p>A carregar o GoParts <b class="ab2__pct">0%</b></p></div>
-  <button type="button" class="btn btn--ghost abertura__saltar" data-ir="publico"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
+/* as cotas da vista explodida: a linha vai da peça (a âncora, que a cena projeta em cada frame) ao texto */
+const COTAS: [string, string][] = [
+  ['ext', 'D 62 mm · anel exterior'],
+  ['esf', '9 esferas · Ø 9,525 mm'],
+  ['gai', 'Gaiola'],
+  ['int', 'd 30 mm · anel interior'],
+  ['lar', 'B 16 mm'],
+];
+
+const html = `<main class="abertura abertura--v5" aria-label="GoParts, da Romafe: a abrir">
+  <canvas class="ab5__cena" aria-hidden="true"></canvas>
+  <svg class="ab5__cotas" aria-hidden="true">${COTAS.map(([k]) => `<g class="ab5__cota" data-cota="${k}"><line pathLength="1"/><circle r="3"/></g>`).join('')}</svg>
+  <div class="ab5__rotulos" aria-hidden="true">${COTAS.map(([k, t]) => `<span class="ab5__rotulo" data-cota="${k}">${t}</span>`).join('')}<span class="ab5__rotulo ab5__rotulo--titulo">SKF 6206 · rolamento rígido de esferas</span></div>
+  <div class="ab5__marca">
+    <span class="romafe ab5__romafe">ROMAFE</span>
+    <span class="ab5__goparts">GoParts</span>
+    <i class="ab5__linha" aria-hidden="true"></i>
+  </div>
+  <p class="ab5__dica" aria-hidden="true">${L(move3d)}Arraste para rodar o rolamento</p>
+  <p class="ab5__espera" role="status">A preparar a cena…</p>
+  <div class="ab5__accoes">
+    <button type="button" class="btn ab5__botao ab5__repetir" data-repetir hidden>${L(rotateCcw, 'btn__icone')}<span class="btn__rotulo">Ver outra vez</span></button>
+    <button type="button" class="btn ab5__botao abertura__saltar" data-ir="publico"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
+  </div>
 </main>`;
 
 export function ecraAbertura(): EcraGoParts {
   return {
     id: 'abertura', nome: '00 · Abertura', fluxo: 'Entrar',
-    objetivo: 'O que se vê ao abrir o GoParts, uma vez por sessão: «Rolling your way.» e as fotografias da Romafe a abrirem-se, a percentagem a contar; ao fim de 3 s passa à página pública.',
-    /* 13 out. 2026: uma versão só (ela); a v2 (clara, com rolamentos) foi «feia» ao lado da página pública e saiu */
-    versoes: [{ id: 'v3', nota: 'Na linguagem da página pública (13 out.): azul-noite, «Rolling your way.» linha a linha, as fotografias da Romafe a abrirem-se num círculo, a marca numa placa branca e a percentagem; à saída a moldura cresce', html }],
+    objetivo: 'A entrada no GoParts, na primeira visita: um rolamento 3D monta-se, desmonta-se em vista explodida com as cotas, desfaz-se em partículas que formam o ROMAFE, e passa à página pública. Salta-se com «Saltar» ou Esc.',
+    /* 14 out. 2026: «só quero uma versão por screen» — as anteriores saíram */
+    versoes: [{ id: 'v5', nota: 'A única (14 out.): abertura cinematográfica em 3D (Three.js) — o rolamento SKF 6206 monta-se, abre em vista explodida com as cotas a laranja, desfaz-se em partículas que formam o ROMAFE; o GoParts e a linha laranja; passa à página pública', html }],
   };
 }
