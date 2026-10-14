@@ -31,8 +31,8 @@
   border: 1px solid rgba(255,255,255,.18);
   transition: transform .6s cubic-bezier(.2,.8,.2,1), width .6s cubic-bezier(.2,.8,.2,1), opacity .4s ease, filter .4s ease;
 }
-.c22__cartao--azul { background: linear-gradient(135deg, var(--v22-azul) 0%, var(--v22-azul-2) 100%); }
-.c22__cartao--laranja { background: linear-gradient(135deg, #f08a24 0%, #b85a00 100%); }
+.c22__cartao--azul { background: var(--v22-azul); }
+.c22__cartao--laranja { background: #d4700f; }
 /* o brilho em diagonal da imagem: uma faixa clara e larga, atrás de tudo */
 .c22__cartao::before {
   content: ''; position: absolute; inset: -40% -10%; pointer-events: none;

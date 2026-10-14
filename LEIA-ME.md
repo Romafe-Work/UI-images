@@ -451,3 +451,24 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - A risca laranja desliza entre os separadores. Um MutationObserver volta a pôr tudo isto quando a ficha se refaz (por exemplo, ao abrir uma equivalência).
 - **Limites:** não há fotografias reais das peças (fica «Fotografia indisponível»), por isso não há zoom nem 360°; não há modelos 3D verificados para uma vista explodida; as confirmações são simuladas, porque não há servidor.
 - Código: `comportamento/catalogo-v6.ts` (`fichaV6`, `decorarFicha`) e `css/catalogo-v6.css`.
+
+### O escuro grafite (15 out. 2026)
+- A paleta «ROMAFE — Dark Industrial» que ela mandou substitui o azul-noite em todo o portal do GoParts (Início, Catálogo, Pedidos, Guias, Faturas e Minha lista), só no tema escuro. Os valores estão uma só vez em `css/noite.css` (`--g-*`); os tokens do portal (`--c-*`) e do Início (`--i3-*`) apontam para eles.
+- O azul #0873BC fica para fundos, riscas e indicadores (`--azul-fundo`). Em texto sobre o grafite não chega ao contraste de 4,5:1, por isso as ligações usam o mesmo azul aclarado (#5AA9E6). O ROMAFE do logótipo não muda.
+- No escuro, os painéis dos filtros deixam de ser azuis: passam a superfície grafite com uma risca azul fina em cima. Saíram os gradientes das cabeças dos cartões (Início, filtros, estados e a faixa do Entrar).
+
+### Cartões ou Tabela, e as imagens dos Veículos (15 out. 2026)
+- Marcas e Modelos têm «Cartões | Tabela». Na tabela, as colunas com ↑↓ ordenam-se (Marca e Modelos; Modelo, Fabricado desde e Fabricado até); outro clique inverte. São os mesmos elementos, por isso a procura, a estrela e os filtros valem nas duas formas. A escolha fica guardada no browser.
+- Os Veículos têm uma coluna com a silhueta da carroçaria (não há fotografias licenciadas).
+- Código: `comportamento/catalogo-vistas.ts`.
+
+### A ficha da peça v4 e os seis separadores (15 out. 2026)
+- Sem fotografia, a imagem é um lugar discreto (4:3, «Sem fotografia») em vez do cubo grande.
+- **Separadores:** compactos, com a contagem pequena e a risca laranja a deslizar. O conteúdo anterior desvanece em 120 ms e o novo entra com 8 px em 220 ms. Navega-se com ← → Início Fim. A altura não se anima (regra dela).
+- **OE:** diretório por fabricante, uma linha por número, com «Copiar» (passa a «Copiado»). A linha escolhida leva a risca azul. Não há «Pesquisar», porque o protótipo não tem a procura por número de origem.
+- **Veículos aplicáveis:** agrupados por modelo, com a silhueta. O (i) abre os dados técnicos; Veículo, Ano, kW e cv ordenam-se. O do cliente tem fundo mais claro, a risca azul e «O seu veículo». «Ver peças deste veículo» leva ao Grupo montagem desse veículo.
+- **Características:** grupos (Medidas, Construção e montagem, Informação), com a propriedade à esquerda e o valor à direita, e a unidade à parte. Só aparecem os dados que existem.
+- **Documentos:** linhas compactas com o tipo e o tamanho. Não há ficheiros, por isso «Descarregar» diz «Ficheiro por ligar» em vez de fingir.
+- **Telemóvel:** uma barra presa em baixo com o preço líquido e «Adicionar».
+- **Estados 11.25–11.43:** a ficha a carregar; referência indisponível; sem stock; o stock a carregar; erro no stock; quantidade inválida; a adicionar, adicionada e não adicionada; sem equivalências, OE, veículos, características ou documentos; documento a preparar; erro no documento; sessão terminada; sem permissão; sem ligação.
+- Código: `comportamento/ficha-peca.ts`, os estados em `portal/estados.ts` e o CSS no fim de `css/catalogo-v6.css`.

@@ -31,7 +31,8 @@ export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vaz
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
-  | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga';
+  | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga'
+  | 'catalogo-ficha-carga' | 'catalogo-ficha-indisponivel' | 'catalogo-ficha-sem-stock' | 'catalogo-ficha-stock-carga' | 'catalogo-ficha-stock-erro' | 'catalogo-ficha-qtd' | 'catalogo-ficha-a-adicionar' | 'catalogo-ficha-adicionada' | 'catalogo-ficha-nao-adicionada' | 'catalogo-ficha-sem-equivalencias' | 'catalogo-ficha-sem-oe' | 'catalogo-ficha-sem-veiculos' | 'catalogo-ficha-sem-caracteristicas' | 'catalogo-ficha-sem-documentos' | 'catalogo-ficha-documento-carga' | 'catalogo-ficha-documento-erro' | 'catalogo-ficha-sessao' | 'catalogo-ficha-sem-permissao' | 'catalogo-ficha-offline';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -335,6 +336,126 @@ const catalogoSemReferencias = () => catalogo(mudar(catalogoV5, 'e1118', (r) => 
   corpo.closest('table')!.insertAdjacentHTML('afterend', `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não há referências de «Bomba de água» para o BMW 1 (E81) 118d.</strong> A Romafe pode procurá-la ao fabricante: diga a matrícula e ligamos com o preço e o prazo.</p><div class="est-aviso__botoes">${BOTAO('Ver o grupo Universal', IC.grelha, 'btn--ghost btn--sm')}${BOTAO('Pedir à Romafe', IC.denovo, 'btn--acao btn--sm')}</div></div>`);
 }));
 
+
+/* ================= 11.25–11.43 · a ficha da peça (15 out.: o briefing «Product Details V4», ponto 12) =================
+   Todos partem do 11.13 (o SKF VKMC 01250-2 do BMW 1 (E81) 116i) e mudam só o que o estado muda. Cada separador
+   vazio diz porquê e dá uma saída; os erros não fingem nada (o carrinho só confirma depois do servidor). */
+const fichaBase = (prefixo: string, f: (r: HTMLElement, main: HTMLElement) => void) => catalogo(mudar(catalogoV5, prefixo, (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  Object.assign(main.dataset, { marca: 'BMW', modelo: '1 (E81)', versao: '116i' });
+  abrirReferencias(main, '', [], 'veiculo');
+  abrirDetalhes(main, 'SKF', 'VKMC 01250-2');
+  mostrar(main, 'detalhes');
+  fluxo(main, 'detalhes');
+  $(r, '.cat5__logo').innerHTML = $(r, '.cat2__marca[data-nome="BMW"] .cat2__logo').outerHTML;
+  f(r, main);
+}));
+/** O separador aberto num estado. */
+const abaEstado = (r: HTMLElement, k: string) => {
+  $$(r, '.cat5__aba').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.aba === k)));
+  $$(r, '.cat5__aba-corpo').forEach((c) => { if (c.dataset.corpo === k) c.removeAttribute('hidden'); else c.setAttribute('hidden', ''); });
+};
+const vazioAba = (r: HTMLElement, k: string, icone: string, titulo: string, texto: string, botoes = '') => {
+  abaEstado(r, k);
+  $(r, `[data-corpo="${k}"]`).innerHTML = `<div class="est-vazio est-vazio--largo cat6__aba-vazia">${I(icone)}<p><strong>${titulo}</strong> ${texto}</p>${botoes ? `<div class="est-aviso__botoes">${botoes}</div>` : ''}</div>`;
+  const n = $(r, `.cat5__aba[data-aba="${k}"] .cat5__aba-n`); if (n) n.textContent = '';
+};
+const compra = (r: HTMLElement) => $(r, '.cat5__peca-compra');
+const IC_DOC = '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>';
+const IC_CADEADO = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
+
+/* 11.25 · a ficha a carregar: o esqueleto tem a forma da ficha (imagem, identidade, compra, separadores) */
+const fichaCarga = () => fichaBase('e1125', (r) => {
+  $(r, '.cat5__peca-info').innerHTML = `<div class="est-pilha">${E('30%')}${E('55%', 'esq--titulo')}${E('70%')}${E('90%')}${E('80%')}</div>`;
+  compra(r).innerHTML = `<div class="est-pilha">${E('40%')}${E('60%', 'esq--titulo')}${E('50%')}${E('100%', 'esq--botao')}${E('100%', 'esq--botao')}</div>`;
+  $(r, '[data-corpo="stock"]').innerHTML = `<p class="cat6__carga-aba">${GIRADOR()}<span>A carregar a ficha da VKMC 01250-2…</span></p>${[90, 75].map((w) => `<div class="est-linha">${E(w)}</div>`).join('')}`;
+  $$(r, '.cat5__aba-n').forEach((n) => { n.textContent = ''; });
+});
+/* 11.26 · a referência deixou de ser fornecida: diz-se logo, e a saída são as equivalências */
+const fichaIndisponivel = () => fichaBase('e1126', (r) => {
+  compra(r).querySelectorAll('button').forEach((b) => b.setAttribute('disabled', ''));
+  $(r, '.cat5__peca-info').insertAdjacentHTML('afterbegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'Esta referência deixou de ser fornecida pelo fabricante.', 'Não se pode pedir; as equivalências mostram o que a substitui.', BOTAO('Ver equivalências', IC.grelha, 'btn--claro btn--sm')));
+});
+/* 11.27 · sem stock nos dois armazéns: não se inventa prazo */
+const fichaSemStock = () => fichaBase('e1127', (r) => {
+  $$(r, '[data-corpo="stock"] tbody tr').forEach((tr) => { const c = tr.querySelectorAll('td'); c[1].innerHTML = '<span class="cat5__stock cat5__stock--sem">Sem stock</span>'; c[2].textContent = 'Por encomenda · prazo a confirmar'; });
+  $(r, '.cat5__peca-stock').innerHTML = '<span class="cat5__stock cat5__stock--sem">Sem stock</span><span>Porto 0 · Sacavém 0</span>';
+  compra(r).querySelector('.cat5__adicionar')!.setAttribute('disabled', '');
+  $(r, '[data-corpo="stock"]').insertAdjacentHTML('afterbegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.caixa)}</span>`, 'Sem stock no Porto nem em Sacavém.', 'A Romafe confirma o prazo com o fabricante pelo telefone; as equivalências podem ter stock.', BOTAO('Ver equivalências', IC.grelha, 'btn--claro btn--sm')));
+});
+/* 11.28 · só o stock espera: as linhas em esqueleto, o resto da ficha já está */
+const fichaStockCarga = () => fichaBase('e1128', (r) => {
+  $(r, '[data-corpo="stock"] tbody').innerHTML = [0, 1].map(() => `<tr><td>${E('60%')}</td><td>${E('40%')}</td><td>${E('70%')}</td><td></td></tr>`).join('');
+  $(r, '[data-corpo="stock"]').insertAdjacentHTML('afterbegin', `<p class="cat6__carga-aba">${GIRADOR()}<span>A confirmar o stock no Porto e em Sacavém…</span></p>`);
+  $(r, '.cat5__peca-stock').innerHTML = `${E('120px')}`;
+});
+/* 11.29 · o stock não chegou: o preço continua; pedir espera pelo stock */
+const fichaStockErro = () => fichaBase('e1129', (r) => {
+  $(r, '[data-corpo="stock"] .cg-tabela').remove();
+  $(r, '.cat5__peca-stock').innerHTML = '<span>Stock por confirmar</span>';
+  compra(r).querySelector('.cat5__adicionar')!.setAttribute('disabled', '');
+  $(r, '[data-corpo="stock"]').insertAdjacentHTML('afterbegin', faixa('erro', rolamentoSvg('e1129-rs', 'erro', 'cat6__rs-faixa'), 'Não foi possível confirmar o stock.', 'O preço está certo; o pedido fica à espera do stock.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 11.30 · quantidade inválida: diz o que está mal e o que se pode pedir */
+const fichaQtd = () => fichaBase('e1130', (r) => {
+  const i = compra(r).querySelector<HTMLInputElement>('.cat5__qtd-n')!;
+  i.setAttribute('value', '0'); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', 'e1130-erro');
+  compra(r).querySelector('.cat5__adicionar')!.setAttribute('disabled', '');
+  compra(r).querySelector('.cat5__peca-pedir')!.insertAdjacentHTML('afterend', `<p class="cat6__qtd-erro" id="e1130-erro" role="alert">${I(IC.aviso)}A quantidade tem de ser pelo menos 1 (há 7 un. nos dois armazéns).</p>`);
+});
+/* 11.31 · a adicionar: o rolamento no botão; nada voa antes da confirmação */
+const fichaAAdicionar = () => fichaBase('e1131', (r) => {
+  const b = compra(r).querySelector<HTMLElement>('.cat5__adicionar')!;
+  b.setAttribute('aria-busy', 'true'); b.setAttribute('disabled', '');
+  b.innerHTML = `${GIRADOR('girador--claro')}<span class="btn__rotulo">A adicionar…</span>`;
+});
+/* 11.32 · adicionada: a confirmação depois do servidor, com «Ver carrinho» */
+const fichaAdicionada = () => fichaBase('e1132', (r) => {
+  const b = compra(r).querySelector<HTMLElement>('.cat5__adicionar')!;
+  b.classList.add('is-feito'); b.innerHTML = `${I('<path d="M20 6 9 17l-5-5"/>', 'btn__icone')}<span class="btn__rotulo">Adicionado</span>`;
+  compra(r).insertAdjacentHTML('beforeend', `<p class="cat6__toast" role="status"><span>${I('<path d="M20 6 9 17l-5-5"/>')}1 unidade adicionada ao carrinho. <button type="button" class="cat3__ligacao" disabled title="Ainda sem ecrã">Ver carrinho</button></span></p>`);
+});
+/* 11.33 · o carrinho não aceitou: nada se finge */
+const fichaNaoAdicionada = () => fichaBase('e1133', (r) => {
+  const b = compra(r).querySelector<HTMLElement>('.cat5__adicionar')!;
+  b.classList.add('cat6__nao'); b.innerHTML = `${I(IC.aviso, 'btn__icone')}<span class="btn__rotulo">Não adicionado</span>`;
+  compra(r).insertAdjacentHTML('beforeend', faixa('erro', rolamentoSvg('e1133-rs', 'erro', 'cat6__rs-faixa'), 'O carrinho não aceitou a VKMC 01250-2.', 'Nada foi adicionado; a quantidade continua escolhida.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 11.34–11.38 · os separadores sem dados */
+const fichaSemEquivalencias = () => fichaBase('e1134', (r) => vazioAba(r, 'equivalencias', IC.lupa, 'Não conhecemos equivalências para a VKMC 01250-2.', 'Os outros fabricantes deste grupo podem servir; confirme pelos números OE.', BOTAO('Ver os números OE', IC.grelha, 'btn--ghost btn--sm')));
+const fichaSemOe = () => fichaBase('e1135', (r) => vazioAba(r, 'oe', IC.lupa, 'Esta referência não tem números de origem registados.', 'O fabricante não os indicou; a aplicação nos veículos continua confirmada.'));
+const fichaSemVeiculos = () => fichaBase('e1136', (r) => vazioAba(r, 'veiculos', IC.carro, 'Não há veículos confirmados para esta referência.', 'Sem confirmação do fabricante, não a damos como compatível com nenhum veículo.', BOTAO('Falar com a Romafe', IC.telefone, 'btn--ghost btn--sm')));
+const fichaSemCaracteristicas = () => fichaBase('e1137', (r) => vazioAba(r, 'caracteristicas', IC_DOC, 'O fabricante ainda não enviou as características.', 'As medidas aparecem aqui quando chegarem; a ficha técnica pode tê-las.', BOTAO('Ver documentos', IC_DOC, 'btn--ghost btn--sm')));
+const fichaSemDocumentos = () => fichaBase('e1138', (r) => vazioAba(r, 'documentos', IC_DOC, 'Sem documentos para esta referência.', 'O fabricante não publicou instruções nem ficha técnica.'));
+/* 11.39 · um documento a preparar: só o seu botão espera */
+const fichaDocumentoCarga = () => fichaBase('e1139', (r) => {
+  abaEstado(r, 'documentos');
+  const b = $$(r, '[data-corpo="documentos"] li button')[1];
+  b.setAttribute('aria-busy', 'true'); b.innerHTML = `${GIRADOR()}<span class="btn__rotulo">A preparar…</span>`;
+});
+/* 11.40 · o documento não descarregou */
+const fichaDocumentoErro = () => fichaBase('e1140', (r) => {
+  abaEstado(r, 'documentos');
+  $(r, '[data-corpo="documentos"]').insertAdjacentHTML('afterbegin', faixa('erro', rolamentoSvg('e1140-rs', 'erro', 'cat6__rs-faixa'), 'Não foi possível descarregar a «Ficha técnica».', 'O ficheiro não respondeu; os outros documentos continuam disponíveis.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 11.41 · a sessão terminou: a ficha fica onde está, comprar pede para entrar outra vez */
+const fichaSessao = () => fichaBase('e1141', (r) => {
+  compra(r).querySelectorAll('button').forEach((b) => b.setAttribute('disabled', ''));
+  $(r, '.cat5__peca').insertAdjacentHTML('beforebegin', `<div class="cat6__faixa-largo">${faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para pedir; a ficha e a quantidade ficam como estão.', BOTAO('Entrar', IC_CADEADO, 'btn--acao btn--sm', ' data-ir="entrada"'))}</div>`);
+});
+/* 11.42 · sem permissão: esta conta não vê preços nem compra */
+const fichaSemPermissao = () => fichaBase('e1142', (r) => {
+  const c = compra(r);
+  c.innerHTML = `<p class="cat6__sem-perm">${I(IC_CADEADO)}<span><b>A sua conta não tem acesso a preços nem a compras.</b> Peça ao administrador da conta da oficina; a ficha técnica continua aberta.</span></p>`;
+});
+/* 11.43 · sem ligação: a ficha de há pouco, esbatida; pedir volta com a ligação */
+const fichaOffline = () => fichaBase('e1143', (r) => {
+  $(r, '.cat5__peca').classList.add('cat6__guardado');
+  compra(r).querySelectorAll('button').forEach((b) => b.setAttribute('disabled', ''));
+  $(r, '.cat5__detalhes').insertAdjacentHTML('afterbegin', faixa('aviso', rolamentoSvg('e1143-rs', 'offline', 'cat6__rs-faixa'), 'Estás sem ligação à Internet.', 'Vês a ficha de há pouco (o stock pode já não estar certo); pedir volta quando a ligação voltar.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+
 /* ================= 12 · Pedidos ================= */
 const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
 const semPedidos = (r: HTMLElement) => $$(r, '[data-pedidos]').forEach((x) => x.removeAttribute('data-pedidos'));
@@ -616,6 +737,25 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-precos', '11.19 · Preços indisponíveis', 'Falha parcial: os preços não chegaram; as referências e o stock continuam; «Pedir» espera pelo preço.', catalogoPrecos),
   e('catalogo-grupos-carga', '11.24 · Grupos de montagem a carregar', 'Só o painel da árvore espera: o rolamento e as linhas em esqueleto, com a forma das categorias; o resto do catálogo continua.', catalogoGruposCarga),
   e('catalogo-offline', '11.20 · Sem ligação no catálogo', 'O rolamento abranda até parar; as referências de há pouco ficam à vista, esbatidas; pedir volta com a ligação.', catalogoOffline),
+  e('catalogo-ficha-carga', '11.25 · A ficha a carregar', 'O esqueleto com a forma da ficha (identidade, compra, separadores) e o rolamento no separador; nada salta quando os dados chegam.', fichaCarga),
+  e('catalogo-ficha-indisponivel', '11.26 · Referência indisponível', 'A referência deixou de ser fornecida: não se pode pedir; a saída são as equivalências.', fichaIndisponivel),
+  e('catalogo-ficha-sem-stock', '11.27 · Sem stock', 'Zero no Porto e em Sacavém; «Adicionar» desligado; o prazo não se inventa, confirma-se.', fichaSemStock),
+  e('catalogo-ficha-stock-carga', '11.28 · O stock a carregar', 'Só o stock espera: as linhas em esqueleto e o rolamento; preço e identidade já estão.', fichaStockCarga),
+  e('catalogo-ficha-stock-erro', '11.29 · O stock não chegou', 'A faixa explica e deixa tentar de novo; o preço continua certo.', fichaStockErro),
+  e('catalogo-ficha-qtd', '11.30 · Quantidade inválida', 'A quantidade a zero: a caixa a vermelho, a frase diz o mínimo e quanto há.', fichaQtd),
+  e('catalogo-ficha-a-adicionar', '11.31 · A adicionar ao carrinho', 'Pendente: o rolamento no botão; a confirmação só depois do servidor.', fichaAAdicionar),
+  e('catalogo-ficha-adicionada', '11.32 · Adicionada ao carrinho', 'A confirmação por baixo da compra, com «Ver carrinho».', fichaAdicionada),
+  e('catalogo-ficha-nao-adicionada', '11.33 · O carrinho não aceitou', 'O botão diz «Não adicionado»; a faixa explica e deixa tentar de novo.', fichaNaoAdicionada),
+  e('catalogo-ficha-sem-equivalencias', '11.34 · Sem equivalências', 'O separador vazio diz porquê e leva aos números OE.', fichaSemEquivalencias),
+  e('catalogo-ficha-sem-oe', '11.35 · Sem números OE', 'O fabricante não os indicou.', fichaSemOe),
+  e('catalogo-ficha-sem-veiculos', '11.36 · Sem veículos compatíveis', 'Sem confirmação, não se dá como compatível; fala-se com a Romafe.', fichaSemVeiculos),
+  e('catalogo-ficha-sem-caracteristicas', '11.37 · Sem características', 'Ainda não chegaram do fabricante; a ficha técnica pode tê-las.', fichaSemCaracteristicas),
+  e('catalogo-ficha-sem-documentos', '11.38 · Sem documentos', 'O fabricante não publicou documentos.', fichaSemDocumentos),
+  e('catalogo-ficha-documento-carga', '11.39 · Documento a preparar', 'Só o botão desse documento espera, com o rolamento.', fichaDocumentoCarga),
+  e('catalogo-ficha-documento-erro', '11.40 · O documento não descarregou', 'A faixa diz qual e deixa tentar de novo; os outros continuam.', fichaDocumentoErro),
+  e('catalogo-ficha-sessao', '11.41 · Sessão terminada', 'A ficha fica onde está; pedir pede para entrar outra vez.', fichaSessao),
+  e('catalogo-ficha-sem-permissao', '11.42 · Sem permissão para preços', 'Esta conta não vê preços nem compra; a ficha técnica continua aberta.', fichaSemPermissao),
+  e('catalogo-ficha-offline', '11.43 · Sem ligação na ficha', 'A ficha de há pouco, esbatida; pedir volta com a ligação.', fichaOffline),
 ];
 /* 12.7 · v3: o painel do pedido aberto, para se ver no editor (onde o clique escolhe peças) */
 const pedidosAberto = () => pedidos(mudar(pedidosV3, 'e127', (r) => {

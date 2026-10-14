@@ -16,9 +16,9 @@
   --i3-borda: #d5dbe3; --i3-borda-forte: #b9c2ce; --i3-azul: #0063aa; --i3-azul-suave: rgba(0, 99, 170, .1); --i3-mola: cubic-bezier(.2, .9, .25, 1.05); --i3-curva: cubic-bezier(.22, 1, .36, 1);
   height: auto; min-height: 100vh; overflow: visible; background: var(--i3-fundo); color: var(--i3-tinta);
 }
-[data-theme="dark"] .portal--ini3 { --i3-fundo: #0a1420; --i3-sup: #0f1c2b; --i3-sup-2: #132335; --i3-tinta: #eef2f7; --i3-tinta-2: rgba(238, 242, 247, .68); --i3-tinta-3: rgba(238, 242, 247, .46); --i3-borda: #22344a; --i3-borda-forte: #334963; --i3-azul: #3d95dd; --i3-azul-suave: rgba(61, 149, 221, .14); }
+[data-theme="dark"] .portal--ini3 { --i3-fundo: var(--g-fundo); --i3-sup: var(--g-sup); --i3-sup-2: var(--g-sup-2); --i3-tinta: var(--g-tinta); --i3-tinta-2: var(--g-tinta-2); --i3-tinta-3: var(--g-tinta-3); --i3-borda: var(--g-borda); --i3-borda-forte: var(--g-borda-forte); --i3-azul: var(--g-azul-tinta); --i3-azul-suave: var(--g-azul-suave); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .portal--ini3 { --i3-fundo: #0a1420; --i3-sup: #0f1c2b; --i3-sup-2: #132335; --i3-tinta: #eef2f7; --i3-tinta-2: rgba(238, 242, 247, .68); --i3-tinta-3: rgba(238, 242, 247, .46); --i3-borda: #22344a; --i3-borda-forte: #334963; --i3-azul: #3d95dd; --i3-azul-suave: rgba(61, 149, 221, .14); }
+  :root:not([data-theme="light"]) .portal--ini3 { --i3-fundo: var(--g-fundo); --i3-sup: var(--g-sup); --i3-sup-2: var(--g-sup-2); --i3-tinta: var(--g-tinta); --i3-tinta-2: var(--g-tinta-2); --i3-tinta-3: var(--g-tinta-3); --i3-borda: var(--g-borda); --i3-borda-forte: var(--g-borda-forte); --i3-azul: var(--g-azul-tinta); --i3-azul-suave: var(--g-azul-suave); }
 }
 
 /* a risca laranja das abas do portal: desliza para a aba debaixo do rato e volta à escolhida (200 ms);
@@ -242,8 +242,8 @@
 .ini3__cartao[inert] { cursor: pointer; }
 @media (hover: hover) and (pointer: fine) { .ini3__cartao[inert]:hover { opacity: .7; } }
 .ini3__cartao-cabeca { position: relative; display: flex; align-items: center; gap: 16px; min-height: 108px; padding: 18px 22px; border-radius: 13px 13px 0 0; overflow: hidden; color: #fff; }
-.ini3__cartao--azul .ini3__cartao-cabeca { background: linear-gradient(135deg, #0063aa 0%, #004a80 100%); }
-.ini3__cartao--laranja .ini3__cartao-cabeca { background: linear-gradient(135deg, #f08a24 0%, #b85a00 100%); }
+.ini3__cartao--azul .ini3__cartao-cabeca { background: var(--c-logotipo); }
+.ini3__cartao--laranja .ini3__cartao-cabeca { background: #d4700f; }
 .ini3__cartao-icone { display: grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 12px; background: rgba(255, 255, 255, .18); color: #fff; }
 .ini3__cartao-icone svg { width: 28px; height: 28px; }
 .ini3__cartao-cabeca > div { position: relative; z-index: 1; min-width: 0; }

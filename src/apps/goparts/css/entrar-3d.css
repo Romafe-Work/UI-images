@@ -198,7 +198,7 @@
 .ent3__topo .ent3__marca { width: auto; }
 .ent3 { padding-top: 96px; }
 .ent3__lado { padding-top: 0; overflow: hidden; gap: 20px; }
-.ent3__faixa { display: grid; justify-items: center; gap: 6px; margin: 0 -32px; padding: 22px 32px 20px; background: linear-gradient(135deg, #0063aa 0%, #004a80 100%); color: #fff; text-align: center; }
+.ent3__faixa { display: grid; justify-items: center; gap: 6px; margin: 0 -32px; padding: 22px 32px 20px; background: var(--c-logotipo); color: #fff; text-align: center; }
 .ent3__faixa .ent3__titulo { color: #fff; font-size: clamp(24px, 2.2vw, 30px); }
 .ent3__faixa .ent3__sub { margin: 0; color: rgba(255, 255, 255, .85); font-size: 15px; }
 .ent3__faixa .ent3__voltar { margin: 0 0 2px; color: rgba(255, 255, 255, .9); }

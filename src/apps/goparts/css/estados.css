@@ -9,7 +9,7 @@
 
 /* ---------- 10.1 · o carrossel em esqueleto ---------- */
 .est-carrossel { display: grid; grid-template-columns: 1fr 2.6fr 1fr; gap: var(--e-4); align-items: stretch; padding: var(--e-3) 0; }
-.est-cartao { display: grid; gap: var(--e-3); align-content: start; padding: var(--e-5); border-radius: 18px; background: linear-gradient(135deg, var(--c-logotipo), #004a80); }
+.est-cartao { display: grid; gap: var(--e-3); align-content: start; padding: var(--e-5); border-radius: 18px; background: var(--c-logotipo); }
 .est-cartao--lado { opacity: .55; }
 .est-cartao__cabeca { display: flex; align-items: center; gap: var(--e-3); }
 .est-cartao__cabeca > div { flex: 1; display: grid; gap: 6px; }

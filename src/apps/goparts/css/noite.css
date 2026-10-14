@@ -5,39 +5,39 @@
    só no tema escuro (Escuro, ou Auto com o sistema escuro); no claro fica
    com os do manual. O ROMAFE não muda: --c-logotipo em todos os temas.
    ========================================================= */
-[data-theme="dark"] .portal--noite {
-  --c-portal-fundo: #0e1828;
-  --c-superficie:   #142235;
-  --c-superficie-2: #1a2b42;
-  --c-superficie-3: #22344d;
-  --c-borda:        rgba(255,255,255,.10);
-  --c-borda-forte:  rgba(255,255,255,.18);
-  --c-texto:        #ffffff;
-  --c-texto-2:      #c9d3e0;
-  --c-texto-3:      #8d9bb0;
-  --c-marca:        #3b8ee0;
-  --c-marca-suave:  rgba(59,142,224,.22);
-  --noite-barra:    #0b1422;
-  --noite-destaque: #2f8ae6;
+/* 15 out. 2026: o escuro passa a GRAFITE (a paleta «ROMAFE — Dark Industrial» que ela mandou). Os valores estão
+   aqui uma só vez (--g-*); os blocos de baixo só os ligam aos tokens do portal (--c-*) e do Início (--i3-*, em
+   inicio-v3-trabalho.css). O azul #0873BC fica para fundos, riscas e indicadores; em texto sobre o grafite não
+   chega ao contraste de 4,5:1, por isso as ligações usam o mesmo azul aclarado (--g-azul-tinta). O ROMAFE do
+   logótipo não muda: --c-logotipo em todos os temas. */
+:root {
+  --g-fundo: #101113; --g-barra: #17191c; --g-sup: #1c1f23; --g-sup-2: #262b30; --g-borda: #343940; --g-borda-forte: #4a5058;
+  --g-tinta: #f3f4f6; --g-tinta-2: #9ca3af; --g-tinta-3: #7d8590;
+  --g-azul: #0873bc; --g-azul-tinta: #5aa9e6; --g-azul-suave: rgba(8, 115, 188, .16); --g-laranja: #f58214;
+}
+[data-theme="dark"] .portal--noite, [data-theme="dark"] .portal--ini3 {
+  --c-portal-fundo: var(--g-fundo); --c-superficie: var(--g-sup); --c-superficie-2: var(--g-sup-2); --c-superficie-3: var(--g-sup-2);
+  --c-borda: var(--g-borda); --c-borda-forte: var(--g-borda-forte);
+  --c-texto: var(--g-tinta); --c-texto-2: var(--g-tinta-2); --c-texto-3: var(--g-tinta-3);
+  --c-marca: var(--g-azul-tinta); --c-marca-suave: var(--g-azul-suave); --c-acao: var(--g-laranja); --c-acao-marcador: var(--g-laranja);
+  --noite-barra: var(--g-barra); --noite-destaque: var(--g-azul); --azul-fundo: var(--g-azul);
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .portal--noite {
-    --c-portal-fundo: #0e1828;
-    --c-superficie:   #142235;
-    --c-superficie-2: #1a2b42;
-    --c-superficie-3: #22344d;
-    --c-borda:        rgba(255,255,255,.10);
-    --c-borda-forte:  rgba(255,255,255,.18);
-    --c-texto:        #ffffff;
-    --c-texto-2:      #c9d3e0;
-    --c-texto-3:      #8d9bb0;
-    --c-marca:        #3b8ee0;
-    --c-marca-suave:  rgba(59,142,224,.22);
-    --noite-barra:    #0b1422;
-    --noite-destaque: #2f8ae6;
+  :root:not([data-theme="light"]) .portal--noite, :root:not([data-theme="light"]) .portal--ini3 {
+    --c-portal-fundo: var(--g-fundo); --c-superficie: var(--g-sup); --c-superficie-2: var(--g-sup-2); --c-superficie-3: var(--g-sup-2);
+    --c-borda: var(--g-borda); --c-borda-forte: var(--g-borda-forte);
+    --c-texto: var(--g-tinta); --c-texto-2: var(--g-tinta-2); --c-texto-3: var(--g-tinta-3);
+    --c-marca: var(--g-azul-tinta); --c-marca-suave: var(--g-azul-suave); --c-acao: var(--g-laranja); --c-acao-marcador: var(--g-laranja);
+    --noite-barra: var(--g-barra); --noite-destaque: var(--g-azul); --azul-fundo: var(--g-azul);
     color-scheme: dark;
   }
 }
 /* no claro, a barra é a superfície e o destaque é o azul do ROMAFE */
+.portal--noite, .portal--ini3 { --azul-fundo: var(--c-logotipo); }
 .portal--noite { --noite-barra: var(--c-superficie); --noite-destaque: var(--c-logotipo); }
+
+/* no grafite, os painéis de filtros deixam de ser azuis: a superfície com uma risca azul fina em cima
+   (o briefing: «ROMAFE blue used selectively», nada de painéis azuis) */
+[data-theme="dark"] .portal--noite .c22__cartao--azul { background: var(--g-sup); border: 1px solid var(--g-borda); box-shadow: inset 0 2px 0 var(--g-azul); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--noite .c22__cartao--azul { background: var(--g-sup); border: 1px solid var(--g-borda); box-shadow: inset 0 2px 0 var(--g-azul); } }

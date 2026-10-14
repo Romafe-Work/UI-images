@@ -22,6 +22,8 @@ import { escolherGrupo, abrirReferencias, ramo } from './catalogo-v5';
 import { REFERENCIAS, euros } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { imagemModelo, silhueta } from '../portal/carros';
+import { decorarVistas, cliqueVistas } from './catalogo-vistas';
+import { fichaV4, cliqueFicha, tecladoAbas, procurarAplicaveis } from './ficha-peca';
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const editando = () => document.body.classList.contains('editando');
@@ -419,12 +421,14 @@ function fichaV6(main: HTMLElement): void {
    ========================================================= */
 let armazem = '';
 function decorarFicha(main: HTMLElement): void {
+  fichaV4(main);
   const corpo = main.querySelector<HTMLElement>('[data-corpo="stock"]'); if (!corpo) return;
   const linhas = Array.from(corpo.querySelectorAll<HTMLElement>('tbody tr.cat5__arm'));
   const qtd = linhas.map((tr) => Number((tr.querySelector('.cat5__stock')?.textContent || '').replace(/\D/g, '')) || 0);
   const nomes = linhas.map((tr) => tr.querySelector('strong')?.textContent || '');
   const total = qtd.reduce((a, b) => a + b, 0);
-  if (!armazem || !nomes.includes(armazem)) armazem = nomes[qtd.findIndex((q) => q > 0)] || nomes[0] || '';
+  /* sem stock em nenhum armazém, não há de onde sair: nada fica escolhido */
+  if (!total) armazem = ''; else if (!nomes.includes(armazem) || !qtd[nomes.indexOf(armazem)]) armazem = nomes[qtd.findIndex((q) => q > 0)] || '';
   /* a barra da distribuição, por cima da tabela */
   if (!corpo.querySelector('.cat6__dist')) corpo.insertAdjacentHTML('afterbegin', `<div class="cat6__dist" role="img" aria-label="${nomes.map((n, i) => `${n}: ${qtd[i]} unidades`).join('; ')}">${nomes.map((n, i) => `<span class="cat6__dist-seg" data-armazem="${n}" style="flex:${Math.max(qtd[i], total ? 0 : 1)}"><b>${n}</b> ${qtd[i]} un.</span>`).join('')}</div>`);
   linhas.forEach((tr, i) => {
@@ -440,7 +444,7 @@ function decorarFicha(main: HTMLElement): void {
     const prazo = tr?.querySelectorAll('td')[2]?.textContent?.trim() || '';
     let sai = compra.querySelector<HTMLElement>('.cat6__sai');
     if (!sai) { compra.querySelector('.cat5__peca-pedir')?.insertAdjacentHTML('beforebegin', '<p class="cat6__sai" aria-live="polite"></p>'); sai = compra.querySelector<HTMLElement>('.cat6__sai'); }
-    if (sai) sai.innerHTML = armazem ? `Sai de <b>${armazem}</b> · ${prazo}` : '';
+    if (sai) sai.innerHTML = armazem ? `Sai de <b>${armazem}</b> · ${prazo}` : linhas.length && !total ? 'Sem stock nos armazéns da Romafe' : '';
     const q = compra.querySelector<HTMLInputElement>('.cat5__qtd-n'); const menos = compra.querySelector<HTMLButtonElement>('.cat5__qtd-menos');
     if (q && menos) menos.disabled = Number(q.value) <= 1;
   }
@@ -487,6 +491,8 @@ function armar(): void {
   if (!portal) return;
   if (!portal.querySelector('.cat6__aviso')) portal.insertAdjacentHTML('beforeend', '<p class="cat6__aviso sr-only" role="status" aria-live="polite"></p>');
   const main = portal.querySelector<HTMLElement>('.cat6');
+  if (main && !main.dataset.obsVistas) { main.dataset.obsVistas = '1'; let pedido = 0; new MutationObserver(() => { if (!pedido) pedido = requestAnimationFrame(() => { pedido = 0; decorarVistas(main); }); }).observe(main, { childList: true, subtree: true }); }
+  if (main) decorarVistas(main);
   if (main) { fichaV6(main); if (main.dataset.uGrupo) ladoGrupo(main); const aberto = main.querySelector<HTMLElement>('.cat5__arvore .cat5__abrir-ramo[aria-expanded="true"]'); if (aberto && !main.querySelector('.cat6__col-b')) colunaB(main, aberto); decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
   requestAnimationFrame(() => riscas(portal));
 }
@@ -496,13 +502,15 @@ export function iniciar(): void {
   inclinar();
   profundidade();
   document.addEventListener('keydown', tecladoArvore);
+  document.addEventListener('keydown', (ev) => tecladoAbas(ev, (m) => decorarFicha(m)));
+  document.addEventListener('keydown', (ev) => { const tr = (ev.target as Element).closest?.<HTMLElement>('.cat6 tr.cat6__ap'); if (tr && ev.target === tr && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); tr.click(); } });
   document.addEventListener('keydown', (ev) => { const tr = (ev.target as Element).closest?.<HTMLElement>('.cat6 [data-corpo="stock"] tr[data-armazem]'); if (tr && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); escolherArmazem(tr.closest<HTMLElement>('.cat6')!, tr.dataset.armazem || ''); } });
   document.addEventListener('pointerover', (ev) => { const el = (ev.target as Element).closest?.<HTMLElement>('.cat6 [data-corpo="stock"] [data-armazem]'); const corpo = el?.closest('[data-corpo="stock"]'); if (!corpo) return; corpo.querySelectorAll<HTMLElement>('[data-armazem]').forEach((x) => x.classList.toggle('is-sobre', x.dataset.armazem === el!.dataset.armazem)); });
   document.addEventListener('pointerout', (ev) => { const corpo = (ev.target as Element).closest?.('.cat6 [data-corpo="stock"]'); if (corpo && !corpo.contains(ev.relatedTarget as Node)) corpo.querySelectorAll('.is-sobre').forEach((x) => x.classList.remove('is-sobre')); });
   document.addEventListener('input', (ev) => {
     const i = ev.target as HTMLInputElement, m = i.closest?.<HTMLElement>('.cat6'); if (!m) return;
     if (i.matches('.cat5__u-campo input')) { const uni = $(m, '.cat5__universal'); if (i.value.trim()) uni?.classList.remove('is-colunas'); else { const b = m.querySelector<HTMLElement>('.cat5__arvore .cat5__abrir-ramo[aria-expanded="true"]'); if (b) colunaB(m, b); } }
-    if (i.matches('[data-aplic-procura]')) { const q = i.value.trim().toLowerCase(); i.closest('[data-corpo]')!.querySelectorAll<HTMLElement>('tbody tr').forEach((tr) => { tr.hidden = !!q && !tr.textContent!.toLowerCase().includes(q); }); }
+    if (i.matches('[data-aplic-procura]')) procurarAplicaveis(i);
   });
   ['input', 'change'].forEach((t) => document.addEventListener(t, (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar')) temFiltros(m); }));
   document.addEventListener('click', (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar .cat3__limpar')) requestAnimationFrame(() => temFiltros(m)); });
@@ -528,6 +536,8 @@ export function iniciar(): void {
     const est = t.closest<HTMLElement>('.cat2__estrela');
     if (est && !quieto()) { const liga = est.getAttribute('aria-pressed') !== 'true'; est.classList.remove('is-ligar', 'is-desligar'); void est.offsetWidth; est.classList.add(liga ? 'is-ligar' : 'is-desligar'); return; }
     if (t.closest('[data-limpar-marca]')) { ev.preventDefault(); ev.stopPropagation(); limparProcura(main); return; }
+    if (cliqueVistas(t)) { ev.preventDefault(); ev.stopPropagation(); return; }
+    if (cliqueFicha(main, t, () => decorarFicha(main))) { ev.stopPropagation(); return; }
     const cp = t.closest<HTMLElement>('.cat6 [data-copiar]'); if (cp) { ev.preventDefault(); ev.stopPropagation(); copiar(cp); return; }
     const lista = t.closest<HTMLButtonElement>('.cat5__lista'); if (lista) { ev.preventDefault(); ev.stopPropagation(); guardarNaLista(main, lista); return; }
     const arm = t.closest<HTMLElement>('[data-corpo="stock"] tr[data-armazem], .cat6__dist-seg'); if (arm && !t.closest('button, input')) { escolherArmazem(main, arm.dataset.armazem || ''); return; }
