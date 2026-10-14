@@ -186,7 +186,8 @@ efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `
 
 - Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza; as
   setas aos lados do cartão; o Início ocupa a largura toda; os cartões têm as cores da v2.2 (azul, azul, laranja), ocupam a largura toda e mostram
-  todos os campos (ela: «tudo o que der para escrever deve aparecer no card»); o carrossel desliza o cartão (280 ms);
+  todos os campos (ela: «tudo o que der para escrever deve aparecer no card»); o ativo ao centro e os
+  outros dois a espreitar dos lados com a sua cor e o título («a ver que outros existiam»); 280 ms;
   setas, ← → Home End nos separadores, arrastar no tátil; só o ativo recebe o foco (`inert`); o que se
   escreveu fica; abre no último modo usado (localStorage).
 - Sugestões ao escrever (referências e marcas) com a carregar, sem resultados e recentes; ↑ ↓ Enter Esc.

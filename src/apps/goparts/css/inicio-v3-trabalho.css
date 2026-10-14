@@ -292,3 +292,17 @@
 .ini3__cartao .ini3__marcar input:checked::after { transform: scale(1); }
 .ini3__cartao .ini3__marcar input:active { transform: scale(.94); }
 .ini3__cartao .ini3__marcar input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* (ela, 14 out.: «quero estes cards como estavam antes, a ver que outros existiam») — o cartão ativo ao centro
+   (66 % da pista) e os outros dois a espreitar dos lados, com a sua cor e o título virado para fora (escala
+   0,9, 2° de perspetiva, meio apagados); o formulário só aparece no ativo. Um clique num de lado traz esse modo. */
+.ini3__cartao { width: 66%; transform: translateX(calc(var(--d) * 31%)) rotateY(calc(var(--d) * -2deg)) scale(calc(1 - var(--d) * var(--d) * .1)); opacity: calc(1 - var(--d) * var(--d) * .4); }
+.ini3__cartao[inert] > :not(.ini3__cartao-cabeca) { opacity: 0; }
+.ini3__cartao[data-lado="seg"] .ini3__cartao-cabeca { justify-items: end; text-align: right; }
+.ini3__cartao[data-lado="seg"] .ini3__cartao-cabeca h2 { flex-direction: row-reverse; }
+.ini3__cartao[data-lado="ant"] .ini3__cartao-cabeca p, .ini3__cartao[data-lado="seg"] .ini3__cartao-cabeca p { max-width: 24%; }
+.ini3__cartao[inert] { cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .ini3__cartao[inert]:hover { opacity: .8; } }
+@media (prefers-reduced-motion: reduce) { .ini3__cartao { transform: translateX(calc(var(--d) * 31%)) scale(calc(1 - var(--d) * var(--d) * .1)); } }
+@media (max-width: 1180px) { .ini3__cartao { width: 72%; transform: translateX(calc(var(--d) * 26%)) scale(calc(1 - var(--d) * var(--d) * .1)); } .ini3__grelha--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .ini3__cartao { width: 100%; transform: translateX(calc(var(--d) * 104%)); } .ini3__cartao[inert] { visibility: hidden; } }
