@@ -31,7 +31,7 @@ import store from 'lucide-static/icons/store.svg?raw';
 import circleAlert from 'lucide-static/icons/circle-alert.svg?raw';
 import externalLink from 'lucide-static/icons/external-link.svg?raw';
 
-const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const BOTAO = (texto: string, icone: string, extra = '', depois = false) => `<button type="button" class="btn btn--acao ent3__botao"${extra}>${depois ? '' : L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span>${depois ? L(icone, 'btn__icone') : ''}</button>`;
 const VOLTAR = (para: string, texto = 'Voltar') => `<button type="button" class="ent3__voltar" data-ir="${para}">${L(arrowLeft)}${texto}</button>`;
 

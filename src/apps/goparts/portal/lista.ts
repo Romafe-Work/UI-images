@@ -34,7 +34,7 @@ import info from 'lucide-static/icons/info.svg?raw';
 import rotate from 'lucide-static/icons/rotate-ccw.svg?raw';
 import mail from 'lucide-static/icons/mail.svg?raw';
 
-export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 export const IC = { save, search, send, trash, plus, minus, wrench, pkg, copy, x, check, alert, lock, folderOpen, pencil, info, rotate, mail };
 
 /** 1 245,90 € — o espaço fino inquebrável entre milhares, como pede o briefing (o pt-PT do navegador não agrupa os de 4 algarismos). */

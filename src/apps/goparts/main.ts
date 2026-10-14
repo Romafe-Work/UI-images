@@ -31,6 +31,7 @@ import './css/catalogo-v6.css';
 import './css/lista.css';
 import './css/placa.css';
 import './css/categorias.css';
+import './css/icones.css';
 import './css/estados-animacoes.css';
 import '../../comum/css/editor.css';
 

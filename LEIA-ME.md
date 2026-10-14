@@ -289,6 +289,18 @@ as operações são os do briefing. `portal/lista.ts`, `css/lista.css`, `comport
   depois a confirmação; eliminar com um diálogo que diz o nome; aviso ao sair com alterações por guardar.
 - Estados 15.1–15.18 na barra «Estados». No telemóvel as linhas passam a cartões e «Guardar» fica em baixo.
 
+## Os ícones do GoParts com movimento e cor (14 out. 2026)
+
+Ela: «em todos os ícones, animações ou cores como pedi» (depois das categorias animadas). Os ajudantes `L()` guardam
+o nome do ícone do Lucide em `data-i` (os `.html` já tinham `data-lucide`; as abas e o topo do portal têm o nome à
+mão em `portal/base.ts`), e `css/icones.css` dá a cada ícone o seu gesto quando o rato passa (ou o foco entra) no
+botão, ligação, aba, campo ou título: as setas andam, as engrenagens rodam, o telefone toca, o lixo e o cadeado
+abanam, os documentos folheiam, a lupa procura, o olho pisca, o «Guardar» é premido, o «Enviar» voa… E as cores: a
+estrela laranja, a luz e o raio amarelos, a bateria e as confirmações verdes, o óleo âmbar, o frio azul, o lixo
+vermelho. Um ícone novo ganha animação pondo o nome dele num dos grupos do ficheiro. As categorias do Início têm
+ícones próprios com peças (`portal/categorias-svg.ts`, `css/categorias.css`), e o «P» das matrículas a faixa
+europeia (`css/placa.css`). Os filtros dos Modelos passaram a uma barra compacta com as carroçarias em silhueta.
+
 ## Como está feito
 
 ```

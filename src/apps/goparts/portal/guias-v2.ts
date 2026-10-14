@@ -20,7 +20,7 @@ import receipt from 'lucide-static/icons/receipt.svg?raw';
 import undo from 'lucide-static/icons/undo-2.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
 
-export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const num = (n: number) => (n ? euros(n) : '<span class="ped2__discreto">—</span>');
 export const tipoPilula = (g: Guia) => g.tipo === 'fatura'
   ? `<span class="ped2__estado gui2__tipo gui2__tipo--fatura">${L(receipt)}Fatura</span>`

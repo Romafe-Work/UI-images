@@ -248,3 +248,37 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
 .portal--cat6 .cat2__grelha .cat2__marca:is(:hover, :focus-within) > .cat2__marca-botao { border-color: var(--cor) !important; background: color-mix(in srgb, var(--cor) 9%, var(--i3-sup)) !important; }
 .portal--cat6 .cat2__grelha .cat2__marca:is(:hover, :focus-within) .cat2__logo { color: var(--cor) !important; transform: translate(calc(var(--tx) * 3px), calc(var(--ty) * 3px)) scale(1.14) !important; }
 .portal--cat6 .cat2__grelha .cat2__marca:is(:hover, :focus-within) .cat2__marca-nome { color: var(--cor) !important; font-weight: 700; }
+
+/* =========================================================
+   (ela, 14 out.: «não estou a gostar disto» — o painel «Filtrar modelos») — uma barra compacta numa linha: a procura,
+   o ano (de … até …) e as carroçarias em botões com a silhueta (as mesmas dos cartões); «Limpar» só com filtros.
+   Os campos e a lógica são os mesmos; só muda o desenho.
+   ========================================================= */
+.cat6 .cat4__filtrar.cat5__cartao { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 10px 12px; border-radius: 10px; }
+.cat6 .cat4__filtrar .cat5__cartao-cabeca { display: contents; }
+.cat6 .cat4__filtrar .cat5__funil, .cat6 .cat4__filtrar .cat5__cartao-cabeca > div { display: none; }
+.cat6 .cat4__filtrar .cat5__filtros--modelos { display: contents; }
+.cat6 .cat4__filtrar .campo__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cat6 .cat4__filtrar .campo { gap: 0; margin: 0; }
+.cat6 .cat4__filtrar .campo:first-child { flex: 1 1 220px; max-width: 300px; }
+.cat6 .cat4__filtrar .campo__caixa { min-height: 38px; height: 38px; }
+.cat6 .cat4__filtrar .campo__caixa .input { min-height: 36px; font-size: 14px; }
+.cat6 .cat4__filtrar .cat4__de-ate { display: flex; align-items: center; gap: 6px; }
+.cat6 .cat4__filtrar .cat4__de-ate .campo__caixa { width: 116px; }
+.cat6 .cat4__filtrar .cat5__tipos-campo { flex: 1 1 auto; }
+.cat6 .cat4__filtrar .cat4__tipos { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cat6 .cat4__filtrar .cat4__tipo-opcao { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 10px 0 6px; border: 1px solid var(--i3-borda); border-radius: 8px; background: var(--i3-sup); font-size: 13px; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease, transform 100ms ease; }
+.cat6 .cat4__filtrar .cat4__tipo-opcao input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.cat6 .cat4__filtrar .cat4__tipo-opcao:active { transform: scale(.97); }
+.cat6 .cat4__filtrar .cat4__tipo-opcao:has(input:focus-visible) { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+.cat6 .cat4__filtrar .cat4__tipo-opcao:has(input:checked) { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 10%, var(--i3-sup)); }
+.cat6 .cat4__filtrar .cat4__tipo-opcao:has(input:checked) .cat6__corpo { fill: color-mix(in srgb, var(--c-acao) 25%, var(--i3-sup-2)); stroke: var(--c-acao); }
+@media (hover: hover) and (pointer: fine) { .cat6 .cat4__filtrar .cat4__tipo-opcao:hover { border-color: var(--c-logotipo); } }
+.cat6__tipo-carro { display: block; width: 44px; flex: none; }
+.cat6__tipo-carro .cat6__silhueta { display: block; width: 100%; height: auto; }
+.cat6 .cat4__filtrar .cat4__n { font-family: var(--f-mono); font-size: 11px; color: var(--i3-tinta-3); }
+.cat6 .cat4__filtrar .cat3__limpar { order: 10; margin-left: auto; min-height: 38px; padding: 0 12px; font-size: 14px; visibility: hidden; opacity: 0; transition: opacity 180ms ease; }
+.cat6 .cat4__filtrar.tem-filtros .cat3__limpar { visibility: visible; opacity: 1; }
+.cat6 .cat4__filtrar.cat5__cartao { min-height: 0 !important; height: auto; grid-template-columns: none; flex-wrap: nowrap; }
+.cat6 .cat4__filtrar .cat5__tipos-campo { min-width: 0; }
+@media (max-width: 1280px) { .cat6 .cat4__filtrar.cat5__cartao { flex-wrap: wrap; } }

@@ -263,12 +263,25 @@ function limparEscolha(main: HTMLElement): void {
    - ao rolar, os carros mexem-se uns píxeis (até 6) conforme a posição no ecrã.
    ========================================================= */
 function decorarModelos(main: HTMLElement): void {
+  /* (ela, 14 out.: «não estou a gostar disto» — o painel dos filtros) as carroçarias em botões com a silhueta */
+  main.querySelectorAll<HTMLElement>('.cat4__filtrar .cat4__tipo-opcao').forEach((l) => {
+    if (l.querySelector('.cat6__tipo-carro')) return;
+    const v = l.querySelector<HTMLInputElement>('input')?.value || '';
+    l.insertAdjacentHTML('afterbegin', `<span class="cat6__tipo-carro" aria-hidden="true">${silhueta(v)}</span>`);
+  });
+  temFiltros(main);
   main.querySelectorAll<HTMLElement>('.cat3__vista[data-so="modelos"] tbody .cat3__linha[data-modelo]').forEach((tr) => {
     if (tr.querySelector('.cat6__foto')) return;
     tr.insertAdjacentHTML('afterbegin', `<td class="cat6__foto" aria-hidden="true"><span class="cat6__carro">${imagemModelo(tr.dataset.modelo || '', tr.dataset.carrocaria || '')}</span></td>`);
     const img = tr.querySelector('img');
     img?.addEventListener('error', () => { img.outerHTML = silhueta(img.dataset.silhueta || ''); }, { once: true });
   });
+}
+/** «Limpar» só aparece quando há algum filtro dos modelos ativo. */
+function temFiltros(main: HTMLElement): void {
+  const c = main.querySelector<HTMLElement>('.cat4__filtrar'); if (!c) return;
+  const sim = Array.from(c.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select')).some((x) => (x instanceof HTMLInputElement && x.type === 'checkbox') ? x.checked : !!x.value);
+  c.classList.toggle('tem-filtros', sim);
 }
 const cartaoModelo = (main: HTMLElement) => main.querySelector<HTMLElement>(`.cat3__vista[data-so="modelos"] .cat3__linha[data-modelo="${CSS.escape(main.dataset.modelo || '')}"]`);
 let aEscolherModelo = false;
@@ -310,6 +323,8 @@ export function iniciar(): void {
   ligarGanchos();
   inclinar();
   profundidade();
+  ['input', 'change'].forEach((t) => document.addEventListener(t, (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar')) temFiltros(m); }));
+  document.addEventListener('click', (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar .cat3__limpar')) requestAnimationFrame(() => temFiltros(m)); });
   document.addEventListener('keydown', (ev) => { const i = ev.target as HTMLInputElement; if (ev.key === 'Escape' && i.matches?.('.cat6 .cat2__procura input') && i.value) { ev.preventDefault(); limparProcura(i.closest<HTMLElement>('.cat6')!); } });
   document.addEventListener('click', (ev) => { const t = ev.target as Element; const m = t.closest?.<HTMLElement>('.cat6'); if (m && t.closest('.cat2__filtro-aba')) requestAnimationFrame(() => segmento(m)); });
   window.addEventListener('resize', () => { const m = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .cat6'); if (m) segmento(m); });

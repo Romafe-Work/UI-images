@@ -20,7 +20,7 @@ import zap from 'lucide-static/icons/zap.svg?raw';
 import gauge from 'lucide-static/icons/gauge.svg?raw';
 import ruler from 'lucide-static/icons/ruler.svg?raw';
 
-export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
 const campoTexto = (id: string, rotulo: string, icone: string, ph: string, so: string) =>
   `<div class="campo"><label class="campo__label" for="cat3-${id}">${rotulo}</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(icone)}</span><input class="input" type="search" id="cat3-${id}" placeholder="${ph}" data-filtro="${so}"></div></div>`;

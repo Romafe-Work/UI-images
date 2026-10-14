@@ -29,7 +29,7 @@ import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
 import move3d from 'lucide-static/icons/move-3d.svg?raw';
 
-const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
 /* as cotas da vista explodida: a linha vai da peça (a âncora, que a cena projeta em cada frame) ao texto */
 const COTAS: [string, string][] = [
