@@ -150,11 +150,19 @@ pública v5** e os ecrãs de entrar **01–04 v3** (e o estado 01.1). Código em
 `src/apps/goparts/camadas.ts`, `css/camadas.css` e `comportamento/camadas.ts`.
 
 - O herói é um painel de cantos redondos com um **gradiente granulado em WebGL** que se mexe devagar
-  e segue o rato — prata no claro, grafite azulado no escuro (as cores são os tokens `--ly-s1..3`).
+  e segue o rato — azul da Romafe com veios laranja (ela: «o tema é azul e laranja», «está muito escuro»),
+  mais fundo no escuro (as cores são os tokens `--ly-s1..3`).
   Só se desenham os painéis à vista; com «reduzir movimento» fica uma imagem parada; sem WebGL fica o
   gradiente do CSS.
 - Títulos em Jost 300 (`'Jost Fino'`, o mesmo ficheiro com o peso todo), pílulas, letra de máquina
   nas legendas, cartões com as fotografias e o vídeo da Romafe, os quatro passos, perguntas.
+- **O rolamento monta-se ao longo dos passos de entrar** (ela: «quero que um ecrã seja o seguimento do
+  outro, tipo rolamento a ser construído — referia-me isso para o ecrã 01»): 01.1 só o anel exterior,
+  01 e 04 as primeiras esferas, 02 e 03 a gaiola laranja e o anel interior; «Entrar» completa-o e só
+  depois passa ao Início. De um passo para o outro continua de onde estava (`--ly-g`, uma `@property`
+  com transição).
+- Na página pública fica só um «Entrar» na barra e outro no painel final; o herói leva «Pedir acesso»
+  e «Como funciona».
 - As ligações levam à versão certa com `data-ir-v` (por exemplo, a Abertura v4 passa à página
   pública v5, e esta ao login v3) — vale para qualquer ecrã (`src/comum/ecras.ts`).
 - Passam a zero no `npm run medir`.

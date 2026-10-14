@@ -10,7 +10,8 @@
    letra de máquina; o percurso numerado; perguntas frequentes; o painel final igual ao herói.
    Da Romafe fica o resto: o ROMAFE azul em Motor (nunca em cima de fotografias: a barra é opaca),
    o laranja na ação, só fotografias e o vídeo verdadeiros, e os factos de romafe.com.
-   Claro e escuro: o painel é prata no claro e grafite azulado no escuro (tokens em camadas.css).
+   Claro e escuro: o painel é azul da Romafe com o laranja nas cristas e onde está o rato (ela, 14 out.:
+   «o tema é azul e laranja»), mais fundo no escuro (tokens em camadas.css).
    ========================================================= */
 import { MENU } from './publico';
 import catalogoV2 from './portal/catalogo-v2.html?raw';
@@ -23,7 +24,6 @@ import skf from '../../comum/img/skf-paletes.webp';
 import tornoVideo from '../../comum/video/torno-anel.webm';
 import tornoImg from '../../comum/img/torno-anel.webp';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
-import arrowUpRight from 'lucide-static/icons/arrow-up-right.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
 import userPlus from 'lucide-static/icons/user-plus.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
@@ -33,6 +33,7 @@ import truck from 'lucide-static/icons/truck.svg?raw';
 import plus from 'lucide-static/icons/plus.svg?raw';
 import play from 'lucide-static/icons/play.svg?raw';
 import phone from 'lucide-static/icons/phone.svg?raw';
+import arrowDown from 'lucide-static/icons/arrow-down.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
@@ -41,6 +42,28 @@ export const SHADER = '<canvas class="ly-shader" aria-hidden="true"></canvas><sp
 /** Um título fino com o fim mais apagado, como o «made easy» do getlayers. */
 const titulo = (tag: string, cls: string, forte: string, fraco: string) => `<${tag} class="ly-titulo ${cls}"><span>${forte}</span> <span class="ly-titulo__fraco">${fraco}</span></${tag}>`;
 const pilula = (t: string) => `<p class="ly-pilula">${t}</p>`;
+
+/* ---------- o rolamento que se monta de um ecrã para o outro (ela, 14 out.: «quero que um ecrã seja o
+   seguimento do outro, tipo rolamento a ser construído») ----------
+   — e depois: «referia-me isso para o ecrã 01». Monta-se ao longo dos passos de entrar (v3):
+   --ly-g, de 0 a 1, diz quanto está montado: o anel exterior (0–0,14), as esferas uma a uma (0,16–0,52),
+   a gaiola laranja (0,55–0,66), o anel interior (0,66–0,82) e, a 1, pronto a rolar.
+   01.1 sem dados: só o anel (0,14) · 01 e 04: as primeiras esferas (0,34) · 02 e 03: tudo menos o fim
+   (0,84) · «Entrar» no 02/03: completo (1) e só depois passa ao Início. De um passo para o outro o
+   rolamento continua de onde estava (--ly-g é uma @property com transição; comportamento/camadas.ts).
+   Só CSS (transform, opacity, stroke-dashoffset), sem mexer a página. */
+const N_ESFERAS = 11;
+export const rolamento = (k: string, g: number, cls = '') => `<div class="ly-rol ${cls}" data-g="${g}" style="--ly-g:${g}" aria-hidden="true"><svg viewBox="-112 -112 224 224">
+  <defs><linearGradient id="ly-aco-${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f9fb"/><stop offset=".42" stop-color="#8d98a3"/><stop offset=".56" stop-color="#e9edf1"/><stop offset="1" stop-color="#4b5560"/></linearGradient>
+  <radialGradient id="ly-esf-${k}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".42" stop-color="#b8c1ca"/><stop offset="1" stop-color="#36404a"/></radialGradient></defs>
+  <circle class="ly-rol__folga" r="72" fill="none" stroke="#0a2a4a" stroke-width="30"/>
+  <g class="ly-rol__ext"><circle r="96" fill="none" stroke="url(#ly-aco-${k})" stroke-width="16"/><circle r="88" fill="none" stroke="rgba(0, 0, 0, .28)" stroke-width="1.5"/></g>
+  <g class="ly-rol__gira">
+    <circle class="ly-rol__gaiola" r="72" fill="none" stroke="#ef7b10" stroke-width="4" pathLength="100" stroke-dasharray="100"/>
+    ${Array.from({ length: N_ESFERAS }, (_, i) => `<circle class="ly-rol__esfera" r="12.5" fill="url(#ly-esf-${k})" style="--i:${i};--a:${((i / N_ESFERAS) * 360).toFixed(1)}deg"/>`).join('')}
+    <g class="ly-rol__int"><circle r="50" fill="none" stroke="url(#ly-aco-${k})" stroke-width="16"/><circle r="42" fill="none" stroke="rgba(0, 0, 0, .28)" stroke-width="1.5"/></g>
+  </g>
+</svg></div>`;
 
 /** A marca: o ROMAFE azul em Motor e o GoParts, sempre em fundo liso. */
 export const MARCA_LY = (ir = 'publico') => `<a class="ly-marca" href="#" data-ir="${ir}" data-ir-v="v5" data-sem-seta aria-label="Romafe GoParts: a página inicial"><span class="romafe">ROMAFE</span><span class="ly-marca__risco" aria-hidden="true"></span><span class="ly-marca__produto">GoParts</span></a>`;
@@ -108,8 +131,8 @@ const htmlPublico = `<div class="ly ly-pub">
       ${titulo('h1', 'ly-heroi__titulo', 'Peças auto,', 'com o stock à vista.')}
       <p class="ly-heroi__lead">O stock do Porto e de Sacavém e o preço líquido da sua oficina. Encomende até às 16h e sai hoje.</p>
       <div class="ly-heroi__accoes">
-        <button type="button" class="btn btn--acao ly-cta" data-ir="entrada" data-ir-v="v3"><span class="btn__rotulo">Entrar no GoParts</span><span class="ly-cta__disco">${L(logIn, 'btn__icone')}</span></button>
-        <button type="button" class="btn ly-cta ly-cta--vidro" data-ir="publico-contactos">${L(userPlus, 'btn__icone')}<span class="btn__rotulo">Pedir acesso</span></button>
+        <button type="button" class="btn btn--acao ly-cta" data-ir="publico-contactos"><span class="btn__rotulo">Pedir acesso</span><span class="ly-cta__disco">${L(userPlus, 'btn__icone')}</span></button>
+        <button type="button" class="btn ly-cta ly-cta--vidro" data-rolar=".ly-passos">${L(arrowDown, 'btn__icone')}<span class="btn__rotulo">Como funciona</span></button>
       </div>
     </div>
     <ul class="ly-heroi__factos" aria-label="A Romafe">
@@ -152,10 +175,9 @@ const htmlPublico = `<div class="ly ly-pub">
     ${SHADER}
     <div class="ly-fim__texto">
       ${titulo('h2', 'ly-fim__titulo', 'Entre no GoParts.', 'Rolling your way.')}
-      <p class="ly-heroi__lead">Ainda não tem conta? Peça acesso ou ligue +351 226 158 300.</p>
+      <p class="ly-heroi__lead">Ainda não tem conta? Peça acesso em <a href="#" data-ir="publico-contactos">Contactos</a> ou ligue +351 226 158 300.</p>
       <div class="ly-heroi__accoes">
-        <button type="button" class="btn btn--acao ly-cta" data-ir="entrada" data-ir-v="v3"><span class="btn__rotulo">Entrar</span><span class="ly-cta__disco">${L(arrowRight, 'btn__icone')}</span></button>
-        <button type="button" class="btn ly-cta ly-cta--vidro" data-ir="publico-contactos">${L(arrowUpRight, 'btn__icone')}<span class="btn__rotulo">Contactos</span></button>
+        <button type="button" class="btn btn--acao ly-cta" data-ir="entrada" data-ir-v="v3"><span class="btn__rotulo">Entrar</span><span class="ly-cta__disco">${L(logIn, 'btn__icone')}</span></button>
       </div>
     </div>
   </section>
@@ -184,8 +206,8 @@ const htmlAbertura = `<main class="abertura abertura--ly ly" aria-label="GoParts
 </main>`;
 
 export function versaoAberturaLy() {
-  return { id: 'v4', nota: 'No estilo do getlayers.ai (14 out.): o painel com o gradiente granulado que se mexe e segue o rato, «Rolling your way.» fino ao centro, a percentagem em letra de máquina; passa à página pública aos 3 s', html: htmlAbertura };
+  return { id: 'v4', nota: 'No estilo do getlayers.ai (14 out.): o painel azul e laranja com o gradiente granulado que segue o rato, «Rolling your way.» fino ao centro, a percentagem em letra de máquina; passa à página pública aos 3 s', html: htmlAbertura };
 }
 export function versaoPublicoLy() {
-  return { id: 'v5', nota: 'No estilo do getlayers.ai (14 out.): o herói num painel com o gradiente granulado animado, títulos finos, pílulas, cartões com as fotografias e o vídeo da Romafe, os quatro passos, a SKF, perguntas e o painel final', html: htmlPublico };
+  return { id: 'v5', nota: 'No estilo do getlayers.ai (14 out.): o herói num painel azul e laranja com o gradiente granulado, títulos finos, pílulas, cartões com as fotografias e o vídeo da Romafe, os quatro passos, a SKF, perguntas e o painel final, que leva ao login', html: htmlPublico };
 }

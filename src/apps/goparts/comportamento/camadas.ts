@@ -5,7 +5,10 @@
      com o tema). Só desenha os painéis à vista, da versão à vista; com «reduzir movimento»
      desenha uma imagem parada. Sem WebGL, fica o gradiente do CSS por baixo;
    - as secções ganham .is-visivel ao entrar no ecrã (as entradas são CSS) e os números contam;
-   - o vídeo do cartão toca ao passar o rato (ou ao entrar no ecrã, num ecrã tátil).
+   - o vídeo do cartão toca ao passar o rato (ou ao entrar no ecrã, num ecrã tátil);
+   - o rolamento dos passos de entrar (v3): ao mudar de passo, o novo começa no --ly-g em que o outro
+     estava e continua a montar-se até ao seu (a transição é do CSS); «Entrar» completa-o (--ly-g 1)
+     e só passa ao Início quando acaba; «Como funciona» desce até aos passos.
    ========================================================= */
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lim = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -22,10 +25,13 @@ void main(){
   vec2 uv=gl_FragCoord.xy/r;vec2 p=uv*vec2(r.x/r.y,1.)*1.6;
   vec2 q=vec2(fbm(p+t*.05),fbm(p+vec2(5.2,1.3)-t*.04));
   float f=fbm(p+2.2*q+vec2(t*.03,0.));
-  float luz=smoothstep(.95,0.,distance(uv,m))*.55;
-  float k=clamp(f*1.15+luz-.18*uv.y+.1,0.,1.);
-  vec3 col=mix(c1,c2,smoothstep(.15,.7,k));
-  col=mix(col,c3,smoothstep(.62,1.,k)*.85);
+  float luz=smoothstep(.8,0.,distance(uv,m));
+  float k=clamp(f*1.2-.18*uv.y+.05,0.,1.);
+  vec3 col=mix(c1,c2,smoothstep(.15,.85,k));
+  /* o laranja: veios finos onde o fumo dobra (e mais fortes perto do rato), não manchas */
+  float veio=smoothstep(.0,1.,1.-abs(f-.58)*10.)*(.45+.55*luz);
+  col=mix(col,c3,clamp(veio,0.,1.)*.85);
+  col+=c3*luz*.08;
   col+=(h(gl_FragCoord.xy+fract(t)*91.)-.5)*g;
   gl_FragColor=vec4(col,1.);
 }`;
@@ -124,9 +130,44 @@ function ligar(raiz: HTMLElement): void {
   });
 }
 
+
+/* ---------- o rolamento que se monta de passo em passo ---------- */
+let ultimoG: number | null = null;
+let rolAtual: HTMLElement | null = null;
+function continuarRolamento(): void {
+  const el = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ly-rol');
+  if (el === rolAtual) return;
+  rolAtual = el;
+  if (!el) { ultimoG = null; return; }
+  const alvo = Number(el.dataset.g) || 0;
+  el.classList.remove('is-pronto');
+  if (!quieto()) {
+    el.style.transition = 'none';
+    el.style.setProperty('--ly-g', String(ultimoG ?? 0));
+    void el.offsetWidth;
+    el.style.transition = '';
+  }
+  requestAnimationFrame(() => el.style.setProperty('--ly-g', String(alvo)));
+  ultimoG = alvo;
+}
+/* «Entrar» (data-ir="inicio" nos passos de entrar v3): primeiro o rolamento fica completo, depois segue */
+function entrarComRolamento(ev: MouseEvent): void {
+  if (document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo')) return;
+  const b = (ev.target as Element).closest?.<HTMLElement>('.ly-login [data-ir="inicio"]');
+  if (!b || b.dataset.montado || quieto()) return;
+  const rol = b.closest('.ly-login')?.querySelector<HTMLElement>('.ly-rol');
+  if (!rol) return;
+  ev.preventDefault(); ev.stopPropagation();
+  rol.style.setProperty('--ly-g', '1');
+  rol.classList.add('is-pronto');
+  ultimoG = 1;
+  window.setTimeout(() => { b.dataset.montado = '1'; b.click(); delete b.dataset.montado; }, 1300);
+}
+
 function armar(): void {
   document.querySelectorAll<HTMLCanvasElement>('.ly-shader').forEach((cv) => { preparar(cv); });
   document.querySelectorAll<HTMLElement>('.ly').forEach(ligar);
+  continuarRolamento();
 }
 
 export function iniciar(): void {
@@ -134,4 +175,10 @@ export function iniciar(): void {
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(armar)));
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
   if (!ciclo) ciclo = requestAnimationFrame(frame);
+  window.addEventListener('click', entrarComRolamento, true);
+  document.addEventListener('click', (ev) => {
+    const b = (ev.target as Element).closest?.<HTMLElement>('.ly [data-rolar]');
+    if (!b || document.body.classList.contains('editando')) return;
+    b.closest('.ly')?.querySelector(b.dataset.rolar!)?.scrollIntoView({ behavior: quieto() ? 'auto' : 'smooth', block: 'center' });
+  });
 }

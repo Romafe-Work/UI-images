@@ -2,8 +2,8 @@
    GOPARTS — os ecrãs iniciais no estilo do getlayers.ai (14 out. 2026)
    00 · Abertura v4, 00 · A página pública v5 e os ecrãs de entrar v3 (camadas.ts).
    A linguagem: um fundo liso; o herói num painel de cantos redondos afastado 16 px das margens,
-   com o gradiente granulado (comportamento/camadas.ts) — prata no claro, grafite azulado no
-   escuro; títulos em Jost 300 com o fim mais apagado; pílulas; letra de máquina nas legendas.
+   com o gradiente granulado (comportamento/camadas.ts) — azul da Romafe com o laranja nas
+   cristas e onde está o rato (ela, 14 out.: «o tema é azul e laranja»), mais fundo no escuro; títulos em Jost 300 com o fim mais apagado; pílulas; letra de máquina nas legendas.
    O ROMAFE é azul em Motor e só vai em fundo liso (a barra é opaca); o laranja é a ação.
    Animações: só transform, opacity e clip-path; nada mexe a página.
    Ecrãs ajustáveis: a altura rola (min-height: 100vh); dobra-se em 1100 px (os cartões passam
@@ -15,25 +15,30 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 
 .ly {
-  --ly-fundo: #f4f3f0; --ly-tinta: #121214; --ly-tinta-2: rgba(18, 18, 20, .62); --ly-tinta-3: rgba(18, 18, 20, .4);
-  --ly-linha: rgba(18, 18, 20, .1); --ly-vidro: rgba(255, 255, 255, .5); --ly-vidro-borda: rgba(18, 18, 20, .12); --ly-cartao: #ebe9e5;
-  /* as três cores do gradiente e o grão (lidas pelo shader) */
-  --ly-s1: #aab6c3; --ly-s2: #dde1e5; --ly-s3: #faf9f6; --ly-grao: .05;
+  --ly-fundo: #f4f6f9; --ly-tinta: #0d1520; --ly-tinta-2: rgba(13, 21, 32, .64); --ly-tinta-3: rgba(13, 21, 32, .42);
+  --ly-linha: rgba(13, 21, 32, .1); --ly-vidro: rgba(255, 255, 255, .6); --ly-vidro-borda: rgba(13, 21, 32, .12); --ly-cartao: #e8edf3;
+  /* o azul da Romafe nas partes apagadas dos títulos e nos números dos passos */
+  --ly-realce: #0063aa;
+  /* as três cores do gradiente e o grão (lidas pelo shader): (ela, 14 out.: «o tema é azul e laranja»)
+     o azul-fundo, o azul da Romafe e o laranja, que acende nas cristas e onde está o rato */
+  --ly-s1: #0b5ea8; --ly-s2: #2f8ad6; --ly-s3: #f39032; --ly-grao: .05;
   --ly-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
   --ly-fino: 'Jost Fino', var(--f-titulo);
   --ly-curva: cubic-bezier(.22, 1, .36, 1);
   background: var(--ly-fundo); color: var(--ly-tinta);
 }
 [data-theme="dark"] .ly {
-  --ly-fundo: #0a0a0b; --ly-tinta: #ededee; --ly-tinta-2: rgba(237, 237, 238, .62); --ly-tinta-3: rgba(237, 237, 238, .38);
-  --ly-linha: rgba(255, 255, 255, .09); --ly-vidro: rgba(255, 255, 255, .06); --ly-vidro-borda: rgba(255, 255, 255, .12); --ly-cartao: #141416;
-  --ly-s1: #060709; --ly-s2: #1a222c; --ly-s3: #5f6d7c; --ly-grao: .07;
+  --ly-fundo: #0c1726; --ly-tinta: #eef2f7; --ly-tinta-2: rgba(238, 242, 247, .64); --ly-tinta-3: rgba(238, 242, 247, .4);
+  --ly-linha: rgba(255, 255, 255, .09); --ly-vidro: rgba(255, 255, 255, .06); --ly-vidro-borda: rgba(255, 255, 255, .12); --ly-cartao: #13223a;
+  --ly-realce: #4f9fe0;
+  --ly-s1: #063d70; --ly-s2: #0f6fc0; --ly-s3: #ef7b10; --ly-grao: .06;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .ly {
-    --ly-fundo: #0a0a0b; --ly-tinta: #ededee; --ly-tinta-2: rgba(237, 237, 238, .62); --ly-tinta-3: rgba(237, 237, 238, .38);
-    --ly-linha: rgba(255, 255, 255, .09); --ly-vidro: rgba(255, 255, 255, .06); --ly-vidro-borda: rgba(255, 255, 255, .12); --ly-cartao: #141416;
-    --ly-s1: #060709; --ly-s2: #1a222c; --ly-s3: #5f6d7c; --ly-grao: .07;
+    --ly-fundo: #0c1726; --ly-tinta: #eef2f7; --ly-tinta-2: rgba(238, 242, 247, .64); --ly-tinta-3: rgba(238, 242, 247, .4);
+    --ly-linha: rgba(255, 255, 255, .09); --ly-vidro: rgba(255, 255, 255, .06); --ly-vidro-borda: rgba(255, 255, 255, .12); --ly-cartao: #13223a;
+    --ly-realce: #4f9fe0;
+    --ly-s1: #063d70; --ly-s2: #0f6fc0; --ly-s3: #ef7b10; --ly-grao: .06;
   }
 }
 .ly ::selection { background: var(--c-acao); color: #fff; }
@@ -47,11 +52,11 @@
 .ly-pilula { display: inline-flex; align-items: center; margin: 0; padding: 5px 14px; border-radius: 999px; border: 1px solid var(--ly-vidro-borda); background: var(--ly-vidro); font-size: 14px; color: var(--ly-tinta-2); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
 .ly-titulo { margin: 0; font-family: var(--ly-fino); font-weight: 300; letter-spacing: -.035em; line-height: 1.04; color: var(--ly-tinta); text-wrap: balance; }
-.ly-titulo__fraco { color: var(--ly-tinta-3); }
+.ly-titulo__fraco { color: var(--ly-realce); }
 .ly-sec .ly-titulo { font-size: clamp(34px, 3.6vw, 52px); margin-top: 14px; }
 
 .ly-cta.btn { min-height: 48px; padding: 0 6px 0 22px; border-radius: 999px; font-size: 16px; font-weight: 600; gap: 12px; }
-.ly-cta.btn--acao { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); }
+.ly-cta.btn--acao { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 10px 24px -12px rgba(0, 20, 40, .6); }
 .ly-cta__disco { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(255, 255, 255, .2); }
 .ly-cta__disco .btn__icone { width: 18px; height: 18px; transition: transform .2s var(--ly-curva); }
 .ly-cta--vidro.btn { padding: 0 22px 0 18px; background: var(--ly-vidro); color: var(--ly-tinta); border: 1px solid var(--ly-vidro-borda); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
@@ -65,11 +70,14 @@
 /* ---------- o painel: o gradiente granulado ---------- */
 .ly-painel { position: relative; isolation: isolate; overflow: hidden; margin: 0 16px; border-radius: 24px; border: 1px solid var(--ly-vidro-borda);
   /* o que se vê antes do WebGL e sem ele */
-  background: radial-gradient(120% 90% at 75% 15%, var(--ly-s3), transparent 60%), radial-gradient(90% 80% at 10% 100%, var(--ly-s1), transparent 70%), var(--ly-s2); }
+  background: radial-gradient(40% 50% at 80% 20%, color-mix(in srgb, var(--ly-s3) 70%, transparent), transparent 70%), radial-gradient(90% 80% at 10% 100%, var(--ly-s1), transparent 70%), var(--ly-s2);
+  /* dentro do painel azul a tinta é branca, nos dois temas */
+  --ly-tinta: #fff; --ly-tinta-2: rgba(255, 255, 255, .82); --ly-tinta-3: rgba(255, 255, 255, .6); --ly-realce: rgba(255, 255, 255, .62);
+  --ly-linha: rgba(255, 255, 255, .2); --ly-vidro: rgba(255, 255, 255, .1); --ly-vidro-borda: rgba(255, 255, 255, .26); color: var(--ly-tinta); }
 .ly-shader { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s ease; }
 .ly-shader.is-pronto { opacity: 1; }
 /* um véu muito leve por cima, para o texto ter sempre contraste; e a borda de luz do vidro */
-.ly-grao { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent 40%, color-mix(in srgb, var(--ly-fundo) 28%, transparent)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14); border-radius: inherit; }
+.ly-grao { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent 55%, rgba(0, 30, 60, .16)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14); border-radius: inherit; }
 
 /* ---------- a barra ---------- */
 .ly-barra { position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; min-height: 72px; padding: 0 24px; background: var(--ly-fundo); }
@@ -131,7 +139,7 @@
 /* os quatro passos: cartões de vidro com um pedaço do GoParts */
 .ly-passos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: passo; }
 .ly-passo { display: grid; align-content: start; gap: 10px; padding: 18px 18px 22px; border-radius: 22px; border: 1px solid var(--ly-linha); background: var(--ly-cartao); }
-.ly-passo__num { margin: 0; font-family: var(--ly-mono); font-size: 12px; color: var(--ly-tinta-3); }
+.ly-passo__num { margin: 0; font-family: var(--ly-mono); font-size: 12px; font-weight: 600; color: var(--ly-realce); }
 .ly-passo__titulo { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-family: var(--f-titulo); font-size: 19px; font-weight: 500; letter-spacing: -.01em; }
 .ly-passo__titulo svg { width: 18px; height: 18px; color: var(--c-acao); }
 .ly-passo__texto { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ly-tinta-2); }
@@ -227,8 +235,8 @@
 .ly-login__centro { gap: 16px; }
 .ly-login__centro > .ly-pilula { justify-self: center; animation: ly-subir .7s var(--ly-curva) both; }
 /* o cartão azul da Romafe, em vidro por cima do gradiente */
-.ly-login .c22__cartao.ly-login__cartao { background: color-mix(in srgb, #0063aa 82%, transparent); border: 1px solid rgba(255, 255, 255, .22); border-radius: 24px; -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 30px 60px -30px rgba(0, 20, 40, .55); animation: ly-subir .8s var(--ly-curva) .08s both; }
+.ly-login .c22__cartao.ly-login__cartao { background: color-mix(in srgb, #0063aa 86%, transparent); border: 1px solid rgba(255, 255, 255, .24); border-radius: 24px; -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 30px 60px -24px rgba(0, 12, 28, .7); animation: ly-subir .8s var(--ly-curva) .08s both; }
 .ly-login .login22__titulo { font-family: var(--ly-fino); font-weight: 300; font-size: 30px; letter-spacing: -.02em; }
 .ly-login .login22__botao.btn { border-radius: 999px; }
 .ly-login__passo { gap: 0; }
@@ -240,6 +248,29 @@
 .ly-login .login22__vender a { color: var(--ly-tinta); }
 .ly-login__rodape { padding: 24px; }
 .ly-login__rodape span:first-child { margin-right: auto; }
+
+/* ---------- o rolamento que se monta ao longo dos passos de entrar (camadas.ts) ----------
+   --ly-g (0 a 1) é uma @property: muda com transição, por isso de um passo para o outro o rolamento
+   continua a montar-se de onde estava. Cada peça lê --ly-g com clamp(). */
+@property --ly-g { syntax: '<number>'; inherits: true; initial-value: 0; }
+.ly-rol { --ly-g: 0; transition: --ly-g 1.6s var(--ly-curva); pointer-events: none; }
+.ly-rol svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 24px 40px rgba(0, 24, 50, .35)); }
+.ly-rol svg * { transform-box: view-box; transform-origin: 0 0; }
+.ly-rol__ext { --k: clamp(0, var(--ly-g) / .14, 1); opacity: var(--k); transform: scale(calc(.82 + .18 * var(--k))); }
+.ly-rol__folga { opacity: clamp(0, (var(--ly-g) - .14) / .04, 1); }
+.ly-rol__esfera { --k: clamp(0, (var(--ly-g) - .16 - var(--i) * .033) / .05, 1); --r: calc(72px + (1 - var(--k)) * 80px);
+  opacity: var(--k); transform: translate(calc(cos(var(--a)) * var(--r)), calc(sin(var(--a)) * var(--r))); }
+.ly-rol__gaiola { stroke-dashoffset: calc(100 * (1 - clamp(0, (var(--ly-g) - .55) / .11, 1))); }
+.ly-rol__int { --k: clamp(0, (var(--ly-g) - .66) / .16, 1); opacity: var(--k); transform: scale(calc(.55 + .45 * var(--k))); }
+.ly-rol__gira { animation: ly-girar 40s linear infinite; }
+/* completo: roda mais depressa e acende a gaiola */
+.ly-rol.is-pronto .ly-rol__gira { animation-duration: 6s; }
+.ly-rol.is-pronto .ly-rol__gaiola { stroke-width: 5; }
+@keyframes ly-girar { to { transform: rotate(360deg); } }
+.ly-login__rolamento { position: absolute; z-index: 0; top: 50%; right: calc(50% + 250px); width: min(64vh, 560px); aspect-ratio: 1; transform: translateY(-50%); }
+.ly-login__centro { z-index: 1; }
+@media (max-width: 1100px) { .ly-login__rolamento { right: auto; left: 50%; width: min(80vh, 680px); transform: translate(-50%, -50%); opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .ly-rol { transition: none; } .ly-rol__gira { animation: none; } }
 
 /* ---------- onde se dobra ---------- */
 @media (max-width: 1100px) {

@@ -29,7 +29,7 @@ import truck from 'lucide-static/icons/truck.svg?raw';
 import disc from 'lucide-static/icons/disc-3.svg?raw';
 import smartphone from 'lucide-static/icons/smartphone.svg?raw';
 import globe from 'lucide-static/icons/globe.svg?raw';
-import { MARCA_LY, SHADER } from './camadas';
+import { MARCA_LY, SHADER, rolamento } from './camadas';
 import fachada from '../../comum/img/fachada.webp';
 import corredor from '../../comum/img/corredor.webp';
 import separacao from '../../comum/img/separacao.webp';
@@ -118,6 +118,8 @@ function moldura2(titulo: string, sub: string, corpo: string, rodapeCartao = '',
    O cartão continua ao meio e no azul da Romafe (pedidos dela), agora em vidro azul por cima do
    painel; os números em letra de máquina por baixo dele. Não há fotografias por trás do ROMAFE. */
 function moldura3(titulo: string, sub: string, corpo: string, rodapeCartao = '', passo = 0): string {
+  /* quanto do rolamento está montado neste passo (ver camadas.ts): o 01 e a ajuda, as primeiras esferas; o 02 e o 03, quase tudo */
+  const montado = passo === 2 ? 0.84 : 0.34;
   return `<div class="portal portal--v22 login22 ly ly-login">
   <header class="ly-login__topo">
     ${MARCA_LY()}
@@ -125,6 +127,7 @@ function moldura3(titulo: string, sub: string, corpo: string, rodapeCartao = '',
   </header>
   <main class="ly-painel ly-login__palco">
     ${SHADER}
+    ${rolamento('login-' + passo + titulo.length, montado, 'ly-login__rolamento')}
     <section class="login22__centro ly-login__centro">
       <p class="ly-pilula">${passo ? `Passo ${passo} de 2 · ` : ''}O GoParts é a loja online da Romafe</p>
       <div class="c22__cartao c22__cartao--azul login22__cartao ly-login__cartao">
@@ -194,7 +197,7 @@ export function ecrasEntrar22(): EcraGoParts[] {
   /* 13 out. 2026: fica só a v2 (ela: «escolhe o que achares melhor»); a v1, o cartão azul sobre a
      fotografia da oficina, saiu da lista — a moldura dela continua aqui, por omissão */
   const NOTA2 = 'Melhorada a 13 out. («melhora a página de login»): o mesmo cartão ao meio, no azul-noite da página pública, com as fotografias da Romafe a deslizar dos lados, o passo em que se está e «Voltar à página»';
-  const NOTA3 = 'No estilo do getlayers.ai (14 out.): o painel com o gradiente granulado animado que segue o rato, o cartão azul em vidro ao meio, pílulas e os números em letra de máquina';
+  const NOTA3 = 'No estilo do getlayers.ai (14 out.): o painel azul e laranja com o gradiente granulado que segue o rato, o rolamento que se monta de passo em passo (01.1 o anel, 01 as primeiras esferas, 02/03 a gaiola e o anel interior, completo ao entrar), o cartão azul em vidro ao meio, pílulas e os números em letra de máquina';
   const e = (id: 'entrada' | 'palavra-passe' | 'federado' | 'ajuda', nome: string, objetivo: string, fn: (m?: typeof moldura2) => string): EcraGoParts =>
     ({ id, nome, fluxo: 'Entrar', objetivo, versoes: [{ id: 'v2', nota: NOTA2, html: fn(moldura2) }, { id: 'v3', nota: NOTA3, html: fn(moldura3).replace(/(id|for)="l22-/g, '$1="l23-') }] });
   /* 01.1 · sem dados (13 out.: «exemplos com e sem dados para todos os ecrãs»): o campo ainda por preencher;
@@ -204,7 +207,7 @@ export function ecrasEntrar22(): EcraGoParts[] {
   const vazio = semDados(entrada(moldura2));
   return [
     e('entrada', '01 · Entrar', 'O primeiro passo: o endereço de correio. Daqui segue-se para a palavra-passe, para a conta da empresa, ou para a ajuda.', entrada),
-    { id: 'entrada-vazio', nome: '01.1 · Sem dados', fluxo: 'Entrar', estadoDe: 'entrada', objetivo: 'O primeiro passo antes de escrever: o campo vazio com um exemplo, «Continuar» apagado até haver um endereço.', versoes: [{ id: 'v2', nota: NOTA2, html: vazio }, { id: 'v3', nota: NOTA3, html: semDados(entrada(moldura3)).replace(/l22v-/g, 'l23v-') }] },
+    { id: 'entrada-vazio', nome: '01.1 · Sem dados', fluxo: 'Entrar', estadoDe: 'entrada', objetivo: 'O primeiro passo antes de escrever: o campo vazio com um exemplo, «Continuar» apagado até haver um endereço.', versoes: [{ id: 'v2', nota: NOTA2, html: vazio }, { id: 'v3', nota: NOTA3, html: semDados(entrada(moldura3)).replace(/l22v-/g, 'l23v-').replace(/data-g="0.34" style="--ly-g:0.34"/, 'data-g="0.14" style="--ly-g:0.14"').replace(/ly-(aco|esf)-login-1/g, 'ly-$1-vazio') }] },
     e('palavra-passe', '02 · A palavra-passe', 'A conta é nossa: a palavra-passe, manter a sessão, e entrar no Início.', palavraPasse),
     e('federado', '03 · O início de sessão da empresa', 'A conta é de uma empresa com a sua própria página de entrar: segue-se para ela, com o segundo fator.', federado),
     e('ajuda', '04 · Precisa de ajuda?', 'Os três casos mais comuns e o telefone do apoio; o botão volta a entrar.', ajuda),
