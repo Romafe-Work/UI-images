@@ -282,3 +282,62 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
 .cat6 .cat4__filtrar.cat5__cartao { min-height: 0 !important; height: auto; grid-template-columns: none; flex-wrap: nowrap; }
 .cat6 .cat4__filtrar .cat5__tipos-campo { min-width: 0; }
 @media (max-width: 1280px) { .cat6 .cat4__filtrar.cat5__cartao { flex-wrap: wrap; } }
+
+/* =========================================================
+   O Grupo de montagem — um só explorador (14 out., o briefing dela). Sem «Árvore / Lista / Colunas»: a árvore à
+   esquerda (40 %) e o grupo escolhido à direita (60 %). Seta 180 ms, linha 250 ms, filhos 220–320 ms.
+   ========================================================= */
+.cat6 .cat5__formas, .cat6 [data-de-forma="lista"], .cat6 [data-de-forma="colunas"] { display: none !important; }
+.cat6 .cat5__universal { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+.cat6 .cat5__u-lado { position: sticky; top: 12px; }
+.cat6 .cat5__seta-ramo { transition-duration: 180ms; }
+/* o ramo aberto: fica em evidência e a risca laranja cresce à esquerda */
+.cat6 .cat5__abrir-ramo { position: relative; transition: background-color 150ms ease, color 150ms ease; }
+.cat6 .cat5__abrir-ramo::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 2px; background: var(--c-acao); transform: scaleY(0); transition: transform 220ms cubic-bezier(.22, 1, .36, 1); }
+.cat6 .cat5__abrir-ramo[aria-expanded="true"] { color: var(--i3-tinta); font-weight: 600; }
+.cat6 .cat5__abrir-ramo[aria-expanded="true"]::before { transform: scaleY(1); }
+.cat6 .cat5__ramo-n { margin-left: auto; padding: 1px 7px; border-radius: 999px; background: var(--i3-sup-2); font-family: var(--f-mono); font-size: 11px; color: var(--i3-tinta-3); }
+.cat6 .cat5__folhas:not([hidden])::before { animation-duration: 250ms; }
+.cat6 .cat5__folha[aria-current="true"] { box-shadow: inset 3px 0 0 var(--c-acao); }
+.cat6 .cat5__arvore mark { background: none; color: var(--c-acao); font-weight: 700; }
+.cat6 .cat5__abrir-ramo:focus-visible, .cat6 .cat5__folha:focus-visible { outline: 2px solid var(--c-acao); outline-offset: -2px; }
+::view-transition-group(cat-grupo) { animation-duration: 420ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+/* o lado direito: o grupo, os fabricantes, a pré-visualização e «Ver referências» */
+.cat6 .cat5__u-fab-caixa { display: none !important; }
+.cat6__u-escolha { display: grid; gap: 14px; animation: cat6-revelar 280ms cubic-bezier(.22, 1, .36, 1) both; }
+.cat6__u-fabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.cat6__u-fab { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--i3-borda); border-radius: 8px; background: var(--i3-sup); font: inherit; font-size: 14px; font-weight: 600; color: var(--i3-tinta); cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease, transform 100ms ease; }
+.cat6__u-fab span { font-family: var(--f-mono); font-size: 11px; color: var(--i3-tinta-3); }
+.cat6__u-fab[aria-checked="true"] { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 10%, var(--i3-sup)); box-shadow: inset 0 -2px 0 var(--c-acao); }
+.cat6__u-fab:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .cat6__u-fab:hover { border-color: var(--c-logotipo); } }
+.cat6__u-refs { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--i3-borda); border-radius: 8px; overflow: hidden; }
+.cat6__u-refs li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "ref preco stock" "desc preco stock"; gap: 0 14px; align-items: center; padding: 8px 12px; animation: cat6-revelar 260ms cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i) * 40ms); }
+.cat6__u-refs li + li { border-top: 1px solid var(--i3-borda); }
+.cat6__u-refs b { grid-area: ref; font-family: var(--f-mono); font-size: 14px; }
+.cat6__u-refs span { grid-area: desc; font-size: 12px; color: var(--i3-tinta-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat6__u-refs em { grid-area: preco; font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cat6__u-stock { grid-area: stock; font-style: normal; font-size: 12px; color: var(--c-ok); }
+.cat6__u-stock.is-sem { color: var(--i3-tinta-3); }
+.cat6__u-pe { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--i3-tinta-2); }
+.cat6__u-ver.btn { min-height: 42px; padding: 0 18px; border-radius: 8px; gap: 8px; }
+.cat6__u-ver .btn__icone { width: 18px; height: 18px; }
+.cat6__u-vazio { margin: 0; padding: 12px; border: 1px dashed var(--i3-borda-forte); border-radius: 8px; font-size: 14px; color: var(--i3-tinta-2); }
+.cat6__u-voltar { display: none; align-items: center; gap: 4px; justify-self: start; border: 0; background: none; font: inherit; font-size: 14px; color: var(--i3-tinta-2); cursor: pointer; }
+.cat6__u-voltar svg { width: 18px; height: 18px; color: var(--c-acao); }
+/* no telemóvel: um painel de cada vez */
+@media (max-width: 800px) {
+  .cat6 .cat5__universal { grid-template-columns: minmax(0, 1fr); }
+  .cat6 .cat5__universal.is-com-grupo .cat5__u-grupos { display: none; }
+  .cat6 .cat5__universal:not(.is-com-grupo) .cat5__u-lado { display: none; }
+  .cat6 .cat5__universal.is-com-grupo .cat5__u-lado { animation: cat6-entra 300ms cubic-bezier(.22, 1, .36, 1) both; }
+  .cat6__u-voltar { display: inline-flex; }
+  .cat6 .cat5__abrir-ramo, .cat6 .cat5__folha { min-height: 48px; }
+}
+/* a seta do ramo: uma só rotação (90°, a apontar para baixo) */
+.cat6 .cat5__abrir-ramo .cat5__seta-ramo svg { transform: none !important; animation: none !important; }
+.cat6 .cat5__abrir-ramo[aria-expanded="true"] .cat5__seta-ramo { transform: rotate(90deg); }
+.cat6__arv-carga { display: flex; align-items: center; gap: 8px; padding: 8px 4px 12px; font-size: 14px; color: var(--i3-tinta-2); list-style: none; }
+.cat6__arv-esq { display: flex; align-items: center; gap: 12px; height: 45px; padding: 0 12px; border-bottom: 1px solid var(--i3-borda); list-style: none; }
+.cat6__arv-esq i { display: block; height: 12px; border-radius: 4px; background: var(--i3-sup-2); animation: i3-pulsar 1.6s ease-in-out infinite alternate; }
+.cat6__arv-esq i:first-child { width: 20px; height: 20px; } .cat6__arv-esq i:last-child { width: var(--w); }

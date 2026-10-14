@@ -18,6 +18,8 @@
    Com «reduzir movimento», tudo troca sem voar nem deslizar.
    ========================================================= */
 import { partilhado, encherVeiculos, ir, type Vista } from './catalogo-v3';
+import { escolherGrupo, abrirReferencias, ramo } from './catalogo-v5';
+import { REFERENCIAS, euros } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { imagemModelo, silhueta } from '../portal/carros';
 
@@ -309,13 +311,62 @@ function profundidade(): void {
   window.addEventListener('scroll', () => { if (!pedido) pedido = requestAnimationFrame(fazer); }, { passive: true });
 }
 
+/* =========================================================
+   O Grupo de montagem — um só explorador (14 out., o briefing dela: «uma só forma de navegar, sem Árvore,
+   Lista e Colunas»). Serve ao Grupo montagem do veículo e ao Universal (o mesmo componente).
+   - À esquerda (40 %), a árvore: o ramo aberto ganha a risca laranja a crescer, a seta roda, a linha da hierarquia
+     desce e os grupos entram em cascata; a procura mantém os pais, abre os caminhos e destaca o que corresponde.
+     ↑ ↓ andam entre as linhas visíveis, → abre e ← fecha (ou volta ao pai); Enter escolhe.
+   - À direita (60 %), o grupo escolhido: o nome voa da linha para o cabeçalho (View Transition), o caminho, os
+     fabricantes como escolha (Todos e os do grupo), uma pré-visualização das referências (as primeiras quatro) e
+     «Ver referências». Sem referências: diz que o grupo não tem peças no catálogo e desliga o botão.
+   - No telemóvel, um painel de cada vez: escolher o grupo abre o painel; «Grupos» volta.
+   ========================================================= */
+let fabU = '';
+function ladoGrupo(main: HTMLElement): void {
+  const grupo = main.dataset.uGrupo; const lado = $(main, '.cat5__u-lado'); if (!grupo || !lado) return;
+  const refs = REFERENCIAS.filter((r) => r[0] === grupo);
+  const fabs = Array.from(new Set(refs.map((r) => r[1])));
+  if (fabU && !fabs.includes(fabU)) fabU = '';
+  const ver = refs.filter((r) => !fabU || r[1] === fabU);
+  let caixa = lado.querySelector<HTMLElement>('.cat6__u-escolha');
+  if (!caixa) { caixa = document.createElement('div'); caixa.className = 'cat6__u-escolha'; lado.appendChild(caixa); }
+  caixa.innerHTML = refs.length ? `
+    <div class="cat6__u-fabs" role="radiogroup" aria-label="Fabricante">${['', ...fabs].map((f) => `<button type="button" role="radio" class="cat6__u-fab" data-u-fab="${f}" aria-checked="${f === fabU}">${f || 'Todos'}<span>${f ? refs.filter((r) => r[1] === f).length : refs.length}</span></button>`).join('')}</div>
+    <ul class="cat6__u-refs" aria-label="Referências deste grupo">${ver.slice(0, 4).map((r, i) => `<li style="--i:${i}"><b>${r[1]} ${r[2]}</b><span>${r[3]}</span><em>${euros(r[4] * (1 - r[5] / 100))}</em><i class="cat6__u-stock${r[6] + r[7] ? '' : ' is-sem'}">${r[6] + r[7] ? `${r[6] + r[7]} un.` : 'Por encomenda'}</i></li>`).join('')}</ul>
+    <div class="cat6__u-pe"><span>${ver.length} ${ver.length === 1 ? 'referência' : 'referências'}${fabU ? ` da ${fabU}` : ''}${ver.length > 4 ? ' · as primeiras 4' : ''}</span><button type="button" class="btn btn--acao cat6__u-ver" data-ver-refs><span class="btn__rotulo">Ver referências</span><svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-i="arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button></div>`
+    : `<p class="cat6__u-vazio">O grupo «${grupo}» ainda não tem referências no catálogo de exemplo. Escolha outro grupo, ou peça a peça ao apoio da Romafe.</p><div class="cat6__u-pe"><span></span><button type="button" class="btn btn--acao cat6__u-ver" disabled><span class="btn__rotulo">Ver referências</span></button></div>`;
+  if (!lado.querySelector('.cat6__u-voltar')) lado.insertAdjacentHTML('afterbegin', '<button type="button" class="cat6__u-voltar" data-u-voltar><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-i="chevron-left"><path d="m15 18-6-6 6-6"/></svg>Grupos</button>');
+  const sub = lado.querySelector('.cat5__u-sub'); if (sub) sub.textContent = refs.length ? 'Escolha o fabricante e veja as referências deste grupo.' : '';
+  main.querySelector('.cat5__universal')?.classList.add('is-com-grupo');
+}
+function escolherGrupoV6(main: HTMLElement, folha: HTMLElement): void {
+  const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
+  const grupo = folha.dataset.grupo || '';
+  fabU = '';
+  const fazer = () => { escolherGrupo(main, grupo); ladoGrupo(main); };
+  if (!doc.startViewTransition || quieto()) { fazer(); return; }
+  const de = folha.querySelector<HTMLElement>('.cat5__folha-nome')!; de.style.viewTransitionName = 'cat-grupo';
+  const t = doc.startViewTransition(() => { de.style.viewTransitionName = ''; fazer(); const para = $(main, '.cat5__u-grupo'); if (para) para.style.viewTransitionName = 'cat-grupo'; });
+  t.finished.finally(() => { const para = $(main, '.cat5__u-grupo'); if (para) para.style.viewTransitionName = ''; });
+}
+function tecladoArvore(ev: KeyboardEvent): void {
+  const el = ev.target as HTMLElement; if (!el.matches?.('.cat6 .cat5__arvore :is(.cat5__abrir-ramo, .cat5__folha)')) return;
+  const arv = el.closest<HTMLElement>('.cat5__arvore')!;
+  const linhas = Array.from(arv.querySelectorAll<HTMLElement>('.cat5__abrir-ramo, .cat5__folha')).filter((b) => b.offsetParent);
+  const i = linhas.indexOf(el);
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); linhas[Math.max(0, Math.min(linhas.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]?.focus(); }
+  else if (ev.key === 'ArrowRight' && el.matches('.cat5__abrir-ramo')) { ev.preventDefault(); if (el.getAttribute('aria-expanded') !== 'true') ramo(el, true); else linhas[i + 1]?.focus(); }
+  else if (ev.key === 'ArrowLeft') { ev.preventDefault(); if (el.matches('.cat5__abrir-ramo') && el.getAttribute('aria-expanded') === 'true') ramo(el, false); else el.closest('.cat5__ramo')?.querySelector<HTMLElement>('.cat5__abrir-ramo')?.focus(); }
+}
+
 /* ---------- ligar ---------- */
 function armar(): void {
   const portal = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .portal--cat6');
   if (!portal) return;
   if (!portal.querySelector('.cat6__aviso')) portal.insertAdjacentHTML('beforeend', '<p class="cat6__aviso sr-only" role="status" aria-live="polite"></p>');
   const main = portal.querySelector<HTMLElement>('.cat6');
-  if (main) { decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
+  if (main) { if (main.dataset.uGrupo) ladoGrupo(main); decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
   requestAnimationFrame(() => riscas(portal));
 }
 
@@ -323,6 +374,7 @@ export function iniciar(): void {
   ligarGanchos();
   inclinar();
   profundidade();
+  document.addEventListener('keydown', tecladoArvore);
   ['input', 'change'].forEach((t) => document.addEventListener(t, (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar')) temFiltros(m); }));
   document.addEventListener('click', (ev) => { const m = (ev.target as Element).closest?.<HTMLElement>('.cat6'); if (m && (ev.target as Element).closest('.cat4__filtrar .cat3__limpar')) requestAnimationFrame(() => temFiltros(m)); });
   document.addEventListener('keydown', (ev) => { const i = ev.target as HTMLInputElement; if (ev.key === 'Escape' && i.matches?.('.cat6 .cat2__procura input') && i.value) { ev.preventDefault(); limparProcura(i.closest<HTMLElement>('.cat6')!); } });
@@ -347,6 +399,12 @@ export function iniciar(): void {
     const est = t.closest<HTMLElement>('.cat2__estrela');
     if (est && !quieto()) { const liga = est.getAttribute('aria-pressed') !== 'true'; est.classList.remove('is-ligar', 'is-desligar'); void est.offsetWidth; est.classList.add(liga ? 'is-ligar' : 'is-desligar'); return; }
     if (t.closest('[data-limpar-marca]')) { ev.preventDefault(); ev.stopPropagation(); limparProcura(main); return; }
+    const folha = t.closest<HTMLElement>('.cat5__universal .cat5__folha');
+    if (folha) { ev.preventDefault(); ev.stopPropagation(); escolherGrupoV6(main, folha); return; }
+    const uf = t.closest<HTMLElement>('[data-u-fab]');
+    if (uf) { fabU = uf.dataset.uFab || ''; ladoGrupo(main); return; }
+    if (t.closest('[data-ver-refs]')) { const g = main.dataset.uGrupo || ''; abrirReferencias(main, g, fabU ? [fabU] : [], main.dataset.vista === 'grupos' ? 'veiculo' : 'universal'); ir(main, 'referencias'); return; }
+    if (t.closest('[data-u-voltar]')) { main.querySelector('.cat5__universal')?.classList.remove('is-com-grupo'); main.querySelector<HTMLElement>('.cat5__folha[aria-current="true"]')?.focus(); return; }
     const mod = t.closest<HTMLElement>('.cat3__vista[data-so="modelos"] .cat3__linha[data-modelo]');
     if (mod) { main.dataset.carrocaria = mod.dataset.carrocaria || ''; if (!aEscolherModelo && escolherModelo(main, mod)) { ev.preventDefault(); ev.stopPropagation(); return; } }
     const marca = t.closest<HTMLElement>('.cat2__marca-botao');

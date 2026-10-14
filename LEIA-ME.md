@@ -247,6 +247,13 @@ nome voam para a barra do contexto dos Veículos (e voltam). Ao rolar, os carros
 silhuetas por categoria** (`portal/carros.ts`): o briefing pede fotografias licenciadas da geração exata e, sem
 elas, silhuetas; quando houver fotografias, põem-se em `FOTOS` (com carregamento preguiçoso e a silhueta se falhar).
 
+**O Grupo de montagem — um só explorador** (o briefing dela, 14 out.: «uma só forma de navegar»): saíram «Árvore /
+Lista / Colunas». À esquerda a árvore (o ramo aberto com a risca laranja, a seta que roda, a linha que desce, os grupos
+em cascata, a contagem de grupos por categoria); a procura mantém os pais, abre os caminhos, aceita o nome da
+categoria e destaca o que corresponde; ↑ ↓ → ← no teclado. À direita, o nome do grupo voa da linha para o cabeçalho,
+os fabricantes como escolha (com a contagem), as primeiras referências e «Ver referências». No telemóvel, um painel
+de cada vez, com «Grupos» para voltar. Serve ao Grupo montagem do veículo e ao Universal. Estado 11.24 (a carregar).
+
 **Matriz de estados** (barra «Estados» do ecrã; os de carregamento usam o rolamento):
 
 | Estado | Gatilho | O que se vê | Recuperação |

@@ -31,7 +31,7 @@ export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vaz
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
-  | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline';
+  | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga';
 
 /* ---------- ícones (Lucide, como no resto da v2.2) ---------- */
 const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -264,6 +264,17 @@ const catalogoOffline = () => refsBase('e1123', (r) => {
   $$(r, '.cat5__adicionar').forEach((b) => b.setAttribute('disabled', ''));
   $(r, '.cat5__refs').insertAdjacentHTML('beforebegin', faixa('aviso', rolamentoSvg('e1123-rs', 'offline', 'cat6__rs-faixa'), 'Estás sem ligação à Internet.', 'Vês as referências de há pouco (podem já não estar certas); pedir volta quando a ligação voltar.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
 });
+
+/* 11.24 · os grupos de montagem a chegar: só o painel da esquerda espera (as linhas em esqueleto e o rolamento) */
+const catalogoGruposCarga = () => catalogo(mudar(catalogoV5, 'e1124', (r) => {
+  parado(r);
+  const main = $(r, '.cat5');
+  mostrar(main, 'universal');
+  fluxo(main, 'universal');
+  const arv = $(r, '.cat5__arvore');
+  arv.setAttribute('aria-busy', 'true');
+  arv.innerHTML = `<li class="cat6__arv-carga" role="status">${GIRADOR('girador--pequeno')} A carregar os grupos de montagem…</li>` + Array.from({ length: 9 }, (_, i) => `<li class="cat6__arv-esq" aria-hidden="true" style="--w:${55 + (i * 17) % 35}%"><i></i><i></i></li>`).join('');
+}));
 
 /* 11.12 · v5: o Universal, com «Comando da correia» aberto e o Kit de distribuição escolhido */
 const catalogoUniversal = () => catalogo(mudar(catalogoV5, 'e1112', (r) => {
@@ -603,6 +614,7 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-a-pedir', '11.17 · A adicionar ao carrinho', 'Pendente: o rolamento no botão; a peça só voa para o carrinho depois da confirmação.', catalogoAPedir),
   e('catalogo-carrinho-falhou', '11.18 · O carrinho não aceitou', 'Falha: o botão diz «Não adicionado», a faixa explica e deixa tentar de novo; nada se finge.', catalogoCarrinhoFalhou),
   e('catalogo-precos', '11.19 · Preços indisponíveis', 'Falha parcial: os preços não chegaram; as referências e o stock continuam; «Pedir» espera pelo preço.', catalogoPrecos),
+  e('catalogo-grupos-carga', '11.24 · Grupos de montagem a carregar', 'Só o painel da árvore espera: o rolamento e as linhas em esqueleto, com a forma das categorias; o resto do catálogo continua.', catalogoGruposCarga),
   e('catalogo-offline', '11.20 · Sem ligação no catálogo', 'O rolamento abranda até parar; as referências de há pouco ficam à vista, esbatidas; pedir volta com a ligação.', catalogoOffline),
 ];
 /* 12.7 · v3: o painel do pedido aberto, para se ver no editor (onde o clique escolhe peças) */

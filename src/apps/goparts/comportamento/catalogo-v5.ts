@@ -603,13 +603,19 @@ export function escolherGrupo(main: HTMLElement, grupo: string): void {
   if (!quieto() && lado.isConnected) lado.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
 }
 
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 function procurarGrupo(main: HTMLElement): void {
   const termo = (main.querySelector<HTMLInputElement>('#' + CSS.escape('cat5-u-procura'))?.value || main.querySelector<HTMLInputElement>('.cat5__u-campo input')!.value).trim().toLowerCase();
   const caixa = main.querySelector<HTMLElement>('.cat5__u-grupos')!;
   let algum = false;
+  /* (14 out.) o nome da categoria também conta (mostra os grupos todos dela), e o que corresponde fica destacado */
+  const marcar = (el: Element | null, texto: string) => { if (!el) return; const i = termo ? texto.toLowerCase().indexOf(termo) : -1; el.innerHTML = i < 0 ? esc(texto) : `${esc(texto.slice(0, i))}<mark>${esc(texto.slice(i, i + termo.length))}</mark>${esc(texto.slice(i + termo.length))}`; };
+  $$(caixa, '.cat5__ramo').forEach((r) => { const n = r.querySelector('.cat5__abrir-ramo > .cat5__folha-nome'); if (n) { const t = (n as HTMLElement).dataset.t ?? n.textContent ?? ''; (n as HTMLElement).dataset.t = t; marcar(n, t); } });
   $$(caixa, '.cat5__folha').forEach((f) => {
-    const ver = !termo || (f.dataset.grupo || '').toLowerCase().includes(termo);
+    const daCat = !!termo && (f.dataset.cat || '').toLowerCase().includes(termo);
+    const ver = !termo || daCat || (f.dataset.grupo || '').toLowerCase().includes(termo);
     f.closest('li')!.hidden = !ver;
+    marcar(f.querySelector('.cat5__folha-nome'), f.dataset.grupo || '');
     if (ver) algum = true;
   });
   /* na árvore: os ramos sem nada escondem-se; com procura, os que ficam abrem */
