@@ -1,0 +1,44 @@
+/* =========================================================
+   GOPARTS — as categorias do Início, animadas (14 out. 2026; ela: «se passar pela luz com o rato a luz fica
+   amarela, as correias prendem-se…»). Cada ícone (portal/categorias-svg.ts) faz o que a peça faz, uma vez por
+   passagem do rato ou foco (500–900 ms). Sem brilhos; as cores são as da peça (âmbar no óleo, amarelo na luz,
+   verde na carga, azul gelo no frio). Com «reduzir movimento» fica só a cor.
+   ========================================================= */
+.ca * { transform-box: fill-box; transform-origin: center; }
+.ca-pinga, .ca-raios { opacity: 0; }
+.ca-carga { fill: currentColor; stroke: none; opacity: .25; transform: scaleX(.25); transform-origin: left center; transition: transform 700ms cubic-bezier(.22, 1, .36, 1), fill 300ms ease, opacity 300ms ease; }
+.ca-ampola, .ca-gota { transition: fill 220ms ease, stroke 220ms ease; }
+.ca-elo1 { transform: translate(1.6px, -1.6px); transition: transform 380ms cubic-bezier(.3, 1.5, .5, 1); }
+.ca-elo2 { transform: translate(-1.6px, 1.6px); transition: transform 380ms cubic-bezier(.3, 1.5, .5, 1); }
+.ca-prato1, .ca-prato2 { fill: var(--i3-sup-2, #132335); transition: transform 360ms cubic-bezier(.3, 1.4, .5, 1); }
+.ca-floco { transition: transform 700ms cubic-bezier(.22, 1, .36, 1); }
+.ca--frio { transition: color 300ms ease; }
+
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-disco { animation: ca-travar 900ms cubic-bezier(.1, .6, .2, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-pinca { animation: ca-apertar 900ms ease; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-mola { transform-origin: bottom center; animation: ca-comprimir 700ms cubic-bezier(.3, 1.4, .5, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-topo { animation: ca-descer 700ms cubic-bezier(.3, 1.4, .5, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-gota { fill: #e0a100; stroke: #b07d00; animation: ca-espremer 600ms ease; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca--oleo .ca-pinga { fill: #e0a100; stroke: none; animation: ca-pingar 700ms ease-in 200ms; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-carga { transform: scaleX(1); fill: var(--c-ok); opacity: 1; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-funil { animation: ca-abanar 500ms ease; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca--filtros .ca-pinga { fill: currentColor; stroke: none; animation: ca-pingar 600ms ease-in 300ms; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-ampola { fill: #ffd21f; stroke: #c99a00; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-raios { stroke: #ffc400; animation: ca-acender 400ms ease forwards; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-elo1, :is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-elo2 { transform: none; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-prato1 { transform: translateX(2.2px); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-prato2 { transform: translateX(-2.2px); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-volante { animation: ca-virar 900ms cubic-bezier(.45, 0, .3, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca--frio { color: #6cc3ff; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-floco { transform: rotate(60deg); }
+
+@keyframes ca-travar { from { transform: rotate(0); } to { transform: rotate(540deg); } }
+@keyframes ca-apertar { 0%, 70% { transform: none; } 85% { transform: translate(-1px, 1px); } 100% { transform: none; } }
+@keyframes ca-comprimir { 40% { transform: scaleY(.62); } }
+@keyframes ca-descer { 40% { transform: translateY(3px); } }
+@keyframes ca-espremer { 40% { transform: scale(1.08, .92); } }
+@keyframes ca-pingar { 0% { opacity: 0; transform: translateY(-5px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(1px); } }
+@keyframes ca-abanar { 25% { transform: rotate(-6deg); } 60% { transform: rotate(5deg); } }
+@keyframes ca-acender { to { opacity: 1; } }
+@keyframes ca-virar { 35% { transform: rotate(-35deg); } 75% { transform: rotate(20deg); } }
+@media (prefers-reduced-motion: reduce) { .ca *, .ca { animation: none !important; transition: fill 150ms ease, color 150ms ease !important; } }

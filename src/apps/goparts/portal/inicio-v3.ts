@@ -17,6 +17,7 @@
    ========================================================= */
 import { REFERENCIAS, euros } from './catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
+import { CAT_SVG } from './categorias-svg';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import listChecks from 'lucide-static/icons/list-checks.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
@@ -171,7 +172,7 @@ function zonas(e: EstadoInicio): string {
   const esq = (n: number, cls = 'ini3__linha') => Array.from({ length: n }, () => `<li class="${cls} ini3__esq" aria-hidden="true"><i></i><i></i></li>`).join('');
   return `<section class="ini3__zona ini3__zona--categorias" aria-labelledby="i3-cat-t">
       <header class="ini3__zona-cabeca"><h2 id="i3-cat-t">${L(layoutGrid)}Categorias populares</h2><a href="#" class="ini3__mais" data-ir="catalogo">Todas as categorias${L(chevronRight)}</a></header>
-      <ul class="ini3__categorias">${carga ? esq(10, 'ini3__categoria') : CATEGORIAS.map(([n, ic]) => `<li><button type="button" class="ini3__categoria" data-ir="catalogo">${L(ic)}<span>${n}</span></button></li>`).join('')}</ul>
+      <ul class="ini3__categorias">${carga ? esq(10, 'ini3__categoria') : CATEGORIAS.map(([n, ic]) => `<li><button type="button" class="ini3__categoria" data-ir="catalogo">${CAT_SVG[n] ?? L(ic)}<span>${n}</span></button></li>`).join('')}</ul>
     </section>
     <div class="ini3__tres">
       <section class="ini3__zona" aria-labelledby="i3-rec-t">

@@ -29,6 +29,8 @@ import './css/entrar-3d.css';
 import './css/inicio-v3-trabalho.css';
 import './css/catalogo-v6.css';
 import './css/lista.css';
+import './css/placa.css';
+import './css/categorias.css';
 import './css/estados-animacoes.css';
 import '../../comum/css/editor.css';
 
