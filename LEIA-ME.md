@@ -474,7 +474,7 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - Código: `comportamento/ficha-peca.ts`, os estados em `portal/estados.ts` e o CSS no fim de `css/catalogo-v6.css`.
 
 ### 12 · Pedidos v4 (15 out. 2026)
-- Do briefing dela («Histórico de Pedidos»). Fica uma só versão: as v2 e v3 saíram da lista (o código continua no repositório). Ficheiros: `portal/pedidos-v4.ts` (o desenho, a partir dos dados de `pedidos-dados.ts`), `comportamento/pedidos-v4.ts` e `css/pedidos-v4.css`.
+- Do briefing dela («Histórico de Pedidos»). Ocupa a largura toda da janela (ela, 15 out.). Fica uma só versão: as v2 e v3 saíram da lista (o código continua no repositório). Ficheiros: `portal/pedidos-v4.ts` (o desenho, a partir dos dados de `pedidos-dados.ts`), `comportamento/pedidos-v4.ts` e `css/pedidos-v4.css`.
 - **Filtros:** painel liso e baixo com as quatro caixas e «Limpar» e «Pesquisar» na mesma linha. O estado (Todos, Processado, Sem processamento) tem a risca laranja a deslizar. Os filtros aplicados aparecem em etiquetas com ×. No telemóvel recolhem-se atrás do botão «Filtros».
 - **Pesquisar:** valida as datas no próprio campo (dd/mm/aaaa; a final não pode ser antes da inicial). As linhas de antes ficam esbatidas com «A atualizar…»; depois as que saem desvanecem e as que ficam deslizam. A contagem e o valor no período sobem ou descem até ao número novo.
 - **Tabela:** Pedido, Data e Valor ordenam-se. Ao passar o rato aparece uma risca azul à esquerda e a seta anda 2 px. Os estados levam texto e ícone. No telemóvel, cada pedido é um cartão.

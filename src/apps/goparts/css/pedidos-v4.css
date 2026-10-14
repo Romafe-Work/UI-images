@@ -5,7 +5,7 @@
    Nada anima a altura nem a largura no fluxo: as linhas deslizam com transform (comportamento/pedidos-v4.ts).
    ========================================================= */
 .portal--ped4 { --p4-rapido: 150ms; --p4-curva: cubic-bezier(.22, 1, .36, 1); }
-.ped4 { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 16px; width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 24px 40px; box-sizing: border-box; }
+.ped4 { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 16px; width: 100%; margin: 0; padding: 20px 24px 40px; box-sizing: border-box; }
 
 /* ---------- a cabeça ---------- */
 .ped4__cabeca { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
