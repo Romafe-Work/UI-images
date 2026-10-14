@@ -39,4 +39,17 @@ export const PEDIDOS: Pedido[] = [
     percurso: [['Recebido', '14/03 08:20'], ['Separado', '14/03 09:50'], ['Expedido', '14/03 13:10', 'Guia GR2024/08105'], ['Entregue', '15/03 11:20']] },
 ];
 
-export const euros = (n: number) => n.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/\./g, ' ') + ' €';
+/* os milhares sempre separados por espaço (o pt-PT do browser não separa os de 4 algarismos: «2892,15») */
+export const euros = (n: number) => { const [i, d] = Math.abs(n).toFixed(2).split('.'); return `${n < 0 ? '−' : ''}${i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')},${d} €`; };
+
+/* (15 out. 2026) o que a tabela mostra de cada pedido — o mesmo que estava escrito no HTML da v2, agora em dados
+   para os Pedidos v4 se desenharem a partir daqui (o valor é a soma dos artigos) */
+export interface LinhaPedido { num: string; data: string; armazem: string; morada: [string, string]; obs: string; estado: 'proc' | 'sem'; recolher: boolean }
+export const LINHAS: LinhaPedido[] = [
+  { num: 'P2024/001256', data: '15/04/2024', armazem: 'Porto (1)', morada: ['Rua da Indústria, 123', '4100-168 Porto'], obs: 'Entrega prioritária', estado: 'proc', recolher: false },
+  { num: 'P2024/001233', data: '10/04/2024', armazem: 'Lisboa (2)', morada: ['Av. Infante D. Henrique, 55', '1800-218 Lisboa'], obs: '', estado: 'proc', recolher: false },
+  { num: 'P2024/001198', data: '02/04/2024', armazem: 'Porto (1)', morada: ['Rua da Indústria, 123', '4100-168 Porto'], obs: 'Confirmar stock', estado: 'sem', recolher: true },
+  { num: 'P2024/001175', data: '28/03/2024', armazem: 'Porto (1)', morada: ['Rua da Indústria, 123', '4100-168 Porto'], obs: '', estado: 'proc', recolher: false },
+  { num: 'P2024/001142', data: '21/03/2024', armazem: 'Lisboa (2)', morada: ['Av. Infante D. Henrique, 55', '1800-218 Lisboa'], obs: 'Levanta no balcão', estado: 'sem', recolher: true },
+  { num: 'P2024/001120', data: '14/03/2024', armazem: 'Porto (1)', morada: ['Rua da Indústria, 123', '4100-168 Porto'], obs: '', estado: 'proc', recolher: false },
+];

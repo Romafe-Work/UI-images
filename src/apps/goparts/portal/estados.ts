@@ -18,16 +18,15 @@ import { catalogoV3 } from './catalogo-v3';
 import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
 import { catalogoV5 } from './catalogo-v5';
 import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComparar } from '../comportamento/catalogo-v5';
-import pedidosV2 from './pedidos-v2.html?raw';
-import { pedidosV3 } from './pedidos-v3';
-import { preencher } from '../comportamento/pedidos-v3';
+import { pedidosV4, detalhe as detalhePed, pedidoDe, linhaDe, valorDe } from './pedidos-v4';
+import { LINHAS as LINHAS_PED, euros as eurosPed } from './pedidos-dados';
 import { guiasV2 } from './guias-v2';
 import { preencher as preencherGuia } from '../comportamento/guias-v2';
 import { faturasV1 } from './faturas-v1';
 import { preencher as preencherFatura } from '../comportamento/faturas';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
-export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
+export type IdEstadoPedidos = 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
@@ -60,7 +59,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|gui2|fat)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|fat)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -458,8 +457,111 @@ const fichaOffline = () => fichaBase('e1143', (r) => {
 
 /* ================= 12 · Pedidos ================= */
 const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
-const semPedidos = (r: HTMLElement) => $$(r, '[data-pedidos]').forEach((x) => x.removeAttribute('data-pedidos'));
-const linhasEsq = (n: number) => Array.from({ length: n }, (_, i) => `<tr>${[70, 55, 50, 85, 45, 60, 45, 55, 40].map((c) => `<td>${E(Math.max(30, c - (i % 3) * 10), 'esq--texto')}</td>`).join('')}</tr>`).join('');
+
+/* 15 out. 2026: os estados dos Pedidos v4 (o briefing dela, ponto 11), a partir do mesmo desenho (pedidos-v4.ts).
+   Cada um muda só o que esse estado muda; os campos guardam o que se escreveu. */
+const ped4 = (prefixo: string, f: (r: HTMLElement) => void, html = pedidosV4()) => pedidos(mudar(html, prefixo, f));
+const IC_CADEADO_P = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
+const abertoNaLinha = (r: HTMLElement, num: string) => {
+  const tr = $(r, `tr.ped4__linha[data-num="${num}"]`), det = tr.nextElementSibling as HTMLElement;
+  tr.classList.add('is-aberto'); $(tr, '.ped4__abrir').setAttribute('aria-expanded', 'true');
+  det.removeAttribute('hidden'); det.firstElementChild!.innerHTML = detalhePed(pedidoDe(num), linhaDe(num));
+  return det;
+};
+const chips = (r: HTMLElement, itens: string[]) => { $(r, '.ped4__chips').innerHTML = itens.map((t) => `<li><span>${t}</span><button type="button" class="ped4__chip-x" aria-label="Tirar o filtro ${t}">${I('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')}</button></li>`).join(''); };
+const valorCampo = (r: HTMLElement, id: string, v: string) => $<HTMLInputElement>(r, `#${id}`).setAttribute('value', v);
+const erroPed = (r: HTMLElement, id: string, v: string, msg: string) => { const i = $<HTMLInputElement>(r, `#${id}`); i.setAttribute('value', v); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', `${id}-erro`); const e = $(r, `#${id}-erro`); e.textContent = msg; e.removeAttribute('hidden'); };
+const ocupadoPed = (b: HTMLElement, texto: string) => { b.setAttribute('aria-busy', 'true'); b.setAttribute('disabled', ''); b.innerHTML = `${GIRADOR('ped4__rs')}<span class="btn__rotulo">${texto}</span>`; };
+
+/* 12.1 · a carregar: os filtros já servem; os números e as linhas chegam em esqueleto com a forma da tabela */
+const ped4Carga = () => ped4('e121', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('70px'); });
+  $(r, '.ped4__conta').innerHTML = `${GIRADOR('ped4__rs')} A carregar os pedidos…`;
+  $(r, '.ped4__tabela tbody').innerHTML = Array.from({ length: 6 }, (_, i) => `<tr class="ped4__esq">${[0, 60, 50, 45, 80, 30, 55, 45, 60, 40].map((w) => `<td>${w ? E(Math.max(25, w - (i % 3) * 8)) : ''}</td>`).join('')}</tr>`).join('');
+  $$(r, '.ped4__est-n').forEach((n) => { n.textContent = '…'; });
+});
+/* 12.2 · a atualizar: as linhas de antes ficam à vista, esbatidas; o rolamento diz o que está a acontecer */
+const ped4Filtrar = () => ped4('e122', (r) => {
+  valorCampo(r, 'e122-ref', 'SKF');
+  ocupadoPed($(r, '.ped4__pesquisar'), 'A pesquisar…');
+  const a = $(r, '.ped4__a-atualizar'); a.removeAttribute('hidden'); a.innerHTML = `${GIRADOR('ped4__rs')}A atualizar…`;
+  $(r, '.ped4__tabela').classList.add('is-a-atualizar');
+});
+/* 12.3 · nenhum pedido com estes filtros: diz quantos há ao todo e como sair */
+const ped4Vazio = () => ped4('e123', (r) => {
+  valorCampo(r, 'e123-de', '01/05/2024'); valorCampo(r, 'e123-ate', '31/05/2024');
+  chips(r, ['Desde 01/05/2024', 'Até 31/05/2024']);
+  $$(r, 'tr.ped4__linha').forEach((tr) => tr.setAttribute('hidden', ''));
+  $(r, '.ped4__conta b').textContent = '0'; $$(r, '[data-kpi]').forEach((d) => { d.textContent = d.dataset.kpi === 'n' ? '0' : eurosPed(0); });
+  $$(r, '.ped4__est-n').forEach((n) => { n.textContent = '0'; });
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Nenhum pedido em maio de 2024.</strong> O último pedido é de 15/04/2024; alargue as datas ou tire um filtro (${LINHAS_PED.length} pedidos no total).</p>${BOTAO('Limpar filtros', IC.denovo, 'btn--ghost btn--sm')}`;
+});
+/* 12.4 · erro nos filtros: cada campo diz como deve ser; o que se escreveu fica */
+const ped4Datas = () => ped4('e124', (r) => {
+  erroPed(r, 'e124-de', '31/04/2024', 'Abril só tem 30 dias. Escreva a data como dd/mm/aaaa.');
+  erroPed(r, 'e124-ate', '01/03/2024', 'A data final é antes da inicial.');
+});
+/* 12.5 · sem ligação: os pedidos de há pouco, esbatidos; pesquisar volta com a ligação */
+const ped4Rede = () => ped4('e125', (r) => {
+  $(r, '.ped4__tabela').classList.add('is-a-atualizar');
+  $(r, '.ped4__pesquisar').setAttribute('disabled', '');
+  $(r, '.ped4__lista').insertAdjacentHTML('afterbegin', faixa('aviso', rolamentoSvg('e125-rs', 'offline', 'cat6__rs-faixa'), 'Estás sem ligação à Internet.', 'Vês os pedidos de há pouco (podem já não estar certos); a pesquisa volta quando a ligação voltar.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 12.6 · erro do servidor: os filtros ficam; a tabela diz o que falhou, com a referência do erro */
+const ped4Falha = () => ped4('e126', (r) => {
+  valorCampo(r, 'e126-num', 'P2024/0012');
+  $(r, '.ped4__tabela').outerHTML = `<div class="cg-falha est-falha est-falha--largo" role="alert">${rolamentoSvg('e126-rs', 'erro', 'cat6__rs-faixa')}<div><p class="cg-falha__titulo">Não foi possível carregar os pedidos.</p><p class="cg-falha__texto">O serviço de pedidos não respondeu. Os filtros ficam como estão. Referência do erro: PED-503-0415.</p><div class="est-aviso__botoes">${BOTAO('Tentar novamente', IC.denovo, 'btn--acao btn--sm')}</div>${APOIO}</div></div>`;
+  $$(r, '[data-kpi]').forEach((d) => { d.textContent = '—'; });
+  $(r, '.ped4__conta').textContent = 'Sem dados';
+});
+/* 12.7 · um pedido concluído, aberto na linha: o percurso todo feito, os artigos, a entrega, a guia e a fatura */
+const ped4Aberto = () => ped4('e127', (r) => { abertoNaLinha(r, 'P2024/001256'); });
+/* 12.8 · primeira vez: ainda não há pedidos */
+const ped4Primeira = () => ped4('e128', (r) => {
+  $(r, '.ped4__tabela').setAttribute('hidden', '');
+  $(r, '.ped4__conta b').textContent = '0'; $$(r, '[data-kpi]').forEach((d) => { d.textContent = d.dataset.kpi === 'n' ? '0' : eurosPed(0); });
+  $$(r, '.ped4__est-n').forEach((n) => { n.textContent = '0'; });
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Ainda não tem pedidos.</strong> Cada pedido feito no catálogo aparece aqui com o estado, a guia e a fatura.</p>${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}`;
+});
+/* 12.9 · o pedido a abrir: só a linha espera, em esqueleto */
+const ped4AAbrir = () => ped4('e129', (r) => {
+  const det = abertoNaLinha(r, 'P2024/001233');
+  det.firstElementChild!.innerHTML = `<div class="ped4__det"><section class="ped4__det-resumo"><p class="ped4__conta">${GIRADOR('ped4__rs')} A abrir o pedido P2024/001233…</p>${E('80%')}${E('60%')}</section><section class="ped4__det-percurso">${E('100%')}${E('70%')}</section><section class="ped4__det-artigos">${[90, 80, 85].map((w) => E(w)).join('')}</section><section class="ped4__det-lado">${E('70%')}${E('50%')}</section></div>`;
+});
+/* 12.10 · em processamento: o pedido ainda não saiu; o passo seguinte está marcado, sem data */
+const ped4Processamento = () => ped4('e1210', (r) => { abertoNaLinha(r, 'P2024/001198'); });
+/* 12.11 · por recolher no balcão */
+const ped4Recolher = () => ped4('e1211', (r) => { abertoNaLinha(r, 'P2024/001142'); });
+/* 12.12 · expedido (em parte): o camião no passo onde o pedido está; os 2 em falta seguem depois */
+const ped4Expedido = () => ped4('e1212', (r) => { abertoNaLinha(r, 'P2024/001233'); });
+/* 12.13 · o pedido no painel à direita; o resto da página fica inerte, como no comportamento */
+const ped4Inerte = (html: string) => html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"');
+const ped4Gaveta = () => ped4Inerte(ped4('e1213', (r) => {
+  const p = pedidoDe('P2024/001233'), l = linhaDe('P2024/001233');
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const g = $(r, '.ped4__gaveta'); g.removeAttribute('hidden');
+  g.innerHTML = `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Pedido</p><h2 class="ped4__g-num" id="e1213-g-num">${p.num}</h2><p class="ped4__g-meta">${l.data} · ${l.armazem} · ${eurosPed(valorDe(p))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)">${I('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')}</button></header>${detalhePed(p, l, 'gaveta')}`;
+  g.setAttribute('aria-labelledby', 'e1213-g-num');
+  $$(r, '.ped4 > header, .ped4 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+}));
+/* 12.14 · sessão terminada: a página fica; pesquisar pede para entrar outra vez */
+const ped4Sessao = () => ped4('e1214', (r) => {
+  $(r, '.ped4__pesquisar').setAttribute('disabled', '');
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar os pedidos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+});
+/* 12.15 · sem permissão: esta conta não vê os pedidos da oficina */
+const ped4SemPermissao = () => ped4('e1215', (r) => {
+  $(r, '.ped4__filtros').setAttribute('hidden', '');
+  $(r, '.ped4__kpi').setAttribute('hidden', '');
+  $(r, '.ped4__lista').innerHTML = `<div class="est-vazio est-vazio--largo">${I(IC_CADEADO_P)}<p><strong>A sua conta não tem acesso aos pedidos da oficina.</strong> Peça ao administrador da conta; o catálogo continua aberto.</p><div class="est-aviso__botoes">${BOTAO('Ver o catálogo', IC.grelha, 'btn--ghost btn--sm', ' data-ir="catalogo"')}</div></div>`;
+});
+/* 12.16 · documento indisponível: a fatura não abriu; o resto do pedido continua */
+const ped4Documento = () => ped4('e1216', (r) => {
+  const det = abertoNaLinha(r, 'P2024/001175');
+  $(det, '.ped4__docs').insertAdjacentHTML('afterend', faixa('erro', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'A fatura FT2024/05188 não está disponível.', 'O arquivo de faturas não respondeu; a guia continua disponível.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
 const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
   const i = $<HTMLInputElement>(r, `#${id}`);
   i.setAttribute('value', valor); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', `${id}-msg`);
@@ -467,63 +569,11 @@ const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
   i.closest('.campo')!.insertAdjacentHTML('beforeend', `<p class="campo__erro" id="${id}-msg">${I(IC.aviso)}${msg}</p>`);
 };
 
-/* 12.1 · esqueleto: os filtros já lá estão; o resumo e as linhas chegam */
-const pedidosCarga = () => pedidos(mudar(pedidosV2, 'e121', (r) => {
-  semPedidos(r);
-  $(r, '.ped2').setAttribute('aria-busy', 'true');
-  $(r, '.ped2__resumo').innerHTML = `${E('130px', 'esq--botao')}${E('170px', 'esq--botao')}`;
-  $(r, 'tbody').innerHTML = linhasEsq(7);
-  $$(r, '.ped2__n').forEach((n) => n.remove());
-  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A carregar os pedidos…</span>`;
-}));
 
-/* 12.2 · a pesquisar com filtros: o botão espera, as linhas antigas esbatem */
-const pedidosFiltrar = () => pedidos(mudar(pedidosV2, 'e122', (r) => {
-  semPedidos(r);
-  $<HTMLInputElement>(r, '#e122-ref').setAttribute('value', 'VKBA 3525');
-  aCarregar($(r, '.ped2__pesquisar'), 'A pesquisar…');
-  $(r, '.ped2__tabela').insertAdjacentHTML('afterbegin', '<div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div>');
-  $(r, '.ped2__tabela tbody').classList.add('est-esbatido');
-  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A procurar pedidos com a referência VKBA 3525…</span>`;
-}));
 
-/* 12.3 · sem pedidos no período */
-const pedidosVazio = () => pedidos(mudar(pedidosV2, 'e123', (r) => {
-  semPedidos(r);
-  $<HTMLInputElement>(r, '#e123-de').setAttribute('value', '01/10/2026');
-  $(r, '.ped2__conta').textContent = '0';
-  $(r, '.ped2__total').textContent = '0,00 €';
-  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Nenhum pedido desde 01/10/2026.</strong> O último pedido da conta foi a 15/04/2024.</p><div class="est-aviso__botoes">${BOTAO('Ver o último ano', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
-  $(r, '.ped2__pe').innerHTML = '<span>A mostrar 0 · de 01/10/2026 até hoje</span>';
-}));
 
-/* 12.4 · erro nas datas */
-const pedidosDatas = () => pedidos(mudar(pedidosV2, 'e124', (r) => {
-  semPedidos(r);
-  erroCampo(r, 'e124-ate', '01/02/2024', '«Data até» é antes de «Data a partir de» (01/03/2024).');
-  erroCampo(r, 'e124-num', 'P24-1256', 'O n.º do pedido escreve-se P2024/001256.');
-  $(r, '.ped2__campos').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir antes de pesquisar</p></div></div>`);
-  $(r, '.ped2__campos').classList.add('est-com-erros');
-}));
 
-/* 12.5 · sem ligação */
-const pedidosRede = () => pedidos(mudar(pedidosV2, 'e125', (r) => {
-  semPedidos(r);
-  $(r, '.ped2').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver os pedidos de há 4 minutos. Pesquisar volta quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
-  const b = $(r, '.ped2__pesquisar'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação');
-  $(r, '.ped2__tabela tbody').classList.add('est-esbatido');
-}));
 
-/* 12.6 · a tabela não carregou */
-const pedidosFalha = () => pedidos(mudar(pedidosV2, 'e126', (r) => {
-  semPedidos(r);
-  $(r, '.ped2__resumo').innerHTML = '';
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="cg-falha est-falha est-falha--largo est-falha--tabela">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar os pedidos</p><p class="cg-falha__texto">Os filtros ficaram como estavam. Referência do erro: <code>GP-20261012-5E19</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
-  $(r, '.ped2__pe').remove();
-}));
 
 /* ================= 13 · Guias de remessa (v2) ================= */
 const guias = (html: string) => portal('guias', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
@@ -610,15 +660,6 @@ const guiasPrimeira = () => guias(mudar(guiasV2, 'e139', (r) => {
   $(r, '.ped2__pe').remove();
 }));
 
-/* 12.8 · primeira vez: uma conta nova, ainda sem nenhum pedido */
-const pedidosPrimeira = () => pedidos(mudar(pedidosV2, 'e1211', (r) => {
-  semPedidos(r);
-  $(r, '.ped2__resumo').innerHTML = '';
-  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não fez nenhum pedido no GoParts.</strong> Cada encomenda aparece aqui, com o estado, o que já foi servido e a guia de remessa.</p><div class="est-aviso__botoes">${BOTAO('Procurar uma peça', IC.lupa, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
-  $(r, '.ped2__pe').remove();
-}));
 
 /* ================= 14 · Faturas ================= */
 const faturas = (html: string) => portal('faturas', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
@@ -757,21 +798,24 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-ficha-sem-permissao', '11.42 · Sem permissão para preços', 'Esta conta não vê preços nem compra; a ficha técnica continua aberta.', fichaSemPermissao),
   e('catalogo-ficha-offline', '11.43 · Sem ligação na ficha', 'A ficha de há pouco, esbatida; pedir volta com a ligação.', fichaOffline),
 ];
-/* 12.7 · v3: o painel do pedido aberto, para se ver no editor (onde o clique escolhe peças) */
-const pedidosAberto = () => pedidos(mudar(pedidosV3, 'e127', (r) => {
-  semPedidos(r);
-  preencher(r, $$(r, '.ped2__linha')[1]);
-}));
 
 export const estadosPedidos = (): EcraGoParts[] => [
-  e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já à vista; o resumo e as linhas da tabela chegam em esqueleto.', pedidosCarga),
-  e('pedidos-filtrar', '12.2 · A pesquisar', 'Com uma referência escrita: o botão em «A pesquisar…», uma barra fina por cima da tabela e as linhas antigas esbatidas.', pedidosFiltrar),
-  e('pedidos-vazio', '12.3 · Sem pedidos no período', 'Nenhum pedido nas datas escolhidas: diz quando foi o último e dá dois caminhos.', pedidosVazio),
-  e('pedidos-datas', '12.4 · Erro nos filtros', 'A data final antes da inicial e o n.º mal escrito: cada campo diz como deve ser.', pedidosDatas),
-  e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa em cima, os pedidos de há pouco esbatidos e a pesquisa desligada.', pedidosRede),
-  e('pedidos-falha', '12.6 · Os pedidos não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', pedidosFalha),
-  e('pedidos-aberto', '12.7 · Pedido aberto', 'Pedidos v3: o P2024/001233 aberto no painel — o percurso, os 12 artigos com um pendente, os totais e as ações. As animações correm ao mostrar o ecrã.', pedidosAberto),
-  e('pedidos-primeira', '12.8 · Primeira vez', 'Sem dados: uma conta nova, sem nenhum pedido; diz o que vai aparecer e leva ao catálogo.', pedidosPrimeira),
+  e('pedidos-carga', '12.1 · A carregar os pedidos', 'Os filtros já servem; os números e as linhas chegam em esqueleto, com a forma da tabela.', ped4Carga),
+  e('pedidos-filtrar', '12.2 · A atualizar', 'Com «SKF» na referência: o botão em «A pesquisar…», o rolamento em «A atualizar…» e as linhas de antes esbatidas.', ped4Filtrar),
+  e('pedidos-vazio', '12.3 · Nenhum pedido com estes filtros', 'Maio de 2024: diz qual foi o último pedido, mostra os filtros aplicados e dá «Limpar filtros».', ped4Vazio),
+  e('pedidos-datas', '12.4 · Erro nos filtros', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', ped4Datas),
+  e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa por cima da lista; os pedidos de há pouco esbatidos e «Pesquisar» desligado.', ped4Rede),
+  e('pedidos-falha', '12.6 · Erro do servidor', 'Os filtros ficam; a tabela diz o que falhou, com a referência do erro, o apoio e «Tentar novamente».', ped4Falha),
+  e('pedidos-aberto', '12.7 · Pedido concluído (aberto na linha)', 'O P2024/001256: o percurso todo feito, os artigos, a morada, a guia, a fatura e as ações.', ped4Aberto),
+  e('pedidos-primeira', '12.8 · Primeira vez', 'Sem pedidos: diz o que vai aparecer aqui e leva ao catálogo.', ped4Primeira),
+  e('pedidos-a-abrir', '12.9 · O pedido a abrir', 'Só a linha aberta espera, em esqueleto com a forma do detalhe.', ped4AAbrir),
+  e('pedidos-processamento', '12.10 · Em processamento', 'O P2024/001198 ainda não saiu: o passo seguinte marcado sem data; à espera de confirmar o stock.', ped4Processamento),
+  e('pedidos-recolher', '12.11 · Por recolher no balcão', 'O P2024/001142: levanta no balcão de Lisboa; ainda sem guia nem fatura.', ped4Recolher),
+  e('pedidos-expedido', '12.12 · Expedido em parte', 'O P2024/001233: o camião no passo onde o pedido está; 2 amortecedores pendentes.', ped4Expedido),
+  e('pedidos-gaveta', '12.13 · Pedido no painel', 'O mesmo pedido no painel à direita (no telemóvel, o ecrã inteiro).', ped4Gaveta),
+  e('pedidos-sessao', '12.14 · Sessão terminada', 'A página fica; pesquisar pede para entrar outra vez.', ped4Sessao),
+  e('pedidos-sem-permissao', '12.15 · Sem permissão', 'Esta conta não vê os pedidos da oficina; o catálogo continua aberto.', ped4SemPermissao),
+  e('pedidos-documento', '12.16 · Documento indisponível', 'A fatura não abriu; a guia e o resto do pedido continuam.', ped4Documento),
 ];
 export const estadosGuias = (): EcraGoParts[] => [
   e('guias-carga', '13.1 · A carregar as guias', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', guiasCarga),

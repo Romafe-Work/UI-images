@@ -37,7 +37,20 @@
 .portal--noite, .portal--ini3 { --azul-fundo: var(--c-logotipo); }
 .portal--noite { --noite-barra: var(--c-superficie); --noite-destaque: var(--c-logotipo); }
 
-/* no grafite, os painéis de filtros deixam de ser azuis: a superfície com uma risca azul fina em cima
-   (o briefing: «ROMAFE blue used selectively», nada de painéis azuis) */
-[data-theme="dark"] .portal--noite .c22__cartao--azul { background: var(--g-sup); border: 1px solid var(--g-borda); box-shadow: inset 0 2px 0 var(--g-azul); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--noite .c22__cartao--azul { background: var(--g-sup); border: 1px solid var(--g-borda); box-shadow: inset 0 2px 0 var(--g-azul); } }
+/* (15 out.) os painéis de filtros deixam de ser azuis nos dois temas: a superfície com uma risca azul fina em cima
+   e os campos como no resto do portal (o briefing: nada de painéis azuis a toda a largura). Só tokens, por isso o
+   mesmo conjunto serve o claro e o grafite. O fundo do portal claro passa a neutro. */
+.portal--noite, .portal--ini3 { --c-portal-fundo: #f3f4f6; }
+.portal--noite .c22__cartao.c22__cartao--azul { background: var(--c-superficie); color: var(--c-texto); border: 1px solid var(--c-borda); box-shadow: inset 0 2px 0 var(--azul-fundo); }
+.portal--noite .c22__cartao.c22__cartao--azul::before { display: none; }
+.portal--noite .c22__cartao.c22__cartao--azul .campo__label { color: var(--c-texto); }
+.portal--noite .c22__cartao.c22__cartao--azul .input { background: var(--c-superficie); color: var(--c-texto); border-color: var(--c-borda-forte); }
+.portal--noite .c22__cartao.c22__cartao--azul .input::placeholder { color: var(--c-texto-3); }
+.portal--noite .c22__cartao.c22__cartao--azul .campo__chip { background: var(--c-superficie-2); color: var(--c-texto-2); border-color: var(--c-borda-forte); }
+.portal--noite .c22__cartao.c22__cartao--azul .opcao__texto { color: var(--c-texto); }
+/* os separadores de estado das Guias e das Faturas, agora sobre a superfície lisa */
+.portal--noite .c22__cartao--azul .ped2__estados { background: var(--c-superficie-2); }
+.portal--noite .c22__cartao--azul .ped2__estado-aba { color: var(--c-texto-2); }
+.portal--noite .c22__cartao--azul .ped2__estado-aba:hover { background: var(--c-superficie); color: var(--c-texto); }
+.portal--noite .c22__cartao--azul .ped2__estado-aba[aria-current="true"] { background: var(--c-superficie); color: var(--c-texto); }
+.portal--noite .c22__cartao--azul .ped2__n { background: var(--c-borda); color: var(--c-texto-2); }

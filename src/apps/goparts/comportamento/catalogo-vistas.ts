@@ -37,7 +37,7 @@ function marcas(main: HTMLElement): void {
   if (!cab || !grelha) return;
   if (!cab.querySelector('.cat6__ver')) {
     cab.insertAdjacentHTML('beforeend', botoesVer('marcas'));
-    aplicarVer(sec, cab.querySelector<HTMLElement>('.cat6__ver')!, lido('marcas') || 'cartoes');
+    aplicarVer(sec, cab.querySelector<HTMLElement>('.cat6__ver')!, lido('marcas') || 'tabela');
   }
   if (!sec.querySelector('.cat6__t-cabeca')) grelha.insertAdjacentHTML('beforebegin', `<div class="cat6__t-cabeca" data-so="marcas"${main.dataset.vista && main.dataset.vista !== 'marcas' ? ' hidden' : ''}><span data-ordem="none">${ordenador('nome', 'Marca')}</span><span data-ordem="none">${ordenador('modelos', 'Modelos')}</span><span>Favorita</span></div>`);
   grelha.querySelectorAll<HTMLElement>('li.cat2__marca').forEach((li) => {
@@ -54,7 +54,7 @@ function modelos(main: HTMLElement): void {
   const cab = v.querySelector<HTMLElement>('.cat4__cabeca');
   if (cab && !cab.querySelector('.cat6__ver')) {
     cab.insertAdjacentHTML('beforeend', botoesVer('modelos'));
-    aplicarVer(v, cab.querySelector<HTMLElement>('.cat6__ver')!, lido('modelos') || 'cartoes');
+    aplicarVer(v, cab.querySelector<HTMLElement>('.cat6__ver')!, lido('modelos') || 'tabela');
   }
   const tr = v.querySelector<HTMLElement>('thead tr');
   if (tr && !tr.querySelector('.cat6__th-foto')) {
@@ -99,7 +99,16 @@ function ordenar(b: HTMLElement): void {
   linhas.forEach((l) => { const dy = antes.get(l)! - l.getBoundingClientRect().top; if (dy && !l.hidden) l.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.2, .8, .2, 1)' }); });
 }
 
-export function decorarVistas(main: HTMLElement): void { marcas(main); modelos(main); veiculos(main); }
+/** «1 veículo encontrado», «2 veículos encontrados» (a contagem muda no comportamento da v3/v5). */
+function plurais(main: HTMLElement): void {
+  main.querySelectorAll<HTMLElement>('.cat3__conta').forEach((c) => {
+    const n = Number(c.querySelector('strong')?.textContent), t = c.lastChild;
+    if (!t || t.nodeType !== Node.TEXT_NODE || Number.isNaN(n)) return;
+    const novo = (t.textContent || '').replace(/(veículo|modelo)s? (encontrado)s?/, (_, a, b) => n === 1 ? `${a} ${b}` : `${a}s ${b}s`);
+    if (novo !== t.textContent) t.textContent = novo;
+  });
+}
+export function decorarVistas(main: HTMLElement): void { marcas(main); modelos(main); veiculos(main); plurais(main); }
 
 /** Os cliques desta camada (fase de captura, antes da v5). Devolve true se tratou o clique. */
 export function cliqueVistas(t: Element): boolean {

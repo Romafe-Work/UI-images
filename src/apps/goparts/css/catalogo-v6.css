@@ -9,7 +9,6 @@
    ========================================================= */
 
 /* ---------- sem gradientes nem brilhos ---------- */
-.portal--cat6 .c22__cartao--azul { background: #0063aa; }
 .portal--cat6 .c22__cartao--laranja { background: #d4700f; }
 .portal--cat6 .c22__cartao::before { display: none; }
 .portal--cat6 .cat5__tabela thead th { background: var(--i3-sup-2); color: var(--i3-tinta-2); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
@@ -614,3 +613,33 @@ html[data-cat-sentido="tras"]::view-transition-new(cat-conteudo) { animation-nam
 .cat6__ficha .cat6__faixa { margin-bottom: 12px; }
 .cat6__aba-vazia { margin: 0; }
 .cat6__faixa-largo { margin-bottom: 16px; }
+
+/* (15 out.) Veículos em «Lista» — ela: «não gosto desta lista». Cada veículo num cartão arrumado: a silhueta à
+   esquerda, a versão em cima e os dados em colunas iguais, com o rótulo por cima do valor; o escolhido leva a
+   risca azul fina (nada de fundo azul). */
+.cat6 .cat5__resultados[data-modo="lista"] .cg-tabela { border: 0; background: none; }
+.cat6 .cat5__resultados[data-modo="lista"] tbody { display: grid; gap: 8px; }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha:not([hidden]):not(.is-fora) { display: grid; grid-template-columns: 32px 104px repeat(8, minmax(0, 1fr)); grid-template-areas: "i foto nome nome nome nome nome nome nome nome"; align-items: center; gap: 6px 16px; padding: 12px 16px 12px 10px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); box-shadow: none; transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha:hover { background: var(--c-superficie-2); border-color: var(--c-borda-forte); }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha[aria-selected="true"] { background: var(--c-superficie-2); border-color: var(--c-borda-forte); box-shadow: inset 2px 0 0 var(--azul-fundo); }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td { min-width: 0; padding: 0; border: 0; background: none; }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td:first-child { grid-area: i; grid-row: 1 / span 2; align-self: center; }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > .cat6__v-foto { grid-area: foto; grid-row: 1 / span 2; width: auto; }
+.cat6 .cat5__resultados[data-modo="lista"] .cat6__v-foto .cat6__carro { width: 100%; }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td:nth-child(3) { grid-area: nome; flex-basis: auto; font-family: var(--f-titulo); font-size: 16px; font-weight: 700; color: var(--c-texto); }
+.cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td[data-r] { grid-row: 2; display: grid; gap: 1px; font-size: 14px; color: var(--c-texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.cat6 .cat5__resultados[data-modo="lista"] td[data-r]::before { content: attr(data-r); display: block; font-size: 12px; font-weight: 500; color: var(--c-texto-3); }
+.cat6 .cat5__resultados[data-modo="lista"] .cat5__detalhe:not([hidden]) { margin-top: -6px; border: 1px solid var(--c-borda); border-top: 0; border-radius: 0 0 8px 8px; background: var(--c-superficie-2); }
+@media (max-width: 1100px) {
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha:not([hidden]):not(.is-fora) { grid-template-columns: 32px 96px repeat(4, minmax(0, 1fr)); grid-template-areas: "i foto nome nome nome nome"; }
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td:first-child, .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > .cat6__v-foto { grid-row: 1 / span 3; }
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td[data-r] { grid-row: auto; }
+}
+@media (max-width: 600px) {
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha:not([hidden]):not(.is-fora) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px; grid-template-areas: "nome nome i"; padding: 12px; }
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > .cat6__v-foto { display: none; }
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td:first-child { grid-area: auto; grid-column: 3; grid-row: 1 / span 10; align-self: start; }
+  .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td[data-r] { white-space: normal; }
+}
+.cat6 .cat5__resultados[data-modo="lista"] .cat5__detalhe td, .cat6 .cat5__resultados[data-modo="lista"] .cat5__painel { background: var(--c-superficie-2); box-shadow: none; }
+@media (max-width: 600px) { .cat6 .cat5__resultados[data-modo="lista"] tr.cat3__linha > td[data-r] { align-self: start; } }

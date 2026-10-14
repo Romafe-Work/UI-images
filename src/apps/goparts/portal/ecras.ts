@@ -15,8 +15,7 @@ import { catalogoV5 } from './catalogo-v5';
 
 /** O catálogo v6: o da v5 com as classes do desenho novo (o Início v3) e do motor de transições. */
 export const catalogoV6 = () => catalogoV5.replace('class="portal ', 'class="portal portal--ini3 portal--cat6 ').replace('<main class="cat2 cat3 cat4 cat5"', '<main class="cat2 cat3 cat4 cat5 cat6"');
-import pedidosV2 from './pedidos-v2.html?raw';
-import { pedidosV3 } from './pedidos-v3';
+import { pedidosV4 } from './pedidos-v4';
 
 const FLUXO = 'Portal';
 
@@ -39,10 +38,8 @@ export const ecrasPortal: EcraGoParts[] = [
     objetivo: 'O catálogo de peças: a pesquisa por veículo ou por referência num só sítio, e as marcas de automóveis para escolher.' },
   ...estadosCatalogo(),
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [
-    /* 12 out. 2026: ela pediu para tirar a v1 (a do Figma-WebShop-GoParts) */
-    { id: 'v2', nota: 'A partir dos Pedidos atuais do GO REPAIR, no estilo do Início v2.2 (12 out.): filtros no cartão azul, estado em separadores com contagem, resumo, e cada pedido abre os seus artigos', html: portal('pedidos', pedidosV2, undefined, { menu: true, rodape: false }) },
-    /* 13 out. 2026: ela, com a imagem do GO REPAIR, «quando clico num pedido queria mostrar de outra forma» */
-    { id: 'v3', nota: 'A v2 com o pedido num painel à direita (13 out.): a lista fica à vista; o painel tem o percurso (recebido → entregue), os artigos com pedida, servida e pendente, os totais e repetir / guia / fatura; ↑ ↓ passam de pedido, Esc fecha', html: portal('pedidos', pedidosV3, undefined, { menu: true, rodape: false }) }],
+    /* 15 out. 2026: do briefing dela («Histórico de Pedidos»); uma só versão por ecrã — saíram a v2 e a v3 (o código fica) */
+    { id: 'v4', nota: 'Filtros compactos num painel liso, o estado com a risca laranja e as etiquetas dos filtros aplicados; a tabela ordena-se e cada pedido abre-se na linha (resumo, percurso com o camião ou a embalagem, artigos, entrega, documentos) ou no painel à direita.', html: portal('pedidos', pedidosV4(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
   ...estadosPedidos(),
   /* 13 out. 2026: ela não gostou da v1 (a do Figma-WebShop-GoParts) — fica só a v2 */

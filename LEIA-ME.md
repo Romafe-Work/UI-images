@@ -472,3 +472,18 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Telemóvel:** uma barra presa em baixo com o preço líquido e «Adicionar».
 - **Estados 11.25–11.43:** a ficha a carregar; referência indisponível; sem stock; o stock a carregar; erro no stock; quantidade inválida; a adicionar, adicionada e não adicionada; sem equivalências, OE, veículos, características ou documentos; documento a preparar; erro no documento; sessão terminada; sem permissão; sem ligação.
 - Código: `comportamento/ficha-peca.ts`, os estados em `portal/estados.ts` e o CSS no fim de `css/catalogo-v6.css`.
+
+### 12 · Pedidos v4 (15 out. 2026)
+- Do briefing dela («Histórico de Pedidos»). Fica uma só versão: as v2 e v3 saíram da lista (o código continua no repositório). Ficheiros: `portal/pedidos-v4.ts` (o desenho, a partir dos dados de `pedidos-dados.ts`), `comportamento/pedidos-v4.ts` e `css/pedidos-v4.css`.
+- **Filtros:** painel liso e baixo com as quatro caixas e «Limpar» e «Pesquisar» na mesma linha. O estado (Todos, Processado, Sem processamento) tem a risca laranja a deslizar. Os filtros aplicados aparecem em etiquetas com ×. No telemóvel recolhem-se atrás do botão «Filtros».
+- **Pesquisar:** valida as datas no próprio campo (dd/mm/aaaa; a final não pode ser antes da inicial). As linhas de antes ficam esbatidas com «A atualizar…»; depois as que saem desvanecem e as que ficam deslizam. A contagem e o valor no período sobem ou descem até ao número novo.
+- **Tabela:** Pedido, Data e Valor ordenam-se. Ao passar o rato aparece uma risca azul à esquerda e a seta anda 2 px. Os estados levam texto e ícone. No telemóvel, cada pedido é um cartão.
+- **Abrir na linha:** resumo, percurso, artigos (pedida, servida, pendente), entrega ou recolha, documentos (guia e fatura, se existirem) e ações. As linhas de baixo deslizam; a altura não se anima. O percurso mostra só os passos que o pedido tem; o ícone (camião, embalagem ou visto) anda até ao passo onde o pedido está, uma vez.
+- **Painel à direita:** «Abrir no painel» (ecrã inteiro no telemóvel). O número voa da linha para o título; o resto da página fica inerte; Esc fecha.
+- **Estados 12.1–12.16:** a carregar; a atualizar; nenhum pedido com os filtros; erro nos filtros; sem ligação; erro do servidor; concluído; primeira vez; o pedido a abrir; em processamento; por recolher; expedido em parte; no painel; sessão terminada; sem permissão; documento indisponível.
+- Os euros agrupam sempre os milhares com espaço (2 892,15 €); o pt-PT do browser não agrupa os números de 4 algarismos.
+
+### Tema claro neutro, Tabela por omissão e a Lista dos Veículos (15 out. 2026)
+- O fundo do portal claro passa de azul-claro a neutro (#f3f4f6). Os painéis de filtros deixam de ser azuis nos dois temas: superfície lisa com uma risca azul fina em cima (`css/noite.css`, só com tokens).
+- Marcas e Modelos abrem em **Tabela** por omissão (ela: «default não é tabela, é cards!!!»).
+- Veículos em «Lista» (ela: «não gosto desta lista»): um cartão por veículo, com a silhueta, a versão e os dados em colunas com o rótulo por cima. O escolhido leva a risca azul fina, sem fundo azul. Corrigido também «1 veículos encontrados».
