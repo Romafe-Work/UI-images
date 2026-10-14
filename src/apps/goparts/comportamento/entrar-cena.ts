@@ -102,10 +102,11 @@ export class CenaEntrar {
     /* o login é um cartão ao centro e o rolamento fica no fundo, ao lado: num ecrã largo, à esquerda (a 22 %
        da largura); num ecrã alto e estreito, em cima (a 20 % da altura). A câmara desenha uma janela deslocada
        de um quadro maior (setViewOffset), por isso o rolamento continua no centro da cena. */
+    /* (15 out., ela: «um card centrado com uma divisória a meio; de um lado a animação, do outro o login») — o
+       rolamento tem agora a sua metade do cartão: fica ao centro dela, sem janela deslocada */
     const largo = w / h > 1.1;
     this.zBase = largo ? 11 : 10 * Math.max(1, 0.9 / (w / h));
-    if (largo) this.cam.setViewOffset(w * 1.56, h, w * 0.56, 0, w, h);
-    else this.cam.setViewOffset(w, h * 1.6, 0, h * 0.6, w, h);
+    this.cam.clearViewOffset();
     this.cam.updateProjectionMatrix();
   }
 
@@ -185,16 +186,16 @@ export class CenaEntrar {
       gai: () => v.set(-R.primitivo * 0.7, R.primitivo * 0.7, 0).applyMatrix4((g.gaiola.children[1] as Mesh).matrixWorld),
     };
     const [cx, cy] = proj(v.set(0, 0, 0).applyMatrix4(this.eixo.matrixWorld));
-    const raio = Math.min(cv.width * 0.17, cv.height * 0.34);
+    const raio = Math.min(cv.width * 0.34, cv.height * 0.36);
     const desvio: Record<string, number> = { ext: -0.35, int: 0.55, esf: -0.1, gai: 1.1 };
     this.cotas.forEach(({ linha, ponto, rotulo }, k) => {
       if (!ancora[k]) return;
       const [x, y] = proj(ancora[k]());
       const ang = Math.atan2(y - cy, x - cx) + desvio[k];
       const esq = cx + Math.cos(ang) * raio < cx, larg = rotulo.offsetWidth + 14;
-      /* o rótulo nunca sai do palco nem vai para baixo do cartão do login (que começa a ~37 % da largura) */
-      const direita = Math.min(cv.width, cv.width * 0.36) - larg;
-      const lx = esq ? Math.max(larg, cx + Math.cos(ang) * raio) : Math.min(direita, cx + Math.cos(ang) * raio), ly = Math.max(80, Math.min(cv.height - 60, cy + Math.sin(ang) * raio));
+      /* o rótulo nunca sai do palco (15 out.: o palco é a metade esquerda do cartão) */
+      const direita = cv.width - larg - 12;
+      const lx = esq ? Math.max(larg + 12, cx + Math.cos(ang) * raio) : Math.min(direita, cx + Math.cos(ang) * raio), ly = Math.max(80, Math.min(cv.height - 60, cy + Math.sin(ang) * raio));
       linha.setAttribute('x1', x.toFixed(1)); linha.setAttribute('y1', y.toFixed(1)); linha.setAttribute('x2', lx.toFixed(1)); linha.setAttribute('y2', ly.toFixed(1));
       ponto.setAttribute('cx', x.toFixed(1)); ponto.setAttribute('cy', y.toFixed(1));
       rotulo.style.transform = `translate(${lx.toFixed(1)}px, ${ly.toFixed(1)}px) translate(${esq ? '-100%' : '0'}, -50%)`;

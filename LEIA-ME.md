@@ -496,3 +496,8 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Filtros e pesquisa:** valem para as duas vistas. Os cartões que não passam saem, os meses vazios escondem-se e as contagens são as reais. O número do pedido procurado aparece marcado e, na pesquisa por referência, o cartão diz «Contém …» com a parte encontrada marcada.
 - Não há paginação, porque só há 6 pedidos de exemplo; o fim diz «Não há pedidos mais antigos neste período».
 - Estados: os 12.x passaram à cronologia (a carregar com o esqueleto em forma de linha, pedidos abertos no cartão); o 12.17 mostra a vista em tabela.
+
+### 01–04 Entrar: o cartão partido ao meio (15 out. 2026)
+- Ela: «a animação ficou muito porreira; puxar o card do login mais para a direita e a animação também, parece muito vazio o lado direito; um card centrado com uma divisória a meio, de um lado a animação, do outro o login».
+- Um só cartão ao centro, partido por uma linha fina: à esquerda o palco com o rolamento (o mesmo canvas, agora centrado na sua metade: `entrar-cena.ts` deixou de deslocar a câmara), à direita o login. As cotas da vista explodida ficam dentro do palco. No telemóvel, o palco fica por cima do login, no mesmo cartão.
+- O escuro do login passa ao grafite do resto do portal; o palco tem um tom próprio (`--ent3-cena`), que é também o fundo da cena 3D.

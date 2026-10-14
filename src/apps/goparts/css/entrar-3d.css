@@ -208,3 +208,28 @@
 @media (max-width: 800px) { .ent3 { padding-top: 64px; } .ent3__faixa { margin: 0 -18px; padding: 18px; } }
 .ent3__lado > .ent3__faixa { justify-self: stretch; width: auto; }
 .ent3__faixa .ent3__voltar { justify-self: center; }
+
+/* =========================================================
+   (15 out. 2026, ela: «puxar o card do login mais para a direita e a animação também, parece muito vazio o lado
+   direito; um card centrado com uma divisória a meio: de um lado a animação, do outro o login») — um só cartão
+   ao centro do ecrã, partido ao meio por uma linha fina: à esquerda o palco com o rolamento (o mesmo canvas, agora
+   centrado na sua metade; entrar-cena.ts), à direita o login. No telemóvel, o palco fica por cima, mais baixo.
+   O escuro passa ao grafite do resto do portal (noite.css: --g-*).
+   ========================================================= */
+.ent3 { --ent3-cena: #eef1f5; }
+[data-theme="dark"] .ent3 { --ent3-lado: var(--g-fundo); --ent3-cartao: var(--g-sup); --ent3-cena: var(--g-barra); --ent3-campo: var(--g-barra); --ent3-borda: var(--g-borda); --ent3-tinta: var(--g-tinta); --ent3-tinta-2: var(--g-tinta-2); --ent3-tinta-3: var(--g-tinta-3); --ent3-azul: var(--g-azul-tinta); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ent3 { --ent3-lado: var(--g-fundo); --ent3-cartao: var(--g-sup); --ent3-cena: var(--g-barra); --ent3-campo: var(--g-barra); --ent3-borda: var(--g-borda); --ent3-tinta: var(--g-tinta); --ent3-tinta-2: var(--g-tinta-2); --ent3-tinta-3: var(--g-tinta-3); --ent3-azul: var(--g-azul-tinta); } }
+.ent3 { grid-template-columns: minmax(0, 560px) minmax(0, 460px); justify-content: center; align-content: center; place-items: stretch; gap: 0; }
+.ent3__palco { position: relative; inset: auto; grid-column: 1; grid-row: 1; align-self: stretch; min-height: 560px; height: auto; border: 1px solid var(--ent3-borda); border-right: 0; border-radius: 14px 0 0 14px; background: var(--ent3-cena); }
+.ent3__lado { grid-column: 2; grid-row: 1; width: auto; align-self: stretch; border-radius: 0 14px 14px 0; border-left: 1px solid var(--ent3-borda); }
+.ent3__grafismo { left: 50%; top: 50%; width: min(78%, 60vh); }
+.ent3__ficha { left: 22px; bottom: 18px; }
+.ent3__passos { right: 22px; bottom: 22px; }
+.ent3__lado .ent3__form { align-self: center; }
+@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); } .ent3__grafismo { left: 50%; } }
+@media (max-width: 800px) {
+  .ent3 { grid-template-columns: minmax(0, 460px); grid-template-rows: auto auto; align-content: start; padding: 80px 12px 16px; }
+  .ent3__palco { grid-column: 1; grid-row: 1; min-height: 0; height: 34vh; border: 1px solid var(--ent3-borda); border-bottom: 0; border-radius: 14px 14px 0 0; }
+  .ent3__lado { grid-column: 1; grid-row: 2; margin-top: 0; border-left: 1px solid var(--ent3-borda); border-top: 1px solid var(--ent3-borda); border-radius: 0 0 14px 14px; }
+  .ent3__grafismo { left: 50%; top: 50%; width: min(70vw, 30vh); }
+}

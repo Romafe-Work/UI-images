@@ -27,7 +27,7 @@ let raiz: HTMLElement | null = null;
 let semWebgl = false;
 
 const temWebgl = () => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } };
-const fundo = () => getComputedStyle(raiz ?? document.documentElement).getPropertyValue('--ent3-lado').trim() || '#06131f';
+const fundo = () => getComputedStyle(raiz ?? document.documentElement).getPropertyValue('--ent3-cena').trim() || getComputedStyle(raiz ?? document.documentElement).getPropertyValue('--ent3-lado').trim() || '#06131f';
 
 function obterCena(): Promise<CenaEntrar | null> {
   if (cena) return Promise.resolve(cena);
