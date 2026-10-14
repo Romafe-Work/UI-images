@@ -72,6 +72,13 @@
 .ent3__ligacoes { justify-items: center; }
 .ent3__vender { justify-content: center; }
 .ent3__lado .ent3__rodape { justify-content: center; gap: 8px 24px; }
+/* (ela, 14 out., outra vez: «quero o texto no centro») também os rótulos, o que se escreve nos campos,
+   os erros, a conta, a nota e «Manter a sessão»; as opções da ajuda ficam à esquerda dentro da caixa */
+.ent3__campo label, .ent3__erro, .ent3__nota, .ent3__conta, .ent3__manter { justify-content: center; text-align: center; }
+.ent3__campo label { justify-self: center; }
+.ent3__caixa input { text-align: center; }
+.ent3__manter span { text-align: left; }
+.ent3__caixa:has(.ent3__olho) { padding-left: 54px; }
 .ent3__form > * { animation: ent3-entrar .38s var(--ent3-curva) both; }
 .ent3__form > :nth-child(2) { animation-delay: .03s; } .ent3__form > :nth-child(3) { animation-delay: .06s; } .ent3__form > :nth-child(4) { animation-delay: .09s; }
 .ent3__form > :nth-child(5) { animation-delay: .12s; } .ent3__form > :nth-child(6) { animation-delay: .15s; } .ent3__form > :nth-child(7) { animation-delay: .18s; }

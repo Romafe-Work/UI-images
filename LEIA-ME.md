@@ -177,6 +177,22 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
 - Palco escuro nos dois temas, formulário claro ou escuro; em 800 px o palco sobe para cima.
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
+## 10 · Início do GoParts, v3: o espaço de trabalho de todos os dias (14 out. 2026)
+
+Do briefing dela: o Início é uma ferramenta usada muitas vezes por dia — impressiona pela rapidez, não por
+efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `comportamento/inicio-v3.ts`).
+
+- Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza; o
+  carrossel com o cartão ativo ao centro e os outros a espreitar só com o ícone (perspetiva de 3°, 280 ms);
+  setas, ← → Home End nos separadores, arrastar no tátil; só o ativo recebe o foco (`inert`); o que se
+  escreveu fica; abre no último modo usado (localStorage).
+- Sugestões ao escrever (referências e marcas) com a carregar, sem resultados e recentes; ↑ ↓ Enter Esc.
+- Ctrl+K / ⌘K (ou a caixa de procura do topo): a pesquisa global, modal (o resto fica inerte).
+- Por baixo: categorias (sobem 2 px), pesquisas recentes com «Repetir», últimos pedidos (a seta anda 3 px)
+  e veículos guardados. Os dados são os de exemplo do protótipo.
+- Estados 10.1–10.9 tirados do mesmo desenho (esqueleto, sugestões, a pesquisar, sem resultados, erro no
+  formulário, sem ligação, pedidos que não carregaram, primeira vez, Ctrl+K aberto).
+
 ## Como está feito
 
 ```

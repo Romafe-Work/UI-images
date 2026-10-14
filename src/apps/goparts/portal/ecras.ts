@@ -9,7 +9,7 @@ import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
 import { faturasV1 } from './faturas-v1';
 import { guiasV2 } from './guias-v2';
-import inicioV22 from './inicio-v22.html?raw';
+import { inicioV3 } from './inicio-v3';
 import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { catalogoV4 } from './catalogo-v4';
@@ -21,8 +21,8 @@ const FLUXO = 'Portal';
 
 export const ecrasPortal: EcraGoParts[] = [
   { id: 'inicio', nome: '10 · Início', fluxo: FLUXO, versoes: [
-    /* 12 out. 2026: ela pediu «no screen 10 mantém apenas v2.2»; saíram a v1, v2, v2.1, v2.3, v3, v4 e v5 */
-    { id: 'v2.2', nota: 'A partir de uma imagem de referência (12 out.): topo e abas da v3, carrossel com um cartão grande ao centro e os outros atrás, setas redondas e pontos; por baixo, categorias, pesquisas recentes e últimos pedidos; no azul da Romafe; animações suaves', html: portal('inicio', inicioV22, undefined, { menu: true, rodape: false }) }],
+    /* 14 out. 2026: do briefing dela, o espaço de trabalho de todos os dias; «só quero uma versão por screen» — saiu a v2.2 */
+    { id: 'v3', nota: 'O espaço de trabalho de todos os dias (14 out.): os três modos em separadores com a risca laranja, o carrossel com perspetiva de 3°, sugestões ao escrever, Ctrl+K, e por baixo categorias, pesquisas recentes, últimos pedidos e veículos guardados', html: portal('inicio', inicioV3(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'O que se vê depois de entrar: três caminhos para chegar à peça — identificar o veículo (matrícula, chassis, descrição, motor), selecioná-lo (tipo, marca, modelo, veículo) ou pesquisar a referência (IAM, OE ou todas, com equivalências).' },
   /* os estados do Início (10.1, 10.2…), logo a seguir a ele (12 out. 2026) */
   ...estadosInicio(),

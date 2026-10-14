@@ -2,7 +2,7 @@
    GOPARTS — os estados do 10 · Início (v2.2) e do 11 · Catálogo (v2)
    12 out. 2026. Ela: «por baixo do screen 10 e 11 quero que cries os
    respetivos screens de loading, error… e faz 10.1, 10.2…».
-   Cada estado parte do HTML do ecrã (inicio-v22.html, catalogo-v2.html) e
+   Cada estado parte do HTML do ecrã (catalogo-v2.html…; o Início v3 faz os seus em inicio-v3.ts) e
    muda só o que esse estado muda, pelo DOM de um <template>: carregar,
    pesquisar, sem resultados, erros de formulário, sem ligação, falha de uma
    parte e vazio. As regras são as dos ecrãs de carregamento e de erro:
@@ -11,7 +11,7 @@
    ========================================================= */
 import type { EcraGoParts, IdGoParts } from '../ids';
 import { portal } from './base';
-import inicioV22 from './inicio-v22.html?raw';
+import { inicioV3, type EstadoInicio } from './inicio-v3';
 import catalogoV2 from './catalogo-v2.html?raw';
 import { catalogoV3 } from './catalogo-v3';
 import { mostrar, passos, encherModelos, encherVeiculos } from '../comportamento/catalogo-v3';
@@ -25,7 +25,7 @@ import { preencher as preencherGuia } from '../comportamento/guias-v2';
 import { faturasV1 } from './faturas-v1';
 import { preencher as preencherFatura } from '../comportamento/faturas';
 
-export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio';
+export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
 export type IdEstadoPedidos = 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
@@ -61,24 +61,12 @@ function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): s
 const $ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => r.querySelector<T>(s)!;
 const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.from(r.querySelectorAll<T>(s));
 
-/** Põe ao centro do carrossel da v2.2 o cartão i (0 Identificar, 1 Selecionar, 2 Pesquisar). */
-function centro(r: HTMLElement, i: number): void {
-  const n = 3;
-  $$(r, '.c22__cartao').forEach((c, j) => {
-    c.classList.remove('is-ant', 'is-atual', 'is-seg');
-    const d = (j - i + n) % n;
-    c.classList.add(d === 0 ? 'is-atual' : d === 1 ? 'is-seg' : 'is-ant');
-    if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
-  });
-  $$(r, '.carrossel__ponto').forEach((p, j) => p.classList.toggle('is-atual', j === i));
-}
 /** O botão principal de um cartão em «a carregar». */
 function aCarregar(b: HTMLElement, texto: string): void {
   b.classList.add('is-a-carregar');
   b.setAttribute('disabled', '');
   b.innerHTML = `${GIRADOR('girador--claro')}<span class="btn__rotulo">${texto}</span>`;
 }
-const iniciar = (html: string, extra = '') => portal('inicio', html.replace('portal--noite', `portal--noite portal--estado ${extra}`), undefined, { menu: true, rodape: false });
 const catalogo = (html: string, extra = '') => portal('catalogo', html.replace('portal--noite', `portal--noite portal--estado ${extra}`), undefined, { menu: true, rodape: false });
 /** Os estados do catálogo são parados: sem data-catalogo, o comportamento não lhes mexe. */
 const parado = (r: HTMLElement) => {
@@ -86,91 +74,6 @@ const parado = (r: HTMLElement) => {
   /* o separador ativo é «Favoritas»: só elas à vista, como o comportamento faria */
   $$(r, '.cat2__marca:not([data-favorita])').forEach((m) => m.setAttribute('hidden', ''));
 };
-
-/* ================= 10 · Início ================= */
-
-/* 10.1 · esqueleto: a forma do carrossel, das categorias e dos dois cartões */
-function inicioCarga(): string {
-  const cartao = (cls: string, linhas: number) => `<div class="est-cartao ${cls}" aria-hidden="true">
-      <div class="est-cartao__cabeca">${E('64px', 'esq--escuro est-quadrado')}<div>${E('60%', 'esq--escuro esq--titulo')}${E('80%', 'esq--escuro esq--texto')}</div></div>
-      ${Array.from({ length: linhas }, () => `<div class="est-campo">${E(30, 'esq--escuro esq--rotulo')}${E('100%', 'esq--escuro esq--campo')}</div>`).join('')}
-    </div>`;
-  return iniciar(`<div class="portal portal--v3 portal--v22 portal--noite">
-  <main class="c22" aria-busy="true">
-    <p class="sr-only" role="status">A carregar o Início</p>
-    <div class="est-carrossel">${cartao('est-cartao--lado', 2)}${cartao('est-cartao--centro', 4)}${cartao('est-cartao--lado', 2)}</div>
-    <div class="c22__pontos" aria-hidden="true"><span class="carrossel__ponto"></span><span class="carrossel__ponto is-atual"></span><span class="carrossel__ponto"></span></div>
-    <div class="inicio-mais" aria-hidden="true">
-      <div class="est-linha">${E('180px', 'esq--titulo')}</div>
-      <div class="est-chips">${Array.from({ length: 10 }, (_, i) => E(`${90 + (i % 3) * 22}px`, 'esq--botao')).join('')}</div>
-      <div class="recentes">${[0, 1].map(() => `<div class="cartao4">${E('40%', 'esq--titulo')}${Array.from({ length: 3 }, () => `<div class="est-lista">${E('62%', 'esq--texto')}${E('18%', 'esq--texto')}</div>`).join('')}</div>`).join('')}</div>
-    </div>
-  </main>
-</div>`);
-}
-
-/* 10.2 · a marca escolhida, os modelos a carregar */
-const inicioModelos = () => iniciar(mudar(inicioV22, 'e102', (r) => {
-  centro(r, 1);
-  const marca = $<HTMLSelectElement>(r, '#e102-marca');
-  marca.innerHTML = '<option>Renault</option>';
-  const modelo = $(r, '#e102-modelo').closest('.campo__caixa')!;
-  modelo.outerHTML = `<div class="cg-select est-select">${GIRADOR('girador--pequeno girador--claro')}<span>A carregar os modelos da Renault…</span></div>`;
-  $(r, '.c22__cartao.is-atual .c22__botao').setAttribute('disabled', '');
-}));
-
-/* 10.3 · a pesquisar uma referência */
-const inicioPesquisa = () => iniciar(mudar(inicioV22, 'e103', (r) => {
-  centro(r, 2);
-  $<HTMLInputElement>(r, '#e103-referencia').setAttribute('value', 'VKBA 3525');
-  aCarregar($(r, '.c22__cartao.is-atual .c22__botao'), 'A pesquisar…');
-  $(r, '.c22__cartao.is-atual .c22__form').insertAdjacentHTML('afterend', `<div class="est-progresso"><div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div><p role="status">A procurar VKBA 3525 e as equivalências…</p></div>`);
-}));
-
-/* 10.4 · a referência não existe */
-const inicioSemResultados = () => iniciar(mudar(inicioV22, 'e104', (r) => {
-  centro(r, 2);
-  $<HTMLInputElement>(r, '#e104-referencia').setAttribute('value', '0986 4B 99X');
-  $(r, '.c22__cartao.is-atual .c22__form').insertAdjacentHTML('afterend', `<div class="est-aviso" role="alert">
-      ${I(IC.caixa)}<div><p class="est-aviso__titulo">Não encontrámos a referência 0986 4B 99X</p>
-      <p>Pode ser um carácter trocado. Procure só o início (<strong>0986 4B</strong>), inclua as de origem (OE), ou pesquise pela matrícula.</p>
-      <div class="est-aviso__botoes">${BOTAO('Procurar 0986 4B', IC.lupa, 'btn--claro btn--sm')}${BOTAO('Pesquisar pela matrícula', IC.carro, 'btn--claro btn--sm')}</div></div></div>`);
-}));
-
-/* 10.5 · erros no formulário (Identificar veículo) */
-const inicioFormulario = () => iniciar(mudar(inicioV22, 'e105', (r) => {
-  centro(r, 0);
-  const erro = (id: string, valor: string, msg: string) => {
-    const i = $<HTMLInputElement>(r, `#${id}`);
-    i.setAttribute('value', valor); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', `${id}-msg`);
-    i.closest('.campo')!.classList.add('campo--erro');
-    i.closest('.campo')!.insertAdjacentHTML('beforeend', `<p class="campo__erro" id="${id}-msg">${I(IC.aviso)}${msg}</p>`);
-  };
-  erro('e105-matricula', 'AA-0-BB', 'A matrícula tem 6 letras ou números: AA-00-BB.');
-  erro('e105-chassis', 'VF1RFB00X5', 'O n.º de chassis tem 17 caracteres. Este tem 10.');
-  $(r, '.c22__cartao.is-atual .c22__form').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir</p></div></div>`);
-}));
-
-/* 10.6 · sem ligação: uma faixa em cima, o que já estava continua à vista */
-const inicioRede = () => iniciar(mudar(inicioV22, 'e106', (r) => {
-  $(r, '.c22').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver o Início de há 4 minutos. Pesquisar volta quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
-  $$(r, '.c22__botao, .heroi2__botao').forEach((b) => { b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação'); });
-  r.classList.add('est-desligado');
-}));
-
-/* 10.7 · uma parte falhou: os Últimos pedidos não carregaram */
-const inicioFalha = () => iniciar(mudar(inicioV22, 'e107', (r) => {
-  const lista = $$(r, '.cartao4')[1].querySelector('.cartao4__lista')!;
-  lista.outerHTML = `<div class="cg-falha est-falha">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar os últimos pedidos</p><p class="cg-falha__texto">O resto do Início está bem. Tente de novo; se continuar, ligue para o apoio.</p></div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
-}));
-
-/* 10.8 · primeira vez: ainda sem pesquisas nem pedidos */
-const inicioVazio = () => iniciar(mudar(inicioV22, 'e108', (r) => {
-  const [pesq, ped] = $$(r, '.cartao4');
-  pesq.querySelector('.cartao4__lista')!.outerHTML = `<div class="est-vazio">${I(IC.lupa)}<p><strong>Ainda não pesquisou nada.</strong> As últimas pesquisas aparecem aqui, para as repetir com um clique.</p></div>`;
-  ped.querySelector('.cartao4__lista')!.outerHTML = `<div class="est-vazio">${I(IC.caixa)}<p><strong>Ainda não tem pedidos.</strong> Quando encomendar, acompanha-os aqui.</p>${BOTAO('Ver o catálogo', IC.grelha, 'btn--ghost btn--sm', ' data-ir="catalogo"')}</div>`;
-  $$(r, '.cartao4 .mais').forEach((a) => a.remove());
-}));
 
 /* ================= 11 · Catálogo ================= */
 
@@ -594,15 +497,23 @@ const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo',
 const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): EcraGoParts =>
   ({ id, nome, fluxo: 'Portal', objetivo, estadoDe: PAI[id.split('-')[0]], versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
 
+/* 14 out. 2026: o Início v3 (o espaço de trabalho de todos os dias) traz os seus próprios estados, tirados do
+   mesmo desenho (inicio-v3.ts); os do v2.2 saíram com ele */
+const ini3 = (est: EstadoInicio) => () => {
+  const html = portal('inicio', inicioV3(est), undefined, { menu: true, rodape: false });
+  /* com a pesquisa global aberta (modal), o resto da página fica inerte, como o comportamento faz */
+  return est === 'comando' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
+};
 export const estadosInicio = (): EcraGoParts[] => [
-  e('inicio-carga', '10.1 · A carregar o Início', 'O Início com a forma do carrossel, das categorias e dos dois cartões em esqueleto: quando chegam, nada salta.', inicioCarga),
-  e('inicio-modelos', '10.2 · A carregar modelos', 'Escolhida a marca, o campo Modelo diz o que está a vir; o botão espera por ele.', inicioModelos),
-  e('inicio-pesquisa', '10.3 · A pesquisar a referência', 'O botão em «A pesquisar…» e uma barra fina com o que se procura.', inicioPesquisa),
-  e('inicio-sem-resultados', '10.4 · Referência sem resultados', 'A referência não existe: dentro do cartão, o que pode estar mal e dois caminhos.', inicioSemResultados),
-  e('inicio-formulario', '10.5 · Erros no formulário', 'Identificar veículo com dois campos errados: quantos são, e cada campo diz como deve ser.', inicioFormulario),
-  e('inicio-rede', '10.6 · Sem ligação', 'Uma faixa em cima, o Início de há pouco à vista, e as pesquisas desligadas até a ligação voltar.', inicioRede),
-  e('inicio-falha', '10.7 · Os pedidos não carregaram', 'Só uma parte falhou: o cartão diz qual, o resto continua a funcionar, e «Tentar de novo».', inicioFalha),
-  e('inicio-vazio', '10.8 · Primeira vez', 'Um cliente novo: sem pesquisas nem pedidos, cada cartão diz o que vai aparecer ali.', inicioVazio),
+  e('inicio-carga', '10.1 · A carregar o Início', 'A pesquisa, as categorias e as três listas em esqueleto, com a mesma forma: quando chegam, nada salta.', ini3('carga')),
+  e('inicio-modelos', '10.2 · Sugestões ao escrever', 'Na referência, «VKBA»: as referências que começam assim, com o grupo, o preço e de onde sai; ↑ ↓ e Enter.', ini3('sugestoes')),
+  e('inicio-pesquisa', '10.3 · A pesquisar a referência', 'O botão em «A pesquisar…», com o círculo que roda; depois vêm os resultados verdadeiros.', ini3('pesquisa')),
+  e('inicio-sem-resultados', '10.4 · Referência sem resultados', 'Nenhuma referência começa assim: a lista diz porquê pode ser e o que tentar, sem fechar o cartão.', ini3('sem-resultados')),
+  e('inicio-formulario', '10.5 · Erro no formulário', 'Identificar: a matrícula com o formato errado, e o campo diz como deve ser.', ini3('erro')),
+  e('inicio-rede', '10.6 · Sem ligação', 'Uma faixa em cima; o que já está no ecrã continua à vista, e as pesquisas voltam com a ligação.', ini3('rede')),
+  e('inicio-falha', '10.7 · Os pedidos não carregaram', 'Só uma parte falhou: a zona dos pedidos diz qual, o resto continua a funcionar, e «Tentar de novo».', ini3('falha')),
+  e('inicio-vazio', '10.8 · Primeira vez', 'Um cliente novo: sem pesquisas, pedidos nem veículos guardados; cada zona diz o que vai aparecer ali.', ini3('vazio')),
+  e('inicio-comando', '10.9 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K) em qualquer sítio: as pesquisas recentes e as páginas, com ↑ ↓, Enter e Esc.', ini3('comando')),
 ];
 export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-carga', '11.1 · A carregar o Catálogo', 'O cartão da pesquisa e a grelha das marcas em esqueleto.', catalogoCarga),
