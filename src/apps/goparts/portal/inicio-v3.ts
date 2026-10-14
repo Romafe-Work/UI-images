@@ -26,8 +26,6 @@ import history from 'lucide-static/icons/history.svg?raw';
 import packageIcon from 'lucide-static/icons/package.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
 import star from 'lucide-static/icons/star.svg?raw';
-import command from 'lucide-static/icons/command.svg?raw';
-import cornerDownLeft from 'lucide-static/icons/corner-down-left.svg?raw';
 import triangleAlert from 'lucide-static/icons/triangle-alert.svg?raw';
 import wifiOff from 'lucide-static/icons/wifi-off.svg?raw';
 import disc from 'lucide-static/icons/disc.svg?raw';
@@ -54,52 +52,54 @@ export type EstadoInicio = '' | 'carga' | 'sugestoes' | 'pesquisa' | 'sem-result
 
 const MODOS: [string, string, string][] = [['identificar', 'Identificar', carFront], ['selecionar', 'Selecionar', sliders], ['referencia', 'Referência', hash]];
 
-/* ---------- os três cartões ---------- */
-const botao = (texto: string, icone = search, estado = '') => `<button type="button" class="btn btn--acao ini3__botao${estado === 'pesquisa' ? ' is-a-pesquisar' : ''}" data-pesquisar${estado === 'pesquisa' ? ' aria-busy="true" disabled' : ''}>${estado === 'pesquisa' ? '<span class="ini3__roda" aria-hidden="true"></span><span class="btn__rotulo">A pesquisar…</span>' : `${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span>`}<kbd class="ini3__tecla" aria-hidden="true">${L(cornerDownLeft)}</kbd></button>`;
+/* ---------- os três cartões ----------
+   (ela, 14 out.: «os cards devem manter a cor que tinham, ocupar a width toda e parecer menos IA» e «tudo o
+   que der para escrever deve aparecer no card, não quero a tab matrícula/VIN») — os cartões da v2.2 (azul,
+   azul, laranja), a toda a largura, com todos os campos à vista; sem separadores de tipo nem teclas. */
+const botao = (texto: string, icone = search, estado = '') => `<button type="button" class="btn ini3__botao${estado === 'pesquisa' ? ' is-a-pesquisar' : ''}" data-pesquisar${estado === 'pesquisa' ? ' aria-busy="true" disabled' : ''}>${estado === 'pesquisa' ? '<span class="ini3__roda" aria-hidden="true"></span><span class="btn__rotulo">A pesquisar…</span>' : `${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span>`}</button>`;
+const campo = (id: string, rotulo: string, input: string, extra = '') => `<div class="ini3__campo${extra}"><label for="${id}">${rotulo}</label><div class="ini3__caixa">${input}</div></div>`;
 
 function cartaoIdentificar(e: EstadoInicio): string {
   const erro = e === 'erro';
-  return `<div class="ini3__tipos" role="radiogroup" aria-label="Identificar por">
-      ${['Matrícula', 'VIN / chassis', 'Descrição', 'Motor'].map((t, i) => `<button type="button" role="radio" class="ini3__tipo" aria-checked="${i === 0}" data-tipo="${i}">${t}</button>`).join('')}
+  return `<div class="ini3__grelha ini3__grelha--4">
+      <div class="ini3__campo${erro ? ' is-erro' : ''}"><label for="i3-matricula">Matrícula</label><div class="ini3__caixa"><span class="ini3__pais" aria-hidden="true">P</span><input id="i3-matricula" value="${erro ? 'AA-12' : ''}" placeholder="AA-00-AA" autocomplete="off" spellcheck="false"${erro ? ' aria-invalid="true" aria-describedby="i3-matricula-erro"' : ''}></div>${erro ? `<p class="ini3__erro" id="i3-matricula-erro">${L(triangleAlert)}A matrícula tem 6 caracteres: AA-00-AA.</p>` : ''}</div>
+      ${campo('i3-chassis', 'N.º de chassis (VIN)', '<input id="i3-chassis" placeholder="17 caracteres" autocomplete="off" spellcheck="false">')}
+      ${campo('i3-descricao', 'Descrição', '<input id="i3-descricao" placeholder="Ex.: Clio IV 1.5 dCi 2017" autocomplete="off">')}
+      ${campo('i3-motor', 'Motor', '<input id="i3-motor" placeholder="Ex.: K9K 608" autocomplete="off" spellcheck="false">')}
     </div>
-    <div class="ini3__campo${erro ? ' is-erro' : ''}">
-      <label for="i3-matricula">Matrícula</label>
-      <div class="ini3__caixa ini3__caixa--grande"><span class="ini3__pais" aria-hidden="true">P</span><input id="i3-matricula" value="${erro ? 'AA-12' : ''}" placeholder="AA-00-AA" autocomplete="off" spellcheck="false"${erro ? ' aria-invalid="true" aria-describedby="i3-matricula-erro"' : ''}></div>
-      ${erro ? `<p class="ini3__erro" id="i3-matricula-erro">${L(triangleAlert)}A matrícula tem 6 caracteres: duas letras ou números, três vezes (AA-00-AA).</p>` : '<p class="ini3__ajuda">Com a matrícula ou o VIN encontramos a versão exata do veículo.</p>'}
-    </div>
-    <div class="ini3__pe">${botao('Identificar', carFront, e)}</div>`;
+    <div class="ini3__pe"><p class="ini3__nota">Com a matrícula ou o chassis, encontramos o veículo exato.</p>${botao('Identificar veículo', carFront, e)}</div>`;
 }
 
 function cartaoSelecionar(e: EstadoInicio): string {
   const marca = e === 'sugestoes' ? 'Ren' : '';
-  return `<div class="ini3__tipos" role="radiogroup" aria-label="Tipo de veículo">
-      ${['Ligeiro', 'Comercial', 'Pesado', 'Moto'].map((t, i) => `<button type="button" role="radio" class="ini3__tipo" aria-checked="${i === 0}">${t}</button>`).join('')}
-    </div>
-    <div class="ini3__grelha">
+  return `<div class="ini3__grelha ini3__grelha--4">
+      ${campo('i3-tipo', 'Tipo de veículo', '<select id="i3-tipo"><option>Automóvel ligeiro</option><option>Comercial ligeiro</option><option>Pesado</option><option>Motociclo</option></select>')}
       <div class="ini3__campo ini3__sugere">
         <label for="i3-marca">Marca</label>
         <div class="ini3__caixa"><input id="i3-marca" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="i3-marca-lista" value="${marca}" placeholder="Ex.: Renault" autocomplete="off" data-sugerir="marca"></div>
         <ul class="ini3__lista" id="i3-marca-lista" role="listbox" hidden></ul>
       </div>
-      <div class="ini3__campo"><label for="i3-modelo">Modelo</label><div class="ini3__caixa"><select id="i3-modelo" disabled><option>Escolha a marca</option></select></div></div>
-      <div class="ini3__campo"><label for="i3-variante">Variante</label><div class="ini3__caixa"><select id="i3-variante" disabled><option>Escolha o modelo</option></select></div></div>
+      ${campo('i3-modelo', 'Modelo', '<select id="i3-modelo" disabled><option>Escolha a marca</option></select>')}
+      ${campo('i3-variante', 'Veículo', '<select id="i3-variante" disabled><option>Escolha o modelo</option></select>')}
     </div>
-    <div class="ini3__pe"><p class="ini3__ajuda">Marca, modelo e variante: as peças que servem a esse veículo.</p>${botao('Ver peças', arrowRight, e)}</div>`;
+    <div class="ini3__pe"><p class="ini3__nota">Encontre as peças certas para o veículo, passo a passo.</p>${botao('Selecionar veículo', arrowRight, e)}</div>`;
 }
 
 function cartaoReferencia(e: EstadoInicio): string {
   const ref = e === 'sugestoes' ? 'VKBA' : e === 'pesquisa' ? 'VKBA 6556' : e === 'sem-resultados' ? 'XQ-99812' : '';
-  return `<div class="ini3__campo ini3__sugere${e === 'sem-resultados' ? ' is-aviso' : ''}">
-      <label for="i3-referencia">Referência</label>
-      <div class="ini3__caixa ini3__caixa--grande">${L(search, 'ini3__lupa')}<input id="i3-referencia" role="combobox" aria-autocomplete="list" aria-expanded="${e === 'sugestoes' || e === 'sem-resultados' ? 'true' : 'false'}" aria-controls="i3-ref-lista" value="${ref}" placeholder="Ex.: VKBA 6556, 0 986 494 525…" autocomplete="off" spellcheck="false" data-sugerir="referencia"></div>
-      <ul class="ini3__lista" id="i3-ref-lista" role="listbox"${e === 'sugestoes' || e === 'sem-resultados' ? '' : ' hidden'}>${e === 'sugestoes' ? listaReferencias('VKBA') : e === 'sem-resultados' ? `<li class="ini3__lista-vazio" role="presentation">${L(search)}<span>Nenhuma referência começa por «XQ-99812». Experimente a pesquisa parcial, ou procure pelo veículo.</span></li>` : ''}</ul>
+  return `<div class="ini3__grelha ini3__grelha--ref">
+      <div class="ini3__campo ini3__sugere">
+        <label for="i3-referencia">Referência</label>
+        <div class="ini3__caixa">${L(search, 'ini3__lupa')}<input id="i3-referencia" role="combobox" aria-autocomplete="list" aria-expanded="${e === 'sugestoes' || e === 'sem-resultados' ? 'true' : 'false'}" aria-controls="i3-ref-lista" value="${ref}" placeholder="Ex.: VKBA 6556, 0 986 494 525…" autocomplete="off" spellcheck="false" data-sugerir="referencia"></div>
+        <ul class="ini3__lista" id="i3-ref-lista" role="listbox"${e === 'sugestoes' || e === 'sem-resultados' ? '' : ' hidden'}>${e === 'sugestoes' ? listaReferencias('VKBA') : e === 'sem-resultados' ? `<li class="ini3__lista-vazio" role="presentation">${L(search)}<span>Nenhuma referência começa por «XQ-99812». Experimente a pesquisa parcial, ou procure pelo veículo.</span></li>` : ''}</ul>
+      </div>
+      <fieldset class="ini3__opcoes"><legend>Origem</legend>
+        ${['Todas', 'IAM', 'OE'].map((t, i) => `<label class="ini3__marcar"><input type="radio" name="i3-origem"${i === 0 ? ' checked' : ''}> ${t}</label>`).join('')}
+        <label class="ini3__marcar"><input type="checkbox" checked> Equivalências</label>
+        <label class="ini3__marcar"><input type="checkbox"> Pesquisa parcial</label>
+      </fieldset>
     </div>
-    <div class="ini3__opcoes">
-      <div class="ini3__segmento" role="radiogroup" aria-label="Origem">${['Todas', 'IAM', 'OE'].map((t, i) => `<button type="button" role="radio" class="ini3__tipo" aria-checked="${i === 0}">${t}</button>`).join('')}</div>
-      <label class="ini3__marcar"><input type="checkbox" checked> Equivalências</label>
-      <label class="ini3__marcar"><input type="checkbox"${e === 'sem-resultados' ? '' : ''}> Pesquisa parcial</label>
-    </div>
-    <div class="ini3__pe"><p class="ini3__ajuda">IAM, OE ou todas, com as equivalências entre marcas.</p>${botao('Pesquisar', search, e)}</div>`;
+    <div class="ini3__pe"><p class="ini3__nota">IAM, OE ou todas, com as equivalências entre marcas.</p>${botao('Pesquisar', search, e)}</div>`;
 }
 
 /** As sugestões de referências (os dados de exemplo do catálogo), com a parte escrita em negrito. */
@@ -167,9 +167,9 @@ export const COMANDO = (aberto: boolean) => `<div class="ini3__comando" role="di
 export function inicioV3(e: EstadoInicio = ''): string {
   const atual = e === 'sugestoes' || e === 'pesquisa' || e === 'sem-resultados' ? 2 : e === 'erro' ? 0 : 2;
   const cartoes: [string, string, (e: EstadoInicio) => string][] = [
-    ['Identificar o veículo', 'Pela matrícula, VIN/chassis, descrição ou motor.', cartaoIdentificar],
-    ['Selecionar o veículo', 'Pelo tipo, marca, modelo e variante.', cartaoSelecionar],
-    ['Pesquisar a referência', 'Pelo número, IAM ou OE, com equivalências e pesquisa parcial.', cartaoReferencia],
+    ['Identificar veículo', 'Introduza os dados do veículo para uma pesquisa mais precisa.', cartaoIdentificar],
+    ['Selecionar veículo', 'Navegue pelas características do veículo.', cartaoSelecionar],
+    ['Pesquisar referências', 'Pesquise pela referência da peça, aplicável a várias marcas.', cartaoReferencia],
   ];
   /* a posição de cada cartão já vem no HTML (o comportamento só a muda): o ativo ao centro, os outros de lado,
      `inert` e escondidos dos leitores de ecrã */
@@ -183,17 +183,15 @@ export function inicioV3(e: EstadoInicio = ''): string {
           ${MODOS.map(([id, nome, ic], i) => `<button type="button" role="tab" class="ini3__separador" id="i3-tab-${id}" aria-controls="i3-cartao-${id}" aria-selected="${i === atual}" tabindex="${i === atual ? 0 : -1}" data-modo="${i}">${L(ic)}${nome}</button>`).join('')}
           <i class="ini3__risca" aria-hidden="true"></i>
         </div>
-        <button type="button" class="ini3__global" data-comando>${L(command)}<span>Pesquisa global</span><kbd>Ctrl K</kbd></button>
+        <div class="ini3__setas"><button type="button" class="ini3__seta" data-passo="-1" aria-label="Modo anterior">${L(chevronLeft)}</button><button type="button" class="ini3__seta" data-passo="1" aria-label="Modo seguinte">${L(chevronRight)}</button></div>
       </header>
       <div class="ini3__palco">
-        <button type="button" class="ini3__seta ini3__seta--ant" data-passo="-1" aria-label="Modo anterior">${L(chevronLeft)}</button>
         <div class="ini3__pista">
-          ${cartoes.map(([t, s, corpo], i) => `<section class="ini3__cartao" id="i3-cartao-${MODOS[i][0]}" role="tabpanel" aria-labelledby="i3-tab-${MODOS[i][0]}" data-cartao="${i}"${lado(i)}${e === 'carga' ? ' aria-busy="true"' : ''}>
-            <header class="ini3__cartao-cabeca"><span class="ini3__cartao-icone">${L(MODOS[i][2])}</span><div><h2>${t}</h2><p>${s}</p></div></header>
+          ${cartoes.map(([t, s, corpo], i) => `<section class="ini3__cartao ini3__cartao--${i === 2 ? 'laranja' : 'azul'}" id="i3-cartao-${MODOS[i][0]}" role="tabpanel" aria-labelledby="i3-tab-${MODOS[i][0]}" data-cartao="${i}"${lado(i)}${e === 'carga' ? ' aria-busy="true"' : ''}>
+            <header class="ini3__cartao-cabeca"><h2>${L(MODOS[i][2])}${t}</h2><p>${s}</p></header>
             ${e === 'carga' ? '<div class="ini3__esq-bloco" aria-hidden="true"><i></i><i></i><i></i></div>' : corpo(e)}
           </section>`).join('')}
         </div>
-        <button type="button" class="ini3__seta ini3__seta--seg" data-passo="1" aria-label="Modo seguinte">${L(chevronRight)}</button>
       </div>
     </section>
     ${zonas(e)}

@@ -99,7 +99,8 @@ export class CenaEntrar {
     const w = this.canvas.clientWidth || 1, h = this.canvas.clientHeight || 1;
     this.r.setSize(w, h, false);
     this.cam.aspect = w / h;
-    this.zBase = 8.6 * Math.max(1, 1.05 / this.cam.aspect); /* (ela, 14 out.: «o rolamento mais pequeno») */
+    /* o palco é largo e baixo (o login ao centro): a distância segue a altura, e afasta-se se ficar estreito */
+    this.zBase = 5.6 * Math.max(1, 1.25 / this.cam.aspect);
     this.cam.updateProjectionMatrix();
   }
 

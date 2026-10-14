@@ -174,7 +174,8 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
   errada: o aviso no campo e o anel interior a resistir (sem abanar o ecrã).
 - 03 vista explodida com as cotas e a câmara rodada ~20°; ao continuar, as peças juntam-se.
 - 04 as peças suspensas; a opção em foco (ou debaixo do rato) traz a sua peça à frente.
-- Palco escuro nos dois temas, formulário claro ou escuro; em 800 px o palco sobe para cima.
+- Tudo numa coluna ao centro do ecrã (ela pediu três vezes «no centro»): a marca, o rolamento num palco
+  baixo com o fundo da página, e o formulário com o texto centrado.
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
 ## 10 · Início do GoParts, v3: o espaço de trabalho de todos os dias (14 out. 2026)
@@ -182,8 +183,9 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
 Do briefing dela: o Início é uma ferramenta usada muitas vezes por dia — impressiona pela rapidez, não por
 efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `comportamento/inicio-v3.ts`).
 
-- Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza; o
-  carrossel com o cartão ativo ao centro e os outros a espreitar só com o ícone (perspetiva de 3°, 280 ms);
+- Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza, e as
+  setas ao lado; os cartões têm as cores da v2.2 (azul, azul, laranja), ocupam a largura toda e mostram
+  todos os campos (ela: «tudo o que der para escrever deve aparecer no card»); o carrossel desliza o cartão (280 ms);
   setas, ← → Home End nos separadores, arrastar no tátil; só o ativo recebe o foco (`inert`); o que se
   escreveu fica; abre no último modo usado (localStorage).
 - Sugestões ao escrever (referências e marcas) com a carregar, sem resultados e recentes; ↑ ↓ Enter Esc.

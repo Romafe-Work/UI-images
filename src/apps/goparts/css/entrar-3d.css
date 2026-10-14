@@ -161,3 +161,25 @@
   .ent3__ficha, .ent3__rotulo, .ent3__cotas { display: none; }
   .ent3__fase { top: 16px; left: 16px; font-size: 12px; }
 }
+
+/* =========================================================
+   (14 out. 2026, ela pela terceira vez: «não está no centro») — tudo numa coluna ao centro do ecrã, como
+   ela sempre pediu para o login do GoParts: a marca, o rolamento por baixo (num palco mais baixo, do
+   mesmo fundo da página, sem a faixa escura) e o formulário. As anotações do palco ficam nos cantos dele.
+   ========================================================= */
+.ent3 { grid-template-columns: minmax(0, 1fr); grid-template-areas: "marca" "palco" "form" "rodape"; justify-items: center; align-content: center; row-gap: 0; padding: 28px 16px 24px; --ent3-palco: var(--ent3-lado); }
+.ent3__lado { display: contents; }
+.ent3__marca { grid-area: marca; }
+.ent3__palco { grid-area: palco; position: relative; top: auto; align-self: auto; width: min(720px, 100%); height: clamp(220px, 32vh, 320px); margin: 8px 0 4px; background: var(--ent3-lado); color: var(--ent3-tinta); }
+.ent3__form { grid-area: form; align-self: start; }
+.ent3__rodape { grid-area: rodape; margin-top: 32px; }
+.ent3__orbita { stroke: color-mix(in srgb, var(--ent3-tinta) 14%, transparent); }
+.ent3__orbita--fina { stroke: color-mix(in srgb, var(--ent3-tinta) 8%, transparent); }
+.ent3__grafismo { width: min(60%, 30vh); }
+.ent3__fase { left: 0; top: 4px; color: var(--ent3-tinta-2); font-size: 12px; }
+.ent3__ficha { left: 0; bottom: 4px; color: var(--ent3-tinta-3); font-size: 11px; }
+.ent3__passos { right: 0; bottom: 8px; }
+.ent3__passos li { background: var(--ent3-borda); }
+.ent3__rotulo { color: var(--ent3-tinta); }
+@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 800px) { .ent3__palco { height: 200px; min-height: 0; } .ent3__fase { left: 0; top: 0; } }

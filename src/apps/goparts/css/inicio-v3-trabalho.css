@@ -223,3 +223,52 @@
   .ini3__cartao { padding: 16px; }
   .ini3__pedido .ini3__estado { display: none; }
 }
+
+/* =========================================================
+   (14 out. 2026, ela: «os cards devem manter a cor que tinham, ocupar a width toda e parecer menos IA»;
+   «tudo o que der para escrever deve aparecer no card; não quero a tab matrícula/VIN») — os cartões da v2.2:
+   Identificar e Selecionar no azul da Romafe, Referência a laranja; a toda a largura, um de cada vez (o
+   carrossel desliza o cartão inteiro, 280 ms); todos os campos à vista; as setas ao lado dos separadores.
+   ========================================================= */
+.ini3__palco { grid-template-columns: minmax(0, 1fr); }
+.ini3__setas { display: flex; gap: 8px; }
+.ini3__pista { overflow-x: clip; overflow-y: visible; }
+.ini3__cartao .ini3__lista { color: var(--i3-tinta); }
+.ini3__cartao { width: 100%; padding: 24px 28px; border: 0; border-radius: 14px; color: #fff;
+  transform: translateX(calc(var(--d) * 104%)); opacity: calc(1 - var(--d) * var(--d)); }
+.ini3__cartao:not([inert]) { border-color: transparent; }
+.ini3__cartao[inert] > :not(.ini3__cartao-cabeca), .ini3__cartao[inert] .ini3__cartao-cabeca > div { opacity: 1; }
+.ini3__cartao--azul { background: linear-gradient(135deg, #0063aa 0%, #004a80 100%); }
+.ini3__cartao--laranja { background: linear-gradient(135deg, #f08a24 0%, #b85a00 100%); }
+.ini3__cartao-cabeca { display: grid; gap: 4px; }
+.ini3__cartao-cabeca h2 { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 22px; }
+.ini3__cartao-cabeca h2 svg { width: 22px; height: 22px; }
+.ini3__cartao-cabeca p { margin: 0; color: rgba(255, 255, 255, .85); font-size: 15px; }
+.ini3__grelha--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ini3__grelha--ref { grid-template-columns: minmax(0, 1fr); }
+.ini3__cartao .ini3__campo label, .ini3__opcoes legend { color: rgba(255, 255, 255, .92); font-size: 13px; font-weight: 600; }
+.ini3__cartao .ini3__caixa { height: 46px; border-color: rgba(255, 255, 255, .3); background: rgba(0, 20, 40, .22); color-scheme: dark; }
+.ini3__cartao--laranja .ini3__caixa { background: rgba(60, 20, 0, .2); }
+.ini3__cartao .ini3__caixa:focus-within { border-color: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, .25); }
+.ini3__cartao .ini3__caixa input, .ini3__cartao .ini3__caixa select { color: #fff; font-size: 15px; }
+.ini3__cartao .ini3__caixa input::placeholder { color: rgba(255, 255, 255, .62); }
+.ini3__cartao .ini3__caixa select:disabled { color: rgba(255, 255, 255, .55); }
+.ini3__cartao .ini3__caixa select option { color: #0d1520; }
+.ini3__cartao .ini3__lupa { color: rgba(255, 255, 255, .7); }
+.ini3__opcoes { margin: 0; padding: 0; border: 0; }
+.ini3__opcoes legend { float: left; margin-right: 8px; }
+.ini3__cartao .ini3__marcar { color: #fff; }
+.ini3__cartao .ini3__marcar input { accent-color: #fff; }
+.ini3__nota { margin: 0; font-size: 14px; color: rgba(255, 255, 255, .85); }
+.ini3__cartao .ini3__botao.btn { min-height: 46px; padding: 0 20px; background: var(--c-acao); color: #fff; font-weight: 700; }
+.ini3__cartao .ini3__botao.btn:hover { background: var(--c-acao-premido); }
+.ini3__cartao--laranja .ini3__botao.btn { background: #fff; color: #b85a00; }
+.ini3__cartao--laranja .ini3__botao.btn:hover { background: #fdeee0; }
+.ini3__cartao--laranja .ini3__roda { border-color: rgba(184, 90, 0, .3); border-top-color: #b85a00; }
+.ini3__cartao .ini3__campo.is-erro .ini3__caixa { border-color: #ffb4a8; }
+.ini3__cartao .ini3__erro { color: #ffd7d2; }
+.ini3__cartao .ini3__esq-bloco i { background: rgba(255, 255, 255, .16); }
+@media (prefers-reduced-motion: reduce) { .ini3__cartao { transform: translateX(calc(var(--d) * 104%)); } }
+@media (max-width: 1180px) { .ini3__grelha--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ini3__cartao { width: 100%; } }
+@media (max-width: 900px) { .ini3__cartao[inert] { visibility: hidden; } .ini3__setas { display: flex; } }
+@media (max-width: 640px) { .ini3__grelha--4 { grid-template-columns: minmax(0, 1fr); } .ini3__cartao { padding: 18px; } }
