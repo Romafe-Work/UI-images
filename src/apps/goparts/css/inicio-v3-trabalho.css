@@ -272,3 +272,23 @@
 @media (max-width: 1180px) { .ini3__grelha--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ini3__cartao { width: 100%; } }
 @media (max-width: 900px) { .ini3__cartao[inert] { visibility: hidden; } .ini3__setas { display: flex; } }
 @media (max-width: 640px) { .ini3__grelha--4 { grid-template-columns: minmax(0, 1fr); } .ini3__cartao { padding: 18px; } }
+
+/* (ela, 14 out.: «quero as setas como estavam antes» e «mete a ocupar a width toda») — as setas voltam aos
+   lados do cartão (44 px, cantos de 8 px) e o Início ocupa a largura toda da janela */
+.ini3 { width: 100%; max-width: none; }
+.ini3__palco { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+@media (max-width: 900px) { .ini3__palco { grid-template-columns: minmax(0, 1fr); } }
+
+/* (ela, 14 out.: «quero laranja e não preto no fundo») — nos cartões, os campos têm um véu claro por cima da
+   cor do cartão (não escuro), e as opções (rádio e caixa) são desenhadas: contorno branco, fundo da cor do
+   cartão, marca branca; o browser não as pinta de preto no tema escuro */
+.ini3__cartao .ini3__caixa, .ini3__cartao--laranja .ini3__caixa { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .4); }
+.ini3__cartao .ini3__marcar input { appearance: none; -webkit-appearance: none; display: grid; place-content: center; width: 18px; height: 18px; margin: 0; border: 2px solid rgba(255, 255, 255, .9); border-radius: 4px; background: transparent; cursor: pointer; transition: background-color .15s ease, transform .1s ease; }
+.ini3__cartao .ini3__marcar input[type="radio"] { border-radius: 50%; }
+.ini3__cartao .ini3__marcar input::after { content: ""; width: 8px; height: 8px; border-radius: 2px; background: currentColor; transform: scale(0); transition: transform .15s ease; }
+.ini3__cartao .ini3__marcar input[type="radio"]::after { border-radius: 50%; }
+.ini3__cartao .ini3__marcar input:checked { background: #fff; color: #b85a00; }
+.ini3__cartao--azul .ini3__marcar input:checked { color: #0063aa; }
+.ini3__cartao .ini3__marcar input:checked::after { transform: scale(1); }
+.ini3__cartao .ini3__marcar input:active { transform: scale(.94); }
+.ini3__cartao .ini3__marcar input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

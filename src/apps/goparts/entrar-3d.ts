@@ -36,7 +36,7 @@ const BOTAO = (texto: string, icone: string, extra = '', depois = false) => `<bu
 const VOLTAR = (para: string, texto = 'Voltar') => `<button type="button" class="ent3__voltar" data-ir="${para}">${L(arrowLeft)}${texto}</button>`;
 
 type Fase = 'entrada' | 'palavra' | 'empresa' | 'ajuda';
-/* o que o palco diz em cada fase: o passo da montagem e as cotas (só na vista explodida) */
+/* as fases da montagem (os quatro passos em baixo); a etiqueta «01 / 04 · Anel exterior» saiu (ela, 14 out.) */
 const FASES: Record<Fase, [string, string]> = {
   entrada: ['01', 'Anel exterior'],
   palavra: ['02', 'Anel interior e esferas'],
@@ -46,13 +46,11 @@ const FASES: Record<Fase, [string, string]> = {
 const COTAS: [string, string][] = [['ext', 'Anel exterior · D 62 mm'], ['int', 'Anel interior · d 30 mm'], ['esf', '9 esferas · Ø 9,525 mm'], ['gai', 'Gaiola']];
 
 function moldura(fase: Fase, corpo: string, k: string): string {
-  const [n, nome] = FASES[fase];
   return `<div class="ent3" data-fase="${fase}">
   <section class="ent3__palco" aria-hidden="true">
     <div class="ent3__lugar"></div>
     <svg class="ent3__grafismo" viewBox="-100 -100 200 200" preserveAspectRatio="xMidYMid meet"><circle class="ent3__orbita" r="88"/><circle class="ent3__orbita ent3__orbita--fina" r="96"/><path class="ent3__mira" d="M-100 0h18M82 0h18M0 -100v18M0 82v18"/></svg>
     ${fase === 'empresa' ? `<svg class="ent3__cotas">${COTAS.map(([c]) => `<g class="ent3__cota" data-cota="${c}"><line pathLength="1"/><circle r="3"/></g>`).join('')}</svg><div class="ent3__rotulos">${COTAS.map(([c, t]) => `<span class="ent3__rotulo" data-cota="${c}">${t}</span>`).join('')}</div>` : ''}
-    <p class="ent3__fase"><b>${n}</b> / 04 · ${nome}</p>
     <p class="ent3__ficha">SKF 6206 · D 62 · d 30 · B 16 mm</p>
     <ol class="ent3__passos">${(Object.keys(FASES) as Fase[]).map((f) => `<li${f === fase ? ' aria-current="step"' : ''}></li>`).join('')}</ol>
   </section>

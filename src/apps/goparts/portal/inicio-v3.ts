@@ -85,7 +85,10 @@ function cartaoSelecionar(e: EstadoInicio): string {
     <div class="ini3__pe"><p class="ini3__nota">Encontre as peças certas para o veículo, passo a passo.</p>${botao('Selecionar veículo', arrowRight, e)}</div>`;
 }
 
+/* cada cópia do cartão (o ecrã e os estados estão todos na página) tem o seu grupo de rádios */
+let grupoOrigem = 0;
 function cartaoReferencia(e: EstadoInicio): string {
+  const nome = `i3-origem-${++grupoOrigem}`;
   const ref = e === 'sugestoes' ? 'VKBA' : e === 'pesquisa' ? 'VKBA 6556' : e === 'sem-resultados' ? 'XQ-99812' : '';
   return `<div class="ini3__grelha ini3__grelha--ref">
       <div class="ini3__campo ini3__sugere">
@@ -94,7 +97,7 @@ function cartaoReferencia(e: EstadoInicio): string {
         <ul class="ini3__lista" id="i3-ref-lista" role="listbox"${e === 'sugestoes' || e === 'sem-resultados' ? '' : ' hidden'}>${e === 'sugestoes' ? listaReferencias('VKBA') : e === 'sem-resultados' ? `<li class="ini3__lista-vazio" role="presentation">${L(search)}<span>Nenhuma referência começa por «XQ-99812». Experimente a pesquisa parcial, ou procure pelo veículo.</span></li>` : ''}</ul>
       </div>
       <fieldset class="ini3__opcoes"><legend>Origem</legend>
-        ${['Todas', 'IAM', 'OE'].map((t, i) => `<label class="ini3__marcar"><input type="radio" name="i3-origem"${i === 0 ? ' checked' : ''}> ${t}</label>`).join('')}
+        ${['Todas', 'IAM', 'OE'].map((t, i) => `<label class="ini3__marcar"><input type="radio" name="${nome}"${i === 0 ? ' checked' : ''}> ${t}</label>`).join('')}
         <label class="ini3__marcar"><input type="checkbox" checked> Equivalências</label>
         <label class="ini3__marcar"><input type="checkbox"> Pesquisa parcial</label>
       </fieldset>
@@ -183,15 +186,16 @@ export function inicioV3(e: EstadoInicio = ''): string {
           ${MODOS.map(([id, nome, ic], i) => `<button type="button" role="tab" class="ini3__separador" id="i3-tab-${id}" aria-controls="i3-cartao-${id}" aria-selected="${i === atual}" tabindex="${i === atual ? 0 : -1}" data-modo="${i}">${L(ic)}${nome}</button>`).join('')}
           <i class="ini3__risca" aria-hidden="true"></i>
         </div>
-        <div class="ini3__setas"><button type="button" class="ini3__seta" data-passo="-1" aria-label="Modo anterior">${L(chevronLeft)}</button><button type="button" class="ini3__seta" data-passo="1" aria-label="Modo seguinte">${L(chevronRight)}</button></div>
       </header>
       <div class="ini3__palco">
+        <button type="button" class="ini3__seta ini3__seta--ant" data-passo="-1" aria-label="Modo anterior">${L(chevronLeft)}</button>
         <div class="ini3__pista">
           ${cartoes.map(([t, s, corpo], i) => `<section class="ini3__cartao ini3__cartao--${i === 2 ? 'laranja' : 'azul'}" id="i3-cartao-${MODOS[i][0]}" role="tabpanel" aria-labelledby="i3-tab-${MODOS[i][0]}" data-cartao="${i}"${lado(i)}${e === 'carga' ? ' aria-busy="true"' : ''}>
             <header class="ini3__cartao-cabeca"><h2>${L(MODOS[i][2])}${t}</h2><p>${s}</p></header>
             ${e === 'carga' ? '<div class="ini3__esq-bloco" aria-hidden="true"><i></i><i></i><i></i></div>' : corpo(e)}
           </section>`).join('')}
         </div>
+        <button type="button" class="ini3__seta ini3__seta--seg" data-passo="1" aria-label="Modo seguinte">${L(chevronRight)}</button>
       </div>
     </section>
     ${zonas(e)}

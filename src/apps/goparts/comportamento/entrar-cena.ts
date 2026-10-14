@@ -99,8 +99,13 @@ export class CenaEntrar {
     const w = this.canvas.clientWidth || 1, h = this.canvas.clientHeight || 1;
     this.r.setSize(w, h, false);
     this.cam.aspect = w / h;
-    /* o palco é largo e baixo (o login ao centro): a distância segue a altura, e afasta-se se ficar estreito */
-    this.zBase = 5.6 * Math.max(1, 1.25 / this.cam.aspect);
+    /* o login é um cartão ao centro e o rolamento fica no fundo, ao lado: num ecrã largo, à esquerda (a 22 %
+       da largura); num ecrã alto e estreito, em cima (a 20 % da altura). A câmara desenha uma janela deslocada
+       de um quadro maior (setViewOffset), por isso o rolamento continua no centro da cena. */
+    const largo = w / h > 1.1;
+    this.zBase = largo ? 11 : 10 * Math.max(1, 0.9 / (w / h));
+    if (largo) this.cam.setViewOffset(w * 1.56, h, w * 0.56, 0, w, h);
+    else this.cam.setViewOffset(w, h * 1.6, 0, h * 0.6, w, h);
     this.cam.updateProjectionMatrix();
   }
 
@@ -180,7 +185,7 @@ export class CenaEntrar {
       gai: () => v.set(-R.primitivo * 0.7, R.primitivo * 0.7, 0).applyMatrix4((g.gaiola.children[1] as Mesh).matrixWorld),
     };
     const [cx, cy] = proj(v.set(0, 0, 0).applyMatrix4(this.eixo.matrixWorld));
-    const raio = Math.min(cv.width, cv.height) * 0.4;
+    const raio = Math.min(cv.width * 0.17, cv.height * 0.34);
     const desvio: Record<string, number> = { ext: -0.3, int: 0.4, esf: 0.15, gai: -0.15 };
     this.cotas.forEach(({ linha, ponto, rotulo }, k) => {
       if (!ancora[k]) return;

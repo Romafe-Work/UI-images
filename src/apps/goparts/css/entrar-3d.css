@@ -163,23 +163,30 @@
 }
 
 /* =========================================================
-   (14 out. 2026, ela pela terceira vez: «não está no centro») — tudo numa coluna ao centro do ecrã, como
-   ela sempre pediu para o login do GoParts: a marca, o rolamento por baixo (num palco mais baixo, do
-   mesmo fundo da página, sem a faixa escura) e o formulário. As anotações do palco ficam nos cantos dele.
+   (14 out. 2026, ela: «não gosto; o rolamento deve ficar noutro sítio; quero o login com um cartão no centro;
+   remove o 01/04 anel exterior em tudo») — o login é um cartão ao centro do ecrã; o rolamento vai para o
+   fundo, grande, à esquerda do cartão (no telemóvel, por cima), e continua a montar-se de passo em passo.
+   O palco ocupa o ecrã todo, com o fundo da página; o canvas desenha o rolamento deslocado (setViewOffset,
+   entrar-cena.ts) e as órbitas acompanham-no.
    ========================================================= */
-.ent3 { grid-template-columns: minmax(0, 1fr); grid-template-areas: "marca" "palco" "form" "rodape"; justify-items: center; align-content: center; row-gap: 0; padding: 28px 16px 24px; --ent3-palco: var(--ent3-lado); }
-.ent3__lado { display: contents; }
-.ent3__marca { grid-area: marca; }
-.ent3__palco { grid-area: palco; position: relative; top: auto; align-self: auto; width: min(720px, 100%); height: clamp(220px, 32vh, 320px); margin: 8px 0 4px; background: var(--ent3-lado); color: var(--ent3-tinta); }
-.ent3__form { grid-area: form; align-self: start; }
-.ent3__rodape { grid-area: rodape; margin-top: 32px; }
-.ent3__orbita { stroke: color-mix(in srgb, var(--ent3-tinta) 14%, transparent); }
-.ent3__orbita--fina { stroke: color-mix(in srgb, var(--ent3-tinta) 8%, transparent); }
-.ent3__grafismo { width: min(60%, 30vh); }
-.ent3__fase { left: 0; top: 4px; color: var(--ent3-tinta-2); font-size: 12px; }
-.ent3__ficha { left: 0; bottom: 4px; color: var(--ent3-tinta-3); font-size: 11px; }
-.ent3__passos { right: 0; bottom: 8px; }
-.ent3__passos li { background: var(--ent3-borda); }
-.ent3__rotulo { color: var(--ent3-tinta); }
-@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 800px) { .ent3__palco { height: 200px; min-height: 0; } .ent3__fase { left: 0; top: 0; } }
+.ent3 { --ent3-cartao: #ffffff; position: relative; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: none; place-items: center; min-height: max(100vh, 640px); padding: 32px 16px; overflow: hidden; --ent3-palco: var(--ent3-lado); }
+[data-theme="dark"] .ent3 { --ent3-cartao: #111e2e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ent3 { --ent3-cartao: #111e2e; } }
+.ent3__palco { position: absolute; inset: 0; top: 0; width: auto; height: auto; margin: 0; align-self: stretch; background: var(--ent3-lado); color: var(--ent3-tinta); }
+.ent3__grafismo { left: 22%; top: 50%; width: min(30vw, 48vh); }
+.ent3__ficha { left: 24px; bottom: 20px; }
+.ent3__passos { right: 24px; bottom: 24px; }
+/* o cartão */
+.ent3__lado { position: relative; z-index: 1; display: grid; grid-template-rows: auto auto auto; gap: 22px; width: min(440px, 100%); min-height: 0; padding: 28px 32px 22px; border: 1px solid var(--ent3-borda); border-radius: 14px; background: var(--ent3-cartao); }
+.ent3__lado > * { width: 100%; }
+.ent3__marca { grid-area: auto; }
+.ent3__form { grid-area: auto; width: 100%; }
+.ent3__rodape { grid-area: auto; margin-top: 0; padding-top: 14px; border-top: 1px solid var(--ent3-borda); }
+@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr); } .ent3__grafismo { left: 18%; } }
+@media (max-width: 800px) {
+  .ent3 { align-content: end; padding: 0 12px 16px; min-height: 100vh; }
+  .ent3__palco { position: absolute; height: auto; }
+  .ent3__grafismo { left: 50%; top: 20%; width: min(70vw, 34vh); }
+  .ent3__lado { margin-top: 38vh; padding: 22px 18px 18px; }
+  .ent3__ficha, .ent3__passos { display: none; }
+}

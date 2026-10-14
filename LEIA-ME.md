@@ -174,8 +174,9 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
   errada: o aviso no campo e o anel interior a resistir (sem abanar o ecrã).
 - 03 vista explodida com as cotas e a câmara rodada ~20°; ao continuar, as peças juntam-se.
 - 04 as peças suspensas; a opção em foco (ou debaixo do rato) traz a sua peça à frente.
-- Tudo numa coluna ao centro do ecrã (ela pediu três vezes «no centro»): a marca, o rolamento num palco
-  baixo com o fundo da página, e o formulário com o texto centrado.
+- O login é um cartão ao centro do ecrã (ela: «quero o login com um cartão no centro»), com o texto
+  centrado; o rolamento fica no fundo, à esquerda do cartão (no telemóvel, por cima), e continua a
+  montar-se de passo em passo. Sem a etiqueta «01 / 04 · Anel exterior».
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
 ## 10 · Início do GoParts, v3: o espaço de trabalho de todos os dias (14 out. 2026)
@@ -183,8 +184,8 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
 Do briefing dela: o Início é uma ferramenta usada muitas vezes por dia — impressiona pela rapidez, não por
 efeitos. Uma versão só (`portal/inicio-v3.ts`, `css/inicio-v3-trabalho.css`, `comportamento/inicio-v3.ts`).
 
-- Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza, e as
-  setas ao lado; os cartões têm as cores da v2.2 (azul, azul, laranja), ocupam a largura toda e mostram
+- Os três modos em separadores (Identificar, Selecionar, Referência) com a risca laranja que desliza; as
+  setas aos lados do cartão; o Início ocupa a largura toda; os cartões têm as cores da v2.2 (azul, azul, laranja), ocupam a largura toda e mostram
   todos os campos (ela: «tudo o que der para escrever deve aparecer no card»); o carrossel desliza o cartão (280 ms);
   setas, ← → Home End nos separadores, arrastar no tátil; só o ativo recebe o foco (`inert`); o que se
   escreveu fica; abre no último modo usado (localStorage).
