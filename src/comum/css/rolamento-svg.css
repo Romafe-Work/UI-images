@@ -1,0 +1,23 @@
+/* =========================================================
+   ROMAFE — o rolamento desenhado (rolamento-svg.ts): montar, rodar, desmontar
+   --rs-g, de 0 a 1, diz quanto está montado: anel exterior (0–0,14), esferas uma a uma (0,16–0,46),
+   gaiola (0,5–0,62), anel interior (0,64–0,82). Só transform, opacity e stroke-dashoffset.
+   ========================================================= */
+@property --rs-g { syntax: '<number>'; inherits: true; initial-value: 1; }
+.rs { display: block; width: 120px; height: 120px; overflow: visible; --rs-g: 1; }
+.rs * { transform-box: view-box; transform-origin: 0 0; }
+.rs__ext { --k: clamp(0, var(--rs-g) / .14, 1); opacity: var(--k); transform: scale(calc(.8 + .2 * var(--k))); }
+.rs__folga { opacity: clamp(0, (var(--rs-g) - .14) / .04, 1); }
+.rs__esfera { --k: clamp(0, (var(--rs-g) - .16 - var(--i) * .033) / .05, 1); --raio: calc(72px + (1 - var(--k)) * 70px); opacity: var(--k); transform: translate(calc(cos(var(--ang)) * var(--raio)), calc(sin(var(--ang)) * var(--raio))); }
+.rs__gaiola { stroke-dashoffset: calc(100 * (1 - clamp(0, (var(--rs-g) - .5) / .12, 1))); }
+.rs__int { --k: clamp(0, (var(--rs-g) - .64) / .18, 1); opacity: var(--k); transform: scale(calc(.5 + .5 * var(--k))); }
+/* a carregar: monta-se em 1,6 s e depois roda */
+.rs--carregar { animation: rs-montar 1.6s cubic-bezier(.45, 0, .55, 1) both; }
+.rs--carregar .rs__gira { animation: rs-girar 1.6s linear 1.6s infinite; }
+/* em manutenção: desmonta-se e volta a montar, devagar, em ciclo; roda sempre devagar */
+.rs--manutencao { animation: rs-afinar 5s cubic-bezier(.65, 0, .35, 1) infinite alternate; }
+.rs--manutencao .rs__gira { animation: rs-girar 8s linear infinite; }
+@keyframes rs-montar { from { --rs-g: 0; } to { --rs-g: 1; } }
+@keyframes rs-afinar { 0%, 15% { --rs-g: 1; } 85%, 100% { --rs-g: .3; } }
+@keyframes rs-girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .rs, .rs__gira { animation: none !important; --rs-g: 1; } }

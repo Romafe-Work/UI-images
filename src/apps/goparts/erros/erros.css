@@ -65,6 +65,7 @@
 .er-manutencao__risco { width: 60px; height: 4px; border-radius: 2px; background: var(--c-acao); }
 .er-manutencao__produto { margin: 0 0 var(--e-5); font-family: var(--f-titulo); font-weight: 700; font-size: var(--t-xl); }
 .er-manutencao .er-texto { max-width: 460px; }
+.er-manutencao__rolamento { width: 96px; height: 96px; margin: 0 0 var(--e-4); }
 
 /* 36 · formulário */
 .er-painel { background: var(--c-superficie); border: 1px solid var(--c-borda); border-radius: var(--r-md); overflow: hidden; display: grid; gap: var(--e-4); }

@@ -9,6 +9,7 @@
    com percentagem só quando se sabe quanto falta; e nada mexe com
    «reduzir movimento». Os botões a carregar mantêm ícone e texto.
    ========================================================= */
+import { rolamentoSvg } from '../rolamento-svg';
 import type { Ecra } from '../tipos';
 import { portal, type Produto } from '../../apps/goparts/portal/base';
 
@@ -25,13 +26,15 @@ const I_DE_NOVO = '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>';
 const I_GUARDAR = '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>';
 const I_SEM_REDE = '<path d="m2 2 20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.8a15 15 0 0 1 4.2-2.7M10.7 5.1A15 15 0 0 1 22 8.8M5 12.9a10 10 0 0 1 5.2-2.7M16.8 11.2a10 10 0 0 1 2.2 1.7"/><path d="M12 20h.01"/>';
 
-/* ---------- 20 · a página inteira ---------- */
+/* ---------- 20 · a página inteira ----------
+   (ela, 14 out.: «carregar o portal deve ser com um rolamento») — no lugar da barra, o rolamento que se
+   monta e roda (comum/rolamento-svg.ts) */
 function pagina(p: Produto): string {
   return `<div class="carga-pagina" role="status" aria-live="polite">
     <span class="romafe carga-pagina__romafe">ROMAFE</span>
     <span class="carga-pagina__risco" aria-hidden="true"></span>
     <p class="carga-pagina__produto">${p.nome}</p>
-    <div class="progresso progresso--indeterminado carga-pagina__barra" aria-hidden="true"><span></span></div>
+    ${rolamentoSvg('carga-' + p.nome, 'carregar', 'carga-pagina__rolamento')}
     <p class="carga-pagina__texto">A preparar a sua conta…</p>
   </div>`;
 }

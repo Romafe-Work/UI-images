@@ -5,6 +5,7 @@
    fazer a seguir, e dá sempre uma saída: um botão (ícone e texto) e o
    contacto da Romafe. O código técnico fica pequeno, para o apoio.
    ========================================================= */
+import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import type { Ecra } from '../../../comum/tipos';
 import { portal, GOPARTS, type IdPortal } from '../portal/base';
 
@@ -90,13 +91,14 @@ function rede(): string {
 </div>`, GOPARTS);
 }
 
-/* ---------- 35 · manutenção: sem portal, que não está disponível ---------- */
+/* ---------- 35 · manutenção: sem portal, que não está disponível ----------
+   (ela, 14 out.: «e aqui também») — no lugar do ícone, o rolamento a desmontar-se e a montar-se, devagar */
 function manutencao(): string {
   return `<div class="er-manutencao" role="alert">
     <span class="romafe er-manutencao__romafe">ROMAFE</span>
     <span class="er-manutencao__risco" aria-hidden="true"></span>
     <p class="er-manutencao__produto">GoParts</p>
-    <span class="er-icone er-icone--azul">${I(IC.chave)}</span>
+    ${rolamentoSvg('manutencao', 'manutencao', 'er-manutencao__rolamento')}
     <h1 class="er-titulo">Estamos a melhorar o GoParts</h1>
     <p class="er-texto">O portal volta <strong>hoje às 07:00</strong>. Para encomendas urgentes até lá, ligue para o apoio.</p>
     ${APOIO}
