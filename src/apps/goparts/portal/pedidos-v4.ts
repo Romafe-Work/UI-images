@@ -7,6 +7,8 @@
    pedidos-dados.ts (os mesmos seis pedidos da v2 e da v3). Feito em TypeScript e CSS, sem React.
    O comportamento está em comportamento/pedidos-v4.ts e o CSS em css/pedidos-v4.css.
    ========================================================= */
+import { capa } from './capas';
+import { azulejoPeca } from './pecas-img';
 import { PEDIDOS, LINHAS, euros, type Pedido, type LinhaPedido } from './pedidos-dados';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
 import hash from 'lucide-static/icons/hash.svg?raw';
@@ -74,7 +76,7 @@ export function percurso(p: Pedido): string {
 /* ---------- o pedido aberto (na linha ou no painel) ---------- */
 export function detalhe(p: Pedido, l: LinhaPedido, onde: 'linha' | 'gaveta' = 'linha'): string {
   const pend = p.artigos.filter((a) => a[1] < a[0]).length;
-  const artigos = p.artigos.map(([ped, serv, desc, valor], i) => `<tr style="--i:${i}"><td class="ped4__num">${ped}</td><td class="ped4__num">${serv}</td><td class="ped4__num${serv < ped ? ' ped4__falta' : ''}">${ped - serv}</td><td>${esc(desc)}</td><td class="ped4__num">${euros(valor)}</td></tr>`).join('');
+  const artigos = p.artigos.map(([ped, serv, desc, valor], i) => `<tr style="--i:${i}"><td class="ped4__num">${ped}</td><td class="ped4__num">${serv}</td><td class="ped4__num${serv < ped ? ' ped4__falta' : ''}">${ped - serv}</td><td><span class="pc-art">${azulejoPeca(desc)}<span>${esc(desc)}</span></span></td><td class="ped4__num">${euros(valor)}</td></tr>`).join('');
   const entrega = l.recolher
     ? `<p class="ped4__ent">${L(store)}<span><b>Levanta no balcão</b>Armazém ${esc(l.armazem)}</span></p>`
     : `<p class="ped4__ent">${L(mapPin)}<span><b>${esc(l.morada[0])}</b>${esc(l.morada[1])}</span></p>`;
@@ -196,6 +198,7 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
   <main class="ped4" data-pedidos4>
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Pedidos</h1><p class="ped4__sub">Pesquise e acompanhe os pedidos da sua conta.</p></div>
+      ${capa('pedidos')}
       <dl class="ped4__kpi">
         <div><dt>${L(shoppingCart)}Pedidos</dt><dd data-kpi="n">${op.conta ?? LINHAS.length}</dd></div>
         <div><dt>${L(creditCard)}Valor no período</dt><dd data-kpi="total">${euros(op.total ?? total)}</dd></div>

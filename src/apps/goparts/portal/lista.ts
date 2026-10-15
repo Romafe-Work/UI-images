@@ -13,6 +13,8 @@
    Total = Subtotal − Descontos. Os valores são de exemplo (as referências do catálogo).
    Comportamento: comportamento/lista.ts. CSS: css/lista.css.
    ========================================================= */
+import { silhueta } from './carros';
+import { azulejoPeca } from './pecas-img';
 import { REFERENCIAS } from './catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import save from 'lucide-static/icons/save.svg?raw';
@@ -73,7 +75,7 @@ export function linhaPeca(p: Peca, i: number, o: { so?: boolean; semPreco?: bool
   return `<tr class="lst__linha${o.nova ? ' is-nova' : ''}" data-tipo="peca" style="--i:${i}">
     <td data-rotulo="Marca"><span class="lst__marca">${p.marca}</span></td>
     <td data-rotulo="Referência"><span class="lst__ref">${p.ref}</span></td>
-    <td data-rotulo="Descrição" class="lst__desc">${p.desc}</td>
+    <td data-rotulo="Descrição" class="lst__desc"><span class="pc-art">${azulejoPeca(p.desc)}<span>${p.desc}</span></span></td>
     <td data-rotulo="Qtd." class="lst__n">${qtd(p.qtd, `Quantidade de ${p.ref}`, so)}</td>
     <td data-rotulo="Preço líquido" class="lst__n lst__romafe" data-liquido="${p.liquido}">${o.semPreco ? '<span class="lst__sem">—</span>' : euros(p.liquido)}</td>
     <td data-rotulo="PVP" class="lst__n${o.erro ? ' is-erro' : ''}">${o.semPreco ? '<span class="lst__sem">—</span>' : campoNum('lst__pvp', `PVP de ${p.ref}`, o.erro ? NaN : p.pvp, `${so ? ' readonly' : ''}${o.erro ? ` aria-invalid="true" aria-describedby="lst-erro-${i}"` : ''}`).replace('value="NaN"', `value="${o.erro}"`)}${o.erro ? `<p class="lst__erro" id="lst-erro-${i}">${L(alert)}Escreva um valor em euros, ex.: 112,40</p>` : ''}</td>
@@ -155,6 +157,7 @@ export function listaHtml(e: EstadoLista = ''): string {
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--lista">
   <main class="lst${so ? ' is-leitura' : ''}" data-estado="${e}">
     <header class="lst__topo">
+      ${nova ? '' : `<span class="lst__carro" title="Renault Scénic II (monovolume)">${silhueta('Monovolume')}</span>`}
       <div class="lst__titulo">
         <label class="lst__nome"><span class="sr-only">Nome da lista</span><input data-nome value="${nome}"${so ? ' readonly' : ''}>${so ? '' : L(pencil, 'lst__lapis')}</label>
         <p class="lst__meta"><span class="lst__estado lst__estado--${estK}" role="status" aria-live="polite"><i aria-hidden="true"></i>${estT}</span>${nova ? '' : '<span class="lst__numero">Lista L2024/000318</span>'}</p>

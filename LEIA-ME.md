@@ -538,6 +538,17 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Entre ecrãs:** «Ver fatura» nas Guias e nos Pedidos abre a fatura no painel das Faturas; daqui, a guia e o pedido abrem no painel deles.
 - **Estados 14.1–14.23:** primeira carga, esqueleto, a pesquisar, sem faturas, nenhuma com filtros, datas inválidas, selecionada, aberta, IVA recolhido, nota de crédito, vencida, documento a abrir, pré-visualização, PDF indisponível, a descarregar, descarga falhou, dados parciais, documento relacionado em falta, erro do servidor, sem ligação, sessão terminada, sem permissão e vista em tabela. «A gerar o PDF» (comum) passou a 14.24.
 
+### Mais imagens — Pedidos, Guias, Faturas e Minha lista (15 out. 2026)
+- Ela: «preciso de mais imagens em todos os screens».
+- **Fotografia no cabeçalho** (`portal/capas.ts`): fotografias verdadeiras de romafe.com, escolhidas pelo que o ecrã faz. Os Pedidos têm a separação nas estantes, as Guias o corredor do armazém e as Faturas a fachada da sede.
+  - Ficam nítidas, sem véus, numa moldura entre o título e os números, com a legenda numa etiqueta lisa.
+  - Entram da esquerda para a direita e aproximam-se 3 % com o rato. Saem abaixo de 1100 px.
+- **Desenho da peça nas linhas de artigos** (`portal/pecas-img.ts`): nos Pedidos e nas Guias (painel), no talão das Faturas e na Minha lista.
+  - O desenho é escolhido pela descrição (disco, pastilhas, filtro, amortecedor, rolamento, correia, bomba de água, lâmpada, escova, óleo, embraiagem, vela, sensor, junta), no traço dos ícones das categorias do Início, e mexe com o gesto da categoria quando o rato passa pela linha.
+  - **Não são fotografias**: não há fotografias licenciadas das peças e o repositório é público. Quando houver, entram em `imagemPeca()`.
+- **A silhueta do carro** ao lado do nome da lista (Minha lista, Renault Scénic II = monovolume), a mesma do Catálogo.
+- O Início, o Catálogo e o Entrar já tinham imagens (cartões, logótipos das marcas, carros, rolamento 3D).
+
 ### 14 · Faturas: o Resumo da Minha lista e o talão (15 out. 2026, tarde)
 - **Resumo:** ela, com a imagem dos números, disse «aqui seria engraçado aparecer como aparece na lista de compras». Os números saíram do cabeçalho para um cartão **Resumo** à direita da lista, como o da Minha lista: Faturas e Notas de crédito, Pagas, Em aberto e Vencidas, cada uma com a quantidade ao lado; «Por pagar» grande em baixo; a nota num quadro. Os valores contam e acendem como na lista. Abaixo de 1180 px o cartão sobe para cima da lista.
 - **O talão** (o briefing dela «Interactive Purchase Receipt»): clicar numa fatura abre-a no painel como um talão de compras.

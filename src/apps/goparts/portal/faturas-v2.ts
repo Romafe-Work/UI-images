@@ -13,6 +13,8 @@
    Molde dos Pedidos v5 e das Guias v3 (classes ped4__*, gui3__* do percurso e dos valores); o que é só das faturas
    tem fat2__*. Comportamento: comportamento/faturas-v2.ts. CSS: css/faturas-v2.css. Sem React.
    ========================================================= */
+import { capa } from './capas';
+import { azulejoPeca } from './pecas-img';
 import { FATURAS, type Fatura, type Pagamento } from './faturas-dados';
 import { base, iva, total, euros } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
@@ -40,7 +42,6 @@ import check from 'lucide-static/icons/check.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import alert from 'lucide-static/icons/triangle-alert.svg?raw';
 import percent from 'lucide-static/icons/percent.svg?raw';
-import pkg from 'lucide-static/icons/package.svg?raw';
 import copy from 'lucide-static/icons/copy.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 
@@ -132,7 +133,7 @@ export function pagamento(f: Fatura): string {
    neutro (não se inventam imagens). O preço unitário não vem nos dados — mostra-se a quantidade e o valor da linha. */
 export function detalheFatura(f: Fatura, prefixo = 'fat2', abertaIva = false): string {
   const g = f.guia, n = g.linhas.length, eid = `${prefixo}-ent-${id(f.num)}`;
-  const linhas = g.linhas.map(([q, d, v], i) => `<li class="fat2__linha" style="--i:${i}"><span class="fat2__l-i">${L(pkg)}</span><span class="fat2__l-desc"><b>${esc(d)}</b><small>Linha ${String(i + 1).padStart(2, '0')}</small></span><span class="fat2__l-q">${q.toLocaleString('pt-PT')} un.</span><span class="fat2__l-v">${euros(v)}</span></li>`).join('');
+  const linhas = g.linhas.map(([q, d, v], i) => `<li class="fat2__linha" style="--i:${i}">${azulejoPeca(d, 'fat2__l-i')}<span class="fat2__l-desc"><b>${esc(d)}</b><small>Linha ${String(i + 1).padStart(2, '0')}</small></span><span class="fat2__l-q">${q.toLocaleString('pt-PT')} un.</span><span class="fat2__l-v">${euros(v)}</span></li>`).join('');
   return `<div class="fat2__talao">
     <section class="fat2__sec fat2__t-artigos" aria-label="Artigos da compra">
       <h3 class="ped4__h">Artigos da compra <span>${n}</span></h3>
@@ -269,6 +270,7 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
   <main class="ped4 gui3 fat2" data-faturas2>
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Faturas</h1><p class="ped4__sub">Consulte os documentos de faturação da sua conta.</p></div>
+      ${capa('faturas')}
     </header>
 
     <section class="ped4__filtros" aria-label="Filtrar faturas">

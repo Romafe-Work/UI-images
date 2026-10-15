@@ -22,6 +22,7 @@ import './css/pedidos-v4.css';
 import './css/guias-v2.css';
 import './css/guias-v3.css';
 import './css/faturas-v2.css';
+import './css/imagens.css';
 import './css/faturas.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
