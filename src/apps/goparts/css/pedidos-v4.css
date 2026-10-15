@@ -370,3 +370,10 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 .ped4__kpi dd.is-mudou, .ped4__kpi dd .is-mudou { animation: kpi-mudou 420ms ease-out; }
 @keyframes kpi-mudou { 30% { color: var(--c-acao); } }
 @media (prefers-reduced-motion: reduce) { .kpi-barra i { transition: none; } .ped4__kpi dd.is-mudou, .ped4__kpi dd .is-mudou { animation: none; } .ped4--entrar .ped4__kpi > div { animation: none; } }
+
+/* (15 out., ela: «a parte do histórico dos pedidos ainda está com cores diferentes») na cronologia, a cor fica só no
+   marcador e no estado por baixo da data; as etiquetas dentro dos cartões (Processado, Por recolher, Fatura, Nota de
+   crédito, o pagamento, o estado da devolução) ficam neutras, com o ícone e o texto — em todos os históricos.
+   Na Tabela e nos painéis mantêm a cor, porque lá são a única marca do estado. */
+.ped4__c-item .ped4__selo { color: var(--c-texto-2); border-color: var(--c-borda-forte); background: none; }
+.ped4__c-item .ped4__selo svg { color: var(--c-texto-3); }
