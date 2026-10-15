@@ -350,8 +350,8 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 
 /* =========================================================
    (15 out., ela: «quero mais animação aqui e noutros screens», sobre os números do cabeçalho) — comportamento/kpi.ts
-   Pedidos, Guias e Faturas: cada número tem o seu ícone (com o gesto ao passar o rato), entra em cascata, os
-   algarismos rolam numa fita 0–9 (520 ms), a diferença sobe por cima do número e apaga-se, e uma risca fina diz a
+   Pedidos, Guias e Faturas: cada número tem o seu ícone (com o gesto ao passar o rato), entra em cascata, conta
+   como os totais da Minha lista (420 ms, acende a laranja), a diferença sobe por cima do número e apaga-se, e uma risca fina diz a
    parte do total do período. Só transform e opacity; nada à volta se mexe.
    ========================================================= */
 .ped4__kpi > div { position: relative; overflow: hidden; transition: background-color 150ms ease; }
@@ -359,10 +359,6 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 .ped4__kpi dt { display: flex; align-items: center; gap: 6px; }
 .ped4__kpi dt svg { width: 13px; height: 13px; flex: none; color: var(--c-acao); }
 .ped4__kpi dd { line-height: 1.2; white-space: nowrap; }
-.kpi-c { display: inline-block; vertical-align: top; white-space: pre; }
-.kpi-c--d { height: 1.2em; overflow: hidden; }
-.kpi-fita { display: flex; flex-direction: column; transform: translateY(calc(var(--d, 0) * -1.2em)); transition: transform 520ms cubic-bezier(.22, 1, .36, 1); }
-.kpi-fita > span { height: 1.2em; line-height: 1.2em; }
 .kpi-dif { position: absolute; top: 8px; left: 18px; right: 18px; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap; background: var(--c-superficie); pointer-events: none; }
 .ped4__kpi > div:hover .kpi-dif { background: var(--c-superficie-2); }
 .kpi-dif--mais { color: var(--c-ok); } .kpi-dif--menos { color: var(--c-texto-2); }
@@ -372,4 +368,7 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 /* a entrada em cascata: um número de cada vez */
 .ped4--entrar .ped4__kpi > div { animation: ped4-entrar 300ms var(--p4-curva) both; }
 .ped4--entrar .ped4__kpi > div:nth-child(2) { animation-delay: 60ms; } .ped4--entrar .ped4__kpi > div:nth-child(3) { animation-delay: 120ms; } .ped4--entrar .ped4__kpi > div:nth-child(4) { animation-delay: 180ms; }
-@media (prefers-reduced-motion: reduce) { .kpi-fita, .kpi-barra i { transition: none; } .ped4--entrar .ped4__kpi > div { animation: none; } }
+/* como na Minha lista: o número que mudou acende a laranja (420 ms) */
+.ped4__kpi dd.is-mudou, .ped4__kpi dd .is-mudou { animation: kpi-mudou 420ms ease-out; }
+@keyframes kpi-mudou { 30% { color: var(--c-acao); } }
+@media (prefers-reduced-motion: reduce) { .kpi-barra i { transition: none; } .ped4__kpi dd.is-mudou, .ped4__kpi dd .is-mudou { animation: none; } .ped4--entrar .ped4__kpi > div { animation: none; } }

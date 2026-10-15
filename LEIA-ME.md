@@ -540,11 +540,11 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 
 ### Os números do cabeçalho a mexer — Pedidos, Guias e Faturas (15 out. 2026)
 - Ela, com a imagem dos quatro números das Faturas: «quero mais animação aqui e noutros screens». Está em `comportamento/kpi.ts`, e o CSS no fim de `css/pedidos-v4.css`.
-- **Contador:** cada algarismo é uma fita 0–9 que rola até ao valor novo (520 ms, da direita para a esquerda). À entrada da página rola a partir do 0.
+- **Contar como na Minha lista** (ela: «aqui seria engraçado aparecer como aparece na lista de compras»): o número conta do valor antigo até ao novo (420 ms) e acende a laranja; à entrada da página conta a partir do 0. A caixa nunca encolhe (fica com a largura do maior valor já mostrado), para o cabeçalho não saltar. A fita de algarismos da primeira versão saiu.
 - **Diferença:** com um filtro, a diferença («+2», «−1 234,56 €») aparece por momentos no lugar do nome do número e o nome volta.
 - **Risca fina** no fundo de cada número, com a parte do total do período (laranja; âmbar nas notas de crédito).
 - **Ícone** com o gesto ao passar o rato e entrada em cascata.
-- Só transform e opacity, com algarismos de largura fixa: nada à volta se mexe. Com «reduzir movimento», o número troca de uma vez.
+- Nada à volta se mexe: a diferença e a risca só usam transform e opacity. Com «reduzir movimento», o número troca de uma vez.
 
 ### 01–04 Entrar: o cartão partido ao meio (15 out. 2026)
 - Ela: «a animação ficou muito porreira; puxar o card do login mais para a direita e a animação também, parece muito vazio o lado direito; um card centrado com uma divisória a meio, de um lado a animação, do outro o login».

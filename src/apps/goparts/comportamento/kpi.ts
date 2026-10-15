@@ -1,48 +1,29 @@
 /* =========================================================
    GOPARTS — os números do cabeçalho a mexer (15 out. 2026; Pedidos, Guias e Faturas)
    Ela, com a imagem dos quatro números das Faturas: «quero mais animação aqui e noutros screens».
-   - CONTADOR: cada algarismo é uma fita 0–9 que rola (transform, 520 ms, da direita para a esquerda, 28 ms entre
-     algarismos) até ao valor novo; na entrada da página, os algarismos rolam a partir do 0. O texto inteiro fica
-     no aria-label (os algarismos são decorativos para o leitor de ecrã).
+   - CONTAR (ela, depois: «aqui seria engraçado aparecer como aparece na lista de compras»): como os totais da Minha
+     lista, o número conta do valor antigo até ao novo (420 ms) e acende a laranja; à entrada conta a partir do 0.
+     (A fita de algarismos que rolavam, da primeira versão, saiu.)
    - DIFERENÇA: quando o número muda com um filtro, aparece no lugar do nome do número «+2» ou «−1 234,56 €», que
      sobe e se apaga em 1,6 s, e o nome volta (posição absoluta: nada à volta se mexe).
    - BARRA: uma risca fina no fundo de cada número diz a parte do total do período (scaleX, 450 ms).
-   Só transform e opacity; a largura do número não anima (algarismos de largura fixa). Com «reduzir movimento»,
+   A largura do número fica a do valor final enquanto conta; a diferença e a risca só usam transform e opacity. Com «reduzir movimento»,
    o número troca de uma vez e não há diferença a subir.
    ========================================================= */
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const DIG = '0123456789';
-
-/** Escreve `texto` no elemento como algarismos em fita; os que já existiam (contados da direita) rolam até ao novo. */
-function odometro(el: HTMLElement, texto: string): void {
-  el.setAttribute('aria-label', texto);
-  const velhos = Array.from(el.querySelectorAll<HTMLElement>(':scope > .kpi-c'));
-  const chars = [...texto];
-  const novos = chars.map((ch, i) => {
-    const j = velhos.length - (chars.length - i), antigo = j >= 0 ? velhos[j] : null;
-    if (DIG.includes(ch)) {
-      if (antigo?.classList.contains('kpi-c--d')) return antigo;
-      const s = document.createElement('span'); s.className = 'kpi-c kpi-c--d'; s.setAttribute('aria-hidden', 'true');
-      s.innerHTML = `<span class="kpi-fita">${[...DIG].map((d) => `<span>${d}</span>`).join('')}</span>`;
-      s.style.setProperty('--d', '0');
-      s.dataset.novo = '1';
-      return s;
-    }
-    if (antigo && !antigo.classList.contains('kpi-c--d') && antigo.textContent === ch) return antigo;
-    const s = document.createElement('span'); s.className = 'kpi-c'; s.setAttribute('aria-hidden', 'true'); s.textContent = ch; s.dataset.novo = '1';
-    return s;
-  });
-  el.textContent = '';
-  novos.forEach((n) => el.appendChild(n));
-  void el.offsetWidth; /* o estado de partida fica calculado, para a fita rolar a partir dele */
-  /* no próximo quadro, cada algarismo rola até ao seu; os novos entram de baixo */
-  const n = novos.length;
-  requestAnimationFrame(() => novos.forEach((s, i) => {
-    const atraso = quieto() ? 0 : (n - 1 - i) * 28;
-    if (s.classList.contains('kpi-c--d')) { s.style.transitionDelay = `${atraso}ms`; s.style.setProperty('--d', chars[i]); }
-    if (s.dataset.novo && !quieto()) s.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: atraso, easing: 'ease-out', fill: 'backwards' });
-    delete s.dataset.novo;
-  }));
+/** Como na Minha lista (ela: «aqui seria engraçado aparecer como aparece na lista de compras»): o número conta do
+    valor que lá estava até ao novo (420 ms) e acende a laranja. A largura fica a do maior valor já mostrado, para
+    nada à volta se mexer enquanto conta nem quando o número encolhe. */
+function contarComoNaLista(el: HTMLElement, de: number, para: number, fmt: (n: number) => string): void {
+  el.setAttribute('aria-label', fmt(para));
+  el.textContent = fmt(para);
+  /* a caixa nunca encolhe: fica com a largura do maior valor que já mostrou (um filtro não puxa o cabeçalho) */
+  el.style.minWidth = `${Math.max(parseFloat(el.style.minWidth) || 0, el.offsetWidth)}px`;
+  if (quieto() || de === para) return;
+  const t0 = performance.now();
+  const passo = (t: number) => { const k = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(de + (para - de) * e); if (k < 1) requestAnimationFrame(passo); };
+  requestAnimationFrame(passo);
+  el.classList.remove('is-mudou'); void el.offsetWidth; el.classList.add('is-mudou');
 }
 
 /** A diferença no lugar do nome do número: sobe e apaga-se. */
@@ -72,20 +53,21 @@ export function kpi(el: HTMLElement | null, para: number, fmt: (n: number) => st
   const de = Number(el.dataset.valor ?? para);
   if (!el.dataset.base) el.dataset.base = String(de || para);
   el.dataset.valor = String(para);
-  odometro(el, fmt(para));
+  contarComoNaLista(el, de, para, fmt);
   if (de !== para) diferenca(el, para - de, fmt);
   const base = Number(el.dataset.base);
   barra(el, base ? Math.abs(para) / Math.abs(base) : 0);
 }
 
-/** A entrada da página: os algarismos rolam do 0 até ao valor e as riscas enchem-se. */
+/** A entrada da página: os números aparecem a contar a partir do 0 (o mesmo gesto da lista) e as riscas enchem-se. */
 export function kpiEntrada(raiz: HTMLElement, fmts: Record<string, (n: number) => string>): void {
   raiz.querySelectorAll<HTMLElement>('[data-kpi]').forEach((el) => {
-    const k = el.dataset.kpi!, fmt = fmts[k]; if (!fmt || el.querySelector('.kpi-c')) return;
+    const fmt = fmts[el.dataset.kpi!]; if (!fmt || el.dataset.entrou) return;
+    el.dataset.entrou = '1';
     const v = Number(el.dataset.valor ?? 0);
-    el.dataset.base = String(v);
-    const zero = fmt(v).replace(/\d/g, '0');
-    odometro(el, zero);
-    requestAnimationFrame(() => requestAnimationFrame(() => { odometro(el, fmt(v)); barra(el, v ? 1 : 0); }));
+    if (!el.dataset.base) el.dataset.base = String(v);
+    const base = Number(el.dataset.base);
+    contarComoNaLista(el, 0, v, fmt);
+    requestAnimationFrame(() => barra(el, base ? Math.abs(v) / Math.abs(base) : 0));
   });
 }
