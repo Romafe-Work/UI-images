@@ -48,7 +48,16 @@ function distribuir(): EcraGoParts[] {
     const versoes = novo ? [{ id: 'v1', nota: 'Do briefing dos estados do Início (14 out.), na linguagem mecânica do rolamento', html: novo[0]() }] as EcraGoParts['versoes'] : e.versoes;
     lista.splice(i + 1, 0, { ...e, nome, fluxo: 'Portal', estadoDe: pai, versoes, objetivo: novo ? novo[1] : e.objetivo });
   }
-  return lista;
+  /* (15 out., ela: «no fluxo quero que mostres exemplos de diálogos abertos») estes estados entram no mapa, logo a
+     seguir ao seu ecrã: os painéis laterais dos Pedidos, das Guias e das Faturas, as pré-visualizações e o diálogo
+     de eliminar a lista */
+  const DIALOGOS: Record<string, string> = {
+    'pedidos-aberto': 'Diálogo aberto · o pedido', 'pedidos-guia': 'Diálogo aberto · a guia do pedido',
+    'guias-aberta': 'Diálogo aberto · a guia', 'guias-pdf': 'Diálogo aberto · o documento',
+    'faturas-aberta': 'Diálogo aberto · o talão', 'faturas-pdf': 'Diálogo aberto · o documento',
+    'lista-eliminar': 'Diálogo aberto · eliminar',
+  };
+  return lista.map((e) => (DIALOGOS[e.id] ? { ...e, noFluxo: DIALOGOS[e.id] } : e));
 }
 
 export const goparts: App<IdGoParts> = {

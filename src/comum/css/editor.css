@@ -258,6 +258,11 @@
    para abrir o ecrã, não para carregar num botão dele. */
 .fluxo .ecra { display: block; width: var(--tela-l, 1440px); height: var(--tela-a, 900px); zoom: var(--tela-escala, .25); overflow: hidden; pointer-events: none; }
 .fluxo .ecra[hidden] { display: block; }
+/* (15 out.) os painéis e os diálogos presos à janela (position: fixed) ficam dentro do seu cartão do mapa */
+.fluxo .ecra { contain: layout paint; }
+/* os exemplos de diálogos abertos: a etiqueta laranja por cima do nome, e o cartão com a borda laranja */
+.fluxo__etiqueta { display: inline-block; margin: 0 0 6px; padding: 2px 8px; border-radius: 4px; background: #f58214; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+.fluxo__cartao--estado .fluxo__quadro { outline: 2px solid #f58214; outline-offset: 3px; }
 .fluxo .entrada, .fluxo .casca { min-height: var(--tela-a, 900px); height: var(--tela-a, 900px); }
 .fluxo__legenda-ecra { padding-top: 40px; }   /* por cima passam as setas que saem por baixo */
 .fluxo__nome { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #1c1d1f; }

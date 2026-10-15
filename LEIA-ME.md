@@ -538,6 +538,11 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Entre ecrãs:** «Ver fatura» nas Guias e nos Pedidos abre a fatura no painel das Faturas; daqui, a guia e o pedido abrem no painel deles.
 - **Estados 14.1–14.23:** primeira carga, esqueleto, a pesquisar, sem faturas, nenhuma com filtros, datas inválidas, selecionada, aberta, IVA recolhido, nota de crédito, vencida, documento a abrir, pré-visualização, PDF indisponível, a descarregar, descarga falhou, dados parciais, documento relacionado em falta, erro do servidor, sem ligação, sessão terminada, sem permissão e vista em tabela. «A gerar o PDF» (comum) passou a 14.24.
 
+### O Fluxo com exemplos de diálogos abertos (15 out. 2026)
+- Ela: «no fluxo quero que mostres exemplos de diálogos abertos». Os estados continuam fora do mapa, menos os que têm `noFluxo` (`src/comum/tipos.ts`). Esses entram logo a seguir ao seu ecrã, com uma etiqueta laranja («Diálogo aberto · …») e o cartão contornado a laranja. As setas que saem dos diálogos também se desenham.
+- No GoParts (`app.ts`, `DIALOGOS`): o pedido no painel (12.7) e a guia do pedido (12.24); a guia (13.8) e o seu documento (13.13); o talão (14.8) e o documento da fatura (14.13); eliminar a lista (15.18).
+- No mapa, cada ecrã contém os seus elementos presos à janela (`contain: layout paint` em `editor.css`), para os painéis ficarem dentro do cartão.
+
 ### Imagens das peças e a lista de compras nos painéis (15 out. 2026)
 - Ela primeiro pediu «preciso de mais imagens em todos os screens». Depois esclareceu: «as imagens refiro-me a imagens dos produtos aqui [nas linhas de artigos] e não [a fotografia no cabeçalho]». As fotografias dos cabeçalhos saíram (`capas.ts` apagado).
 - **Imagem da peça** em cada linha de artigos: nos painéis dos Pedidos, das Guias e das Faturas (talão), e na Minha lista (`portal/pecas-img.ts`).

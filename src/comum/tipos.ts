@@ -29,6 +29,9 @@ export interface Ecra<Id extends string = string> {
       os estados escolhidos no próprio ecrã, por baixo das versões, e não como
       ecrãs soltos 10.1, 10.2…). Não aparece no seletor nem no mapa. */
   estadoDe?: Id;
+  /** (15 out. 2026, ela: «no fluxo quero que mostres exemplos de diálogos abertos») um estado que, mesmo assim, aparece no
+      mapa, logo a seguir ao seu ecrã, com esta etiqueta (ex.: «Diálogo aberto»). */
+  noFluxo?: string;
 }
 
 export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';

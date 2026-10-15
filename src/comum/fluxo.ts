@@ -82,8 +82,9 @@ function ligar(o?: Opcoes): void {
   const linhas: Record<string, HTMLElement> = {};
   lugares = [];
   ecras.forEach((ecra) => {
-    /* os estados não são ecrãs do mapa: escolhem-se no próprio ecrã */
-    if (ecra.dataset.estadoDe) return;
+    /* os estados não são ecrãs do mapa: escolhem-se no próprio ecrã — menos os exemplos de diálogos abertos
+       (data-no-fluxo), que ficam logo a seguir ao seu ecrã, com a etiqueta */
+    if (ecra.dataset.estadoDe && !ecra.dataset.noFluxo) return;
     const marcador = document.createComment('ecra:' + ecra.dataset.ecra);
     ecra.parentNode?.insertBefore(marcador, ecra);
     lugares.push({ ecra, marcador, hidden: ecra.hidden === true });
@@ -109,6 +110,7 @@ function ligar(o?: Opcoes): void {
     quadro.appendChild(ecra);
     cartao.appendChild(quadro);
     const leg2 = el('figcaption', 'fluxo__legenda-ecra');
+    if (ecra.dataset.noFluxo) { cartao.classList.add('fluxo__cartao--estado'); leg2.appendChild(el('p', 'fluxo__etiqueta', ecra.dataset.noFluxo)); }
     leg2.appendChild(el('p', 'fluxo__nome', ecra.dataset.nome || ecra.dataset.ecra));
     if (ecra.dataset.objetivo) leg2.appendChild(el('p', 'fluxo__objetivo', ecra.dataset.objetivo));
     cartao.appendChild(leg2);
