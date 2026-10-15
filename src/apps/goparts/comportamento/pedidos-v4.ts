@@ -15,9 +15,11 @@
    «Repetir pedido» confirmam ao fim de menos de 1 s.
    ========================================================= */
 import { LINHAS, euros } from '../portal/pedidos-dados';
-import { detalhe, pedidoDe, linhaDe, valorDe, L, ICONES } from '../portal/pedidos-v4';
+import { detalhe, pedidoDe, linhaDe, valorDe, L, ICONES, etapa } from '../portal/pedidos-v4';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import x from 'lucide-static/icons/x.svg?raw';
+import { guiaDe, detalheGuia, nomeTipo } from '../portal/guias-v3';
+import { GUIAS, total as totalGuia, euros as eurosGuia } from '../portal/guias-dados';
 
 const editando = () => document.body.classList.contains('editando');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -33,9 +35,10 @@ const criterios = new WeakMap<HTMLElement, Criterios>();
 const ler = (main: HTMLElement): Criterios => ({ de: $<HTMLInputElement>(main, '#ped4-de')!.value.trim(), ate: $<HTMLInputElement>(main, '#ped4-ate')!.value.trim(), num: $<HTMLInputElement>(main, '#ped4-num')!.value.trim(), ref: $<HTMLInputElement>(main, '#ped4-ref')!.value.trim() });
 const data = (s: string) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!m) return NaN; const d = new Date(+m[3], +m[2] - 1, +m[1]); return d.getMonth() === +m[2] - 1 ? +`${m[3]}${m[2]}${m[1]}` : NaN; };
 const simples = (s: string) => s.toLowerCase().replace(/[\s/.-]/g, '');
-function passa(num: string, c: Criterios, estado: string): boolean {
+function passa(num: string, c: Criterios, estado: string, et = 'todas'): boolean {
   const l = linhaDe(num), p = pedidoDe(num), d = +l.data.split('/').reverse().join('');
   if (estado !== 'todos' && l.estado !== estado) return false;
+  if (et !== 'todas' && etapa(p).k !== et) return false;
   if (c.de && d < data(c.de)) return false;
   if (c.ate && d > data(c.ate)) return false;
   if (c.num && !simples(num).includes(simples(c.num))) return false;
@@ -69,7 +72,8 @@ async function aplicar(main: HTMLElement, animar = true): Promise<void> {
   const estado = main.dataset.filtro || 'todos';
   const linhas = $$(main, 'tr.ped4__linha');
   const muitas = linhas.length > 40, mexer = animar && !quieto() && !muitas;
-  const fica = new Map(linhas.map((tr) => [tr, passa(tr.dataset.num!, c, estado)]));
+  const et = main.dataset.etapa || 'todas';
+  const fica = new Map(linhas.map((tr) => [tr, passa(tr.dataset.num!, c, estado, et)]));
   const saem = linhas.filter((tr) => !tr.hidden && !fica.get(tr)), entram = linhas.filter((tr) => tr.hidden && fica.get(tr));
   const antes = new Map(linhas.filter((tr) => !tr.hidden).map((tr) => [tr, tr.getBoundingClientRect().top]));
   if (mexer && saem.length) await Promise.all(saem.map((tr) => tr.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'ease-out', fill: 'forwards' }).finished.catch(() => undefined)));
@@ -84,13 +88,14 @@ async function aplicar(main: HTMLElement, animar = true): Promise<void> {
     linhas.filter((tr) => !tr.hidden && antes.has(tr)).forEach((tr) => { const dy = antes.get(tr)! - tr.getBoundingClientRect().top; if (dy) tr.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 240, easing: SAIDA }); });
     entram.forEach((tr, i) => tr.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: Math.min(i, 6) * 30, easing: SAIDA, fill: 'backwards' }));
   }
-  aplicarCrono(main, (n) => passa(n, c, estado), c, mexer);
+  aplicarCrono(main, (n) => passa(n, c, estado, et), c, mexer);
   /* as contagens */
   const vis = linhas.filter((tr) => !tr.hidden);
   const conta = $(main, '.ped4__conta b'); if (conta) contar(conta, vis.length, (n) => String(Math.round(n)));
   contar($(main, '[data-kpi="n"]')!, vis.length, (n) => String(Math.round(n)));
   contar($(main, '[data-kpi="total"]')!, vis.reduce((s, tr) => s + Number(tr.dataset.valor), 0), euros);
-  $$(main, '.ped4__est').forEach((b) => { const k = b.dataset.filtro!; $(b, '.ped4__est-n')!.textContent = String(LINHAS.filter((l) => passa(l.num, c, k)).length); });
+  $$(main, '.ped4__est').forEach((b) => { const k = b.dataset.filtro!; $(b, '.ped4__est-n')!.textContent = String(LINHAS.filter((l) => passa(l.num, c, k, et)).length); });
+  $$(main, '.ped4__etapa-f').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(LINHAS.filter((l) => passa(l.num, c, estado, b.dataset.etapa!)).length); });
   etiquetas(main, c);
   /* sem resultados: diz porquê e dá a saída */
   const vazio = $(main, '.ped4__vazio')!;
@@ -105,6 +110,7 @@ function etiquetas(main: HTMLElement, c: Criterios): void {
   if (c.de) itens.push(['de', `Desde ${c.de}`]); if (c.ate) itens.push(['ate', `Até ${c.ate}`]);
   if (c.num) itens.push(['num', `Pedido «${c.num}»`]); if (c.ref) itens.push(['ref', `Referência «${c.ref}»`]);
   const e = main.dataset.filtro || 'todos'; if (e !== 'todos') itens.push(['estado', e === 'proc' ? 'Processado' : 'Sem processamento']);
+  const et = main.dataset.etapa || 'todas'; if (et !== 'todas') itens.push(['etapa', ($(main, `.ped4__etapa-f[data-etapa="${et}"]`)?.textContent || '').replace(/\s*\d+\s*$/, '').trim()]);
   ul.innerHTML = itens.map(([k, t]) => `<li><span>${t}</span><button type="button" class="ped4__chip-x" data-tirar="${k}" aria-label="Tirar o filtro ${t}">${L(x)}</button></li>`).join('');
   const n = $(main, '.ped4__filtros-n')!; n.textContent = String(itens.length); n.hidden = !itens.length;
 }
@@ -125,7 +131,7 @@ function pesquisar(main: HTMLElement): void {
 function limpar(main: HTMLElement, aplicarJa = true): void {
   $$<HTMLInputElement>(main, '.ped4__input').forEach((i) => { i.value = ''; i.removeAttribute('aria-invalid'); });
   $$(main, '.ped4__erro').forEach((e) => { e.hidden = true; });
-  main.dataset.filtro = 'todos'; estados(main);
+  main.dataset.filtro = 'todos'; estados(main); main.dataset.etapa = 'todas'; etapas(main);
   criterios.set(main, ler(main));
   if (aplicarJa) aplicar(main);
 }
@@ -139,6 +145,12 @@ function estados(main: HTMLElement): void {
 function risca(main: HTMLElement): void {
   const a = $(main, `.ped4__est[aria-pressed="true"]`), r = $(main, '.ped4__est-risca'); if (!a || !r) return;
   r.style.setProperty('--x', `${a.offsetLeft}px`); r.style.setProperty('--w', `${a.offsetWidth}px`);
+}
+
+/** As pílulas do estado do percurso: uma só escolhida. */
+function etapas(main: HTMLElement): void {
+  const f = main.dataset.etapa || 'todas';
+  $$(main, '.ped4__etapa-f').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.etapa === f)));
 }
 
 /* ---------- ordenar ---------- */
@@ -210,6 +222,32 @@ function gaveta(main: HTMLElement, num: string, origem: HTMLElement): void {
   if (ref && vt && !quieto()) { ref.style.viewTransitionName = 'ped4-num'; vt.call(document, encher).finished.finally(() => { const t = $(g, '.ped4__g-num'); if (t) t.style.viewTransitionName = ''; }); }
   else { encher(); if (!quieto()) g.animate([{ transform: 'translateX(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 340, easing: SAIDA }); }
   window.setTimeout(() => { $(g, '.ped4__g-num')?.focus(); animarPercurso(g); }, quieto() ? 0 : 60);
+}
+/** A guia de remessa no painel lateral: o percurso documental, o documento, os valores e os artigos. */
+function gavetaGuia(main: HTMLElement, num: string, origem: HTMLElement): void {
+  if (!GUIAS.some((g) => g.num === num)) return;
+  const g = guiaDe(num), gv = $(main, '.ped4__gaveta')!, veu = $(main, '.ped4__veu')!, jaAberto = !gv.hidden;
+  devolver = origem;
+  gv.innerHTML = `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Guia de remessa · ${nomeTipo(g)} ${g.doc}</p><h2 class="ped4__g-num" id="ped4-g-num" tabindex="-1">${g.num}</h2><p class="ped4__g-meta">${g.data} · Pedido ${g.pedido} · ${eurosGuia(totalGuia(g))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)">${L(x)}</button></header><div class="ped4__g-guia">${detalheGuia(g, 'pedidos')}</div>`;
+  gv.hidden = false; veu.hidden = false; main.classList.add('tem-gaveta'); fundo(main, true);
+  if (!quieto()) {
+    if (!jaAberto) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: SAIDA });
+    else $(gv, '.ped4__g-guia')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: SAIDA });
+    /* o fio do percurso desenha-se do pedido à guia e da guia à fatura */
+    $$(gv, '.gui3__fio').forEach((f, i) => f.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 450, delay: 200 + i * 220, easing: SAIDA, fill: 'backwards' }));
+  }
+  gv.scrollTop = 0;
+  window.setTimeout(() => $(gv, '.ped4__g-num')?.focus(), quieto() ? 0 : 60);
+}
+function descarregarGuia(b: HTMLButtonElement): void {
+  if (b.getAttribute('aria-busy') === 'true') return;
+  const antes = b.innerHTML, aviso = b.closest('.gui3__det-artigos')?.querySelector<HTMLElement>('.gui3__descarga');
+  b.setAttribute('aria-busy', 'true'); b.innerHTML = `${rolamentoSvg('p4-' + ++nr, 'pesquisar', 'ped4__rs')}<span class="btn__rotulo">A preparar o PDF…</span>`;
+  window.setTimeout(() => {
+    b.removeAttribute('aria-busy'); b.classList.add('is-feito'); b.innerHTML = `${ICONES.check.replace('<svg', '<svg class="btn__icone"')}<span class="btn__rotulo">PDF descarregado</span>`;
+    if (aviso) { aviso.hidden = false; aviso.textContent = `${b.dataset.descarregar!.replace('/', '-')}.pdf · na pasta das transferências`; }
+    window.setTimeout(() => { b.classList.remove('is-feito'); b.innerHTML = antes; }, 2400);
+  }, quieto() ? 150 : 800);
 }
 function fecharGaveta(main: HTMLElement): void {
   const g = $(main, '.ped4__gaveta')!; if (g.hidden) return;
@@ -358,11 +396,21 @@ export function iniciar(): void {
     if (est) { main.dataset.filtro = est.dataset.filtro; estados(main); aplicar(main); return; }
     if (t.closest('.ped4__limpar, [data-limpar-tudo]')) { limpar(main); return; }
     const tirar = t.closest<HTMLElement>('[data-tirar]');
-    if (tirar) { const k = tirar.dataset.tirar!; if (k === 'estado') { main.dataset.filtro = 'todos'; estados(main); } else { const i = $<HTMLInputElement>(main, `#ped4-${k}`)!; i.value = ''; i.removeAttribute('aria-invalid'); $(main, `#ped4-${k}-erro`)!.hidden = true; criterios.set(main, ler(main)); } aplicar(main); return; }
+    const ef = t.closest<HTMLElement>('.ped4__etapa-f');
+    if (ef) { main.dataset.etapa = ef.dataset.etapa; etapas(main); aplicar(main); return; }
+    if (tirar) { const k = tirar.dataset.tirar!; if (k === 'etapa') { main.dataset.etapa = 'todas'; etapas(main); } else if (k === 'estado') { main.dataset.filtro = 'todos'; estados(main); } else { const i = $<HTMLInputElement>(main, `#ped4-${k}`)!; i.value = ''; i.removeAttribute('aria-invalid'); $(main, `#ped4-${k}-erro`)!.hidden = true; criterios.set(main, ler(main)); } aplicar(main); return; }
     const o = t.closest<HTMLElement>('[data-ordenar]'); if (o) { ordenar(main, o); return; }
     const ab = t.closest<HTMLElement>('.ped4__filtros-abrir'); if (ab) { const sim = ab.getAttribute('aria-expanded') !== 'true'; ab.setAttribute('aria-expanded', String(sim)); main.classList.toggle('filtros-abertos', sim); return; }
-    /* «Ver guia»: as Guias abrem já com esta guia aberta (comportamento/guias-v3.ts); a navegação é a do data-ir */
-    const vg = t.closest<HTMLElement>('[data-abrir-guia]'); if (vg) { try { sessionStorage.setItem('goparts:abrir-guia', vg.dataset.abrirGuia!); } catch { /* nada */ } return; }
+    /* «Ver guia» (ela, 15 out.: «quando clico numa guia de remessa do pedido abre um diálogo lateral»): a guia no
+       painel à direita, sem sair dos Pedidos; «Abrir nas Guias de remessa» leva à página com a guia aberta */
+    const vg = t.closest<HTMLElement>('[data-abrir-guia]'); if (vg) { ev.preventDefault(); ev.stopPropagation(); gavetaGuia(main, vg.dataset.abrirGuia!, vg); return; }
+    const irma = t.closest<HTMLElement>('.ped4__gaveta [data-ir-guia]'); if (irma) { gavetaGuia(main, irma.dataset.irGuia!, devolver || irma); return; }
+    const gp = t.closest<HTMLElement>('[data-guia-pagina]'); if (gp) { try { sessionStorage.setItem('goparts:abrir-guia', gp.dataset.guiaPagina!); } catch { /* nada */ } return; }
+    const pg = t.closest<HTMLElement>('.ped4__gaveta [data-abrir-pedido]'); if (pg) { const num = pg.dataset.abrirPedido!; fecharGaveta(main); const li = $(main, `.ped4__c-item[data-num="${num}"]`); if (li && !li.hidden) { if (!li.classList.contains('is-aberto')) abrirItem(main, li); li.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' }); } return; }
+    const ind = t.closest<HTMLElement>('.ped4__gaveta [data-pedido-indisponivel]'); if (ind) { const n = ind.closest('.gui3__percurso')?.querySelector<HTMLElement>('.gui3__ind'); if (n) n.hidden = false; return; }
+    const dg = t.closest<HTMLButtonElement>('.ped4__gaveta [data-descarregar]'); if (dg) { descarregarGuia(dg); return; }
+    /* a fatura ou a página das Guias: o painel fecha antes de a navegação (data-ir) seguir */
+    if (t.closest('.ped4__gaveta [data-ir]')) { const gv = $(main, '.ped4__gaveta')!; gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); return; }
     const rep = t.closest<HTMLButtonElement>('[data-repetir]'); if (rep) { repetir(rep); return; }
     const gv = t.closest<HTMLElement>('[data-gaveta]'); if (gv) { gaveta(main, gv.dataset.gaveta!, gv); return; }
     if (t.closest('.ped4__g-fechar, .ped4__veu')) { fecharGaveta(main); return; }

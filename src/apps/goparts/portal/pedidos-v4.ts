@@ -77,7 +77,7 @@ export function detalhe(p: Pedido, l: LinhaPedido, onde: 'linha' | 'gaveta' = 'l
     ? `<p class="ped4__ent">${L(store)}<span><b>Levanta no balcão</b>Armazém ${esc(l.armazem)}</span></p>`
     : `<p class="ped4__ent">${L(mapPin)}<span><b>${esc(l.morada[0])}</b>${esc(l.morada[1])}</span></p>`;
   const docs = [
-    p.guia ? `<li><span class="ped4__doc-i">${L(fileText)}</span><span><b>Guia de remessa</b>${p.guia}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="guias" data-abrir-guia="${p.guia}">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ver guia</span></button></li>` : '',
+    p.guia ? `<li><span class="ped4__doc-i">${L(fileText)}</span><span><b>Guia de remessa</b>${p.guia}</span><button type="button" class="btn btn--ghost btn--sm" data-abrir-guia="${p.guia}" aria-haspopup="dialog">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ver guia</span></button></li>` : '',
     p.fatura ? `<li><span class="ped4__doc-i">${L(receipt)}</span><span><b>Fatura</b>${p.fatura}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="faturas">${L(receipt, 'btn__icone')}<span class="btn__rotulo">Ver fatura</span></button></li>` : '',
   ].join('');
   return `<div class="ped4__det ped4__det--${onde}">
@@ -140,11 +140,26 @@ export function etapa(p: Pedido): { k: string; nome: string; icone: string } {
   if (/Separado/i.test(feito)) return { k: 'preparado', nome: 'Preparado', icone: L(pkg) };
   return { k: 'preparacao', nome: 'Em preparação', icone: L(clock) };
 }
+/** (ela, 15 out.: «aqui também permite filtro», sobre os estados por baixo das datas) — as pílulas «Estado» com a
+    cor e o ícone de cada marcador; uma só escolhida; comum aos Pedidos e às Guias. */
+export function pilulasEstado(itens: { k: string; nome: string; icone: string; n: number }[], total: number, rotulo = 'Estado'): string {
+  return `<div class="ped4__etapas" role="group" aria-label="${rotulo}"><span class="ped4__etapas-r">${rotulo}</span>
+      <button type="button" class="ped4__etapa-f" data-etapa="todas" aria-pressed="true">Todos <span class="ped4__est-n">${total}</span></button>
+      ${itens.map((e) => `<button type="button" class="ped4__etapa-f ped4__etapa-f--${e.k}" data-etapa="${e.k}" aria-pressed="false">${e.icone}${e.nome} <span class="ped4__est-n">${e.n}</span></button>`).join('')}
+    </div>`;
+}
+/** As etapas que os pedidos têm, pela ordem do percurso. */
+const ORDEM_ETAPAS = ['concluido', 'expedido', 'recolher', 'preparado', 'preparacao'];
+export function etapasPedidos(): string {
+  const todas = LINHAS.map((l) => etapa(pedidoDe(l.num)));
+  const itens = ORDEM_ETAPAS.map((k) => { const e = todas.filter((x) => x.k === k); return e.length ? { k, nome: k === 'expedido' ? 'Expedido' : e[0].nome, icone: e[0].icone, n: e.length } : null; }).filter((x): x is NonNullable<typeof x> => !!x);
+  return pilulasEstado(itens, LINHAS.length);
+}
 export function item(p: Pedido, l: LinhaPedido, i: number): string {
   const e = etapa(p);
   const [d, m] = l.data.split('/');
   const id = `ped4-c-${p.num.replace(/\D/g, '')}`;
-  return `<li class="ped4__c-item" data-num="${p.num}" data-estado="${l.estado}" style="--i:${i}">
+  return `<li class="ped4__c-item" data-num="${p.num}" data-estado="${l.estado}" data-etapa="${e.k}" style="--i:${i}">
       <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}<em class="ped4__c-etapa ped4__c-etapa--${e.k}">${e.nome}</em></span>
       <span class="ped4__c-marca ped4__c-marca--${e.k}" title="${e.nome}" aria-hidden="true">${e.icone}</span>
       <article class="ped4__c-cartao">
@@ -204,6 +219,7 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
           <button type="button" class="ped4__est" data-filtro="sem" aria-pressed="false">${L(clock)}Sem processamento <span class="ped4__est-n">${n('sem')}</span></button>
           <i class="ped4__est-risca" aria-hidden="true"></i>
         </div>
+        ${etapasPedidos()}
         <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
       </div>
     </section>

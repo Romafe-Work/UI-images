@@ -11,13 +11,13 @@ import { portal } from './portal/base';
 import { inicioV3, manutencaoV3, type EstadoInicio } from './portal/inicio-v3';
 
 /** Os ecrãs de carregamento e de erro, cada um como estado da página que mostra, numerados a seguir
- *  aos estados que ela já tem (10.8, 11.15, 12.23, 13.21, 14.9). */
+ *  aos estados que ela já tem (10.8, 11.15, 12.24, 13.21, 14.9). */
 const ONDE: Record<string, [IdGoParts, string]> = {
   'carga-pagina': ['inicio', '10.10 · A carregar o portal'], 'carga-inicio': ['inicio', '10.11 · Esqueleto do Início'], 'carga-pecas': ['inicio', '10.12 · Peças a carregar'],
   'erro-404': ['inicio', '10.13 · Página não encontrada'], 'erro-500': ['inicio', '10.14 · Erro do servidor'], 'erro-sessao': ['inicio', '10.15 · Sessão expirada'],
   'erro-formulario': ['inicio', '10.16 · Erros no formulário (página)'], 'erro-manutencao': ['inicio', '10.17 · Em manutenção'],
   'carga-pesquisa': ['catalogo', '11.21 · Pesquisa em curso'], 'erro-vazio': ['catalogo', '11.22 · Pesquisa sem resultados'], 'erro-encomenda': ['catalogo', '11.23 · Encomenda não concluída'],
-  'carga-tabela': ['pedidos', '12.24 · Tabela a carregar'], 'carga-mais': ['pedidos', '12.25 · Carregar mais'], 'erro-rede': ['pedidos', '12.26 · Sem ligação (página)'],
+  'carga-tabela': ['pedidos', '12.25 · Tabela a carregar'], 'carga-mais': ['pedidos', '12.26 · Carregar mais'], 'erro-rede': ['pedidos', '12.27 · Sem ligação (página)'],
   'erro-403': ['guias', '13.22 · Acesso negado (página)'],
   'carga-progresso': ['faturas', '14.10 · A gerar o PDF'],
 };

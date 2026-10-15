@@ -21,12 +21,12 @@ import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComp
 import { pedidosV4, detalhe as detalhePed, pedidoDe, linhaDe, valorDe } from './pedidos-v4';
 import { LINHAS as LINHAS_PED, euros as eurosPed } from './pedidos-dados';
 import { guiasV3, guiaDe, detalheGuia, cabecaDoc, paginaDoc, rodapeDoc } from './guias-v3';
-import { GUIAS } from './guias-dados';
+import { GUIAS, total as totalGuia } from './guias-dados';
 import { faturasV1 } from './faturas-v1';
 import { preencher as preencherFatura } from '../comportamento/faturas';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
-export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
+export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-guia' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
 export type IdEstadoGuias = 'guias-inicio' | 'guias-carga' | 'guias-pesquisa' | 'guias-primeira' | 'guias-vazio' | 'guias-filtros' | 'guias-selecionada' | 'guias-aberta' | 'guias-credito' | 'guias-relacionada' | 'guias-pedido-indisponivel' | 'guias-pdf-carga' | 'guias-pdf' | 'guias-pdf-erro' | 'guias-descarga' | 'guias-descarga-erro' | 'guias-rede' | 'guias-falha' | 'guias-sessao' | 'guias-sem-permissao' | 'guias-tabela';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
@@ -600,6 +600,15 @@ const ped4Encontrado = () => ped4('e1220', (r) => {
   $(r, '.ped4__conta b').textContent = '2';
   $(r, '[data-kpi="n"]').textContent = '2'; $(r, '[data-kpi="total"]').textContent = eurosPed(com.reduce((t, n) => t + valorDe(pedidoDe(n)), 0));
 });
+/* 12.24 · a guia de remessa do pedido no painel lateral (ela: «quando clico numa guia de remessa do pedido abre um diálogo lateral») */
+const ped4Guia = () => ped4Inerte(ped4('e1224', (r) => {
+  abertoNaCrono(r, 'P2024/001233');
+  const g = guiaDe('GR2024/08640');
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.ped4__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', 'e1224-g-num');
+  gv.innerHTML = `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Guia de remessa · Fatura ${g.doc}</p><h2 class="ped4__g-num" id="e1224-g-num">${g.num}</h2><p class="ped4__g-meta">${g.data} · Pedido ${g.pedido} · ${eurosPed(totalGuia(g))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)">${I('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')}</button></header><div class="ped4__g-guia">${detalheGuia(g, 'pedidos').replace(/\bgui3-/g, 'e1224-')}</div>`;
+  $$(r, '.ped4 > header, .ped4 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+}));
 /* 12.21 · repetir o pedido: só o botão espera, com o rolamento */
 const ped4Repetir = () => ped4('e1221', (r) => {
   const det = abertoNaCrono(r, 'P2024/001256');
@@ -935,6 +944,7 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-repetir', '12.21 · A repetir o pedido', 'Só o botão «Repetir pedido» espera, com o rolamento.', ped4Repetir),
   e('pedidos-repetido', '12.22 · Artigos no carrinho', 'O botão confirma e a faixa diz quantos artigos entraram, com o caminho para o carrinho.', ped4Repetido),
   e('pedidos-repetido-parte', '12.23 · Repetido em parte', 'Um artigo sem stock: diz qual, que os outros entraram, e leva às alternativas.', ped4RepetidoParte),
+  e('pedidos-guia', '12.24 · Guia de remessa no painel', 'Em «Ver guia», a guia do pedido abre num painel lateral: o percurso Pedido → Guia → Fatura, os valores, a entrega e os artigos; descarregar o PDF ou abrir nas Guias.', ped4Guia),
 ];
 export const estadosGuias = (): EcraGoParts[] => [
   e('guias-inicio', '13.1 · Primeira carga', 'A primeira carga: os filtros já servem; no lugar da lista, o rolamento e o que está a acontecer.', guiasInicio),

@@ -16,7 +16,7 @@
    Com «reduzir movimento», tudo troca sem deslizar. Não há servidor: as esperas são de menos de 1 s.
    ========================================================= */
 import { GUIAS, euros } from '../portal/guias-dados';
-import { guiaDe, detalheGuia, cabecaDoc, paginaDoc, rodapeDoc, L, ICONES3 } from '../portal/guias-v3';
+import { estadoGuia, guiaDe, detalheGuia, cabecaDoc, paginaDoc, rodapeDoc, L, ICONES3 } from '../portal/guias-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { mostrar } from '../../../comum/ecras';
 import x from 'lucide-static/icons/x.svg?raw';
@@ -41,9 +41,10 @@ const criterios = new WeakMap<HTMLElement, Criterios>();
 const ler = (main: HTMLElement): Criterios => ({ de: $<HTMLInputElement>(main, '#gui3-de')!.value.trim(), ate: $<HTMLInputElement>(main, '#gui3-ate')!.value.trim(), num: $<HTMLInputElement>(main, '#gui3-num')!.value.trim(), ref: $<HTMLInputElement>(main, '#gui3-ref')!.value.trim() });
 const data = (s: string) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!m) return NaN; const d = new Date(+m[3], +m[2] - 1, +m[1]); return d.getMonth() === +m[2] - 1 ? +`${m[3]}${m[2]}${m[1]}` : NaN; };
 const simples = (s: string) => s.toLowerCase().replace(/[\s/.-]/g, '');
-function passa(num: string, c: Criterios, tipo: string): boolean {
+function passa(num: string, c: Criterios, tipo: string, est = 'todas'): boolean {
   const g = guiaDe(num), d = +g.data.split('/').reverse().join('');
   if (tipo !== 'todos' && g.tipo !== tipo) return false;
+  if (est !== 'todas' && estadoGuia(g)?.k !== est) return false;
   if (c.de && d < data(c.de)) return false;
   if (c.ate && d > data(c.ate)) return false;
   if (c.num && !simples(num).includes(simples(c.num))) return false;
@@ -81,13 +82,13 @@ const marcar = (texto: string, q: string) => {
 /* ---------- aplicar os filtros à cronologia ---------- */
 function aplicar(main: HTMLElement, animar = true): void {
   const c = criterios.get(main) || ler(main);
-  const tipo = main.dataset.filtro || 'todos';
+  const tipo = main.dataset.filtro || 'todos', est = main.dataset.etapa || 'todas';
   const cr = $(main, '.ped4__crono')!, itens = $$(cr, '.ped4__c-item');
   const mexer = animar && !quieto() && itens.length <= 40;
   const antes = new Map(itens.filter((li) => !li.hidden).map((li) => [li, li.getBoundingClientRect().top]));
   const entram: HTMLElement[] = [];
   itens.forEach((li) => {
-    const num = li.dataset.num!, sim = passa(num, c, tipo);
+    const num = li.dataset.num!, sim = passa(num, c, tipo, est);
     if (sim && li.hidden) entram.push(li);
     if (!sim && li.classList.contains('is-aberto')) fecharItem(main, li, false);
     li.hidden = !sim;
@@ -100,7 +101,7 @@ function aplicar(main: HTMLElement, animar = true): void {
   const vis = itens.filter((li) => !li.hidden);
   cr.hidden = !vis.length;
   /* a tabela segue os mesmos filtros */
-  $$(main, 'tr.ped4__linha').forEach((tr) => { const sim = passa(tr.dataset.num!, c, tipo); if (!sim && tr.classList.contains('is-aberto')) fecharLinha(tr); tr.hidden = !sim; $(tr, '.ped4__ref')!.innerHTML = marcar(tr.dataset.num!, c.num); });
+  $$(main, 'tr.ped4__linha').forEach((tr) => { const sim = passa(tr.dataset.num!, c, tipo, est); if (!sim && tr.classList.contains('is-aberto')) fecharLinha(tr); tr.hidden = !sim; $(tr, '.ped4__ref')!.innerHTML = marcar(tr.dataset.num!, c.num); });
   const tab = $(main, '.ped4__tabela'); if (tab) tab.hidden = !vis.length;
   if (mexer) {
     vis.filter((li) => antes.has(li)).forEach((li) => { const dy = antes.get(li)! - li.getBoundingClientRect().top; if (dy) li.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 260, easing: SAIDA }); });
@@ -112,7 +113,8 @@ function aplicar(main: HTMLElement, animar = true): void {
   contar($(main, '[data-kpi="f"]'), vis.filter((li) => li.dataset.tipo === 'fatura').length, inteiro);
   contar($(main, '[data-kpi="c"]'), vis.filter((li) => li.dataset.tipo === 'credito').length, inteiro);
   contar($(main, '[data-kpi="total"]'), vis.reduce((s, li) => s + Number(li.dataset.total), 0), euros);
-  $$(main, '.ped4__est').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(GUIAS.filter((g) => passa(g.num, c, b.dataset.filtro!)).length); });
+  $$(main, '.ped4__est').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(GUIAS.filter((g) => passa(g.num, c, b.dataset.filtro!, est)).length); });
+  $$(main, '.ped4__etapa-f').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(GUIAS.filter((g) => passa(g.num, c, tipo, b.dataset.etapa!)).length); });
   etiquetas(main, c);
   const vazio = $(main, '.ped4__vazio')!;
   vazio.hidden = vis.length > 0;
@@ -124,6 +126,7 @@ function etiquetas(main: HTMLElement, c: Criterios): void {
   if (c.de) itens.push(['de', `Desde ${c.de}`]); if (c.ate) itens.push(['ate', `Até ${c.ate}`]);
   if (c.num) itens.push(['num', `Guia «${c.num}»`]); if (c.ref) itens.push(['ref', `Referência «${c.ref}»`]);
   const t = main.dataset.filtro || 'todos'; if (t !== 'todos') itens.push(['tipo', t === 'fatura' ? 'Fatura' : 'Nota de crédito']);
+  const e = main.dataset.etapa || 'todas'; if (e !== 'todas') itens.push(['etapa', e === 'entregue' ? 'Entregue' : e === 'em-entrega' ? 'Em entrega' : 'Devolução']);
   $(main, '.ped4__chips')!.innerHTML = itens.map(([k, txt]) => `<li><span>${txt}</span><button type="button" class="ped4__chip-x" data-tirar="${k}" aria-label="Tirar o filtro ${txt}">${L(x)}</button></li>`).join('');
   const n = $(main, '.ped4__filtros-n')!; n.textContent = String(itens.length); n.hidden = !itens.length;
 }
@@ -142,7 +145,7 @@ function pesquisar(main: HTMLElement): void {
 function limpar(main: HTMLElement): void {
   $$<HTMLInputElement>(main, '.ped4__input').forEach((i) => { i.value = ''; i.removeAttribute('aria-invalid'); });
   $$(main, '.ped4__erro').forEach((e) => { e.hidden = true; });
-  main.dataset.filtro = 'todos'; tipos(main);
+  main.dataset.filtro = 'todos'; tipos(main); main.dataset.etapa = 'todas'; etapas(main);
   criterios.set(main, ler(main));
   aplicar(main);
 }
@@ -150,6 +153,10 @@ function tipos(main: HTMLElement): void {
   const f = main.dataset.filtro || 'todos';
   $$(main, '.ped4__est').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filtro === f)));
   risca(main);
+}
+function etapas(main: HTMLElement): void {
+  const f = main.dataset.etapa || 'todas';
+  $$(main, '.ped4__etapa-f').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.etapa === f)));
 }
 function risca(main: HTMLElement): void {
   const a = $(main, '.ped4__est[aria-pressed="true"]'), r = $(main, '.ped4__est-risca'); if (!a || !r) return;
@@ -322,7 +329,9 @@ export function iniciar(): void {
     if (est) { main.dataset.filtro = est.dataset.filtro; tipos(main); aplicar(main); return; }
     if (t.closest('.ped4__limpar, [data-limpar-tudo]')) { limpar(main); return; }
     const tirar = t.closest<HTMLElement>('[data-tirar]');
-    if (tirar) { const k = tirar.dataset.tirar!; if (k === 'tipo') { main.dataset.filtro = 'todos'; tipos(main); } else { const i = $<HTMLInputElement>(main, `#gui3-${k}`)!; i.value = ''; i.removeAttribute('aria-invalid'); $(main, `#gui3-${k}-erro`)!.hidden = true; criterios.set(main, ler(main)); } aplicar(main); return; }
+    const ef = t.closest<HTMLElement>('.ped4__etapa-f');
+    if (ef) { main.dataset.etapa = ef.dataset.etapa; etapas(main); aplicar(main); return; }
+    if (tirar) { const k = tirar.dataset.tirar!; if (k === 'etapa') { main.dataset.etapa = 'todas'; etapas(main); } else if (k === 'tipo') { main.dataset.filtro = 'todos'; tipos(main); } else { const i = $<HTMLInputElement>(main, `#gui3-${k}`)!; i.value = ''; i.removeAttribute('aria-invalid'); $(main, `#gui3-${k}-erro`)!.hidden = true; criterios.set(main, ler(main)); } aplicar(main); return; }
     const ab = t.closest<HTMLElement>('.ped4__filtros-abrir'); if (ab) { const sim = ab.getAttribute('aria-expanded') !== 'true'; ab.setAttribute('aria-expanded', String(sim)); main.classList.toggle('filtros-abertos', sim); return; }
     const irma = t.closest<HTMLElement>('[data-ir-guia]'); if (irma) { irPara(main, irma.dataset.irGuia!); return; }
     const ind = t.closest<HTMLElement>('[data-pedido-indisponivel]');

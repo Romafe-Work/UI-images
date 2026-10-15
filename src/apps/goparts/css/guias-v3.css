@@ -167,3 +167,8 @@ button.gui3__no:focus-visible { outline: 2px solid var(--azul-fundo); outline-of
 }
 /* o estado da entrega por baixo da data, como nos Pedidos */
 .gui3__etapa--entregue { color: var(--c-ok); } .gui3__etapa--em-entrega { color: var(--c-marca); } .gui3__etapa--devolucao { color: var(--c-aviso); }
+
+/* a guia no painel lateral dos Pedidos: uma só coluna, o percurso em cima e os valores logo a seguir */
+.ped4__g-guia .gui3__det { grid-template-columns: minmax(0, 1fr); grid-template-areas: "percurso" "valores" "doc" "artigos"; padding: 16px 20px 24px; }
+.ped4__g-guia .gui3__seta { max-width: 48px; }
+.ped4__g-guia .btn.is-feito { border-color: var(--c-ok); color: var(--c-ok); }

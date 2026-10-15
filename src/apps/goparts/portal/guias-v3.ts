@@ -14,6 +14,9 @@
    ========================================================= */
 import { GUIAS, base, iva, total, euros, type Guia } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
+import { pilulasEstado } from './pedidos-v4';
+import check from 'lucide-static/icons/check.svg?raw';
+import truck from 'lucide-static/icons/truck.svg?raw';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
 import hash from 'lucide-static/icons/hash.svg?raw';
 import barcode from 'lucide-static/icons/barcode.svg?raw';
@@ -85,7 +88,9 @@ export function valores(g: Guia): string {
 }
 
 /* ---------- a guia aberta ---------- */
-export function detalheGuia(g: Guia): string {
+/** `onde`: nas Guias, as ações de sempre; no painel dos Pedidos (ela, 15 out.: «quando clico numa guia de remessa
+    do pedido abre um diálogo lateral»), a descarga e o caminho para a página das Guias, sem «Abrir o pedido». */
+export function detalheGuia(g: Guia, onde: 'guias' | 'pedidos' = 'guias'): string {
   const artigos = g.linhas.map(([q, d, v], i) => `<tr style="--i:${i}"><td class="ped4__num">${q}</td><td>${esc(d)}</td><td class="ped4__num">${euros(v)}</td></tr>`).join('');
   return `<div class="gui3__det">
     <section class="gui3__det-percurso" aria-label="Percurso documental"><h3 class="ped4__h">Percurso documental</h3>${percursoDoc(g)}</section>
@@ -103,10 +108,12 @@ export function detalheGuia(g: Guia): string {
     <section class="gui3__det-valores" aria-label="Valores"><h3 class="ped4__h">Valores</h3>${valores(g)}</section>
     <section class="gui3__det-artigos" aria-label="Artigos"><h3 class="ped4__h">Artigos <span>${g.linhas.length}</span></h3>
       <div class="ped4__art-rolo"><table class="ped4__art"><thead><tr><th class="ped4__num">Qtd.</th><th>Artigo</th><th class="ped4__num">Valor</th></tr></thead><tbody>${artigos}</tbody></table></div>
-      <div class="ped4__det-accoes gui3__accoes">
+      <div class="ped4__det-accoes gui3__accoes">${onde === 'pedidos' ? `
+        <button type="button" class="btn btn--ghost btn--sm" data-descarregar="${g.num}">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar PDF</span></button>
+        <button type="button" class="btn btn--ghost btn--sm" data-ir="guias" data-guia-pagina="${g.num}">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Abrir nas Guias de remessa</span></button>` : `
         <button type="button" class="btn btn--acao btn--sm" data-ver-doc="${g.num}">${L(eye, 'btn__icone')}<span class="btn__rotulo">Ver documento</span></button>
         <button type="button" class="btn btn--ghost btn--sm" data-descarregar="${g.num}">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar PDF</span></button>
-        ${temPedido(g.pedido) ? `<button type="button" class="btn btn--ghost btn--sm" data-abrir-pedido="${g.pedido}">${L(shoppingCart, 'btn__icone')}<span class="btn__rotulo">Abrir o pedido</span></button>` : ''}
+        ${temPedido(g.pedido) ? `<button type="button" class="btn btn--ghost btn--sm" data-abrir-pedido="${g.pedido}">${L(shoppingCart, 'btn__icone')}<span class="btn__rotulo">Abrir o pedido</span></button>` : ''}`}
       </div>
       <p class="gui3__descarga" role="status" hidden></p>
     </section>
@@ -121,6 +128,12 @@ export function estadoGuia(g: Guia): { k: string; nome: string } | null {
   const p = PEDIDOS.find((x) => x.num === g.pedido && x.guia === g.num); if (!p) return null;
   const fim = p.percurso[p.percurso.length - 1];
   return /Entregue/i.test(fim[0]) && fim[1] ? { k: 'entregue', nome: 'Entregue' } : { k: 'em-entrega', nome: 'Em entrega' };
+}
+
+/** As pílulas «Estado» das guias (ela, 15 out.: «permite filtrar por» Entregue · Em entrega · Devolução). */
+export function estadosGuias(): string {
+  const ks: [string, string, string][] = [['entregue', 'Entregue', L(check)], ['em-entrega', 'Em entrega', L(truck)], ['devolucao', 'Devolução', L(undo)]];
+  return pilulasEstado(ks.map(([k, nome, icone]) => ({ k, nome, icone, n: GUIAS.filter((g) => estadoGuia(g)?.k === k).length })), GUIAS.length);
 }
 
 /* ---------- uma guia na cronologia ---------- */
@@ -214,6 +227,7 @@ export function guiasV3(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
           <button type="button" class="ped4__est" data-filtro="credito" aria-pressed="false">${L(undo)}Nota de crédito <span class="ped4__est-n">${nC}</span></button>
           <i class="ped4__est-risca" aria-hidden="true"></i>
         </div>
+        ${estadosGuias()}
         <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
       </div>
     </section>

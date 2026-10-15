@@ -329,3 +329,21 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 @media (max-width: 760px) { .ped4__crono { --data: 64px; } .ped4__c-etapa { font-size: 10px; } }
 .ped4__conta { gap: 0; white-space: pre; } .ped4__conta svg { margin-right: 8px; }
 @media (max-width: 760px) { .ped4__c-item.is-ativo .ped4__c-marca { box-shadow: 0 0 0 2px var(--c-portal-fundo), 0 0 0 3px var(--c-acao); } }
+
+/* (15 out., ela: «permite filtrar por» os estados por baixo das datas — nos Pedidos e nas Guias) as pílulas «Estado»:
+   a cor e o ícone do marcador; a escolhida fica cheia (a cor do estado), as outras com a borda. Uma só escolhida;
+   «Todos» volta a mostrar tudo. Mudar só a cor e o fundo (150 ms), sem mexer a largura. */
+.ped4__etapas { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ped4__etapas-r { margin-right: 2px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+.ped4__etapa-f { --cor: var(--c-texto-2); display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 1px solid var(--c-borda); border-radius: 999px; background: none; color: var(--c-texto-2); font: inherit; font-size: 13px; cursor: pointer; transition: border-color var(--p4-rapido) ease, background-color var(--p4-rapido) ease, color var(--p4-rapido) ease; }
+.ped4__etapa-f svg { width: 14px; height: 14px; color: var(--cor); }
+.ped4__etapa-f:hover { border-color: var(--cor); color: var(--c-texto); }
+.ped4__etapa-f:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 2px; }
+.ped4__etapa-f[aria-pressed="true"] { border-color: var(--cor); background: color-mix(in srgb, var(--cor) 16%, transparent); color: var(--c-texto); font-weight: 600; }
+.ped4__etapa-f[data-etapa="todas"] { --cor: var(--c-acao); }
+.ped4__etapa-f--concluido, .ped4__etapa-f--entregue { --cor: var(--c-ok); }
+.ped4__etapa-f--expedido, .ped4__etapa-f--em-entrega { --cor: var(--c-marca); }
+.ped4__etapa-f--recolher, .ped4__etapa-f--preparado { --cor: var(--c-marca); }
+.ped4__etapa-f--preparacao, .ped4__etapa-f--devolucao { --cor: var(--c-aviso); }
+.ped4__etapa-f .ped4__est-n { color: var(--c-texto-3); }
+@media (max-width: 760px) { .ped4__etapas { width: 100%; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; } .ped4__etapa-f { flex: none; } }
