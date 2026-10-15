@@ -13,7 +13,6 @@
    Molde dos Pedidos v5 e das Guias v3 (classes ped4__*, gui3__* do percurso e dos valores); o que é só das faturas
    tem fat2__*. Comportamento: comportamento/faturas-v2.ts. CSS: css/faturas-v2.css. Sem React.
    ========================================================= */
-import { capa } from './capas';
 import { azulejoPeca } from './pecas-img';
 import { FATURAS, type Fatura, type Pagamento } from './faturas-dados';
 import { base, iva, total, euros } from './guias-dados';
@@ -270,7 +269,6 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
   <main class="ped4 gui3 fat2" data-faturas2>
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Faturas</h1><p class="ped4__sub">Consulte os documentos de faturação da sua conta.</p></div>
-      ${capa('faturas')}
     </header>
 
     <section class="ped4__filtros" aria-label="Filtrar faturas">

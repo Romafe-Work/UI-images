@@ -12,7 +12,6 @@
    — é o «servidor» do protótipo; o ecrã não faz contas próprias. Feito em TypeScript e CSS, sem React.
    Comportamento: comportamento/guias-v3.ts. CSS: css/guias-v3.css (+ css/pedidos-v4.css).
    ========================================================= */
-import { capa } from './capas';
 import { azulejoPeca } from './pecas-img';
 import { GUIAS, base, iva, total, euros, type Guia } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
@@ -111,6 +110,8 @@ export function detalheGuia(g: Guia, onde: 'guias' | 'pedidos' = 'guias'): strin
     <section class="gui3__det-valores" aria-label="Valores"><h3 class="ped4__h">Valores</h3>${valores(g)}</section>
     <section class="gui3__det-artigos" aria-label="Artigos"><h3 class="ped4__h">Artigos <span>${g.linhas.length}</span></h3>
       <div class="ped4__art-rolo"><table class="ped4__art"><thead><tr><th class="ped4__num">Qtd.</th><th>Artigo</th><th class="ped4__num">Valor</th></tr></thead><tbody>${artigos}</tbody></table></div>
+    </section>
+    <section class="gui3__det-accoes-sec" aria-label="Ações">
       <div class="ped4__det-accoes gui3__accoes">${onde === 'pedidos' ? `
         <button type="button" class="btn btn--ghost btn--sm" data-descarregar="${g.num}">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar PDF</span></button>
         <button type="button" class="btn btn--ghost btn--sm" data-ir="guias" data-guia-pagina="${g.num}">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Abrir nas Guias de remessa</span></button>` : `
@@ -204,7 +205,6 @@ export function guiasV3(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
   <main class="ped4 gui3" data-guias3>
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Guias de remessa</h1><p class="ped4__sub">Consulte, pesquise e acompanhe os documentos das suas entregas.</p></div>
-      ${capa('guias')}
       <dl class="ped4__kpi">
         <div><dt>${L(layers)}Documentos</dt><dd data-kpi="n" data-valor="${GUIAS.length}">${GUIAS.length}</dd></div>
         <div><dt>${L(receipt)}Faturas · Notas de crédito</dt><dd class="gui3__kpi-tipos"><span data-kpi="f" data-valor="${nF}">${nF}</span> · <span data-kpi="c" data-valor="${nC}">${nC}</span></dd></div>

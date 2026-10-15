@@ -14,23 +14,23 @@
 .ca-floco { transition: transform 700ms cubic-bezier(.22, 1, .36, 1); }
 .ca--frio { transition: color 300ms ease; }
 
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-disco { animation: ca-travar 900ms cubic-bezier(.1, .6, .2, 1); }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-pinca { animation: ca-apertar 900ms ease; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-mola { transform-origin: bottom center; animation: ca-comprimir 700ms cubic-bezier(.3, 1.4, .5, 1); }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-topo { animation: ca-descer 700ms cubic-bezier(.3, 1.4, .5, 1); }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-gota { fill: #e0a100; stroke: #b07d00; animation: ca-espremer 600ms ease; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca--oleo .ca-pinga { fill: #e0a100; stroke: none; animation: ca-pingar 700ms ease-in 200ms; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-carga { transform: scaleX(1); fill: var(--c-ok); opacity: 1; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-funil { animation: ca-abanar 500ms ease; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca--filtros .ca-pinga { fill: currentColor; stroke: none; animation: ca-pingar 600ms ease-in 300ms; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-ampola { fill: #ffd21f; stroke: #c99a00; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-raios { stroke: #ffc400; animation: ca-acender 400ms ease forwards; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-elo1, :is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-elo2 { transform: none; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-prato1 { transform: translateX(2.2px); }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-prato2 { transform: translateX(-2.2px); }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-volante { animation: ca-virar 900ms cubic-bezier(.45, 0, .3, 1); }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca--frio { color: #6cc3ff; }
-:is(.ini3__categoria:hover, .ini3__categoria:focus-visible, tr:hover, li.fat2__linha:hover) .ca-floco { transform: rotate(60deg); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-disco { animation: ca-travar 900ms cubic-bezier(.1, .6, .2, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-pinca { animation: ca-apertar 900ms ease; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-mola { transform-origin: bottom center; animation: ca-comprimir 700ms cubic-bezier(.3, 1.4, .5, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-topo { animation: ca-descer 700ms cubic-bezier(.3, 1.4, .5, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-gota { fill: #e0a100; stroke: #b07d00; animation: ca-espremer 600ms ease; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca--oleo .ca-pinga { fill: #e0a100; stroke: none; animation: ca-pingar 700ms ease-in 200ms; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-carga { transform: scaleX(1); fill: var(--c-ok); opacity: 1; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-funil { animation: ca-abanar 500ms ease; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca--filtros .ca-pinga { fill: currentColor; stroke: none; animation: ca-pingar 600ms ease-in 300ms; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-ampola { fill: #ffd21f; stroke: #c99a00; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-raios { stroke: #ffc400; animation: ca-acender 400ms ease forwards; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-elo1, :is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-elo2 { transform: none; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-prato1 { transform: translateX(2.2px); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-prato2 { transform: translateX(-2.2px); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-volante { animation: ca-virar 900ms cubic-bezier(.45, 0, .3, 1); }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca--frio { color: #6cc3ff; }
+:is(.ini3__categoria:hover, .ini3__categoria:focus-visible) .ca-floco { transform: rotate(60deg); }
 
 @keyframes ca-travar { from { transform: rotate(0); } to { transform: rotate(540deg); } }
 @keyframes ca-apertar { 0%, 70% { transform: none; } 85% { transform: translate(-1px, 1px); } 100% { transform: none; } }

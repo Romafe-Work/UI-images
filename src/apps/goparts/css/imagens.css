@@ -1,42 +1,27 @@
 /* =========================================================
-   GOPARTS — mais imagens (15 out. 2026; ela: «preciso de mais imagens em todos os screens»)
-   - A fotografia do cabeçalho (portal/capas.ts): fotografias verdadeiras de romafe.com, nítidas, numa moldura de
-     raio 8 entre o título e os números; a legenda numa etiqueta lisa. Entra da esquerda para a direita (clip-path,
-     600 ms) e aproxima-se 3 % com o rato. Sai abaixo de 1100 px (a largura vai para os filtros e os números).
-   - O desenho da peça nas linhas de artigos (portal/pecas-img.ts): um azulejo 32 × 32 com o traço das categorias;
-     mexe com o gesto da categoria quando o rato passa pela linha (uma vez).
+   GOPARTS — as imagens das peças (15 out. 2026)
+   Ela: «preciso de mais imagens em todos os screens» e «as imagens refiro-me a imagens dos produtos aqui [nas linhas
+   de artigos] e não [a fotografia no cabeçalho]» — as fotografias dos cabeçalhos saíram.
+   - A imagem da peça (portal/pecas-img.ts) num quadrado claro, como as fotografias das lojas (o mesmo fundo nos dois
+     temas, porque é a «fotografia»); com o rato na linha, a peça aproxima-se 8 % (transform, 220 ms).
    - A silhueta do carro ao lado do nome da lista (Minha lista).
    ========================================================= */
-.ped4__cabeca { align-items: center; }
-.ped4__cabeca > div:first-child { flex: 1 1 260px; }
-.pg-capa { position: relative; flex: 0 1 300px; height: 92px; margin: 0; overflow: hidden; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); animation: pg-capa-entrar 600ms cubic-bezier(.22, 1, .36, 1) both; }
-.pg-capa img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 600ms cubic-bezier(.22, 1, .36, 1); }
-.pg-capa:hover img { transform: scale(1.03); }
-.pg-capa figcaption { position: absolute; left: 8px; bottom: 8px; max-width: calc(100% - 16px); padding: 3px 8px; border-radius: 4px; background: rgba(16, 17, 19, .78); color: #f3f4f6; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@keyframes pg-capa-entrar { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-@media (max-width: 1100px) { .pg-capa { display: none; } }
-
-/* o desenho da peça */
-.pc-art { display: inline-flex; align-items: center; gap: 10px; }
-.pc-img { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; border: 1px solid var(--c-borda); border-radius: 6px; background: var(--c-superficie-2); color: var(--c-texto-2); transition: color 150ms ease, border-color 150ms ease; }
-.pc-img svg { width: 18px; height: 18px; }
-:is(tr, li):hover > * .pc-img, :is(tr, li):hover .pc-img { color: var(--c-acao); border-color: color-mix(in srgb, var(--c-acao) 45%, var(--c-borda)); }
-.fat2__l-i.pc-img { width: 36px; height: 36px; }
-/* os gestos das peças que não são categorias: o rolamento roda, as pastilhas apertam, a escova varre, a vela faísca, a bomba gira */
-.ca-esferas, .ca-turbina, .ca-braco, .ca-pastilha, .ca-faisca { transform-box: view-box; transform-origin: 12px 12px; }
-:is(tr, li):hover .ca--rolamento .ca-esferas { animation: pc-rodar 700ms cubic-bezier(.22, 1, .36, 1); }
-:is(tr, li):hover .ca--bomba .ca-turbina { transform-origin: 11px 13px; animation: pc-rodar 700ms cubic-bezier(.22, 1, .36, 1); }
-:is(tr, li):hover .ca--pastilhas .ca-pastilha { animation: pc-apertar 500ms ease; }
-:is(tr, li):hover .ca--escova .ca-braco { transform-origin: 4px 20px; animation: pc-varrer 600ms ease; }
-:is(tr, li):hover .ca--vela .ca-faisca { animation: pc-faisca 500ms ease; color: #e0a100; }
-@keyframes pc-rodar { to { transform: rotate(120deg); } }
-@keyframes pc-apertar { 40% { transform: translateX(-2px); } }
-@keyframes pc-varrer { 40% { transform: rotate(-14deg); } }
-@keyframes pc-faisca { 30%, 70% { opacity: .2; } }
+.pc-art { display: inline-flex; align-items: center; gap: 12px; }
+.pc-img { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; overflow: hidden; border: 1px solid #dfe2e6; border-radius: 8px; background: #f4f5f7; }
+.pc-img svg, .pc-img img { width: 38px; height: 38px; object-fit: contain; transition: transform 220ms cubic-bezier(.22, 1, .36, 1); }
+:is(tr, li):hover .pc-img svg, :is(tr, li):hover .pc-img img { transform: scale(1.08); }
+[data-theme="dark"] .pc-img { border-color: transparent; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pc-img { border-color: transparent; } }
+.fat2__l-i.pc-img { width: 48px; height: 48px; background: #f4f5f7; color: inherit; }
+.ped4__art td { vertical-align: middle; }
 
 /* a silhueta do carro ao lado do nome da lista */
 .lst__topo { align-items: center; }
 .lst__carro { display: grid; place-items: center; flex: none; width: 96px; height: 48px; margin-right: 4px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); color: var(--c-texto-2); }
 .lst__carro svg { width: 84px; height: auto; }
-@media (max-width: 760px) { .lst__carro { display: none; } }
-@media (prefers-reduced-motion: reduce) { .pg-capa { animation: none; } .pg-capa img { transition: none; } .pc-img svg * { animation: none !important; } }
+@media (max-width: 760px) { .lst__carro { display: none; } .pc-img { width: 40px; height: 40px; } .pc-img svg { width: 34px; height: 34px; } }
+@media (prefers-reduced-motion: reduce) { .pc-img svg, .pc-img img { transition: none; } }
+/* o talão das Faturas: a coluna da imagem tem a largura da imagem; nas tabelas, os valores numa só linha */
+.fat2__linha { grid-template-columns: 48px minmax(0, 1fr) auto minmax(84px, auto); }
+.ped4__art .ped4__num { white-space: nowrap; }
+@media (max-width: 760px) { .fat2__linha { grid-template-columns: 40px minmax(0, 1fr) auto; } .fat2__l-i.pc-img { width: 40px; height: 40px; } }

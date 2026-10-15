@@ -167,7 +167,7 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 .ped4__g-fechar { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--c-borda); border-radius: 6px; background: none; color: var(--c-texto-2); cursor: pointer; }
 .ped4__g-fechar:hover { color: var(--c-texto); border-color: var(--c-borda-forte); }
 .ped4__g-fechar svg { width: 18px; height: 18px; }
-.ped4__det--gaveta { grid-template-columns: minmax(0, 1fr); grid-template-areas: "resumo" "percurso" "artigos" "lado"; padding: 16px 20px 24px; }
+.ped4__det--gaveta { grid-template-columns: minmax(0, 1fr); grid-template-areas: "artigos" "resumo" "percurso" "lado"; padding: 16px 20px 24px; }
 ::view-transition-group(ped4-num) { animation-duration: 360ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
 
 /* ---------- a entrada da página (uma vez; não volta a cada pesquisa) ---------- */

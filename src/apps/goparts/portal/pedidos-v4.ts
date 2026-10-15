@@ -7,7 +7,6 @@
    pedidos-dados.ts (os mesmos seis pedidos da v2 e da v3). Feito em TypeScript e CSS, sem React.
    O comportamento está em comportamento/pedidos-v4.ts e o CSS em css/pedidos-v4.css.
    ========================================================= */
-import { capa } from './capas';
 import { azulejoPeca } from './pecas-img';
 import { PEDIDOS, LINHAS, euros, type Pedido, type LinhaPedido } from './pedidos-dados';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
@@ -198,7 +197,6 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
   <main class="ped4" data-pedidos4>
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Pedidos</h1><p class="ped4__sub">Pesquise e acompanhe os pedidos da sua conta.</p></div>
-      ${capa('pedidos')}
       <dl class="ped4__kpi">
         <div><dt>${L(shoppingCart)}Pedidos</dt><dd data-kpi="n">${op.conta ?? LINHAS.length}</dd></div>
         <div><dt>${L(creditCard)}Valor no período</dt><dd data-kpi="total">${euros(op.total ?? total)}</dd></div>
