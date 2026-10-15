@@ -180,10 +180,10 @@ export function item(p: Pedido, l: LinhaPedido, i: number): string {
 export function cronologia(): string {
   const meses = new Map<string, LinhaPedido[]>();
   [...LINHAS].sort((a, b) => aaaammdd(b.data).localeCompare(aaaammdd(a.data))).forEach((l) => { const [, m, a] = l.data.split('/'); const k = `${a}-${m}`; meses.set(k, [...(meses.get(k) || []), l]); });
-  let i = 0;
+  let i = 0, ano = '';
   return `<div class="ped4__crono">
       <span class="ped4__c-linha" aria-hidden="true"><span class="ped4__c-linha-cheia"></span></span>
-      ${Array.from(meses).map(([k, ls]) => { const [a, m] = k.split('-'); return `<section class="ped4__mes" data-mes="${k}" aria-label="${MESES[+m - 1]} de ${a}"><h2 class="ped4__mes-t"><span>${MESES[+m - 1][0].toUpperCase()}${MESES[+m - 1].slice(1)} de ${a}</span><small><b>${ls.length}</b> ${ls.length === 1 ? 'pedido' : 'pedidos'}</small></h2><ol class="ped4__c-lista">${ls.map((l) => item(pedidoDe(l.num), l, i++)).join('')}</ol></section>`; }).join('')}
+      ${Array.from(meses).map(([k, ls]) => { const [a, m] = k.split('-'); const cabAno = a !== ano ? `<h2 class="gui3__ano" data-ano="${a}">${a}</h2>` : ''; ano = a; return `${cabAno}<section class="ped4__mes" data-mes="${k}" aria-label="${MESES[+m - 1]} de ${a}"><h3 class="ped4__mes-t"><span>${MESES[+m - 1][0].toUpperCase()}${MESES[+m - 1].slice(1)} de ${a}</span><small><b>${ls.length}</b> ${ls.length === 1 ? 'pedido' : 'pedidos'}</small></h3><ol class="ped4__c-lista">${ls.map((l) => item(pedidoDe(l.num), l, i++)).join('')}</ol></section>`; }).join('')}
       <p class="ped4__c-fim"><span class="ped4__c-marca" aria-hidden="true"></span>Não há pedidos mais antigos neste período.</p>
     </div>`;
 }

@@ -28,12 +28,7 @@
 .gui3__crono .ped4__c-linha-cheia { transition: transform 450ms var(--p4-curva); }
 .gui3__crono.is-a-atualizar { opacity: .55; transition: opacity 200ms ease; }
 
-/* o marcador diz o tipo (fatura ou devolução) com o ícone; o ativo leva o anel laranja */
-.gui3__marca--fatura { border-color: var(--c-marca); background: var(--c-superficie); color: var(--c-marca); }
-.gui3__marca--credito { border-color: var(--c-aviso); background: var(--c-superficie); color: var(--c-aviso); }
-.ped4__c-item.is-passado .gui3__marca--fatura, .ped4__c-item.is-ativo .gui3__marca--fatura { border-color: var(--c-marca); background: var(--c-superficie); }
-.ped4__c-item.is-passado .gui3__marca--credito, .ped4__c-item.is-ativo .gui3__marca--credito { border-color: var(--c-aviso); background: var(--c-superficie); }
-.ped4__c-item.is-aberto .gui3__marca { border-color: var(--c-acao); background: var(--c-acao); color: #fff; }
+/* o marcador: a cor é a do estado (regra comum em pedidos-v4.css); o ícone diz o tipo (fatura ou devolução) */
 .ped4__c-item.is-aberto .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-acao) 60%, var(--c-borda)); box-shadow: inset 2px 0 0 var(--c-acao); }
 
 /* a linha da guia */

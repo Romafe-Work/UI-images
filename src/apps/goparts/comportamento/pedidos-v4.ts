@@ -303,6 +303,7 @@ function aplicarCrono(main: HTMLElement, fica: (num: string) => boolean, c: Crit
     enc.hidden = !art; enc.innerHTML = art ? `Contém ${marcar(art[2], c.ref)}` : '';
   });
   $$(cr, '.ped4__mes').forEach((m) => { const n = $$(m, '.ped4__c-item:not([hidden])').length; m.hidden = !n; $(m, '.ped4__mes-t small')!.innerHTML = `<b>${n}</b> ${n === 1 ? 'pedido' : 'pedidos'}`; });
+  $$(cr, '.gui3__ano').forEach((h) => { let n = 0; for (let s = h.nextElementSibling; s && !s.classList.contains('gui3__ano'); s = s.nextElementSibling) if (s.classList.contains('ped4__mes') && !(s as HTMLElement).hidden) n++; h.hidden = !n; });
   cr.hidden = !itens.some((li) => !li.hidden);
   if (mexer) {
     itens.filter((li) => !li.hidden && antes.has(li)).forEach((li) => { const dy = antes.get(li)! - li.getBoundingClientRect().top; if (dy) li.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 260, easing: SAIDA }); });
@@ -334,7 +335,7 @@ const aoRolar = () => { if (pedidoRolar) return; pedidoRolar = requestAnimationF
 /** Cada cartão entra uma vez, quando chega à janela (nunca volta a animar). */
 const entrada = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-entrou"); entrada?.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' }) : null;
 function observar(main: HTMLElement): void {
-  $$(main, '.ped4__c-item:not(.is-entrou)').forEach((li) => { if (quieto() || !entrada) li.classList.add('is-entrou'); else entrada.observe(li); });
+  $$(main, '.ped4__c-item:not(.is-entrou), .gui3__ano:not(.is-entrou)').forEach((li) => { if (quieto() || !entrada) li.classList.add('is-entrou'); else entrada.observe(li); });
 }
 
 function fecharItem(main: HTMLElement, li: HTMLElement, animar = true): void {

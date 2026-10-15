@@ -307,24 +307,22 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
 .ped4__c-etapa { margin-top: 4px; font-size: 11px; font-style: normal; font-weight: 600; text-transform: none; text-align: right; line-height: 1.2; }
 .ped4__c-marca { display: grid; place-items: center; width: 24px; height: 24px; margin-top: 12px; border-width: 2px; }
 .ped4__c-marca svg { width: 13px; height: 13px; stroke-width: 2.4; }
-.ped4__c-marca--concluido { border-color: var(--c-ok); background: var(--c-ok); color: var(--c-superficie); }
-.ped4__c-marca--expedido { border-color: var(--azul-fundo); background: var(--azul-fundo); color: #fff; }
-.ped4__c-marca--recolher, .ped4__c-marca--preparado { border-color: var(--c-marca); background: var(--c-superficie); color: var(--c-marca); }
-.ped4__c-marca--preparacao { border-color: var(--c-aviso); border-style: dashed; background: var(--c-superficie); color: var(--c-aviso); }
+/* (15 out., ela: «a parte do histórico dos pedidos ainda está com cores diferentes») — o mesmo marcador nos Pedidos,
+   Guias e Faturas: anel com ícone, na cor do estado escrito por baixo da data (feito verde, em curso azul, à espera ou
+   devolução amarelo, vencida vermelho). Nada cheio; cheio a laranja só o que está aberto no painel. */
+.ped4__c-item { --cor-est: var(--c-borda-forte); }
+.ped4__c-item:has(.ped4__c-etapa--concluido, .gui3__etapa--entregue, .fat2__pag-t--paga) { --cor-est: var(--c-ok); }
+.ped4__c-item:has(.ped4__c-etapa--expedido, .ped4__c-etapa--recolher, .ped4__c-etapa--preparado, .gui3__etapa--em-entrega, .fat2__pag-t--aberto) { --cor-est: var(--c-marca); }
+.ped4__c-item:has(.ped4__c-etapa--preparacao, .gui3__etapa--devolucao, .fat2__pag-t--creditada) { --cor-est: var(--c-aviso); }
+.ped4__c-item:has(.fat2__pag-t--vencida) { --cor-est: var(--c-erro); }
+.ped4__c-item .ped4__c-marca, .ped4__c-item.is-passado .ped4__c-marca, .ped4__c-item.is-ativo .ped4__c-marca { border-color: var(--cor-est); background: var(--c-superficie); color: var(--cor-est); }
+.ped4__c-item.is-aberto .ped4__c-marca { border-color: var(--c-acao); background: var(--c-acao); color: #fff; }
 .ped4__c-etapa--concluido { color: var(--c-ok); } .ped4__c-etapa--expedido, .ped4__c-etapa--recolher, .ped4__c-etapa--preparado { color: var(--c-marca); } .ped4__c-etapa--preparacao { color: var(--c-aviso); }
-/* o scroll já não pinta o marcador (a cor é o estado): o que passou fica cheio, o ativo leva o anel laranja */
+/* o scroll não pinta o marcador (a cor é o estado): o que ainda não passou fica esbatido, o ativo leva o anel laranja */
 .ped4__c-item:not(.is-passado) .ped4__c-marca { opacity: .55; }
 .ped4__c-item.is-passado .ped4__c-marca { opacity: 1; }
 .ped4__c-item .ped4__c-marca { transition: opacity 200ms ease, box-shadow 200ms ease, transform 200ms var(--p4-curva); }
-.ped4__c-item.is-passado .ped4__c-marca--concluido { border-color: var(--c-ok); background: var(--c-ok); }
-.ped4__c-item.is-passado .ped4__c-marca--expedido { border-color: var(--azul-fundo); background: var(--azul-fundo); }
-.ped4__c-item.is-passado .ped4__c-marca--recolher, .ped4__c-item.is-passado .ped4__c-marca--preparado { border-color: var(--c-marca); background: var(--c-superficie); }
-.ped4__c-item.is-passado .ped4__c-marca--preparacao { border-color: var(--c-aviso); background: var(--c-superficie); }
 .ped4__c-item.is-ativo .ped4__c-marca { transform: scale(1.12); box-shadow: 0 0 0 3px var(--c-portal-fundo), 0 0 0 5px var(--c-acao); }
-.ped4__c-item.is-ativo .ped4__c-marca--concluido { background: var(--c-ok); border-color: var(--c-ok); }
-.ped4__c-item.is-ativo .ped4__c-marca--expedido { background: var(--azul-fundo); border-color: var(--azul-fundo); }
-.ped4__c-item.is-ativo .ped4__c-marca--recolher, .ped4__c-item.is-ativo .ped4__c-marca--preparado { background: var(--c-superficie); border-color: var(--c-marca); }
-.ped4__c-item.is-ativo .ped4__c-marca--preparacao { background: var(--c-superficie); border-color: var(--c-aviso); }
 .portal--estado .ped4__c-item .ped4__c-marca { opacity: 1; }
 @media (max-width: 760px) { .ped4__crono { --data: 64px; } .ped4__c-etapa { font-size: 10px; } }
 .ped4__conta { gap: 0; white-space: pre; } .ped4__conta svg { margin-right: 8px; }
