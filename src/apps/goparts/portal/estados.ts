@@ -20,7 +20,7 @@ import { catalogoV5 } from './catalogo-v5';
 import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComparar } from '../comportamento/catalogo-v5';
 import { pedidosV4, detalhe as detalhePed, pedidoDe, linhaDe, valorDe } from './pedidos-v4';
 import { LINHAS as LINHAS_PED, euros as eurosPed } from './pedidos-dados';
-import { guiasV3, guiaDe, detalheGuia, cabecaDoc, paginaDoc, rodapeDoc } from './guias-v3';
+import { guiasV3, guiaDe, detalheGuia, cabecaGuia, cabecaDoc, paginaDoc, rodapeDoc } from './guias-v3';
 import { GUIAS, total as totalGuia } from './guias-dados';
 import { faturasV1 } from './faturas-v1';
 import { preencher as preencherFatura } from '../comportamento/faturas';
@@ -460,20 +460,26 @@ const pedidos = (html: string) => portal('pedidos', html.replace('portal--noite'
 
 /* 15 out. 2026: os estados dos Pedidos v4 (o briefing dela, ponto 11), a partir do mesmo desenho (pedidos-v4.ts).
    Cada um muda só o que esse estado muda; os campos guardam o que se escreveu. */
-const ped4 = (prefixo: string, f: (r: HTMLElement) => void, html = pedidosV4()) => pedidos(mudar(html, prefixo, f));
+const ped4 = (prefixo: string, f: (r: HTMLElement) => void, html = pedidosV4()) => comPainelAberto(pedidos(mudar(html, prefixo, f)));
 const IC_CADEADO_P = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
-const abertoNaLinha = (r: HTMLElement, num: string) => {
-  const tr = $(r, `tr.ped4__linha[data-num="${num}"]`), det = tr.nextElementSibling as HTMLElement;
-  tr.classList.add('is-aberto'); $(tr, '.ped4__abrir').setAttribute('aria-expanded', 'true');
-  det.removeAttribute('hidden'); det.firstElementChild!.innerHTML = detalhePed(pedidoDe(num), linhaDe(num));
-  return det;
+/** (15 out., ela: «os diálogos que te pedi quando clico num pedido») — o pedido aberto é o do painel lateral: o
+    cartão (ou a linha) fica marcado e o detalhe vai para o painel; devolve o painel, para cada estado lhe mexer. */
+const painelPedido = (r: HTMLElement, num: string) => {
+  const p = pedidoDe(num), l = linhaDe(num);
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const g = $(r, '.ped4__gaveta'); g.removeAttribute('hidden');
+  const idNum = g.getAttribute('aria-labelledby') || 'ped4-g-num';
+  g.innerHTML = `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Pedido</p><h2 class="ped4__g-num" id="${idNum}">${p.num}</h2><p class="ped4__g-meta">${l.data} · ${l.armazem} · ${eurosPed(valorDe(p))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)">${I('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')}</button></header>${detalhePed(p, l, 'gaveta')}`;
+  $$(r, '.ped4 > header, .ped4 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  return g;
 };
-/** (15 out.) a cronologia é a vista principal: o pedido aberto no seu cartão */
+const abertoNaLinha = (r: HTMLElement, num: string) => {
+  $(r, `tr.ped4__linha[data-num="${num}"]`).classList.add('is-aberto');
+  return painelPedido(r, num);
+};
 const abertoNaCrono = (r: HTMLElement, num: string) => {
-  const li = $(r, `.ped4__c-item[data-num="${num}"]`), det = $(li, '.ped4__c-det');
-  li.classList.add('is-aberto', 'is-ativo'); $(li, '.ped4__c-cabeca').setAttribute('aria-expanded', 'true');
-  det.removeAttribute('hidden'); det.innerHTML = detalhePed(pedidoDe(num), linhaDe(num));
-  return det;
+  $(r, `.ped4__c-item[data-num="${num}"]`).classList.add('is-aberto', 'is-ativo');
+  return painelPedido(r, num);
 };
 const chips = (r: HTMLElement, itens: string[]) => { $(r, '.ped4__chips').innerHTML = itens.map((t) => `<li><span>${t}</span><button type="button" class="ped4__chip-x" aria-label="Tirar o filtro ${t}">${I('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')}</button></li>`).join(''); };
 const valorCampo = (r: HTMLElement, id: string, v: string) => $<HTMLInputElement>(r, `#${id}`).setAttribute('value', v);
@@ -548,7 +554,9 @@ const ped4Recolher = () => ped4('e1211', (r) => { abertoNaCrono(r, 'P2024/001142
 /* 12.12 · expedido (em parte): o camião no passo onde o pedido está; os 2 em falta seguem depois */
 const ped4Expedido = () => ped4('e1212', (r) => { abertoNaCrono(r, 'P2024/001233'); });
 /* 12.13 · o pedido no painel à direita; o resto da página fica inerte, como no comportamento */
-const ped4Inerte = (html: string) => html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"');
+const ped4Inerte = (html: string) => html.includes('portal__topo" inert') ? html : html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"');
+/** Com o painel aberto (um <aside role="dialog"> sem hidden), o resto da página fica inerte, como no comportamento. */
+const comPainelAberto = (html: string) => /<aside class="ped4__gaveta[^>]*role="dialog"(?![^>]*\bhidden\b)[^>]*>/.test(html) ? ped4Inerte(html) : html;
 const ped4Gaveta = () => ped4Inerte(ped4('e1213', (r) => {
   const p = pedidoDe('P2024/001233'), l = linhaDe('P2024/001233');
   $(r, '.ped4__veu').removeAttribute('hidden');
@@ -602,7 +610,7 @@ const ped4Encontrado = () => ped4('e1220', (r) => {
 });
 /* 12.24 · a guia de remessa do pedido no painel lateral (ela: «quando clico numa guia de remessa do pedido abre um diálogo lateral») */
 const ped4Guia = () => ped4Inerte(ped4('e1224', (r) => {
-  abertoNaCrono(r, 'P2024/001233');
+  $(r, '.ped4__c-item[data-num="P2024/001233"]').classList.add('is-ativo');
   const g = guiaDe('GR2024/08640');
   $(r, '.ped4__veu').removeAttribute('hidden');
   const gv = $(r, '.ped4__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', 'e1224-g-num');
@@ -642,13 +650,17 @@ const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
    Do briefing dela (a lista de estados do «Logistics Document Center»). Cada estado parte do ecrã e muda só o
    que esse estado muda; os erros ficam no sítio onde aconteceram (um PDF que falha não fecha a página). */
 const guias = (html: string) => portal('guias', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
-const g3 = (prefixo: string, f: (r: HTMLElement) => void, html = guiasV3()) => guias(mudar(html, prefixo, f));
+const g3 = (prefixo: string, f: (r: HTMLElement) => void, html = guiasV3()) => comPainelAberto(guias(mudar(html, prefixo, f)));
 /** Uma guia aberta no seu lugar da cronologia (com ids próprios do estado). */
+/** (15 out.) a guia aberta é a do painel lateral: o cartão (ou a linha) marcado e a guia no painel. */
 const guiaAberta = (r: HTMLElement, num: string, prefixo: string) => {
-  const li = $(r, `.ped4__c-item[data-num="${num}"]`), det = $(li, '.ped4__c-det');
-  li.classList.add('is-aberto', 'is-ativo'); $(li, '.ped4__c-cabeca').setAttribute('aria-expanded', 'true');
-  det.removeAttribute('hidden'); det.innerHTML = detalheGuia(guiaDe(num)).replace(/\bgui3-/g, `${prefixo}-`);
-  return det;
+  const g = guiaDe(num);
+  $$(r, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => el.classList.add('is-aberto', 'is-ativo'));
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.gui3__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', `${prefixo}-g-num`);
+  gv.innerHTML = `${cabecaGuia(g, `${prefixo}-g-num`)}<div class="ped4__g-guia">${detalheGuia(g).replace(/\bgui3-/g, `${prefixo}-`)}</div>`;
+  $$(r, '.gui3 > header, .gui3 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  return gv;
 };
 /** O painel do documento aberto; o resto da página inerte, como no comportamento. */
 const painelDoc = (r: HTMLElement, num: string, corpo: string) => {
@@ -719,11 +731,9 @@ const guiasAberta = () => g3('e138', (r) => { guiaAberta(r, 'GR2024/08640', 'e13
 const guiasCredito = () => g3('e139', (r) => { guiaAberta(r, 'GR2024/08511', 'e139'); });
 /* 13.10 · a abrir a guia relacionada: só essa espera, em esqueleto com a forma do detalhe */
 const guiasRelacionada = () => g3('e1310', (r) => {
-  guiaAberta(r, 'GR2024/08511', 'e1310');
-  const b = $(r, '.ped4__c-item[data-num="GR2024/08511"] .gui3__irma'); b.setAttribute('aria-busy', 'true'); b.innerHTML = `${GIRADOR('ped4__rs')}<b>GR2024/08321</b> · a abrir…`;
-  const li = $(r, '.ped4__c-item[data-num="GR2024/08321"]'), det = $(li, '.ped4__c-det');
-  li.classList.add('is-aberto'); $(li, '.ped4__c-cabeca').setAttribute('aria-expanded', 'true'); det.removeAttribute('hidden');
-  det.innerHTML = `<div class="gui3__det" aria-busy="true"><section class="gui3__det-percurso"><p class="ped4__conta">${GIRADOR('ped4__rs')} A abrir a guia GR2024/08321…</p>${E('100%')}</section><section class="gui3__det-doc">${E('70%')}${E('55%')}${E('80%')}</section><section class="gui3__det-artigos">${[90, 75, 85].map((w) => E(w)).join('')}</section><section class="gui3__det-valores">${[60, 60, 60, 80].map((w) => E(w)).join('')}</section></div>`;
+  const gv = guiaAberta(r, 'GR2024/08511', 'e1310');
+  const b = $(gv, '.gui3__irma'); b.setAttribute('aria-busy', 'true'); b.innerHTML = `${GIRADOR('ped4__rs')}<b>GR2024/08321</b> · a abrir…`;
+  $(gv, '.ped4__g-guia').insertAdjacentHTML('beforeend', `<div class="gui3__det" aria-busy="true" style="opacity:.7">${[100, 70, 55, 80].map((w) => E(w)).join('')}</div>`);
 });
 /* 13.11 · pedido indisponível: a guia e a fatura continuam; o pedido já não está no histórico */
 const guiasPedidoIndisponivel = () => g3('e1311', (r) => {
@@ -736,7 +746,7 @@ const guiasPdfCarga = () => comPainel('e1312', (r) => { painelDoc(r, 'GR2024/086
 const guiasPdf = () => comPainel('e1313', (r) => { painelDoc(r, 'GR2024/08640', paginaDoc(guiaDe('GR2024/08640'))); });
 /* 13.14 · documento indisponível: só o painel diz que falhou; a guia e os valores continuam na página */
 const guiasPdfErro = () => comPainel('e1314', (r) => {
-  guiaAberta(r, 'GR2024/08640', 'e1314');
+  $(r, '.ped4__c-item[data-num="GR2024/08640"]').classList.add('is-aberto', 'is-ativo');
   const gv = painelDoc(r, 'GR2024/08640', `<div class="gui3__g-erro" role="alert">${rolamentoSvg('e1314-rs', 'erro', 'ped4__rs')}<p><strong>O documento da GR2024/08640 não está disponível.</strong></p><p>O arquivo de documentos não respondeu. A guia, os valores e os artigos continuam na página. Referência do erro: DOC-504-0812.</p>${BOTAO('Tentar novamente', IC.denovo, 'btn--ghost btn--sm')}</div>`);
   const b = $(gv, '[data-descarregar]'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem documento para descarregar');
 });
@@ -776,9 +786,7 @@ const guiasSemPermissao = () => g3('e1320', (r) => {
 });
 /* 13.21 · a mesma página na Tabela, com a guia aberta na linha */
 const guiasTabela = () => g3('e1321', (r) => {
-  const tr = $(r, 'tr.ped4__linha[data-num="GR2024/08640"]'), det = tr.nextElementSibling as HTMLElement;
-  tr.classList.add('is-aberto'); $(tr, '.ped4__abrir').setAttribute('aria-expanded', 'true');
-  det.removeAttribute('hidden'); det.firstElementChild!.innerHTML = detalheGuia(guiaDe('GR2024/08640')).replace(/\bgui3-/g, 'e1321-');
+  guiaAberta(r, 'GR2024/08640', 'e1321');
 }, guiasV3('tabela'));
 
 
@@ -927,9 +935,9 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-datas', '12.4 · Erro nos filtros', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', ped4Datas),
   e('pedidos-rede', '12.5 · Sem ligação', 'Uma faixa por cima da lista; os pedidos de há pouco esbatidos e «Pesquisar» desligado.', ped4Rede),
   e('pedidos-falha', '12.6 · Erro do servidor', 'Os filtros ficam; a tabela diz o que falhou, com a referência do erro, o apoio e «Tentar novamente».', ped4Falha),
-  e('pedidos-aberto', '12.7 · Pedido concluído (aberto)', 'O P2024/001256 aberto no seu cartão da cronologia: o percurso todo feito, os artigos, a morada, a guia, a fatura e as ações.', ped4Aberto),
+  e('pedidos-aberto', '12.7 · Pedido concluído (aberto)', 'O P2024/001256 no painel lateral (o cartão fica marcado): o percurso todo feito, os artigos, a morada, a guia, a fatura e as ações.', ped4Aberto),
   e('pedidos-primeira', '12.8 · Primeira vez', 'Sem pedidos: diz o que vai aparecer aqui e leva ao catálogo.', ped4Primeira),
-  e('pedidos-a-abrir', '12.9 · O pedido a abrir', 'Só a linha aberta espera, em esqueleto com a forma do detalhe.', ped4AAbrir),
+  e('pedidos-a-abrir', '12.9 · O pedido a abrir', 'Só o painel espera, em esqueleto com a forma do detalhe.', ped4AAbrir),
   e('pedidos-processamento', '12.10 · Em processamento', 'O P2024/001198 ainda não saiu: o passo seguinte marcado sem data; à espera de confirmar o stock.', ped4Processamento),
   e('pedidos-recolher', '12.11 · Por recolher no balcão', 'O P2024/001142: levanta no balcão de Lisboa; ainda sem guia nem fatura.', ped4Recolher),
   e('pedidos-expedido', '12.12 · Expedido em parte', 'O P2024/001233: o camião no passo onde o pedido está; 2 amortecedores pendentes.', ped4Expedido),
@@ -937,7 +945,7 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-sessao', '12.14 · Sessão terminada', 'A página fica; pesquisar pede para entrar outra vez.', ped4Sessao),
   e('pedidos-sem-permissao', '12.15 · Sem permissão', 'Esta conta não vê os pedidos da oficina; o catálogo continua aberto.', ped4SemPermissao),
   e('pedidos-documento', '12.16 · Documento indisponível', 'A fatura não abriu; a guia e o resto do pedido continuam.', ped4Documento),
-  e('pedidos-tabela', '12.17 · Vista em tabela', 'A alternativa à cronologia: a tabela ordenável, com o P2024/001233 aberto na linha.', ped4Tabela),
+  e('pedidos-tabela', '12.17 · Vista em tabela', 'A alternativa à cronologia: a tabela ordenável, com o P2024/001233 marcado na linha e aberto no painel.', ped4Tabela),
   e('pedidos-inicio', '12.18 · Primeira carga', 'A primeira carga: os filtros já servem; no lugar da lista, o rolamento e o que está a acontecer.', ped4Inicio),
   e('pedidos-selecionado', '12.19 · Pedido selecionado', 'O P2024/001233 ativo, ainda fechado: o anel e a borda a laranja.', ped4Selecionado),
   e('pedidos-encontrado', '12.20 · Encontrado pela referência', 'Com «VKBA»: só os dois pedidos com a peça, e a peça destacada em cada cartão.', ped4Encontrado),
@@ -954,9 +962,9 @@ export const estadosGuias = (): EcraGoParts[] => [
   e('guias-vazio', '13.5 · Nenhuma com estes filtros', 'Maio de 2024: diz qual foi a última guia, mostra os filtros aplicados e dá «Limpar filtros».', guiasVazio),
   e('guias-filtros', '13.6 · Datas inválidas', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', guiasFiltros),
   e('guias-selecionada', '13.7 · Guia selecionada', 'A GR2024/08640 ativa, ainda fechada: o marcador e a borda a laranja; o mês dela ao lado da contagem.', guiasSelecionada),
-  e('guias-aberta', '13.8 · Guia aberta', 'A GR2024/08640 aberta no sítio: Pedido → Guia → Fatura, a entrega, os valores (a base como subtotal, o total à parte), os artigos e as ações.', guiasAberta),
+  e('guias-aberta', '13.8 · Guia aberta', 'A GR2024/08640 no painel lateral (o cartão fica marcado): Pedido → Guia → Fatura, a entrega, os valores (a base como subtotal, o total à parte), os artigos e as ações.', guiasAberta),
   e('guias-credito', '13.9 · Nota de crédito aberta', 'A devolução GR2024/08511: o percurso até à nota de crédito e, do mesmo pedido, a guia da fatura como ligação.', guiasCredito),
-  e('guias-relacionada', '13.10 · A abrir a guia relacionada', 'Do mesmo pedido: só a guia pedida espera, em esqueleto com a forma do detalhe.', guiasRelacionada),
+  e('guias-relacionada', '13.10 · A abrir a guia relacionada', 'No painel, «Do mesmo pedido»: só o botão da guia pedida espera, e a guia chega em esqueleto.', guiasRelacionada),
   e('guias-pedido-indisponivel', '13.11 · Pedido indisponível', 'A GR2024/07940 é de um pedido que já não está no histórico: o nó a tracejado e a nota; a guia e a fatura continuam.', guiasPedidoIndisponivel),
   e('guias-pdf-carga', '13.12 · Documento a abrir', 'O painel abre já com o número e a descarga; a página do documento chega a seguir.', guiasPdfCarga),
   e('guias-pdf', '13.13 · Pré-visualização', 'O documento no painel à direita, com «Descarregar PDF» em baixo; Esc fecha e o foco volta ao botão.', guiasPdf),
@@ -967,7 +975,7 @@ export const estadosGuias = (): EcraGoParts[] => [
   e('guias-falha', '13.18 · Erro do servidor', 'Os filtros ficam; a lista diz o que falhou, com a referência do erro, o apoio e «Tentar novamente».', guiasFalha),
   e('guias-sessao', '13.19 · Sessão terminada', 'A página fica; pesquisar e descarregar pedem para entrar outra vez.', guiasSessao),
   e('guias-sem-permissao', '13.20 · Sem permissão', 'Esta conta não vê os documentos de entrega; os pedidos e o catálogo continuam abertos.', guiasSemPermissao),
-  e('guias-tabela', '13.21 · Vista em tabela', 'A alternativa à cronologia: as colunas todas do GO REPAIR, ordenáveis, com a GR2024/08640 aberta na linha.', guiasTabela),
+  e('guias-tabela', '13.21 · Vista em tabela', 'A alternativa à cronologia: as colunas todas do GO REPAIR, ordenáveis, com a GR2024/08640 marcada na linha e aberta no painel.', guiasTabela),
 ];
 export const estadosFaturas = (): EcraGoParts[] => [
   e('faturas-carga', '14.1 · A carregar as faturas', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', faturasCarga),

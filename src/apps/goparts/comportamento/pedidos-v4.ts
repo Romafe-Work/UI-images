@@ -6,11 +6,11 @@
      «A atualizar…»; depois as que saem desvanecem, as que ficam deslizam (FLIP, só transform) e as novas entram.
      Os filtros aplicados ficam em etiquetas com ×. A contagem e o valor no período contam até ao número novo.
    - ORDENAR por Pedido, Data e Valor (↑↓; outro clique inverte).
-   - ABRIR NA LINHA: o pedido abre-se por baixo da linha; as linhas de baixo deslizam para o sítio (FLIP), o
-     conteúdo entra com 8 px. Na primeira vez, o percurso enche-se até ao passo onde o pedido está e o ícone
-     (camião, embalagem, visto) anda até lá. Fechar não tira a página do sítio.
-   - PAINEL: «Abrir no painel» mostra o mesmo pedido à direita (ecrã inteiro no telemóvel); o número voa da linha
-     para o título (View Transitions, onde o browser as tem). Esc fecha e o foco volta ao botão.
+   - PAINEL (ela, 15 out.: «os diálogos que te pedi quando clico num pedido ou guias de remessa»): clicar num pedido,
+     no cartão ou na linha, abre-o no painel lateral (ecrã inteiro no telemóvel); o escolhido fica marcado a laranja;
+     o número voa do cartão para o título (View Transitions, onde o browser as tem). Na primeira vez, o percurso
+     enche-se até ao passo onde o pedido está. Esc fecha e o foco volta ao cartão. «Ver guia» abre a guia no
+     mesmo painel.
    Nada disto anima a altura; com «reduzir movimento», tudo troca sem deslizar. Não há servidor: a «procura» e
    «Repetir pedido» confirmam ao fim de menos de 1 s.
    ========================================================= */
@@ -185,13 +185,6 @@ function animarPercurso(raiz: HTMLElement): void {
   $(tl, '.ped4__tl-mover')?.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${p * 100}%)` }], { duration: 650, delay: 120, easing: SAIDA, fill: 'backwards' });
   $$(tl, '.ped4__tl-passo.is-feito .ped4__tl-ponto').forEach((d, i) => d.animate([{ transform: 'scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 220, delay: 120 + i * (650 / Math.max(1, $$(tl, '.ped4__tl-passo').length - 1)), easing: SAIDA, fill: 'backwards' }));
 }
-function abrir(main: HTMLElement, tr: HTMLElement): void {
-  const det = tr.nextElementSibling as HTMLElement, td = det.firstElementChild as HTMLElement;
-  if (!td.firstElementChild) td.innerHTML = detalhe(pedidoDe(tr.dataset.num!), linhaDe(tr.dataset.num!));
-  deslizarAbaixo(main, tr, () => { det.hidden = false; tr.classList.add('is-aberto'); $(tr, '.ped4__abrir')!.setAttribute('aria-expanded', 'true'); });
-  if (!quieto()) $(td, '.ped4__det')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: SAIDA });
-  animarPercurso(td);
-}
 function fechar(main: HTMLElement, tr: HTMLElement, animar = true): void {
   const det = tr.nextElementSibling as HTMLElement;
   const topo = tr.getBoundingClientRect().top;
@@ -208,10 +201,20 @@ function fundo(main: HTMLElement, inerte: boolean): void {
   [...$$(portal, ':scope > header, :scope > nav'), ...$$(main, ':scope > header, :scope > section')].forEach((el) => { el.inert = inerte; if (inerte) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
 }
 let devolver: HTMLElement | null = null;
+/** O pedido escolhido fica marcado (cartão e linha) enquanto o painel está aberto. */
+function marcarEscolhido(main: HTMLElement, num: string): void {
+  $$(main, '.ped4__c-item.is-aberto, tr.ped4__linha.is-aberto').forEach((el) => el.classList.remove('is-aberto'));
+  $$(main, '.ped4__c-cabeca[aria-expanded="true"], .ped4__abrir[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  if (!num) return;
+  $$(main, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => { el.classList.add('is-aberto'); if (el.matches('.ped4__c-item')) el.classList.add('is-ativo'); });
+}
+/* (ela, 15 out.: «os diálogos que te pedi quando clico num pedido ou guias de remessa») — clicar num pedido, no cartão
+   ou na linha, abre-o no painel lateral; o número voa do cartão para o título (View Transitions) */
 function gaveta(main: HTMLElement, num: string, origem: HTMLElement): void {
   const g = $(main, '.ped4__gaveta')!, veu = $(main, '.ped4__veu')!, l = linhaDe(num), p = pedidoDe(num);
-  const ref = main.querySelector<HTMLElement>(`tr.ped4__linha[data-num="${num}"] .ped4__ref`);
+  const ref = origem.closest('.ped4__c-item, tr.ped4__linha')?.querySelector<HTMLElement>('.ped4__ref') ?? null;
   devolver = origem;
+  marcarEscolhido(main, num);
   const encher = () => {
     g.innerHTML = `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Pedido</p><h2 class="ped4__g-num" id="ped4-g-num" tabindex="-1">${num}</h2><p class="ped4__g-meta">${l.data} · ${l.armazem} · ${euros(valorDe(p))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)">${L(x)}</button></header>${detalhe(p, l, 'gaveta')}`;
     g.hidden = false; veu.hidden = false; main.classList.add('tem-gaveta'); fundo(main, true);
@@ -251,7 +254,7 @@ function descarregarGuia(b: HTMLButtonElement): void {
 }
 function fecharGaveta(main: HTMLElement): void {
   const g = $(main, '.ped4__gaveta')!; if (g.hidden) return;
-  const fim = () => { g.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); devolver?.focus(); };
+  const fim = () => { g.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); marcarEscolhido(main, ''); requestAnimationFrame(() => rolar(main)); devolver?.focus(); };
   if (quieto()) { fim(); return; }
   g.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(24px)', opacity: 0 }], { duration: 220, easing: 'ease-in' }).finished.then(fim, fim);
 }
@@ -319,7 +322,9 @@ function rolar(main: HTMLElement): void {
     li.classList.toggle('is-passado', t <= leitura);
     const d = Math.abs(t - leitura); if (t <= leitura + 40 && d < melhor) { melhor = d; ativo = li; }
   });
-  $$(cr, '.ped4__c-item.is-ativo').forEach((li) => { if (li !== ativo) li.classList.remove('is-ativo'); });
+  /* com o painel aberto, o ativo é o escolhido (só um a laranja) */
+  const escolhido = $(cr, '.ped4__c-item.is-aberto'); if (escolhido) ativo = escolhido;
+  $$(cr, '.ped4__c-item.is-ativo').forEach((li) => { if (li !== ativo && !li.classList.contains('is-aberto')) li.classList.remove('is-ativo'); });
   (ativo as HTMLElement | null)?.classList.add('is-ativo');
 }
 let pedidoRolar = 0;
@@ -331,14 +336,6 @@ function observar(main: HTMLElement): void {
   $$(main, '.ped4__c-item:not(.is-entrou)').forEach((li) => { if (quieto() || !entrada) li.classList.add('is-entrou'); else entrada.observe(li); });
 }
 
-function abrirItem(main: HTMLElement, li: HTMLElement): void {
-  const det = $(li, '.ped4__c-det')!;
-  if (!det.firstElementChild) det.innerHTML = detalhe(pedidoDe(li.dataset.num!), linhaDe(li.dataset.num!));
-  deslizarDepois(main, li, () => { det.hidden = false; li.classList.add('is-aberto'); $(li, '.ped4__c-cabeca')!.setAttribute('aria-expanded', 'true'); });
-  if (!quieto()) $(det, '.ped4__det')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: SAIDA });
-  animarPercurso(det);
-  requestAnimationFrame(() => rolar(main));
-}
 function fecharItem(main: HTMLElement, li: HTMLElement, animar = true): void {
   const topo = li.getBoundingClientRect().top;
   const mudar = () => { $(li, '.ped4__c-det')!.hidden = true; li.classList.remove('is-aberto'); $(li, '.ped4__c-cabeca')!.setAttribute('aria-expanded', 'false'); };
@@ -380,8 +377,8 @@ function armar(): void {
       const tabela = $(main, '.ped4__lista')?.dataset.vista === 'tabela';
       const el = tabela ? $(main, `tr.ped4__linha[data-num="${pedido}"]`) : $(main, `.ped4__c-item[data-num="${pedido}"]`);
       if (el?.hidden) limpar(main);
-      if (el && !el.classList.contains('is-aberto')) { if (tabela) abrir(main, el); else abrirItem(main, el); }
-      el?.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' });
+      el?.scrollIntoView({ block: 'center' });
+      if (el) gaveta(main, pedido, $(el, '.ped4__c-cabeca, .ped4__abrir') ?? el);
     }
     rolar(main);
   });
@@ -406,7 +403,7 @@ export function iniciar(): void {
     const vg = t.closest<HTMLElement>('[data-abrir-guia]'); if (vg) { ev.preventDefault(); ev.stopPropagation(); gavetaGuia(main, vg.dataset.abrirGuia!, vg); return; }
     const irma = t.closest<HTMLElement>('.ped4__gaveta [data-ir-guia]'); if (irma) { gavetaGuia(main, irma.dataset.irGuia!, devolver || irma); return; }
     const gp = t.closest<HTMLElement>('[data-guia-pagina]'); if (gp) { try { sessionStorage.setItem('goparts:abrir-guia', gp.dataset.guiaPagina!); } catch { /* nada */ } return; }
-    const pg = t.closest<HTMLElement>('.ped4__gaveta [data-abrir-pedido]'); if (pg) { const num = pg.dataset.abrirPedido!; fecharGaveta(main); const li = $(main, `.ped4__c-item[data-num="${num}"]`); if (li && !li.hidden) { if (!li.classList.contains('is-aberto')) abrirItem(main, li); li.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' }); } return; }
+    const pg = t.closest<HTMLElement>('.ped4__gaveta [data-abrir-pedido]'); if (pg) { const num = pg.dataset.abrirPedido!; if (LINHAS.some((l) => l.num === num)) gaveta(main, num, devolver || pg); return; }
     const ind = t.closest<HTMLElement>('.ped4__gaveta [data-pedido-indisponivel]'); if (ind) { const n = ind.closest('.gui3__percurso')?.querySelector<HTMLElement>('.gui3__ind'); if (n) n.hidden = false; return; }
     const dg = t.closest<HTMLButtonElement>('.ped4__gaveta [data-descarregar]'); if (dg) { descarregarGuia(dg); return; }
     /* a fatura ou a página das Guias: o painel fecha antes de a navegação (data-ir) seguir */
@@ -416,10 +413,10 @@ export function iniciar(): void {
     if (t.closest('.ped4__g-fechar, .ped4__veu')) { fecharGaveta(main); return; }
     const vb = t.closest<HTMLElement>('.ped4__vista'); if (vb) { vista(main, vb.dataset.vista!); return; }
     const cc = t.closest<HTMLElement>('.ped4__c-cabeca');
-    if (cc) { const li = cc.closest<HTMLElement>('.ped4__c-item')!; if (li.classList.contains('is-aberto')) fecharItem(main, li); else abrirItem(main, li); return; }
+    if (cc) { const li = cc.closest<HTMLElement>('.ped4__c-item')!; if (!li.classList.contains('ped4__c-esq')) gaveta(main, li.dataset.num!, cc); return; }
     if (t.closest('.ped4__linha-det, .ped4__gaveta')) return;
     const tr = t.closest<HTMLElement>('tr.ped4__linha');
-    if (tr && !t.closest('a, input')) { if (tr.classList.contains('is-aberto')) fechar(main, tr); else abrir(main, tr); }
+    if (tr && !t.closest('a, input')) gaveta(main, tr.dataset.num!, $(tr, '.ped4__abrir') ?? tr);
   }, true);
   document.addEventListener('submit', (ev) => { const main = vivo(); if (main && (ev.target as Element).closest?.('.ped4__campos')) { ev.preventDefault(); pesquisar(main); } });
   document.addEventListener('keydown', (ev) => {

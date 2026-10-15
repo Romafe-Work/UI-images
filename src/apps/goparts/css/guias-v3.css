@@ -172,3 +172,15 @@ button.gui3__no:focus-visible { outline: 2px solid var(--azul-fundo); outline-of
 .ped4__g-guia .gui3__det { grid-template-columns: minmax(0, 1fr); grid-template-areas: "percurso" "valores" "doc" "artigos"; padding: 16px 20px 24px; }
 .ped4__g-guia .gui3__seta { max-width: 48px; }
 .ped4__g-guia .btn.is-feito { border-color: var(--c-ok); color: var(--c-ok); }
+
+/* (15 out.) clicar num pedido ou numa guia abre o painel lateral: o escolhido fica marcado (borda e marcador laranja)
+   e a seta continua a apontar para o lado do painel, não para baixo */
+.ped4__c-item.is-aberto .ped4__c-seta svg, .ped4__linha.is-aberto .ped4__abrir svg { transform: translateX(2px); }
+.ped4__c-item.is-aberto .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-acao) 60%, var(--c-borda)); box-shadow: inset 2px 0 0 var(--c-acao); }
+.ped4__linha.is-aberto { box-shadow: inset 2px 0 0 var(--c-acao); }
+.gui3__gaveta { width: min(600px, 100vw); }
+.gui3__g-voltar { margin: 0; padding: 10px 20px; border-bottom: 1px solid var(--c-borda); }
+.gui3__voltar { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; border: 0; background: none; color: var(--c-texto-2); font: inherit; font-size: 14px; cursor: pointer; }
+.gui3__voltar svg { width: 16px; height: 16px; color: var(--c-acao); transition: transform 150ms ease; }
+.gui3__voltar:hover { color: var(--c-texto); } .gui3__voltar:hover svg { transform: translateX(-2px); }
+.gui3__voltar:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 2px; }

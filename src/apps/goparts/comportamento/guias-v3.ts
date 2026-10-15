@@ -7,21 +7,23 @@
      depois as que saem desvanecem, as que ficam deslizam (FLIP) e as novas entram. Etiquetas com ×.
    - CRONOLOGIA: a linha desenha-se com o scroll (scaleY); as guias acima da altura de leitura acendem; a mais
      perto fica ativa (laranja) e o mês dela aparece ao lado da contagem; cada guia entra uma vez.
-   - ABRIR: a guia abre no sítio (320 ms; os de baixo deslizam com FLIP, sem animar a altura); o fio do percurso
-     documental desenha-se do pedido à guia e da guia à fatura (450 ms) e os nós acendem. «Do mesmo pedido»
-     abre a outra guia, no sítio dela. O pedido abre nos Pedidos (já aberto); o que não existe diz porquê.
-   - DOCUMENTO: «Ver documento» abre o painel à direita (300 ms) com a pré-visualização; «Descarregar PDF»
-     espera e confirma. Esc fecha e o foco volta ao botão.
+   - ABRIR (ela, 15 out.: «os diálogos que te pedi quando clico num pedido ou guias de remessa»): clicar numa guia,
+     no cartão ou na linha, abre-a no painel lateral (300 ms); o escolhido fica marcado a laranja; o fio do percurso
+     documental desenha-se (450 ms) e os valores contam. «Do mesmo pedido» troca a guia no painel. O pedido abre
+     nos Pedidos (no painel deles); o que não existe diz porquê.
+   - DOCUMENTO: «Ver documento» passa ao documento no mesmo painel, com «Voltar à guia»; «Descarregar PDF»
+     espera e confirma. Esc fecha e o foco volta ao cartão.
    A guia aberta fica guardada na visita (sessionStorage): ao voltar ao ecrã, abre-se outra vez.
    Com «reduzir movimento», tudo troca sem deslizar. Não há servidor: as esperas são de menos de 1 s.
    ========================================================= */
 import { GUIAS, euros } from '../portal/guias-dados';
-import { estadoGuia, guiaDe, detalheGuia, cabecaDoc, paginaDoc, rodapeDoc, L, ICONES3 } from '../portal/guias-v3';
+import { estadoGuia, guiaDe, detalheGuia, cabecaGuia, cabecaDoc, paginaDoc, rodapeDoc, L, ICONES3 } from '../portal/guias-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { mostrar } from '../../../comum/ecras';
 import x from 'lucide-static/icons/x.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
+import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
 
 const editando = () => document.body.classList.contains('editando');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -174,6 +176,8 @@ function rolar(main: HTMLElement): void {
     li.classList.toggle('is-passado', t <= leitura);
     const d = Math.abs(t - leitura); if (t <= leitura + 40 && d < melhor) { melhor = d; ativo = li; }
   });
+  /* com o painel aberto, o ativo é o escolhido (só um a laranja) */
+  const escolhido = $(cr, '.ped4__c-item.is-aberto'); if (escolhido) ativo = escolhido;
   $$(cr, '.ped4__c-item.is-ativo').forEach((li) => { if (li !== ativo && !li.classList.contains('is-aberto')) li.classList.remove('is-ativo'); });
   const a = ativo as HTMLElement | null; a?.classList.add('is-ativo');
   /* o mês da guia ativa, ao lado da contagem */
@@ -205,17 +209,6 @@ function animarPercurso(raiz: HTMLElement): void {
   $$(p, '.gui3__fio').forEach((f, i) => f.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 450, delay: 120 + i * 220, easing: SAIDA, fill: 'backwards' }));
   $$(p, '.gui3__nos > li:not(.gui3__seta)').forEach((n, i) => n.animate([{ opacity: .35 }, { opacity: 1 }], { duration: 240, delay: 80 + i * 220, easing: 'ease-out', fill: 'backwards' }));
 }
-function abrirItem(main: HTMLElement, li: HTMLElement): void {
-  const det = $(li, '.ped4__c-det')!;
-  if (!det.firstElementChild) det.innerHTML = detalheGuia(guiaDe(li.dataset.num!));
-  deslizarDepois(main, li, () => { det.hidden = false; li.classList.add('is-aberto', 'is-ativo'); $(li, '.ped4__c-cabeca')!.setAttribute('aria-expanded', 'true'); });
-  if (!quieto()) $(det, '.gui3__det')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: SAIDA });
-  /* os valores contam a partir de zero, na primeira vez */
-  if (!quieto() && !det.dataset.contou) { det.dataset.contou = '1'; $$(det, '.gui3__valores dd[data-valor]').forEach((dd) => { const v = Number(dd.dataset.valor); if (!v) return; dd.dataset.valor = '0'; contar(dd, v, euros); }); }
-  animarPercurso(det);
-  guardar(li.dataset.num!);
-  requestAnimationFrame(() => rolar(main));
-}
 function fecharItem(main: HTMLElement, li: HTMLElement, animar = true): void {
   const topo = li.getBoundingClientRect().top;
   const mudar = () => { $(li, '.ped4__c-det')!.hidden = true; li.classList.remove('is-aberto'); $(li, '.ped4__c-cabeca')!.setAttribute('aria-expanded', 'false'); };
@@ -225,25 +218,16 @@ function fecharItem(main: HTMLElement, li: HTMLElement, animar = true): void {
   requestAnimationFrame(() => rolar(main));
 }
 /** Abrir uma guia pelo número (do mesmo pedido, ou vinda dos Pedidos): tira o filtro que a esconde. */
-function irPara(main: HTMLElement, num: string, foco = true): void {
-  if ($(main, '.ped4__lista')?.dataset.vista === 'tabela') { const tr = $(main, `tr.ped4__linha[data-num="${num}"]`); if (!tr) return; if (tr.hidden) limpar(main); if (!tr.classList.contains('is-aberto')) abrirLinha(main, tr); tr.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' }); return; }
-  const li = $(main, `.ped4__c-item[data-num="${num}"]`); if (!li) return;
-  if (li.hidden) limpar(main);
-  if (!li.classList.contains('is-aberto')) abrirItem(main, li);
-  li.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' });
-  if (foco) $(li, '.ped4__c-cabeca')?.focus({ preventScroll: true });
+function irPara(main: HTMLElement, num: string, abrirPainel = true): void {
+  const tabela = $(main, '.ped4__lista')?.dataset.vista === 'tabela';
+  const el = tabela ? $(main, `tr.ped4__linha[data-num="${num}"]`) : $(main, `.ped4__c-item[data-num="${num}"]`); if (!el) return;
+  if (el.hidden) limpar(main);
+  el.scrollIntoView({ block: 'center' });
+  if (abrirPainel) painelGuia(main, num, $(el, '.ped4__c-cabeca, .ped4__abrir') ?? el);
+  else { el.classList.add('is-ativo'); }
 }
 
 /* ---------- a tabela: abrir na linha, ordenar, e a escolha da vista ---------- */
-function abrirLinha(main: HTMLElement, tr: HTMLElement): void {
-  const det = tr.nextElementSibling as HTMLElement, td = det.firstElementChild as HTMLElement;
-  if (!td.firstElementChild) td.innerHTML = detalheGuia(guiaDe(tr.dataset.num!));
-  const abaixo = $$(main, 'tr.ped4__linha').filter((l) => !l.hidden && (tr.compareDocumentPosition(l) & Node.DOCUMENT_POSITION_FOLLOWING));
-  const antes = new Map(abaixo.map((l) => [l, l.getBoundingClientRect().top]));
-  det.hidden = false; tr.classList.add('is-aberto'); $(tr, '.ped4__abrir')!.setAttribute('aria-expanded', 'true');
-  if (!quieto()) { abaixo.forEach((l) => { const dy = antes.get(l)! - l.getBoundingClientRect().top; if (dy) l.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 320, easing: SAIDA }); }); $(td, '.gui3__det')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: SAIDA }); }
-  animarPercurso(td); guardar(tr.dataset.num!);
-}
 function fecharLinha(tr: HTMLElement): void {
   (tr.nextElementSibling as HTMLElement).hidden = true; tr.classList.remove('is-aberto'); $(tr, '.ped4__abrir')!.setAttribute('aria-expanded', 'false');
 }
@@ -274,19 +258,43 @@ function fundo(main: HTMLElement, inerte: boolean): void {
   [...$$(portal, ':scope > header, :scope > nav'), ...$$(main, ':scope > header, :scope > section')].forEach((el) => { el.inert = inerte; if (inerte) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
 }
 let devolver: HTMLElement | null = null;
-function verDoc(main: HTMLElement, num: string, origem: HTMLElement): void {
-  const g = guiaDe(num), gv = $(main, '.gui3__gaveta')!, veu = $(main, '.ped4__veu')!;
-  devolver = origem;
-  /* primeiro o cabeçalho e o rolamento; a página do documento chega depois */
-  gv.innerHTML = `${cabecaDoc(g)}<div class="gui3__g-corpo"><p class="gui3__g-carga" role="status">${rolamentoSvg('g3-' + ++nr, 'carregar', 'ped4__rs')}A abrir o documento…</p></div>${rodapeDoc(g)}`;
+/** A guia escolhida fica marcada (cartão e linha) enquanto o painel está aberto. */
+function marcarEscolhida(main: HTMLElement, num: string): void {
+  $$(main, '.ped4__c-item.is-aberto, tr.ped4__linha.is-aberto').forEach((el) => el.classList.remove('is-aberto'));
+  if (!num) return;
+  $$(main, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => { el.classList.add('is-aberto'); if (el.matches('.ped4__c-item')) el.classList.add('is-ativo'); });
+}
+/* (ela, 15 out.: «os diálogos que te pedi quando clico num pedido ou guias de remessa») — clicar numa guia, no
+   cartão ou na linha, abre-a no painel lateral: o percurso documental, os valores, a entrega, os artigos e as
+   ações; «Do mesmo pedido» troca a guia no painel; «Ver documento» mostra o documento no mesmo painel. */
+function painelGuia(main: HTMLElement, num: string, origem: HTMLElement | null): void {
+  const g = guiaDe(num), gv = $(main, '.gui3__gaveta')!, veu = $(main, '.ped4__veu')!, jaAberto = !gv.hidden;
+  if (origem) devolver = origem;
+  marcarEscolhida(main, num); guardar(num);
+  gv.innerHTML = `${cabecaGuia(g)}<div class="ped4__g-guia">${detalheGuia(g)}</div>`;
   gv.hidden = false; veu.hidden = false; main.classList.add('tem-gaveta'); fundo(main, true);
-  if (!quieto()) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: SAIDA });
+  gv.scrollTop = 0;
+  if (!quieto()) {
+    if (!jaAberto) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: SAIDA });
+    else $(gv, '.ped4__g-guia')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: SAIDA });
+    $$(gv, '.gui3__valores dd[data-valor]').forEach((dd) => { const v = Number(dd.dataset.valor); if (!v) return; dd.dataset.valor = '0'; contar(dd, v, euros); });
+  }
+  animarPercurso(gv);
+  window.setTimeout(() => $(gv, '.ped4__g-num')?.focus(), quieto() ? 0 : 60);
+}
+function verDoc(main: HTMLElement, num: string, origem: HTMLElement): void {
+  const g = guiaDe(num), gv = $(main, '.gui3__gaveta')!, veu = $(main, '.ped4__veu')!, daGuia = !gv.hidden;
+  if (!daGuia) devolver = origem;
+  /* primeiro o cabeçalho e o rolamento; a página do documento chega depois. Vindo da guia, «Voltar à guia» */
+  gv.innerHTML = `${cabecaDoc(g)}${daGuia ? `<p class="gui3__g-voltar"><button type="button" class="ped4__ligacao gui3__voltar" data-voltar-guia="${g.num}">${L(arrowLeft)}Voltar à guia</button></p>` : ''}<div class="gui3__g-corpo"><p class="gui3__g-carga" role="status">${rolamentoSvg('g3-' + ++nr, 'carregar', 'ped4__rs')}A abrir o documento…</p></div>${rodapeDoc(g)}`;
+  gv.hidden = false; veu.hidden = false; main.classList.add('tem-gaveta'); fundo(main, true); gv.scrollTop = 0;
+  if (!quieto() && !daGuia) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: SAIDA });
   $(gv, '.ped4__g-num')?.focus();
   window.setTimeout(() => { if (gv.hidden) return; const c = $(gv, '.gui3__g-corpo')!; c.innerHTML = paginaDoc(g); if (!quieto()) c.firstElementChild?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' }); }, quieto() ? 0 : 500);
 }
 function fecharDoc(main: HTMLElement): void {
   const gv = $(main, '.gui3__gaveta')!; if (gv.hidden) return;
-  const fim = () => { gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); devolver?.focus(); };
+  const fim = () => { gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); marcarEscolhida(main, ''); requestAnimationFrame(() => rolar(main)); devolver?.focus(); };
   if (quieto()) { fim(); return; }
   gv.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(32px)', opacity: 0 }], { duration: 220, easing: 'ease-in' }).finished.then(fim, fim);
 }
@@ -316,6 +324,7 @@ function armar(): void {
     let pedida: string | null = null; try { pedida = sessionStorage.getItem('goparts:abrir-guia'); sessionStorage.removeItem('goparts:abrir-guia'); } catch { /* nada */ }
     const g = pedida || lerGuardada();
     if (g && GUIAS.some((x) => x.num === g)) irPara(main, g, !!pedida);
+    if (!pedida && g) guardar('');
     rolar(main);
   });
 }
@@ -333,21 +342,23 @@ export function iniciar(): void {
     if (ef) { main.dataset.etapa = ef.dataset.etapa; etapas(main); aplicar(main); return; }
     if (tirar) { const k = tirar.dataset.tirar!; if (k === 'etapa') { main.dataset.etapa = 'todas'; etapas(main); } else if (k === 'tipo') { main.dataset.filtro = 'todos'; tipos(main); } else { const i = $<HTMLInputElement>(main, `#gui3-${k}`)!; i.value = ''; i.removeAttribute('aria-invalid'); $(main, `#gui3-${k}-erro`)!.hidden = true; criterios.set(main, ler(main)); } aplicar(main); return; }
     const ab = t.closest<HTMLElement>('.ped4__filtros-abrir'); if (ab) { const sim = ab.getAttribute('aria-expanded') !== 'true'; ab.setAttribute('aria-expanded', String(sim)); main.classList.toggle('filtros-abertos', sim); return; }
-    const irma = t.closest<HTMLElement>('[data-ir-guia]'); if (irma) { irPara(main, irma.dataset.irGuia!); return; }
+    const irma = t.closest<HTMLElement>('[data-ir-guia]'); if (irma) { painelGuia(main, irma.dataset.irGuia!, null); return; }
+    const vg = t.closest<HTMLElement>('[data-voltar-guia]'); if (vg) { painelGuia(main, vg.dataset.voltarGuia!, null); return; }
     const ind = t.closest<HTMLElement>('[data-pedido-indisponivel]');
     if (ind) { const p = ind.closest('.gui3__percurso')!.querySelector<HTMLElement>('.gui3__ind')!; p.hidden = false; if (!quieto()) p.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: SAIDA }); return; }
     const ped = t.closest<HTMLElement>('[data-abrir-pedido]');
     if (ped) { try { sessionStorage.setItem('goparts:abrir-pedido', ped.dataset.abrirPedido!); } catch { /* nada */ } mostrar('pedidos'); return; }
+    if (t.closest('.gui3__gaveta [data-ir]')) { const gv = $(main, '.gui3__gaveta')!; gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); marcarEscolhida(main, ''); return; }
     const vd = t.closest<HTMLElement>('[data-ver-doc]'); if (vd) { verDoc(main, vd.dataset.verDoc!, vd); return; }
     const dl = t.closest<HTMLButtonElement>('[data-descarregar]'); if (dl) { descarregar(dl); return; }
     if (t.closest('.ped4__g-fechar, .ped4__veu')) { fecharDoc(main); return; }
     const o = t.closest<HTMLElement>('[data-ordenar]'); if (o) { ordenar(main, o); return; }
     const vb = t.closest<HTMLElement>('.ped4__vista'); if (vb) { vista(main, vb.dataset.vista!); return; }
     const cc = t.closest<HTMLElement>('.ped4__c-cabeca');
-    if (cc) { const li = cc.closest<HTMLElement>('.ped4__c-item')!; if (li.classList.contains('is-aberto')) fecharItem(main, li); else abrirItem(main, li); return; }
+    if (cc) { const li = cc.closest<HTMLElement>('.ped4__c-item')!; if (!li.classList.contains('ped4__c-esq')) painelGuia(main, li.dataset.num!, cc); return; }
     if (t.closest('.ped4__linha-det, .gui3__gaveta')) return;
     const tr = t.closest<HTMLElement>('tr.ped4__linha');
-    if (tr && !t.closest('a, input')) { if (tr.classList.contains('is-aberto')) { fecharLinha(tr); if (lerGuardada() === tr.dataset.num) guardar(''); } else abrirLinha(main, tr); }
+    if (tr && !t.closest('a, input')) painelGuia(main, tr.dataset.num!, $(tr, '.ped4__abrir') ?? tr);
   }, true);
   document.addEventListener('submit', (ev) => { const main = vivo(); if (main && (ev.target as Element).closest?.('#gui3-campos')) { ev.preventDefault(); pesquisar(main); } });
   document.addEventListener('keydown', (ev) => { const main = vivo(); if (!main || editando()) return; if (ev.key === 'Escape' && !$(main, '.gui3__gaveta')!.hidden) { ev.preventDefault(); fecharDoc(main); } });

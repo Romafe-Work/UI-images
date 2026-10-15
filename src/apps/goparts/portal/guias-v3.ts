@@ -144,7 +144,7 @@ export function itemGuia(g: Guia, i: number): string {
       <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}${e ? `<em class="ped4__c-etapa gui3__etapa--${e.k}">${e.nome}</em>` : ''}</span>
       <span class="ped4__c-marca gui3__marca gui3__marca--${g.tipo}" aria-hidden="true">${g.tipo === 'fatura' ? L(receipt) : L(undo)}</span>
       <article class="ped4__c-cartao">
-        <button type="button" class="ped4__c-cabeca gui3__cabeca" aria-expanded="false" aria-controls="gui3-c-${id(g.num)}">
+        <button type="button" class="ped4__c-cabeca gui3__cabeca" aria-haspopup="dialog">
           <span class="ped4__c-id"><span class="ped4__ref">${g.num}</span>${e ? `<span class="sr-only">${e.nome}. </span>` : ''}<span class="ped4__c-meta">${g.data} · Pedido <span class="gui3__ref-pedido">${g.pedido}</span></span><span class="ped4__c-encontrado" hidden></span></span>
           <span class="gui3__destino">${L(mapPin)}<span>${esc(g.morada[1])}<small>${esc(g.morada[0])}</small></span></span>
           <span class="ped4__c-selos">${TIPO(g)}</span>
@@ -178,7 +178,7 @@ const vn = (n: number) => (n ? euros(n) : '<span class="ped4__nada">—</span>')
 export function linhaGuia(g: Guia, i: number): string {
   const lid = `gui3-d-${id(g.num)}`;
   return `<tr class="ped4__linha gui3__linha" data-num="${g.num}" data-tipo="${g.tipo}" data-data="${aaaammdd(g.data)}" data-total="${total(g)}" style="--i:${i}">
-      <td class="ped4__c-abrir"><button type="button" class="ped4__abrir" aria-expanded="false" aria-controls="${lid}" aria-label="Abrir a guia ${g.num}">${L(chevronRight)}</button></td>
+      <td class="ped4__c-abrir"><button type="button" class="ped4__abrir" aria-haspopup="dialog" aria-label="Abrir a guia ${g.num}">${L(chevronRight)}</button></td>
       <td data-r="Guia"><span class="ped4__ref">${g.num}</span></td><td data-r="Data" class="ped4__data">${g.data}</td><td data-r="Tipo">${TIPO(g)}<span class="ped4__m2">${g.doc}</span></td>
       <td data-r="Morada" class="ped4__c-ent"><span class="ped4__m1">${esc(g.morada[0])}</span><span class="ped4__m2">${esc(g.morada[1])}</span></td>
       <td data-r="Pedido"><span class="gui3__ref-pedido">${g.pedido}</span></td><td data-r="Observações" class="ped4__c-obs">${g.obs && g.obs !== '—' ? esc(g.obs) : '<span class="ped4__nada">—</span>'}</td>
@@ -248,6 +248,11 @@ export function guiasV3(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
 }
 
 /* ---------- o documento no painel (pré-visualização): o cabeçalho e as peças da página ---------- */
+/** O cabeçalho do painel com a guia (clicar numa guia abre-a aqui). */
+export function cabecaGuia(g: Guia, idNum = 'gui3-g-num'): string {
+  const e = estadoGuia(g);
+  return `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Guia de remessa · ${nomeTipo(g)} ${g.doc}${e ? ` · <span class="gui3__etapa--${e.k}">${e.nome}</span>` : ''}</p><h2 class="ped4__g-num" id="${idNum}" tabindex="-1">${g.num}</h2><p class="ped4__g-meta">${g.data} · Pedido ${g.pedido} · ${euros(total(g))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></header>`;
+}
 export function cabecaDoc(g: Guia): string {
   return `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">Guia de remessa · ${nomeTipo(g)} ${g.doc}</p><h2 class="ped4__g-num" id="gui3-g-num" tabindex="-1">${g.num}</h2><p class="ped4__g-meta">${g.data} · Pedido ${g.pedido} · ${euros(total(g))}</p></div><button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></header>`;
 }

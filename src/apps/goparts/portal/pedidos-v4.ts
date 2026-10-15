@@ -111,7 +111,7 @@ const ord = (k: string, t: string, cls = '') => `<th${cls ? ` class="${cls}"` : 
 export function linha(p: Pedido, l: LinhaPedido, i: number): string {
   const id = `ped4-d-${p.num.replace(/\D/g, '')}`;
   return `<tr class="ped4__linha" data-num="${p.num}" data-estado="${l.estado}" data-data="${aaaammdd(l.data)}" data-valor="${valorDe(p).toFixed(2)}" style="--i:${i}">
-      <td class="ped4__c-abrir"><button type="button" class="ped4__abrir" aria-expanded="false" aria-controls="${id}" aria-label="Abrir o pedido ${p.num}">${L(chevronRight)}</button></td>
+      <td class="ped4__c-abrir"><button type="button" class="ped4__abrir" aria-haspopup="dialog" aria-label="Abrir o pedido ${p.num}">${L(chevronRight)}</button></td>
       <td data-r="Pedido"><span class="ped4__ref">${p.num}</span></td>
       <td data-r="Data" class="ped4__data">${l.data}</td><td data-r="Armazém" class="ped4__c-arm">${esc(l.armazem)}</td>
       <td data-r="Entrega" class="ped4__c-ent">${l.recolher ? `<span class="ped4__m1">Levanta no balcão</span><span class="ped4__m2">${esc(l.armazem)}</span>` : `<span class="ped4__m1">${esc(l.morada[0])}</span><span class="ped4__m2">${esc(l.morada[1])}</span>`}</td>
@@ -163,7 +163,7 @@ export function item(p: Pedido, l: LinhaPedido, i: number): string {
       <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}<em class="ped4__c-etapa ped4__c-etapa--${e.k}">${e.nome}</em></span>
       <span class="ped4__c-marca ped4__c-marca--${e.k}" title="${e.nome}" aria-hidden="true">${e.icone}</span>
       <article class="ped4__c-cartao">
-        <button type="button" class="ped4__c-cabeca" aria-expanded="false" aria-controls="${id}">
+        <button type="button" class="ped4__c-cabeca" aria-haspopup="dialog" aria-expanded="false" aria-controls="${id}">
           <span class="ped4__c-id"><span class="ped4__ref">${p.num}</span><span class="sr-only">${e.nome}. </span><span class="ped4__c-meta">${l.data} · ${esc(l.armazem)} · ${p.artigos.length} ${p.artigos.length === 1 ? 'artigo' : 'artigos'}</span><span class="ped4__c-encontrado" hidden></span></span>
           <span class="ped4__c-obs">${l.obs ? esc(l.obs) : ''}</span>
           <span class="ped4__c-selos">${ESTADO(l.estado)}${l.recolher ? RECOLHA(true) : `<span class="ped4__selo ped4__selo--neutro">${L(mapPin)}Entrega</span>`}</span>
