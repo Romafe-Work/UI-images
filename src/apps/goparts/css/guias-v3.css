@@ -165,3 +165,5 @@ button.gui3__no:focus-visible { outline: 2px solid var(--azul-fundo); outline-of
   .gui3 .ped4__kpi dd { min-width: 0; }
   .gui3__tabela .ped4__linha-det .gui3__det { position: static; width: auto; }
 }
+/* o estado da entrega por baixo da data, como nos Pedidos */
+.gui3__etapa--entregue { color: var(--c-ok); } .gui3__etapa--em-entrega { color: var(--c-marca); } .gui3__etapa--devolucao { color: var(--c-aviso); }

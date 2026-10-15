@@ -113,15 +113,26 @@ export function detalheGuia(g: Guia): string {
   </div>`;
 }
 
+/** O estado da entrega, como nos Pedidos (por baixo da data), só quando os dados o dizem: pelo percurso do pedido
+    (o passo «Entregue» com data = entregue; sem data = em entrega); a nota de crédito é uma devolução. Sem pedido na
+    conta, não se diz nada. */
+export function estadoGuia(g: Guia): { k: string; nome: string } | null {
+  if (g.tipo === 'credito') return { k: 'devolucao', nome: 'Devolução' };
+  const p = PEDIDOS.find((x) => x.num === g.pedido && x.guia === g.num); if (!p) return null;
+  const fim = p.percurso[p.percurso.length - 1];
+  return /Entregue/i.test(fim[0]) && fim[1] ? { k: 'entregue', nome: 'Entregue' } : { k: 'em-entrega', nome: 'Em entrega' };
+}
+
 /* ---------- uma guia na cronologia ---------- */
 export function itemGuia(g: Guia, i: number): string {
   const [d, m] = g.data.split('/');
+  const e = estadoGuia(g);
   return `<li class="ped4__c-item gui3__item" data-num="${g.num}" data-tipo="${g.tipo}" data-total="${total(g)}" style="--i:${i}">
-      <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}</span>
+      <span class="ped4__c-data" aria-hidden="true"><b>${d}</b>${MESES[+m - 1].slice(0, 3)}${e ? `<em class="ped4__c-etapa gui3__etapa--${e.k}">${e.nome}</em>` : ''}</span>
       <span class="ped4__c-marca gui3__marca gui3__marca--${g.tipo}" aria-hidden="true">${g.tipo === 'fatura' ? L(receipt) : L(undo)}</span>
       <article class="ped4__c-cartao">
         <button type="button" class="ped4__c-cabeca gui3__cabeca" aria-expanded="false" aria-controls="gui3-c-${id(g.num)}">
-          <span class="ped4__c-id"><span class="ped4__ref">${g.num}</span><span class="ped4__c-meta">${g.data} · Pedido <span class="gui3__ref-pedido">${g.pedido}</span></span><span class="ped4__c-encontrado" hidden></span></span>
+          <span class="ped4__c-id"><span class="ped4__ref">${g.num}</span>${e ? `<span class="sr-only">${e.nome}. </span>` : ''}<span class="ped4__c-meta">${g.data} · Pedido <span class="gui3__ref-pedido">${g.pedido}</span></span><span class="ped4__c-encontrado" hidden></span></span>
           <span class="gui3__destino">${L(mapPin)}<span>${esc(g.morada[1])}<small>${esc(g.morada[0])}</small></span></span>
           <span class="ped4__c-selos">${TIPO(g)}</span>
           <span class="ped4__c-valor">${euros(total(g))}</span>
