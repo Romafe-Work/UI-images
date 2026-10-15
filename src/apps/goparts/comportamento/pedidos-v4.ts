@@ -407,6 +407,7 @@ export function iniciar(): void {
     const ind = t.closest<HTMLElement>('.ped4__gaveta [data-pedido-indisponivel]'); if (ind) { const n = ind.closest('.gui3__percurso')?.querySelector<HTMLElement>('.gui3__ind'); if (n) n.hidden = false; return; }
     const dg = t.closest<HTMLButtonElement>('.ped4__gaveta [data-descarregar]'); if (dg) { descarregarGuia(dg); return; }
     /* a fatura ou a página das Guias: o painel fecha antes de a navegação (data-ir) seguir */
+    { const fd = t.closest<HTMLElement>('[data-abrir-doc], [data-abrir-fatura]'); if (fd) try { sessionStorage.setItem('goparts:abrir-fatura', fd.dataset.abrirDoc || fd.dataset.abrirFatura!); } catch { /* nada */ } }
     if (t.closest('.ped4__gaveta [data-ir]')) { const gv = $(main, '.ped4__gaveta')!; gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); return; }
     const rep = t.closest<HTMLButtonElement>('[data-repetir]'); if (rep) { repetir(rep); return; }
     const gv = t.closest<HTMLElement>('[data-gaveta]'); if (gv) { gaveta(main, gv.dataset.gaveta!, gv); return; }

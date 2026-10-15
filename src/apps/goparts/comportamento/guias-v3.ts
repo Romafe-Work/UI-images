@@ -348,6 +348,7 @@ export function iniciar(): void {
     if (ind) { const p = ind.closest('.gui3__percurso')!.querySelector<HTMLElement>('.gui3__ind')!; p.hidden = false; if (!quieto()) p.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: SAIDA }); return; }
     const ped = t.closest<HTMLElement>('[data-abrir-pedido]');
     if (ped) { try { sessionStorage.setItem('goparts:abrir-pedido', ped.dataset.abrirPedido!); } catch { /* nada */ } mostrar('pedidos'); return; }
+    { const fd = t.closest<HTMLElement>('[data-abrir-doc]'); if (fd) try { sessionStorage.setItem('goparts:abrir-fatura', fd.dataset.abrirDoc!); } catch { /* nada */ } }
     if (t.closest('.gui3__gaveta [data-ir]')) { const gv = $(main, '.gui3__gaveta')!; gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); marcarEscolhida(main, ''); return; }
     const vd = t.closest<HTMLElement>('[data-ver-doc]'); if (vd) { verDoc(main, vd.dataset.verDoc!, vd); return; }
     const dl = t.closest<HTMLButtonElement>('[data-descarregar]'); if (dl) { descarregar(dl); return; }

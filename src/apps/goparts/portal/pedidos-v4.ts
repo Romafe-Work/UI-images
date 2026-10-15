@@ -78,7 +78,7 @@ export function detalhe(p: Pedido, l: LinhaPedido, onde: 'linha' | 'gaveta' = 'l
     : `<p class="ped4__ent">${L(mapPin)}<span><b>${esc(l.morada[0])}</b>${esc(l.morada[1])}</span></p>`;
   const docs = [
     p.guia ? `<li><span class="ped4__doc-i">${L(fileText)}</span><span><b>Guia de remessa</b>${p.guia}</span><button type="button" class="btn btn--ghost btn--sm" data-abrir-guia="${p.guia}" aria-haspopup="dialog">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ver guia</span></button></li>` : '',
-    p.fatura ? `<li><span class="ped4__doc-i">${L(receipt)}</span><span><b>Fatura</b>${p.fatura}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="faturas">${L(receipt, 'btn__icone')}<span class="btn__rotulo">Ver fatura</span></button></li>` : '',
+    p.fatura ? `<li><span class="ped4__doc-i">${L(receipt)}</span><span><b>Fatura</b>${p.fatura}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="faturas" data-abrir-fatura="${p.fatura}">${L(receipt, 'btn__icone')}<span class="btn__rotulo">Ver fatura</span></button></li>` : '',
   ].join('');
   return `<div class="ped4__det ped4__det--${onde}">
     <section class="ped4__det-resumo" aria-label="Resumo">

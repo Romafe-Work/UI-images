@@ -1,0 +1,69 @@
+/* =========================================================
+   GOPARTS — 14 · Faturas v2 (15 out. 2026; portal/faturas-v2.ts)
+   Usa o molde dos Pedidos v5 e das Guias v3 (pedidos-v4.css, guias-v3.css); aqui só o que é das faturas: os quatro
+   números do cabeçalho com a nota do que contam, o estado do pagamento (texto, ícone e cor), a discriminação dos
+   valores com o IVA por taxa e o total à parte. Grafite no escuro, neutro no claro; sem gradientes nem brilhos.
+   Tempos: hover 150 ms; o tipo 220 ms; as entradas 300 ms; o painel 320 ms; a discriminação do IVA 250 ms.
+   ========================================================= */
+.portal--fat2 { --p4-rapido: 150ms; --p4-curva: cubic-bezier(.22, 1, .36, 1); }
+
+/* o cabeçalho: os números e, por baixo, o que contam */
+.fat2__kpis { display: grid; justify-items: end; gap: 6px; max-width: 100%; }
+.fat2__kpi-nota { max-width: 560px; margin: 0; font-size: 12px; line-height: 1.4; text-align: right; color: var(--c-texto-3); }
+.fat2 [data-kpi="creditos"] { color: var(--c-aviso); }
+
+/* o pagamento: Paga (visto, verde), Em aberto (relógio, azul), Vencida (aviso, vermelho), Creditada (devolução, âmbar) */
+.fat2__pag--paga { color: var(--c-ok); border-color: color-mix(in srgb, var(--c-ok) 45%, transparent); background: color-mix(in srgb, var(--c-ok) 8%, transparent); }
+.fat2__pag--aberto { color: var(--c-marca); border-color: color-mix(in srgb, var(--c-marca) 45%, transparent); background: color-mix(in srgb, var(--c-marca) 8%, transparent); }
+.fat2__pag--vencida { color: var(--c-erro); border-color: color-mix(in srgb, var(--c-erro) 45%, transparent); background: color-mix(in srgb, var(--c-erro) 8%, transparent); }
+.fat2__pag--creditada { color: var(--c-aviso); border-color: color-mix(in srgb, var(--c-aviso) 45%, transparent); background: color-mix(in srgb, var(--c-aviso) 8%, transparent); }
+.fat2__pag-t--paga { color: var(--c-ok); } .fat2__pag-t--aberto { color: var(--c-marca); } .fat2__pag-t--vencida { color: var(--c-erro); } .fat2__pag-t--creditada { color: var(--c-aviso); }
+.ped4__etapa-f--paga { --cor: var(--c-ok); } .ped4__etapa-f--aberto { --cor: var(--c-marca); } .ped4__etapa-f--vencida { --cor: var(--c-erro); } .ped4__etapa-f--creditada { --cor: var(--c-aviso); }
+.fat2__campos { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
+
+/* ---------- o painel: a discriminação em cima ---------- */
+.fat2__gaveta { width: min(620px, 100vw); }
+.ped4__g-guia .fat2__det { grid-template-areas: "valores" "pag" "percurso" "doc" "artigos"; }
+.fat2__det-valores { grid-area: valores; } .fat2__det-pag { grid-area: pag; }
+.fat2__disc { display: grid; gap: 10px; }
+.fat2__disc-t { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+.fat2__iva { border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.fat2__iva-abrir { display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border: 0; border-radius: 8px; background: none; color: var(--c-texto); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; transition: background-color 150ms ease; }
+.fat2__iva-abrir > svg:first-child { width: 16px; height: 16px; color: var(--c-acao); }
+.fat2__iva-abrir small { font-size: 12px; font-weight: 500; color: var(--c-texto-2); }
+.fat2__iva-abrir b { font-variant-numeric: tabular-nums; }
+.fat2__iva-seta { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform 250ms var(--p4-curva); }
+.fat2__iva-abrir[aria-expanded="true"] .fat2__iva-seta { transform: rotate(180deg); }
+.fat2__iva-abrir:hover { background: var(--c-superficie-3, var(--c-superficie)); }
+.fat2__iva-abrir:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: -2px; }
+.fat2__iva-corpo { padding: 0 14px 12px; border-top: 1px solid var(--c-borda); }
+.fat2__iva-corpo[hidden] { display: none; }
+.fat2__iva-t { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.fat2__iva-t th { padding: 10px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; text-align: left; color: var(--c-texto-3); }
+.fat2__iva-t td { padding: 7px 0; border-top: 1px solid var(--c-borda); }
+.fat2__iva-t .ped4__num { text-align: right; white-space: nowrap; }
+.fat2__iva-t tfoot td { font-weight: 700; }
+.fat2__taxa { display: inline-block; padding: 2px 8px; border: 1px solid var(--c-borda-forte, var(--c-borda)); border-radius: 4px; font-size: 13px; font-weight: 600; }
+.fat2__iva-nota { display: flex; gap: 6px; margin: 8px 0 0; font-size: 12px; color: var(--c-texto-3); }
+.fat2__iva-nota svg { width: 14px; height: 14px; flex: none; margin-top: 1px; color: var(--c-marca); }
+.fat2__fim .gui3__v--total { margin: 0 -14px -4px; }
+.fat2 [data-kpi], .fat2__disc dd { font-variant-numeric: tabular-nums; }
+
+.fat2__pagamento { display: grid; gap: 8px; justify-items: start; padding: 12px 14px; border: 1px solid var(--c-borda); border-left-width: 3px; border-radius: 8px; }
+.fat2__pagamento p { margin: 0; font-size: 14px; color: var(--c-texto-2); }
+.fat2__pagamento--paga { border-left-color: var(--c-ok); } .fat2__pagamento--aberto { border-left-color: var(--c-marca); }
+.fat2__pagamento--vencida { border-left-color: var(--c-erro); } .fat2__pagamento--creditada { border-left-color: var(--c-aviso); }
+
+/* a tabela larga (todas as colunas do GO REPAIR) rola dentro da sua caixa */
+.fat2__tabela td, .fat2__tabela th { white-space: nowrap; }
+
+@media (max-width: 1280px) { .fat2__kpis { justify-items: stretch; } .fat2__kpi-nota { text-align: left; } }
+@media (max-width: 1100px) { .fat2__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .fat2 .ped4__kpi { display: grid; grid-template-columns: 1fr 1fr; }
+  .fat2 .ped4__kpi > div:nth-child(3) { border-left: 0; }
+  .fat2 .ped4__kpi > div:nth-child(n + 3) { border-top: 1px solid var(--c-borda); }
+  .fat2 .ped4__kpi dd { min-width: 0; font-size: 17px; }
+  .fat2__campos { grid-template-columns: minmax(0, 1fr); }
+  .fat2__iva-abrir { grid-template-columns: auto 1fr auto auto; } .fat2__iva-abrir small { display: none; }
+}

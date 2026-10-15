@@ -22,12 +22,12 @@ import { pedidosV4, detalhe as detalhePed, pedidoDe, linhaDe, valorDe } from './
 import { LINHAS as LINHAS_PED, euros as eurosPed } from './pedidos-dados';
 import { guiasV3, guiaDe, detalheGuia, cabecaGuia, cabecaDoc, paginaDoc, rodapeDoc } from './guias-v3';
 import { GUIAS, total as totalGuia } from './guias-dados';
-import { faturasV1 } from './faturas-v1';
-import { preencher as preencherFatura } from '../comportamento/faturas';
+import { faturasV2, faturaDe, cabecaFatura, detalheFatura, cabecaDocFatura, paginaFatura, rodapeDocFatura } from './faturas-v2';
+import { FATURAS } from './faturas-dados';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
 export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-guia' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
-export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
+export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-fechado' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
 export type IdEstadoGuias = 'guias-inicio' | 'guias-carga' | 'guias-pesquisa' | 'guias-primeira' | 'guias-vazio' | 'guias-filtros' | 'guias-selecionada' | 'guias-aberta' | 'guias-credito' | 'guias-relacionada' | 'guias-pedido-indisponivel' | 'guias-pdf-carga' | 'guias-pdf' | 'guias-pdf-erro' | 'guias-descarga' | 'guias-descarga-erro' | 'guias-rede' | 'guias-falha' | 'guias-sessao' | 'guias-sem-permissao' | 'guias-tabela';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
   | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga'
@@ -59,7 +59,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|gui3|fat)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|gui3|fat|fat2)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -633,12 +633,6 @@ const ped4RepetidoParte = () => ped4('e1223', (r) => {
   const det = abertoNaCrono(r, 'P2024/001233');
   $(det, '.ped4__det-accoes').insertAdjacentHTML('afterend', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, '11 de 12 artigos foram para o carrinho.', 'O Amortecedor Monroe G8017 está sem stock no armazém de Lisboa. Pode ver as alternativas no catálogo.', BOTAO('Ver alternativas', IC.lupa, 'btn--claro btn--sm', ' data-ir="catalogo"')));
 });
-const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
-  const i = $<HTMLInputElement>(r, `#${id}`);
-  i.setAttribute('value', valor); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', `${id}-msg`);
-  i.closest('.campo')!.classList.add('campo--erro');
-  i.closest('.campo')!.insertAdjacentHTML('beforeend', `<p class="campo__erro" id="${id}-msg">${I(IC.aviso)}${msg}</p>`);
-};
 
 
 
@@ -790,77 +784,139 @@ const guiasTabela = () => g3('e1321', (r) => {
 }, guiasV3('tabela'));
 
 
-/* ================= 14 · Faturas ================= */
+/* ================= 14 · Faturas (v2, 15 out.: como os Pedidos e as Guias) =================
+   Do briefing dela (a lista de estados do «Financial Document Center»). Cada estado parte do ecrã e muda só o que
+   esse estado muda; os erros ficam onde aconteceram (um PDF que falha não fecha a página); os filtros ficam. */
 const faturas = (html: string) => portal('faturas', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
-const semFaturas = (r: HTMLElement) => $$(r, '[data-faturas]').forEach((x) => x.removeAttribute('data-faturas'));
-const faturasEsq = (n: number) => Array.from({ length: n }, (_, i) => `<tr>${[70, 50, 60, 85, 45, 45, 40, 40, 50, 40, 30, 30, 30, 30, 50, 60].map((c) => `<td>${E(Math.max(25, c - (i % 3) * 10), 'esq--texto')}</td>`).join('')}</tr>`).join('');
+const f2 = (prefixo: string, f: (r: HTMLElement) => void, html = faturasV2()) => comPainelAberto(faturas(mudar(html, prefixo, f)));
+/** A fatura aberta no painel lateral (o cartão marcado); devolve o painel, para cada estado lhe mexer. */
+const painelFat = (r: HTMLElement, num: string, prefixo: string, abertaIva = true) => {
+  const f = faturaDe(num);
+  $$(r, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => el.classList.add('is-aberto', 'is-ativo'));
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.fat2__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', `${prefixo}-g-num`);
+  gv.innerHTML = `${cabecaFatura(f, `${prefixo}-g-num`)}<div class="ped4__g-guia">${detalheFatura(f, prefixo, abertaIva)}</div>`;
+  $$(r, '.fat2 > header, .fat2 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  return gv;
+};
+/** O painel com o documento (pré-visualização), por cima da lista. */
+const painelDocFat = (r: HTMLElement, num: string, prefixo: string, corpo: string) => {
+  const f = faturaDe(num);
+  $(r, `.ped4__c-item[data-num="${num}"]`).classList.add('is-aberto', 'is-ativo');
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.fat2__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', `${prefixo}-g-num`);
+  gv.innerHTML = `${cabecaDocFatura(f, `${prefixo}-g-num`)}<div class="gui3__g-corpo">${corpo}</div>${rodapeDocFatura(f)}`;
+  $$(r, '.fat2 > header, .fat2 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  return gv;
+};
+const semFat = (r: HTMLElement) => { $(r, '.ped4__conta b').textContent = '0'; $$(r, '[data-kpi]').forEach((d) => { d.textContent = d.dataset.kpi === 'n' ? '0' : eurosPed(0); }); $$(r, '.ped4__est-n').forEach((x) => { x.textContent = '0'; }); };
+const esqFat = (r: HTMLElement) => {
+  $(r, '.ped4__crono').innerHTML = `<span class="ped4__c-linha" aria-hidden="true"></span><h2 class="gui3__ano">${E('40px')}</h2>` + [3, 2].map((n, k) => `<section class="ped4__mes"><h3 class="ped4__mes-t">${E(k ? '110px' : '90px', 'esq--titulo')}</h3><ol class="ped4__c-lista">${Array.from({ length: n }, (_, i) => `<li class="ped4__c-item ped4__c-esq"><span class="ped4__c-data">${E('24px')}</span><span class="ped4__c-marca"></span><article class="ped4__c-cartao"><div class="ped4__c-cabeca gui3__cabeca">${E(Math.max(30, 55 - i * 6))}${E('60%')}${E('80px')}${E('70px')}</div></article></li>`).join('')}</ol></section>`).join('');
+};
 
-/* 14.1 · esqueleto */
-const faturasCarga = () => faturas(mudar(faturasV1, 'e141', (r) => {
-  semFaturas(r);
-  $(r, '.fat').setAttribute('aria-busy', 'true');
-  $(r, '.ped2__resumo').innerHTML = `${E('130px', 'esq--botao')}${E('160px', 'esq--botao')}${E('150px', 'esq--botao')}`;
-  $(r, 'tbody').innerHTML = faturasEsq(8);
-  $$(r, '.ped2__n').forEach((n) => n.remove());
-  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A carregar as faturas…</span>`;
-}));
-/* 14.2 · a pesquisar um n.º */
-const faturasPesquisa = () => faturas(mudar(faturasV1, 'e142', (r) => {
-  semFaturas(r);
-  $<HTMLInputElement>(r, '#e142-num').setAttribute('value', 'FT2024/05');
-  aCarregar($(r, '.ped2__pesquisar'), 'A pesquisar…');
-  $(r, '.fat__tabela').insertAdjacentHTML('afterbegin', '<div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div>');
-  $(r, '.fat__tabela tbody').classList.add('est-esbatido');
-  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A procurar faturas FT2024/05…</span>`;
-}));
-/* 14.3 · sem faturas no período */
-const faturasVazio = () => faturas(mudar(faturasV1, 'e143', (r) => {
-  semFaturas(r);
-  $<HTMLInputElement>(r, '#e143-de').setAttribute('value', '01/10/2026');
-  $(r, '.ped2__conta').textContent = '0';
-  $(r, '.ped2__total').textContent = '0,00 €';
-  $(r, '.fat__aberto-valor').textContent = '0,00 €';
-  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Nenhuma fatura desde 01/10/2026.</strong> A última fatura da conta é a FT2024/05530, de 15/04/2024.</p><div class="est-aviso__botoes">${BOTAO('Ver o último ano', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver as guias', IC.grelha, 'btn--acao btn--sm', ' data-ir="guias"')}</div></div>`;
-  $(r, '.ped2__pe').innerHTML = '<span>A mostrar 0 · de 01/10/2026 até hoje</span>';
-}));
-/* 14.4 · erro nos filtros */
-const faturasFiltros = () => faturas(mudar(faturasV1, 'e144', (r) => {
-  semFaturas(r);
-  erroCampo(r, 'e144-ate', '01/02/2024', '«Data até» é antes de «Data a partir de» (01/03/2024).');
-  erroCampo(r, 'e144-num', '5530', 'Escreva o n.º completo: FT2024/05530 (fatura) ou NC2024/00412 (nota de crédito).');
-  $(r, '.ped2__campos').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir antes de pesquisar</p></div></div>`);
-  $(r, '.ped2__campos').classList.add('est-com-erros');
-}));
-/* 14.5 · sem ligação */
-const faturasRede = () => faturas(mudar(faturasV1, 'e145', (r) => {
-  semFaturas(r);
-  $(r, '.fat').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver as faturas de há 5 minutos. Pesquisar e descarregar PDF voltam quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
-  const b = $(r, '.ped2__pesquisar'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação');
-  $(r, '.fat__tabela tbody').classList.add('est-esbatido');
-}));
-/* 14.6 · a tabela não carregou */
-const faturasFalha = () => faturas(mudar(faturasV1, 'e146', (r) => {
-  semFaturas(r);
-  $(r, '.ped2__resumo').innerHTML = '';
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="cg-falha est-falha est-falha--largo est-falha--tabela">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar as faturas</p><p class="cg-falha__texto">Os filtros ficaram como estavam. Referência do erro: <code>GP-20261013-F2M9</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
-  $(r, '.ped2__pe').remove();
-}));
-/* 14.7 · uma fatura em aberto, no painel, com a referência Multibanco */
-const faturasAberta = () => faturas(mudar(faturasV1, 'e147', (r) => { semFaturas(r); preencherFatura(r, $$(r, '.fat__linha')[0]); }));
-/* 14.8 · uma fatura vencida, no painel */
-const faturasVencida = () => faturas(mudar(faturasV1, 'e148', (r) => { semFaturas(r); preencherFatura(r, $$(r, '.fat__linha')[3]); }));
-/* 14.9 · primeira vez */
-const faturasPrimeira = () => faturas(mudar(faturasV1, 'e149', (r) => {
-  semFaturas(r);
-  $(r, '.ped2__resumo').innerHTML = '';
-  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não tem faturas.</strong> A fatura de cada encomenda aparece aqui quando a guia de remessa sai do armazém; as devoluções aparecem como notas de crédito.</p><div class="est-aviso__botoes">${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
-  $(r, '.ped2__pe').remove();
-}));
+/* 14.1 · primeira carga: os filtros já servem; no lugar da lista, o rolamento */
+const faturasInicio = () => f2('e141', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('60px'); });
+  $(r, '.ped4__conta').innerHTML = 'A ligar à faturação da conta…';
+  $(r, '.ped4__crono').outerHTML = `<div class="est-vazio est-vazio--largo" role="status">${rolamentoSvg('e141-rs', 'carregar', 'cat6__rs-faixa')}<p><strong>A carregar as faturas…</strong> As faturas e as notas de crédito desde 01/03/2024, da mais recente para a mais antiga.</p></div>`;
+  $(r, '.ped4__vistas').setAttribute('hidden', '');
+});
+/* 14.2 · esqueleto: a forma da cronologia */
+const faturasCarga = () => f2('e142', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('60px'); });
+  $(r, '.ped4__conta').innerHTML = `${GIRADOR('ped4__rs')} A carregar as faturas…`;
+  esqFat(r);
+  $$(r, '.ped4__est-n').forEach((n) => { n.textContent = '…'; });
+});
+/* 14.3 · a pesquisar um número: o botão espera; os documentos de antes, esbatidos */
+const faturasPesquisa = () => f2('e143', (r) => {
+  valorCampo(r, 'e143-num', 'FT2024/054');
+  ocupadoPed($(r, '.ped4__pesquisar'), 'A pesquisar…');
+  const a = $(r, '.ped4__a-atualizar'); a.removeAttribute('hidden'); a.innerHTML = `${GIRADOR('ped4__rs')}A atualizar…`;
+  $(r, '.ped4__crono').classList.add('is-a-atualizar');
+});
+/* 14.4 · sem faturas: um cliente novo */
+const faturasPrimeira = () => f2('e144', (r) => {
+  semFat(r);
+  $(r, '.ped4__crono').setAttribute('hidden', ''); $(r, '.ped4__tabela').setAttribute('hidden', ''); $(r, '.ped4__vistas').setAttribute('hidden', '');
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Ainda não tem faturas.</strong> Cada fatura aparece aqui quando a guia de remessa sai do armazém; as devoluções aparecem como notas de crédito.</p>${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}`;
+});
+/* 14.5 · nenhum documento com estes filtros */
+const faturasVazio = () => f2('e145', (r) => {
+  valorCampo(r, 'e145-de', '01/05/2024'); valorCampo(r, 'e145-ate', '31/05/2024');
+  chips(r, ['Desde 01/05/2024', 'Até 31/05/2024']);
+  semFat(r);
+  $(r, '.ped4__crono').setAttribute('hidden', ''); $(r, '.ped4__tabela').setAttribute('hidden', '');
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Nenhuma fatura em maio de 2024.</strong> A última é a FT2024/05530, de 15/04/2024; alargue as datas ou tire um filtro (${FATURAS.length} documentos no total).</p>${BOTAO('Limpar filtros', IC.denovo, 'btn--ghost btn--sm')}`;
+});
+/* 14.6 · datas inválidas: cada campo diz como deve ser; o que se escreveu fica */
+const faturasFiltros = () => f2('e146', (r) => {
+  erroPed(r, 'e146-de', '31/04/2024', 'Abril só tem 30 dias. Escreva a data como dd/mm/aaaa.');
+  erroPed(r, 'e146-ate', '01/03/2024', 'A data final é antes da inicial.');
+});
+/* 14.7 · fatura selecionada: ativa, ainda fechada */
+const faturasSelecionada = () => f2('e147', (r) => { $(r, '.ped4__c-item[data-num="FT2024/05402"]').classList.add('is-ativo', 'is-passado'); $(r, '.gui3__mes-atual').textContent = 'abril de 2024'; });
+/* 14.8 · fatura aberta: a discriminação (com o IVA aberto), o pagamento, os documentos relacionados */
+const faturasAberta = () => f2('e148', (r) => { painelFat(r, 'FT2024/05402', 'e148'); });
+/* 14.9 · a discriminação do IVA recolhida: o total do IVA na linha, o total da fatura à vista */
+const faturasIvaFechado = () => f2('e149', (r) => { painelFat(r, 'FT2024/05530', 'e149', false); });
+/* 14.10 · nota de crédito aberta: valores a negativo, «Creditada», e a fatura do mesmo pedido como ligação */
+const faturasCredito = () => f2('e1410', (r) => { painelFat(r, 'NC2024/00412', 'e1410'); });
+/* 14.11 · fatura vencida: o pagamento a vermelho, com o que fazer */
+const faturasVencida = () => f2('e1411', (r) => { painelFat(r, 'FT2024/05188', 'e1411'); });
+/* 14.12 · o documento a abrir */
+const faturasPdfCarga = () => f2('e1412', (r) => { painelDocFat(r, 'FT2024/05402', 'e1412', `<p class="gui3__g-carga" role="status">${rolamentoSvg('e1412-rs', 'carregar', 'ped4__rs')}A abrir o documento…</p>`); });
+/* 14.13 · a pré-visualização, com a descarga */
+const faturasPdf = () => f2('e1413', (r) => { painelDocFat(r, 'FT2024/05402', 'e1413', paginaFatura(faturaDe('FT2024/05402'))); });
+/* 14.14 · documento indisponível: só o painel diz que falhou */
+const faturasPdfErro = () => f2('e1414', (r) => {
+  const gv = painelDocFat(r, 'FT2024/05402', 'e1414', `<div class="gui3__g-erro" role="alert">${rolamentoSvg('e1414-rs', 'erro', 'ped4__rs')}<p><strong>O PDF da FT2024/05402 não está disponível.</strong></p><p>O arquivo de faturas não respondeu. Os valores da fatura continuam na página. Referência do erro: FAT-504-0402.</p>${BOTAO('Tentar novamente', IC.denovo, 'btn--ghost btn--sm')}</div>`);
+  const b = $(gv, '[data-descarregar]'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem documento para descarregar');
+});
+/* 14.15 · a descarregar: só esse botão espera */
+const faturasDescarga = () => f2('e1415', (r) => { const gv = painelFat(r, 'FT2024/05402', 'e1415'); ocupadoPed($(gv, '[data-descarregar]'), 'A preparar o PDF…'); });
+/* 14.16 · a descarga falhou: a faixa na própria fatura */
+const faturasDescargaErro = () => f2('e1416', (r) => {
+  const gv = painelFat(r, 'FT2024/05402', 'e1416');
+  $(gv, '.gui3__accoes').insertAdjacentHTML('afterend', faixa('erro', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'O PDF da FT2024/05402 não descarregou.', 'A ligação caiu a meio. A fatura continua aberta; tente outra vez.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 14.17 · dados financeiros parciais: o servidor não mandou as embalagens e os portes; não se inventam nem se fazem
+   contas — o total e o IVA são os do documento, e diz-se o que falta */
+const faturasParcial = () => f2('e1417', (r) => {
+  const gv = painelFat(r, 'FT2024/05402', 'e1417');
+  $$(gv, '.fat2__com .gui3__v').forEach((v) => { const t = v.querySelector('dt')?.textContent; if (t === 'Embalagens' || t === 'Portes') v.querySelector('dd')!.innerHTML = '<span class="ped4__nada" title="Valor não enviado pelo servidor">sem dados</span>'; });
+  $(gv, '.fat2__disc').insertAdjacentHTML('afterbegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'Faltam as embalagens e os portes.', 'O serviço de faturação não os enviou. O IVA e o total são os do documento; o PDF tem todos os valores.', BOTAO('Ver fatura', IC.lupa, 'btn--claro btn--sm')));
+});
+/* 14.18 · documentos relacionados em falta: o pedido já não está no histórico; a guia e a fatura continuam */
+const faturasSemRelacionados = () => f2('e1418', (r) => { const gv = painelFat(r, 'FT2024/04870', 'e1418'); $(gv, '.gui3__ind').removeAttribute('hidden'); });
+/* 14.19 · erro do servidor: os filtros ficam; a lista diz o que falhou */
+const faturasFalha = () => f2('e1419', (r) => {
+  valorCampo(r, 'e1419-num', 'FT2024/05');
+  $(r, '.ped4__tabela').remove();
+  $(r, '.ped4__crono').outerHTML = `<div class="cg-falha est-falha est-falha--largo" role="alert">${rolamentoSvg('e1419-rs', 'erro', 'cat6__rs-faixa')}<div><p class="cg-falha__titulo">Não foi possível carregar as faturas.</p><p class="cg-falha__texto">O serviço de faturação não respondeu. Os filtros ficam como estão. Referência do erro: FAT-503-1015.</p><div class="est-aviso__botoes">${BOTAO('Tentar novamente', IC.denovo, 'btn--acao btn--sm')}</div>${APOIO}</div></div>`;
+  $$(r, '[data-kpi]').forEach((d) => { d.textContent = '—'; });
+  $(r, '.ped4__conta').textContent = 'Sem dados';
+});
+/* 14.20 · sem ligação: os documentos de há pouco, esbatidos */
+const faturasRede = () => f2('e1420', (r) => {
+  $(r, '.ped4__crono').classList.add('is-a-atualizar');
+  $(r, '.ped4__pesquisar').setAttribute('disabled', '');
+  $(r, '.ped4__lista').insertAdjacentHTML('afterbegin', faixa('aviso', rolamentoSvg('e1420-rs', 'offline', 'cat6__rs-faixa'), 'Está sem ligação à Internet.', 'Vê as faturas de há 6 minutos (os pagamentos podem já ter mudado); pesquisar e descarregar PDF voltam com a ligação.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 14.21 · sessão terminada */
+const faturasSessao = () => f2('e1421', (r) => {
+  $(r, '.ped4__pesquisar').setAttribute('disabled', '');
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as faturas e descarregar documentos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+});
+/* 14.22 · sem permissão: esta conta não vê a faturação */
+const faturasSemPermissao = () => f2('e1422', (r) => {
+  $(r, '.ped4__filtros').setAttribute('hidden', ''); $(r, '.fat2__kpis').setAttribute('hidden', '');
+  $(r, '.ped4__lista').innerHTML = `<div class="est-vazio est-vazio--largo">${I(IC_CADEADO_P)}<p><strong>A sua conta não tem acesso às faturas.</strong> A faturação é da conta da oficina; peça acesso ao administrador da conta. Os pedidos e as guias continuam abertos.</p><div class="est-aviso__botoes">${BOTAO('Ver os pedidos', IC.grelha, 'btn--ghost btn--sm', ' data-ir="pedidos"')}</div></div>`;
+});
+/* 14.23 · a Tabela, com todas as colunas do GO REPAIR; a fatura escolhida no painel */
+const faturasTabela = () => f2('e1423', (r) => { painelFat(r, 'FT2024/05402', 'e1423'); }, faturasV2('tabela'));
 
 /* ---------- a lista: cada estado logo a seguir ao seu ecrã ---------- */
 const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos', guias: 'guias', faturas: 'faturas' };
@@ -978,13 +1034,27 @@ export const estadosGuias = (): EcraGoParts[] => [
   e('guias-tabela', '13.21 · Vista em tabela', 'A alternativa à cronologia: as colunas todas do GO REPAIR, ordenáveis, com a GR2024/08640 marcada na linha e aberta no painel.', guiasTabela),
 ];
 export const estadosFaturas = (): EcraGoParts[] => [
-  e('faturas-carga', '14.1 · A carregar as faturas', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', faturasCarga),
-  e('faturas-pesquisa', '14.2 · A pesquisar', 'Com um n.º escrito: o botão em «A pesquisar…», uma barra fina e as faturas de antes esbatidas.', faturasPesquisa),
-  e('faturas-vazio', '14.3 · Sem faturas no período', 'Nenhuma fatura nas datas escolhidas: diz qual foi a última e dá dois caminhos.', faturasVazio),
-  e('faturas-filtros', '14.4 · Erro nos filtros', 'A data final antes da inicial e o n.º incompleto: cada campo diz como deve ser.', faturasFiltros),
-  e('faturas-rede', '14.5 · Sem ligação', 'Uma faixa em cima, as faturas de há pouco esbatidas; pesquisar e descarregar esperam pela ligação.', faturasRede),
-  e('faturas-falha', '14.6 · As faturas não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', faturasFalha),
-  e('faturas-aberta', '14.7 · Fatura em aberto', 'A FT2024/05530 no painel: em aberto, com o vencimento e a referência Multibanco, os valores, a guia, o pedido e os artigos.', faturasAberta),
-  e('faturas-vencida', '14.8 · Fatura vencida', 'Uma fatura que já venceu: o pagamento a âmbar, o total da linha também, e a referência para pagar.', faturasVencida),
-  e('faturas-primeira', '14.9 · Primeira vez', 'Um cliente novo, sem faturas: diz quando vão aparecer e leva ao catálogo.', faturasPrimeira),
+  e('faturas-inicio', '14.1 · Primeira carga', 'Os filtros já servem; no lugar da lista, o rolamento e o que está a acontecer.', faturasInicio),
+  e('faturas-carga', '14.2 · Esqueleto', 'A forma da cronologia (o ano, os meses, os documentos) enquanto os dados chegam.', faturasCarga),
+  e('faturas-pesquisa', '14.3 · A pesquisar', 'Com um n.º escrito: o botão em «A pesquisar…», o rolamento em «A atualizar…» e os documentos de antes esbatidos.', faturasPesquisa),
+  e('faturas-primeira', '14.4 · Sem faturas', 'Um cliente novo: diz quando as faturas vão aparecer e leva ao catálogo.', faturasPrimeira),
+  e('faturas-vazio', '14.5 · Nenhuma com estes filtros', 'Maio de 2024: diz qual foi a última fatura, mostra os filtros e dá «Limpar filtros».', faturasVazio),
+  e('faturas-filtros', '14.6 · Datas inválidas', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', faturasFiltros),
+  e('faturas-selecionada', '14.7 · Fatura selecionada', 'A FT2024/05402 ativa, ainda fechada: marcador e borda a laranja; o mês ao lado da contagem.', faturasSelecionada),
+  e('faturas-aberta', '14.8 · Fatura aberta', 'A FT2024/05402 no painel: valores comerciais, a discriminação do IVA aberta (uma taxa, 23 %), o total à parte, o pagamento, Pedido → Guia → Fatura, a entrega e os artigos.', faturasAberta),
+  e('faturas-iva-fechado', '14.9 · IVA recolhido', 'A discriminação do IVA fechada: a linha diz a taxa e o total do IVA; o total da fatura continua à vista.', faturasIvaFechado),
+  e('faturas-credito', '14.10 · Nota de crédito aberta', 'A NC2024/00412: valores a negativo, «Creditada» (sem dizer se já foi devolvida) e a fatura do mesmo pedido como ligação.', faturasCredito),
+  e('faturas-vencida', '14.11 · Fatura vencida', 'A FT2024/05188: o pagamento a vermelho, quando venceu e o que fazer se já pagou.', faturasVencida),
+  e('faturas-pdf-carga', '14.12 · Documento a abrir', 'O painel abre já com o número e a descarga; a página chega a seguir.', faturasPdfCarga),
+  e('faturas-pdf', '14.13 · Pré-visualização', 'A fatura no painel, com «Descarregar PDF» em baixo.', faturasPdf),
+  e('faturas-pdf-erro', '14.14 · PDF indisponível', 'Só o painel diz que o PDF falhou, com a referência do erro; os valores continuam na página.', faturasPdfErro),
+  e('faturas-descarga', '14.15 · A descarregar', 'Só o botão do PDF espera, com o rolamento.', faturasDescarga),
+  e('faturas-descarga-erro', '14.16 · A descarga falhou', 'A faixa na própria fatura, com «Tentar novamente».', faturasDescargaErro),
+  e('faturas-parcial', '14.17 · Dados parciais', 'O servidor não mandou as embalagens e os portes: «sem dados» nessas linhas e a faixa; o IVA e o total são os do documento.', faturasParcial),
+  e('faturas-sem-relacionados', '14.18 · Documento relacionado em falta', 'A FT2024/04870 é de um pedido que já não está no histórico: o nó a tracejado e a nota; a guia e a fatura continuam.', faturasSemRelacionados),
+  e('faturas-falha', '14.19 · Erro do servidor', 'Os filtros ficam; a lista diz o que falhou, com a referência do erro, o apoio e «Tentar novamente».', faturasFalha),
+  e('faturas-rede', '14.20 · Sem ligação', 'Uma faixa por cima da lista; os documentos de há pouco esbatidos; pesquisar desligado.', faturasRede),
+  e('faturas-sessao', '14.21 · Sessão terminada', 'A página fica; pesquisar e descarregar pedem para entrar outra vez.', faturasSessao),
+  e('faturas-sem-permissao', '14.22 · Sem permissão', 'Esta conta não vê a faturação; os pedidos e as guias continuam abertos.', faturasSemPermissao),
+  e('faturas-tabela', '14.23 · Vista em tabela', 'A alternativa: as colunas todas do GO REPAIR (os três pares base/IVA), com a FT2024/05402 no painel.', faturasTabela),
 ];

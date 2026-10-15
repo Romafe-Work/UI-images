@@ -7,7 +7,7 @@
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
-import { faturasV1 } from './faturas-v1';
+import { faturasV2 } from './faturas-v2';
 import { listaHtml, type EstadoLista } from './lista';
 import { guiasV3 } from './guias-v3';
 import { inicioV3 } from './inicio-v3';
@@ -51,7 +51,9 @@ export const ecrasPortal: EcraGoParts[] = [
     objetivo: 'As guias de remessa e as notas de crédito: filtros, os totais faturados e a lista com bruto, desconto, portes e IVA.' },
   ...estadosGuias(),
   /* 13 out. 2026: ela, com a imagem das faturas do GO REPAIR: «para as faturas» (como nas guias) */
-  { id: 'faturas', nome: '14 · Faturas', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'No estilo das Guias v2 (13 out.): resumo com o que está em aberto, filtros no cartão azul, as colunas do GO REPAIR (três pares base/IVA) e o pagamento; a fatura num painel com a referência Multibanco; estados 14.1 a 14.9', html: portal('faturas', faturasV1, undefined, { menu: true, rodape: false }) }],
+  /* 15 out. 2026: do briefing dela («Financial Document Center») e da nota («manteria a ordem cronológica, tal como nos
+     Pedidos e Guias […] daria maior destaque ao desdobramento dos impostos»): uma só versão — saiu a v1 (o código fica) */
+  { id: 'faturas', nome: '14 · Faturas', fluxo: FLUXO, versoes: [{ id: 'v2', nota: 'Como os Pedidos e as Guias (15 out.): as faturas e as notas de crédito por ano e mês, o pagamento por baixo da data; clicar abre o painel com a discriminação (valores comerciais, IVA por taxa, total), o pagamento, Pedido → Guia → Fatura, a entrega e os artigos; Tabela com as colunas todas do GO REPAIR', html: portal('faturas', faturasV2(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'As faturas e as notas de crédito: filtros, o total e o que está por pagar, e a lista com os valores e o estado do pagamento.' },
   ...estadosFaturas(),
   /* 14 out. 2026: do briefing dela, a Minha lista — peças e mão de obra, o resumo ao vivo, guardar e enviar */

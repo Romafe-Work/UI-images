@@ -523,6 +523,21 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - A guia aberta fica guardada durante a visita. Os euros passaram a ter espaço também nos milhares de 4 algarismos (3 449,60 €), também nas Faturas.
 - Estados 13.1–13.21: primeira carga, esqueleto, a pesquisar, sem documentos, nenhuma com estes filtros, datas inválidas, selecionada, aberta, nota de crédito, guia relacionada a abrir, pedido indisponível, documento a abrir, pré-visualização, documento indisponível (só no painel), a descarregar, descarga falhou, sem ligação, erro do servidor, sessão terminada, sem permissão, vista em tabela. O «Acesso negado» comum passou a 13.22.
 
+### 14 · Faturas v2 — como os Pedidos e as Guias, com a discriminação do IVA (15 out. 2026)
+- Do briefing dela («ROMAFE Financial Document Center») e da nota («manteria a ordem cronológica, tal como nos Pedidos e Guias […] daria maior destaque ao desdobramento dos impostos»). Fica só a v2 (`portal/faturas-v2.ts`, `comportamento/faturas-v2.ts`, `css/faturas-v2.css`), no molde dos Pedidos e das Guias. Sem React.
+- **Cabeçalho:** documentos, faturado, notas de crédito e por pagar, com uma nota a dizer o que contam: valores com IVA; as notas de crédito ficam à parte, a negativo, e não descontam no faturado; «por pagar» são as faturas em aberto e vencidas.
+- **Filtros:** as datas (dd/mm/aaaa, validadas), o n.º e o tipo Todas / Fatura / Nota de crédito, com a risca laranja; a fila «Pagamento» (Paga, Em aberto, Vencida, Creditada). Os filtros ficam guardados durante a visita.
+- **Cronologia:** por ano e mês, com o estado do pagamento por baixo da data; o ícone diz o tipo (recibo ou devolução).
+- **Clicar numa fatura abre o painel lateral**, como nos outros dois ecrãs. O briefing pedia abrir no cartão, mas ela tinha pedido o painel nos Pedidos e nas Guias. O painel mostra, por ordem:
+  - **Valores:** os comerciais (bruto, desconto, embalagens, portes), a **Discriminação do IVA** por taxa e o total à parte. A discriminação abre e fecha em 250 ms; o que está por baixo desliza com FLIP e as linhas aparecem sem contar.
+  - **Pagamento:** quando vence ou quando foi paga. A nota de crédito diz «Creditada» sem dizer se já foi devolvida.
+  - **Documentos relacionados:** Pedido → Guia → Fatura, e «Do mesmo pedido».
+  - **Entrega e artigos**, com Ver fatura (o documento no mesmo painel, com «Voltar à fatura»), Descarregar PDF e Ver guia de remessa.
+- **IVA:** os dados têm uma só taxa (23 %). Mostra-se um grupo e diz-se que os outros dois grupos do documento estão vazios; não se inventam taxas.
+- **Tabela** como alternativa, com todas as colunas do GO REPAIR (os três pares base/IVA) e o pagamento.
+- **Entre ecrãs:** «Ver fatura» nas Guias e nos Pedidos abre a fatura no painel das Faturas; daqui, a guia e o pedido abrem no painel deles.
+- **Estados 14.1–14.23:** primeira carga, esqueleto, a pesquisar, sem faturas, nenhuma com filtros, datas inválidas, selecionada, aberta, IVA recolhido, nota de crédito, vencida, documento a abrir, pré-visualização, PDF indisponível, a descarregar, descarga falhou, dados parciais, documento relacionado em falta, erro do servidor, sem ligação, sessão terminada, sem permissão e vista em tabela. «A gerar o PDF» (comum) passou a 14.24.
+
 ### 01–04 Entrar: o cartão partido ao meio (15 out. 2026)
 - Ela: «a animação ficou muito porreira; puxar o card do login mais para a direita e a animação também, parece muito vazio o lado direito; um card centrado com uma divisória a meio, de um lado a animação, do outro o login».
 - Um só cartão ao centro, partido por uma linha fina: à esquerda o palco com o rolamento (o mesmo canvas, agora centrado na sua metade: `entrar-cena.ts` deixou de deslocar a câmara), à direita o login. As cotas da vista explodida ficam dentro do palco. No telemóvel, o palco fica por cima do login, no mesmo cartão.
