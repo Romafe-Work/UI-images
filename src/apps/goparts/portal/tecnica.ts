@@ -3,8 +3,8 @@
    Do briefing dela («Automotive Technical Intelligence Center») e da nota que juntou: «começaria por três
    mudanças: seleção do veículo mais clara, navegação técnica agrupada e visualização de documentação com zoom.
    Depois, acrescentaria o explorador visual do automóvel». O ecrã gira à volta do veículo escolhido:
-   - ESCOLHER: os veículos do Catálogo por modelo (Modelo, Código do motor, Fabricado desde / até, como o ecrã
-     antigo, e o combustível e a potência que o Catálogo já tem), a pesquisa por marca, modelo ou código do motor;
+   - ESCOLHER: os veículos do Catálogo por modelo, com as quatro colunas do ecrã antigo (Modelo, Código do motor,
+     Fabricado desde, Fabricado até; ela, 15 out.: «tem isto tudo, faz»), a pesquisa por marca, modelo ou motor;
      ao lado, o que fica disponível depois de escolher (em vez do branco do ecrã antigo).
    - A BARRA DO VEÍCULO (sempre à vista): Marca → Modelo → Motorização → Código do motor, o combustível, a potência,
      os anos; a pesquisa técnica; «Mudar de veículo». Ao escolher, o nome voa da linha para a barra.
@@ -155,10 +155,8 @@ export function sugestoes(v: VeiculoTec, q: string): string {
 /* ---------- ESCOLHER o veículo ---------- */
 function linhaVeiculo(v: VeiculoTec, i: number): string {
   return `<tr class="tec__v" data-chave="${esc(v.chave)}" tabindex="0" style="--i:${i}">
-      <td class="tec__v-nome" data-r="Veículo"><span class="tec__v-carro" aria-hidden="true">${silhueta(v.carrocaria)}</span><span><b>${esc(v.versao)}</b><small>${esc(v.marca)} ${esc(v.modelo)}</small></span></td>
+      <td class="tec__v-nome" data-r="Modelo"><span class="tec__v-carro" aria-hidden="true">${silhueta(v.carrocaria)}</span><span><b>${esc(v.versao)}</b><small>${esc(v.marca)} ${esc(v.modelo)}</small></span></td>
       <td class="tec__mono" data-r="Código do motor">${esc(v.motor)}</td>
-      <td data-r="Combustível">${v.combustivel}</td>
-      <td class="tec__num" data-r="Potência">${potencia(v)}</td>
       <td class="tec__num" data-r="Fabricado desde">${desdeDe(v)}</td>
       <td class="tec__num" data-r="Fabricado até">${ateDe(v)}</td>
       <td class="tec__v-acao"><button type="button" class="btn btn--ghost btn--sm tec__escolher-btn" tabindex="-1">${L(check, 'btn__icone')}<span class="btn__rotulo">Escolher</span></button></td>
@@ -171,10 +169,10 @@ export function linhasVeiculos(lista: VeiculoTec[]): string {
   return modelos.map((m) => {
     const vs = lista.filter((v) => `${v.marca}|${v.modelo}` === m);
     const [marca, modelo] = m.split('|');
-    return `<tbody class="tec__modelo"><tr class="tec__m"><th colspan="7" scope="rowgroup"><b>${esc(marca)} ${esc(modelo)}</b><span>${vs[0].carrocaria} · ${plural(vs.length, 'motorização', 'motorizações')}</span></th></tr>${vs.map((v) => linhaVeiculo(v, i++)).join('')}</tbody>`;
+    return `<tbody class="tec__modelo"><tr class="tec__m"><th colspan="5" scope="rowgroup"><b>${esc(marca)} ${esc(modelo)}</b><span>${vs[0].carrocaria} · ${plural(vs.length, 'motorização', 'motorizações')}</span></th></tr>${vs.map((v) => linhaVeiculo(v, i++)).join('')}</tbody>`;
   }).join('');
 }
-const CABECA_TABELA = `<thead><tr><th scope="col">Veículo</th><th scope="col">Código do motor</th><th scope="col">Combustível</th><th scope="col" class="tec__num">Potência</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
+const CABECA_TABELA = `<thead><tr><th scope="col">Modelo</th><th scope="col">Código do motor</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
 
 export function contaVeiculos(lista: VeiculoTec[], q: string, marca: string): string {
   if (q) return `<b>${plural(lista.length, 'veículo', 'veículos')}</b> com «${esc(q)}», em todas as marcas`;
@@ -188,7 +186,7 @@ export function escolher(o: Opcoes): string {
   const px = o.px || 'tec', q = o.q || '', marca = o.marca || 'BMW';
   const lista = q ? procurarVeiculos(q) : veiculosDaMarca(marca);
   let corpo: string;
-  if (o.carga === 'veiculos') corpo = `<table class="tec__tabela is-esq" aria-busy="true">${CABECA_TABELA}<tbody>${Array.from({ length: 7 }, (_, i) => `<tr class="tec__v-esq" style="--i:${i}"><td colspan="7"><span class="tec__esq" style="width:28%"></span><span class="tec__esq" style="width:14%"></span><span class="tec__esq" style="width:10%"></span><span class="tec__esq" style="width:16%"></span></td></tr>`).join('')}</tbody></table>`;
+  if (o.carga === 'veiculos') corpo = `<table class="tec__tabela is-esq" aria-busy="true">${CABECA_TABELA}<tbody>${Array.from({ length: 7 }, (_, i) => `<tr class="tec__v-esq" style="--i:${i}"><td colspan="5"><span class="tec__esq" style="width:28%"></span><span class="tec__esq" style="width:14%"></span><span class="tec__esq" style="width:10%"></span><span class="tec__esq" style="width:16%"></span></td></tr>`).join('')}</tbody></table>`;
   else if (o.erro === 'veiculos') corpo = `<div class="tec__vazio tec__vazio--erro" role="alert">${L(triangleAlert)}<p><strong>Não foi possível carregar os veículos.</strong>O serviço do catálogo não respondeu (erro 503 · ref. VT-2611). A pesquisa que escreveu fica; tente de novo ou ligue para o apoio: +351 226 158 300.</p>${BOTAO('Tentar novamente', refreshCw, 'btn--acao btn--sm')}</div>`;
   else if (!lista.length) corpo = semVeiculos(q);
   else corpo = `<table class="tec__tabela${o.carga === 'pesquisa' ? ' is-a-pesquisar' : ''}">${CABECA_TABELA}${linhasVeiculos(lista)}</table>`;

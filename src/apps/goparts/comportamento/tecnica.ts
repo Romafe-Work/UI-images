@@ -49,7 +49,7 @@ function listar(m: HTMLElement, espera = true): void {
   tPesquisa = window.setTimeout(pintar, 260);
 }
 /* a tabela das motorizações guarda o cabeçalho: se a lista ficou vazia, vem do HTML do ecrã */
-const CABECA = () => `<thead><tr><th scope="col">Veículo</th><th scope="col">Código do motor</th><th scope="col">Combustível</th><th scope="col" class="tec__num">Potência</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
+const CABECA = () => `<thead><tr><th scope="col">Modelo</th><th scope="col">Código do motor</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
 
 function escolherVeiculo(m: HTMLElement, chave: string, linha?: HTMLElement | null): void {
   const v = veiculoDe(chave); if (!v) return;
