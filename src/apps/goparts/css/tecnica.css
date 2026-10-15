@@ -6,7 +6,26 @@
    Tempos: hover 150 ms; escolher o veículo 300 ms; navegar 220 ms; trocar de secção 250 ms; os documentos
    300 ms; o visor 400 ms. Só transform e opacity nas animações; nada mexe a altura no fluxo.
    ========================================================= */
-.portal--tec { --t-rapido: 150ms; --t-curva: cubic-bezier(.22, 1, .36, 1); --tec-topo: 92px; }
+.portal--tec { --t-rapido: 150ms; --t-curva: cubic-bezier(.22, 1, .36, 1); --tec-topo: 92px; --p4-rapido: 150ms; --p4-curva: cubic-bezier(.22, 1, .36, 1); }
+
+/* (15 out.) a escolha em cronologia, com as classes da cronologia dos Pedidos (css/pedidos-v4.css e guias-v3.css) */
+.tec__conta-linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.tec__crono-caixa { transition: opacity 200ms ease; }
+.tec__crono-caixa.is-a-pesquisar { opacity: .5; }
+.tec__crono .ped4__mes-t { top: var(--tec-topo); background: var(--c-superficie); }
+.tec__c-item .ped4__c-data b { font-size: 16px; }
+.tec__c-cabeca { grid-template-columns: minmax(220px, 1.4fr) minmax(120px, 1fr) minmax(140px, 1fr) 24px; }
+.tec__c-cabeca .tec__v-nome b { font-size: 15px; }
+.tec__c-campo { display: grid; gap: 1px; font-size: 14px; color: var(--c-texto); font-variant-numeric: tabular-nums; }
+.tec__c-campo small { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+.tec__c-item:hover .ped4__c-cartao { border-color: var(--c-borda-forte); }
+.tec__c-item.is-anterior .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-acao) 55%, var(--c-borda)); box-shadow: inset 2px 0 0 var(--c-acao); }
+@media (max-width: 640px) {
+  .tec__c-cabeca { grid-template-columns: minmax(0, 1fr) 20px; gap: 6px 10px; }
+  .tec__c-cabeca .tec__v-nome { grid-column: 1; }
+  .tec__c-cabeca .tec__c-campo { grid-column: 1; display: flex; gap: 6px; align-items: baseline; }
+  .tec__c-cabeca .ped4__c-seta { grid-column: 2; grid-row: 1; }
+}
 .tec { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 16px; width: 100%; margin: 0; padding: 20px 24px 40px; box-sizing: border-box; }
 .tec > *, .tec__trabalho > *, .tec__escolher > * { min-width: 0; }
 .tec__titulo { margin: 0; font-family: var(--f-titulo); font-size: 28px; line-height: 1.1; color: var(--c-texto); }

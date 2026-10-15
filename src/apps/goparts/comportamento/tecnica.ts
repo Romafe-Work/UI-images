@@ -12,7 +12,7 @@
    - PESQUISA TÉCNICA: secções, sistemas e documentos do veículo ao escrever, com as setas e Enter.
    Só transform e opacity nas animações; com «reduzir movimento» as trocas são imediatas.
    ========================================================= */
-import { contexto, escolher, trabalho, conteudo, lado, explorador, nomeSeccao, docsSistema, type PecaRol, sugestoes, visorCorpo, linhasVeiculos, contaVeiculos, semVeiculos, faixa, GIRA, type Opcoes } from '../portal/tecnica';
+import { cronologiaVeiculos, contexto, escolher, trabalho, conteudo, lado, explorador, nomeSeccao, docsSistema, type PecaRol, sugestoes, visorCorpo, linhasVeiculos, contaVeiculos, semVeiculos, faixa, GIRA, type Opcoes } from '../portal/tecnica';
 import { veiculoDe, docsDe, procurarVeiculos, veiculosDaMarca, type IdSeccao, type IdSistema } from '../portal/tecnica-dados';
 
 const editando = () => document.body.classList.contains('editando');
@@ -24,12 +24,12 @@ const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.
 
 /** O que está aberto em cada ecrã vivo. */
 interface Estado { veiculo?: string; seccao: IdSeccao | 'geral'; doc?: string; sistema?: IdSistema; q: string; marca: string; fig?: number
-  ver?: 'veiculo' | 'explodida'; peca?: PecaRol;
+  ver?: 'veiculo' | 'explodida'; peca?: PecaRol; vistaSel?: 'cronologia' | 'tabela';
   /* o que a pessoa escolheu para o painel de contexto e a navegação, a navegar e a ler (ao ler, por omissão, dão espaço ao documento) */
   lado?: boolean; ladoLer?: boolean; nav?: boolean; navLer?: boolean }
 const estados = new WeakMap<HTMLElement, Estado>();
 const est = (m: HTMLElement) => { let e = estados.get(m); if (!e) { e = { veiculo: m.dataset.veiculo, seccao: 'geral', q: '', marca: 'BMW' }; estados.set(m, e); } return e; };
-const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, ver: e.ver, peca: e.peca,
+const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, vistaSel: e.vistaSel, ver: e.ver, peca: e.peca,
   lado: e.doc ? e.ladoLer ?? false : e.lado ?? true, compacta: e.doc ? e.navLer ?? true : e.nav ?? false, ...extra }; };
 
 /* ---------- as três áreas: a navegação (recolhível), o conteúdo e o contexto (recolhível) ---------- */
@@ -105,15 +105,15 @@ function listar(m: HTMLElement, espera = true): void {
   $$(m, '.tec__marca').forEach((b) => b.setAttribute('aria-checked', String(!e.q && b.dataset.marca === e.marca)));
   const pintar = () => {
     conta.innerHTML = contaVeiculos(lista, e.q, e.marca);
-    caixa.innerHTML = lista.length ? `<table class="tec__tabela">${CABECA()}${linhasVeiculos(lista)}</table>` : semVeiculos(e.q);
+    caixa.innerHTML = !lista.length ? semVeiculos(e.q) : (e.vistaSel || 'cronologia') === 'cronologia' ? `<div class="tec__crono-caixa">${cronologiaVeiculos(lista)}</div>` : `<table class="tec__tabela">${CABECA()}${linhasVeiculos(lista)}</table>`;
     if (!lista.length) caixa.dataset.vazio = '1'; else delete caixa.dataset.vazio;
-    if (!quieto()) $$(caixa, '.tec__v, .tec__m, .tec__vazio').slice(0, 24).forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: i * 18, easing: SAIDA, fill: 'backwards' }));
+    if (!quieto()) $$(caixa, 'tr.tec__v, .tec__m, .tec__c-item, .tec__vazio, .gui3__ano, .ped4__mes-t').slice(0, 24).forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: i * 18, easing: SAIDA, fill: 'backwards' }));
   };
   window.clearTimeout(tPesquisa);
   if (!espera || quieto()) { pintar(); return; }
   /* a pesquisa pendente: o que já lá estava fica esbatido e a contagem diz que está a pesquisar */
   conta.innerHTML = `${GIRA()} A pesquisar${e.q ? ` «${e.q.replace(/</g, '&lt;')}»` : ''}…`;
-  $(caixa, '.tec__tabela')?.classList.add('is-a-pesquisar');
+  $(caixa, '.tec__tabela, .tec__crono-caixa')?.classList.add('is-a-pesquisar');
   tPesquisa = window.setTimeout(pintar, 260);
 }
 /* a tabela das motorizações guarda o cabeçalho: se a lista ficou vazia, vem do HTML do ecrã */
@@ -160,7 +160,7 @@ function mudarVeiculo(m: HTMLElement): void {
   $(m, '.tec__ctx')!.outerHTML = contexto(undefined);
   $(m, '.tec__trabalho, .tec__escolher')!.outerHTML = escolher(ops(m));
   const linha = antes ? $$(m, '.tec__v').find((r) => r.dataset.chave === antes) : undefined;
-  if (linha) { linha.classList.add('is-anterior'); linha.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' }); linha.focus({ preventScroll: true }); }
+  if (linha) { (linha.closest<HTMLElement>('.tec__c-item') ?? linha).classList.add('is-anterior'); linha.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' }); linha.focus({ preventScroll: true }); }
   if (!quieto()) $(m, '.tec__escolher')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: SAIDA });
 }
 
@@ -343,7 +343,8 @@ function abrirWorkshop(b: HTMLButtonElement): void {
 /* ---------- ligar ---------- */
 function armar(): void {
   const m = vivo(); if (!m) return;
-  est(m);
+  const e = est(m);
+  if (!m.dataset.vistaLida) { m.dataset.vistaLida = '1'; let g: string | null = null; try { g = localStorage.getItem('goparts-tecnica-vista'); } catch { /* nada */ } if (g === 'tabela' && !e.veiculo) { e.vistaSel = 'tabela'; $$(m, '[data-vista-sel]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.vistaSel === 'tabela'))); if ($(m, '.tec__lista')) listar(m, false); } }
   montar3D(m);
   requestAnimationFrame(() => armarIndicador(m, false));
 }
@@ -363,7 +364,8 @@ export function iniciar(): void {
     /* escolher */
     const mc = t.closest<HTMLElement>('.tec__marca'); if (mc) { const e = est(m); e.marca = mc.dataset.marca!; e.q = ''; const q = $<HTMLInputElement>(m, '.tec__q'); if (q) q.value = ''; listar(m); return; }
     if (t.closest('[data-limpar]')) { const e = est(m); e.q = ''; const q = $<HTMLInputElement>(m, '.tec__q'); if (q) { q.value = ''; q.focus(); } listar(m, false); return; }
-    const linha = t.closest<HTMLElement>('tr.tec__v'); if (linha) { escolherVeiculo(m, linha.dataset.chave!, linha); return; }
+    const vs = t.closest<HTMLElement>('[data-vista-sel]'); if (vs) { const e = est(m); e.vistaSel = vs.dataset.vistaSel as 'cronologia' | 'tabela'; try { localStorage.setItem('goparts-tecnica-vista', e.vistaSel); } catch { /* nada */ } $$(m, '[data-vista-sel]').forEach((b) => b.setAttribute('aria-pressed', String(b === vs))); listar(m, false); return; }
+    const linha = t.closest<HTMLElement>('.tec__v'); if (linha) { escolherVeiculo(m, linha.dataset.chave!, linha.closest<HTMLElement>('.tec__c-item, tr') ?? linha); return; }
     if (t.closest('[data-mudar]')) { mudarVeiculo(m); return; }
     /* a pesquisa técnica */
     const sug = t.closest<HTMLElement>('.tec__sug'); if (sug) { escolherSugestao(m, sug); return; }
