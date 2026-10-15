@@ -18,7 +18,7 @@ function contarComoNaLista(el: HTMLElement, de: number, para: number, fmt: (n: n
   el.setAttribute('aria-label', fmt(para));
   el.textContent = fmt(para);
   /* a caixa nunca encolhe: fica com a largura do maior valor que já mostrou (um filtro não puxa o cabeçalho) */
-  el.style.minWidth = `${Math.max(parseFloat(el.style.minWidth) || 0, el.offsetWidth)}px`;
+  if (!el.hasAttribute('data-kpi-lista')) el.style.minWidth = `${Math.max(parseFloat(el.style.minWidth) || 0, el.offsetWidth)}px`; /* no resumo (linhas a toda a largura) não é preciso */
   if (quieto() || de === para) return;
   const t0 = performance.now();
   const passo = (t: number) => { const k = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(de + (para - de) * e); if (k < 1) requestAnimationFrame(passo); };
@@ -54,6 +54,7 @@ export function kpi(el: HTMLElement | null, para: number, fmt: (n: number) => st
   if (!el.dataset.base) el.dataset.base = String(de || para);
   el.dataset.valor = String(para);
   contarComoNaLista(el, de, para, fmt);
+  if (el.hasAttribute('data-kpi-lista')) return; /* o resumo das Faturas é o da Minha lista: só conta e acende */
   if (de !== para) diferenca(el, para - de, fmt);
   const base = Number(el.dataset.base);
   barra(el, base ? Math.abs(para) / Math.abs(base) : 0);

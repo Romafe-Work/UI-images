@@ -40,7 +40,9 @@ import check from 'lucide-static/icons/check.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import alert from 'lucide-static/icons/triangle-alert.svg?raw';
 import percent from 'lucide-static/icons/percent.svg?raw';
-import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
+import pkg from 'lucide-static/icons/package.svg?raw';
+import copy from 'lucide-static/icons/copy.svg?raw';
+import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -71,25 +73,28 @@ export interface GrupoIva { taxa: number; base: number; iva: number }
 export const gruposIva = (f: Fatura): GrupoIva[] => [{ taxa: 23, base: base(f.guia), iva: iva(f.guia) }];
 const taxa = (t: number) => `${t.toLocaleString('pt-PT')} %`;
 
-/* ---------- a discriminação (o destaque do painel) ---------- */
-export function discriminacao(f: Fatura, abertaIva = true, prefixo = 'fat2'): string {
-  const g = f.guia, grupos = gruposIva(f);
-  const l = (t: string, v: number | null, cls = '') => `<div class="gui3__v${cls}"><dt>${t}</dt><dd>${v === null ? '<span class="ped4__nada" title="Valor não enviado pelo servidor">sem dados</span>' : v ? euros(v) : '<span class="ped4__nada">—</span>'}</dd></div>`;
-  const ivaTotal = grupos.reduce((s, x) => s + x.iva, 0), rid = `${prefixo}-iva-${id(f.num)}`;
-  return `<div class="fat2__disc">
-      <p class="fat2__disc-t">Valores comerciais</p>
-      <dl class="gui3__valores fat2__com">${l('Valor bruto', g.bruto)}${l('Desconto', -g.desconto)}${l('Embalagens', g.embalagens)}${l('Portes', g.portes)}</dl>
-      <div class="fat2__iva">
-        <button type="button" class="fat2__iva-abrir" aria-expanded="${abertaIva}" aria-controls="${rid}">${L(percent)}<span>Discriminação do IVA</span><small>${grupos.length === 1 ? `1 taxa · ${taxa(grupos[0].taxa)}` : `${grupos.length} taxas`}</small><b>${euros(ivaTotal)}</b>${L(chevronDown, 'fat2__iva-seta')}</button>
-        <div class="fat2__iva-corpo" id="${rid}"${abertaIva ? '' : ' hidden'}>
-          <table class="fat2__iva-t"><thead><tr><th>Taxa</th><th class="ped4__num">Base tributável</th><th class="ped4__num">IVA</th></tr></thead>
-          <tbody>${grupos.map((x, i) => `<tr style="--i:${i}"><td><span class="fat2__taxa">${taxa(x.taxa)}</span></td><td class="ped4__num">${euros(x.base)}</td><td class="ped4__num">${euros(x.iva)}</td></tr>`).join('')}</tbody>
-          ${grupos.length > 1 ? `<tfoot><tr><td>Total</td><td class="ped4__num">${euros(grupos.reduce((s, x) => s + x.base, 0))}</td><td class="ped4__num">${euros(ivaTotal)}</td></tr></tfoot>` : ''}</table>
-          <p class="fat2__iva-nota">${L(info)}<span>${grupos.length === 1 ? 'Sem outras taxas nesta fatura (os outros dois grupos do documento estão vazios).' : 'Uma linha por taxa, como no documento.'}</span></p>
-        </div>
+/* ---------- o resumo financeiro do talão (15 out., o briefing dela «Interactive Purchase Receipt») ----------
+   Depois dos artigos, como num talão: valor bruto, desconto, embalagens, portes; o IVA numa linha que abre a
+   discriminação por taxa (os grupos que a fatura tem); um traço; o total da fatura em destaque. Os valores aparecem
+   já certos (nunca contam a partir do zero): a animação só os revela. */
+export function discriminacao(f: Fatura, abertaIva = false, prefixo = 'fat2'): string {
+  const g = f.guia, grupos = gruposIva(f), ivaTotal = grupos.reduce((t, x) => t + x.iva, 0), rid = `${prefixo}-iva-${id(f.num)}`;
+  const l = (t: string, v: number | null, cls = '') => `<div class="fat2__r${cls}"><dt>${t}</dt><dd>${v === null ? '<span class="ped4__nada" title="Valor não enviado pelo servidor">sem dados</span>' : v ? euros(v) : '<span class="ped4__nada">—</span>'}</dd></div>`;
+  return `<dl class="fat2__recibo">
+      ${l('Valor bruto', g.bruto)}${l('Desconto', -g.desconto, ' fat2__r--desc')}${l('Embalagens', g.embalagens)}${l('Portes', g.portes)}
+      <div class="fat2__r fat2__r--iva">
+        <dt><button type="button" class="fat2__iva-abrir" aria-expanded="${abertaIva}" aria-controls="${rid}">${L(percent)}<span>IVA</span><small>${grupos.map((x) => taxa(x.taxa)).join(' · ')}</small>${L(chevronDown, 'fat2__iva-seta')}</button></dt>
+        <dd>${euros(ivaTotal)}</dd>
       </div>
-      <dl class="gui3__valores fat2__fim"><div class="gui3__v gui3__v--total"><dt>Total ${ehCredito(f) ? 'da nota de crédito' : 'da fatura'}</dt><dd>${euros(total(g))}</dd></div></dl>
-    </div>`;
+      <div class="fat2__iva-corpo" id="${rid}"${abertaIva ? '' : ' hidden'}>
+        <p class="fat2__iva-t-titulo">Discriminação do IVA</p>
+        <table class="fat2__iva-t"><thead><tr><th>Taxa</th><th class="ped4__num">Base tributável</th><th class="ped4__num">IVA</th></tr></thead>
+        <tbody>${grupos.map((x, i) => `<tr style="--i:${i}"><td><span class="fat2__taxa">${taxa(x.taxa)}</span></td><td class="ped4__num">${euros(x.base)}</td><td class="ped4__num">${euros(x.iva)}</td></tr>`).join('')}</tbody></table>
+        <p class="fat2__iva-nota">${L(info)}<span>${grupos.length === 1 ? 'Uma só taxa nesta fatura; os outros dois grupos do documento estão vazios.' : 'Uma linha por taxa, como no documento.'}</span></p>
+      </div>
+      <div class="fat2__traco" aria-hidden="true"></div>
+      <div class="fat2__r fat2__r--total"><dt>Total ${ehCredito(f) ? 'da nota de crédito' : 'da fatura'} <small>com IVA</small></dt><dd>${euros(total(g))}</dd></div>
+    </dl>`;
 }
 
 /* ---------- o percurso documental: Pedido → Guia de remessa → Fatura (ou Nota de crédito) ---------- */
@@ -110,7 +115,7 @@ export function percursoFat(f: Fatura): string {
     </div>`;
 }
 
-/* ---------- o pagamento ---------- */
+/* ---------- o pagamento: o que os dados dizem (sem inventar meios de pagamento) ---------- */
 export function pagamento(f: Fatura): string {
   const t = {
     paga: `Paga a ${f.pagaEm}. O vencimento era a ${f.vencimento}.`,
@@ -121,33 +126,43 @@ export function pagamento(f: Fatura): string {
   return `<div class="fat2__pagamento fat2__pagamento--${f.pagamento}">${pagamentoSelo(f)}<p>${t}</p></div>`;
 }
 
-/* ---------- a fatura no painel ---------- */
-export function detalheFatura(f: Fatura, prefixo = 'fat2', abertaIva = true): string {
-  const g = f.guia;
-  const artigos = g.linhas.map(([q, d, v], i) => `<tr style="--i:${i}"><td class="ped4__num">${q}</td><td>${esc(d)}</td><td class="ped4__num">${euros(v)}</td></tr>`).join('');
-  return `<div class="gui3__det fat2__det">
-    <section class="fat2__det-valores" aria-label="Valores"><h3 class="ped4__h">Valores</h3>${discriminacao(f, abertaIva, prefixo)}</section>
-    <section class="fat2__det-pag" aria-label="Pagamento"><h3 class="ped4__h">Pagamento</h3>${pagamento(f)}</section>
-    <section class="gui3__det-percurso" aria-label="Documentos relacionados"><h3 class="ped4__h">Documentos relacionados</h3>${percursoFat(f)}</section>
-    <section class="gui3__det-doc" aria-label="Entrega">
-      <h3 class="ped4__h">Entrega</h3>
-      <p class="ped4__ent">${L(mapPin)}<span><b>${esc(g.morada[0])}</b>${esc(g.morada[1])} · Armazém ${esc(g.armazem)}</span></p>
-      ${g.obs && g.obs !== '—' ? `<p class="gui3__obs"><b>Observações</b>${esc(g.obs)}</p>` : ''}
+/* ---------- o talão: a fatura no painel (15 out., o briefing dela «Interactive Purchase Receipt») ----------
+   Os artigos primeiro (como numa lista de compras), depois o resumo financeiro, o pagamento, os documentos e a
+   entrega (recolhida). Só leitura: um documento emitido não se edita. As linhas não têm fotografia: um ícone
+   neutro (não se inventam imagens). O preço unitário não vem nos dados — mostra-se a quantidade e o valor da linha. */
+export function detalheFatura(f: Fatura, prefixo = 'fat2', abertaIva = false): string {
+  const g = f.guia, n = g.linhas.length, eid = `${prefixo}-ent-${id(f.num)}`;
+  const linhas = g.linhas.map(([q, d, v], i) => `<li class="fat2__linha" style="--i:${i}"><span class="fat2__l-i">${L(pkg)}</span><span class="fat2__l-desc"><b>${esc(d)}</b><small>Linha ${String(i + 1).padStart(2, '0')}</small></span><span class="fat2__l-q">${q.toLocaleString('pt-PT')} un.</span><span class="fat2__l-v">${euros(v)}</span></li>`).join('');
+  return `<div class="fat2__talao">
+    <section class="fat2__sec fat2__t-artigos" aria-label="Artigos da compra">
+      <h3 class="ped4__h">Artigos da compra <span>${n}</span></h3>
+      ${n ? `<ol class="fat2__linhas">${linhas}</ol>` : `<p class="fat2__sem-linhas">${L(info)}<span>O serviço de faturação não enviou as linhas desta fatura. Os valores e o PDF continuam disponíveis.</span></p>`}
     </section>
-    <section class="gui3__det-artigos" aria-label="Artigos"><h3 class="ped4__h">Artigos <span>${g.linhas.length}</span></h3>
-      <div class="ped4__art-rolo"><table class="ped4__art"><thead><tr><th class="ped4__num">Qtd.</th><th>Artigo</th><th class="ped4__num">Valor</th></tr></thead><tbody>${artigos}</tbody></table></div>
-      <div class="ped4__det-accoes gui3__accoes">
-        <button type="button" class="btn btn--acao btn--sm" data-ver-doc="${f.num}">${L(eye, 'btn__icone')}<span class="btn__rotulo">Ver ${ehCredito(f) ? 'nota de crédito' : 'fatura'}</span></button>
-        <button type="button" class="btn btn--ghost btn--sm" data-descarregar="${f.num}">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar PDF</span></button>
-        <button type="button" class="btn btn--ghost btn--sm" data-ir="guias" data-abrir-guia-pagina="${g.num}">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ver guia de remessa</span></button>
+    <section class="fat2__sec fat2__t-resumo" aria-label="Resumo financeiro"><h3 class="ped4__h">Resumo financeiro</h3>${discriminacao(f, abertaIva, prefixo)}</section>
+    <section class="fat2__sec" aria-label="Pagamento"><h3 class="ped4__h">Pagamento</h3>${pagamento(f)}</section>
+    <section class="fat2__sec" aria-label="Documentos relacionados"><h3 class="ped4__h">Documentos relacionados</h3>${percursoFat(f)}</section>
+    <section class="fat2__sec fat2__t-entrega" aria-label="Entrega">
+      <button type="button" class="fat2__ent-abrir" aria-expanded="false" aria-controls="${eid}"><span class="ped4__h">Entrega</span><small>${esc(g.morada[1])}</small>${L(chevronDown, 'fat2__iva-seta')}</button>
+      <div class="fat2__ent-corpo" id="${eid}" hidden>
+        <p class="ped4__ent">${L(mapPin)}<span><b>${esc(g.morada[0])}</b>${esc(g.morada[1])}</span></p>
+        <p class="ped4__ent">${L(warehouse)}<span><b>Armazém ${esc(g.armazem)}</b>Saída da mercadoria</span></p>
+        ${g.obs && g.obs !== '—' ? `<p class="gui3__obs"><b>Observações</b>${esc(g.obs)}</p>` : ''}
       </div>
-      <p class="gui3__descarga" role="status" hidden></p>
     </section>
+    <div class="ped4__det-accoes gui3__accoes fat2__accoes">
+      <button type="button" class="btn btn--acao btn--sm" data-ver-doc="${f.num}">${L(eye, 'btn__icone')}<span class="btn__rotulo">Ver PDF</span></button>
+      <button type="button" class="btn btn--ghost btn--sm" data-descarregar="${f.num}">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar</span></button>
+      <button type="button" class="btn btn--ghost btn--sm" data-copiar="${f.num}">${L(copy, 'btn__icone')}<span class="btn__rotulo">Copiar referência</span></button>
+      ${temPedido(g.pedido) ? `<button type="button" class="btn btn--ghost btn--sm" data-ir="pedidos" data-abrir-pedido-pagina="${g.pedido}">${L(shoppingCart, 'btn__icone')}<span class="btn__rotulo">Abrir pedido</span></button>` : ''}
+    </div>
+    <p class="gui3__descarga" role="status" hidden></p>
+    <div class="fat2__fixo" aria-hidden="true"><span>Total ${ehCredito(f) ? 'da nota de crédito' : 'da fatura'}</span><b>${euros(total(g))}</b></div>
   </div>`;
 }
 const fechar = '<button type="button" class="ped4__g-fechar" aria-label="Fechar (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>';
+/** O cabeçalho preso do talão: o tipo e a data, o número, o total e o estado do pagamento. */
 export function cabecaFatura(f: Fatura, idNum = 'fat2-g-num'): string {
-  return `<header class="ped4__g-cabeca"><div><p class="ped4__g-rotulo">${nomeDoc(f)} · Guia ${f.guia.num} · <span class="fat2__pag-t fat2__pag-t--${f.pagamento}">${PAGAMENTO[f.pagamento].nome}</span></p><h2 class="ped4__g-num" id="${idNum}" tabindex="-1">${f.num}</h2><p class="ped4__g-meta">${f.guia.data} · ${euros(total(f.guia))} com IVA</p></div>${fechar}</header>`;
+  return `<header class="ped4__g-cabeca fat2__t-cabeca"><div><p class="ped4__g-rotulo">${nomeDoc(f)} · ${f.guia.data}</p><h2 class="ped4__g-num" id="${idNum}" tabindex="-1">${f.num}</h2><p class="fat2__t-meta"><b class="fat2__t-total">${euros(total(f.guia))}</b>${pagamentoSelo(f)}</p></div>${fechar}</header>`;
 }
 /** A página do documento (o protótipo não tem o PDF do servidor: monta-se com os campos da própria fatura). */
 export function paginaFatura(f: Fatura): string {
@@ -227,6 +242,26 @@ export const somaAberto = (fs = FATURAS) => fs.filter((f) => f.pagamento === 'ab
 
 const campo = (cid: string, rotulo: string, icone: string, extra: string) => `<div class="ped4__campo"><label for="${cid}">${rotulo}</label><span class="ped4__caixa">${L(icone)}<input class="ped4__input" id="${cid}" ${extra}></span><small class="ped4__erro" id="${cid}-erro" hidden></small></div>`;
 
+/** O resumo à direita, como o da Minha lista (ela: «aqui seria engraçado aparecer como aparece na lista de compras»):
+    uma linha por coisa, com a quantidade ao lado do nome, e o que falta pagar grande em baixo. Valores com IVA. */
+export function resumoFaturas(): string {
+  const fs = FATURAS, nF = fs.filter((f) => !ehCredito(f)).length, nC = fs.length - nF, n = (k: Pagamento) => fs.filter((f) => f.pagamento === k);
+  const soma = (xs: Fatura[]) => xs.reduce((t, f) => t + total(f.guia), 0);
+  const linha = (rot: string, cont: string, nCont: number, k: string, v: number, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${rot} <span class="lst__cont" data-cont="${cont}">${nCont}</span></dt><dd data-kpi="${k}" data-kpi-lista data-valor="${v}">${euros(v)}</dd></div>`;
+  return `<aside class="lst__resumo fat2__resumo" aria-label="Resumo das faturas">
+      <h2 class="lst__resumo-titulo">Resumo</h2>
+      <dl>
+        ${linha('Faturas', 'faturas', nF, 'faturado', somaFaturado())}
+        ${linha('Notas de crédito', 'creditos', nC, 'creditos', somaCreditos(), 'fat2__r-credito')}
+        ${linha('Pagas', 'paga', n('paga').length, 'pagas', soma(n('paga')), 'lst__resumo-linha')}
+        ${linha('Em aberto', 'aberto', n('aberto').length, 'emaberto', soma(n('aberto')))}
+        ${linha('Vencidas', 'vencida', n('vencida').length, 'vencidas', soma(n('vencida')), 'fat2__r-vencida')}
+        <div class="lst__resumo-total"><dt>Por pagar <small>com IVA</small></dt><dd data-kpi="aberto" data-kpi-lista data-valor="${somaAberto()}">${euros(somaAberto())}</dd></div>
+      </dl>
+      <p class="lst__custo">${L(info)}<span>Valores com IVA. As notas de crédito ficam à parte, a negativo, e não descontam no faturado; «Por pagar» são as faturas em aberto e as vencidas.</span></p>
+    </aside>`;
+}
+
 export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
   const nF = FATURAS.filter((f) => !ehCredito(f)).length, nC = FATURAS.length - nF;
   const est: [Pagamento, string][] = [['paga', L(check)], ['aberto', L(clock)], ['vencida', L(alert)], ['creditada', L(undo)]];
@@ -234,15 +269,6 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
   <main class="ped4 gui3 fat2" data-faturas2>
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Faturas</h1><p class="ped4__sub">Consulte os documentos de faturação da sua conta.</p></div>
-      <div class="fat2__kpis">
-        <dl class="ped4__kpi">
-          <div><dt>${L(layers)}Documentos</dt><dd data-kpi="n" data-valor="${FATURAS.length}">${FATURAS.length}</dd></div>
-          <div><dt>${L(receipt)}Faturado</dt><dd data-kpi="faturado" data-valor="${somaFaturado()}">${euros(somaFaturado())}</dd></div>
-          <div><dt>${L(rotateCcw)}Notas de crédito</dt><dd data-kpi="creditos" data-valor="${somaCreditos()}">${euros(somaCreditos())}</dd></div>
-          <div><dt>${L(clock)}Por pagar</dt><dd data-kpi="aberto" data-valor="${somaAberto()}">${euros(somaAberto())}</dd></div>
-        </dl>
-        <p class="fat2__kpi-nota">Valores com IVA. As notas de crédito ficam à parte, a negativo, e não descontam no faturado; «Por pagar» são as faturas em aberto e vencidas.</p>
-      </div>
     </header>
 
     <section class="ped4__filtros" aria-label="Filtrar faturas">
@@ -268,6 +294,7 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
       </div>
     </section>
 
+    <div class="fat2__corpo">
     <section class="ped4__lista" aria-label="Faturas" data-vista="${vista}">
       <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${FATURAS.length}</b> de ${FATURAS.length} documentos</p><p class="ped4__a-atualizar" role="status" hidden></p><p class="gui3__mes-atual" aria-hidden="true"></p>
         <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
@@ -276,6 +303,8 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
       <div class="ped4__vazio" hidden></div>
       <p class="ped4__pe">Desde 01/03/2024 até hoje · os valores são os dos documentos emitidos, com IVA</p>
     </section>
+    ${resumoFaturas()}
+    </div>
 
     <div class="ped4__veu" hidden></div>
     <aside class="ped4__gaveta gui3__gaveta fat2__gaveta" role="dialog" aria-modal="true" aria-labelledby="fat2-g-num" hidden></aside>

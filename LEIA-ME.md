@@ -538,6 +538,17 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Entre ecrãs:** «Ver fatura» nas Guias e nos Pedidos abre a fatura no painel das Faturas; daqui, a guia e o pedido abrem no painel deles.
 - **Estados 14.1–14.23:** primeira carga, esqueleto, a pesquisar, sem faturas, nenhuma com filtros, datas inválidas, selecionada, aberta, IVA recolhido, nota de crédito, vencida, documento a abrir, pré-visualização, PDF indisponível, a descarregar, descarga falhou, dados parciais, documento relacionado em falta, erro do servidor, sem ligação, sessão terminada, sem permissão e vista em tabela. «A gerar o PDF» (comum) passou a 14.24.
 
+### 14 · Faturas: o Resumo da Minha lista e o talão (15 out. 2026, tarde)
+- **Resumo:** ela, com a imagem dos números, disse «aqui seria engraçado aparecer como aparece na lista de compras». Os números saíram do cabeçalho para um cartão **Resumo** à direita da lista, como o da Minha lista: Faturas e Notas de crédito, Pagas, Em aberto e Vencidas, cada uma com a quantidade ao lado; «Por pagar» grande em baixo; a nota num quadro. Os valores contam e acendem como na lista. Abaixo de 1180 px o cartão sobe para cima da lista.
+- **O talão** (o briefing dela «Interactive Purchase Receipt»): clicar numa fatura abre-a no painel como um talão de compras.
+  - O cabeçalho fica preso: tipo e data, número, total e pagamento. O número voa do cartão para o cabeçalho.
+  - Os **artigos da compra** vêm primeiro e entram um a um (35 ms, no máximo 12). Cada um tem um ícone neutro (não há fotografias), a quantidade e o valor.
+  - Segue-se o **resumo financeiro**: bruto, desconto, embalagens e portes; o IVA numa linha que abre a discriminação por taxa; um traço; o total em destaque. Revela-se ao chegar à vista e nunca conta a partir do zero.
+  - Depois o pagamento, os documentos relacionados, a entrega (recolhida) e as ações: Ver PDF, Descarregar, Copiar referência e Abrir pedido.
+  - O **total fica preso em baixo** enquanto o do talão não está à vista.
+- Só leitura: nada da fatura se edita. O preço unitário não vem nos dados, por isso mostra-se a quantidade e o valor da linha.
+- Estados novos: 14.9 passou a «IVA discriminado» (o talão abre com o IVA recolhido); 14.24 O talão a abrir, 14.25 Sem linhas de artigos, 14.26 Muitos artigos, 14.27 Fatura paga. «A gerar o PDF» (comum) passou a 14.28.
+
 ### Os números do cabeçalho a mexer — Pedidos, Guias e Faturas (15 out. 2026)
 - Ela, com a imagem dos quatro números das Faturas: «quero mais animação aqui e noutros screens». Está em `comportamento/kpi.ts`, e o CSS no fim de `css/pedidos-v4.css`.
 - **Contar como na Minha lista** (ela: «aqui seria engraçado aparecer como aparece na lista de compras»): o número conta do valor antigo até ao novo (420 ms) e acende a laranja; à entrada da página conta a partir do 0. A caixa nunca encolhe (fica com a largura do maior valor já mostrado), para o cabeçalho não saltar. A fita de algarismos da primeira versão saiu.

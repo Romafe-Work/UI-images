@@ -67,3 +67,106 @@
   .fat2__campos { grid-template-columns: minmax(0, 1fr); }
   .fat2__iva-abrir { grid-template-columns: auto 1fr auto auto; } .fat2__iva-abrir small { display: none; }
 }
+
+/* =========================================================
+   (15 out., tarde) O TALÃO — o briefing dela «Interactive Purchase Receipt»: a fatura no painel lê-se como um talão
+   de compras. Cabeçalho preso (tipo e data, número, total, pagamento); os artigos primeiro (ícone neutro, descrição,
+   quantidade, valor à direita); o resumo financeiro com o IVA numa linha que abre, um traço e o total em destaque;
+   o pagamento, os documentos, a entrega recolhida, as ações; o total preso em baixo enquanto o do talão não se vê.
+   Só leitura. Tempos: painel 320 ms; linhas 260 ms (35 ms entre elas); resumo 300 ms + traço 420 ms; IVA 250 ms.
+   ========================================================= */
+.fat2__gaveta { width: min(640px, 100vw); }
+.fat2__t-cabeca .ped4__g-rotulo { text-transform: uppercase; letter-spacing: .06em; }
+.fat2__t-meta { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; }
+.fat2__t-total { font-family: var(--f-titulo); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-texto); }
+::view-transition-group(fat2-num) { animation-duration: 320ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+
+.fat2__talao { display: grid; gap: 0; padding: 4px 20px 0; }
+.fat2__sec { padding: 16px 0; border-bottom: 1px solid var(--c-borda); }
+.fat2__sec .ped4__h { margin-bottom: 10px; }
+
+/* os artigos, como numa lista de compras */
+.fat2__linhas { display: grid; margin: 0; padding: 0; list-style: none; }
+.fat2__linha { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto minmax(84px, auto); align-items: center; gap: 12px; padding: 9px 0; border-top: 1px dashed var(--c-borda); }
+.fat2__linha:first-child { border-top: 0; }
+.fat2__l-i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 6px; background: var(--c-superficie-2); color: var(--c-texto-3); }
+.fat2__l-i svg { width: 16px; height: 16px; }
+.fat2__l-desc { display: grid; min-width: 0; }
+.fat2__l-desc b { font-size: 14px; font-weight: 600; color: var(--c-texto); }
+.fat2__l-desc small { font-family: var(--f-mono); font-size: 11px; color: var(--c-texto-3); }
+.fat2__l-q { font-size: 13px; color: var(--c-texto-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fat2__l-v { font-weight: 600; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fat2__sem-linhas { display: flex; gap: 8px; margin: 0; padding: 10px 12px; border: 1px dashed var(--c-borda); border-radius: 8px; font-size: 14px; color: var(--c-texto-2); }
+.fat2__sem-linhas svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--c-marca); }
+
+/* o resumo financeiro do talão */
+.fat2__recibo { display: grid; margin: 0; font-variant-numeric: tabular-nums; }
+.fat2__r { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 6px 0; font-size: 14px; }
+.fat2__r dt { color: var(--c-texto-2); }
+.fat2__r dd { margin: 0; text-align: right; white-space: nowrap; color: var(--c-texto); }
+.fat2__r--iva dt { flex: 1; }
+.fat2__recibo .fat2__iva-abrir { display: inline-flex; grid-template-columns: none; align-items: center; gap: 8px; width: auto; padding: 4px 8px 4px 0; border-radius: 6px; background: none; font-weight: 500; color: var(--c-texto-2); }
+.fat2__recibo .fat2__iva-abrir:hover { background: none; color: var(--c-texto); }
+.fat2__recibo .fat2__iva-abrir small { display: inline; font-size: 12px; color: var(--c-texto-3); }
+.fat2__recibo .fat2__iva-corpo { margin: 2px 0 6px; padding: 4px 12px 10px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.fat2__iva-t-titulo { margin: 6px 0 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+/* o traço do talão e o total em destaque (uma vez: a risca laranja passa por baixo e o valor acende) */
+.fat2__traco { height: 0; margin: 8px 0 4px; border-top: 2px dashed var(--c-borda-forte, var(--c-borda)); transform-origin: left; }
+.fat2__r--total { position: relative; padding: 8px 0 10px; }
+.fat2__r--total dt { font-weight: 700; color: var(--c-texto); }
+.fat2__r--total dt small { margin-left: 4px; font-size: 12px; font-weight: 500; color: var(--c-texto-3); }
+.fat2__r--total dd { font-family: var(--f-titulo); font-size: 26px; font-weight: 700; }
+.fat2__r--total::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--c-acao); transform: scaleX(0); transform-origin: left; }
+.fat2__r--total.is-destaque::after { animation: fat2-risca 900ms cubic-bezier(.22, 1, .36, 1) both; }
+.fat2__r--total.is-destaque dd { animation: kpi-mudou 600ms ease-out; }
+@keyframes fat2-risca { 0% { transform: scaleX(0); opacity: 1; } 60% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: .35; } }
+
+/* a entrega, recolhida */
+.fat2__ent-abrir { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.fat2__ent-abrir .ped4__h { margin: 0; }
+.fat2__ent-abrir small { flex: 1; font-size: 13px; color: var(--c-texto-2); }
+.fat2__ent-abrir[aria-expanded="true"] .fat2__iva-seta { transform: rotate(180deg); }
+.fat2__ent-abrir:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 4px; border-radius: 4px; }
+.fat2__ent-corpo { margin-top: 10px; }
+.fat2__ent-corpo[hidden] { display: none; }
+
+.fat2__accoes { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0 8px; }
+/* o total preso em baixo do painel, enquanto o total do talão não está à vista */
+.fat2__fixo { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: space-between; align-items: baseline; margin: 8px -20px 0; padding: 12px 20px; border-top: 1px solid var(--c-borda); background: var(--c-superficie); transition: opacity 200ms ease, transform 200ms cubic-bezier(.22, 1, .36, 1); }
+.fat2__fixo span { font-size: 13px; color: var(--c-texto-2); }
+.fat2__fixo b { font-family: var(--f-titulo); font-size: 18px; font-variant-numeric: tabular-nums; }
+.fat2__fixo.is-escondido { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
+@media (max-width: 760px) {
+  .fat2__talao { padding: 0 14px; }
+  .fat2__linha { grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-areas: "i desc v" "i q v"; row-gap: 2px; }
+  .fat2__l-i { grid-area: i; width: 28px; height: 28px; } .fat2__l-desc { grid-area: desc; } .fat2__l-q { grid-area: q; } .fat2__l-v { grid-area: v; }
+  .fat2__fixo { margin: 8px -14px 0; padding: 12px 14px; }
+  .fat2__accoes .btn { flex: 1 1 calc(50% - 8px); justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .fat2__r--total.is-destaque::after, .fat2__r--total.is-destaque dd { animation: none; } .fat2__fixo { transition: none; } }
+
+/* =========================================================
+   (15 out.) O RESUMO como o da Minha lista (ela: «aqui seria engraçado aparecer como aparece na lista de compras»):
+   o cartão à direita da lista, preso ao rolar, com as linhas da lista (lista.css: .lst__resumo) e as cores do portal;
+   abaixo de 1180 px sobe para cima da lista, com as linhas lado a lado.
+   ========================================================= */
+.portal--fat2 { --i3-sup: var(--c-superficie); --i3-sup-2: var(--c-superficie-2); --i3-borda: var(--c-borda); --i3-borda-forte: var(--c-borda-forte, var(--c-borda)); --i3-tinta: var(--c-texto); --i3-tinta-2: var(--c-texto-2); --i3-tinta-3: var(--c-texto-3); --i3-azul: var(--c-marca); }
+.fat2__corpo { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.fat2__resumo { animation: ped4-entrar 300ms var(--p4-curva) 120ms both; }
+.fat2__resumo dd.is-mudou { animation: kpi-mudou 420ms ease-out; }
+.fat2__r-credito dd { color: var(--c-aviso); }
+.fat2__r-vencida dd { color: var(--c-erro); }
+.fat2__resumo .lst__cont { display: inline-block; }
+@media (max-width: 1180px) {
+  .fat2__corpo { grid-template-columns: minmax(0, 1fr); }
+  .fat2__resumo { position: static; order: -1; }
+  .fat2__resumo dl { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); column-gap: 20px; }
+  .fat2__resumo .lst__resumo-linha { padding-top: 0; border-top: 0; margin-top: 0; }
+  .fat2__resumo .lst__resumo-total { grid-column: 1 / -1; justify-content: flex-start; gap: 16px; }
+}
+@media (max-width: 640px) { .fat2__resumo dl { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .fat2__resumo, .fat2__resumo dd.is-mudou { animation: none; } }
+.fat2__resumo .lst__resumo-total { align-items: baseline; }
+.fat2__resumo .lst__resumo-total dt { white-space: nowrap; }
+.fat2__resumo .lst__resumo-total dd { font-size: 22px; }

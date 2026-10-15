@@ -27,7 +27,7 @@ import { FATURAS } from './faturas-dados';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
 export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-guia' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
-export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-fechado' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
+export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-aberto' | 'faturas-painel-carga' | 'faturas-sem-linhas' | 'faturas-longa' | 'faturas-paga' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
 export type IdEstadoGuias = 'guias-inicio' | 'guias-carga' | 'guias-pesquisa' | 'guias-primeira' | 'guias-vazio' | 'guias-filtros' | 'guias-selecionada' | 'guias-aberta' | 'guias-credito' | 'guias-relacionada' | 'guias-pedido-indisponivel' | 'guias-pdf-carga' | 'guias-pdf' | 'guias-pdf-erro' | 'guias-descarga' | 'guias-descarga-erro' | 'guias-rede' | 'guias-falha' | 'guias-sessao' | 'guias-sem-permissao' | 'guias-tabela';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
   | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga'
@@ -790,13 +790,13 @@ const guiasTabela = () => g3('e1321', (r) => {
 const faturas = (html: string) => portal('faturas', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
 const f2 = (prefixo: string, f: (r: HTMLElement) => void, html = faturasV2()) => comPainelAberto(faturas(mudar(html, prefixo, f)));
 /** A fatura aberta no painel lateral (o cartão marcado); devolve o painel, para cada estado lhe mexer. */
-const painelFat = (r: HTMLElement, num: string, prefixo: string, abertaIva = true) => {
+const painelFat = (r: HTMLElement, num: string, prefixo: string, abertaIva = false) => {
   const f = faturaDe(num);
   $$(r, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => el.classList.add('is-aberto', 'is-ativo'));
   $(r, '.ped4__veu').removeAttribute('hidden');
   const gv = $(r, '.fat2__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', `${prefixo}-g-num`);
   gv.innerHTML = `${cabecaFatura(f, `${prefixo}-g-num`)}<div class="ped4__g-guia">${detalheFatura(f, prefixo, abertaIva)}</div>`;
-  $$(r, '.fat2 > header, .fat2 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  $$(r, '.fat2 > header, .fat2 > section, .fat2 > .fat2__corpo').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
   return gv;
 };
 /** O painel com o documento (pré-visualização), por cima da lista. */
@@ -806,10 +806,10 @@ const painelDocFat = (r: HTMLElement, num: string, prefixo: string, corpo: strin
   $(r, '.ped4__veu').removeAttribute('hidden');
   const gv = $(r, '.fat2__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', `${prefixo}-g-num`);
   gv.innerHTML = `${cabecaDocFatura(f, `${prefixo}-g-num`)}<div class="gui3__g-corpo">${corpo}</div>${rodapeDocFatura(f)}`;
-  $$(r, '.fat2 > header, .fat2 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  $$(r, '.fat2 > header, .fat2 > section, .fat2 > .fat2__corpo').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
   return gv;
 };
-const semFat = (r: HTMLElement) => { $(r, '.ped4__conta b').textContent = '0'; $$(r, '[data-kpi]').forEach((d) => { d.textContent = d.dataset.kpi === 'n' ? '0' : eurosPed(0); }); $$(r, '.ped4__est-n').forEach((x) => { x.textContent = '0'; }); };
+const semFat = (r: HTMLElement) => { $$(r, '[data-cont]').forEach((c) => { c.textContent = '0'; }); $(r, '.ped4__conta b').textContent = '0'; $$(r, '[data-kpi]').forEach((d) => { d.textContent = d.dataset.kpi === 'n' ? '0' : eurosPed(0); }); $$(r, '.ped4__est-n').forEach((x) => { x.textContent = '0'; }); };
 const esqFat = (r: HTMLElement) => {
   $(r, '.ped4__crono').innerHTML = `<span class="ped4__c-linha" aria-hidden="true"></span><h2 class="gui3__ano">${E('40px')}</h2>` + [3, 2].map((n, k) => `<section class="ped4__mes"><h3 class="ped4__mes-t">${E(k ? '110px' : '90px', 'esq--titulo')}</h3><ol class="ped4__c-lista">${Array.from({ length: n }, (_, i) => `<li class="ped4__c-item ped4__c-esq"><span class="ped4__c-data">${E('24px')}</span><span class="ped4__c-marca"></span><article class="ped4__c-cartao"><div class="ped4__c-cabeca gui3__cabeca">${E(Math.max(30, 55 - i * 6))}${E('60%')}${E('80px')}${E('70px')}</div></article></li>`).join('')}</ol></section>`).join('');
 };
@@ -860,8 +860,22 @@ const faturasFiltros = () => f2('e146', (r) => {
 const faturasSelecionada = () => f2('e147', (r) => { $(r, '.ped4__c-item[data-num="FT2024/05402"]').classList.add('is-ativo', 'is-passado'); $(r, '.gui3__mes-atual').textContent = 'abril de 2024'; });
 /* 14.8 · fatura aberta: a discriminação (com o IVA aberto), o pagamento, os documentos relacionados */
 const faturasAberta = () => f2('e148', (r) => { painelFat(r, 'FT2024/05402', 'e148'); });
-/* 14.9 · a discriminação do IVA recolhida: o total do IVA na linha, o total da fatura à vista */
-const faturasIvaFechado = () => f2('e149', (r) => { painelFat(r, 'FT2024/05530', 'e149', false); });
+/* 14.9 · a discriminação do IVA aberta: uma linha por taxa (base e IVA), por baixo da linha do IVA */
+const faturasIvaAberto = () => f2('e149', (r) => { painelFat(r, 'FT2024/05530', 'e149', true); });
+/* 14.24 · o talão a abrir: o cabeçalho já lá está; os artigos e o resumo em esqueleto com a forma deles */
+const faturasPainelCarga = () => f2('e1424', (r) => {
+  const gv = painelFat(r, 'FT2024/05530', 'e1424');
+  $(gv, '.ped4__g-guia').innerHTML = `<div class="fat2__talao" aria-busy="true"><section class="fat2__sec"><p class="ped4__conta">${GIRADOR('ped4__rs')} A abrir a fatura FT2024/05530…</p>${[1, 2, 3, 4].map(() => `<div class="fat2__linha"><span class="fat2__l-i"></span><span>${E('70%')}</span><span>${E('34px')}</span><span>${E('70px')}</span></div>`).join('')}</section><section class="fat2__sec">${[55, 55, 55, 55, 80].map((w) => `<div class="fat2__r"><span>${E(w + 'px')}</span><span>${E('70px')}</span></div>`).join('')}</section></div>`;
+});
+/* 14.25 · sem linhas: o servidor não mandou os artigos; os valores e o PDF continuam */
+const faturasSemLinhas = () => f2('e1425', (r) => {
+  const gv = painelFat(r, 'FT2024/05530', 'e1425');
+  $(gv, '.fat2__t-artigos').innerHTML = `<h3 class="ped4__h">Artigos da compra <span>0</span></h3><p class="fat2__sem-linhas">${I('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>')}<span>O serviço de faturação não enviou as linhas desta fatura. Os valores e o PDF continuam disponíveis.</span></p>`;
+});
+/* 14.26 · lista longa: os 12 artigos da FT2024/05402 (só as primeiras linhas entram uma a uma; o total fica preso em baixo) */
+const faturasLonga = () => f2('e1426', (r) => { painelFat(r, 'FT2024/05402', 'e1426'); });
+/* 14.27 · paga: o pagamento confirmado, com a data */
+const faturasPaga = () => f2('e1427', (r) => { painelFat(r, 'FT2024/05011', 'e1427'); });
 /* 14.10 · nota de crédito aberta: valores a negativo, «Creditada», e a fatura do mesmo pedido como ligação */
 const faturasCredito = () => f2('e1410', (r) => { painelFat(r, 'NC2024/00412', 'e1410'); });
 /* 14.11 · fatura vencida: o pagamento a vermelho, com o que fazer */
@@ -886,8 +900,8 @@ const faturasDescargaErro = () => f2('e1416', (r) => {
    contas — o total e o IVA são os do documento, e diz-se o que falta */
 const faturasParcial = () => f2('e1417', (r) => {
   const gv = painelFat(r, 'FT2024/05402', 'e1417');
-  $$(gv, '.fat2__com .gui3__v').forEach((v) => { const t = v.querySelector('dt')?.textContent; if (t === 'Embalagens' || t === 'Portes') v.querySelector('dd')!.innerHTML = '<span class="ped4__nada" title="Valor não enviado pelo servidor">sem dados</span>'; });
-  $(gv, '.fat2__disc').insertAdjacentHTML('afterbegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'Faltam as embalagens e os portes.', 'O serviço de faturação não os enviou. O IVA e o total são os do documento; o PDF tem todos os valores.', BOTAO('Ver fatura', IC.lupa, 'btn--claro btn--sm')));
+  $$(gv, '.fat2__recibo .fat2__r').forEach((v) => { const t = v.querySelector('dt')?.textContent; if (t === 'Embalagens' || t === 'Portes') v.querySelector('dd')!.innerHTML = '<span class="ped4__nada" title="Valor não enviado pelo servidor">sem dados</span>'; });
+  $(gv, '.fat2__recibo').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'Faltam as embalagens e os portes.', 'O serviço de faturação não os enviou. O IVA e o total são os do documento; o PDF tem todos os valores.', BOTAO('Ver fatura', IC.lupa, 'btn--claro btn--sm')));
 });
 /* 14.18 · documentos relacionados em falta: o pedido já não está no histórico; a guia e a fatura continuam */
 const faturasSemRelacionados = () => f2('e1418', (r) => { const gv = painelFat(r, 'FT2024/04870', 'e1418'); $(gv, '.gui3__ind').removeAttribute('hidden'); });
@@ -912,7 +926,7 @@ const faturasSessao = () => f2('e1421', (r) => {
 });
 /* 14.22 · sem permissão: esta conta não vê a faturação */
 const faturasSemPermissao = () => f2('e1422', (r) => {
-  $(r, '.ped4__filtros').setAttribute('hidden', ''); $(r, '.fat2__kpis').setAttribute('hidden', '');
+  $(r, '.ped4__filtros').setAttribute('hidden', ''); $(r, '.fat2__resumo').setAttribute('hidden', '');
   $(r, '.ped4__lista').innerHTML = `<div class="est-vazio est-vazio--largo">${I(IC_CADEADO_P)}<p><strong>A sua conta não tem acesso às faturas.</strong> A faturação é da conta da oficina; peça acesso ao administrador da conta. Os pedidos e as guias continuam abertos.</p><div class="est-aviso__botoes">${BOTAO('Ver os pedidos', IC.grelha, 'btn--ghost btn--sm', ' data-ir="pedidos"')}</div></div>`;
 });
 /* 14.23 · a Tabela, com todas as colunas do GO REPAIR; a fatura escolhida no painel */
@@ -1041,8 +1055,8 @@ export const estadosFaturas = (): EcraGoParts[] => [
   e('faturas-vazio', '14.5 · Nenhuma com estes filtros', 'Maio de 2024: diz qual foi a última fatura, mostra os filtros e dá «Limpar filtros».', faturasVazio),
   e('faturas-filtros', '14.6 · Datas inválidas', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', faturasFiltros),
   e('faturas-selecionada', '14.7 · Fatura selecionada', 'A FT2024/05402 ativa, ainda fechada: marcador e borda a laranja; o mês ao lado da contagem.', faturasSelecionada),
-  e('faturas-aberta', '14.8 · Fatura aberta', 'A FT2024/05402 no painel: valores comerciais, a discriminação do IVA aberta (uma taxa, 23 %), o total à parte, o pagamento, Pedido → Guia → Fatura, a entrega e os artigos.', faturasAberta),
-  e('faturas-iva-fechado', '14.9 · IVA recolhido', 'A discriminação do IVA fechada: a linha diz a taxa e o total do IVA; o total da fatura continua à vista.', faturasIvaFechado),
+  e('faturas-aberta', '14.8 · Fatura aberta', 'A FT2024/05402 no painel como um talão: os artigos primeiro, o resumo financeiro (o IVA numa linha que abre), o total em destaque, o pagamento, Pedido → Guia → Fatura e a entrega recolhida.', faturasAberta),
+  e('faturas-iva-aberto', '14.9 · IVA discriminado', 'No talão, a linha do IVA aberta: uma linha por taxa, com a base e o IVA; o total continua à vista.', faturasIvaAberto),
   e('faturas-credito', '14.10 · Nota de crédito aberta', 'A NC2024/00412: valores a negativo, «Creditada» (sem dizer se já foi devolvida) e a fatura do mesmo pedido como ligação.', faturasCredito),
   e('faturas-vencida', '14.11 · Fatura vencida', 'A FT2024/05188: o pagamento a vermelho, quando venceu e o que fazer se já pagou.', faturasVencida),
   e('faturas-pdf-carga', '14.12 · Documento a abrir', 'O painel abre já com o número e a descarga; a página chega a seguir.', faturasPdfCarga),
@@ -1057,4 +1071,8 @@ export const estadosFaturas = (): EcraGoParts[] => [
   e('faturas-sessao', '14.21 · Sessão terminada', 'A página fica; pesquisar e descarregar pedem para entrar outra vez.', faturasSessao),
   e('faturas-sem-permissao', '14.22 · Sem permissão', 'Esta conta não vê a faturação; os pedidos e as guias continuam abertos.', faturasSemPermissao),
   e('faturas-tabela', '14.23 · Vista em tabela', 'A alternativa: as colunas todas do GO REPAIR (os três pares base/IVA), com a FT2024/05402 no painel.', faturasTabela),
+  e('faturas-painel-carga', '14.24 · O talão a abrir', 'O cabeçalho já lá está; os artigos e o resumo em esqueleto, com a forma deles.', faturasPainelCarga),
+  e('faturas-sem-linhas', '14.25 · Sem linhas de artigos', 'O serviço não mandou os artigos: diz isso no sítio deles; os valores e o PDF continuam.', faturasSemLinhas),
+  e('faturas-longa', '14.26 · Muitos artigos', 'A FT2024/05402 com 12 artigos: o total preso em baixo enquanto o do talão não se vê.', faturasLonga),
+  e('faturas-paga', '14.27 · Fatura paga', 'A FT2024/05011: o pagamento confirmado, com a data em que foi paga.', faturasPaga),
 ];

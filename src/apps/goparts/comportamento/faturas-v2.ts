@@ -6,9 +6,10 @@
      escreveu; enquanto «procura», os documentos de antes ficam esbatidos; depois saem, deslizam (FLIP) e entram.
    - CRONOLOGIA: a linha desenha-se com o scroll; o mais perto da altura de leitura fica ativo; o mês dele aparece
      ao lado da contagem; cada documento entra uma vez.
-   - PAINEL: clicar numa fatura (cartão ou linha) abre-a no painel lateral (320 ms); o escolhido fica marcado a
-     laranja. A «Discriminação do IVA» abre e fecha (250 ms): as linhas aparecem (sem contar, porque não mudam) e o
-     que está por baixo desliza (FLIP), sem animar a altura. «Do mesmo pedido» troca a fatura no painel; «Ver
+   - PAINEL (desde a tarde de 15 out., o talão do briefing «Interactive Purchase Receipt»): clicar numa fatura abre-a
+     no painel lateral como um talão — os artigos primeiro, uma a uma, o resumo financeiro revelado ao chegar à vista
+     (sem contar), o total em destaque e preso em baixo enquanto não se vê. O IVA e a entrega abrem e fecham (250 ms):
+     o conteúdo aparece e o que está por baixo desliza (FLIP), sem animar a altura. «Do mesmo pedido» troca a fatura no painel; «Ver
      fatura» mostra o documento no mesmo painel, com «Voltar à fatura». Esc fecha e o foco volta ao cartão.
    Os filtros ficam guardados durante a visita (sessionStorage). Com «reduzir movimento», tudo troca sem deslizar.
    ========================================================= */
@@ -16,7 +17,7 @@ import { FATURAS } from '../portal/faturas-dados';
 import { euros } from '../portal/guias-dados';
 import { faturaDe, detalheFatura, cabecaFatura, cabecaDocFatura, paginaFatura, rodapeDocFatura, ehCredito, somaFaturado, somaCreditos, somaAberto, L, ICONES_F } from '../portal/faturas-v2';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
-import { kpi, kpiEntrada } from './kpi';
+import { kpi } from './kpi';
 import x from 'lucide-static/icons/x.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
 import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
@@ -65,7 +66,6 @@ function contar(el: HTMLElement | null, para: number, fmt: (n: number) => string
   const passo = (t: number) => { const k = Math.min(1, (t - t0) / dur), e = 1 - (1 - k) ** 3; el.textContent = fmt(de + (para - de) * e); if (k < 1) requestAnimationFrame(passo); };
   requestAnimationFrame(passo);
 }
-const inteiro = (n: number) => String(Math.round(n));
 const marcar = (texto: string, q: string) => {
   if (!q) return texto;
   const s = simples(q), alvo = simples(texto); const i = alvo.indexOf(s); if (i < 0) return texto;
@@ -99,10 +99,16 @@ function aplicar(main: HTMLElement, animar = true): void {
     entram.forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateX(-12px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: Math.min(i, 6) * 30, easing: SAIDA, fill: 'backwards' }));
   }
   const fs = vis.map((li) => faturaDe(li.dataset.num!));
-  contar($(main, '.ped4__conta b'), vis.length, inteiro);
-  kpi($(main, '[data-kpi="n"]'), vis.length, inteiro);
+  contar($(main, '.ped4__conta b'), vis.length, (n) => String(Math.round(n)));
+  /* o resumo, como o da Minha lista: as quantidades ao lado dos nomes e os valores que contam do antigo ao novo */
+  const de = (k: string) => fs.filter((f) => f.pagamento === k), soma = (xs: typeof fs) => xs.reduce((t, f) => t + Number($(main, `.ped4__c-item[data-num="${f.num}"]`)?.dataset.total ?? 0), 0);
+  const conts: Record<string, number> = { faturas: fs.filter((f) => !ehCredito(f)).length, creditos: fs.filter(ehCredito).length, paga: de('paga').length, aberto: de('aberto').length, vencida: de('vencida').length };
+  $$(main, '[data-cont]').forEach((c) => { const v = String(conts[c.dataset.cont!] ?? 0); if (c.textContent !== v) { c.textContent = v; if (!quieto()) c.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: SAIDA }); } });
   kpi($(main, '[data-kpi="faturado"]'), somaFaturado(fs), euros);
   kpi($(main, '[data-kpi="creditos"]'), somaCreditos(fs), euros);
+  kpi($(main, '[data-kpi="pagas"]'), soma(de('paga')), euros);
+  kpi($(main, '[data-kpi="emaberto"]'), soma(de('aberto')), euros);
+  kpi($(main, '[data-kpi="vencidas"]'), soma(de('vencida')), euros);
   kpi($(main, '[data-kpi="aberto"]'), somaAberto(fs), euros);
   $$(main, '.ped4__est').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(FATURAS.filter((f) => passa(f.num, c, b.dataset.filtro!, pag)).length); });
   $$(main, '.ped4__etapa-f').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(FATURAS.filter((f) => passa(f.num, c, tipo, b.dataset.etapa!)).length); });
@@ -220,7 +226,7 @@ function vista(main: HTMLElement, v: string, guardarJa = true): void {
 /* ---------- o painel ---------- */
 function fundo(main: HTMLElement, inerte: boolean): void {
   const portal = main.closest('.portal')!;
-  [...$$(portal, ':scope > header, :scope > nav'), ...$$(main, ':scope > header, :scope > section')].forEach((el) => { el.inert = inerte; if (inerte) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
+  [...$$(portal, ':scope > header, :scope > nav'), ...$$(main, ':scope > header, :scope > section, :scope > .fat2__corpo')].forEach((el) => { el.inert = inerte; if (inerte) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
 }
 let devolver: HTMLElement | null = null;
 function marcarEscolhida(main: HTMLElement, num: string): void {
@@ -228,32 +234,76 @@ function marcarEscolhida(main: HTMLElement, num: string): void {
   if (!num) return;
   $$(main, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => { el.classList.add('is-aberto'); if (el.matches('.ped4__c-item')) el.classList.add('is-ativo'); });
 }
+/* (15 out., o briefing dela «Interactive Purchase Receipt») — a fatura abre como um talão:
+   o número voa do cartão para o cabeçalho (View Transitions, onde o browser as tem); as primeiras linhas de artigos
+   entram uma a uma (6 px, 260 ms, 35 ms entre elas, no máximo 12 — o resto aparece de uma vez); o resumo financeiro
+   revela-se quando chega à vista (as linhas, o traço que se desenha, o total que se destaca) — os valores já estão
+   certos, nada conta a partir do zero; o total preso em baixo some quando o total do talão está à vista. */
+let vigia: IntersectionObserver | null = null;
+function revelarTalao(gv: HTMLElement): void {
+  vigia?.disconnect(); vigia = null;
+  const fixo = $(gv, '.fat2__fixo'), totalT = $(gv, '.fat2__r--total'), resumo = $(gv, '.fat2__t-resumo');
+  if (!('IntersectionObserver' in window)) return;
+  let revelado = false;
+  vigia = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.target === totalT) fixo?.classList.toggle('is-escondido', e.isIntersecting);
+    if (e.target === resumo && e.isIntersecting && !revelado) {
+      revelado = true;
+      if (quieto()) return;
+      $$(resumo!, '.fat2__r').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: i * 60, easing: SAIDA, fill: 'backwards' }));
+      const n = $$(resumo!, '.fat2__r').length;
+      $(resumo!, '.fat2__traco')?.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 420, delay: n * 60, easing: SAIDA, fill: 'backwards' });
+      totalT?.classList.remove('is-destaque'); void totalT?.offsetWidth;
+      window.setTimeout(() => totalT?.classList.add('is-destaque'), n * 60 + 300);
+    }
+  }), { root: gv, threshold: .35 });
+  [totalT, resumo].forEach((el) => el && vigia!.observe(el));
+}
 function painelFatura(main: HTMLElement, num: string, origem: HTMLElement | null): void {
   const f = faturaDe(num), gv = $(main, '.fat2__gaveta')!, veu = $(main, '.ped4__veu')!, jaAberto = !gv.hidden;
   if (origem) devolver = origem;
+  const ref = origem?.closest('.ped4__c-item, tr.ped4__linha')?.querySelector<HTMLElement>('.ped4__ref') ?? null;
   marcarEscolhida(main, num);
-  gv.innerHTML = `${cabecaFatura(f)}<div class="ped4__g-guia">${detalheFatura(f)}</div>`;
-  gv.hidden = false; veu.hidden = false; main.classList.add('tem-gaveta'); fundo(main, true);
-  gv.scrollTop = 0;
-  if (!quieto()) {
-    if (!jaAberto) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: SAIDA });
-    else $(gv, '.ped4__g-guia')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: SAIDA });
-    /* o que é revelado aparece (não conta: os valores não mudam); o fio do percurso desenha-se */
-    $$(gv, '.fat2__disc .gui3__v, .fat2__iva-t tbody tr').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: 80 + i * 35, easing: SAIDA, fill: 'backwards' }));
-    $$(gv, '.gui3__fio').forEach((fi, i) => fi.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 450, delay: 260 + i * 220, easing: SAIDA, fill: 'backwards' }));
+  const encher = () => {
+    gv.innerHTML = `${cabecaFatura(f)}<div class="ped4__g-guia">${detalheFatura(f)}</div>`;
+    gv.hidden = false; veu.hidden = false; main.classList.add('tem-gaveta'); fundo(main, true);
+    gv.scrollTop = 0;
+    if (ref) ref.style.viewTransitionName = '';
+    const t = $(gv, '.ped4__g-num'); if (t) t.style.viewTransitionName = 'fat2-num';
+    /* depois de o talão estar no painel (com View Transitions, isto corre mais tarde): desenrolar e vigiar */
+    if (!quieto()) {
+      $$(gv, '.fat2__linha').slice(0, 12).forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 120 + i * 35, easing: SAIDA, fill: 'backwards' }));
+      $$(gv, '.gui3__fio').forEach((fi, i) => fi.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 300, delay: 200 + i * 160, easing: SAIDA, fill: 'backwards' }));
+    }
+    requestAnimationFrame(() => revelarTalao(gv));
+  };
+  const vt = (document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } }).startViewTransition;
+  if (!jaAberto && ref && vt && !quieto()) { ref.style.viewTransitionName = 'fat2-num'; vt.call(document, encher).finished.finally(() => { const t = $(gv, '.ped4__g-num'); if (t) t.style.viewTransitionName = ''; }); }
+  else {
+    encher();
+    if (!quieto()) {
+      if (!jaAberto) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: SAIDA });
+      else $(gv, '.ped4__g-guia')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: SAIDA });
+    }
   }
-  window.setTimeout(() => $(gv, '.ped4__g-num')?.focus(), quieto() ? 0 : 60);
+  window.setTimeout(() => $(gv, '.ped4__g-num')?.focus({ preventScroll: true }), quieto() ? 0 : 60);
+}
+/** Copiar a referência: o botão confirma por 1,6 s. */
+function copiar(b: HTMLButtonElement): void {
+  const antes = b.innerHTML, ref = b.dataset.copiar!;
+  const ok = () => { b.classList.add('is-feito'); b.innerHTML = `${ICONES_F.check}<span class="btn__rotulo">Referência copiada</span>`; window.setTimeout(() => { b.classList.remove('is-feito'); b.innerHTML = antes; }, 1600); };
+  try { navigator.clipboard.writeText(ref).then(ok, ok); } catch { ok(); }
 }
 /** A discriminação do IVA abre e fecha: o conteúdo aparece; o que está por baixo desliza (FLIP), sem animar a altura. */
 function alternarIva(b: HTMLElement): void {
   const corpo = document.getElementById(b.getAttribute('aria-controls')!)!, abre = b.getAttribute('aria-expanded') !== 'true';
-  const caixa = b.closest('.ped4__g-guia, .gui3__det') || document.body;
-  const depois = $$(caixa, '.fat2__fim, section').filter((el) => b.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING && !el.contains(b));
+  const caixa = b.closest('.ped4__g-guia, .fat2__talao') || document.body;
+  const depois = $$(caixa, '.fat2__traco, .fat2__r--total, section, .fat2__accoes').filter((el) => b.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING && !el.contains(b));
   const antes = new Map(depois.map((el) => [el, el.getBoundingClientRect().top]));
   b.setAttribute('aria-expanded', String(abre)); corpo.hidden = !abre;
   if (quieto()) return;
   depois.forEach((el) => { const dy = antes.get(el)! - el.getBoundingClientRect().top; if (dy) el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 250, easing: SAIDA }); });
-  if (abre) $$(corpo, 'tr, .fat2__iva-nota').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: i * 40, easing: SAIDA, fill: 'backwards' }));
+  if (abre) $$(corpo, 'tr, .fat2__iva-nota, .fat2__iva-t-titulo, .ped4__ent, .gui3__obs').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: i * 40, easing: SAIDA, fill: 'backwards' }));
 }
 function verDoc(main: HTMLElement, num: string, origem: HTMLElement): void {
   const f = faturaDe(num), gv = $(main, '.fat2__gaveta')!, veu = $(main, '.ped4__veu')!, daFatura = !gv.hidden;
@@ -266,7 +316,7 @@ function verDoc(main: HTMLElement, num: string, origem: HTMLElement): void {
 }
 function fecharPainel(main: HTMLElement, devolverFoco = true): void {
   const gv = $(main, '.fat2__gaveta')!; if (gv.hidden) return;
-  const fim = () => { gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); marcarEscolhida(main, ''); requestAnimationFrame(() => rolar(main)); if (devolverFoco) devolver?.focus(); };
+  const fim = () => { vigia?.disconnect(); gv.hidden = true; $(main, '.ped4__veu')!.hidden = true; main.classList.remove('tem-gaveta'); fundo(main, false); marcarEscolhida(main, ''); requestAnimationFrame(() => rolar(main)); if (devolverFoco) devolver?.focus(); };
   if (quieto() || !devolverFoco) { fim(); return; }
   gv.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(32px)', opacity: 0 }], { duration: 220, easing: 'ease-in' }).finished.then(fim, fim);
 }
@@ -288,7 +338,7 @@ function armar(): void {
   if (!main.dataset.filtro) main.dataset.filtro = 'todos';
   if (!main.dataset.reposto) { main.dataset.reposto = '1'; if (repor(main)) aplicar(main, false); }
   if (!criterios.has(main)) criterios.set(main, ler(main));
-  if (!main.dataset.entrou) { main.dataset.entrou = '1'; if (!quieto()) main.classList.add('ped4--entrar'); kpiEntrada(main, { n: inteiro, faturado: euros, creditos: euros, aberto: euros }); window.setTimeout(() => main.classList.remove('ped4--entrar'), 900); }
+  if (!main.dataset.entrou) { main.dataset.entrou = '1'; if (!quieto()) main.classList.add('ped4--entrar');  window.setTimeout(() => main.classList.remove('ped4--entrar'), 900); }
   if (!main.dataset.vistaLida) { main.dataset.vistaLida = '1'; const v = lidaVista(); if (v === 'tabela' || v === 'cronologia') vista(main, v, false); }
   observar(main);
   requestAnimationFrame(() => {
@@ -319,7 +369,8 @@ export function iniciar(): void {
     const ab = t.closest<HTMLElement>('.ped4__filtros-abrir'); if (ab) { const sim = ab.getAttribute('aria-expanded') !== 'true'; ab.setAttribute('aria-expanded', String(sim)); main.classList.toggle('filtros-abertos', sim); return; }
     const o = t.closest<HTMLElement>('[data-ordenar]'); if (o) { ordenar(main, o); return; }
     const vb = t.closest<HTMLElement>('.ped4__vista'); if (vb) { vista(main, vb.dataset.vista!); return; }
-    const iv = t.closest<HTMLElement>('.fat2__iva-abrir'); if (iv) { alternarIva(iv); return; }
+    const iv = t.closest<HTMLElement>('.fat2__iva-abrir, .fat2__ent-abrir'); if (iv) { alternarIva(iv); return; }
+    const cp = t.closest<HTMLButtonElement>('[data-copiar]'); if (cp) { copiar(cp); return; }
     const irma = t.closest<HTMLElement>('[data-ir-fatura]'); if (irma) { painelFatura(main, irma.dataset.irFatura!, null); return; }
     const vf = t.closest<HTMLElement>('[data-voltar-fatura]'); if (vf) { painelFatura(main, vf.dataset.voltarFatura!, null); return; }
     const ind = t.closest<HTMLElement>('[data-pedido-indisponivel]');
