@@ -103,7 +103,6 @@ export interface Opcoes {
   doc?: string;                        // o documento aberto no leitor
   sistema?: IdSistema;                 // o sistema escolhido (explorador) ou o filtro da secção
   q?: string; marca?: string;          // a pesquisa e a marca da escolha
-  vistaSel?: 'cronologia' | 'tabela';
   vistaDocs?: 'cronologia' | 'tabela'; // as listas de documentos: cronologia (por omissão) ou tabela  // a escolha em cronologia (por omissão, como os Pedidos) ou em tabela
   procura?: string;                    // a pesquisa técnica aberta com este texto
   fig?: number;                        // o visor aberto nesta figura
@@ -199,47 +198,13 @@ export function linhasVeiculos(lista: VeiculoTec[]): string {
     return `<tbody class="tec__modelo"><tr class="tec__m"><th colspan="5" scope="rowgroup"><b>${esc(marca)} ${esc(modelo)}</b><span>${vs[0].carrocaria} · ${plural(vs.length, 'motorização', 'motorizações')}</span></th></tr>${vs.map((v) => linhaVeiculo(v, i++)).join('')}</tbody>`;
   }).join('');
 }
-/* (15 out., ela: «quero a mesma ordem de cronologia […] prefiro mudar do que estar em table») a escolha em
-   cronologia, como os Pedidos, as Guias e as Faturas: por ano e mês de «Fabricado desde», da mais recente para a mais
-   antiga; o marcador com o carro, azul se ainda se fabrica; por baixo da data, até quando. A tabela é a alternativa. */
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-const chaveData = (v: VeiculoTec) => { const [m, a] = desdeDe(v).split('/'); return `${a}-${m}`; };
-export function cronologiaVeiculos(lista: VeiculoTec[]): string {
-  const meses = new Map<string, VeiculoTec[]>();
-  [...lista].sort((a, b) => chaveData(b).localeCompare(chaveData(a)) || a.marca.localeCompare(b.marca) || a.modelo.localeCompare(b.modelo)).forEach((v) => { const k = chaveData(v); meses.set(k, [...(meses.get(k) || []), v]); });
-  let i = 0, ano = '';
-  return `<div class="ped4__crono tec__crono">
-      <span class="ped4__c-linha" aria-hidden="true"><span class="ped4__c-linha-cheia"></span></span>
-      ${Array.from(meses).map(([k, vs]) => {
-        const [a, m] = k.split('-'), nome = MESES[+m - 1];
-        const cabAno = a !== ano ? `<h2 class="gui3__ano is-entrou">${a}</h2>` : ''; ano = a;
-        return `${cabAno}<section class="ped4__mes" aria-label="${nome} de ${a}"><h3 class="ped4__mes-t is-entrou"><span>${nome[0].toUpperCase()}${nome.slice(1)} de ${a}</span><small><b>${vs.length}</b> ${vs.length === 1 ? 'motorização' : 'motorizações'}</small></h3>
-          <ol class="ped4__c-lista">${vs.map((v) => itemVeiculo(v, i++)).join('')}</ol></section>`;
-      }).join('')}
-      <p class="ped4__c-fim"><span class="ped4__c-marca" aria-hidden="true"></span>Não há motorizações mais antigas nesta lista.</p>
-    </div>`;
-}
-function itemVeiculo(v: VeiculoTec, i: number): string {
-  const [m] = desdeDe(v).split('/'), ainda = v.anos.endsWith('…');
-  return `<li class="ped4__c-item tec__c-item is-entrou" style="--i:${i}">
-      <span class="ped4__c-data" aria-hidden="true"><b>${MESES[+m - 1].slice(0, 3)}</b><em class="ped4__c-etapa${ainda ? ' ped4__c-etapa--expedido' : ''}">${ainda ? 'a fabricar' : 'até ' + ateDe(v)}</em></span>
-      <span class="ped4__c-marca tec__c-marca" aria-hidden="true">${L(carFront)}</span>
-      <article class="ped4__c-cartao">
-        <button type="button" class="ped4__c-cabeca tec__v tec__c-cabeca" data-chave="${esc(v.chave)}">
-          <span class="tec__v-nome"><span class="tec__v-carro" aria-hidden="true">${silhueta(v.carrocaria)}</span><span><b>${esc(v.versao)}</b><small>${esc(v.marca)} ${esc(v.modelo)} · ${v.carrocaria}</small></span></span>
-          <span class="tec__c-campo"><small>Código do motor</small><span class="tec__mono">${esc(v.motor)}</span></span>
-          <span class="tec__c-campo"><small>Fabricado</small><span>${desdeDe(v)} – ${ateDe(v)}</span></span>
-          <span class="ped4__c-seta" aria-hidden="true">${L(chevronRight)}</span>
-        </button>
-      </article>
-    </li>`;
-}
 
 const CABECA_TABELA = `<thead><tr><th scope="col">Modelo</th><th scope="col">Código do motor</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
 
 export function contaVeiculos(lista: VeiculoTec[], q: string, marca: string): string {
   if (q) return `<b>${plural(lista.length, 'veículo', 'veículos')}</b> com «${esc(q)}», em todas as marcas`;
-  return `<b>${plural(lista.length, 'veículo', 'veículos')}</b> ${esc(marca)} · do mais recente para o mais antigo`;
+  return `<b>${plural(lista.length, 'veículo', 'veículos')}</b> ${esc(marca)} · clique numa linha para o escolher`;
 }
 export function semVeiculos(q: string): string {
   return `<div class="tec__vazio" role="status">${L(search)}<p><strong>Nenhum veículo corresponde à pesquisa.</strong>Não há marca, modelo nem código do motor com «${esc(q)}». Experimente só o código do motor (por exemplo, N47) ou escolha a marca.</p>${BOTAO('Limpar a pesquisa', x, 'btn--ghost btn--sm', ' data-limpar')}</div>`;
@@ -252,8 +217,8 @@ export function escolher(o: Opcoes): string {
   if (o.carga === 'veiculos') corpo = `<table class="tec__tabela is-esq" aria-busy="true">${CABECA_TABELA}<tbody>${Array.from({ length: 7 }, (_, i) => `<tr class="tec__v-esq" style="--i:${i}"><td colspan="5"><span class="tec__esq" style="width:28%"></span><span class="tec__esq" style="width:14%"></span><span class="tec__esq" style="width:10%"></span><span class="tec__esq" style="width:16%"></span></td></tr>`).join('')}</tbody></table>`;
   else if (o.erro === 'veiculos') corpo = `<div class="tec__vazio tec__vazio--erro" role="alert">${L(triangleAlert)}<p><strong>Não foi possível carregar os veículos.</strong>O serviço do catálogo não respondeu (erro 503 · ref. VT-2611). A pesquisa que escreveu fica; tente de novo ou ligue para o apoio: +351 226 158 300.</p>${BOTAO('Tentar novamente', refreshCw, 'btn--acao btn--sm')}</div>`;
   else if (!lista.length) corpo = semVeiculos(q);
-  else corpo = (o.vistaSel || 'cronologia') === 'cronologia' ? `<div class="tec__crono-caixa${o.carga === 'pesquisa' ? ' is-a-pesquisar' : ''}">${cronologiaVeiculos(lista)}</div>`
-    : `<table class="tec__tabela${o.carga === 'pesquisa' ? ' is-a-pesquisar' : ''}">${CABECA_TABELA}${linhasVeiculos(lista)}</table>`;
+  /* (15 out.) ela: «aqui não quero ordem cronológica» — a escolha fica na tabela por modelo */
+  else corpo = `<table class="tec__tabela${o.carga === 'pesquisa' ? ' is-a-pesquisar' : ''}">${CABECA_TABELA}${linhasVeiculos(lista)}</table>`;
   const conta = o.carga === 'veiculos' ? 'A carregar os veículos…' : o.erro === 'veiculos' ? 'Sem veículos' : o.carga === 'pesquisa' ? `${GIRA()} A pesquisar «${esc(q)}»…` : contaVeiculos(lista, q, marca);
   return `<section class="tec__escolher" aria-label="Escolher o veículo">
       <div class="tec__sel">
@@ -264,8 +229,7 @@ export function escolher(o: Opcoes): string {
           </label>
           <div class="tec__marcas" role="radiogroup" aria-label="Marca">${MARCAS.map((m) => `<button type="button" role="radio" class="tec__marca" data-marca="${esc(m)}" aria-checked="${!q && m === marca}">${esc(m)}</button>`).join('')}</div>
         </div>
-        <div class="tec__conta-linha"><p class="tec__conta" aria-live="polite">${conta}</p>
-          <div class="ped4__vistas tec__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista-sel="cronologia" aria-pressed="${(o.vistaSel || 'cronologia') === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista-sel="tabela" aria-pressed="${o.vistaSel === 'tabela'}">${L(table)}Tabela</button></div></div>
+        <p class="tec__conta" aria-live="polite">${conta}</p>
         <div class="tec__lista">${corpo}</div>
       </div>
       ${guia()}
