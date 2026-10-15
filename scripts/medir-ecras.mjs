@@ -48,6 +48,15 @@ function medir() {
       }
     }
   }
+  /* a parte que se vê: o que passou para lá de uma caixa que rola (ou corta) está escondido, não sobreposto */
+  const recortado = (e) => {
+    const r = e.getBoundingClientRect(); let { left, top, right, bottom } = r;
+    for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) {
+      const s = getComputedStyle(a); if (s.overflowX === 'visible' && s.overflowY === 'visible') continue;
+      const q = a.getBoundingClientRect(); left = Math.max(left, q.left); top = Math.max(top, q.top); right = Math.min(right, q.right); bottom = Math.min(bottom, q.bottom);
+    }
+    return { left, top, right, bottom };
+  };
   /* sobreposições: controlos e textos que se tocam sem um estar dentro do outro */
   const SOB = 'button, input:not([type=hidden]), select, textarea, h1, h2, h3, label, p';
   const sob = [...ecra.querySelectorAll(SOB)].filter((e) => visivel(e) && !decorativo(e) && getComputedStyle(e).position !== 'absolute');
@@ -56,7 +65,7 @@ function medir() {
     if (a.contains(b) || b.contains(a)) continue;
     if (a.tagName === 'LABEL' && (a.control === b || a.htmlFor === b.id)) continue;
     if (b.tagName === 'LABEL' && (b.control === a || b.htmlFor === a.id)) continue;
-    const p = a.getBoundingClientRect(), q = b.getBoundingClientRect();
+    const p = recortado(a), q = recortado(b);
     const l = Math.min(p.right, q.right) - Math.max(p.left, q.left);
     const h = Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top);
     if (l > 3 && h > 3) problemas.push(`sobrepostos: ${nome(a)} × ${nome(b)}`);

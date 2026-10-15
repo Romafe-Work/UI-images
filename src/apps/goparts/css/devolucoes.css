@@ -1,0 +1,184 @@
+/* =========================================================
+   GOPARTS — 16 · Devoluções (15 out. 2026; portal/devolucoes.ts)
+   O molde é o dos Pedidos, Guias e Faturas (css/pedidos-v4.css e css/guias-v3.css); aqui só o que é das
+   devoluções: o cartão (quantidades em vez de valor), o estado, o painel com o percurso da devolução (a caixa
+   desce uma vez até ao último passo confirmado) e o painel de criar com os três passos e o cesto ao contrário.
+   Grafite no escuro, neutro no claro (tokens do portal); azul nas referências; laranja no escolhido e nas ações.
+   Sem gradientes nem brilhos. Tempos: hover 150 ms; abrir o painel 300 ms; o percurso 400 ms; um artigo a passar
+   para a devolução 250–380 ms; os passos 300 ms.
+   ========================================================= */
+.portal--dev { --p4-rapido: 150ms; --p4-curva: cubic-bezier(.22, 1, .36, 1); }
+
+/* a cabeça: os quatro números e, ao lado, «Criar devolução» */
+.dev__topo-dir { display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; }
+.dev__criar { align-self: center; }
+
+/* o cartão: n.º, datas e utilizador · observações · quantidades · estado */
+.dev__cabeca { grid-template-columns: minmax(230px, 1.2fr) minmax(0, 1fr) auto minmax(118px, auto) 24px; }
+.dev__cabeca .ped4__ref { font-size: 16px; }
+.dev__obs { min-width: 0; font-size: 14px; color: var(--c-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dev__qtd { display: grid; justify-items: end; gap: 1px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dev__qtd b { font-size: 14px; font-weight: 600; color: var(--c-texto); }
+.dev__qtd small { font-size: 12px; color: var(--c-texto-2); }
+.dev__selo--rascunho { color: var(--c-aviso); border-color: color-mix(in srgb, var(--c-aviso) 45%, transparent); background: color-mix(in srgb, var(--c-aviso) 8%, transparent); }
+.dev__selo--enviada { color: var(--c-marca); border-color: color-mix(in srgb, var(--c-marca) 45%, transparent); background: color-mix(in srgb, var(--c-marca) 8%, transparent); }
+.dev__selo--creditada { color: var(--c-ok); border-color: color-mix(in srgb, var(--c-ok) 45%, transparent); background: color-mix(in srgb, var(--c-ok) 8%, transparent); }
+.dev__etapa--rascunho { color: var(--c-aviso); } .dev__etapa--enviada { color: var(--c-marca); } .dev__etapa--creditada { color: var(--c-ok); }
+.dev__tabela .ped4__selo { white-space: nowrap; }
+.dev__item.is-novo .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-ok) 60%, var(--c-borda)); }
+
+/* o vazio de quem ainda não tem devoluções */
+.dev__vazio { display: grid; justify-items: center; gap: 12px; max-width: 520px; margin: 24px auto; padding: 32px 24px; border: 1px dashed var(--c-borda-forte); border-radius: 8px; text-align: center; color: var(--c-texto-2); }
+.dev__vazio > svg { width: 40px; height: 40px; color: var(--c-texto-3); stroke-width: 1.5; }
+.dev__vazio p { margin: 0; line-height: 1.5; }
+.dev__vazio strong { display: block; margin-bottom: 4px; font-size: 17px; color: var(--c-texto); }
+
+/* ---------- a devolução no painel ---------- */
+.dev__gaveta { width: min(600px, 100vw); }
+.dev__det { display: grid; gap: 22px; padding: 16px 20px 24px; }
+.dev__det .ped4__dl { margin-bottom: 10px; }
+.dev__l-q { white-space: nowrap; font-size: 13px; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
+.dev__l-q b { font-family: var(--f-titulo); font-size: 17px; color: var(--c-texto); }
+.dev__linhas .fat2__linha { grid-template-columns: 48px minmax(0, 1fr) auto; }
+.dev__soma { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; padding: 10px 12px; border-radius: 6px; background: var(--c-superficie-2); font-size: 14px; color: var(--c-texto-2); }
+.dev__soma svg { width: 16px; height: 16px; flex: none; color: var(--c-texto-3); }
+.dev__soma b { color: var(--c-texto); font-variant-numeric: tabular-nums; }
+
+/* as linhas de artigos das devoluções têm as suas colunas (sem as áreas da linha do talão das Faturas, no telemóvel) */
+.dev__linhas .fat2__linha, .dev__c-art, .dev__c-linha { grid-template-areas: none; }
+.dev__linhas .fat2__linha > *, .dev__c-art > *, .dev__c-linha > * { grid-area: auto; }
+
+/* os documentos no painel: em coluna (quatro nós não cabem numa linha de 600 px) */
+.dev__docs .gui3__nos { flex-direction: column; align-items: stretch; }
+.dev__docs .gui3__seta { flex: none; width: 2px; height: 12px; margin-left: 22px; }
+.dev__docs .gui3__fio { width: 2px; height: 12px; transform-origin: top; }
+.dev__docs .gui3__no { width: 100%; }
+.dev__docs .gui3__no--credito .gui3__no-i { color: var(--c-ok); }
+
+/* o percurso da devolução: só os passos confirmados; a linha enche até ao último; a caixa desce uma vez */
+.dev__percurso { position: relative; }
+.dev__passos { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.dev__passo { position: relative; z-index: 1; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; }
+.dev__p-ponto { display: grid; place-items: center; width: 32px; height: 32px; border: 2px dashed var(--c-borda-forte); border-radius: 50%; background: var(--c-superficie); color: var(--c-texto-3); }
+.dev__p-ponto svg { width: 15px; height: 15px; }
+.dev__passo.is-feito .dev__p-ponto { border-style: solid; border-color: var(--c-ok); color: var(--c-ok); }
+.dev__p-texto { display: grid; gap: 1px; padding-top: 5px; font-size: 14px; }
+.dev__p-texto b { font-weight: 600; color: var(--c-texto); }
+.dev__passo:not(.is-feito) .dev__p-texto b { color: var(--c-texto-2); font-weight: 500; }
+.dev__p-texto time { font-size: 13px; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
+.dev__p-sem { font-size: 13px; color: var(--c-texto-3); }
+.dev__p-texto small { font-size: 12px; color: var(--c-texto-3); }
+.dev__p-linha { position: absolute; left: 15px; top: 16px; bottom: 16px; width: 2px; background: var(--c-borda); }
+.dev__p-linha i { position: absolute; inset: 0; background: var(--c-ok); transform-origin: top; transform: scaleY(var(--enche, 0)); }
+.dev__p-caixa { position: absolute; z-index: 2; left: 4px; top: 4px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: var(--c-acao); color: #fff; opacity: 0; pointer-events: none; }
+.dev__p-caixa svg { width: 14px; height: 14px; }
+
+/* ---------- criar uma devolução ---------- */
+.dev__gaveta.is-criar { width: min(880px, 100vw); overflow: hidden; }
+/* no painel de criar só o corpo rola: o cabeçalho, os passos e o pé ficam sempre à vista, sem nada por baixo deles */
+.dev__gaveta.is-criar .dev__c-corpo { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.dev__c-titulo { font-family: var(--f-titulo); color: var(--c-texto); }
+.dev__passos-c { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0 20px; list-style: none; border-bottom: 1px solid var(--c-borda); background: var(--c-superficie); }
+.dev__passos-c li { display: flex; align-items: center; gap: 8px; padding: 12px 0; font-size: 14px; color: var(--c-texto-3); }
+.dev__passos-c li > span { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--c-borda-forte); border-radius: 50%; font-size: 12px; font-weight: 700; }
+.dev__passos-c li > span svg { width: 14px; height: 14px; }
+.dev__passos-c li.is-atual { color: var(--c-texto); font-weight: 600; }
+.dev__passos-c li.is-atual > span { border-color: var(--c-acao); background: var(--c-acao); color: #fff; }
+.dev__passos-c li.is-feito { color: var(--c-texto-2); }
+.dev__passos-c li.is-feito > span { border-color: var(--c-ok); color: var(--c-ok); }
+.dev__passos-risca { position: absolute; left: 20px; bottom: -1px; width: calc((100% - 40px) / 3); height: 2px; background: var(--c-acao); transform: translateX(calc(var(--p) * 100%)); transition: transform 300ms var(--p4-curva); }
+.dev__c-corpo { flex: 1; display: grid; align-content: start; gap: 14px; padding: 18px 20px 24px; }
+.dev__c-intro { margin: 0; color: var(--c-texto-2); }
+.dev__c-guias { display: grid; gap: 8px; }
+.dev__c-guia { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); color: var(--c-texto); font: inherit; text-align: left; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
+.dev__c-guia:hover { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
+.dev__c-guia:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 2px; }
+.dev__c-guia[aria-checked="true"] { border-color: var(--c-acao); box-shadow: inset 2px 0 0 var(--c-acao); }
+.dev__c-guia[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.dev__c-g-i { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 6px; background: var(--c-superficie-2); color: var(--c-marca); }
+.dev__c-guia[aria-checked="true"] .dev__c-g-i { background: var(--c-acao); color: #fff; }
+.dev__c-g-i svg { width: 18px; height: 18px; }
+.dev__c-g-t { display: grid; min-width: 0; }
+.dev__c-g-t b { font-family: var(--f-mono); color: var(--c-marca); }
+.dev__c-g-t small { font-size: 13px; color: var(--c-texto-2); }
+.dev__c-g-n { font-size: 13px; color: var(--c-texto-2); white-space: nowrap; }
+
+.dev__c-dois { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.dev__c-arts, .dev__c-lista { display: grid; margin: 0; padding: 0; list-style: none; }
+.dev__c-art { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px dashed var(--c-borda); }
+.dev__c-art:first-child { border-top: 0; }
+.dev__c-art.is-indisponivel { opacity: .6; }
+.dev__c-nao { font-size: 12px; color: var(--c-texto-3); white-space: nowrap; }
+.dev__c-art .btn[disabled] { opacity: .6; }
+.dev__c-cesto { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.dev__c-cesto .ped4__h { margin: 0; }
+.dev__c-linha { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto 28px; align-items: center; gap: 4px 10px; padding: 8px 0; border-top: 1px solid var(--c-borda); }
+.dev__c-linha:first-child { border-top: 0; }
+
+.dev__c-qtd { display: inline-flex; align-items: center; border: 1px solid var(--c-borda-forte); border-radius: 6px; background: var(--c-superficie); }
+.dev__c-qtd button { display: grid; place-items: center; width: 28px; height: 30px; border: 0; background: none; color: var(--c-texto-2); cursor: pointer; }
+.dev__c-qtd button:hover:not([disabled]) { color: var(--c-acao); }
+.dev__c-qtd button[disabled] { opacity: .35; cursor: default; }
+.dev__c-qtd svg { width: 14px; height: 14px; }
+.dev__c-q { width: 36px; height: 30px; border: 0; border-inline: 1px solid var(--c-borda); background: none; color: var(--c-texto); font: inherit; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
+.dev__c-q:focus { outline: 2px solid var(--azul-fundo); outline-offset: -2px; }
+.dev__c-linha.is-invalida .dev__c-qtd { border-color: var(--c-erro); }
+.dev__c-q-erro { grid-column: 2 / -1; font-size: 12px; color: var(--c-erro); }
+.dev__c-q-erro[hidden] { display: none; }
+.dev__c-tirar { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--c-texto-3); cursor: pointer; }
+.dev__c-tirar:hover { border-color: var(--c-borda-forte); color: var(--c-texto); }
+.dev__c-tirar svg { width: 15px; height: 15px; }
+.dev__c-vazio { display: flex; align-items: center; gap: 8px; margin: 0; padding: 14px 10px; border: 1px dashed var(--c-borda-forte); border-radius: 6px; font-size: 14px; color: var(--c-texto-2); }
+.dev__c-vazio[hidden] { display: none; }
+.dev__c-vazio svg { width: 18px; height: 18px; flex: none; color: var(--c-texto-3); }
+.dev__c-resumo { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0; border-top: 2px solid var(--c-texto); padding-top: 10px; }
+.dev__c-resumo div { display: grid; gap: 2px; }
+.dev__c-resumo div + div { padding-left: 14px; border-left: 1px solid var(--c-borda); }
+.dev__c-resumo dt { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--c-texto-3); }
+.dev__c-resumo dd { margin: 0; font-family: var(--f-titulo); font-size: 22px; font-weight: 700; color: var(--c-texto); font-variant-numeric: tabular-nums; }
+.dev__c-resumo dd.is-mudou { animation: kpi-mudou 420ms ease-out; }
+.dev__c-erro { display: flex; gap: 8px; margin: 0; padding: 8px 10px; border-left: 3px solid var(--c-erro); background: color-mix(in srgb, var(--c-erro) 8%, transparent); font-size: 14px; color: var(--c-texto); }
+.dev__c-erro[hidden] { display: none; }
+.dev__c-obs textarea { width: 100%; min-height: 76px; padding: 10px 12px; resize: vertical; font: inherit; }
+.dev__c-obs small { font-weight: 400; color: var(--c-texto-3); }
+.dev__c-rever-dl { padding: 12px 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.dev__c-pe { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--c-borda); background: var(--c-superficie); }
+.dev__c-pe-dir { display: flex; flex-wrap: wrap; gap: 10px; }
+/* a resposta do servidor: enviada ou guardada (só depois de confirmada) */
+.dev__c-ok { display: grid; justify-items: start; gap: 12px; padding: 18px; border: 1px solid color-mix(in srgb, var(--c-ok) 50%, var(--c-borda)); border-left: 3px solid var(--c-ok); border-radius: 8px; background: var(--c-superficie); }
+.dev__c-ok > svg { width: 28px; height: 28px; color: var(--c-ok); }
+.dev__c-ok p { margin: 0; }
+.dev__c-ok strong { display: block; font-size: 17px; }
+.dev__c-falha { border-color: color-mix(in srgb, var(--c-erro) 50%, var(--c-borda)); border-left-color: var(--c-erro); }
+.dev__c-falha > svg { color: var(--c-erro); }
+/* o artigo que voa da fatura para a devolução (uma cópia por cima de tudo; só transform e opacity) */
+.dev__voar { position: fixed; z-index: 80; margin: 0; pointer-events: none; }
+.dev__aviso { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 13px; color: var(--c-texto-2); }
+.dev__aviso[hidden] { display: none; }
+
+@media (max-width: 1100px) {
+  .dev__cabeca { grid-template-columns: minmax(0, 1fr) auto 24px; grid-template-areas: "id qtd seta" "selos selos selos"; }
+  .dev__qtd { grid-area: qtd; } .dev__obs { display: none; }
+}
+@media (max-width: 760px) {
+  .dev__topo-dir { width: 100%; } .dev__criar { width: 100%; justify-content: center; }
+  .dev .ped4__kpi { display: grid; grid-template-columns: 1fr 1fr; }
+  .dev .ped4__kpi > div:nth-child(3) { border-left: 0; }
+  .dev .ped4__kpi > div:nth-child(n+3) { border-top: 1px solid var(--c-borda); }
+  .dev .ped4__kpi > div:last-child { grid-column: auto; border-left: 1px solid var(--c-borda); }
+  .dev__c-dois { grid-template-columns: minmax(0, 1fr); }
+  .dev__linhas .fat2__linha, .dev__c-art { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .dev__c-linha { grid-template-columns: 40px minmax(0, 1fr) auto 28px; }
+  .dev__passos-c { padding: 0 12px; } .dev__passos-c li { font-size: 13px; gap: 6px; }
+  .dev__passos-risca { left: 12px; width: calc((100% - 24px) / 3); }
+  .dev__c-corpo { padding: 14px 12px 20px; }
+  .dev__det { padding: 12px; }
+  .dev__c-pe { padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .dev__c-pe .btn { flex: 1 1 auto; justify-content: center; }
+  .dev__c-pe-dir { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dev__passos-risca { transition: none; }
+  .dev__c-resumo dd.is-mudou { animation: none; }
+}
+.dev .ped4__vistas[hidden] { display: none; }

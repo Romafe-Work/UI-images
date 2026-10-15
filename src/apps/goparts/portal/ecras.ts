@@ -6,7 +6,8 @@
 
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
-import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
+import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas, estadosDevolucoes } from './estados';
+import { devolucoesV1 } from './devolucoes';
 import { faturasV2 } from './faturas-v2';
 import { listaHtml, type EstadoLista } from './lista';
 import { guiasV3 } from './guias-v3';
@@ -60,6 +61,11 @@ export const ecrasPortal: EcraGoParts[] = [
   { id: 'lista', nome: '15 · Minha lista', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'Do briefing dela (14 out.): o editor de listas — nome editável e estado, Guardar e Enviar distintos, peças (Romafe / Cliente) e mão de obra com o mesmo padrão, edição na linha, o resumo preso com os totais que passam do valor antigo ao novo', html: portal('lista', listaHtml(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'Montar, orçamentar, guardar e enviar uma lista de peças e de mão de obra: edição na própria linha, os totais ao vivo (sem IVA), e o custo das peças na Romafe à parte.' },
   ...estadosLista(),
+  /* 15 out. 2026: do briefing dela («Returns Management Center») e da nota («daria prioridade à criação de devoluções
+     num fluxo guiado e à visualização cronológica»): o ecrã novo, da família dos Pedidos, Guias e Faturas */
+  { id: 'devolucoes', nome: '16 · Devoluções', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'Como os Pedidos, as Guias e as Faturas (15 out.): as devoluções por ano e mês, o estado por baixo da data (Por enviar, Enviada, Creditada — só o que os dados dizem); clicar abre o painel com os artigos devolvidos, o percurso confirmado (a caixa desce uma vez), Pedido → Guia → Devolução → Nota de crédito; «Criar devolução» em três passos, com os artigos a passar da fatura para a devolução', html: portal('devolucoes', devolucoesV1(), undefined, { menu: true, rodape: false }) }],
+    objetivo: 'Criar, procurar e acompanhar as devoluções: filtros por datas, número e referência; a cronologia com o estado de cada uma; o painel com os artigos, o percurso e os documentos; a criação guiada a partir da fatura.' },
+  ...estadosDevolucoes(),
 ];
 
 function estadosLista(): EcraGoParts[] {

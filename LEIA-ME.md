@@ -538,9 +538,27 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Entre ecrãs:** «Ver fatura» nas Guias e nos Pedidos abre a fatura no painel das Faturas; daqui, a guia e o pedido abrem no painel deles.
 - **Estados 14.1–14.23:** primeira carga, esqueleto, a pesquisar, sem faturas, nenhuma com filtros, datas inválidas, selecionada, aberta, IVA recolhido, nota de crédito, vencida, documento a abrir, pré-visualização, PDF indisponível, a descarregar, descarga falhou, dados parciais, documento relacionado em falta, erro do servidor, sem ligação, sessão terminada, sem permissão e vista em tabela. «A gerar o PDF» (comum) passou a 14.24.
 
+### 16 · Devoluções — o ecrã novo, como os Pedidos, as Guias e as Faturas (15 out. 2026)
+- Do briefing dela («ROMAFE Returns Management Center») e da nota: «daria prioridade à criação de devoluções num fluxo guiado e à visualização cronológica […] os artigos a passarem da encomenda original para a lista de devolução». Até aqui, a aba «Devoluções» não levava a nada. Ficheiros: `portal/devolucoes.ts`, `portal/devolucoes-dados.ts`, `comportamento/devolucoes.ts`, `css/devolucoes.css`; estados 16.1–16.24 em `portal/estados.ts`.
+- **Dados:** os campos são os da tabela do GO REPAIR: n.º, data de criação, data de envio, total de referências, total de unidades, observações e utilizador. Há quatro devoluções e cada uma sai de uma guia com fatura. As duas creditadas ligam às notas de crédito que já existiam (NC2024/00412 e NC2024/00377). Para bater com a fatura, a linha da NC2024/00377 passou a «Pastilhas TRW GDB1550» (antes dizia GDB1330).
+- **Estado, só pelo que os dados dizem:** sem data de envio é «Por enviar»; com data de envio é «Enviada»; com nota de crédito ligada é «Creditada». Não há «em análise», «autorizada», «recebida» nem «cancelada», porque esses campos não existem. Também não há valores a creditar estimados: o único valor que aparece é o da nota de crédito, quando ela existe.
+- **Ecrã:** cabeçalho com Devoluções, Por enviar, Enviadas e Creditadas, e «Criar devolução» a laranja. Filtros iguais aos da tabela antiga (datas, n.º, referência), com as pílulas «Estado». Cronologia por ano e mês: o estado aparece por baixo da data e o marcador tem a cor dele. A Tabela é a alternativa, com as colunas do GO REPAIR e o estado.
+- **Painel da devolução:**
+  - Os artigos devolvidos, como a lista de compras ao contrário: a quantidade é o que conta e o total de unidades fica separado do de referências.
+  - O percurso, só com os passos confirmados (criada, enviada, nota de crédito emitida). O que ainda não aconteceu fica a tracejado e «Sem data». A linha enche até ao último passo confirmado e uma caixa laranja desce por ela uma vez.
+  - Os documentos: Pedido → Guia → Devolução → Nota de crédito, só os que existem, e cada um abre no seu ecrã.
+  - Os dados e as ações: «Enviar a devolução» nas que estão por enviar e «Ver a nota de crédito» nas creditadas.
+- **Criar devolução**, num painel largo com três passos (a risca laranja desliza):
+  - **Fatura:** só as que ainda têm artigos por devolver.
+  - **Artigos:** «Devolver» faz a imagem do artigo voar da fatura para a lista da devolução, e as referências e unidades contam. A quantidade vai até ao que ainda se pode devolver; o que já foi devolvido aparece indisponível.
+  - **Rever e enviar:** com as observações, que fazem de motivo (não há campo de motivo por artigo). Há «Guardar por enviar» e «Enviar a devolução».
+  - Só depois da confirmação a devolução nova entra no topo da cronologia. Fechar o painel não perde nada.
+- O subtítulo trata o cliente por «você», como o resto do portal (o briefing dizia «tu»). No Fluxo aparecem dois diálogos abertos: a devolução e criar devolução.
+- **Medição (`scripts/medir-ecras.mjs`):** a verificação de sobreposições passa a contar só a parte visível de cada elemento, recortada pelas caixas que rolam ou cortam. O que rolou para baixo do pé fixo do painel estava escondido e era dado como sobreposto.
+
 ### O Fluxo com exemplos de diálogos abertos (15 out. 2026)
 - Ela: «no fluxo quero que mostres exemplos de diálogos abertos». Os estados continuam fora do mapa, menos os que têm `noFluxo` (`src/comum/tipos.ts`). Esses entram logo a seguir ao seu ecrã, com uma etiqueta laranja («Diálogo aberto · …») e o cartão contornado a laranja. As setas que saem dos diálogos também se desenham.
-- No GoParts (`app.ts`, `DIALOGOS`): o pedido no painel (12.7) e a guia do pedido (12.24); a guia (13.8) e o seu documento (13.13); o talão (14.8) e o documento da fatura (14.13); eliminar a lista (15.18).
+- No GoParts (`app.ts`, `DIALOGOS`): o pedido no painel (12.7) e a guia do pedido (12.24); a guia (13.8) e o seu documento (13.13); o talão (14.8) e o documento da fatura (14.13); eliminar a lista (15.18); a devolução (16.8) e criar devolução (16.13).
 - No mapa, cada ecrã contém os seus elementos presos à janela (`contain: layout paint` em `editor.css`), para os painéis ficarem dentro do cartão.
 
 ### Imagens das peças e a lista de compras nos painéis (15 out. 2026)

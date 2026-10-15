@@ -311,9 +311,9 @@ th[aria-sort="descending"] .ped4__ordenar svg { transform: scaleY(-1); }
    Guias e Faturas: anel com ícone, na cor do estado escrito por baixo da data (feito verde, em curso azul, à espera ou
    devolução amarelo, vencida vermelho). Nada cheio; cheio a laranja só o que está aberto no painel. */
 .ped4__c-item { --cor-est: var(--c-borda-forte); }
-.ped4__c-item:has(.ped4__c-etapa--concluido, .gui3__etapa--entregue, .fat2__pag-t--paga) { --cor-est: var(--c-ok); }
-.ped4__c-item:has(.ped4__c-etapa--expedido, .ped4__c-etapa--recolher, .ped4__c-etapa--preparado, .gui3__etapa--em-entrega, .fat2__pag-t--aberto) { --cor-est: var(--c-marca); }
-.ped4__c-item:has(.ped4__c-etapa--preparacao, .gui3__etapa--devolucao, .fat2__pag-t--creditada) { --cor-est: var(--c-aviso); }
+.ped4__c-item:has(.ped4__c-etapa--concluido, .gui3__etapa--entregue, .fat2__pag-t--paga, .dev__etapa--creditada) { --cor-est: var(--c-ok); }
+.ped4__c-item:has(.ped4__c-etapa--expedido, .ped4__c-etapa--recolher, .ped4__c-etapa--preparado, .gui3__etapa--em-entrega, .fat2__pag-t--aberto, .dev__etapa--enviada) { --cor-est: var(--c-marca); }
+.ped4__c-item:has(.ped4__c-etapa--preparacao, .gui3__etapa--devolucao, .fat2__pag-t--creditada, .dev__etapa--rascunho) { --cor-est: var(--c-aviso); }
 .ped4__c-item:has(.fat2__pag-t--vencida) { --cor-est: var(--c-erro); }
 .ped4__c-item .ped4__c-marca, .ped4__c-item.is-passado .ped4__c-marca, .ped4__c-item.is-ativo .ped4__c-marca { border-color: var(--cor-est); background: var(--c-superficie); color: var(--cor-est); }
 .ped4__c-item.is-aberto .ped4__c-marca { border-color: var(--c-acao); background: var(--c-acao); color: #fff; }

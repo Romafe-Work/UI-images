@@ -56,6 +56,7 @@ function distribuir(): EcraGoParts[] {
     'guias-aberta': 'Diálogo aberto · a guia', 'guias-pdf': 'Diálogo aberto · o documento',
     'faturas-aberta': 'Diálogo aberto · o talão', 'faturas-pdf': 'Diálogo aberto · o documento',
     'lista-eliminar': 'Diálogo aberto · eliminar',
+    'devolucoes-aberta': 'Diálogo aberto · a devolução', 'devolucoes-criar-artigos': 'Diálogo aberto · criar devolução',
   };
   return lista.map((e) => (DIALOGOS[e.id] ? { ...e, noFluxo: DIALOGOS[e.id] } : e));
 }
@@ -69,7 +70,7 @@ export const goparts: App<IdGoParts> = {
   tela: { l: 1440, a: 900 },
   fluxos: {
     'Entrar': DESCRICAO_ENTRAR,
-    'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos e as guias de remessa.',
+    'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos, as guias de remessa, as faturas, a Minha lista e as devoluções.',
   },
   /* 14 out. 2026: os quatro ecrãs de entrar à volta do rolamento 3D (entrar-3d.ts), do briefing dela; saíram a v1 e a v2 */
   /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a

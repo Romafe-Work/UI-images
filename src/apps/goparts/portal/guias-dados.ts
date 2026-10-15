@@ -32,7 +32,7 @@ export const GUIAS: Guia[] = [
   { num: 'GR2024/08105', data: '14/03/2024', tipo: 'fatura', doc: 'FT2024/05011', armazem: 'Porto', morada: PORTO, pedido: 'P2024/001120', obs: '—',
     bruto: 1048.0, desconto: 314.4, embalagens: 0, portes: 0, linhas: doPedido('P2024/001120') },
   { num: 'GR2024/07988', data: '08/03/2024', tipo: 'credito', doc: 'NC2024/00377', armazem: 'Lisboa', morada: LISBOA, pedido: 'P2024/001087', obs: 'Devolução: peça errada',
-    bruto: -120.0, desconto: -36.0, embalagens: 0, portes: 0, linhas: [[-2, 'Pastilhas TRW GDB1330', -84.0]] },
+    bruto: -120.0, desconto: -36.0, embalagens: 0, portes: 0, linhas: [[-2, 'Pastilhas TRW GDB1550', -84.0]] },
   { num: 'GR2024/07940', data: '06/03/2024', tipo: 'fatura', doc: 'FT2024/04870', armazem: 'Lisboa', morada: LISBOA, pedido: 'P2024/001087', obs: 'Portes de urgência',
     bruto: 220.0, desconto: 66.0, embalagens: 2.5, portes: 12.5, linhas: [[2, 'Pastilhas TRW GDB1550', 104.2], [1, 'Sensor de desgaste TRW GIC291', 32.4], [1, 'Líquido de travões ATE DOT 4, 1 L', 17.4]] },
   { num: 'GR2024/07802', data: '01/03/2024', tipo: 'fatura', doc: 'FT2024/04711', armazem: 'Porto', morada: PORTO, pedido: 'P2024/001061', obs: '—',

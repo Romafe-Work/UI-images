@@ -24,10 +24,13 @@ import { guiasV3, guiaDe, detalheGuia, cabecaGuia, cabecaDoc, paginaDoc, rodapeD
 import { GUIAS, total as totalGuia } from './guias-dados';
 import { faturasV2, faturaDe, cabecaFatura, detalheFatura, cabecaDocFatura, paginaFatura, rodapeDocFatura } from './faturas-v2';
 import { FATURAS } from './faturas-dados';
+import { devolucoesV1, devDe, cabecaDev, detalheDev, painelCriar, linhaCesto, vazioInicial } from './devolucoes';
+import { DEVOLUCOES, type Devolucao } from './devolucoes-dados';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
 export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-guia' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-aberto' | 'faturas-painel-carga' | 'faturas-sem-linhas' | 'faturas-longa' | 'faturas-paga' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
+export type IdEstadoDevolucoes = 'devolucoes-inicio' | 'devolucoes-carga' | 'devolucoes-pesquisa' | 'devolucoes-primeira' | 'devolucoes-vazio' | 'devolucoes-filtros' | 'devolucoes-selecionada' | 'devolucoes-aberta' | 'devolucoes-creditada' | 'devolucoes-por-enviar' | 'devolucoes-a-enviar-rascunho' | 'devolucoes-criar-fatura' | 'devolucoes-criar-artigos' | 'devolucoes-criar-qtd' | 'devolucoes-criar-sem-artigos' | 'devolucoes-criar-rever' | 'devolucoes-a-enviar' | 'devolucoes-enviada' | 'devolucoes-falhou' | 'devolucoes-rede' | 'devolucoes-falha' | 'devolucoes-sessao' | 'devolucoes-sem-permissao' | 'devolucoes-tabela';
 export type IdEstadoGuias = 'guias-inicio' | 'guias-carga' | 'guias-pesquisa' | 'guias-primeira' | 'guias-vazio' | 'guias-filtros' | 'guias-selecionada' | 'guias-aberta' | 'guias-credito' | 'guias-relacionada' | 'guias-pedido-indisponivel' | 'guias-pdf-carga' | 'guias-pdf' | 'guias-pdf-erro' | 'guias-descarga' | 'guias-descarga-erro' | 'guias-rede' | 'guias-falha' | 'guias-sessao' | 'guias-sem-permissao' | 'guias-tabela';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
   | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga'
@@ -59,7 +62,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|gui3|fat|fat2)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|gui3|fat|fat2|dev)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -932,8 +935,151 @@ const faturasSemPermissao = () => f2('e1422', (r) => {
 /* 14.23 · a Tabela, com todas as colunas do GO REPAIR; a fatura escolhida no painel */
 const faturasTabela = () => f2('e1423', (r) => { painelFat(r, 'FT2024/05402', 'e1423'); }, faturasV2('tabela'));
 
+
+/* ================= 16 · Devoluções (15 out.: como os Pedidos, as Guias e as Faturas) =================
+   Do briefing dela (a lista de estados do «Returns Management Center»). Só os estados que os dados suportam: os
+   campos são os do GO REPAIR (sem «em análise», «autorizada», «recebida» nem «cancelada», que não existem lá). Cada
+   estado parte do ecrã e muda só o que esse estado muda; o que se escreveu e escolheu fica sempre. */
+const devs = (html: string) => portal('devolucoes', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
+const d16 = (prefixo: string, f: (r: HTMLElement) => void, html = devolucoesV1()) => comPainelAberto(devs(mudar(html, prefixo, f)));
+const inerteDev = (r: HTMLElement) => $$(r, '.dev > header, .dev > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+/** Uma devolução aberta no painel: o cartão (e a linha) marcados e o painel com ela. */
+const devAberta = (r: HTMLElement, num: string, prefixo: string) => {
+  $$(r, `.ped4__c-item[data-num="${num}"], tr.ped4__linha[data-num="${num}"]`).forEach((el) => el.classList.add('is-aberto', 'is-ativo'));
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.dev__gaveta'); gv.removeAttribute('hidden'); gv.setAttribute('aria-labelledby', `${prefixo}-g-num`);
+  gv.innerHTML = `${cabecaDev(devDe(num), `${prefixo}-g-num`)}${detalheDev(devDe(num))}`;
+  inerteDev(r);
+  return gv;
+};
+/** O painel de criar, num passo, com as escolhas feitas. */
+const devCriar = (r: HTMLElement, prefixo: string, passo: number, origem = '', escolhidos: [string, number][] = [], obs = '') => {
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.dev__gaveta'); gv.removeAttribute('hidden'); gv.classList.add('is-criar'); gv.setAttribute('aria-labelledby', `${prefixo}-c-titulo`);
+  gv.innerHTML = painelCriar(passo, origem, escolhidos, obs).replace(/\bdev-/g, `${prefixo}-`);
+  inerteDev(r);
+  return gv;
+};
+const erroCriar = (gv: HTMLElement, passo: number, msg: string) => { const e = $(gv, `.dev__c-erro[id$="-c-erro-${passo}"]`); e.textContent = msg; e.removeAttribute('hidden'); };
+const semDev = (r: HTMLElement) => { $(r, '.ped4__conta b').textContent = '0'; $$(r, '[data-kpi]').forEach((d) => { d.textContent = '0'; }); $$(r, '.ped4__est-n').forEach((x) => { x.textContent = '0'; }); };
+const ORIGEM16 = 'GR2024/08640';
+const ESCOLHA16: [string, number][] = [['Rolamento de roda SKF VKBA 3525', 2], ['Filtro de ar Mann C 30 005', 1]];
+
+/* 16.1 · a primeira carga */
+const devInicio = () => d16('e161', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('40px'); });
+  $(r, '.ped4__conta').innerHTML = 'A ligar ao serviço de devoluções…';
+  $(r, '.ped4__crono').outerHTML = `<div class="est-vazio est-vazio--largo" role="status">${rolamentoSvg('e161-rs', 'carregar', 'cat6__rs-faixa')}<p><strong>A carregar as devoluções…</strong> As devoluções desde 01/03/2024, da mais recente para a mais antiga.</p></div>`;
+  $(r, '.ped4__vistas').setAttribute('hidden', '');
+});
+/* 16.2 · esqueleto: a forma da cronologia */
+const devCarga = () => d16('e162', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('40px'); });
+  $(r, '.ped4__conta').innerHTML = `${GIRADOR('ped4__rs')} A carregar as devoluções…`;
+  esqCrono(r);
+  $$(r, '.ped4__est-n').forEach((n) => { n.textContent = '…'; });
+});
+/* 16.3 · a pesquisar uma referência */
+const devPesquisa = () => d16('e163', (r) => {
+  valorCampo(r, 'e163-ref', 'H7');
+  ocupadoPed($(r, '.ped4__pesquisar'), 'A pesquisar…');
+  const a = $(r, '.ped4__a-atualizar'); a.removeAttribute('hidden'); a.innerHTML = `${GIRADOR('ped4__rs')}A atualizar…`;
+  $(r, '.ped4__crono').classList.add('is-a-atualizar');
+});
+/* 16.4 · ainda não existem devoluções: não é o mesmo que «nenhuma com estes filtros» */
+const devPrimeira = () => d16('e164', (r) => {
+  semDev(r);
+  $(r, '.ped4__conta').textContent = 'Sem devoluções';
+  $(r, '.ped4__crono').setAttribute('hidden', ''); $(r, '.ped4__tabela').setAttribute('hidden', ''); $(r, '.ped4__vistas').setAttribute('hidden', '');
+  $(r, '.ped4__vazio').outerHTML = vazioInicial();
+});
+/* 16.5 · nenhuma devolução corresponde aos filtros */
+const devVazio = () => d16('e165', (r) => {
+  valorCampo(r, 'e165-de', '01/05/2024'); valorCampo(r, 'e165-ate', '31/05/2024');
+  chips(r, ['Desde 01/05/2024', 'Até 31/05/2024']);
+  semDev(r);
+  $(r, '.ped4__crono').setAttribute('hidden', ''); $(r, '.ped4__tabela').setAttribute('hidden', '');
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Nenhuma devolução corresponde aos filtros selecionados.</strong> A última é a DV2024/00036, de 16/04/2024; alargue as datas ou tire um filtro (${DEVOLUCOES.length} devoluções no total).</p>${BOTAO('Limpar filtros', IC.denovo, 'btn--ghost btn--sm')}`;
+});
+/* 16.6 · datas inválidas */
+const devFiltros = () => d16('e166', (r) => {
+  erroPed(r, 'e166-de', '31/04/2024', 'Abril só tem 30 dias. Escreva a data como dd/mm/aaaa.');
+  erroPed(r, 'e166-ate', '01/03/2024', 'A data final é antes da inicial.');
+});
+/* 16.7 · devolução selecionada */
+const devSelecionada = () => d16('e167', (r) => {
+  $(r, '.ped4__c-item[data-num="DV2024/00035"]').classList.add('is-ativo', 'is-passado');
+  $(r, '.gui3__mes-atual').textContent = 'abril de 2024';
+});
+/* 16.8–16.10 · abertas no painel: enviada, creditada, por enviar */
+const devAbertaEnviada = () => d16('e168', (r) => { devAberta(r, 'DV2024/00035', 'e168'); });
+const devCreditada = () => d16('e169', (r) => { devAberta(r, 'DV2024/00031', 'e169'); });
+const devPorEnviar = () => d16('e1610', (r) => { devAberta(r, 'DV2024/00036', 'e1610'); });
+/* 16.11 · a enviar a que estava por enviar: só esse botão espera */
+const devAEnviarRascunho = () => d16('e1611', (r) => { const gv = devAberta(r, 'DV2024/00036', 'e1611'); ocupadoPed($(gv, '[data-enviar-dev]'), 'A enviar…'); });
+/* 16.12–16.17 · criar */
+const devCriarFatura = () => d16('e1612', (r) => { devCriar(r, 'e1612', 0, ORIGEM16); });
+const devCriarArtigos = () => d16('e1613', (r) => { devCriar(r, 'e1613', 1, ORIGEM16, ESCOLHA16); });
+const devCriarQtd = () => d16('e1614', (r) => {
+  const gv = devCriar(r, 'e1614', 1, ORIGEM16, [['Rolamento de roda SKF VKBA 3525', 4], ['Filtro de ar Mann C 30 005', 1]]);
+  const li = $(gv, '.dev__c-linha');
+  li.outerHTML = linhaCesto(ORIGEM16, 'Rolamento de roda SKF VKBA 3525', 6, 'Só pode devolver até 4 un. (faturadas 4).').replace(/\bdev-/g, 'e1614-').replace('value="6"', 'value="6"');
+  erroCriar(gv, 1, 'Corrija a quantidade assinalada.');
+});
+const devCriarSemArtigos = () => d16('e1615', (r) => { const gv = devCriar(r, 'e1615', 1, ORIGEM16, []); erroCriar(gv, 1, 'Escolha pelo menos um artigo para devolver.'); });
+const OBS16 = 'Rolamentos a mais; filtro de outra medida';
+const devCriarRever = () => d16('e1616', (r) => { devCriar(r, 'e1616', 2, ORIGEM16, ESCOLHA16, OBS16); });
+const devAEnviar = () => d16('e1617', (r) => {
+  const gv = devCriar(r, 'e1617', 2, ORIGEM16, ESCOLHA16, OBS16);
+  $$(gv, '.dev__c-pe .btn').forEach((b) => b.setAttribute('disabled', ''));
+  ocupadoPed($(gv, '[data-c-enviar]'), 'A enviar…');
+});
+/* 16.18 · enviada: só depois da confirmação; a devolução nova no topo da cronologia */
+const NOVA16: Devolucao = { num: 'DV2024/00037', criada: '16/04/2024', enviada: '16/04/2024', utilizador: 'Fernando F. França', obs: OBS16, origem: ORIGEM16, linhas: ESCOLHA16.map(([d, q]) => [q, d]) };
+const devEnviada = () => d16('e1618', (r) => {
+  $(r, '.ped4__c-item[data-num="DV2024/00037"]').classList.add('is-novo');
+  const gv = devCriar(r, 'e1618', 2, ORIGEM16, ESCOLHA16, OBS16);
+  $$(gv, '.dev__passos-c li').forEach((li) => { li.className = 'is-feito'; li.removeAttribute('aria-current'); });
+  $(gv, '.dev__passos-risca').setAttribute('style', 'opacity:0');
+  $(gv, '.dev__c-corpo').outerHTML = `<div class="dev__c-corpo"><div class="dev__c-ok" role="status">${I('<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>')}<p><strong>Devolução DV2024/00037 enviada à Romafe.</strong>2 referências · 3 unidades, da fatura FT2024/05402. A nota de crédito, se a Romafe a emitir, aparece ligada a ela.</p></div></div>`;
+  $(gv, '.dev__c-pe').outerHTML = `<footer class="dev__c-pe">${BOTAO('Fechar', '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', 'btn--ghost')}<span class="dev__c-pe-dir">${BOTAO('Ver a devolução', '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>')}</span></footer>`;
+}, devolucoesV1('cronologia', [...DEVOLUCOES, NOVA16]));
+/* 16.19 · o envio falhou: nada se perdeu; tentar outra vez */
+const devFalhou = () => d16('e1619', (r) => {
+  const gv = devCriar(r, 'e1619', 2, ORIGEM16, ESCOLHA16, OBS16);
+  erroCriar(gv, 2, 'A devolução não foi enviada: o servidor não respondeu. Nada se perdeu — os artigos, as quantidades e as observações ficam como estão. Referência do erro: DV-503-0416.');
+  $(gv, '[data-c-enviar] .btn__rotulo').textContent = 'Tentar novamente';
+});
+/* 16.20 · sem ligação */
+const devRede = () => d16('e1620', (r) => {
+  $(r, '.ped4__crono').classList.add('is-a-atualizar');
+  $(r, '.ped4__pesquisar').setAttribute('disabled', ''); $(r, '.dev__criar').setAttribute('disabled', '');
+  $(r, '.ped4__lista').insertAdjacentHTML('afterbegin', faixa('aviso', rolamentoSvg('e1620-rs', 'offline', 'cat6__rs-faixa'), 'Está sem ligação à Internet.', 'Vê as devoluções de há 6 minutos; pesquisar e criar devoluções voltam quando a ligação voltar.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 16.21 · erro do servidor */
+const devFalha = () => d16('e1621', (r) => {
+  valorCampo(r, 'e1621-num', 'DV2024/0003');
+  $(r, '.ped4__tabela').remove();
+  $(r, '.ped4__crono').outerHTML = `<div class="cg-falha est-falha est-falha--largo" role="alert">${rolamentoSvg('e1621-rs', 'erro', 'cat6__rs-faixa')}<div><p class="cg-falha__titulo">Não foi possível carregar as devoluções.</p><p class="cg-falha__texto">O serviço de devoluções não respondeu. Os filtros ficam como estão. Referência do erro: DV-503-1015.</p><div class="est-aviso__botoes">${BOTAO('Tentar novamente', IC.denovo, 'btn--acao btn--sm')}</div>${APOIO}</div></div>`;
+  $$(r, '[data-kpi]').forEach((d) => { d.textContent = '—'; });
+  $(r, '.ped4__conta').textContent = 'Sem dados';
+});
+/* 16.22 · sessão terminada */
+const devSessao = () => d16('e1622', (r) => {
+  $(r, '.ped4__pesquisar').setAttribute('disabled', ''); $(r, '.dev__criar').setAttribute('disabled', '');
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as devoluções e criar novas; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+});
+/* 16.23 · sem permissão */
+const devSemPermissao = () => d16('e1623', (r) => {
+  $(r, '.ped4__filtros').setAttribute('hidden', ''); $(r, '.dev__topo-dir').setAttribute('hidden', '');
+  $(r, '.ped4__lista').innerHTML = `<div class="est-vazio est-vazio--largo">${I(IC_CADEADO_P)}<p><strong>A sua conta não tem acesso às devoluções.</strong> As devoluções são da conta da oficina; peça acesso ao administrador da conta. Os pedidos, as guias e as faturas continuam abertos.</p><div class="est-aviso__botoes">${BOTAO('Ver os pedidos', IC.grelha, 'btn--ghost btn--sm', ' data-ir="pedidos"')}</div></div>`;
+});
+/* 16.24 · a Tabela, com a devolução aberta */
+const devTabela = () => d16('e1624', (r) => { devAberta(r, 'DV2024/00035', 'e1624'); }, devolucoesV1('tabela'));
+
 /* ---------- a lista: cada estado logo a seguir ao seu ecrã ---------- */
-const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos', guias: 'guias', faturas: 'faturas' };
+const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos', guias: 'guias', faturas: 'faturas', devolucoes: 'devolucoes' };
 const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): EcraGoParts =>
   ({ id, nome, fluxo: 'Portal', objetivo, estadoDe: PAI[id.split('-')[0]], versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
 
@@ -1075,4 +1221,30 @@ export const estadosFaturas = (): EcraGoParts[] => [
   e('faturas-sem-linhas', '14.25 · Sem linhas de artigos', 'O serviço não mandou os artigos: diz isso no sítio deles; os valores e o PDF continuam.', faturasSemLinhas),
   e('faturas-longa', '14.26 · Muitos artigos', 'A FT2024/05402 com 12 artigos: o total preso em baixo enquanto o do talão não se vê.', faturasLonga),
   e('faturas-paga', '14.27 · Fatura paga', 'A FT2024/05011: o pagamento confirmado, com a data em que foi paga.', faturasPaga),
+];
+export const estadosDevolucoes = (): EcraGoParts[] => [
+  e('devolucoes-inicio', '16.1 · Primeira carga', 'Os filtros já servem; no lugar da lista, o rolamento e o que está a acontecer.', devInicio),
+  e('devolucoes-carga', '16.2 · Esqueleto', 'A forma da cronologia (o ano, os meses, as devoluções) enquanto os dados chegam.', devCarga),
+  e('devolucoes-pesquisa', '16.3 · A pesquisar', 'Com uma referência escrita: «A pesquisar…», «A atualizar…» e as devoluções de antes esbatidas, sem bloquear.', devPesquisa),
+  e('devolucoes-primeira', '16.4 · Ainda não existem devoluções', 'Um cliente sem devoluções: o vazio diz o que vai aparecer aqui e dá «Criar devolução» (é diferente de «nenhuma com estes filtros»).', devPrimeira),
+  e('devolucoes-vazio', '16.5 · Nenhuma com estes filtros', 'Maio de 2024: «Nenhuma devolução corresponde aos filtros selecionados», qual foi a última e «Limpar filtros».', devVazio),
+  e('devolucoes-filtros', '16.6 · Datas inválidas', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', devFiltros),
+  e('devolucoes-selecionada', '16.7 · Devolução selecionada', 'A DV2024/00035 ativa, ainda fechada: marcador e borda a laranja; o mês ao lado da contagem.', devSelecionada),
+  e('devolucoes-aberta', '16.8 · Devolução aberta', 'A DV2024/00035 no painel: os artigos devolvidos (2 referências, 3 unidades), o percurso só com o confirmado (criada, enviada; a nota de crédito ainda sem data), Pedido → Guia → Devolução e os dados.', devAbertaEnviada),
+  e('devolucoes-creditada', '16.9 · Devolução creditada', 'A DV2024/00031: o percurso completo até à nota de crédito NC2024/00412, com o valor dela; «Ver a nota de crédito».', devCreditada),
+  e('devolucoes-por-enviar', '16.10 · Por enviar', 'A DV2024/00036 guardada e ainda não enviada: o passo «Ainda não enviada» a tracejado e «Enviar a devolução».', devPorEnviar),
+  e('devolucoes-a-enviar-rascunho', '16.11 · A enviar a devolução guardada', 'Só o botão espera; a devolução só passa a «Enviada» quando o servidor confirmar.', devAEnviarRascunho),
+  e('devolucoes-criar-fatura', '16.12 · Criar · a fatura', 'O primeiro passo: as faturas com artigos que ainda se podem devolver; a FT2024/05402 escolhida.', devCriarFatura),
+  e('devolucoes-criar-artigos', '16.13 · Criar · os artigos', 'Os artigos da fatura à esquerda e a devolução à direita: 2 referências, 3 unidades. As escovas já foram devolvidas (indisponíveis); das lâmpadas só restam 2.', devCriarArtigos),
+  e('devolucoes-criar-qtd', '16.14 · Quantidade inválida', '6 rolamentos quando só foram faturados 4: o erro na própria linha, e o resumo no último valor certo.', devCriarQtd),
+  e('devolucoes-criar-sem-artigos', '16.15 · Sem artigos escolhidos', '«Rever» sem nenhum artigo: o erro diz o que falta, no sítio.', devCriarSemArtigos),
+  e('devolucoes-criar-rever', '16.16 · Criar · rever e enviar', 'O último passo: a fatura, as contagens, os artigos, as observações e o aviso de que enviar não cria nota de crédito; «Guardar por enviar» e «Enviar a devolução».', devCriarRever),
+  e('devolucoes-a-enviar', '16.17 · A enviar', 'O rolamento no «Enviar»; os outros botões esperam.', devAEnviar),
+  e('devolucoes-enviada', '16.18 · Enviada', 'Só depois da confirmação: «Devolução DV2024/00037 enviada à Romafe» e a devolução nova no topo da cronologia.', devEnviada),
+  e('devolucoes-falhou', '16.19 · O envio falhou', 'Nada se perdeu: os artigos, as quantidades e as observações ficam; «Tentar novamente».', devFalhou),
+  e('devolucoes-rede', '16.20 · Sem ligação', 'Uma faixa por cima da lista; as devoluções de há pouco esbatidas; pesquisar e criar desligados.', devRede),
+  e('devolucoes-falha', '16.21 · Erro do servidor', 'Os filtros ficam; a lista diz o que falhou, com a referência do erro, o apoio e «Tentar novamente».', devFalha),
+  e('devolucoes-sessao', '16.22 · Sessão terminada', 'A página fica; pesquisar e criar pedem para entrar outra vez.', devSessao),
+  e('devolucoes-sem-permissao', '16.23 · Sem permissão', 'Esta conta não vê as devoluções; os pedidos, as guias e as faturas continuam abertos.', devSemPermissao),
+  e('devolucoes-tabela', '16.24 · Vista em tabela', 'A alternativa: as colunas do GO REPAIR e o estado, com a DV2024/00035 no painel.', devTabela),
 ];
