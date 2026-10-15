@@ -72,6 +72,14 @@ import pkg from 'lucide-static/icons/package.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
 import refreshCw from 'lucide-static/icons/refresh-cw.svg?raw';
 import triangleAlert from 'lucide-static/icons/triangle-alert.svg?raw';
+import panelLeftClose from 'lucide-static/icons/panel-left-close.svg?raw';
+import panelRightClose from 'lucide-static/icons/panel-right-close.svg?raw';
+import panelRightOpen from 'lucide-static/icons/panel-right-open.svg?raw';
+import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
+import layers from 'lucide-static/icons/layers.svg?raw';
+import expand from 'lucide-static/icons/expand.svg?raw';
+import shrink from 'lucide-static/icons/shrink.svg?raw';
+import move3d from 'lucide-static/icons/move-3d.svg?raw';
 
 const ICONES: Record<string, string> = {
   'car-front': carFront, 'clipboard-list': clipboardList, droplet, ruler, timer, 'book-open': bookOpen, megaphone, 'sticky-note': stickyNote,
@@ -100,7 +108,13 @@ export interface Opcoes {
   carga?: 'veiculos' | 'pesquisa' | 'categorias' | 'doc' | 'img' | 'wd';
   erro?: 'veiculos' | 'doc' | 'img' | 'wd' | 'permissao';
   esbatido?: boolean;                  // sem ligação: o que já estava, esbatido
+  ver?: 'veiculo' | 'explodida';       // o explorador: o carro ou a vista explodida do rolamento
+  peca?: PecaRol;                      // a peça escolhida na vista explodida
+  lado?: boolean;                      // o painel de contexto aberto (por omissão, fecha ao ler um documento)
+  compacta?: boolean;                  // a navegação só com ícones (por omissão, ao ler um documento)
+  sem3d?: boolean;                     // o navegador não tem WebGL: fica o desenho 2D
 }
+export type PecaRol = 'ext' | 'int' | 'esf' | 'gai';
 
 /** Uma faixa (aviso ou erro) com o que aconteceu, o que fazer e uma saída. */
 export const faixa = (tipo: 'erro' | 'aviso' | 'info', titulo: string, texto: string, botao = '') =>
@@ -110,6 +124,15 @@ export const faixa = (tipo: 'erro' | 'aviso' | 'info', titulo: string, texto: st
 export const nomeVeiculo = (v: VeiculoTec) => `${v.marca} ${v.modelo} ${v.versao}`;
 const potencia = (v: VeiculoTec) => `${v.kw} kW / ${v.cv} cv`;
 const [desdeDe, ateDe] = [(v: VeiculoTec) => v.anos.split(' – ')[0], (v: VeiculoTec) => v.anos.split(' – ')[1].replace('…', 'hoje')];
+
+/** A secção aberta, para a barra do veículo. */
+export function nomeSeccao(v: VeiculoTec, o: Opcoes): string {
+  const d = o.doc ? docsDe(v).find((x) => x.id === o.doc) : undefined;
+  const s = d ? d.seccao : o.seccao || 'geral';
+  return s === 'geral' ? 'Visão geral' : seccaoDe(s).nome;
+}
+export const ladoAberto = (o: Opcoes) => o.lado ?? !o.doc;
+export const navCompacta = (o: Opcoes) => o.compacta ?? !!o.doc;
 
 export function contexto(v: VeiculoTec | undefined, o: Opcoes = {}): string {
   const px = o.px || 'tec';
@@ -121,10 +144,11 @@ export function contexto(v: VeiculoTec | undefined, o: Opcoes = {}): string {
       <span class="tec__ctx-carro" aria-hidden="true">${silhueta(v.carrocaria)}</span>
       <div class="tec__ctx-texto">
         <ol class="tec__migalhas" aria-label="Veículo"><li>${esc(v.marca)}</li><li>${esc(v.modelo)}</li><li>${esc(v.versao)}</li><li class="tec__motor">${esc(v.motor)}</li></ol>
-        <p class="tec__ctx-dados"><span>${v.combustivel}</span><span>${potencia(v)}</span><span>${v.cc.toLocaleString('pt-PT')} cm³</span><span>${v.anos.replace('…', 'hoje')}</span></p>
+        <p class="tec__ctx-dados"><span>${v.combustivel}</span><span>${potencia(v)}</span><span>${v.cc.toLocaleString('pt-PT')} cm³</span><span>${v.anos.replace('…', 'hoje')}</span><span class="tec__ctx-sec">${nomeSeccao(v, o)}</span></p>
       </div>
       <div class="tec__ctx-accoes">
         ${procuraTec(v, o, px)}
+        ${BOTAO('Contexto', ladoAberto(o) ? panelRightClose : panelRightOpen, 'btn--ghost btn--sm tec__lado-btn', ` data-lado aria-pressed="${ladoAberto(o)}"`)}
         ${BOTAO('Mudar de veículo', arrowLeftRight, 'btn--ghost btn--sm', ' data-mudar')}
       </div>
     </section>`;
@@ -224,11 +248,12 @@ export function navegacao(_v: VeiculoTec, docs: Doc[], ativa: IdSeccao | 'geral'
   const conta = (s: IdSeccao) => s === 'veiculo' ? '' : s === 'workshopdata' ? `<span class="tec__item-n">${L(externalLink)}</span>` : `<span class="tec__item-n${n(s) ? '' : ' is-zero'}">${n(s)}</span>`;
   const carga = o.carga === 'categorias';
   const item = (id: string, nome: string, icone: string, extra: string, i: number) =>
-    `<li style="--i:${i}"><button type="button" class="tec__item" data-sec="${id}"${id === ativa ? ' aria-current="page"' : ''}>${icone}<span class="tec__item-nome">${nome}</span>${extra}</button></li>`;
+    `<li style="--i:${i}"><button type="button" class="tec__item" data-sec="${id}" title="${nome}"${id === ativa ? ' aria-current="page"' : ''}>${icone}<span class="tec__item-nome">${nome}</span>${extra}</button></li>`;
   let i = 0;
   return `<nav class="tec__nav${carga ? ' is-a-carregar' : ''}" aria-label="Secções técnicas"${carga ? ' aria-busy="true"' : ''}>
       <button type="button" class="tec__nav-abrir" aria-expanded="false" aria-controls="${o.px || 'tec'}-nav-lista">${L(listTree)}<span>Secção · <b>${ativa === 'geral' ? 'Visão geral' : seccaoDe(ativa).nome}</b></span>${L(chevronDown)}</button>
       <div class="tec__nav-lista" id="${o.px || 'tec'}-nav-lista">
+        <button type="button" class="tec__nav-recolher" data-nav-recolher aria-pressed="${navCompacta(o)}" title="${navCompacta(o) ? 'Mostrar os nomes' : 'Recolher a navegação'}">${L(panelLeftClose)}<span>Recolher a navegação</span></button>
         <span class="tec__indicador" aria-hidden="true"></span>
         <ul class="tec__itens tec__itens--topo">${item('geral', 'Visão geral', L(layoutGrid), '', i++)}</ul>
         ${GRUPOS.map((g) => {
@@ -264,22 +289,69 @@ function zonas(v: VeiculoTec): Record<IdSistema, string> {
 }
 const ROTULO: Record<IdSistema, [number, number]> = { arrefecimento: [24, -28], motor: [54, -34], transmissao: [110, -18], travoes: [182, 22], suspensao: [182, -36], direcao: [58, 24], eletrico: [130, -62], climatizacao: [128, -54] };
 
-export function explorador(v: VeiculoTec, docs: Doc[], sis?: IdSistema, px = 'tec'): string {
+/* a vista explodida: o rolamento rígido de esferas 6206 (as medidas normalizadas que o rolamento 3D já usa) */
+export const PECAS: Record<PecaRol, { nome: string; medidas: [string, string][]; texto: string }> = {
+  ext: { nome: 'Anel exterior', medidas: [['Diâmetro exterior (D)', '62 mm'], ['Largura (B)', '16 mm']], texto: 'A pista das esferas está cavada por dentro.' },
+  gai: { nome: 'Gaiola', medidas: [['Esferas guiadas', '9']], texto: 'Mantém as esferas à mesma distância umas das outras.' },
+  esf: { nome: 'Esferas', medidas: [['Quantidade', '9'], ['Diâmetro', '9,525 mm'], ['Diâmetro primitivo', '46 mm']], texto: 'Rolam entre as pistas dos dois anéis.' },
+  int: { nome: 'Anel interior', medidas: [['Furo (d)', '30 mm'], ['Largura (B)', '16 mm']], texto: 'Monta no veio; a pista das esferas está por fora.' },
+};
+const ORDEM_PECAS: PecaRol[] = ['ext', 'gai', 'esf', 'int'];
+/** O desenho 2D da vista explodida (de frente, à escala, em mm): para quando não há 3D. */
+function rolamentoPlano(peca?: PecaRol): string {
+  const anel = (cx: number, R: number, r: number) => `M${cx - R} 42a${R} ${R} 0 1 0 ${2 * R} 0a${R} ${R} 0 1 0 ${-2 * R} 0ZM${cx - r} 42a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+  const g = (p: PecaRol, x: number, corpo: string) => `<g class="tec__peca2d" data-peca="${p}"${p === peca ? ' aria-current="true"' : ''}>${corpo}<text x="${x}" y="88" text-anchor="middle">${PECAS[p].nome}</text></g>`;
+  const bolas = Array.from({ length: 9 }, (_, i) => { const a = (i / 9) * Math.PI * 2; return `<circle cx="${(156 + 23 * Math.cos(a)).toFixed(2)}" cy="${(42 + 23 * Math.sin(a)).toFixed(2)}" r="4.76"/>`; }).join('');
+  return `<svg class="tec__rol2d" viewBox="0 0 300 96" role="group" aria-label="Rolamento 6206 desmontado">
+      ${g('ext', 36, `<path d="${anel(36, 31, 26.7)}" fill-rule="evenodd"/>`)}
+      ${g('gai', 96, `<circle cx="96" cy="42" r="23" class="tec__gaiola2d"/>`)}
+      ${g('esf', 156, bolas)}
+      ${g('int', 238, `<path d="${anel(238, 19.3, 15)}" fill-rule="evenodd"/>`)}
+    </svg>`;
+}
+
+export function explorador(v: VeiculoTec, docs: Doc[], o: Opcoes = {}): string {
+  const px = o.px || 'tec', sis = o.sistema, ver = o.ver || 'veiculo';
   const [corpo, janelas, y] = formaDe(v.carrocaria);
   const r = y === 80 ? 17 : 15;
   const z = zonas(v);
   const roda = (cx: number) => `<circle class="tec__roda" cx="${cx}" cy="${y}" r="${r}"/><circle class="tec__jante" cx="${cx}" cy="${y}" r="${r * .45}"/>`;
   const comDocs = SISTEMAS.filter((s) => docsDoSistema(docs, s.id).length);
-  return `<section class="tec__cartao tec__expl" aria-labelledby="${px}-expl-t"${sis ? ` data-sis="${sis}"` : ''}>
-      <header class="tec__cartao-cabeca"><h2 id="${px}-expl-t">${L(scan)}Explorador do veículo</h2><p>Escolha um sistema no desenho ou na lista: a zona acende e os documentos dele aparecem por baixo.</p></header>
+  const separadores = `<div class="tec__ver" role="group" aria-label="O que explorar">
+      <button type="button" class="tec__ver-b" data-ver="veiculo" aria-pressed="${ver === 'veiculo'}">${L(carFront)}Veículo</button>
+      <button type="button" class="tec__ver-b" data-ver="explodida" aria-pressed="${ver === 'explodida'}">${L(layers)}Vista explodida</button>
+    </div>`;
+  const falta3d = o.sem3d ? `<p class="tec__3d-falta">${L(info)}Este navegador não mostra 3D (WebGL desligado). Fica o desenho; os sistemas e os documentos funcionam na mesma.</p>` : '';
+  if (ver === 'explodida') return `<section class="tec__cartao tec__expl" data-ver="explodida" aria-labelledby="${px}-expl-t"${o.sem3d ? ' data-sem3d' : ''}>
+      <header class="tec__expl-cabeca"><div><h2 id="${px}-expl-t">${L(layers)}Vista explodida</h2><p>Rolamento rígido de esferas 6206: escolha uma peça para a ver em separado.</p></div>${separadores}</header>
+      <div class="tec__expl-corpo">
+        <figure class="tec__expl-fig tec__expl-fig--rol">
+          <div class="tec__palco3d" data-palco="rolamento"></div>
+          <p class="tec__3d-rotulo" hidden></p>
+          ${rolamentoPlano(o.peca)}
+          <div class="tec__3d-barra"><span class="tec__3d-nota">${L(info)}Medidas normalizadas do 6206. Não é uma peça escolhida deste veículo.</span>
+            <span class="tec__3d-ctl">${BOTAO('Montar', shrink, 'btn--ghost btn--sm', ' data-explodir="0"')}${BOTAO('Separar', expand, 'btn--ghost btn--sm', ' data-explodir="1"')}${BOTAO('Repor', rotateCcw, 'btn--ghost btn--sm', ' data-repor')}</span></div>
+          ${falta3d}
+          <figcaption><span class="so-3d">Arraste para rodar; a roda do rato aproxima. Clique numa peça para a escolher.</span><span class="so-2d">O conjunto desmontado, de frente e à escala. Clique numa peça para a escolher.</span></figcaption>
+        </figure>
+        <ul class="tec__sistemas" aria-label="Peças">${ORDEM_PECAS.map((p, i) => `<li style="--i:${i}"><button type="button" class="tec__sistema" data-peca="${p}" aria-pressed="${p === o.peca}">${L(p === 'esf' ? circleDot : p === 'gai' ? cog : disc)}<span>${PECAS[p].nome}</span><small>${PECAS[p].medidas[0][1]}</small></button></li>`).join('')}</ul>
+      </div>
+    </section>`;
+  return `<section class="tec__cartao tec__expl" data-ver="veiculo" aria-labelledby="${px}-expl-t"${sis ? ` data-sis="${sis}"` : ''}${o.sem3d ? ' data-sem3d' : ''}>
+      <header class="tec__expl-cabeca"><div><h2 id="${px}-expl-t">${L(move3d)}Explorador do veículo</h2><p>Escolha um sistema no desenho ou na lista: a câmara aproxima-se e os documentos dele aparecem por baixo.</p></div>${separadores}</header>
       <div class="tec__expl-corpo">
         <figure class="tec__expl-fig">
+          <div class="tec__palco3d" data-palco="carro" data-carrocaria="${esc(v.carrocaria)}" data-tracao="${esc(v.tracao)}"></div>
+          <p class="tec__3d-rotulo" hidden></p>
           <svg class="tec__expl-svg" viewBox="0 0 240 112" role="group" aria-label="Zonas do veículo">
             <path class="tec__chao" d="M6 ${y + r + 1}h228"/>
             <path class="tec__corpo" d="${corpo}"/><path class="tec__janelas" d="${janelas}"/>${roda(58)}${roda(182)}
             ${comDocs.map((s) => { const [lx, ly] = ROTULO[s.id]; return `<g class="tec__zona" data-sis="${s.id}"${s.id === sis ? ' aria-current="true"' : ''}>${z[s.id]}<text x="${lx}" y="${y + ly}" text-anchor="middle">${s.nome === 'Aquecimento e ar condicionado' ? 'Climatização' : s.nome}</text></g>`; }).join('')}
           </svg>
-          <figcaption>${L(info)}<span>Zonas gerais do veículo, de lado e com a frente à esquerda. A posição exata de cada peça está em <button type="button" class="tec__ligacao" data-sec="posicao">Posição de peças</button>.</span></figcaption>
+          <div class="tec__3d-barra"><span class="tec__3d-nota">${L(info)}Modelo ilustrativo (${esc(v.carrocaria.toLowerCase())}): não é o ${esc(nomeVeiculo(v))}.</span>
+            <span class="tec__3d-ctl"><span class="tec__seg" role="group" aria-label="Vista"><button type="button" class="tec__seg-b" data-vista3d="exterior" aria-pressed="${!sis}">Exterior</button><button type="button" class="tec__seg-b" data-vista3d="tecnica" aria-pressed="${!!sis}">Técnica</button></span>${BOTAO('Repor', rotateCcw, 'btn--ghost btn--sm', ' data-repor')}</span></div>
+          ${falta3d}
+          <figcaption>${L(info)}<span><span class="so-3d">Arraste para rodar; a roda do rato aproxima. </span>Zonas gerais do veículo, com a frente à esquerda. A posição exata de cada peça está em <button type="button" class="tec__ligacao" data-sec="posicao">Posição de peças</button>.</span></figcaption>
         </figure>
         <ul class="tec__sistemas" aria-label="Sistemas">${comDocs.map((s, i) => `<li style="--i:${i}"><button type="button" class="tec__sistema" data-sis="${s.id}" aria-pressed="${s.id === sis}">${ic(s.icone)}<span>${s.nome}</span><small>${docsDoSistema(docs, s.id).length}</small></button></li>`).join('')}</ul>
       </div>
@@ -305,21 +377,53 @@ function linhaDoc(d: Doc, i: number, comSeccao = false): string {
     </button></li>`;
 }
 
-/** A visão geral: o explorador e o que há em cada grupo. */
+/** A visão geral: o explorador (o que há em cada grupo está no painel de contexto). */
 function visaoGeral(v: VeiculoTec, docs: Doc[], o: Opcoes): string {
   const px = o.px || 'tec';
   return `<div class="tec__pagina" data-pagina="geral">
       <header class="tec__pag-cabeca"><p class="tec__olho">Visão geral</p><h2 class="tec__pag-titulo" id="${px}-pag-t">${esc(nomeVeiculo(v))}</h2>
         <p class="tec__pag-meta">${plural(docs.length, 'documento', 'documentos')} do WorkshopData para o motor ${esc(v.motor)}</p></header>
-      ${explorador(v, docs, o.sistema, px)}
-      <section class="tec__cartao" aria-labelledby="${px}-disp-t">
-        <header class="tec__cartao-cabeca"><h2 id="${px}-disp-t">${L(listTree)}Disponível para este veículo</h2><p>O que o fornecedor tem para o ${esc(v.versao)} (${esc(v.motor)}), por grupo.</p></header>
-        <div class="tec__disp">${GRUPOS.filter((g) => g.id !== 'veiculo' && g.id !== 'recursos').map((g, gi) => `<div class="tec__disp-g" style="--i:${gi}"><h3>${g.nome}</h3><ul>${SECCOES.filter((s) => s.grupo === g.id).map((s) => {
-          const k = docsDaSeccao(docs, s.id).length;
-          return `<li><button type="button" class="tec__disp-s${k ? '' : ' is-zero'}" data-sec="${s.id}">${ic(s.icone)}<span>${s.nome}</span><b>${k || 'Sem documentos'}</b></button></li>`;
-        }).join('')}</ul></div>`).join('')}</div>
-      </section>
+      ${explorador(v, docs, o)}
     </div>`;
+}
+
+/* ---------- o painel de contexto (à direita) ---------- */
+function ladoVeiculo(v: VeiculoTec, docs: Doc[]): string {
+  const dado = (t: string, d: string, cls = '') => `<div><dt>${t}</dt><dd${cls ? ` class="${cls}"` : ''}>${d}</dd></div>`;
+  return `<section class="tec__lado-bloco"><span class="tec__lado-carro" aria-hidden="true">${silhueta(v.carrocaria)}</span><h3>${esc(nomeVeiculo(v))}</h3>
+      <dl class="tec__lado-dl">${dado('Código do motor', esc(v.motor), 'tec__mono')}${dado('Combustível', v.combustivel)}${dado('Potência', potencia(v))}${dado('Cilindrada', `${v.cc.toLocaleString('pt-PT')} cm³`)}${dado('Tração', v.tracao)}${dado('Fabricado', v.anos.replace('…', 'hoje'))}</dl></section>
+    <section class="tec__lado-bloco"><h3>Neste veículo</h3>${GRUPOS.filter((g) => g.id !== 'veiculo' && g.id !== 'recursos').map((g) => `<p class="tec__lado-g">${g.nome}</p><ul class="tec__lado-l">${SECCOES.filter((s) => s.grupo === g.id).map((s) => {
+      const k = docsDaSeccao(docs, s.id).length;
+      return `<li><button type="button" class="tec__lado-s${k ? '' : ' is-zero'}" data-sec="${s.id}">${ic(s.icone)}<span>${s.nome}</span><b>${k || '—'}</b></button></li>`;
+    }).join('')}</ul>`).join('')}</section>`;
+}
+function ladoSistema(v: VeiculoTec, docs: Doc[], sis: IdSistema): string {
+  const ds = docsDoSistema(docs, sis);
+  const secs = SECCOES.filter((s) => ds.some((d) => d.seccao === s.id));
+  return `<section class="tec__lado-bloco"><p class="tec__lado-sis">${ic(sistemaDe(sis).icone)}<span><b>${sistemaDe(sis).nome}</b><small>${plural(ds.length, 'documento', 'documentos')} · ${esc(v.versao)} (${esc(v.motor)})</small></span></p>
+      <ul class="tec__lado-l">${secs.map((s) => `<li><button type="button" class="tec__lado-s" data-sec="${s.id}" data-com-sis="${sis}">${ic(s.icone)}<span>${s.nome}</span><b>${ds.filter((d) => d.seccao === s.id).length}</b></button></li>`).join('')}</ul>
+      <button type="button" class="btn btn--acao btn--sm tec__lado-pecas" data-ir="catalogo">${L(pkg, 'btn__icone')}<span class="btn__rotulo">Peças de ${sistemaDe(sis).nome.toLowerCase()} no Catálogo</span></button></section>`;
+}
+function ladoDoc(docs: Doc[], d: Doc): string {
+  const rel = d.sistema ? docs.filter((x) => x.sistema === d.sistema && x.id !== d.id && x.seccao !== d.seccao) : [];
+  return `<section class="tec__lado-bloco"><p class="tec__cap-t">${d.sistema ? ic(sistemaDe(d.sistema).icone) : L(info)}${d.sistema ? `Também de ${sistemaDe(d.sistema).nome.toLowerCase()}` : 'Relacionados'}</p>
+      ${rel.length ? `<ul class="tec__lado-l">${rel.map((x) => `<li><button type="button" class="tec__rel-i" data-doc="${x.id}"><b>${esc(x.titulo)}</b><small>${seccaoDe(x.seccao).nome} · ${x.tipo}</small></button></li>`).join('')}</ul>` : '<p class="tec__rel-nada">Sem outros documentos deste sistema.</p>'}
+      ${d.sistema ? `<button type="button" class="btn btn--ghost btn--sm tec__lado-pecas" data-ir="catalogo">${L(pkg, 'btn__icone')}<span class="btn__rotulo">Peças de ${sistemaDe(d.sistema).nome.toLowerCase()}</span></button>` : ''}</section>`;
+}
+function ladoPeca(p?: PecaRol): string {
+  const dl = (m: [string, string][]) => `<dl class="tec__lado-dl">${m.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>`;
+  return `<section class="tec__lado-bloco">${p ? `<p class="tec__lado-sis">${L(p === 'esf' ? circleDot : p === 'gai' ? cog : disc)}<span><b>${PECAS[p].nome}</b><small>Rolamento rígido de esferas 6206</small></span></p><p class="tec__lado-texto">${PECAS[p].texto}</p>${dl(PECAS[p].medidas)}`
+    : `<h3>Rolamento rígido de esferas 6206</h3><p class="tec__lado-texto">Quatro peças: anel exterior, gaiola, 9 esferas e anel interior. Escolha uma para a ver em separado.</p>${dl([['Diâmetro exterior (D)', '62 mm'], ['Furo (d)', '30 mm'], ['Largura (B)', '16 mm'], ['Esferas', '9 × 9,525 mm']])}`}
+      <p class="tec__lado-nota">${L(info)}Medidas normalizadas (ISO 15). É o único conjunto com geometria verificada neste protótipo; não é uma peça escolhida deste veículo.</p>
+      <button type="button" class="btn btn--ghost btn--sm tec__lado-pecas" data-ir="catalogo">${L(pkg, 'btn__icone')}<span class="btn__rotulo">Procurar 6206 no Catálogo</span></button></section>`;
+}
+/** O painel de contexto: o veículo; o sistema escolhido; os relacionados do documento; a peça da vista explodida. */
+export function lado(v: VeiculoTec, o: Opcoes): string {
+  const docs = docsDe(v);
+  const d = o.doc ? docs.find((x) => x.id === o.doc) : undefined;
+  const geral = (o.seccao || 'geral') === 'geral' && !d;
+  const corpo = !docs.length ? ladoVeiculo(v, docs) : d ? ladoDoc(docs, d) : geral && o.ver === 'explodida' ? ladoPeca(o.peca) : geral && o.sistema ? ladoSistema(v, docs, o.sistema) : ladoVeiculo(v, docs);
+  return `<header class="tec__lado-cabeca"><p class="tec__olho">Contexto</p><button type="button" class="btn btn--ghost btn--sm" data-lado-fechar>${L(panelRightClose, 'btn__icone')}<span class="btn__rotulo">Recolher</span></button></header>${corpo}`;
 }
 
 /** Os dados do veículo (só os do Catálogo) e as outras motorizações do mesmo modelo. */
@@ -356,10 +460,13 @@ function seccaoDocs(v: VeiculoTec, docs: Doc[], s: IdSeccao, o: Opcoes): string 
   else if (!todos.length) corpo = `<div class="tec__vazio" role="status">${ic(sec.icone)}<p><strong>Não há ${sec.nome.toLowerCase()} para este veículo.</strong>O WorkshopData não tem ${s === 'boletins' ? 'boletins técnicos do fabricante' : 'notas'} para o ${esc(v.versao)} (${esc(v.motor)}). Quando houver, aparecem aqui.</p></div>`;
   else corpo = `${s === 'diagnosticos' ? avaria(px) : ''}
       ${sistemas.length > 1 ? `<div class="tec__filtro" role="group" aria-label="Sistema"><button type="button" class="tec__pilula" data-filtro="" aria-pressed="${!o.sistema}">Todos <small>${todos.length}</small></button>${sistemas.map((x) => `<button type="button" class="tec__pilula" data-filtro="${x.id}" aria-pressed="${o.sistema === x.id}">${ic(x.icone)}${x.nome} <small>${todos.filter((d) => d.sistema === x.id).length}</small></button>`).join('')}</div>` : ''}
-      <div class="tec__docs-cabeca" aria-hidden="true"><span></span><span>Documento</span><span>Sistema</span><span>Tipo</span><span>Figuras</span><span></span></div>
-      <ul class="tec__docs">${lista.map((d, i) => linhaDoc(d, i)).join('')}</ul>`;
+      ${GALERIA.includes(s) ? `<ul class="tec__galeria">${lista.map((d, i) => `<li style="--i:${i}"><button type="button" class="tec__cartaz" data-doc="${d.id}">${folhaMini()}<span class="tec__cartaz-t"><b>${esc(d.titulo)}</b><small>${d.sistema ? sistemaDe(d.sistema).nome : 'Geral'} · ${d.tipo} · ${plural(d.figuras, 'figura', 'figuras')}</small></span><span class="tec__cartaz-abrir">${L(zoomIn)}Abrir</span></button></li>`).join('')}</ul>`
+      : `<div class="tec__docs-cabeca" aria-hidden="true"><span></span><span>Documento</span><span>Sistema</span><span>Tipo</span><span>Figuras</span><span></span></div>
+      <ul class="tec__docs">${lista.map((d, i) => linhaDoc(d, i)).join('')}</ul>`}`;
   return `<div class="tec__pagina" data-pagina="${s}">${cabeca}${corpo}</div>`;
 }
+/* as secções que são sobretudo imagens abrem-se em galeria, com a folha à vista */
+const GALERIA: IdSeccao[] = ['eletricos', 'fusiveis', 'conforto', 'posicao'];
 const LOCK = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
 
 /** Nos Diagnósticos: procurar um código de avaria no documento do fornecedor (o significado é dele). */
@@ -395,7 +502,6 @@ export function folhaMini(): string {
 function leitor(v: VeiculoTec, docs: Doc[], d: Doc, o: Opcoes): string {
   const px = o.px || 'tec';
   const irmaos = docsDaSeccao(docs, d.seccao);
-  const rel = d.sistema ? docs.filter((x) => x.sistema === d.sistema && x.id !== d.id && x.seccao !== d.seccao) : [];
   const meta = (t: string, dd: string) => `<div><dt>${t}</dt><dd>${dd}</dd></div>`;
   let fonte: string;
   if (o.carga === 'doc') fonte = `<div class="tec__fonte is-a-carregar" aria-busy="true"><p class="tec__fonte-estado" role="status">${GIRA()} A abrir o documento no WorkshopData…</p>${Array.from({ length: 6 }, (_, i) => `<span class="tec__esq" style="width:${[92, 80, 86, 60, 88, 70][i]}%"></span>`).join('')}<div class="tec__figs">${Array.from({ length: Math.min(d.figuras, 3) }, () => '<span class="tec__esq tec__esq--fig"></span>').join('')}</div></div>`;
@@ -419,11 +525,6 @@ function leitor(v: VeiculoTec, docs: Doc[], d: Doc, o: Opcoes): string {
         ${irmaos.length > 1 ? (() => { const i = irmaos.findIndex((x) => x.id === d.id), ant = irmaos[i - 1], seg = irmaos[i + 1];
           return `<nav class="tec__passa" aria-label="Outros documentos de ${seccaoDe(d.seccao).nome.toLowerCase()}">${ant ? `<button type="button" class="tec__passa-b" data-doc="${ant.id}">${L(chevronLeft)}<span><small>Anterior</small>${esc(ant.titulo)}</span></button>` : '<span></span>'}${seg ? `<button type="button" class="tec__passa-b tec__passa-b--seg" data-doc="${seg.id}"><span><small>Seguinte</small>${esc(seg.titulo)}</span>${L(chevronRight)}</button>` : ''}</nav>`; })() : ''}
       </article>
-      <aside class="tec__rel" aria-label="Relacionados">
-        <p class="tec__cap-t">${d.sistema ? ic(sistemaDe(d.sistema).icone) : L(info)}${d.sistema ? `Também de ${sistemaDe(d.sistema).nome.toLowerCase()}` : 'Relacionados'}</p>
-        ${rel.length ? `<ul>${rel.map((x) => `<li><button type="button" class="tec__rel-i" data-doc="${x.id}"><b>${esc(x.titulo)}</b><small>${seccaoDe(x.seccao).nome} · ${x.tipo}</small></button></li>`).join('')}</ul>` : '<p class="tec__rel-nada">Sem outros documentos deste sistema.</p>'}
-        ${d.sistema ? `<button type="button" class="btn btn--ghost btn--sm tec__rel-pecas" data-ir="catalogo">${L(pkg, 'btn__icone')}<span class="btn__rotulo">Peças de ${sistemaDe(d.sistema).nome.toLowerCase()}</span></button>` : ''}
-      </aside>
     </div>`;
 }
 
@@ -456,7 +557,8 @@ export function visorCorpo(v: VeiculoTec, d: Doc, fig: number, o: Opcoes = {}): 
       </div>
       <button type="button" class="btn btn--acao btn--sm tec__visor-fechar" data-fechar-visor>${L(x, 'btn__icone')}<span class="btn__rotulo">Fechar</span></button>
     </header>
-    <div class="tec__visor-palco" tabindex="0" aria-label="Figura: arraste para mover, roda do rato ou + e − para o zoom">${folha}</div>`;
+    <div class="tec__visor-palco" tabindex="0" aria-label="Figura: arraste para mover, roda do rato ou + e − para o zoom">${folha}</div>
+    ${d.figuras > 1 ? `<div class="tec__visor-tira" role="group" aria-label="Figuras do documento">${Array.from({ length: d.figuras }, (_, i) => `<button type="button" class="tec__tira-b" data-fig-n="${i + 1}"${i + 1 === fig ? ' aria-current="true"' : ''}>${folhaMini()}<span>Figura ${i + 1}</span></button>`).join('')}</div>` : ''}`;
 }
 
 /* ---------- o espaço de trabalho ---------- */
@@ -479,9 +581,10 @@ export function conteudo(v: VeiculoTec, o: Opcoes): string {
 export function trabalho(v: VeiculoTec, o: Opcoes): string {
   const docs = docsDe(v);
   const s = o.doc ? docs.find((x) => x.id === o.doc)?.seccao || 'geral' : o.seccao || 'geral';
-  return `<div class="tec__trabalho${o.esbatido ? ' is-esbatido' : ''}">
+  return `<div class="tec__trabalho${o.esbatido ? ' is-esbatido' : ''}${navCompacta(o) ? ' nav-compacta' : ''}${ladoAberto(o) ? '' : ' sem-lado'}">
       ${navegacao(v, docs, s, o)}
       <div class="tec__conteudo" data-atual="${s}">${o.aviso || ''}${conteudo(v, o)}</div>
+      <aside class="tec__lado" aria-label="Contexto"${o.carga === 'categorias' ? ' aria-busy="true"' : ''}>${lado(v, o)}</aside>
     </div>`;
 }
 

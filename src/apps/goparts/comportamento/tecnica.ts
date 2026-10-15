@@ -12,7 +12,7 @@
    - PESQUISA TÉCNICA: secções, sistemas e documentos do veículo ao escrever, com as setas e Enter.
    Só transform e opacity nas animações; com «reduzir movimento» as trocas são imediatas.
    ========================================================= */
-import { contexto, escolher, trabalho, conteudo, docsSistema, sugestoes, visorCorpo, linhasVeiculos, contaVeiculos, semVeiculos, faixa, GIRA, type Opcoes } from '../portal/tecnica';
+import { contexto, escolher, trabalho, conteudo, lado, explorador, nomeSeccao, docsSistema, type PecaRol, sugestoes, visorCorpo, linhasVeiculos, contaVeiculos, semVeiculos, faixa, GIRA, type Opcoes } from '../portal/tecnica';
 import { veiculoDe, docsDe, procurarVeiculos, veiculosDaMarca, type IdSeccao, type IdSistema } from '../portal/tecnica-dados';
 
 const editando = () => document.body.classList.contains('editando');
@@ -23,10 +23,78 @@ const $ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => r.query
 const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.from(r.querySelectorAll<T>(s));
 
 /** O que está aberto em cada ecrã vivo. */
-interface Estado { veiculo?: string; seccao: IdSeccao | 'geral'; doc?: string; sistema?: IdSistema; q: string; marca: string; fig?: number }
+interface Estado { veiculo?: string; seccao: IdSeccao | 'geral'; doc?: string; sistema?: IdSistema; q: string; marca: string; fig?: number
+  ver?: 'veiculo' | 'explodida'; peca?: PecaRol;
+  /* o que a pessoa escolheu para o painel de contexto e a navegação, a navegar e a ler (ao ler, por omissão, dão espaço ao documento) */
+  lado?: boolean; ladoLer?: boolean; nav?: boolean; navLer?: boolean }
 const estados = new WeakMap<HTMLElement, Estado>();
 const est = (m: HTMLElement) => { let e = estados.get(m); if (!e) { e = { veiculo: m.dataset.veiculo, seccao: 'geral', q: '', marca: 'BMW' }; estados.set(m, e); } return e; };
-const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, ...extra }; };
+const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, ver: e.ver, peca: e.peca,
+  lado: e.doc ? e.ladoLer ?? false : e.lado ?? true, compacta: e.doc ? e.navLer ?? true : e.nav ?? false, ...extra }; };
+
+/* ---------- as três áreas: a navegação (recolhível), o conteúdo e o contexto (recolhível) ---------- */
+function areas(m: HTMLElement): void {
+  const o = ops(m), t = $(m, '.tec__trabalho'); if (!t) return;
+  t.classList.toggle('nav-compacta', !!o.compacta); t.classList.toggle('sem-lado', !o.lado);
+  const b = $(m, '[data-nav-recolher]'); if (b) { b.setAttribute('aria-pressed', String(!!o.compacta)); b.title = o.compacta ? 'Mostrar os nomes' : 'Recolher a navegação'; }
+  const l = $(m, '[data-lado]'); if (l) l.setAttribute('aria-pressed', String(!!o.lado));
+  requestAnimationFrame(() => armarIndicador(m, false));
+}
+function pintarLado(m: HTMLElement): void {
+  const e = est(m), v = veiculoDe(e.veiculo!); if (!v) return;
+  const l = $(m, '.tec__lado'); if (!l) return;
+  l.innerHTML = lado(v, ops(m));
+  if (!quieto()) $$(l, '.tec__lado-bloco').forEach((b, i) => b.animate([{ opacity: 0, transform: 'translateX(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: i * 40, easing: SAIDA, fill: 'backwards' }));
+  const sec = $(m, '.tec__ctx-sec'); if (sec) sec.textContent = nomeSeccao(v, ops(m));
+}
+
+/* ---------- o 3D: carregado só na Visão geral, desfeito ao sair dela ---------- */
+type M3D = typeof import('./tecnica-3d');
+type Inst = InstanceType<M3D['Carro3D']> | InstanceType<M3D['Rolamento3D']>;
+const palcos = new WeakMap<HTMLElement, { host: HTMLElement; inst: Inst }>();
+let modulo: Promise<M3D> | null = null;
+const webgl = () => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } };
+function desmontar3D(m: HTMLElement): void { const p = palcos.get(m); if (p) { p.inst.destruir(); palcos.delete(m); } }
+function montar3D(m: HTMLElement): void {
+  const host = $(m, '.tec__palco3d');
+  const atual = palcos.get(m);
+  if (atual && atual.host === host) return;
+  desmontar3D(m);
+  if (!host) return;
+  const fig = host.closest<HTMLElement>('.tec__expl-fig')!;
+  if (!webgl()) { fig.classList.add('is-sem3d'); return; }
+  fig.classList.add('is-a-carregar-3d');
+  modulo ??= import('./tecnica-3d');
+  modulo.then((M) => {
+    if (!host.isConnected || palcos.get(m)) return;
+    const e = est(m);
+    const inst: Inst = host.dataset.palco === 'carro'
+      ? new M.Carro3D(host, host.dataset.carrocaria!, host.dataset.tracao!, (s) => escolherSistema(m, s))
+      : new M.Rolamento3D(host, (p) => escolherPeca(m, p));
+    palcos.set(m, { host, inst });
+    if (inst instanceof M.Carro3D && e.sistema) inst.focar(e.sistema);
+    if (inst instanceof M.Rolamento3D && e.peca) inst.focar(e.peca);
+    fig.classList.remove('is-a-carregar-3d'); fig.classList.add('is-3d');
+    if (!quieto()) host.animate([{ opacity: 0, transform: 'scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 400, easing: SAIDA });
+  }).catch(() => { fig.classList.remove('is-a-carregar-3d'); fig.classList.add('is-sem3d'); });
+}
+const carro = (m: HTMLElement) => { const i = palcos.get(m)?.inst; return i && 'vista' in i ? i : undefined; };
+const rolamento = (m: HTMLElement) => { const i = palcos.get(m)?.inst; return i && 'separar' in i ? i : undefined; };
+function escolherPeca(m: HTMLElement, p: PecaRol): void {
+  const e = est(m); e.peca = e.peca === p ? undefined : p;
+  $$(m, '.tec__sistema[data-peca]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.peca === e.peca)));
+  $$(m, '.tec__peca2d').forEach((g) => { if (g.dataset.peca === e.peca) g.setAttribute('aria-current', 'true'); else g.removeAttribute('aria-current'); });
+  rolamento(m)?.focar(e.peca);
+  if (e.ver === 'explodida') pintarLado(m);
+}
+function mudarVer(m: HTMLElement, ver: 'veiculo' | 'explodida'): void {
+  const e = est(m), v = veiculoDe(e.veiculo!); if (!v || e.ver === ver || (!e.ver && ver === 'veiculo')) return;
+  e.ver = ver; e.peca = undefined;
+  desmontar3D(m);
+  const ex = $(m, '.tec__expl')!; ex.outerHTML = explorador(v, docsDe(v), ops(m));
+  if (!quieto()) $(m, '.tec__expl-corpo')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: SAIDA });
+  montar3D(m); pintarLado(m);
+}
 
 /* ---------- escolher ---------- */
 let tPesquisa = 0;
@@ -55,7 +123,7 @@ function escolherVeiculo(m: HTMLElement, chave: string, linha?: HTMLElement | nu
   const v = veiculoDe(chave); if (!v) return;
   const e = est(m);
   const de = linha ? { carro: $(linha, '.tec__v-carro')?.getBoundingClientRect(), nome: $(linha, '.tec__v-nome b, td:first-child')?.getBoundingClientRect() } : undefined;
-  Object.assign(e, { veiculo: chave, seccao: 'geral', doc: undefined, sistema: undefined });
+  Object.assign(e, { veiculo: chave, seccao: 'geral', doc: undefined, sistema: undefined, ver: undefined, peca: undefined });
   m.dataset.veiculo = chave;
   $(m, '.tec__ctx')!.outerHTML = contexto(v, ops(m));
   const corpo = $(m, '.tec__escolher, .tec__trabalho')!;
@@ -63,6 +131,7 @@ function escolherVeiculo(m: HTMLElement, chave: string, linha?: HTMLElement | nu
   const topo = $(m, '.tec__cabeca')!.getBoundingClientRect().top;
   if (topo < 0) { $(m, '.tec__cabeca')!.scrollIntoView({ block: 'start' }); }
   armarIndicador(m, false);
+  montar3D(m);
   if (quieto()) { $<HTMLElement>(m, '.tec__item[aria-current]')?.focus({ preventScroll: true }); return; }
   /* o elemento partilhado: a silhueta e o nome partem do sítio da linha */
   const voar = (el: HTMLElement | null, r?: DOMRect, escala = true) => {
@@ -84,6 +153,7 @@ function mudarVeiculo(m: HTMLElement): void {
   const e = est(m), v = e.veiculo ? veiculoDe(e.veiculo) : undefined;
   if (v) { e.marca = v.marca; e.q = ''; }
   const antes = e.veiculo;
+  desmontar3D(m);
   Object.assign(e, { veiculo: undefined, seccao: 'geral', doc: undefined, sistema: undefined });
   delete m.dataset.veiculo;
   fecharSugestoes(m);
@@ -111,7 +181,9 @@ function armarIndicador(m: HTMLElement, animar = true): void {
 function pintarConteudo(m: HTMLElement, extra: Partial<Opcoes> = {}, direcao = 1): void {
   const e = est(m), v = veiculoDe(e.veiculo!); if (!v) return;
   const c = $(m, '.tec__conteudo')!;
+  desmontar3D(m);
   c.innerHTML = conteudo(v, ops(m, extra));
+  areas(m); pintarLado(m); montar3D(m);
   c.dataset.atual = e.doc ? docsDe(v).find((d) => d.id === e.doc)?.seccao ?? e.seccao : e.seccao;
   const atual = c.dataset.atual;
   $$(m, '.tec__item').forEach((b) => { if (b.dataset.sec === atual) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
@@ -141,6 +213,7 @@ function abrirDoc(m: HTMLElement, id: string, aviso = ''): void {
   window.setTimeout(() => {
     if (est(m).doc !== id) return;
     c.innerHTML = conteudo(v, ops(m, { aviso }));
+    pintarLado(m);
     if (!quieto()) $$(c, '.tec__fonte, .tec__figs > *').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: i * 40, easing: SAIDA, fill: 'backwards' }));
     $<HTMLElement>(c, '.tec__pag-titulo')?.focus?.();
   }, quieto() ? 120 : 480);
@@ -151,6 +224,9 @@ function fecharNav(m: HTMLElement): void { const b = $(m, '.tec__nav-abrir'); if
 function escolherSistema(m: HTMLElement, sis: IdSistema): void {
   const e = est(m), v = veiculoDe(e.veiculo!); if (!v) return;
   e.sistema = e.sistema === sis ? undefined : sis;
+  const c3 = carro(m); c3?.focar(e.sistema);
+  $$(m, '[data-vista3d]').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.vista3d === 'tecnica') === (c3 ? c3.emTecnica : !!e.sistema))));
+  pintarLado(m);
   const ex = $(m, '.tec__expl')!;
   if (e.sistema) ex.dataset.sis = e.sistema; else delete ex.dataset.sis;
   $$(ex, '.tec__sistema').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sis === e.sistema)));
@@ -268,6 +344,7 @@ function abrirWorkshop(b: HTMLButtonElement): void {
 function armar(): void {
   const m = vivo(); if (!m) return;
   est(m);
+  montar3D(m);
   requestAnimationFrame(() => armarIndicador(m, false));
 }
 export function iniciar(): void {
@@ -279,6 +356,7 @@ export function iniciar(): void {
     /* o visor */
     if (t.closest('[data-fechar-visor]') || t.closest('.tec__veu')) { fecharVisor(m); return; }
     const fz = t.closest<HTMLElement>('[data-zoom]'); if (fz) { const k = Number(fz.dataset.zoom); zoom(m, k === 0 ? 0 : k > 0 ? 1.25 : .8); return; }
+    const fn = t.closest<HTMLElement>('[data-fig-n]'); if (fn) { abrirVisor(m, Number(fn.dataset.figN)); return; }
     const fi = t.closest<HTMLElement>('[data-fig-ir]'); if (fi) { const f = (est(m).fig ?? 1) + Number(fi.dataset.figIr); abrirVisor(m, f); return; }
     if (t.closest('[data-inteiro]')) { const vz = $(m, '.tec__visor')!; if (document.fullscreenElement) document.exitFullscreen().catch(() => undefined); else vz.requestFullscreen?.().catch(() => undefined); return; }
     if (t.closest('.tec__visor')) return;
@@ -299,7 +377,16 @@ export function iniciar(): void {
       if (sim && !quieto()) $$(ul, 'li').forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: i * 25, easing: SAIDA, fill: 'backwards' }));
       armarIndicador(m); return;
     }
-    const sec = t.closest<HTMLElement>('[data-sec]'); if (sec && !t.closest('.tec__sug')) { irSeccao(m, sec.dataset.sec as IdSeccao | 'geral'); return; }
+    /* as três áreas */
+    if (t.closest('[data-nav-recolher]')) { const e = est(m); if (e.doc) e.navLer = !ops(m).compacta; else e.nav = !ops(m).compacta; areas(m); return; }
+    if (t.closest('[data-lado], [data-lado-fechar]')) { const e = est(m), abrir = !t.closest('[data-lado-fechar]') && !ops(m).lado; if (e.doc) e.ladoLer = abrir; else e.lado = abrir; areas(m); if (abrir) pintarLado(m); return; }
+    /* o explorador: o carro ou a vista explodida; exterior/técnica; repor; separar */
+    const vb = t.closest<HTMLElement>('.tec__ver-b'); if (vb) { mudarVer(m, vb.dataset.ver as 'veiculo' | 'explodida'); return; }
+    const v3 = t.closest<HTMLElement>('[data-vista3d]'); if (v3) { const tec = v3.dataset.vista3d === 'tecnica'; carro(m)?.vista(tec); $$(m, '[data-vista3d]').forEach((b) => b.setAttribute('aria-pressed', String(b === v3))); return; }
+    if (t.closest('[data-repor]')) { const e = est(m); if (carro(m)) { e.sistema = undefined; escolherSistema(m, undefined as unknown as IdSistema); } palcos.get(m)?.inst.repor(); return; }
+    const xp = t.closest<HTMLElement>('[data-explodir]'); if (xp) { rolamento(m)?.separar(xp.dataset.explodir === '1'); return; }
+    const pc = t.closest<HTMLElement>('.tec__sistema[data-peca], .tec__peca2d'); if (pc) { escolherPeca(m, pc.dataset.peca as PecaRol); return; }
+    const sec = t.closest<HTMLElement>('[data-sec]'); if (sec && !t.closest('.tec__sug')) { irSeccao(m, sec.dataset.sec as IdSeccao | 'geral', sec.dataset.comSis as IdSistema | undefined); return; }
     const fl = t.closest<HTMLElement>('[data-filtro]'); if (fl) { est(m).sistema = (fl.dataset.filtro || undefined) as IdSistema | undefined; pintarConteudo(m); return; }
     const sis = t.closest<HTMLElement>('.tec__sistema, .tec__zona'); if (sis) { escolherSistema(m, sis.dataset.sis as IdSistema); return; }
     /* documentos */

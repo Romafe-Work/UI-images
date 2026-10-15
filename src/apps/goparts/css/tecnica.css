@@ -117,7 +117,56 @@
 .tec__guia-nota svg { width: 16px; height: 16px; flex: none; color: var(--c-texto-3); }
 
 /* ---------- o espaço de trabalho ---------- */
-.tec__trabalho { display: grid; grid-template-columns: 236px minmax(0, 1fr); align-items: start; gap: 20px; }
+.tec__trabalho { display: grid; grid-template-columns: 236px minmax(0, 1fr) 300px; align-items: start; gap: 20px; }
+/* (v2) as três áreas: a navegação recolhe-se a ícones e o contexto fecha-se; ao ler um documento, as duas dão-lhe o
+   espaço (a pessoa pode voltar a abri-las). A troca é imediata; o que entra aparece com opacidade e deslocamento. */
+.tec__trabalho.nav-compacta { grid-template-columns: 60px minmax(0, 1fr) 300px; }
+.tec__trabalho.sem-lado { grid-template-columns: 236px minmax(0, 1fr); }
+.tec__trabalho.nav-compacta.sem-lado { grid-template-columns: 60px minmax(0, 1fr); }
+.tec__trabalho.sem-lado .tec__lado { display: none; }
+.tec__nav-recolher { display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; margin-bottom: 4px; padding: 0 10px 0 14px; border: 0; border-radius: 6px; background: none; color: var(--c-texto-3); font: inherit; font-size: 12px; cursor: pointer; transition: background-color var(--t-rapido) ease, color var(--t-rapido) ease; }
+.tec__nav-recolher svg { width: 16px; height: 16px; flex: none; transition: transform 220ms var(--t-curva); }
+.tec__nav-recolher:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+.nav-compacta .tec__nav { padding: 8px 6px; overflow-x: hidden; }
+.nav-compacta .tec__nav-recolher { justify-content: center; padding: 0; }
+.nav-compacta .tec__nav-recolher svg { transform: rotate(180deg); }
+.nav-compacta .tec__nav-recolher span, .nav-compacta .tec__item-nome, .nav-compacta .tec__item-n, .nav-compacta .tec__grupo-t > span, .nav-compacta .tec__grupo-t small, .nav-compacta .tec__grupo-t > svg { display: none; }
+.nav-compacta .tec__grupo-t { justify-content: center; height: 9px; padding: 0; margin: 4px 0; cursor: default; pointer-events: none; }
+.nav-compacta .tec__grupo-t::before { content: ""; width: 24px; height: 1px; background: var(--c-borda); }
+.nav-compacta .tec__itens[hidden] { display: block; }
+.nav-compacta .tec__item { justify-content: center; padding: 0; }
+.nav-compacta .tec__item > svg { width: 18px; height: 18px; }
+.nav-compacta .tec__indicador { left: -6px; }
+
+/* o painel de contexto */
+.tec__lado { position: sticky; top: var(--tec-topo); display: grid; align-content: start; gap: 16px; max-height: calc(100vh - var(--tec-topo) - 16px); overflow-y: auto; padding: 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); box-sizing: border-box; }
+.tec__lado-cabeca { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tec__lado-bloco { display: grid; gap: 8px; min-width: 0; }
+.tec__lado-bloco + .tec__lado-bloco { padding-top: 14px; border-top: 1px solid var(--c-borda); }
+.tec__lado-bloco h3 { margin: 0; font-size: 15px; color: var(--c-texto); }
+.tec__lado-carro { width: 120px; color: var(--c-texto-2); }
+.tec__lado-dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin: 0; }
+.tec__lado-dl dt { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--c-texto-3); }
+.tec__lado-dl dd { margin: 1px 0 0; font-size: 13px; font-weight: 600; color: var(--c-texto); }
+.tec__lado-g { margin: 6px 0 0; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--c-texto-3); }
+.tec__lado-l { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.tec__lado-s { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--c-texto-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; transition: background-color var(--t-rapido) ease, color var(--t-rapido) ease; }
+.tec__lado-s > svg { width: 15px; height: 15px; flex: none; color: var(--c-texto-3); }
+.tec__lado-s > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tec__lado-s b { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--c-texto); font-variant-numeric: tabular-nums; }
+.tec__lado-s.is-zero b { color: var(--c-texto-3); font-weight: 400; }
+.tec__lado-s:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+.tec__lado-sis { display: flex; align-items: center; gap: 10px; margin: 0; }
+.tec__lado-sis > svg { width: 22px; height: 22px; flex: none; color: var(--c-acao); }
+.tec__lado-sis span { display: grid; min-width: 0; }
+.tec__lado-sis b { font-size: 15px; color: var(--c-texto); }
+.tec__lado-sis small { font-size: 12px; color: var(--c-texto-3); }
+.tec__lado-texto { margin: 0; font-size: 13px; line-height: 1.5; color: var(--c-texto-2); }
+.tec__lado-nota { display: flex; gap: 6px; margin: 0; font-size: 12px; line-height: 1.45; color: var(--c-texto-3); }
+.tec__lado-nota svg { width: 14px; height: 14px; flex: none; margin-top: 2px; }
+.tec__lado-pecas { width: 100%; justify-content: center; }
+.tec__lado-btn[aria-pressed="true"] { border-color: var(--c-acao); }
+.tec__ctx-sec { font-weight: 600; color: var(--c-texto); }
 .tec__trabalho.is-esbatido .tec__pagina, .tec__trabalho.is-esbatido .tec__nav { opacity: .55; pointer-events: none; }
 
 /* a navegação agrupada */
@@ -262,7 +311,7 @@
 .tec__avaria-n.is-erro { color: var(--c-erro); }
 
 /* ---------- o leitor ---------- */
-.tec__leitor { grid-template-columns: 220px minmax(0, 1fr) 240px; align-items: start; }
+.tec__leitor { grid-template-columns: 220px minmax(0, 1fr); align-items: start; }
 .tec__cap, .tec__rel { position: sticky; top: var(--tec-topo); padding: 12px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); }
 .tec__cap-t { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--c-texto-3); }
 .tec__cap-t svg { width: 16px; height: 16px; flex: none; }
@@ -374,15 +423,73 @@
 .tec__visor-estado p { margin: 0; line-height: 1.5; }
 .tec__visor-estado strong { display: block; margin-bottom: 4px; font-size: 16px; color: var(--c-texto); }
 
+/* ---------- (v2) o explorador: o carro em 3D (ou o desenho) e a vista explodida ---------- */
+.tec__expl-cabeca { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px 16px; margin-bottom: 14px; }
+.tec__expl-cabeca h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; color: var(--c-texto); }
+.tec__expl-cabeca h2 > svg { width: 18px; height: 18px; color: var(--c-texto-3); }
+.tec__expl-cabeca p { margin: 4px 0 0; font-size: 13px; color: var(--c-texto-2); }
+.tec__ver { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--c-borda); border-radius: 8px; }
+.tec__ver-b { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: none; color: var(--c-texto-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color var(--t-rapido) ease, color var(--t-rapido) ease; }
+.tec__ver-b svg { width: 16px; height: 16px; }
+.tec__ver-b:hover { color: var(--c-texto); }
+.tec__ver-b[aria-pressed="true"] { background: color-mix(in srgb, var(--c-acao) 12%, transparent); color: var(--c-texto); box-shadow: inset 0 -2px 0 var(--c-acao); }
+.tec__expl-fig { position: relative; }
+.tec__palco3d { display: none; position: relative; }
+.tec__expl-fig.is-3d .tec__palco3d { display: block; height: clamp(280px, 42vh, 430px); border-radius: 6px; }
+.tec__expl-fig.is-3d .tec__expl-svg, .tec__expl-fig.is-3d .tec__rol2d { display: none; }
+.tec__canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.tec__canvas.is-a-arrastar { cursor: grabbing; }
+.tec__3d-rotulo { position: absolute; top: 12px; left: 12px; z-index: 2; margin: -6px 0 0; padding: 4px 9px; border: 1px solid var(--c-marca); border-radius: 6px; background: var(--c-superficie); color: var(--c-texto); font-size: 12px; font-weight: 700; white-space: nowrap; pointer-events: none; }
+.tec__3d-rotulo[hidden] { display: none; }
+.tec__3d-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.tec__3d-nota { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--c-texto-2); }
+.tec__3d-nota svg { width: 14px; height: 14px; flex: none; color: var(--c-texto-3); }
+.is-a-carregar-3d .tec__3d-nota::after { content: "· a carregar o 3D…"; color: var(--c-texto-3); }
+.tec__3d-ctl { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tec__expl-fig:not(.is-3d) .tec__3d-ctl { display: none; }
+.tec__seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--c-borda); border-radius: 6px; }
+.tec__seg-b { height: 28px; padding: 0 10px; border: 0; border-radius: 4px; background: none; color: var(--c-texto-2); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color var(--t-rapido) ease, color var(--t-rapido) ease; }
+.tec__seg-b[aria-pressed="true"] { background: var(--c-superficie); color: var(--c-texto); box-shadow: inset 0 -2px 0 var(--c-acao); }
+.tec__expl-fig:not(.is-3d) .so-3d, .tec__expl-fig.is-3d .so-2d { display: none; }
+.tec__3d-falta { display: flex; gap: 6px; margin: 0; font-size: 12px; color: var(--c-texto-2); }
+.tec__3d-falta svg { width: 14px; height: 14px; flex: none; margin-top: 1px; }
+.tec__rol2d { display: block; width: 100%; max-height: 260px; }
+.tec__peca2d { cursor: pointer; }
+.tec__peca2d > :not(text) { fill: var(--c-superficie); stroke: var(--c-texto-3); stroke-width: 1; transition: fill var(--t-rapido) ease, stroke var(--t-rapido) ease; }
+.tec__peca2d > .tec__gaiola2d { fill: none; stroke-width: 2.6; }
+.tec__peca2d text { font-size: 7px; font-weight: 600; fill: var(--c-texto-2); stroke: none; }
+.tec__peca2d:hover > :not(text) { stroke: var(--c-marca); }
+.tec__peca2d[aria-current] > :not(text):not(.tec__gaiola2d) { fill: color-mix(in srgb, var(--c-marca) 30%, var(--c-superficie)); }
+.tec__peca2d[aria-current] > :not(text) { stroke: var(--c-marca); }
+.tec__peca2d[aria-current] text { fill: var(--c-texto); }
+
+/* ---------- (v2) as secções de imagens em galeria ---------- */
+.tec__galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.tec__cartaz { display: grid; gap: 8px; width: 100%; height: 100%; padding: 10px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); color: var(--c-texto); font: inherit; text-align: left; cursor: zoom-in; transition: border-color var(--t-rapido) ease; box-sizing: border-box; }
+.tec__cartaz .tec__folha-mini { padding: 6px; border-radius: 4px; background: var(--c-superficie-2); box-sizing: border-box; }
+.tec__cartaz:hover { border-color: var(--c-marca); }
+.tec__cartaz:hover .tec__folha-mini { transform: scale(1.02); }
+.tec__cartaz:focus-visible { outline: 2px solid var(--c-marca); outline-offset: 2px; }
+.tec__cartaz-t b { display: block; font-size: 14px; line-height: 1.35; }
+.tec__cartaz-t small { display: block; margin-top: 2px; font-size: 12px; color: var(--c-texto-3); }
+.tec__cartaz-abrir { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--c-marca); }
+.tec__cartaz-abrir svg { width: 14px; height: 14px; }
+
+/* ---------- (v2) o visor: as miniaturas das figuras por baixo ---------- */
+.tec__visor-tira { display: flex; gap: 8px; padding: 8px 14px; overflow-x: auto; border-top: 1px solid var(--c-borda); }
+.tec__tira-b { display: grid; flex: none; gap: 4px; width: 96px; padding: 4px; border: 1px solid var(--c-borda); border-radius: 6px; background: none; color: var(--c-texto-2); font: inherit; font-size: 11px; cursor: pointer; transition: border-color var(--t-rapido) ease, color var(--t-rapido) ease; }
+.tec__tira-b:hover { border-color: var(--c-texto-3); }
+.tec__tira-b[aria-current] { border-color: var(--c-acao); color: var(--c-texto); }
+
 /* ---------- os gestos dos ícones novos (como css/icones.css) ---------- */
 :is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="book-open"], [data-i="clipboard-list"], [data-i="sticky-note"]) { animation: ic-folhear 450ms cubic-bezier(.3, 1.3, .5, 1); }
 :is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="megaphone"]) { animation: ic-tocar 500ms ease; }
 :is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="activity"], [data-i="arrow-left-right"], [data-i="list-tree"]) { animation: ic-andar 450ms cubic-bezier(.3, 1.3, .5, 1); }
 :is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="cable"], [data-i="move-vertical"], [data-i="engine"]) { animation: ic-vaivem 450ms ease; }
-:is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="plug-zap"], [data-i="layout-grid"], [data-i="zoom-in"], [data-i="maximize"], [data-i="image"]) { animation: ic-pop 450ms cubic-bezier(.3, 1.3, .5, 1); }
+:is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="plug-zap"], [data-i="layout-grid"], [data-i="zoom-in"], [data-i="maximize"], [data-i="image"], [data-i="expand"], [data-i="layers"], [data-i="panel-right-open"]) { animation: ic-pop 450ms cubic-bezier(.3, 1.3, .5, 1); }
 :is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="locate-fixed"]) { animation: ic-girar90 450ms cubic-bezier(.3, 1.3, .5, 1); }
-:is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="timer"], [data-i="image-off"], [data-i="file-x"]) { animation: ic-abanar 450ms ease; }
-:is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="zoom-out"]) { animation: ic-premir 400ms ease; }
+:is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="timer"], [data-i="image-off"], [data-i="file-x"], [data-i="rotate-ccw"]) { animation: ic-abanar 450ms ease; }
+:is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="zoom-out"], [data-i="shrink"], [data-i="panel-right-close"]) { animation: ic-premir 400ms ease; }
 :is(button, a, label, h2, [role="option"], .tec__caixa):is(:hover, :focus-visible, :focus-within) :is([data-i="scan"]) { animation: ic-scan 450ms ease; }
 
 @keyframes tec-aparecer { from { opacity: 0; transform: translateY(-4px); } }
@@ -394,15 +501,14 @@
 /* ---------- tablet ---------- */
 /* com a navegação ao lado, o leitor só tem três colunas em ecrãs largos; abaixo, os documentos da secção passam
    a «Anterior / Seguinte» no fim do documento (e continuam na navegação, na secção aberta) */
-@media (max-width: 1560px) {
-  .tec__leitor { grid-template-columns: minmax(0, 1fr) 240px; }
-  .tec__cap { display: none; }
-}
 @media (max-width: 1240px) {
   /* as outras motorizações, ao lado da navegação: a linha inteira escolhe, sem a coluna do botão */
   .tec__tabela--curta .tec__v-acao, .tec__tabela--curta th:last-child { display: none; }
   .tec__tabela--curta thead th { white-space: normal; }
-  .tec__leitor { grid-template-columns: minmax(0, 1fr) 220px; }
+  .tec__leitor { grid-template-columns: 200px minmax(0, 1fr); }
+  .tec__trabalho { grid-template-columns: 210px minmax(0, 1fr) 260px; gap: 16px; }
+  .tec__trabalho.sem-lado { grid-template-columns: 210px minmax(0, 1fr); }
+  .tec__trabalho.nav-compacta { grid-template-columns: 60px minmax(0, 1fr) 260px; }
   .tec__escolher { grid-template-columns: minmax(0, 1fr) 260px; }
   .tec__ctx-accoes { gap: 6px; }
   .tec__procura { width: 240px; }
@@ -416,7 +522,12 @@
   .tec__ctx { flex-wrap: wrap; }
   .tec__ctx-accoes { width: 100%; margin-left: 0; }
   .tec__procura { flex: 1; width: auto; }
-  .tec__trabalho { grid-template-columns: 200px minmax(0, 1fr); gap: 16px; }
+  /* o contexto passa para baixo do conteúdo */
+  .tec__trabalho, .tec__trabalho.sem-lado { grid-template-columns: 200px minmax(0, 1fr); gap: 16px; }
+  .tec__trabalho.nav-compacta, .tec__trabalho.nav-compacta.sem-lado { grid-template-columns: 60px minmax(0, 1fr); }
+  .tec__lado { position: static; grid-column: 2; max-height: none; }
+  .tec__leitor { grid-template-columns: minmax(0, 1fr); }
+  .tec__cap { display: none; }
   .tec__expl-corpo, .tec__expl-esq { grid-template-columns: minmax(0, 1fr); }
   .tec__sistemas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tec__disp { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -428,7 +539,14 @@
 }
 /* ---------- a navegação em cima (tablet estreito e telemóvel) ---------- */
 @media (max-width: 820px) {
-  .tec__trabalho { grid-template-columns: minmax(0, 1fr); }
+  .tec__trabalho, .tec__trabalho.sem-lado, .tec__trabalho.nav-compacta, .tec__trabalho.nav-compacta.sem-lado { grid-template-columns: minmax(0, 1fr); }
+  .tec__lado { grid-column: auto; }
+  .tec__nav-recolher { display: none; }
+  .nav-compacta .tec__item-nome, .nav-compacta .tec__item-n, .nav-compacta .tec__grupo-t > span, .nav-compacta .tec__grupo-t small, .nav-compacta .tec__grupo-t > svg { display: revert; }
+  .nav-compacta .tec__item { justify-content: flex-start; padding: 0 10px 0 14px; }
+  .nav-compacta .tec__grupo-t { justify-content: flex-start; height: auto; padding: 12px 10px 6px 14px; pointer-events: auto; }
+  .nav-compacta .tec__grupo-t::before { display: none; }
+  .nav-compacta .tec__indicador { left: 8px; }
   .tec__nav { position: relative; top: auto; max-height: none; padding: 0; overflow: visible; border: 0; background: none; }
   .tec__nav-abrir { display: flex; align-items: center; gap: 10px; width: 100%; height: 44px; padding: 0 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); color: var(--c-texto-2); font: inherit; font-size: 14px; text-align: left; cursor: pointer; box-sizing: border-box; }
   .tec__nav-abrir > span { flex: 1; min-width: 0; }

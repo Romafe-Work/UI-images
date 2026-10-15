@@ -14,7 +14,7 @@ import refreshCw from 'lucide-static/icons/refresh-cw.svg?raw';
 export type IdEstadoTecnica = 'tecnica-carga' | 'tecnica-pesquisa' | 'tecnica-sem-veiculos' | 'tecnica-invalido' | 'tecnica-falha' | 'tecnica-escolhido'
   | 'tecnica-sistema' | 'tecnica-categorias' | 'tecnica-veiculo' | 'tecnica-lista' | 'tecnica-documento' | 'tecnica-doc-carga' | 'tecnica-doc-nao'
   | 'tecnica-esquema' | 'tecnica-img-carga' | 'tecnica-img-nao' | 'tecnica-sem-dados' | 'tecnica-boletins' | 'tecnica-wd-carga' | 'tecnica-wd-nao'
-  | 'tecnica-procura' | 'tecnica-avaria' | 'tecnica-rede' | 'tecnica-sessao' | 'tecnica-sem-permissao';
+  | 'tecnica-procura' | 'tecnica-avaria' | 'tecnica-rede' | 'tecnica-sessao' | 'tecnica-sem-permissao' | 'tecnica-explodida' | 'tecnica-sem-3d' | 'tecnica-galeria';
 
 const BOTAO = (texto: string, icone: string, tipo = 'btn--acao btn--sm') => `<button type="button" class="btn ${tipo}">${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
 const doc = (titulo: string) => docsDe(veiculoDe(EXEMPLO)!).find((d) => d.titulo === titulo)!.id;
@@ -42,12 +42,12 @@ export const estadosTecnica = (): EcraGoParts[] => [
     aviso: faixa('erro', 'O veículo que pediu já não existe no catálogo.', 'A ligação trazia um veículo que deixou de estar disponível (ref. VT-404). Escolha-o outra vez na lista; a marca BMW já está aberta.'),
   }),
   e('tecnica-falha', 5, 'Erro do servidor', 'O catálogo não respondeu: a pesquisa fica, a referência do erro, o apoio e «Tentar novamente».', { erro: 'veiculos' }),
-  e('tecnica-escolhido', 6, 'Veículo escolhido · visão geral', 'BMW → 1 (E81) → 118d → N47 D20 C na barra de cima; as secções agrupadas à esquerda; o explorador do veículo e o que há em cada grupo.', V),
-  e('tecnica-sistema', 7, 'Sistema escolhido no explorador', 'Travões: as rodas acendem no desenho e os documentos dos travões (manuais, ajuste, tempos, lubrificantes, esquemas) aparecem por baixo.', { ...V, sistema: 'travoes' }),
+  e('tecnica-escolhido', 6, 'Veículo escolhido · visão geral', 'BMW → 1 (E81) → 118d → N47 D20 C e a secção na barra de cima; as secções à esquerda; o explorador ao centro (no ecrã vivo, o carro em 3D); o veículo e o que há em cada grupo no contexto, à direita.', V),
+  e('tecnica-sistema', 7, 'Sistema escolhido no explorador', 'Travões: as rodas acendem (no 3D, a câmara vai lá e os discos ficam azuis); os documentos dos travões aparecem por baixo e o contexto conta-os por secção, com as peças no Catálogo.', { ...V, sistema: 'travoes' }),
   e('tecnica-categorias', 8, 'Categorias a carregar', 'O veículo já está na barra; as secções e o explorador em esqueleto enquanto o WorkshopData responde.', { ...V, carga: 'categorias' }),
   e('tecnica-veiculo', 9, 'Veículo', 'Os dados do Catálogo para o veículo (sem nada a mais) e as outras motorizações do 1 (E81), para trocar sem voltar à lista.', { ...V, seccao: 'veiculo' }),
   e('tecnica-lista', 10, 'Manuais de reparação', 'A secção aberta com a risca laranja; os documentos com o sistema, o tipo e as figuras; o filtro por sistema.', { ...V, seccao: 'manuais' }),
-  e('tecnica-documento', 11, 'Documento aberto', 'O leitor: os manuais à esquerda, o documento ao centro (o conteúdo é do WorkshopData) com as figuras, e os relacionados dos travões à direita.', { ...V, doc: PASTILHAS }),
+  e('tecnica-documento', 11, 'Documento aberto', 'O leitor com o espaço todo: a navegação recolhida a ícones e o contexto fechado (abre-se em «Contexto», com os relacionados dos travões); os manuais à esquerda e o documento (o conteúdo é do WorkshopData) com as figuras.', { ...V, doc: PASTILHAS }),
   e('tecnica-doc-carga', 12, 'Documento a carregar', 'O título e os dados já lá estão; o conteúdo e as figuras em esqueleto.', { ...V, doc: PASTILHAS, carga: 'doc' }),
   e('tecnica-doc-nao', 13, 'Documento não encontrado', 'O fornecedor retirou o documento: diz isso no sítio dele; os outros da secção continuam à esquerda.', { ...V, doc: PASTILHAS, erro: 'doc' }),
   e('tecnica-esquema', 14, 'Figura aberta no visor', 'A miniatura cresceu até ao visor: figura 1 de 3, zoom, ajustar, ecrã inteiro e arrastar para mover. A imagem é a do fornecedor (aqui, só a folha).', { ...V, doc: ESQUEMA, fig: 1 }),
@@ -69,4 +69,7 @@ export const estadosTecnica = (): EcraGoParts[] => [
     aviso: faixa('aviso', 'A sessão terminou.', 'Por segurança, a sessão fecha depois de algum tempo sem atividade. A página fica como está; para abrir documentos, entre outra vez.', BOTAO('Entrar outra vez', logIn)),
   }),
   e('tecnica-sem-permissao', 25, 'Sem permissão', 'Esta conta não tem os esquemas elétricos no contrato: a secção diz quem pode ativar; as outras continuam abertas.', { ...V, seccao: 'eletricos', erro: 'permissao' }),
+  e('tecnica-explodida', 26, 'Vista explodida', 'O rolamento 6206 desmontado, à escala, com as esferas escolhidas: o contexto mostra as medidas normalizadas. No ecrã vivo é em 3D (separar, montar, rodar).', { ...V, ver: 'explodida', peca: 'esf' }),
+  e('tecnica-sem-3d', 27, '3D indisponível', 'O navegador não tem WebGL: fica o desenho 2D com as zonas; os sistemas e os documentos funcionam na mesma.', { ...V, sistema: 'motor', sem3d: true }),
+  e('tecnica-galeria', 28, 'Esquemas elétricos em galeria', 'As secções que são sobretudo imagens (esquemas, fusíveis, conforto, posição de peças) abrem com as folhas à vista.', { ...V, seccao: 'eletricos' }),
 ];
