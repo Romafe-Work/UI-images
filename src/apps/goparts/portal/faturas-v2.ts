@@ -13,7 +13,7 @@
    Molde dos Pedidos v5 e das Guias v3 (classes ped4__*, gui3__* do percurso e dos valores); o que é só das faturas
    tem fat2__*. Comportamento: comportamento/faturas-v2.ts. CSS: css/faturas-v2.css. Sem React.
    ========================================================= */
-import { azulejoPeca } from './pecas-img';
+import { listaCompras } from './pecas-img';
 import { FATURAS, type Fatura, type Pagamento } from './faturas-dados';
 import { base, iva, total, euros } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
@@ -132,11 +132,10 @@ export function pagamento(f: Fatura): string {
    neutro (não se inventam imagens). O preço unitário não vem nos dados — mostra-se a quantidade e o valor da linha. */
 export function detalheFatura(f: Fatura, prefixo = 'fat2', abertaIva = false): string {
   const g = f.guia, n = g.linhas.length, eid = `${prefixo}-ent-${id(f.num)}`;
-  const linhas = g.linhas.map(([q, d, v], i) => `<li class="fat2__linha" style="--i:${i}">${azulejoPeca(d, 'fat2__l-i')}<span class="fat2__l-desc"><b>${esc(d)}</b><small>Linha ${String(i + 1).padStart(2, '0')}</small></span><span class="fat2__l-q">${q.toLocaleString('pt-PT')} un.</span><span class="fat2__l-v">${euros(v)}</span></li>`).join('');
   return `<div class="fat2__talao">
     <section class="fat2__sec fat2__t-artigos" aria-label="Artigos da compra">
       <h3 class="ped4__h">Artigos da compra <span>${n}</span></h3>
-      ${n ? `<ol class="fat2__linhas">${linhas}</ol>` : `<p class="fat2__sem-linhas">${L(info)}<span>O serviço de faturação não enviou as linhas desta fatura. Os valores e o PDF continuam disponíveis.</span></p>`}
+      ${n ? listaCompras(g.linhas, euros) : `<p class="fat2__sem-linhas">${L(info)}<span>O serviço de faturação não enviou as linhas desta fatura. Os valores e o PDF continuam disponíveis.</span></p>`}
     </section>
     <section class="fat2__sec fat2__t-resumo" aria-label="Resumo financeiro"><h3 class="ped4__h">Resumo financeiro</h3>${discriminacao(f, abertaIva, prefixo)}</section>
     <section class="fat2__sec" aria-label="Pagamento"><h3 class="ped4__h">Pagamento</h3>${pagamento(f)}</section>

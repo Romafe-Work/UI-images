@@ -278,7 +278,13 @@ function painelGuia(main: HTMLElement, num: string, origem: HTMLElement | null):
   if (!quieto()) {
     if (!jaAberto) gv.animate([{ transform: 'translateX(32px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: SAIDA });
     else $(gv, '.ped4__g-guia')?.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: SAIDA });
-    $$(gv, '.gui3__valores dd[data-valor]').forEach((dd) => { const v = Number(dd.dataset.valor); if (!v) return; dd.dataset.valor = '0'; contar(dd, v, euros); });
+    /* como o talão das Faturas: os artigos entram um a um (no máximo 12), depois o resumo, o traço e o total em destaque;
+       os valores já estão certos (nada conta a partir do zero) */
+    $$(gv, '.fat2__linha').slice(0, 12).forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 120 + i * 35, easing: SAIDA, fill: 'backwards' }));
+    const n = Math.min(12, $$(gv, '.fat2__linha').length), t0 = 160 + n * 35;
+    $$(gv, '.fat2__recibo .fat2__r').forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: t0 + i * 50, easing: SAIDA, fill: 'backwards' }));
+    $(gv, '.fat2__traco')?.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 420, delay: t0 + 300, easing: SAIDA, fill: 'backwards' });
+    const tt = $(gv, '.fat2__r--total'); window.setTimeout(() => tt?.classList.add('is-destaque'), t0 + 600);
   }
   animarPercurso(gv);
   window.setTimeout(() => $(gv, '.ped4__g-num')?.focus(), quieto() ? 0 : 60);

@@ -83,3 +83,10 @@ export function imagemPeca(descricao: string): string {
 }
 /** O quadrado com a imagem da peça, para a esquerda de uma linha de artigo (a fotografia, se houver). */
 export const azulejoPeca = (descricao: string, cls = '', ref = '') => `<span class="pc-img${cls ? ` ${cls}` : ''}" aria-hidden="true">${ref && FOTOS[ref] ? `<img src="${FOTOS[ref]}" alt="" loading="lazy">` : imagemPeca(descricao)}</span>`;
+
+/** A lista de compras: uma linha por artigo, com a imagem da peça, a descrição, o n.º da linha, a quantidade e o valor
+    (o preço unitário não vem nos dados). Igual nas Faturas (o talão) e nas Guias (ela: «nas guias quero mais assim»). */
+export function listaCompras(linhas: [number, string, number][], euros: (n: number) => string): string {
+  const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return `<ol class="fat2__linhas">${linhas.map(([q, d, v], i) => `<li class="fat2__linha" style="--i:${i}">${azulejoPeca(d, 'fat2__l-i')}<span class="fat2__l-desc"><b>${esc(d)}</b><small>Linha ${String(i + 1).padStart(2, '0')}</small></span><span class="fat2__l-q">${q.toLocaleString('pt-PT')} un.</span><span class="fat2__l-v">${euros(v)}</span></li>`).join('')}</ol>`;
+}

@@ -174,8 +174,9 @@ button.gui3__no:focus-visible { outline: 2px solid var(--azul-fundo); outline-of
    e os valores juntos, como um talão: a tabela dos artigos e, logo por baixo, o cartão dos valores; as ações depois */
 .ped4__g-guia .gui3__det { row-gap: 0; }
 .ped4__g-guia .gui3__det > section + section { margin-top: 18px; }
-.ped4__g-guia .gui3__det-valores { margin-top: 8px !important; }
-.ped4__g-guia .gui3__det-valores > .ped4__h { display: none; }
+.ped4__g-guia .gui3__det-artigos { padding-bottom: 16px; border-bottom: 1px solid var(--c-borda); }
+.ped4__g-guia .gui3__det-valores { margin-top: 16px !important; }
+.gui3__r-base dt { color: var(--c-texto); font-weight: 600; } .gui3__r-base { margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--c-borda); }
 .gui3__det-accoes-sec { grid-area: accoes; }
 .ped4__g-guia .gui3__seta { max-width: 48px; }
 .ped4__g-guia .btn.is-feito { border-color: var(--c-ok); color: var(--c-ok); }

@@ -12,7 +12,7 @@
    — é o «servidor» do protótipo; o ecrã não faz contas próprias. Feito em TypeScript e CSS, sem React.
    Comportamento: comportamento/guias-v3.ts. CSS: css/guias-v3.css (+ css/pedidos-v4.css).
    ========================================================= */
-import { azulejoPeca } from './pecas-img';
+import { listaCompras } from './pecas-img';
 import { GUIAS, base, iva, total, euros, type Guia } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
 import { pilulasEstado } from './pedidos-v4';
@@ -89,11 +89,18 @@ export function valores(g: Guia): string {
     </dl>`;
 }
 
+/* ---------- o resumo financeiro, como no talão das Faturas (ela: «nas guias quero mais assim») ----------
+   Valor bruto, desconto, embalagens, portes, base tributável, IVA; um traço; o total em destaque. Os valores aparecem
+   já certos (nada conta a partir do zero). */
+export function reciboGuia(g: Guia): string {
+  const l = (t: string, v: number, cls = '') => `<div class="fat2__r${cls}"><dt>${t}</dt><dd>${v ? euros(v) : '<span class="ped4__nada">—</span>'}</dd></div>`;
+  return `<dl class="fat2__recibo">${l('Valor bruto', g.bruto)}${l('Desconto', -g.desconto)}${l('Embalagens', g.embalagens)}${l('Portes', g.portes)}${l('Base tributável', base(g), ' gui3__r-base')}${l('IVA (23 %)', iva(g))}<div class="fat2__traco" aria-hidden="true"></div><div class="fat2__r fat2__r--total"><dt>Total da guia <small>com IVA</small></dt><dd>${euros(total(g))}</dd></div></dl>`;
+}
+
 /* ---------- a guia aberta ---------- */
 /** `onde`: nas Guias, as ações de sempre; no painel dos Pedidos (ela, 15 out.: «quando clico numa guia de remessa
     do pedido abre um diálogo lateral»), a descarga e o caminho para a página das Guias, sem «Abrir o pedido». */
 export function detalheGuia(g: Guia, onde: 'guias' | 'pedidos' = 'guias'): string {
-  const artigos = g.linhas.map(([q, d, v], i) => `<tr style="--i:${i}"><td class="ped4__num">${q}</td><td><span class="pc-art">${azulejoPeca(d)}<span>${esc(d)}</span></span></td><td class="ped4__num">${euros(v)}</td></tr>`).join('');
   return `<div class="gui3__det">
     <section class="gui3__det-percurso" aria-label="Percurso documental"><h3 class="ped4__h">Percurso documental</h3>${percursoDoc(g)}</section>
     <section class="gui3__det-doc" aria-label="Documento">
@@ -107,10 +114,8 @@ export function detalheGuia(g: Guia, onde: 'guias' | 'pedidos' = 'guias'): strin
       <p class="ped4__ent">${L(warehouse)}<span><b>Armazém ${esc(g.armazem)}</b>Saída da mercadoria</span></p>
       ${g.obs && g.obs !== '—' ? `<p class="gui3__obs"><b>Observações</b>${esc(g.obs)}</p>` : ''}
     </section>
-    <section class="gui3__det-valores" aria-label="Valores"><h3 class="ped4__h">Valores</h3>${valores(g)}</section>
-    <section class="gui3__det-artigos" aria-label="Artigos"><h3 class="ped4__h">Artigos <span>${g.linhas.length}</span></h3>
-      <div class="ped4__art-rolo"><table class="ped4__art"><thead><tr><th class="ped4__num">Qtd.</th><th>Artigo</th><th class="ped4__num">Valor</th></tr></thead><tbody>${artigos}</tbody></table></div>
-    </section>
+    <section class="gui3__det-artigos" aria-label="Artigos da compra"><h3 class="ped4__h">Artigos da compra <span>${g.linhas.length}</span></h3>${listaCompras(g.linhas, euros)}</section>
+    <section class="gui3__det-valores" aria-label="Resumo financeiro"><h3 class="ped4__h">Resumo financeiro</h3>${reciboGuia(g)}</section>
     <section class="gui3__det-accoes-sec" aria-label="Ações">
       <div class="ped4__det-accoes gui3__accoes">${onde === 'pedidos' ? `
         <button type="button" class="btn btn--ghost btn--sm" data-descarregar="${g.num}">${L(download, 'btn__icone')}<span class="btn__rotulo">Descarregar PDF</span></button>
