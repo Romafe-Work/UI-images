@@ -23,6 +23,9 @@ const FORMAS: Record<string, [string, string, number]> = {
   'Furgão': ['M14 80V54q2-10 16-12l20-2 18-22q4-4 14-4h136q8 0 8 8v58Z', 'M74 21h34v20H56Z', 80],
 };
 
+/** A forma de uma categoria (carroçaria, janelas, y das rodas), para quem desenha por cima dela (17 · Inf. técnica). */
+export const formaDe = (carrocaria: string) => FORMAS[carrocaria] || FORMAS.Hatchback;
+
 /** A silhueta da categoria (ou do hatchback, se não houver). */
 export function silhueta(carrocaria: string): string {
   const [corpo, janelas, y] = FORMAS[carrocaria] || FORMAS.Hatchback;

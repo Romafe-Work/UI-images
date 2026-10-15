@@ -63,6 +63,8 @@ function medir() {
   for (let i = 0; i < sob.length; i++) for (let j = i + 1; j < sob.length; j++) {
     const a = sob[i], b = sob[j];
     if (a.contains(b) || b.contains(a)) continue;
+    /* uma lista de sugestões aberta (role=listbox) fica por cima do conteúdo de propósito */
+    if (!!a.closest('[role="listbox"]') !== !!b.closest('[role="listbox"]')) continue;
     if (a.tagName === 'LABEL' && (a.control === b || a.htmlFor === b.id)) continue;
     if (b.tagName === 'LABEL' && (b.control === a || b.htmlFor === a.id)) continue;
     const p = recortado(a), q = recortado(b);

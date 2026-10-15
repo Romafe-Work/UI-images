@@ -8,6 +8,8 @@ import type { EcraGoParts } from '../ids';
 import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas, estadosDevolucoes } from './estados';
 import { devolucoesV1 } from './devolucoes';
+import { tecnicaV1 } from './tecnica';
+import { estadosTecnica } from './tecnica-estados';
 import { faturasV2 } from './faturas-v2';
 import { listaHtml, type EstadoLista } from './lista';
 import { guiasV3 } from './guias-v3';
@@ -66,6 +68,12 @@ export const ecrasPortal: EcraGoParts[] = [
   { id: 'devolucoes', nome: '16 · Devoluções', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'Como os Pedidos, as Guias e as Faturas (15 out.): as devoluções por ano e mês, o estado por baixo da data (Por enviar, Enviada, Creditada — só o que os dados dizem); clicar abre o painel com os artigos devolvidos, o percurso confirmado (a caixa desce uma vez), Pedido → Guia → Devolução → Nota de crédito; «Criar devolução» em três passos, com os artigos a passar da fatura para a devolução', html: portal('devolucoes', devolucoesV1(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'Criar, procurar e acompanhar as devoluções: filtros por datas, número e referência; a cronologia com o estado de cada uma; o painel com os artigos, o percurso e os documentos; a criação guiada a partir da fatura.' },
   ...estadosDevolucoes(),
+  /* 15 out. 2026: do briefing dela («Automotive Technical Intelligence Center») e da nota («seleção do veículo mais
+     clara, navegação técnica agrupada e visualização de documentação com zoom […] depois, o explorador visual»):
+     a aba «Inf. técnica», que ainda não tinha ecrã */
+  { id: 'tecnica', nome: '17 · Informações técnicas', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'O espaço de trabalho do veículo (15 out.): escolher a motorização (modelo, código do motor, fabricado desde / até, combustível, potência) com a pesquisa; o nome voa para a barra do veículo, sempre à vista; as 15 secções do ecrã antigo agrupadas (Veículo, Manutenção, Reparação, Diagnóstico, Recursos) com a risca laranja; o explorador com as zonas gerais do veículo; o leitor em três colunas e o visor das figuras com zoom e arrastar. Conteúdo técnico só do fornecedor', html: portal('tecnica', tecnicaV1(), undefined, { menu: true, rodape: false }) }],
+    objetivo: 'Consultar a informação técnica de um veículo: escolhê-lo pela marca, modelo ou código do motor, e depois a manutenção, a reparação, o diagnóstico e os esquemas do WorkshopData, com o veículo sempre à vista.' },
+  ...estadosTecnica(),
 ];
 
 function estadosLista(): EcraGoParts[] {
