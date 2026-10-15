@@ -174,9 +174,13 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
   errada: o aviso no campo e o anel interior a resistir (sem abanar o ecrã).
 - 03 vista explodida com as cotas e a câmara rodada ~20°; ao continuar, as peças juntam-se.
 - 04 as peças suspensas; a opção em foco (ou debaixo do rato) traz a sua peça à frente.
-- O login é um cartão ao centro do ecrã (ela: «quero o login com um cartão no centro»), com o texto
-  centrado e uma faixa no azul da Romafe em cima (o título); a marca está no cabeçalho da página; o rolamento fica no fundo, à esquerda do cartão (no telemóvel, por cima), e continua a
-  montar-se de passo em passo. Sem a etiqueta «01 / 04 · Anel exterior».
+- **15 out. 2026, do género de uma imagem dela:** a página toda, partida ao meio por uma linha fina, sem
+  cartão. À esquerda o título grande em maiúsculas («A peça certa. À primeira. Sem voltas.»), a frase, um
+  traço e as três vantagens com ícones laranja; por trás, ondas finas e pontos laranja; o rolamento em baixo,
+  à direita do texto (a caixa dele é a do canvas, e as cotas do 03 ficam nela). À direita o ROMAFE com o
+  risco laranja e o GoParts, o «Bem-vindo», os campos sublinhados com o asterisco laranja, a ligação laranja
+  à direita e o botão laranja. Fica o fluxo de sempre (primeiro o correio). Escuro em grafite (`--g-*`).
+  Medido com `npm run medir`: zero problemas nos quatro ecrãs.
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
 ## 10 · Início do GoParts, v3: o espaço de trabalho de todos os dias (14 out. 2026)

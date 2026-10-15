@@ -198,7 +198,7 @@ export class CenaEntrar {
       const esq = cx + Math.cos(ang) * raio < cx, larg = rotulo.offsetWidth + 14;
       /* o rótulo nunca sai do palco (15 out.: o palco é a metade esquerda do cartão) */
       const direita = cv.width - larg - 12;
-      const lx = esq ? Math.max((largo ? cv.width * 0.38 : 0) + larg + 12, cx + Math.cos(ang) * raio) : Math.min(direita, cx + Math.cos(ang) * raio), ly = Math.max(80, Math.min(cv.height - 60, cy + Math.sin(ang) * raio));
+      const lx = esq ? Math.max((largo ? cv.width * 0.38 : 0) + larg + 12, cx + Math.cos(ang) * raio) : Math.min(direita, cx + Math.cos(ang) * raio), ly = Math.max(largo ? 80 : 14, Math.min(cv.height - 60, cy + Math.sin(ang) * raio));
       linha.setAttribute('x1', x.toFixed(1)); linha.setAttribute('y1', y.toFixed(1)); linha.setAttribute('x2', lx.toFixed(1)); linha.setAttribute('y2', ly.toFixed(1));
       ponto.setAttribute('cx', x.toFixed(1)); ponto.setAttribute('cy', y.toFixed(1));
       rotulo.style.transform = `translate(${lx.toFixed(1)}px, ${ly.toFixed(1)}px) translate(${esq ? '-100%' : '0'}, -50%)`;

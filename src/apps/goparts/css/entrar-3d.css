@@ -1,42 +1,61 @@
 /* =========================================================
-   GOPARTS — os quatro ecrãs de entrar (14 out. 2026): o palco do rolamento e o formulário
-   À esquerda (55 %), o palco azul-noite com o canvas partilhado (comportamento/entrar-3d.ts), as
-   órbitas finas, a fase da montagem, a ficha do rolamento e os quatro passos; à direita (45 %), o
-   formulário, liso: claro no tema claro, carvão-azulado no escuro. O palco é escuro nos dois temas
-   (é a montagem; o rolamento de aço lê-se melhor no escuro). Sem vidro, sem brilhos, sem sombras.
-   Tempos: o formulário entra em 380 ms (desliza 16 px e aparece); o foco do campo, 150 ms; o hover
-   dos botões, 160 ms; o premir, escala 0,98.
-   Ecrã ajustável: a altura rola (o palco fica preso enquanto o formulário rola); em 1100 px as duas
-   colunas ficam a meias; em 800 px o palco sobe para cima do formulário, mais baixo (34vh).
-   Com «reduzir movimento» ou sem WebGL (.is-parado), o palco mostra um rolamento desenhado, parado.
+   GOPARTS — os quatro ecrãs de entrar (15 out. 2026), do género da imagem dela
+   A página toda, partida ao meio por uma linha fina: à esquerda (≈ 60 %) o título grande, a frase, as três
+   vantagens e o rolamento 3D em baixo à direita; à direita (≈ 40 %) o login, liso, sem cartão.
+   Escuro: o grafite do portal (--g-*, noite.css). Claro: o mesmo desenho em fundo neutro. Sem vidro, sem
+   painéis azuis; o azul é só o do ROMAFE; o laranja é das ações, dos ícones e do risco.
+   Tempos: o título sobe linha a linha (520 ms, 70 ms entre linhas); o formulário entra em 380 ms; as ondas
+   desenham-se uma vez (1,6 s); o foco do campo, 150 ms; o hover dos botões, 160 ms; o premir, escala 0,98.
+   Ecrã ajustável: a altura rola; abaixo de 1100 px as colunas ficam a meias; abaixo de 820 px o texto sobe
+   para cima do login, mais pequeno, e o rolamento sai.
+   Com «reduzir movimento» ou sem WebGL (.is-parado), o rolamento é um desenho parado.
    ========================================================= */
 .ent3 {
-  --ent3-palco: #071a2e; --ent3-lado: #f6f8fb; --ent3-tinta: #0d1520; --ent3-tinta-2: rgba(13, 21, 32, .66); --ent3-tinta-3: rgba(13, 21, 32, .46);
-  --ent3-borda: rgba(13, 21, 32, .16); --ent3-campo: #ffffff; --ent3-azul: #0063aa; --ent3-curva: cubic-bezier(.22, 1, .36, 1);
-  min-height: 100vh; display: grid; grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); background: var(--ent3-lado); color: var(--ent3-tinta);
+  --ent3-fundo: #f4f5f7; --ent3-lado: #ffffff; --ent3-tinta: #111317; --ent3-tinta-2: #4b5260; --ent3-tinta-3: #6b7280;
+  --ent3-borda: #d9dde3; --ent3-linha: rgba(17, 19, 23, .12); --ent3-azul: #0063aa; --ent3-curva: cubic-bezier(.22, 1, .36, 1);
+  --ent3-cena: var(--ent3-fundo);
+  min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(400px, 1fr);
+  background: var(--ent3-fundo); color: var(--ent3-tinta);
 }
-[data-theme="dark"] .ent3 { --ent3-palco: #06131f; --ent3-lado: #0d1622; --ent3-tinta: #eef2f7; --ent3-tinta-2: rgba(238, 242, 247, .66); --ent3-tinta-3: rgba(238, 242, 247, .44); --ent3-borda: rgba(255, 255, 255, .14); --ent3-campo: #122030; --ent3-azul: #3d95dd; }
+[data-theme="dark"] .ent3 { --ent3-fundo: var(--g-fundo); --ent3-lado: var(--g-fundo); --ent3-tinta: var(--g-tinta); --ent3-tinta-2: var(--g-tinta-2); --ent3-tinta-3: var(--g-tinta-3); --ent3-borda: var(--g-borda); --ent3-linha: rgba(255, 255, 255, .07); --ent3-azul: var(--g-azul-tinta); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ent3 { --ent3-palco: #06131f; --ent3-lado: #0d1622; --ent3-tinta: #eef2f7; --ent3-tinta-2: rgba(238, 242, 247, .66); --ent3-tinta-3: rgba(238, 242, 247, .44); --ent3-borda: rgba(255, 255, 255, .14); --ent3-campo: #122030; --ent3-azul: #3d95dd; }
+  :root:not([data-theme="light"]) .ent3 { --ent3-fundo: var(--g-fundo); --ent3-lado: var(--g-fundo); --ent3-tinta: var(--g-tinta); --ent3-tinta-2: var(--g-tinta-2); --ent3-tinta-3: var(--g-tinta-3); --ent3-borda: var(--g-borda); --ent3-linha: rgba(255, 255, 255, .07); --ent3-azul: var(--g-azul-tinta); }
 }
+@keyframes ent3-aparecer { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ent3-subir { from { opacity: 0; transform: translateY(18px); } }
+@keyframes ent3-entrar { from { opacity: 0; transform: translateX(16px); } }
 
-/* ---------- o palco ---------- */
-.ent3__palco { position: sticky; top: 0; align-self: start; height: max(100vh, 560px); overflow: hidden; background: var(--ent3-palco); color: #eef2f7; }
+/* ---------- à esquerda ---------- */
+.ent3__palco { position: relative; overflow: hidden; min-height: max(100vh, 620px); border-right: 1px solid var(--ent3-borda); background: var(--ent3-fundo); }
+.ent3__ondas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.ent3__ondas path { fill: none; stroke: var(--ent3-linha); stroke-width: 1.2; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; animation: ent3-desenhar 1.6s var(--ent3-curva) .2s forwards; }
+.ent3__ondas path.is-laranja { stroke: color-mix(in srgb, var(--c-acao) 30%, transparent); animation-delay: .4s; }
+.ent3__pontos i { position: absolute; z-index: 1; width: 3px; height: 3px; border-radius: 50%; background: var(--c-acao); opacity: .45; animation: ent3-aparecer .8s ease .6s both; }
+.ent3__pontos i:nth-child(3n) { opacity: .25; }
+
+.ent3__texto { position: relative; z-index: 2; display: grid; align-content: start; gap: 22px; max-width: 760px; padding: clamp(56px, 12vh, 128px) clamp(28px, 5vw, 80px) 0; }
+.ent3__lema { margin: 0; font-family: var(--f-titulo); font-weight: 800; font-size: clamp(42px, 5.2vw, 84px); line-height: 1.06; letter-spacing: -.03em; text-transform: uppercase; color: var(--ent3-tinta); }
+.ent3__lema span { display: block; animation: ent3-subir .52s var(--ent3-curva) both; }
+.ent3__lema span:nth-child(2) { animation-delay: .07s; } .ent3__lema span:nth-child(3) { animation-delay: .14s; }
+.ent3__frase { margin: 0; max-width: 34em; padding-bottom: 22px; border-bottom: 1px solid var(--ent3-borda); font-size: clamp(17px, 1.35vw, 20px); line-height: 1.5; color: var(--ent3-tinta-2); animation: ent3-aparecer .5s ease .25s both; }
+.ent3__vantagens { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; animation: ent3-aparecer .5s ease .35s both; }
+.ent3__vantagens li { display: flex; align-items: center; gap: 14px; width: fit-content; font-size: 16px; font-weight: 500; color: var(--ent3-tinta); }
+.ent3__vantagens svg { width: 20px; height: 20px; flex: none; color: var(--c-acao); }
+
+/* o rolamento: em baixo, à direita do texto (como a figura da imagem); a sua caixa é a do canvas, por isso as
+   cotas da vista explodida ficam no mesmo sistema de coordenadas */
+.ent3__peca { position: absolute; z-index: 0; right: clamp(16px, 6%, 96px); bottom: clamp(24px, 6vh, 64px); width: min(42%, 52vh, 460px); aspect-ratio: 1; }
 .ent3__lugar, .ent3__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .ent3__canvas { opacity: 0; transition: opacity .6s ease; }
 .is-cena .ent3__canvas { opacity: 1; }
-/* as órbitas finas à volta do rolamento: rodam muito devagar (é o único movimento contínuo do palco) */
-.ent3__grafismo { position: absolute; left: 50%; top: 50%; width: min(66%, 60vh); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; overflow: visible; }
-.ent3__orbita { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: .3; stroke-dasharray: 1 3; transform-box: fill-box; transform-origin: center; animation: ent3-orbita 90s linear infinite; }
-.ent3__orbita--fina { stroke: rgba(255, 255, 255, .06); stroke-dasharray: .4 6; animation-direction: reverse; }
-.ent3__mira { fill: none; stroke: rgba(239, 123, 16, .55); stroke-width: .35; }
+.ent3__grafismo { position: absolute; inset: -6%; width: 112%; height: 112%; pointer-events: none; overflow: visible; }
+.ent3__orbita { fill: none; stroke: color-mix(in srgb, var(--c-acao) 40%, transparent); stroke-width: .35; stroke-dasharray: 1 3; transform-box: fill-box; transform-origin: center; animation: ent3-orbita 90s linear infinite; }
+.ent3__orbita--fina { stroke: var(--ent3-linha); stroke-dasharray: .4 5; animation-direction: reverse; }
 @keyframes ent3-orbita { to { transform: rotate(360deg); } }
-.ent3__fase { position: absolute; left: 32px; top: 28px; margin: 0; font-family: var(--f-mono); font-size: 13px; color: rgba(238, 242, 247, .72); animation: ent3-aparecer .4s ease both; }
-.ent3__fase b { color: var(--c-acao); font-weight: 600; }
-.ent3__ficha { position: absolute; left: 32px; bottom: 28px; margin: 0; font-family: var(--f-mono); font-size: 12px; color: rgba(238, 242, 247, .5); }
-.ent3__passos { position: absolute; right: 32px; bottom: 32px; display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.ent3__passos li { width: 22px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .18); transition: background-color .3s ease; }
-.ent3__passos li[aria-current] { background: var(--c-acao); }
+.ent3__ficha { position: absolute; z-index: 2; right: clamp(16px, 6%, 96px); bottom: 14px; margin: 0; font-family: var(--f-mono); font-size: 12px; color: var(--ent3-tinta-3); }
+.is-parado .ent3__lugar { background:
+  radial-gradient(circle at 50% 50%, transparent 0 13%, #c7ced6 13.2% 17.5%, #3a4048 17.7% 21%, transparent 21.2%),
+  radial-gradient(circle at 50% 50%, transparent 0 24%, #3a4048 24.2% 25.6%, #c7ced6 25.8% 31%, transparent 31.2%); }
 /* as cotas da vista explodida (03) */
 .ent3__cotas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .ent3__cota line { stroke: var(--c-acao); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; animation: ent3-desenhar .7s var(--ent3-curva) .7s forwards; }
@@ -44,236 +63,115 @@
 .ent3__cota:nth-child(2) line { animation-delay: .78s; } .ent3__cota:nth-child(3) line { animation-delay: .86s; } .ent3__cota:nth-child(4) line { animation-delay: .94s; }
 @keyframes ent3-desenhar { to { stroke-dashoffset: 0; } }
 .ent3__rotulos { position: absolute; inset: 0; pointer-events: none; }
-.ent3__rotulo { position: absolute; left: 0; top: 0; padding: 3px 8px; font-family: var(--f-mono); font-size: 12px; color: #eef2f7; white-space: nowrap; border-left: 1px solid var(--c-acao); opacity: 0; animation: ent3-aparecer .3s ease 1s forwards; }
+.ent3__rotulo { position: absolute; left: 0; top: 0; padding: 3px 8px; font-family: var(--f-mono); font-size: 12px; color: var(--ent3-tinta); white-space: nowrap; border-left: 1px solid var(--c-acao); background: var(--ent3-fundo); opacity: 0; animation: ent3-aparecer .3s ease 1s forwards; }
 .ent3__rotulo.is-esq { border-left: 0; border-right: 1px solid var(--c-acao); }
-/* sem WebGL ou com «reduzir movimento»: um rolamento desenhado, parado */
-.is-parado .ent3__lugar { background:
-  radial-gradient(circle at 50% 50%, transparent 0 13%, #c7ced6 13.2% 17.5%, #0a2a4a 17.7% 21%, transparent 21.2%),
-  radial-gradient(circle at 50% 50%, transparent 0 24%, #0a2a4a 24.2% 25.6%, #c7ced6 25.8% 31%, transparent 31.2%); background-size: min(70vh, 90%) min(70vh, 90%); background-position: center; background-repeat: no-repeat; }
-/* o fim do «Entrar»: depois de a câmara atravessar o rolamento, o palco escurece e segue o Início */
-.ent3__palco::after { content: ""; position: absolute; inset: 0; background: var(--ent3-palco); opacity: 0; pointer-events: none; transition: opacity .4s ease; }
-.is-voo .ent3__palco::after { opacity: 1; }
+/* o fim do «Entrar»: depois de a câmara atravessar o rolamento, a página apaga-se e segue o Início */
+.ent3::after { content: ""; position: fixed; inset: 0; z-index: 5; background: var(--ent3-fundo); opacity: 0; pointer-events: none; transition: opacity .4s ease; }
+.ent3.is-voo::after { opacity: 1; }
 
-/* ---------- o formulário ---------- */
-.ent3__lado { display: grid; grid-template-rows: auto 1fr auto; gap: 24px; min-height: 100vh; padding: 28px clamp(24px, 5vw, 72px); }
-.ent3__marca { display: flex; align-items: center; gap: 12px; }
-.ent3__marca .romafe { font-size: 30px; line-height: 1; }
-.ent3__risco { width: 1px; height: 24px; background: var(--ent3-borda); }
-.ent3__produto { font-family: var(--f-titulo); font-weight: 600; font-size: 20px; }
-.ent3__form { align-self: center; width: min(420px, 100%); display: grid; gap: 14px; }
-/* (ela, 14 out.: «quero os campos no centro») o formulário ao centro da coluna; a marca e o rodapé
-   alinham-se com ele, na mesma largura */
-.ent3__lado > * { justify-self: center; width: min(420px, 100%); }
-/* (ela, de novo: «ainda não está no centro») o texto também ao centro: a marca, o título, o subtítulo e as
-   ligações; os campos e os botões ocupam a largura toda, os rótulos dos campos ficam por cima, à esquerda */
-.ent3__marca { justify-content: center; }
-.ent3__titulo, .ent3__sub { text-align: center; }
-.ent3__form .ent3__voltar { justify-self: center; }
-.ent3__ligacoes { justify-items: center; }
-.ent3__vender { justify-content: center; }
-.ent3__lado .ent3__rodape { justify-content: center; gap: 8px 24px; }
-/* (ela, 14 out., outra vez: «quero o texto no centro») também os rótulos, o que se escreve nos campos,
-   os erros, a conta, a nota e «Manter a sessão»; as opções da ajuda ficam à esquerda dentro da caixa */
-.ent3__campo label, .ent3__erro, .ent3__nota, .ent3__conta, .ent3__manter { justify-content: center; text-align: center; }
-.ent3__campo label { justify-self: center; }
-.ent3__caixa input { text-align: center; }
-.ent3__manter span { text-align: left; }
-.ent3__caixa:has(.ent3__olho) { padding-left: 54px; }
+/* ---------- à direita: o login ---------- */
+.ent3__lado { display: grid; grid-template-rows: 1fr auto auto 1fr auto; justify-items: center; gap: 0; row-gap: 28px; padding: clamp(32px, 6vh, 72px) clamp(28px, 4vw, 64px) 24px; background: var(--ent3-lado); }
+.ent3__lado > * { width: min(440px, 100%); }
+.ent3__marca { grid-row: 2; display: grid; justify-items: center; gap: 12px; animation: ent3-aparecer .4s ease both; }
+.ent3__marca .romafe { font-size: clamp(44px, 4vw, 60px); line-height: 1; }
+/* o logótipo da Romafe: a Motor e o risco laranja por baixo */
+.ent3__marca .romafe::after { content: ""; display: block; height: 3px; margin: 10px 6% 0; border-radius: 2px; background: var(--c-acao); }
+.ent3__produto { font-family: var(--f-titulo); font-weight: 600; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ent3-tinta-2); }
+.ent3__form { grid-row: 3; display: grid; gap: 16px; }
+.ent3__rodape { grid-row: 5; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; font-family: var(--f-mono); font-size: 12px; color: var(--ent3-tinta-3); }
+.ent3__rodape a { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; }
+.ent3__rodape svg { width: 14px; height: 14px; color: var(--c-acao); }
+
 .ent3__form > * { animation: ent3-entrar .38s var(--ent3-curva) both; }
 .ent3__form > :nth-child(2) { animation-delay: .03s; } .ent3__form > :nth-child(3) { animation-delay: .06s; } .ent3__form > :nth-child(4) { animation-delay: .09s; }
 .ent3__form > :nth-child(5) { animation-delay: .12s; } .ent3__form > :nth-child(6) { animation-delay: .15s; } .ent3__form > :nth-child(7) { animation-delay: .18s; }
-@keyframes ent3-entrar { from { opacity: 0; transform: translateX(16px); } }
-@keyframes ent3-aparecer { from { opacity: 0; } to { opacity: 1; } }
-.ent3__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 600; font-size: clamp(28px, 2.6vw, 36px); letter-spacing: -.02em; line-height: 1.1; }
-.ent3__sub { margin: -6px 0 6px; font-size: 16px; color: var(--ent3-tinta-2); }
-.ent3__voltar { justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 6px 2px; border: 0; background: none; font: inherit; font-size: 14px; color: var(--ent3-tinta-2); cursor: pointer; transition: color .16s ease; }
+.ent3__titulo { margin: 0; text-align: center; font-family: var(--f-titulo); font-weight: 700; font-size: clamp(30px, 2.6vw, 38px); letter-spacing: -.02em; line-height: 1.1; }
+.ent3__sub { margin: -6px 0 0; text-align: center; font-size: 17px; font-weight: 500; line-height: 1.45; color: var(--ent3-tinta); }
+.ent3__sub2 { margin: -6px 0 8px; text-align: center; font-size: 15px; color: var(--ent3-tinta-2); }
+.ent3__voltar { justify-self: center; display: inline-flex; align-items: center; gap: 6px; padding: 6px 2px; border: 0; background: none; font: inherit; font-size: 14px; color: var(--ent3-tinta-2); cursor: pointer; transition: color .16s ease; }
 .ent3__voltar svg { width: 16px; height: 16px; color: var(--c-acao); transition: transform .16s ease; }
 @media (hover: hover) and (pointer: fine) { .ent3__voltar:hover { color: var(--ent3-tinta); } .ent3__voltar:hover svg { transform: translateX(-3px); } }
 
-.ent3__campos { display: grid; gap: 14px; }
-.ent3__campo { display: grid; gap: 6px; }
-.ent3__campo label { font-size: 14px; font-weight: 600; }
-.ent3__caixa { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 14px; border: 1px solid var(--ent3-borda); border-radius: 8px; background: var(--ent3-campo); transition: border-color .15s ease, box-shadow .15s ease; }
-.ent3__caixa:focus-within { border-color: var(--ent3-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ent3-azul) 22%, transparent); }
+/* os campos sublinhados, como na imagem: o rótulo por cima, o asterisco laranja, uma linha por baixo */
+.ent3__campos { display: grid; gap: 18px; margin-top: 8px; }
+.ent3__campo { display: grid; gap: 4px; }
+.ent3__campo label { font-size: 15px; font-weight: 600; }
+.ent3__obrig { margin-left: 5px; color: var(--c-acao); }
+.ent3__caixa { position: relative; display: flex; align-items: center; gap: 12px; height: 50px; border-bottom: 1px solid var(--ent3-borda); transition: border-color .15s ease; }
+.ent3__caixa::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--ent3-azul); transform: scaleX(0); transform-origin: left; transition: transform .2s var(--ent3-curva); }
+.ent3__caixa:focus-within::after { transform: scaleX(1); }
 .ent3__campo-icone { width: 18px; height: 18px; flex: none; color: var(--ent3-tinta-3); transition: color .15s ease; }
 .ent3__caixa:focus-within .ent3__campo-icone { color: var(--ent3-azul); }
-.ent3__caixa input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ent3-tinta); }
+.ent3__caixa input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 17px; color: var(--ent3-tinta); }
 .ent3__caixa input::placeholder { color: var(--ent3-tinta-3); }
 .ent3__olho { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 6px; background: none; color: var(--ent3-tinta-2); cursor: pointer; }
 .ent3__olho svg { width: 18px; height: 18px; }
 .ent3__olho:focus-visible { outline: 2px solid var(--ent3-azul); }
-.ent3__campo.is-erro .ent3__caixa { border-color: var(--c-erro); }
-.ent3__erro { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 14px; color: var(--c-erro); animation: ent3-aparecer .2s ease both; }
+.ent3__campo.is-erro .ent3__caixa { border-bottom-color: var(--c-erro); }
+.ent3__campo.is-erro .ent3__caixa::after { background: var(--c-erro); transform: scaleX(1); }
+.ent3__erro { display: flex; align-items: flex-start; gap: 6px; margin: 4px 0 0; font-size: 14px; color: var(--c-erro); animation: ent3-aparecer .2s ease both; }
 .ent3__erro svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
 
-.ent3__botao.btn { width: 100%; min-height: 52px; border-radius: 8px; font-size: 16px; gap: 10px; transition: background-color .16s ease, transform .1s ease; }
+/* a linha por baixo do campo: a outra via à esquerda, a ligação laranja à direita */
+.ent3__linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin-top: -6px; }
+.ent3__ligacao { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0; border: 0; background: none; font: inherit; font-size: 15px; color: var(--ent3-tinta-2); cursor: pointer; text-align: left; }
+.ent3__ligacao svg { width: 16px; height: 16px; color: var(--c-acao); flex: none; }
+.ent3__ligacao--laranja { font-weight: 600; color: var(--c-acao); }
+@media (hover: hover) and (pointer: fine) { .ent3__ligacao:hover { color: var(--ent3-tinta); text-decoration: underline; text-underline-offset: 3px; } .ent3__ligacao--laranja:hover { color: var(--c-acao); } }
+.ent3__manter { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ent3-tinta-2); cursor: pointer; }
+.ent3__manter input { width: 17px; height: 17px; margin: 0; accent-color: var(--c-acao); }
+
+.ent3__botao.btn { width: 100%; min-height: 52px; border-radius: 8px; font-size: 17px; font-weight: 600; gap: 10px; box-shadow: 0 8px 22px -14px var(--c-acao); transition: background-color .16s ease, transform .1s ease; }
 .ent3__botao .btn__icone { width: 18px; height: 18px; transition: transform .16s ease; }
 @media (hover: hover) and (pointer: fine) { .ent3__botao.btn:not(:disabled):hover .btn__icone { transform: translateX(2px); } }
 .ent3__botao.btn:not(:disabled):active { transform: scale(.98); }
-.ent3__botao.btn:disabled { opacity: .45; cursor: not-allowed; }
-/* a carregar (enquanto o rolamento trava): o ícone dá lugar a um círculo que roda */
-.ent3__botao.is-a-carregar .btn__icone { opacity: 0; }
+.ent3__botao.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 .ent3__botao.is-a-carregar { position: relative; }
+.ent3__botao.is-a-carregar .btn__icone { opacity: 0; }
 .ent3__botao.is-a-carregar::after { content: ""; position: absolute; right: 18px; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #fff; border-radius: 50%; animation: ent3-roda .7s linear infinite; }
 @keyframes ent3-roda { to { transform: rotate(360deg); } }
 
-.ent3__ligacoes { display: grid; gap: 2px; padding-top: 6px; border-top: 1px solid var(--ent3-borda); }
-.ent3__ligacao { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 2px; border: 0; background: none; font: inherit; font-size: 15px; color: var(--ent3-tinta); cursor: pointer; text-align: left; }
-.ent3__ligacao svg { width: 18px; height: 18px; color: var(--c-acao); flex: none; transition: transform .16s ease; }
-@media (hover: hover) and (pointer: fine) { .ent3__ligacao:hover { text-decoration: underline; text-underline-offset: 3px; } .ent3__ligacao:hover svg { transform: translateX(2px); } }
-.ent3__conta { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--ent3-borda); border-radius: 8px; font-size: 15px; }
+/* a pergunta final, como «Não tens conta? Criar conta» */
+.ent3__vender { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 0; font-size: 15px; color: var(--ent3-tinta-2); text-align: center; }
+.ent3__vender > svg { width: 16px; height: 16px; color: var(--c-acao); }
+.ent3__vender a { font-weight: 600; color: var(--c-acao); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .ent3__vender a:hover { text-decoration: underline; text-underline-offset: 3px; } }
+
+.ent3__conta { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--ent3-borda); font-size: 15px; }
 .ent3__conta svg { width: 16px; height: 16px; color: var(--ent3-tinta-3); }
 .ent3__conta span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.ent3__mudar { border: 0; background: none; font: inherit; font-size: 14px; color: var(--ent3-azul); text-decoration: underline; cursor: pointer; }
+.ent3__mudar { border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--c-acao); cursor: pointer; }
 .ent3__nota { display: flex; gap: 10px; margin: 0; font-size: 15px; line-height: 1.5; color: var(--ent3-tinta-2); }
 .ent3__nota svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--c-acao); }
-.ent3__manter { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; cursor: pointer; }
-.ent3__manter input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c-acao); }
-.ent3__manter small { display: block; font-size: 13px; color: var(--ent3-tinta-3); }
-.ent3__vender { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; font-size: 14px; color: var(--ent3-tinta-2); }
-.ent3__vender svg { width: 16px; height: 16px; color: var(--c-acao); }
-.ent3__vender a { color: var(--ent3-tinta); font-weight: 600; }
 
-.ent3__ajudas { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.ent3__ajudas li { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px; border: 1px solid var(--ent3-borda); border-radius: 8px; cursor: default; transition: border-color .16s ease, background-color .16s ease; }
+.ent3__ajudas { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.ent3__ajudas li { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 14px 4px; border-bottom: 1px solid var(--ent3-borda); cursor: default; transition: background-color .16s ease; }
 .ent3__ajudas li > svg { width: 20px; height: 20px; color: var(--c-acao); margin-top: 1px; }
 .ent3__ajudas p { margin: 0 0 2px; font-weight: 600; font-size: 15px; }
 .ent3__ajudas span { display: block; font-size: 14px; color: var(--ent3-tinta-2); }
 .ent3__ajudas li:focus-visible { outline: 2px solid var(--ent3-azul); outline-offset: 2px; }
-.ent3__ajudas li:hover, .ent3__ajudas li:focus-visible { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 6%, transparent); }
+.ent3__ajudas li:hover, .ent3__ajudas li:focus-visible { background: color-mix(in srgb, var(--c-acao) 6%, transparent); }
 .ent3__telefone { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 700; font-size: 15px; color: var(--ent3-tinta); text-decoration: none; }
 .ent3__telefone svg { width: 16px; height: 16px; color: var(--c-acao); }
 
-.ent3__rodape { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-family: var(--f-mono); font-size: 12px; color: var(--ent3-tinta-3); }
-.ent3__rodape a { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; }
-.ent3__rodape svg { width: 14px; height: 14px; color: var(--c-acao); }
-
 @media (prefers-reduced-motion: reduce) {
-  .ent3__form > *, .ent3__fase, .ent3__erro { animation: ent3-aparecer .2s ease both; }
+  .ent3__lema span, .ent3__frase, .ent3__vantagens, .ent3__form > *, .ent3__marca, .ent3__erro { animation: ent3-aparecer .2s ease both; }
+  .ent3__ondas path { animation: none; stroke-dashoffset: 0; }
   .ent3__orbita { animation: none; }
   .ent3__cota line { animation: none; stroke-dashoffset: 0; } .ent3__cota circle, .ent3__rotulo { animation: none; opacity: 1; }
 }
-@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .ent3__fase, .ent3__ficha { left: 20px; } .ent3__passos { right: 20px; } }
-@media (max-width: 800px) {
-  .ent3 { grid-template-columns: minmax(0, 1fr); }
-  .ent3__palco { position: relative; height: 34vh; min-height: 240px; }
-  .ent3__lado { min-height: 0; padding: 20px 16px 24px; }
-  .ent3__ficha, .ent3__rotulo, .ent3__cotas { display: none; }
-  .ent3__fase { top: 16px; left: 16px; font-size: 12px; }
-}
-
-/* =========================================================
-   (14 out. 2026, ela: «não gosto; o rolamento deve ficar noutro sítio; quero o login com um cartão no centro;
-   remove o 01/04 anel exterior em tudo») — o login é um cartão ao centro do ecrã; o rolamento vai para o
-   fundo, grande, à esquerda do cartão (no telemóvel, por cima), e continua a montar-se de passo em passo.
-   O palco ocupa o ecrã todo, com o fundo da página; o canvas desenha o rolamento deslocado (setViewOffset,
-   entrar-cena.ts) e as órbitas acompanham-no.
-   ========================================================= */
-.ent3 { --ent3-cartao: #ffffff; position: relative; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: none; place-items: center; min-height: max(100vh, 640px); padding: 32px 16px; overflow: hidden; --ent3-palco: var(--ent3-lado); }
-[data-theme="dark"] .ent3 { --ent3-cartao: #111e2e; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ent3 { --ent3-cartao: #111e2e; } }
-.ent3__palco { position: absolute; inset: 0; top: 0; width: auto; height: auto; margin: 0; align-self: stretch; background: var(--ent3-lado); color: var(--ent3-tinta); }
-.ent3__grafismo { left: 22%; top: 50%; width: min(30vw, 48vh); }
-.ent3__ficha { left: 24px; bottom: 20px; }
-.ent3__passos { right: 24px; bottom: 24px; }
-/* o cartão */
-.ent3__lado { position: relative; z-index: 1; display: grid; grid-template-rows: auto auto auto; gap: 22px; width: min(440px, 100%); min-height: 0; padding: 28px 32px 22px; border: 1px solid var(--ent3-borda); border-radius: 14px; background: var(--ent3-cartao); }
-.ent3__lado > * { width: 100%; }
-.ent3__marca { grid-area: auto; }
-.ent3__form { grid-area: auto; width: 100%; }
-.ent3__rodape { grid-area: auto; margin-top: 0; padding-top: 14px; border-top: 1px solid var(--ent3-borda); }
-@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr); } .ent3__grafismo { left: 18%; } }
-@media (max-width: 800px) {
-  .ent3 { align-content: end; padding: 0 12px 16px; min-height: 100vh; }
-  .ent3__palco { position: absolute; height: auto; }
-  .ent3__grafismo { left: 50%; top: 20%; width: min(70vw, 34vh); }
-  .ent3__lado { margin-top: 38vh; padding: 22px 18px 18px; }
-  .ent3__ficha, .ent3__passos { display: none; }
-}
-
-/* (ela, 14 out.: «aqui preciso de mais azul da Romafe, e isto [a marca] no header») — a marca num cabeçalho no
-   topo da página; o cartão abre com uma faixa no azul da Romafe (o «Voltar», o título e o subtítulo, a branco),
-   como os cartões do Início */
-.ent3__topo { position: absolute; z-index: 2; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: center; height: 64px; border-bottom: 1px solid var(--ent3-borda); background: var(--ent3-lado); }
-.ent3__topo .ent3__marca { width: auto; }
-.ent3 { padding-top: 96px; }
-.ent3__lado { padding-top: 0; overflow: hidden; gap: 20px; }
-.ent3__faixa { display: grid; justify-items: center; gap: 6px; margin: 0 -32px; padding: 22px 32px 20px; background: var(--c-logotipo); color: #fff; text-align: center; }
-.ent3__faixa .ent3__titulo { color: #fff; font-size: clamp(24px, 2.2vw, 30px); }
-.ent3__faixa .ent3__sub { margin: 0; color: rgba(255, 255, 255, .85); font-size: 15px; }
-.ent3__faixa .ent3__voltar { margin: 0 0 2px; color: rgba(255, 255, 255, .9); }
-.ent3__faixa .ent3__voltar svg { color: #fff; }
-@media (hover: hover) and (pointer: fine) { .ent3__faixa .ent3__voltar:hover { color: #fff; } }
-.ent3__form > :first-child { margin-top: 2px; }
-@media (max-width: 800px) { .ent3 { padding-top: 64px; } .ent3__faixa { margin: 0 -18px; padding: 18px; } }
-.ent3__lado > .ent3__faixa { justify-self: stretch; width: auto; }
-.ent3__faixa .ent3__voltar { justify-self: center; }
-
-/* =========================================================
-   (15 out. 2026, ela: «puxar o card do login mais para a direita e a animação também, parece muito vazio o lado
-   direito; um card centrado com uma divisória a meio: de um lado a animação, do outro o login») — um só cartão
-   ao centro do ecrã, partido ao meio por uma linha fina: à esquerda o palco com o rolamento (o mesmo canvas, agora
-   centrado na sua metade; entrar-cena.ts), à direita o login. No telemóvel, o palco fica por cima, mais baixo.
-   O escuro passa ao grafite do resto do portal (noite.css: --g-*).
-   ========================================================= */
-.ent3 { --ent3-cena: #eef1f5; }
-[data-theme="dark"] .ent3 { --ent3-lado: var(--g-fundo); --ent3-cartao: var(--g-sup); --ent3-cena: var(--g-barra); --ent3-campo: var(--g-barra); --ent3-borda: var(--g-borda); --ent3-tinta: var(--g-tinta); --ent3-tinta-2: var(--g-tinta-2); --ent3-tinta-3: var(--g-tinta-3); --ent3-azul: var(--g-azul-tinta); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ent3 { --ent3-lado: var(--g-fundo); --ent3-cartao: var(--g-sup); --ent3-cena: var(--g-barra); --ent3-campo: var(--g-barra); --ent3-borda: var(--g-borda); --ent3-tinta: var(--g-tinta); --ent3-tinta-2: var(--g-tinta-2); --ent3-tinta-3: var(--g-tinta-3); --ent3-azul: var(--g-azul-tinta); } }
-.ent3 { grid-template-columns: minmax(0, 560px) minmax(0, 460px); justify-content: center; align-content: center; place-items: stretch; gap: 0; }
-.ent3__palco { position: relative; inset: auto; grid-column: 1; grid-row: 1; align-self: stretch; min-height: 560px; height: auto; border: 1px solid var(--ent3-borda); border-right: 0; border-radius: 14px 0 0 14px; background: var(--ent3-cena); }
-.ent3__lado { grid-column: 2; grid-row: 1; width: auto; align-self: stretch; border-radius: 0 14px 14px 0; border-left: 1px solid var(--ent3-borda); }
-.ent3__grafismo { left: 50%; top: 50%; width: min(78%, 60vh); }
-.ent3__ficha { left: 22px; bottom: 18px; }
-.ent3__passos { right: 22px; bottom: 22px; }
-.ent3__lado .ent3__form { align-self: center; }
-@media (max-width: 1100px) { .ent3 { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); } .ent3__grafismo { left: 50%; } }
-@media (max-width: 800px) {
-  .ent3 { grid-template-columns: minmax(0, 460px); grid-template-rows: auto auto; align-content: start; padding: 80px 12px 16px; }
-  .ent3__palco { grid-column: 1; grid-row: 1; min-height: 0; height: 34vh; border: 1px solid var(--ent3-borda); border-bottom: 0; border-radius: 14px 14px 0 0; }
-  .ent3__lado { grid-column: 1; grid-row: 2; margin-top: 0; border-left: 1px solid var(--ent3-borda); border-top: 1px solid var(--ent3-borda); border-radius: 0 0 14px 14px; }
-  .ent3__grafismo { left: 50%; top: 50%; width: min(70vw, 30vh); }
-}
-
-/* =========================================================
-   (15 out. 2026, ela: «quero o conteúdo do login do lado direito e o objeto do lado esquerdo e coloca texto
-   para não ficar muito vazio») — o cartão ocupa quase o ecrã todo: na metade da esquerda o texto (factos de
-   romafe.com: desde 1945, SKF desde 1975, 75 000+ referências auto, 14 000+ clientes, Porto e Sacavém, «Rolling
-   your way») e o rolamento à direita dele; na metade da direita o login, ao centro.
-   ========================================================= */
-.ent3 { grid-template-columns: minmax(0, 1.25fr) minmax(380px, 1fr); justify-content: stretch; max-width: 1480px; width: 100%; margin: 0 auto; padding-left: clamp(16px, 3vw, 48px); padding-right: clamp(16px, 3vw, 48px); box-sizing: border-box; }
-.ent3__palco { min-height: 600px; }
-.ent3__lado { justify-items: center; padding-left: clamp(24px, 4vw, 64px); padding-right: clamp(24px, 4vw, 64px); }
-.ent3__lado > * { width: min(420px, 100%); }
-.ent3__lado > .ent3__faixa { width: auto; justify-self: stretch; margin: 0 calc(-1 * clamp(24px, 4vw, 64px)); }
-.ent3__grafismo { left: 66%; width: min(52%, 56vh); }
-.ent3__texto { position: absolute; z-index: 1; left: clamp(24px, 3vw, 44px); top: 50%; width: min(34%, 300px); transform: translateY(-50%); display: grid; gap: 14px; color: var(--ent3-tinta); animation: ent3-aparecer .5s ease .15s both; }
-.ent3__desde { margin: 0; font-family: var(--f-mono); font-size: 12px; letter-spacing: .04em; color: var(--c-acao); }
-.ent3__lema { margin: 0; font-family: var(--f-titulo); font-size: clamp(22px, 2vw, 30px); line-height: 1.15; color: var(--ent3-tinta); }
-.ent3__frase { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ent3-tinta-2); }
-.ent3__frase b { color: var(--c-logotipo); font-weight: 700; }
-[data-theme="dark"] .ent3__frase b { color: var(--g-azul-tinta); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ent3__frase b { color: var(--g-azul-tinta); } }
-.ent3__factos { display: grid; gap: 10px; margin: 4px 0 0; padding: 14px 0 0; border-top: 1px solid var(--ent3-borda); }
-.ent3__factos div { display: flex; align-items: baseline; gap: 8px; }
-.ent3__factos dt { font-family: var(--f-titulo); font-size: 18px; font-weight: 700; color: var(--ent3-tinta); }
-.ent3__factos dd { margin: 0; font-size: 13px; color: var(--ent3-tinta-3); }
-.ent3__assina { margin: 4px 0 0; font-family: var(--f-titulo); font-size: 14px; font-style: italic; color: var(--ent3-tinta-2); }
-.ent3__ficha { left: auto; right: 22px; top: 18px; bottom: auto; }
 @media (max-width: 1100px) {
-  .ent3 { grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr); }
-  .ent3__texto { width: min(40%, 260px); } .ent3__lema { font-size: 22px; } .ent3__factos dt { font-size: 16px; }
+  .ent3 { grid-template-columns: minmax(0, 1fr) minmax(380px, 1fr); }
+  .ent3__lema { font-size: clamp(36px, 4.6vw, 52px); }
+  .ent3__peca { width: min(48%, 40vh, 340px); right: 16px; }
+  .ent3__ficha { right: 16px; }
 }
-@media (max-width: 800px) {
-  .ent3 { grid-template-columns: minmax(0, 460px); justify-content: center; }
-  .ent3__palco { height: auto; min-height: 0; padding: 20px 18px 0; display: grid; grid-template-rows: auto 220px; }
-  .ent3__texto { position: relative; left: auto; top: auto; width: auto; transform: none; gap: 8px; }
-  .ent3__frase, .ent3__factos, .ent3__assina { display: none; }
-  .ent3__lema { font-size: 20px; }
-  .ent3__lugar { top: auto; height: 220px; bottom: 0; }
-  .ent3__grafismo { left: 50%; top: auto; bottom: 0; transform: translate(-50%, 0); width: 200px; }
-
+@media (max-width: 820px) {
+  .ent3 { grid-template-columns: minmax(0, 1fr); }
+  .ent3__palco { min-height: 0; border-right: 0; border-bottom: 1px solid var(--ent3-borda); }
+  .ent3__texto { gap: 14px; padding: 32px 16px 24px; }
+  .ent3__lema { font-size: clamp(30px, 8vw, 40px); }
+  .ent3__frase { padding-bottom: 0; border-bottom: 0; font-size: 16px; }
+  .ent3__vantagens, .ent3__peca, .ent3__ficha { display: none; }
+  .ent3__lado { padding: 28px 16px 20px; }
 }
-@media (prefers-reduced-motion: reduce) { .ent3__texto { animation: none; } }
-@media (max-width: 1100px) { .ent3__grafismo { left: 68%; width: min(46%, 50vh); } }
-@media (max-width: 800px) { .ent3__grafismo { left: 50%; width: 200px; } }
-.ent3__factos div { flex-wrap: wrap; column-gap: 8px; row-gap: 0; } .ent3__factos dt { white-space: nowrap; }
