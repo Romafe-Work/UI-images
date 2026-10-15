@@ -24,12 +24,12 @@ const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.
 
 /** O que está aberto em cada ecrã vivo. */
 interface Estado { veiculo?: string; seccao: IdSeccao | 'geral'; doc?: string; sistema?: IdSistema; q: string; marca: string; fig?: number
-  ver?: 'veiculo' | 'explodida'; peca?: PecaRol; vistaSel?: 'cronologia' | 'tabela';
+  ver?: 'veiculo' | 'explodida'; peca?: PecaRol; vistaSel?: 'cronologia' | 'tabela'; vistaDocs?: 'cronologia' | 'tabela';
   /* o que a pessoa escolheu para o painel de contexto e a navegação, a navegar e a ler (ao ler, por omissão, dão espaço ao documento) */
   lado?: boolean; ladoLer?: boolean; nav?: boolean; navLer?: boolean }
 const estados = new WeakMap<HTMLElement, Estado>();
 const est = (m: HTMLElement) => { let e = estados.get(m); if (!e) { e = { veiculo: m.dataset.veiculo, seccao: 'geral', q: '', marca: 'BMW' }; estados.set(m, e); } return e; };
-const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, vistaSel: e.vistaSel, ver: e.ver, peca: e.peca,
+const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, vistaSel: e.vistaSel, vistaDocs: e.vistaDocs, ver: e.ver, peca: e.peca,
   lado: e.doc ? e.ladoLer ?? false : e.lado ?? true, compacta: e.doc ? e.navLer ?? true : e.nav ?? false, ...extra }; };
 
 /* ---------- as três áreas: a navegação (recolhível), o conteúdo e o contexto (recolhível) ---------- */
@@ -344,7 +344,8 @@ function abrirWorkshop(b: HTMLButtonElement): void {
 function armar(): void {
   const m = vivo(); if (!m) return;
   const e = est(m);
-  if (!m.dataset.vistaLida) { m.dataset.vistaLida = '1'; let g: string | null = null; try { g = localStorage.getItem('goparts-tecnica-vista'); } catch { /* nada */ } if (g === 'tabela' && !e.veiculo) { e.vistaSel = 'tabela'; $$(m, '[data-vista-sel]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.vistaSel === 'tabela'))); if ($(m, '.tec__lista')) listar(m, false); } }
+  if (!m.dataset.vistaLida) { m.dataset.vistaLida = '1'; let g: string | null = null; try { g = localStorage.getItem('goparts-tecnica-vista'); } catch { /* nada */ } try { if (localStorage.getItem('goparts-tecnica-vista-docs') === 'tabela') e.vistaDocs = 'tabela'; } catch { /* nada */ }
+    if (g === 'tabela' && !e.veiculo) { e.vistaSel = 'tabela'; $$(m, '[data-vista-sel]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.vistaSel === 'tabela'))); if ($(m, '.tec__lista')) listar(m, false); } }
   montar3D(m);
   requestAnimationFrame(() => armarIndicador(m, false));
 }
@@ -364,6 +365,7 @@ export function iniciar(): void {
     /* escolher */
     const mc = t.closest<HTMLElement>('.tec__marca'); if (mc) { const e = est(m); e.marca = mc.dataset.marca!; e.q = ''; const q = $<HTMLInputElement>(m, '.tec__q'); if (q) q.value = ''; listar(m); return; }
     if (t.closest('[data-limpar]')) { const e = est(m); e.q = ''; const q = $<HTMLInputElement>(m, '.tec__q'); if (q) { q.value = ''; q.focus(); } listar(m, false); return; }
+    const vd = t.closest<HTMLElement>('[data-vista-docs]'); if (vd) { const e = est(m); e.vistaDocs = vd.dataset.vistaDocs as 'cronologia' | 'tabela'; try { localStorage.setItem('goparts-tecnica-vista-docs', e.vistaDocs); } catch { /* nada */ } pintarConteudo(m); return; }
     const vs = t.closest<HTMLElement>('[data-vista-sel]'); if (vs) { const e = est(m); e.vistaSel = vs.dataset.vistaSel as 'cronologia' | 'tabela'; try { localStorage.setItem('goparts-tecnica-vista', e.vistaSel); } catch { /* nada */ } $$(m, '[data-vista-sel]').forEach((b) => b.setAttribute('aria-pressed', String(b === vs))); listar(m, false); return; }
     const linha = t.closest<HTMLElement>('.tec__v'); if (linha) { escolherVeiculo(m, linha.dataset.chave!, linha.closest<HTMLElement>('.tec__c-item, tr') ?? linha); return; }
     if (t.closest('[data-mudar]')) { mudarVeiculo(m); return; }

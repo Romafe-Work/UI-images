@@ -25,7 +25,7 @@ import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { veiculosDe } from './catalogo-dados';
 import {
   SECCOES, GRUPOS, SISTEMAS, MARCAS, seccaoDe, grupoDe, sistemaDe, veiculoDe, veiculosDaMarca, procurarVeiculos, docsDe, docsDaSeccao,
-  docsDoSistema, procurarTec, EXEMPLO, type IdSeccao, type IdSistema, type Doc, type VeiculoTec, type TipoDoc,
+  docsDoSistema, procurarTec, quando, EXEMPLO, type IdSeccao, type IdSistema, type Doc, type VeiculoTec, type TipoDoc,
 } from './tecnica-dados';
 import carFront from 'lucide-static/icons/car-front.svg?raw';
 import clipboardList from 'lucide-static/icons/clipboard-list.svg?raw';
@@ -103,7 +103,8 @@ export interface Opcoes {
   doc?: string;                        // o documento aberto no leitor
   sistema?: IdSistema;                 // o sistema escolhido (explorador) ou o filtro da secção
   q?: string; marca?: string;          // a pesquisa e a marca da escolha
-  vistaSel?: 'cronologia' | 'tabela';  // a escolha em cronologia (por omissão, como os Pedidos) ou em tabela
+  vistaSel?: 'cronologia' | 'tabela';
+  vistaDocs?: 'cronologia' | 'tabela'; // as listas de documentos: cronologia (por omissão) ou tabela  // a escolha em cronologia (por omissão, como os Pedidos) ou em tabela
   procura?: string;                    // a pesquisa técnica aberta com este texto
   fig?: number;                        // o visor aberto nesta figura
   aviso?: string;                      // uma faixa por cima do conteúdo
@@ -501,10 +502,39 @@ function seccaoDocs(v: VeiculoTec, docs: Doc[], s: IdSeccao, o: Opcoes): string 
   else corpo = `${s === 'diagnosticos' ? avaria(px) : ''}
       ${sistemas.length > 1 ? `<div class="tec__filtro" role="group" aria-label="Sistema"><button type="button" class="tec__pilula" data-filtro="" aria-pressed="${!o.sistema}">Todos <small>${todos.length}</small></button>${sistemas.map((x) => `<button type="button" class="tec__pilula" data-filtro="${x.id}" aria-pressed="${o.sistema === x.id}">${ic(x.icone)}${x.nome} <small>${todos.filter((d) => d.sistema === x.id).length}</small></button>`).join('')}</div>` : ''}
       ${GALERIA.includes(s) ? `<ul class="tec__galeria">${lista.map((d, i) => `<li style="--i:${i}"><button type="button" class="tec__cartaz" data-doc="${d.id}">${folhaMini()}<span class="tec__cartaz-t"><b>${esc(d.titulo)}</b><small>${d.sistema ? sistemaDe(d.sistema).nome : 'Geral'} · ${d.tipo} · ${plural(d.figuras, 'figura', 'figuras')}</small></span><span class="tec__cartaz-abrir">${L(zoomIn)}Abrir</span></button></li>`).join('')}</ul>`
-      : `<div class="tec__docs-cabeca" aria-hidden="true"><span></span><span>Documento</span><span>Sistema</span><span>Tipo</span><span>Figuras</span><span></span></div>
-      <ul class="tec__docs">${lista.map((d, i) => linhaDoc(d, i)).join('')}</ul>`}`;
+      : `<div class="tec__docs-vistas"><p class="tec__conta">${plural(lista.length, 'documento', 'documentos')} · do mais recente para o mais antigo</p><div class="ped4__vistas tec__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista-docs="cronologia" aria-pressed="${(o.vistaDocs || 'cronologia') === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista-docs="tabela" aria-pressed="${o.vistaDocs === 'tabela'}">${L(table)}Tabela</button></div></div>
+      ${(o.vistaDocs || 'cronologia') === 'cronologia' ? cronologiaDocs(lista) : `<div class="tec__docs-cabeca" aria-hidden="true"><span></span><span>Documento</span><span>Sistema</span><span>Tipo</span><span>Figuras</span><span></span></div>
+      <ul class="tec__docs">${[...lista].sort((a, b) => quando(b).localeCompare(quando(a))).map((d, i) => linhaDoc(d, i)).join('')}</ul>`}`}`;
   return `<div class="tec__pagina" data-pagina="${s}">${cabeca}${corpo}</div>`;
 }
+/* (15 out., ela: «referia-me à ordem cronológica aqui», nos Manuais de reparação) as listas de documentos em
+   cronologia, como os Pedidos: por ano e mês de atualização (de exemplo), do mais recente para o mais antigo; o
+   marcador com o tipo do documento. A tabela é a alternativa. */
+function cronologiaDocs(lista: Doc[]): string {
+  const meses = new Map<string, Doc[]>();
+  [...lista].sort((a, b) => quando(b).localeCompare(quando(a)) || a.titulo.localeCompare(b.titulo)).forEach((d) => { const k = quando(d); meses.set(k, [...(meses.get(k) || []), d]); });
+  let i = 0, ano = '';
+  return `<div class="ped4__crono tec__crono tec__crono--docs">
+      <span class="ped4__c-linha" aria-hidden="true"><span class="ped4__c-linha-cheia"></span></span>
+      ${Array.from(meses).map(([k, ds]) => {
+        const [a, m] = k.split('-'), nome = MESES[+m - 1];
+        const cabAno = a !== ano ? `<h3 class="gui3__ano is-entrou">${a}</h3>` : ''; ano = a;
+        return `${cabAno}<section class="ped4__mes" aria-label="${nome} de ${a}"><h4 class="ped4__mes-t is-entrou"><span>${nome[0].toUpperCase()}${nome.slice(1)} de ${a}</span><small><b>${ds.length}</b> ${ds.length === 1 ? 'documento' : 'documentos'}</small></h4>
+          <ol class="ped4__c-lista">${ds.map((d) => `<li class="ped4__c-item tec__c-item is-entrou" style="--i:${i++}">
+            <span class="ped4__c-data" aria-hidden="true"><b>${nome.slice(0, 3)}</b><em class="ped4__c-etapa">atualizado</em></span>
+            <span class="ped4__c-marca tec__c-marca" aria-hidden="true">${L(ICONE_TIPO[d.tipo])}</span>
+            <article class="ped4__c-cartao"><button type="button" class="ped4__c-cabeca tec__d-cabeca" data-doc="${d.id}">
+              <span class="tec__doc-t"><b>${esc(d.titulo)}</b><small>WorkshopData · atualizado ${d.atualizado}</small></span>
+              <span class="tec__c-campo"><small>Sistema</small><span>${d.sistema ? sistemaDe(d.sistema).nome : 'Geral'}</span></span>
+              <span class="tec__c-campo"><small>Tipo</small><span>${d.tipo}</span></span>
+              <span class="tec__c-campo"><small>Figuras</small><span>${d.figuras || '—'}</span></span>
+              <span class="ped4__c-seta" aria-hidden="true">${L(chevronRight)}</span>
+            </button></article></li>`).join('')}</ol></section>`;
+      }).join('')}
+      <p class="ped4__c-fim"><span class="ped4__c-marca" aria-hidden="true"></span>Não há documentos mais antigos nesta secção.</p>
+    </div>`;
+}
+
 /* as secções que são sobretudo imagens abrem-se em galeria, com a folha à vista */
 const GALERIA: IdSeccao[] = ['eletricos', 'fusiveis', 'conforto', 'posicao'];
 const LOCK = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
@@ -560,7 +590,7 @@ function leitor(v: VeiculoTec, docs: Doc[], d: Doc, o: Opcoes): string {
         ${BOTAO('Voltar à lista', arrowLeft, 'btn--acao btn--sm tec__voltar', ' data-voltar')}
         <p class="tec__olho">${grupoDe(seccaoDe(d.seccao).grupo).nome} · ${seccaoDe(d.seccao).nome}</p>
         <h2 class="tec__pag-titulo" id="${px}-doc-t">${esc(d.titulo)}</h2>
-        <dl class="tec__meta">${meta('Sistema', d.sistema ? sistemaDe(d.sistema).nome : 'Geral')}${meta('Tipo', d.tipo)}${meta('Aplica-se a', `${esc(nomeVeiculo(v))} · <span class="tec__mono">${esc(v.motor)}</span>`)}${meta('Fornecedor', 'WorkshopData')}</dl>
+        <dl class="tec__meta">${meta('Sistema', d.sistema ? sistemaDe(d.sistema).nome : 'Geral')}${meta('Tipo', d.tipo)}${meta('Aplica-se a', `${esc(nomeVeiculo(v))} · <span class="tec__mono">${esc(v.motor)}</span>`)}${meta('Fornecedor', 'WorkshopData')}${meta('Atualizado', d.atualizado)}</dl>
         ${fonte}
         ${irmaos.length > 1 ? (() => { const i = irmaos.findIndex((x) => x.id === d.id), ant = irmaos[i - 1], seg = irmaos[i + 1];
           return `<nav class="tec__passa" aria-label="Outros documentos de ${seccaoDe(d.seccao).nome.toLowerCase()}">${ant ? `<button type="button" class="tec__passa-b" data-doc="${ant.id}">${L(chevronLeft)}<span><small>Anterior</small>${esc(ant.titulo)}</span></button>` : '<span></span>'}${seg ? `<button type="button" class="tec__passa-b tec__passa-b--seg" data-doc="${seg.id}"><span><small>Seguinte</small>${esc(seg.titulo)}</span>${L(chevronRight)}</button>` : ''}</nav>`; })() : ''}

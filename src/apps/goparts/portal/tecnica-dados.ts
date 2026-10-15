@@ -53,7 +53,9 @@ export const SISTEMAS: { id: IdSistema; nome: string; icone: string }[] = [
 ];
 export const sistemaDe = (id: IdSistema) => SISTEMAS.find((s) => s.id === id)!;
 
-export interface Doc { id: string; titulo: string; seccao: IdSeccao; sistema?: IdSistema; tipo: TipoDoc; figuras: number }
+/** `atualizado` (mm/aaaa): quando o fornecedor reviu o documento — de EXEMPLO, para a cronologia (15 out.: ela pediu
+    a ordem cronológica nas listas de documentos). É uma data de revisão, não um valor técnico. */
+export interface Doc { id: string; titulo: string; seccao: IdSeccao; sistema?: IdSistema; tipo: TipoDoc; figuras: number; atualizado: string }
 
 /* [secção, título, sistema, tipo, figuras] — só o que o fornecedor diz de cada documento */
 type D = [IdSeccao, string, IdSistema | '', TipoDoc, number];
@@ -135,8 +137,13 @@ export function procurarVeiculos(q: string, marca = ''): VeiculoTec[] {
 export function docsDe(v: VeiculoTec): Doc[] {
   if (v.desde >= ANO_SEM_DADOS) return [];
   return [...COMUNS, ...(POR_COMBUSTIVEL[v.combustivel] || [])].map(([seccao, titulo, sistema, tipo, figuras], i) =>
-    ({ id: `d${i + 1}`, seccao, titulo, sistema: sistema || undefined, tipo, figuras }));
+    ({ id: `d${i + 1}`, seccao, titulo, sistema: sistema || undefined, tipo, figuras,
+      /* nunca antes do veículo começar a ser fabricado, nem depois de abril de 2024 (o «hoje» dos documentos) */
+      atualizado: `${String(((i * 5) % 12) + 1).padStart(2, '0')}/${Math.max(v.desde, 2024 - ((i * 7) % 6))}` }))
+    .map((d) => (d.atualizado.endsWith('/2024') && Number(d.atualizado.slice(0, 2)) > 4 ? { ...d, atualizado: `0${(Number(d.atualizado.slice(0, 2)) % 4) + 1}/2024` } : d));
 }
+/** aaaa-mm, para ordenar. */
+export const quando = (d: Doc) => d.atualizado.split('/').reverse().join('-');
 export const docsDaSeccao = (docs: Doc[], s: IdSeccao) => docs.filter((d) => d.seccao === s);
 export const docsDoSistema = (docs: Doc[], s: IdSistema) => docs.filter((d) => d.sistema === s);
 /** A pesquisa técnica: secções, sistemas e títulos dos documentos (o índice que o fornecedor deixa usar). */

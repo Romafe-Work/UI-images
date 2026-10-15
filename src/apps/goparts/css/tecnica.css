@@ -18,10 +18,18 @@
 .tec__c-cabeca .tec__v-nome b { font-size: 15px; }
 .tec__c-campo { display: grid; gap: 1px; font-size: 14px; color: var(--c-texto); font-variant-numeric: tabular-nums; }
 .tec__c-campo small { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+.tec__docs-vistas { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.tec__d-cabeca { grid-template-columns: minmax(220px, 1.8fr) minmax(110px, 1fr) minmax(100px, .8fr) 64px 24px; }
+.tec__d-cabeca .tec__doc-t b { font-size: 14px; }
+.tec__crono--docs .ped4__c-marca svg { width: 12px; height: 12px; }
+.tec__crono--docs .ped4__mes-t { background: var(--c-portal-fundo); }
 .tec__c-item:hover .ped4__c-cartao { border-color: var(--c-borda-forte); }
 .tec__c-item.is-anterior .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-acao) 55%, var(--c-borda)); box-shadow: inset 2px 0 0 var(--c-acao); }
 @media (max-width: 640px) {
-  .tec__c-cabeca { grid-template-columns: minmax(0, 1fr) 20px; gap: 6px 10px; }
+  .tec__c-cabeca, .tec__d-cabeca { grid-template-columns: minmax(0, 1fr) 20px; gap: 6px 10px; }
+  .tec__d-cabeca .tec__doc-t { grid-column: 1; }
+  .tec__d-cabeca .tec__c-campo { display: none; }
+  .tec__d-cabeca .ped4__c-seta { grid-column: 2; grid-row: 1; }
   .tec__c-cabeca .tec__v-nome { grid-column: 1; }
   .tec__c-cabeca .tec__c-campo { grid-column: 1; display: flex; gap: 6px; align-items: baseline; }
   .tec__c-cabeca .ped4__c-seta { grid-column: 2; grid-row: 1; }
