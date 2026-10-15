@@ -20,15 +20,15 @@ import { catalogoV5 } from './catalogo-v5';
 import { abrirReferencias, abrirDetalhes, escolherGrupo, ramo, fluxo, marcarComparar } from '../comportamento/catalogo-v5';
 import { pedidosV4, detalhe as detalhePed, pedidoDe, linhaDe, valorDe } from './pedidos-v4';
 import { LINHAS as LINHAS_PED, euros as eurosPed } from './pedidos-dados';
-import { guiasV2 } from './guias-v2';
-import { preencher as preencherGuia } from '../comportamento/guias-v2';
+import { guiasV3, guiaDe, detalheGuia, cabecaDoc, paginaDoc, rodapeDoc } from './guias-v3';
+import { GUIAS } from './guias-dados';
 import { faturasV1 } from './faturas-v1';
 import { preencher as preencherFatura } from '../comportamento/faturas';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
-export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
+export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-carga' | 'faturas-pesquisa' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-rede' | 'faturas-falha' | 'faturas-aberta' | 'faturas-vencida' | 'faturas-primeira';
-export type IdEstadoGuias = 'guias-carga' | 'guias-pesquisa' | 'guias-vazio' | 'guias-filtros' | 'guias-rede' | 'guias-falha' | 'guias-aberta' | 'guias-credito' | 'guias-primeira';
+export type IdEstadoGuias = 'guias-inicio' | 'guias-carga' | 'guias-pesquisa' | 'guias-primeira' | 'guias-vazio' | 'guias-filtros' | 'guias-selecionada' | 'guias-aberta' | 'guias-credito' | 'guias-relacionada' | 'guias-pedido-indisponivel' | 'guias-pdf-carga' | 'guias-pdf' | 'guias-pdf-erro' | 'guias-descarga' | 'guias-descarga-erro' | 'guias-rede' | 'guias-falha' | 'guias-sessao' | 'guias-sem-permissao' | 'guias-tabela';
 export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
   | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga'
   | 'catalogo-ficha-carga' | 'catalogo-ficha-indisponivel' | 'catalogo-ficha-sem-stock' | 'catalogo-ficha-stock-carga' | 'catalogo-ficha-stock-erro' | 'catalogo-ficha-qtd' | 'catalogo-ficha-a-adicionar' | 'catalogo-ficha-adicionada' | 'catalogo-ficha-nao-adicionada' | 'catalogo-ficha-sem-equivalencias' | 'catalogo-ficha-sem-oe' | 'catalogo-ficha-sem-veiculos' | 'catalogo-ficha-sem-caracteristicas' | 'catalogo-ficha-sem-documentos' | 'catalogo-ficha-documento-carga' | 'catalogo-ficha-documento-erro' | 'catalogo-ficha-sessao' | 'catalogo-ficha-sem-permissao' | 'catalogo-ficha-offline';
@@ -59,7 +59,7 @@ const APOIO = `<p class="est-apoio">${I(IC.telefone)}<span>Apoio Romafe · <stro
 function mudar(html: string, prefixo: string, f: (raiz: HTMLElement) => void): string {
   const t = document.createElement('template');
   /* ids próprios em cada estado: o mesmo id em dois ecrãs liga o rótulo ao campo errado */
-  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|fat)-/g, `${prefixo}-`);
+  t.innerHTML = html.replace(/\b(v22|cat2|cat3|cat4|cat5|ped2|ped3|ped4|gui2|gui3|fat)-/g, `${prefixo}-`);
   const raiz = t.content.firstElementChild as HTMLElement;
   f(raiz);
   return raiz.outerHTML;
@@ -573,6 +573,49 @@ const ped4Documento = () => ped4('e1216', (r) => {
   const det = abertoNaCrono(r, 'P2024/001175');
   $(det, '.ped4__docs').insertAdjacentHTML('afterend', faixa('erro', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'A fatura FT2024/05188 não está disponível.', 'O arquivo de faturas não respondeu; a guia continua disponível.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
 });
+
+/* ---------- (15 out., ela: «faz os vários estados dos ecrãs de pedidos e guias») os que faltavam ---------- */
+/* 12.18 · a primeira carga: os filtros já servem; no lugar da lista, o rolamento */
+const ped4Inicio = () => ped4('e1218', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('60px'); });
+  $(r, '.ped4__conta').innerHTML = 'A ligar aos pedidos da conta…';
+  $(r, '.ped4__crono').outerHTML = `<div class="est-vazio est-vazio--largo" role="status">${rolamentoSvg('e1218-rs', 'carregar', 'cat6__rs-faixa')}<p><strong>A carregar os pedidos…</strong> Os pedidos desde 01/03/2024, do mais recente para o mais antigo.</p></div>`;
+  $(r, '.ped4__vistas').setAttribute('hidden', '');
+});
+/* 12.19 · pedido selecionado: ativo (anel e borda laranja), ainda fechado */
+const ped4Selecionado = () => ped4('e1219', (r) => { $(r, '.ped4__c-item[data-num="P2024/001233"]').classList.add('is-ativo', 'is-passado'); });
+/* 12.20 · encontrado pela referência: só os pedidos com a peça, a peça destacada em cada um */
+const ped4Encontrado = () => ped4('e1220', (r) => {
+  valorCampo(r, 'e1220-ref', 'VKBA');
+  chips(r, ['Referência «VKBA»']);
+  const com = ['P2024/001233', 'P2024/001120'];
+  $$(r, '.ped4__c-item').forEach((li) => {
+    const num = li.dataset.num!;
+    if (!com.includes(num)) { li.setAttribute('hidden', ''); return; }
+    const art = pedidoDe(num).artigos.find((a) => a[2].includes('VKBA'))!;
+    const enc = $(li, '.ped4__c-encontrado'); enc.removeAttribute('hidden'); enc.innerHTML = `Contém ${art[2].replace('VKBA', '<mark>VKBA</mark>')}`;
+  });
+  $$(r, '.ped4__mes').forEach((m) => { const n = $$(m, '.ped4__c-item:not([hidden])').length; if (!n) m.setAttribute('hidden', ''); else $(m, '.ped4__mes-t small').innerHTML = `<b>${n}</b> ${n === 1 ? 'pedido' : 'pedidos'}`; });
+  $$(r, 'tr.ped4__linha').forEach((tr) => { if (!com.includes(tr.dataset.num!)) tr.setAttribute('hidden', ''); });
+  $(r, '.ped4__conta b').textContent = '2';
+  $(r, '[data-kpi="n"]').textContent = '2'; $(r, '[data-kpi="total"]').textContent = eurosPed(com.reduce((t, n) => t + valorDe(pedidoDe(n)), 0));
+});
+/* 12.21 · repetir o pedido: só o botão espera, com o rolamento */
+const ped4Repetir = () => ped4('e1221', (r) => {
+  const det = abertoNaCrono(r, 'P2024/001256');
+  ocupadoPed($(det, '[data-repetir]'), 'A adicionar…');
+});
+/* 12.22 · repetido: os artigos no carrinho, com o caminho para lá */
+const ped4Repetido = () => ped4('e1222', (r) => {
+  const det = abertoNaCrono(r, 'P2024/001256');
+  const b = $(det, '[data-repetir]'); b.classList.add('is-feito'); b.innerHTML = `${I('<path d="M20 6 9 17l-5-5"/>', 'btn__icone')}<span class="btn__rotulo">Artigos no carrinho</span>`;
+  $(det, '.ped4__det-accoes').insertAdjacentHTML('afterend', faixa('aviso', `<span class="cat6__faixa-icone">${I('<path d="M20 6 9 17l-5-5"/>')}</span>`, 'Os 5 artigos do P2024/001256 estão no carrinho.', 'Com os preços de hoje; reveja as quantidades antes de encomendar.', BOTAO('Ver o carrinho', IC.grelha, 'btn--acao btn--sm')));
+});
+/* 12.23 · repetido em parte: um artigo sem stock; os outros entraram; diz qual e o que fazer */
+const ped4RepetidoParte = () => ped4('e1223', (r) => {
+  const det = abertoNaCrono(r, 'P2024/001233');
+  $(det, '.ped4__det-accoes').insertAdjacentHTML('afterend', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, '11 de 12 artigos foram para o carrinho.', 'O Amortecedor Monroe G8017 está sem stock no armazém de Lisboa. Pode ver as alternativas no catálogo.', BOTAO('Ver alternativas', IC.lupa, 'btn--claro btn--sm', ' data-ir="catalogo"')));
+});
 const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
   const i = $<HTMLInputElement>(r, `#${id}`);
   i.setAttribute('value', valor); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', `${id}-msg`);
@@ -586,90 +629,148 @@ const erroCampo = (r: HTMLElement, id: string, valor: string, msg: string) => {
 
 
 
-/* ================= 13 · Guias de remessa (v2) ================= */
+/* ================= 13 · Guias de remessa (v3, 15 out.: como o Histórico de pedidos) =================
+   Do briefing dela (a lista de estados do «Logistics Document Center»). Cada estado parte do ecrã e muda só o
+   que esse estado muda; os erros ficam no sítio onde aconteceram (um PDF que falha não fecha a página). */
 const guias = (html: string) => portal('guias', html.replace('portal--noite', 'portal--noite portal--estado'), undefined, { menu: true, rodape: false });
-const semGuias = (r: HTMLElement) => $$(r, '[data-guias]').forEach((x) => x.removeAttribute('data-guias'));
-const guiasEsq = (n: number) => Array.from({ length: n }, (_, i) => `<tr>${[80, 50, 60, 85, 55, 60, 45, 45, 40, 40, 50, 40, 50].map((c) => `<td>${E(Math.max(30, c - (i % 3) * 10), 'esq--texto')}</td>`).join('')}</tr>`).join('');
+const g3 = (prefixo: string, f: (r: HTMLElement) => void, html = guiasV3()) => guias(mudar(html, prefixo, f));
+/** Uma guia aberta no seu lugar da cronologia (com ids próprios do estado). */
+const guiaAberta = (r: HTMLElement, num: string, prefixo: string) => {
+  const li = $(r, `.ped4__c-item[data-num="${num}"]`), det = $(li, '.ped4__c-det');
+  li.classList.add('is-aberto', 'is-ativo'); $(li, '.ped4__c-cabeca').setAttribute('aria-expanded', 'true');
+  det.removeAttribute('hidden'); det.innerHTML = detalheGuia(guiaDe(num)).replace(/\bgui3-/g, `${prefixo}-`);
+  return det;
+};
+/** O painel do documento aberto; o resto da página inerte, como no comportamento. */
+const painelDoc = (r: HTMLElement, num: string, corpo: string) => {
+  const g = guiaDe(num);
+  $(r, '.ped4__veu').removeAttribute('hidden');
+  const gv = $(r, '.gui3__gaveta'); gv.removeAttribute('hidden');
+  gv.innerHTML = `${cabecaDoc(g).replace('id="gui3-g-num"', `id="${r.dataset.pref}-g-num"`)}<div class="gui3__g-corpo">${corpo}</div>${rodapeDoc(g)}`;
+  gv.setAttribute('aria-labelledby', `${r.dataset.pref}-g-num`);
+  $$(r, '.gui3 > header, .gui3 > section').forEach((el) => { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+  return gv;
+};
+const comPainel = (prefixo: string, f: (r: HTMLElement) => void) => ped4Inerte(g3(prefixo, (r) => { r.dataset.pref = prefixo; f(r); delete r.dataset.pref; }));
+const semDados = (r: HTMLElement, n = '0') => { $(r, '.ped4__conta b').textContent = n; $$(r, '[data-kpi]').forEach((d) => { d.textContent = d.dataset.kpi === 'total' ? eurosPed(0) : n; }); $$(r, '.ped4__est-n').forEach((x) => { x.textContent = n; }); };
+const esqCrono = (r: HTMLElement) => {
+  $(r, '.ped4__crono').innerHTML = `<span class="ped4__c-linha" aria-hidden="true"></span><h2 class="gui3__ano">${E('40px')}</h2>` + [3, 2].map((n, k) => `<section class="ped4__mes"><h3 class="ped4__mes-t">${E(k ? '110px' : '90px', 'esq--titulo')}</h3><ol class="ped4__c-lista">${Array.from({ length: n }, (_, i) => `<li class="ped4__c-item ped4__c-esq"><span class="ped4__c-data">${E('24px')}</span><span class="ped4__c-marca"></span><article class="ped4__c-cartao"><div class="ped4__c-cabeca gui3__cabeca">${E(Math.max(30, 55 - i * 6))}${E('60%')}${E('80px')}${E('70px')}</div></article></li>`).join('')}</ol></section>`).join('');
+};
 
-/* 13.1 · esqueleto: os filtros já lá estão; o resumo e as guias chegam */
-const guiasCarga = () => guias(mudar(guiasV2, 'e131', (r) => {
-  semGuias(r);
-  $(r, '.gui2').setAttribute('aria-busy', 'true');
-  $(r, '.ped2__resumo').innerHTML = `${E('110px', 'esq--botao')}${E('170px', 'esq--botao')}`;
-  $(r, 'tbody').innerHTML = guiasEsq(8);
-  $$(r, '.ped2__n').forEach((n) => n.remove());
-  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A carregar as guias de remessa…</span>`;
-}));
-
-/* 13.2 · a pesquisar uma referência: o botão espera, as guias de antes esbatem */
-const guiasPesquisa = () => guias(mudar(guiasV2, 'e132', (r) => {
-  semGuias(r);
-  $<HTMLInputElement>(r, '#e132-ref').setAttribute('value', 'VKBA 3525');
-  aCarregar($(r, '.ped2__pesquisar'), 'A pesquisar…');
-  $(r, '.gui2__tabela').insertAdjacentHTML('afterbegin', '<div class="progresso progresso--indeterminado progresso--fino" aria-hidden="true"><span></span></div>');
-  $(r, '.gui2__tabela tbody').classList.add('est-esbatido');
-  $(r, '.ped2__pe').innerHTML = `<span role="status">${GIRADOR('girador--pequeno')} A procurar guias com a referência VKBA 3525…</span>`;
-}));
-
-/* 13.3 · sem guias no período escolhido */
-const guiasVazio = () => guias(mudar(guiasV2, 'e133', (r) => {
-  semGuias(r);
-  $<HTMLInputElement>(r, '#e133-de').setAttribute('value', '01/10/2026');
-  $(r, '.ped2__conta').textContent = '0';
-  $(r, '.ped2__total').textContent = '0,00 €';
-  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Nenhuma guia desde 01/10/2026.</strong> A última guia da conta é de 15/04/2024 (GR2024/08812).</p><div class="est-aviso__botoes">${BOTAO('Ver o último ano', IC.denovo, 'btn--ghost btn--sm')}${BOTAO('Ver os pedidos', IC.grelha, 'btn--acao btn--sm', ' data-ir="pedidos"')}</div></div>`;
-  $(r, '.ped2__pe').innerHTML = '<span>A mostrar 0 · de 01/10/2026 até hoje</span>';
-}));
-
-/* 13.4 · erro nos filtros */
-const guiasFiltros = () => guias(mudar(guiasV2, 'e134', (r) => {
-  semGuias(r);
-  erroCampo(r, 'e134-ate', '01/02/2024', '«Data até» é antes de «Data a partir de» (01/03/2024).');
-  erroCampo(r, 'e134-num', 'GR-8812', 'O n.º da guia escreve-se GR2024/08812.');
-  $(r, '.ped2__campos').insertAdjacentHTML('beforebegin', `<div class="est-aviso est-aviso--erro" role="alert">${I(IC.aviso)}<div><p class="est-aviso__titulo">Há 2 campos a corrigir antes de pesquisar</p></div></div>`);
-  $(r, '.ped2__campos').classList.add('est-com-erros');
-}));
-
-/* 13.5 · sem ligação: as guias de há pouco ficam à vista, esbatidas */
-const guiasRede = () => guias(mudar(guiasV2, 'e135', (r) => {
-  semGuias(r);
-  $(r, '.gui2').insertAdjacentHTML('afterbegin', `<div class="er-faixa est-faixa" role="alert">${I(IC.semrede)}<span><strong>Sem ligação à internet.</strong> Está a ver as guias de há 6 minutos. Pesquisar e descarregar PDF voltam quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`);
-  const b = $(r, '.ped2__pesquisar'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem ligação');
-  $(r, '.gui2__tabela tbody').classList.add('est-esbatido');
-}));
-
-/* 13.6 · a tabela não carregou */
-const guiasFalha = () => guias(mudar(guiasV2, 'e136', (r) => {
-  semGuias(r);
-  $(r, '.ped2__resumo').innerHTML = '';
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="cg-falha est-falha est-falha--largo est-falha--tabela">${I(IC.aviso)}<div><p class="cg-falha__titulo">Não foi possível carregar as guias de remessa</p><p class="cg-falha__texto">Os filtros ficaram como estavam. Referência do erro: <code>GP-20261013-G4K7</code></p>${APOIO}</div>${BOTAO('Tentar de novo', IC.denovo, 'btn--ghost btn--sm')}</div>`;
-  $(r, '.ped2__pe').remove();
-}));
-
-/* 13.7 · uma guia aberta no painel (a do pedido expedido em parte) */
-const guiasAberta = () => guias(mudar(guiasV2, 'e137', (r) => {
-  semGuias(r);
-  preencherGuia(r, $$(r, '.gui2__linha')[1]);
-}));
-
-/* 13.8 · uma nota de crédito aberta (a devolução de um retentor) */
-const guiasCredito = () => guias(mudar(guiasV2, 'e138', (r) => {
-  semGuias(r);
-  preencherGuia(r, $$(r, '.gui2__linha')[2]);
-}));
-
-/* 13.9 · primeira vez: um cliente novo, ainda sem nenhuma guia */
-const guiasPrimeira = () => guias(mudar(guiasV2, 'e139', (r) => {
-  semGuias(r);
-  $(r, '.ped2__resumo').innerHTML = '';
-  $$(r, '.ped2__n').forEach((n) => { n.textContent = '0'; });
-  $(r, 'tbody').innerHTML = '';
-  $(r, '.ped2__vazio').outerHTML = `<div class="est-vazio est-vazio--largo est-vazio--tabela">${I(IC.caixa)}<p><strong>Ainda não tem guias de remessa.</strong> Quando um pedido for expedido, a guia aparece aqui com a fatura; as devoluções aparecem como notas de crédito.</p><div class="est-aviso__botoes">${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}</div></div>`;
-  $(r, '.ped2__pe').remove();
-}));
+/* 13.1 · a primeira carga: os filtros já servem; no lugar da lista, só o rolamento e o que está a acontecer */
+const guiasInicio = () => g3('e131', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('60px'); });
+  $(r, '.ped4__conta').innerHTML = 'A ligar ao arquivo de documentos…';
+  $(r, '.ped4__crono').outerHTML = `<div class="est-vazio est-vazio--largo" role="status">${rolamentoSvg('e131-rs', 'carregar', 'cat6__rs-faixa')}<p><strong>A carregar as guias de remessa…</strong> As guias desde 01/03/2024, da mais recente para a mais antiga.</p></div>`;
+  $(r, '.ped4__vistas').setAttribute('hidden', '');
+});
+/* 13.2 · esqueleto: a forma da cronologia (ano, meses, guias) enquanto os dados chegam */
+const guiasCarga = () => g3('e132', (r) => {
+  $$(r, '[data-kpi]').forEach((d) => { d.innerHTML = E('60px'); });
+  $(r, '.ped4__conta').innerHTML = `${GIRADOR('ped4__rs')} A carregar as guias…`;
+  esqCrono(r);
+  $$(r, '.ped4__est-n').forEach((n) => { n.textContent = '…'; });
+});
+/* 13.3 · a pesquisar uma referência: o botão espera; as guias de antes, esbatidas */
+const guiasPesquisa = () => g3('e133', (r) => {
+  valorCampo(r, 'e133-ref', 'VKMV 6PK1873');
+  ocupadoPed($(r, '.ped4__pesquisar'), 'A pesquisar…');
+  const a = $(r, '.ped4__a-atualizar'); a.removeAttribute('hidden'); a.innerHTML = `${GIRADOR('ped4__rs')}A atualizar…`;
+  $(r, '.ped4__crono').classList.add('is-a-atualizar');
+});
+/* 13.4 · sem documentos: um cliente novo */
+const guiasPrimeira = () => g3('e134', (r) => {
+  semDados(r);
+  $(r, '.ped4__crono').setAttribute('hidden', ''); $(r, '.ped4__tabela').setAttribute('hidden', ''); $(r, '.ped4__vistas').setAttribute('hidden', '');
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Ainda não tem guias de remessa.</strong> Quando um pedido sair do armazém, a guia aparece aqui com a fatura; as devoluções aparecem com a nota de crédito.</p>${BOTAO('Ver o catálogo', IC.grelha, 'btn--acao btn--sm', ' data-ir="catalogo"')}`;
+});
+/* 13.5 · nenhum documento com estes filtros: diz qual foi o último e dá a saída */
+const guiasVazio = () => g3('e135', (r) => {
+  valorCampo(r, 'e135-de', '01/05/2024'); valorCampo(r, 'e135-ate', '31/05/2024');
+  chips(r, ['Desde 01/05/2024', 'Até 31/05/2024']);
+  semDados(r);
+  $(r, '.ped4__crono').setAttribute('hidden', ''); $(r, '.ped4__tabela').setAttribute('hidden', '');
+  const v = $(r, '.ped4__vazio'); v.removeAttribute('hidden');
+  v.innerHTML = `<p><strong>Nenhuma guia em maio de 2024.</strong> A última é a GR2024/08812, de 15/04/2024; alargue as datas ou tire um filtro (${GUIAS.length} documentos no total).</p>${BOTAO('Limpar filtros', IC.denovo, 'btn--ghost btn--sm')}`;
+});
+/* 13.6 · intervalo de datas inválido: cada campo diz como deve ser; o que se escreveu fica */
+const guiasFiltros = () => g3('e136', (r) => {
+  erroPed(r, 'e136-de', '31/04/2024', 'Abril só tem 30 dias. Escreva a data como dd/mm/aaaa.');
+  erroPed(r, 'e136-ate', '01/03/2024', 'A data final é antes da inicial.');
+});
+/* 13.7 · guia selecionada: ativa (marcador e borda laranja), ainda fechada */
+const guiasSelecionada = () => g3('e137', (r) => {
+  const li = $(r, '.ped4__c-item[data-num="GR2024/08640"]'); li.classList.add('is-ativo', 'is-passado');
+  $(r, '.gui3__mes-atual').textContent = 'abril de 2024';
+});
+/* 13.8 · guia aberta: o percurso documental, o documento, a entrega, os valores, os artigos e as ações */
+const guiasAberta = () => g3('e138', (r) => { guiaAberta(r, 'GR2024/08640', 'e138'); });
+/* 13.9 · nota de crédito aberta: a devolução, o pedido, e a fatura do mesmo pedido como ligação */
+const guiasCredito = () => g3('e139', (r) => { guiaAberta(r, 'GR2024/08511', 'e139'); });
+/* 13.10 · a abrir a guia relacionada: só essa espera, em esqueleto com a forma do detalhe */
+const guiasRelacionada = () => g3('e1310', (r) => {
+  guiaAberta(r, 'GR2024/08511', 'e1310');
+  const b = $(r, '.ped4__c-item[data-num="GR2024/08511"] .gui3__irma'); b.setAttribute('aria-busy', 'true'); b.innerHTML = `${GIRADOR('ped4__rs')}<b>GR2024/08321</b> · a abrir…`;
+  const li = $(r, '.ped4__c-item[data-num="GR2024/08321"]'), det = $(li, '.ped4__c-det');
+  li.classList.add('is-aberto'); $(li, '.ped4__c-cabeca').setAttribute('aria-expanded', 'true'); det.removeAttribute('hidden');
+  det.innerHTML = `<div class="gui3__det" aria-busy="true"><section class="gui3__det-percurso"><p class="ped4__conta">${GIRADOR('ped4__rs')} A abrir a guia GR2024/08321…</p>${E('100%')}</section><section class="gui3__det-doc">${E('70%')}${E('55%')}${E('80%')}</section><section class="gui3__det-artigos">${[90, 75, 85].map((w) => E(w)).join('')}</section><section class="gui3__det-valores">${[60, 60, 60, 80].map((w) => E(w)).join('')}</section></div>`;
+});
+/* 13.11 · pedido indisponível: a guia e a fatura continuam; o pedido já não está no histórico */
+const guiasPedidoIndisponivel = () => g3('e1311', (r) => {
+  const det = guiaAberta(r, 'GR2024/07940', 'e1311');
+  $(det, '.gui3__ind').removeAttribute('hidden');
+});
+/* 13.12 · o documento a abrir no painel */
+const guiasPdfCarga = () => comPainel('e1312', (r) => { painelDoc(r, 'GR2024/08640', `<p class="gui3__g-carga" role="status">${rolamentoSvg('e1312-rs', 'carregar', 'ped4__rs')}A abrir o documento…</p>`); });
+/* 13.13 · a pré-visualização do documento, com a descarga */
+const guiasPdf = () => comPainel('e1313', (r) => { painelDoc(r, 'GR2024/08640', paginaDoc(guiaDe('GR2024/08640'))); });
+/* 13.14 · documento indisponível: só o painel diz que falhou; a guia e os valores continuam na página */
+const guiasPdfErro = () => comPainel('e1314', (r) => {
+  guiaAberta(r, 'GR2024/08640', 'e1314');
+  const gv = painelDoc(r, 'GR2024/08640', `<div class="gui3__g-erro" role="alert">${rolamentoSvg('e1314-rs', 'erro', 'ped4__rs')}<p><strong>O documento da GR2024/08640 não está disponível.</strong></p><p>O arquivo de documentos não respondeu. A guia, os valores e os artigos continuam na página. Referência do erro: DOC-504-0812.</p>${BOTAO('Tentar novamente', IC.denovo, 'btn--ghost btn--sm')}</div>`);
+  const b = $(gv, '[data-descarregar]'); b.setAttribute('disabled', ''); b.setAttribute('title', 'Sem documento para descarregar');
+});
+/* 13.15 · a descarregar: só esse botão espera */
+const guiasDescarga = () => g3('e1315', (r) => {
+  const det = guiaAberta(r, 'GR2024/08640', 'e1315');
+  ocupadoPed($(det, '[data-descarregar]'), 'A preparar o PDF…');
+});
+/* 13.16 · a descarga falhou: a faixa no próprio documento, com «Tentar novamente»; o resto continua */
+const guiasDescargaErro = () => g3('e1316', (r) => {
+  const det = guiaAberta(r, 'GR2024/08640', 'e1316');
+  $(det, '.gui3__accoes').insertAdjacentHTML('afterend', faixa('erro', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'O PDF da GR2024/08640 não descarregou.', 'A ligação caiu a meio. A guia continua aberta; tente outra vez.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 13.17 · sem ligação: as guias de há pouco, esbatidas; pesquisar e descarregar esperam */
+const guiasRede = () => g3('e1317', (r) => {
+  $(r, '.ped4__crono').classList.add('is-a-atualizar');
+  $(r, '.ped4__pesquisar').setAttribute('disabled', '');
+  $(r, '.ped4__lista').insertAdjacentHTML('afterbegin', faixa('aviso', rolamentoSvg('e1317-rs', 'offline', 'cat6__rs-faixa'), 'Está sem ligação à Internet.', 'Vê as guias de há 6 minutos; pesquisar e descarregar PDF voltam quando a ligação voltar.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
+/* 13.18 · erro do servidor: os filtros ficam; a lista diz o que falhou, com a referência do erro */
+const guiasFalha = () => g3('e1318', (r) => {
+  valorCampo(r, 'e1318-num', 'GR2024/08');
+  $(r, '.ped4__tabela').remove();
+  $(r, '.ped4__crono').outerHTML = `<div class="cg-falha est-falha est-falha--largo" role="alert">${rolamentoSvg('e1318-rs', 'erro', 'cat6__rs-faixa')}<div><p class="cg-falha__titulo">Não foi possível carregar as guias de remessa.</p><p class="cg-falha__texto">O serviço de documentos não respondeu. Os filtros ficam como estão. Referência do erro: GR-503-1015.</p><div class="est-aviso__botoes">${BOTAO('Tentar novamente', IC.denovo, 'btn--acao btn--sm')}</div>${APOIO}</div></div>`;
+  $$(r, '[data-kpi]').forEach((d) => { d.textContent = '—'; });
+  $(r, '.ped4__conta').textContent = 'Sem dados';
+});
+/* 13.19 · sessão terminada: a página fica; pesquisar pede para entrar outra vez */
+const guiasSessao = () => g3('e1319', (r) => {
+  $(r, '.ped4__pesquisar').setAttribute('disabled', '');
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as guias e descarregar documentos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+});
+/* 13.20 · sem permissão: esta conta não vê os documentos de entrega */
+const guiasSemPermissao = () => g3('e1320', (r) => {
+  $(r, '.ped4__filtros').setAttribute('hidden', ''); $(r, '.ped4__kpi').setAttribute('hidden', '');
+  $(r, '.ped4__lista').innerHTML = `<div class="est-vazio est-vazio--largo">${I(IC_CADEADO_P)}<p><strong>A sua conta não tem acesso às guias de remessa.</strong> As guias e os valores são da conta da oficina; peça acesso ao administrador da conta. Os pedidos e o catálogo continuam abertos.</p><div class="est-aviso__botoes">${BOTAO('Ver os pedidos', IC.grelha, 'btn--ghost btn--sm', ' data-ir="pedidos"')}</div></div>`;
+});
+/* 13.21 · a mesma página na Tabela, com a guia aberta na linha */
+const guiasTabela = () => g3('e1321', (r) => {
+  const tr = $(r, 'tr.ped4__linha[data-num="GR2024/08640"]'), det = tr.nextElementSibling as HTMLElement;
+  tr.classList.add('is-aberto'); $(tr, '.ped4__abrir').setAttribute('aria-expanded', 'true');
+  det.removeAttribute('hidden'); det.firstElementChild!.innerHTML = detalheGuia(guiaDe('GR2024/08640')).replace(/\bgui3-/g, 'e1321-');
+}, guiasV3('tabela'));
 
 
 /* ================= 14 · Faturas ================= */
@@ -828,17 +929,35 @@ export const estadosPedidos = (): EcraGoParts[] => [
   e('pedidos-sem-permissao', '12.15 · Sem permissão', 'Esta conta não vê os pedidos da oficina; o catálogo continua aberto.', ped4SemPermissao),
   e('pedidos-documento', '12.16 · Documento indisponível', 'A fatura não abriu; a guia e o resto do pedido continuam.', ped4Documento),
   e('pedidos-tabela', '12.17 · Vista em tabela', 'A alternativa à cronologia: a tabela ordenável, com o P2024/001233 aberto na linha.', ped4Tabela),
+  e('pedidos-inicio', '12.18 · Primeira carga', 'A primeira carga: os filtros já servem; no lugar da lista, o rolamento e o que está a acontecer.', ped4Inicio),
+  e('pedidos-selecionado', '12.19 · Pedido selecionado', 'O P2024/001233 ativo, ainda fechado: o anel e a borda a laranja.', ped4Selecionado),
+  e('pedidos-encontrado', '12.20 · Encontrado pela referência', 'Com «VKBA»: só os dois pedidos com a peça, e a peça destacada em cada cartão.', ped4Encontrado),
+  e('pedidos-repetir', '12.21 · A repetir o pedido', 'Só o botão «Repetir pedido» espera, com o rolamento.', ped4Repetir),
+  e('pedidos-repetido', '12.22 · Artigos no carrinho', 'O botão confirma e a faixa diz quantos artigos entraram, com o caminho para o carrinho.', ped4Repetido),
+  e('pedidos-repetido-parte', '12.23 · Repetido em parte', 'Um artigo sem stock: diz qual, que os outros entraram, e leva às alternativas.', ped4RepetidoParte),
 ];
 export const estadosGuias = (): EcraGoParts[] => [
-  e('guias-carga', '13.1 · A carregar as guias', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', guiasCarga),
-  e('guias-pesquisa', '13.2 · A pesquisar', 'Com uma referência escrita: o botão em «A pesquisar…», uma barra fina e as guias de antes esbatidas.', guiasPesquisa),
-  e('guias-vazio', '13.3 · Sem guias no período', 'Nenhuma guia nas datas escolhidas: diz qual foi a última e dá dois caminhos.', guiasVazio),
-  e('guias-filtros', '13.4 · Erro nos filtros', 'A data final antes da inicial e o n.º mal escrito: cada campo diz como deve ser.', guiasFiltros),
-  e('guias-rede', '13.5 · Sem ligação', 'Uma faixa em cima, as guias de há pouco esbatidas; pesquisar e descarregar esperam pela ligação.', guiasRede),
-  e('guias-falha', '13.6 · As guias não carregaram', 'A tabela falhou: os filtros ficam, a referência do erro, o apoio e «Tentar de novo».', guiasFalha),
-  e('guias-aberta', '13.7 · Guia aberta', 'A GR2024/08640 no painel: a fatura e o pedido, os artigos servidos, os valores (bruto, desconto, embalagens, portes, base, IVA, total) e a morada.', guiasAberta),
-  e('guias-credito', '13.8 · Nota de crédito aberta', 'Uma devolução no painel: a nota de crédito, o pedido da peça devolvida e os valores a negativo.', guiasCredito),
-  e('guias-primeira', '13.9 · Primeira vez', 'Um cliente novo, sem guias: diz quando vão aparecer e leva ao catálogo.', guiasPrimeira),
+  e('guias-inicio', '13.1 · Primeira carga', 'A primeira carga: os filtros já servem; no lugar da lista, o rolamento e o que está a acontecer.', guiasInicio),
+  e('guias-carga', '13.2 · Esqueleto', 'A forma da cronologia (o ano, os meses, as guias) enquanto os dados chegam; os números em esqueleto.', guiasCarga),
+  e('guias-pesquisa', '13.3 · A pesquisar', 'Com uma referência escrita: o botão em «A pesquisar…», o rolamento em «A atualizar…» e as guias de antes esbatidas.', guiasPesquisa),
+  e('guias-primeira', '13.4 · Sem documentos', 'Um cliente novo: diz quando as guias vão aparecer (com a fatura ou a nota de crédito) e leva ao catálogo.', guiasPrimeira),
+  e('guias-vazio', '13.5 · Nenhuma com estes filtros', 'Maio de 2024: diz qual foi a última guia, mostra os filtros aplicados e dá «Limpar filtros».', guiasVazio),
+  e('guias-filtros', '13.6 · Datas inválidas', 'A data que não existe e a final antes da inicial: cada campo diz como deve ser e guarda o que se escreveu.', guiasFiltros),
+  e('guias-selecionada', '13.7 · Guia selecionada', 'A GR2024/08640 ativa, ainda fechada: o marcador e a borda a laranja; o mês dela ao lado da contagem.', guiasSelecionada),
+  e('guias-aberta', '13.8 · Guia aberta', 'A GR2024/08640 aberta no sítio: Pedido → Guia → Fatura, a entrega, os valores (a base como subtotal, o total à parte), os artigos e as ações.', guiasAberta),
+  e('guias-credito', '13.9 · Nota de crédito aberta', 'A devolução GR2024/08511: o percurso até à nota de crédito e, do mesmo pedido, a guia da fatura como ligação.', guiasCredito),
+  e('guias-relacionada', '13.10 · A abrir a guia relacionada', 'Do mesmo pedido: só a guia pedida espera, em esqueleto com a forma do detalhe.', guiasRelacionada),
+  e('guias-pedido-indisponivel', '13.11 · Pedido indisponível', 'A GR2024/07940 é de um pedido que já não está no histórico: o nó a tracejado e a nota; a guia e a fatura continuam.', guiasPedidoIndisponivel),
+  e('guias-pdf-carga', '13.12 · Documento a abrir', 'O painel abre já com o número e a descarga; a página do documento chega a seguir.', guiasPdfCarga),
+  e('guias-pdf', '13.13 · Pré-visualização', 'O documento no painel à direita, com «Descarregar PDF» em baixo; Esc fecha e o foco volta ao botão.', guiasPdf),
+  e('guias-pdf-erro', '13.14 · Documento indisponível', 'Só o painel diz que o documento falhou (com a referência do erro); a guia e os valores continuam na página.', guiasPdfErro),
+  e('guias-descarga', '13.15 · A descarregar', 'Só o botão do PDF espera, com o rolamento.', guiasDescarga),
+  e('guias-descarga-erro', '13.16 · A descarga falhou', 'A faixa no próprio documento, com «Tentar novamente»; o resto da guia continua.', guiasDescargaErro),
+  e('guias-rede', '13.17 · Sem ligação', 'Uma faixa por cima da lista; as guias de há pouco esbatidas; pesquisar desligado.', guiasRede),
+  e('guias-falha', '13.18 · Erro do servidor', 'Os filtros ficam; a lista diz o que falhou, com a referência do erro, o apoio e «Tentar novamente».', guiasFalha),
+  e('guias-sessao', '13.19 · Sessão terminada', 'A página fica; pesquisar e descarregar pedem para entrar outra vez.', guiasSessao),
+  e('guias-sem-permissao', '13.20 · Sem permissão', 'Esta conta não vê os documentos de entrega; os pedidos e o catálogo continuam abertos.', guiasSemPermissao),
+  e('guias-tabela', '13.21 · Vista em tabela', 'A alternativa à cronologia: as colunas todas do GO REPAIR, ordenáveis, com a GR2024/08640 aberta na linha.', guiasTabela),
 ];
 export const estadosFaturas = (): EcraGoParts[] => [
   e('faturas-carga', '14.1 · A carregar as faturas', 'Os filtros já à vista; o resumo e as linhas chegam em esqueleto.', faturasCarga),

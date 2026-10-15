@@ -1,0 +1,167 @@
+/* =========================================================
+   GOPARTS — 13 · Guias de remessa v3 (15 out. 2026; portal/guias-v3.ts)
+   Usa o molde dos Pedidos v5 (css/pedidos-v4.css: filtros, seletor com a risca, cronologia, tabela, painel); aqui
+   só o que é das guias: o marcador pelo tipo, o destino, o ano, o mês ativo, o percurso documental, os valores,
+   a página do documento no painel. Grafite no escuro e neutro no claro (tokens do portal, noite.css); o azul
+   nas referências, o laranja no escolhido e nas ações. Sem gradientes, sem brilhos.
+   Tempos: hover 150 ms; o seletor 220 ms; abrir 320 ms; o fio do percurso 450 ms; o painel 300 ms.
+   Ecrã ajustável: a altura rola; em 1100 px a guia fecha numa linha mais curta; em 760 px os filtros recolhem.
+   ========================================================= */
+.portal--gui3 { --p4-rapido: 150ms; --p4-curva: cubic-bezier(.22, 1, .36, 1); }
+.gui3 .ped4__est-risca { transition-duration: 220ms; }
+
+/* a cabeça: três números, o do meio com as duas contagens */
+.gui3__kpi-tipos { white-space: nowrap; }
+.gui3__kpi-tipos span { font: inherit; }
+
+/* a contagem e, ao lado, o mês da guia ativa */
+.gui3__mes-atual { margin: 0 auto 0 4px; padding-left: 12px; border-left: 1px solid var(--c-borda); font-size: 13px; color: var(--c-texto-2); }
+.gui3__mes-atual:empty { display: none; }
+.gui3__mes-atual::first-letter { text-transform: uppercase; }
+
+/* o ano por cima dos meses */
+.gui3__ano { margin: 4px 0 0; padding-left: calc(var(--data) + var(--eixo) + 4px); font-family: var(--f-titulo); font-size: 13px; font-weight: 700; letter-spacing: .08em; color: var(--c-texto-3); }
+.gui3__ano[hidden] { display: none; }
+.ped4__crono .gui3__ano:not(.is-entrou), .gui3__crono .ped4__mes-t:not(.is-entrou) { opacity: 0; }
+.ped4__crono .gui3__ano.is-entrou, .gui3__crono .ped4__mes-t.is-entrou { opacity: 1; transition: opacity 450ms ease; }
+.portal--estado .gui3__ano, .portal--estado .gui3__crono .ped4__mes-t { opacity: 1; }
+.gui3__crono .ped4__c-linha-cheia { transition: transform 450ms var(--p4-curva); }
+.gui3__crono.is-a-atualizar { opacity: .55; transition: opacity 200ms ease; }
+
+/* o marcador diz o tipo (fatura ou devolução) com o ícone; o ativo leva o anel laranja */
+.gui3__marca--fatura { border-color: var(--c-marca); background: var(--c-superficie); color: var(--c-marca); }
+.gui3__marca--credito { border-color: var(--c-aviso); background: var(--c-superficie); color: var(--c-aviso); }
+.ped4__c-item.is-passado .gui3__marca--fatura, .ped4__c-item.is-ativo .gui3__marca--fatura { border-color: var(--c-marca); background: var(--c-superficie); }
+.ped4__c-item.is-passado .gui3__marca--credito, .ped4__c-item.is-ativo .gui3__marca--credito { border-color: var(--c-aviso); background: var(--c-superficie); }
+.ped4__c-item.is-aberto .gui3__marca { border-color: var(--c-acao); background: var(--c-acao); color: #fff; }
+.ped4__c-item.is-aberto .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-acao) 60%, var(--c-borda)); box-shadow: inset 2px 0 0 var(--c-acao); }
+
+/* a linha da guia */
+.gui3__cabeca { grid-template-columns: minmax(190px, 1.1fr) minmax(0, 1fr) auto minmax(110px, auto) 24px; }
+.gui3__cabeca .ped4__ref { font-size: 16px; }
+.gui3__ref-pedido { color: var(--c-marca); font-weight: 600; }
+.gui3__destino { display: flex; align-items: flex-start; gap: 8px; min-width: 0; font-size: 14px; }
+.gui3__destino svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--c-texto-3); }
+.gui3__destino > span { display: grid; min-width: 0; }
+.gui3__destino small { font-size: 12px; color: var(--c-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gui3__tipo--fatura { color: var(--c-marca); border-color: color-mix(in srgb, var(--c-marca) 45%, transparent); background: color-mix(in srgb, var(--c-marca) 8%, transparent); }
+.gui3__tipo--credito { color: var(--c-aviso); border-color: color-mix(in srgb, var(--c-aviso) 45%, transparent); background: color-mix(in srgb, var(--c-aviso) 8%, transparent); }
+
+/* ---------- a guia aberta ---------- */
+.gui3__det { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(250px, .8fr); grid-template-areas: "percurso percurso valores" "doc artigos valores"; gap: 18px 28px; padding: 16px 20px 20px; }
+.gui3__det-percurso { grid-area: percurso; } .gui3__det-doc { grid-area: doc; } .gui3__det-valores { grid-area: valores; } .gui3__det-artigos { grid-area: artigos; }
+.gui3__det .ped4__ent { margin-bottom: 8px; }
+.gui3__obs { display: grid; gap: 2px; margin: 4px 0 0; padding: 8px 10px; border-left: 2px solid var(--c-aviso); background: var(--c-superficie-2); font-size: 14px; }
+.gui3__obs b { font-size: 12px; font-weight: 600; color: var(--c-texto-2); }
+
+/* o percurso documental: três nós ligados por um fio que se desenha */
+.gui3__percurso { display: grid; gap: 10px; }
+.gui3__nos { display: flex; align-items: center; gap: 0; margin: 0; padding: 0; list-style: none; flex-wrap: wrap; row-gap: 8px; }
+.gui3__seta { flex: 1 1 32px; min-width: 24px; max-width: 120px; height: 2px; }
+.gui3__fio { display: block; height: 2px; background: var(--azul-fundo); transform-origin: left; }
+.gui3__no { display: inline-flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); color: var(--c-texto); font: inherit; text-align: left; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
+.gui3__no > span:last-child { display: grid; }
+.gui3__no small { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+.gui3__no b { font-size: 14px; color: var(--c-marca); font-variant-numeric: tabular-nums; }
+.gui3__no-i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 6px; background: var(--c-superficie-2); color: var(--c-texto-2); }
+.gui3__no-i svg { width: 16px; height: 16px; }
+button.gui3__no:hover { border-color: var(--c-marca); background: var(--c-superficie-2); }
+button.gui3__no:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 2px; }
+.gui3__no--atual { border-color: var(--c-acao); box-shadow: inset 0 -2px 0 var(--c-acao); cursor: default; }
+.gui3__no--atual .gui3__no-i { background: var(--c-acao); color: #fff; }
+.gui3__no--atual b { color: var(--c-texto); }
+.gui3__no--credito .gui3__no-i { color: var(--c-aviso); }
+.gui3__no--indisponivel { border-style: dashed; }
+.gui3__no--indisponivel b { color: var(--c-texto-2); }
+.gui3__ind { display: flex; gap: 8px; margin: 0; padding: 8px 10px; border: 1px solid var(--c-borda); border-radius: 6px; font-size: 13px; color: var(--c-texto-2); }
+.gui3__ind[hidden] { display: none; }
+.gui3__ind svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--c-marca); }
+.gui3__irmas { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0; font-size: 13px; color: var(--c-texto-2); }
+.gui3__irma { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--c-borda); border-radius: 6px; background: none; color: var(--c-texto-2); font: inherit; font-size: 13px; cursor: pointer; transition: border-color 150ms ease, color 150ms ease; }
+.gui3__irma svg { width: 14px; height: 14px; color: var(--c-texto-3); }
+.gui3__irma b { color: var(--c-marca); }
+.gui3__irma:hover { border-color: var(--c-marca); color: var(--c-texto); }
+.gui3__irma:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 2px; }
+
+/* os valores: alinhados à direita; a base é um subtotal; o total fica à parte */
+.gui3__valores { display: grid; gap: 0; margin: 0; padding: 4px 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); font-variant-numeric: tabular-nums; }
+.gui3__v { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: 14px; }
+.gui3__v dt { color: var(--c-texto-2); }
+.gui3__v dd { margin: 0; text-align: right; white-space: nowrap; }
+.gui3__v--sub { margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--c-borda); font-weight: 600; }
+.gui3__v--sub dt { color: var(--c-texto); }
+.gui3__v--total { margin: 6px -14px -4px; padding: 12px 14px; border-top: 2px solid var(--c-texto); align-items: baseline; }
+.gui3__v--total dt { font-weight: 700; color: var(--c-texto); }
+.gui3__v--total dd { font-family: var(--f-titulo); font-size: 20px; font-weight: 700; }
+
+.gui3__accoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.gui3__descarga { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 13px; color: var(--c-texto-2); }
+.gui3__descarga[hidden] { display: none; }
+.gui3__descarga svg { width: 14px; height: 14px; color: var(--c-ok); }
+.gui3 .btn.is-feito { border-color: var(--c-ok); color: var(--c-ok); }
+.gui3 .btn--acao.is-feito { background: var(--c-ok); color: #fff; }
+
+/* a tabela: as colunas do GO REPAIR (a alternativa) */
+.gui3__tabela .ped4__selo { white-space: nowrap; }
+.gui3__tabela td .ped4__m2 { display: block; }
+.gui3__linha + .ped4__linha-det .gui3__det { padding-left: 42px; }
+
+/* ---------- o documento no painel ---------- */
+.gui3__gaveta { width: min(640px, 100vw); }
+.gui3__g-corpo { flex: 1; padding: 20px; background: var(--c-superficie-2); }
+.gui3__g-carga { display: flex; align-items: center; gap: 10px; margin: 40px auto; justify-content: center; color: var(--c-texto-2); }
+.gui3__g-erro { display: grid; gap: 10px; justify-items: start; max-width: 420px; margin: 32px auto; padding: 16px; border: 1px solid var(--c-borda); border-left: 3px solid var(--c-erro); border-radius: 8px; background: var(--c-superficie); }
+.gui3__g-erro p { margin: 0; }
+.gui3__g-pe { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--c-borda); background: var(--c-superficie); }
+/* a página: sempre clara, como o papel do PDF; o ROMAFE azul em Motor */
+.gui3__folha { display: grid; gap: 18px; max-width: 520px; margin: 0 auto; padding: 28px; border: 1px solid #d9dde3; border-radius: 4px; background: #fff; color: #1b1e23; font-size: 13px; }
+.gui3__folha .romafe { font-size: 28px; color: var(--c-logotipo); }
+.gui3__folha-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--c-acao); }
+.gui3__folha-topo > span:last-child { text-align: right; line-height: 1.5; }
+.gui3__folha-topo b { display: block; font-size: 15px; }
+.gui3__folha-dados { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gui3__folha-dados p { margin: 0; line-height: 1.5; }
+.gui3__folha-dados small { display: block; font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+.gui3__folha-art { width: 100%; border-collapse: collapse; }
+.gui3__folha-art th { padding: 6px 4px; border-bottom: 1px solid #c9ced6; font-size: 11px; text-align: left; color: #6b7280; }
+.gui3__folha-art td { padding: 6px 4px; border-bottom: 1px solid #eceef1; }
+.gui3__folha-art th:last-child, .gui3__folha-art td:last-child, .gui3__folha-art th:first-child, .gui3__folha-art td:first-child { text-align: right; white-space: nowrap; }
+.gui3__folha .gui3__valores { --c-borda: #d9dde3; --c-superficie-2: #f6f7f9; --c-texto: #1b1e23; --c-texto-2: #4b5260; margin-left: auto; width: min(260px, 100%); }
+
+@media (max-width: 1280px) {
+  .gui3__det { grid-template-columns: minmax(0, 1fr) minmax(240px, .8fr); grid-template-areas: "percurso percurso" "doc valores" "artigos artigos"; }
+}
+@media (max-width: 1100px) {
+  .gui3__cabeca { grid-template-columns: minmax(0, 1fr) auto 24px; grid-template-areas: "id valor seta" "selos selos selos"; }
+  .gui3__destino { display: none; }
+}
+@media (max-width: 760px) {
+  .gui3__det { grid-template-columns: minmax(0, 1fr); grid-template-areas: "percurso" "valores" "doc" "artigos"; padding: 12px; }
+  .gui3__nos { flex-direction: column; align-items: stretch; }
+  .gui3__seta { flex: none; width: 2px; height: 14px; margin-left: 22px; }
+  .gui3__fio { width: 2px; height: 14px; transform-origin: top; }
+  .gui3__no { width: 100%; }
+  .gui3__accoes .btn { flex: 1 1 100%; justify-content: center; }
+  .gui3__mes-atual { display: none; }
+  .gui3__folha { padding: 16px; } .gui3__g-corpo { padding: 12px; }
+  .gui3__folha-dados { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gui3 *, .gui3 *::before { transition: none !important; }
+  .gui3__ano, .gui3__crono .ped4__mes-t { opacity: 1 !important; }
+}
+
+/* a tabela larga rola de lado dentro da sua caixa; a guia aberta fica presa à largura visível (não foge) */
+.gui3__tabela { overflow-x: auto; container-type: inline-size; }
+.gui3__tabela td, .gui3__tabela th { font-size: 13px; }
+.gui3__tabela .ped4__num { white-space: nowrap; }
+.gui3__tabela .ped4__c-obs { min-width: 160px; max-width: 220px; }
+.gui3__tabela .ped4__linha-det > td { padding: 0; }
+.gui3__tabela .ped4__linha-det .gui3__det { position: sticky; left: 0; width: 100cqw; box-sizing: border-box; }
+/* o cabeçalho no telemóvel: duas colunas, o total por baixo, a toda a largura */
+@media (max-width: 760px) {
+  .gui3 .ped4__kpi { display: grid; grid-template-columns: 1fr 1fr; }
+  .gui3 .ped4__kpi > div:last-child { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--c-borda); }
+  .gui3 .ped4__kpi dd { min-width: 0; }
+  .gui3__tabela .ped4__linha-det .gui3__det { position: static; width: auto; }
+}

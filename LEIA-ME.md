@@ -501,6 +501,23 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - Não há paginação, porque só há 6 pedidos de exemplo; o fim diz «Não há pedidos mais antigos neste período».
 - Estados: os 12.x passaram à cronologia (a carregar com o esqueleto em forma de linha, pedidos abertos no cartão); o 12.17 mostra a vista em tabela.
 
+- **Estados novos (15 out., ela: «faz os vários estados dos ecrãs de pedidos e guias»):** 12.18 Primeira carga (com o rolamento), 12.19 Pedido selecionado, 12.20 Encontrado pela referência, 12.21 A repetir o pedido, 12.22 Artigos no carrinho, 12.23 Repetido em parte (um artigo sem stock). Os estados comuns que colidiam com os 12.9–12.11 passaram a 12.24–12.26.
+- «Ver guia» abre as Guias com essa guia já aberta; nas Guias, «Abrir o pedido» abre os Pedidos com o pedido aberto (`sessionStorage`: `goparts:abrir-guia`, `goparts:abrir-pedido`).
+
+### 13 · Guias de remessa v3 — como o Histórico de pedidos (15 out. 2026)
+- Do briefing dela («ROMAFE Logistics Document Center»), da nota que juntou («a timeline cronológica com o percurso documental») e de «a guias faz tipo histórico também». Fica só a v3 (`portal/guias-v3.ts`, `comportamento/guias-v3.ts`, `css/guias-v3.css`), no molde dos Pedidos v5: as classes `ped4__*` dos filtros, da cronologia, da tabela e do painel; o que é só das guias tem `gui3__*`. Em TypeScript e CSS, sem React (o briefing pedia React, Tailwind e Motion).
+- Os campos do GO REPAIR ficam todos: as datas (dd/mm/aaaa, validadas no próprio campo), o n.º da guia, a referência e o tipo **Todos / Fatura / Nota de crédito**, com o mesmo significado, num seletor com a risca laranja. No cabeçalho: documentos, faturas · notas de crédito e o total do período; os números contam só quando mudam.
+- **Cronologia:** por ano e por mês, da mais recente para a mais antiga. O marcador diz o tipo (recibo azul, devolução âmbar) e a linha desenha-se com o scroll. O mês da guia ativa aparece ao lado da contagem, e cada guia entra uma só vez.
+- **Abrir uma guia (320 ms, FLIP):** o marcador e a borda ficam laranja e aparecem quatro blocos.
+  - O **percurso documental** Pedido → Guia → Fatura ou Nota de crédito. Só aparecem as ligações que os dados têm; o fio desenha-se em 450 ms. «Do mesmo pedido» abre a outra guia, por exemplo a fatura e a devolução do P2024/001175. Os pedidos que já não estão no histórico (P2024/001087, P2024/001061) aparecem a tracejado, com a explicação.
+  - O documento e a entrega.
+  - Os **valores**: alinhados à direita, com a base tributável como subtotal e o total à parte. Os valores são os de `guias-dados.ts` (o «servidor»).
+  - Os artigos e as ações: Ver documento, Descarregar PDF e Abrir o pedido.
+- **Documento:** abre num painel à direita (300 ms) com a página da guia, montada com os campos da própria guia, porque o protótipo não tem o PDF do servidor. A descarga espera e confirma.
+- **Tabela** como alternativa (como nos Pedidos): as 13 colunas do GO REPAIR, ordenável, com a guia a abrir-se na linha. A tabela rola de lado e o detalhe fica preso à largura visível.
+- A guia aberta fica guardada durante a visita. Os euros passaram a ter espaço também nos milhares de 4 algarismos (3 449,60 €), também nas Faturas.
+- Estados 13.1–13.21: primeira carga, esqueleto, a pesquisar, sem documentos, nenhuma com estes filtros, datas inválidas, selecionada, aberta, nota de crédito, guia relacionada a abrir, pedido indisponível, documento a abrir, pré-visualização, documento indisponível (só no painel), a descarregar, descarga falhou, sem ligação, erro do servidor, sessão terminada, sem permissão, vista em tabela. O «Acesso negado» comum passou a 13.22.
+
 ### 01–04 Entrar: o cartão partido ao meio (15 out. 2026)
 - Ela: «a animação ficou muito porreira; puxar o card do login mais para a direita e a animação também, parece muito vazio o lado direito; um card centrado com uma divisória a meio, de um lado a animação, do outro o login».
 - Um só cartão ao centro, partido por uma linha fina: à esquerda o palco com o rolamento (o mesmo canvas, agora centrado na sua metade: `entrar-cena.ts` deixou de deslocar a câmara), à direita o login. As cotas da vista explodida ficam dentro do palco. No telemóvel, o palco fica por cima do login, no mesmo cartão.

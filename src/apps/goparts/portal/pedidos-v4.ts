@@ -77,7 +77,7 @@ export function detalhe(p: Pedido, l: LinhaPedido, onde: 'linha' | 'gaveta' = 'l
     ? `<p class="ped4__ent">${L(store)}<span><b>Levanta no balcão</b>Armazém ${esc(l.armazem)}</span></p>`
     : `<p class="ped4__ent">${L(mapPin)}<span><b>${esc(l.morada[0])}</b>${esc(l.morada[1])}</span></p>`;
   const docs = [
-    p.guia ? `<li><span class="ped4__doc-i">${L(fileText)}</span><span><b>Guia de remessa</b>${p.guia}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="guias">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ver guia</span></button></li>` : '',
+    p.guia ? `<li><span class="ped4__doc-i">${L(fileText)}</span><span><b>Guia de remessa</b>${p.guia}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="guias" data-abrir-guia="${p.guia}">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ver guia</span></button></li>` : '',
     p.fatura ? `<li><span class="ped4__doc-i">${L(receipt)}</span><span><b>Fatura</b>${p.fatura}</span><button type="button" class="btn btn--ghost btn--sm" data-ir="faturas">${L(receipt, 'btn__icone')}<span class="btn__rotulo">Ver fatura</span></button></li>` : '',
   ].join('');
   return `<div class="ped4__det ped4__det--${onde}">

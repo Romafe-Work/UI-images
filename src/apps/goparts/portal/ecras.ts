@@ -9,7 +9,7 @@ import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas } from './estados';
 import { faturasV1 } from './faturas-v1';
 import { listaHtml, type EstadoLista } from './lista';
-import { guiasV2 } from './guias-v2';
+import { guiasV3 } from './guias-v3';
 import { inicioV3 } from './inicio-v3';
 import { catalogoV5 } from './catalogo-v5';
 
@@ -46,7 +46,8 @@ export const ecrasPortal: EcraGoParts[] = [
   /* 13 out. 2026: ela não gostou da v1 (a do Figma-WebShop-GoParts) — fica só a v2 */
   { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [
     /* 13 out. 2026: ela, «faz este screen com exemplos e animações» e «coloca animações e todos os estados possíveis» */
-    { id: 'v2', nota: 'No estilo dos Pedidos v3 (13 out.): filtros no cartão azul com Todas / Faturas / Notas de crédito, as colunas do GO REPAIR com oito guias de exemplo, e a guia num painel à direita (documentos, artigos, valores a contar); estados 13.1 a 13.9', html: portal('guias', guiasV2, undefined, { menu: true, rodape: false }) }],
+    /* 15 out. 2026: do briefing dela («Logistics Document Center») e «a guias faz tipo histórico também»: uma só versão — saiu a v2 (o código fica) */
+    { id: 'v3', nota: 'Como o Histórico de pedidos (15 out.): as guias por ano e mês numa linha que se desenha com o scroll; cada guia abre-se no sítio com o percurso documental (Pedido → Guia → Fatura ou Nota de crédito, só as ligações que existem), a entrega, os valores e os artigos; o documento num painel com descarga; a Tabela com as colunas todas como alternativa', html: portal('guias', guiasV3(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'As guias de remessa e as notas de crédito: filtros, os totais faturados e a lista com bruto, desconto, portes e IVA.' },
   ...estadosGuias(),
   /* 13 out. 2026: ela, com a imagem das faturas do GO REPAIR: «para as faturas» (como nas guias) */

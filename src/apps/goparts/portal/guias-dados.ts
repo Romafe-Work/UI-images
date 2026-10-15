@@ -42,4 +42,5 @@ export const GUIAS: Guia[] = [
 export const base = (g: Guia) => +(g.bruto - g.desconto + g.embalagens + g.portes).toFixed(2);
 export const iva = (g: Guia) => +(base(g) * 0.23).toFixed(2);
 export const total = (g: Guia) => +(base(g) + iva(g)).toFixed(2);
-export const euros = (n: number) => (n < 0 ? '−' : '') + Math.abs(n).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/\./g, ' ') + ' €';
+/** Euros à portuguesa: espaço nos milhares (também com 4 algarismos: 3 449,60 €), vírgula nas décimas. */
+export const euros = (n: number) => { const [i, d] = Math.abs(n).toFixed(2).split('.'); return `${n < 0 ? '−' : ''}${i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')},${d} €`; };

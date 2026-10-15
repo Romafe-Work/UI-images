@@ -334,7 +334,19 @@ function armar(): void {
   $$(main, '[data-kpi]').forEach((d) => { if (!d.dataset.valor) d.dataset.valor = d.dataset.kpi === 'n' ? String(LINHAS.length) : String(LINHAS.reduce((s, l) => s + valorDe(pedidoDe(l.num)), 0)); });
   if (!main.dataset.vistaLida) { main.dataset.vistaLida = '1'; const v = lidaVista(); if (v === 'tabela' || v === 'cronologia') vista(main, v, false); }
   observar(main);
-  requestAnimationFrame(() => { risca(main); rolar(main); });
+  requestAnimationFrame(() => {
+    risca(main);
+    /* o pedido vindo das Guias («Abrir o pedido»): aberto no seu cartão (ou na sua linha), à vista */
+    let pedido: string | null = null; try { pedido = sessionStorage.getItem('goparts:abrir-pedido'); sessionStorage.removeItem('goparts:abrir-pedido'); } catch { /* nada */ }
+    if (pedido && LINHAS.some((l) => l.num === pedido)) {
+      const tabela = $(main, '.ped4__lista')?.dataset.vista === 'tabela';
+      const el = tabela ? $(main, `tr.ped4__linha[data-num="${pedido}"]`) : $(main, `.ped4__c-item[data-num="${pedido}"]`);
+      if (el?.hidden) limpar(main);
+      if (el && !el.classList.contains('is-aberto')) { if (tabela) abrir(main, el); else abrirItem(main, el); }
+      el?.scrollIntoView({ block: 'center', behavior: quieto() ? 'auto' : 'smooth' });
+    }
+    rolar(main);
+  });
 }
 
 export function iniciar(): void {
@@ -349,6 +361,8 @@ export function iniciar(): void {
     if (tirar) { const k = tirar.dataset.tirar!; if (k === 'estado') { main.dataset.filtro = 'todos'; estados(main); } else { const i = $<HTMLInputElement>(main, `#ped4-${k}`)!; i.value = ''; i.removeAttribute('aria-invalid'); $(main, `#ped4-${k}-erro`)!.hidden = true; criterios.set(main, ler(main)); } aplicar(main); return; }
     const o = t.closest<HTMLElement>('[data-ordenar]'); if (o) { ordenar(main, o); return; }
     const ab = t.closest<HTMLElement>('.ped4__filtros-abrir'); if (ab) { const sim = ab.getAttribute('aria-expanded') !== 'true'; ab.setAttribute('aria-expanded', String(sim)); main.classList.toggle('filtros-abertos', sim); return; }
+    /* «Ver guia»: as Guias abrem já com esta guia aberta (comportamento/guias-v3.ts); a navegação é a do data-ir */
+    const vg = t.closest<HTMLElement>('[data-abrir-guia]'); if (vg) { try { sessionStorage.setItem('goparts:abrir-guia', vg.dataset.abrirGuia!); } catch { /* nada */ } return; }
     const rep = t.closest<HTMLButtonElement>('[data-repetir]'); if (rep) { repetir(rep); return; }
     const gv = t.closest<HTMLElement>('[data-gaveta]'); if (gv) { gaveta(main, gv.dataset.gaveta!, gv); return; }
     if (t.closest('.ped4__g-fechar, .ped4__veu')) { fecharGaveta(main); return; }
