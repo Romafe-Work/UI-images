@@ -538,6 +538,14 @@ A letra do nome ROMAFE descarrega-se na porta de entrada (`public/fontes/motorn.
 - **Entre ecrãs:** «Ver fatura» nas Guias e nos Pedidos abre a fatura no painel das Faturas; daqui, a guia e o pedido abrem no painel deles.
 - **Estados 14.1–14.23:** primeira carga, esqueleto, a pesquisar, sem faturas, nenhuma com filtros, datas inválidas, selecionada, aberta, IVA recolhido, nota de crédito, vencida, documento a abrir, pré-visualização, PDF indisponível, a descarregar, descarga falhou, dados parciais, documento relacionado em falta, erro do servidor, sem ligação, sessão terminada, sem permissão e vista em tabela. «A gerar o PDF» (comum) passou a 14.24.
 
+### Os números do cabeçalho a mexer — Pedidos, Guias e Faturas (15 out. 2026)
+- Ela, com a imagem dos quatro números das Faturas: «quero mais animação aqui e noutros screens». Está em `comportamento/kpi.ts`, e o CSS no fim de `css/pedidos-v4.css`.
+- **Contador:** cada algarismo é uma fita 0–9 que rola até ao valor novo (520 ms, da direita para a esquerda). À entrada da página rola a partir do 0.
+- **Diferença:** com um filtro, a diferença («+2», «−1 234,56 €») aparece por momentos no lugar do nome do número e o nome volta.
+- **Risca fina** no fundo de cada número, com a parte do total do período (laranja; âmbar nas notas de crédito).
+- **Ícone** com o gesto ao passar o rato e entrada em cascata.
+- Só transform e opacity, com algarismos de largura fixa: nada à volta se mexe. Com «reduzir movimento», o número troca de uma vez.
+
 ### 01–04 Entrar: o cartão partido ao meio (15 out. 2026)
 - Ela: «a animação ficou muito porreira; puxar o card do login mais para a direita e a animação também, parece muito vazio o lado direito; um card centrado com uma divisória a meio, de um lado a animação, do outro o login».
 - Um só cartão ao centro, partido por uma linha fina: à esquerda o palco com o rolamento (o mesmo canvas, agora centrado na sua metade: `entrar-cena.ts` deixou de deslocar a câmara), à direita o login. As cotas da vista explodida ficam dentro do palco. No telemóvel, o palco fica por cima do login, no mesmo cartão.

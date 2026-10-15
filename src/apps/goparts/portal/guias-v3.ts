@@ -17,6 +17,7 @@ import { PEDIDOS } from './pedidos-dados';
 import { pilulasEstado } from './pedidos-v4';
 import check from 'lucide-static/icons/check.svg?raw';
 import truck from 'lucide-static/icons/truck.svg?raw';
+import creditCard from 'lucide-static/icons/credit-card.svg?raw';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
 import hash from 'lucide-static/icons/hash.svg?raw';
 import barcode from 'lucide-static/icons/barcode.svg?raw';
@@ -202,9 +203,9 @@ export function guiasV3(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Guias de remessa</h1><p class="ped4__sub">Consulte, pesquise e acompanhe os documentos das suas entregas.</p></div>
       <dl class="ped4__kpi">
-        <div><dt>Documentos</dt><dd data-kpi="n" data-valor="${GUIAS.length}">${GUIAS.length}</dd></div>
-        <div><dt>Faturas · Notas de crédito</dt><dd class="gui3__kpi-tipos"><span data-kpi="f" data-valor="${nF}">${nF}</span> · <span data-kpi="c" data-valor="${nC}">${nC}</span></dd></div>
-        <div><dt>Total no período</dt><dd data-kpi="total" data-valor="${soma}">${euros(soma)}</dd></div>
+        <div><dt>${L(layers)}Documentos</dt><dd data-kpi="n" data-valor="${GUIAS.length}">${GUIAS.length}</dd></div>
+        <div><dt>${L(receipt)}Faturas · Notas de crédito</dt><dd class="gui3__kpi-tipos"><span data-kpi="f" data-valor="${nF}">${nF}</span> · <span data-kpi="c" data-valor="${nC}">${nC}</span></dd></div>
+        <div><dt>${L(creditCard)}Total no período</dt><dd data-kpi="total" data-valor="${soma}">${euros(soma)}</dd></div>
       </dl>
     </header>
 

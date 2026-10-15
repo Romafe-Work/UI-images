@@ -40,6 +40,7 @@ import check from 'lucide-static/icons/check.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import alert from 'lucide-static/icons/triangle-alert.svg?raw';
 import percent from 'lucide-static/icons/percent.svg?raw';
+import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -235,10 +236,10 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
       <div><h1 class="ped4__titulo">Faturas</h1><p class="ped4__sub">Consulte os documentos de faturação da sua conta.</p></div>
       <div class="fat2__kpis">
         <dl class="ped4__kpi">
-          <div><dt>Documentos</dt><dd data-kpi="n" data-valor="${FATURAS.length}">${FATURAS.length}</dd></div>
-          <div><dt>Faturado</dt><dd data-kpi="faturado" data-valor="${somaFaturado()}">${euros(somaFaturado())}</dd></div>
-          <div><dt>Notas de crédito</dt><dd data-kpi="creditos" data-valor="${somaCreditos()}">${euros(somaCreditos())}</dd></div>
-          <div><dt>Por pagar</dt><dd data-kpi="aberto" data-valor="${somaAberto()}">${euros(somaAberto())}</dd></div>
+          <div><dt>${L(layers)}Documentos</dt><dd data-kpi="n" data-valor="${FATURAS.length}">${FATURAS.length}</dd></div>
+          <div><dt>${L(receipt)}Faturado</dt><dd data-kpi="faturado" data-valor="${somaFaturado()}">${euros(somaFaturado())}</dd></div>
+          <div><dt>${L(rotateCcw)}Notas de crédito</dt><dd data-kpi="creditos" data-valor="${somaCreditos()}">${euros(somaCreditos())}</dd></div>
+          <div><dt>${L(clock)}Por pagar</dt><dd data-kpi="aberto" data-valor="${somaAberto()}">${euros(somaAberto())}</dd></div>
         </dl>
         <p class="fat2__kpi-nota">Valores com IVA. As notas de crédito ficam à parte, a negativo, e não descontam no faturado; «Por pagar» são as faturas em aberto e vencidas.</p>
       </div>

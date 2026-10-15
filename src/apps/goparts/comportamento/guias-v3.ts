@@ -19,6 +19,7 @@
 import { GUIAS, euros } from '../portal/guias-dados';
 import { estadoGuia, guiaDe, detalheGuia, cabecaGuia, cabecaDoc, paginaDoc, rodapeDoc, L, ICONES3 } from '../portal/guias-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
+import { kpi, kpiEntrada } from './kpi';
 import { mostrar } from '../../../comum/ecras';
 import x from 'lucide-static/icons/x.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
@@ -111,10 +112,10 @@ function aplicar(main: HTMLElement, animar = true): void {
   }
   /* as contagens: as do cabeçalho, a do topo da lista e as do seletor */
   contar($(main, '.ped4__conta b'), vis.length, inteiro);
-  contar($(main, '[data-kpi="n"]'), vis.length, inteiro);
-  contar($(main, '[data-kpi="f"]'), vis.filter((li) => li.dataset.tipo === 'fatura').length, inteiro);
-  contar($(main, '[data-kpi="c"]'), vis.filter((li) => li.dataset.tipo === 'credito').length, inteiro);
-  contar($(main, '[data-kpi="total"]'), vis.reduce((s, li) => s + Number(li.dataset.total), 0), euros);
+  kpi($(main, '[data-kpi="n"]'), vis.length, inteiro);
+  kpi($(main, '[data-kpi="f"]'), vis.filter((li) => li.dataset.tipo === 'fatura').length, inteiro);
+  kpi($(main, '[data-kpi="c"]'), vis.filter((li) => li.dataset.tipo === 'credito').length, inteiro);
+  kpi($(main, '[data-kpi="total"]'), vis.reduce((s, li) => s + Number(li.dataset.total), 0), euros);
   $$(main, '.ped4__est').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(GUIAS.filter((g) => passa(g.num, c, b.dataset.filtro!, est)).length); });
   $$(main, '.ped4__etapa-f').forEach((b) => { $(b, '.ped4__est-n')!.textContent = String(GUIAS.filter((g) => passa(g.num, c, tipo, b.dataset.etapa!)).length); });
   etiquetas(main, c);
@@ -315,7 +316,7 @@ function armar(): void {
   const main = vivo(); if (!main) return;
   if (!main.dataset.filtro) main.dataset.filtro = 'todos';
   if (!criterios.has(main)) criterios.set(main, ler(main));
-  if (!main.dataset.entrou) { main.dataset.entrou = '1'; if (!quieto()) main.classList.add('ped4--entrar'); window.setTimeout(() => main.classList.remove('ped4--entrar'), 900); }
+  if (!main.dataset.entrou) { main.dataset.entrou = '1'; if (!quieto()) main.classList.add('ped4--entrar'); kpiEntrada(main, { n: inteiro, f: inteiro, c: inteiro, total: euros }); window.setTimeout(() => main.classList.remove('ped4--entrar'), 900); }
   if (!main.dataset.vistaLida) { main.dataset.vistaLida = '1'; const v = lidaVista(); if (v === 'tabela' || v === 'cronologia') vista(main, v, false); }
   observar(main);
   requestAnimationFrame(() => {

@@ -32,6 +32,8 @@ import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import layoutList from 'lucide-static/icons/list.svg?raw';
 import table from 'lucide-static/icons/table.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
+import shoppingCart from 'lucide-static/icons/shopping-cart.svg?raw';
+import creditCard from 'lucide-static/icons/credit-card.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -195,8 +197,8 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
     <header class="ped4__cabeca">
       <div><h1 class="ped4__titulo">Pedidos</h1><p class="ped4__sub">Pesquise e acompanhe os pedidos da sua conta.</p></div>
       <dl class="ped4__kpi">
-        <div><dt>Pedidos</dt><dd data-kpi="n">${op.conta ?? LINHAS.length}</dd></div>
-        <div><dt>Valor no período</dt><dd data-kpi="total">${euros(op.total ?? total)}</dd></div>
+        <div><dt>${L(shoppingCart)}Pedidos</dt><dd data-kpi="n">${op.conta ?? LINHAS.length}</dd></div>
+        <div><dt>${L(creditCard)}Valor no período</dt><dd data-kpi="total">${euros(op.total ?? total)}</dd></div>
       </dl>
     </header>
 
