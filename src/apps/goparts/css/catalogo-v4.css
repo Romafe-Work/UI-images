@@ -203,3 +203,7 @@
   .cat4__heroi-logo .cat2__logo svg { width: 44px; height: 44px; }
   .cat4__heroi-titulo { font-size: 26px; }
 }
+/* (16 out.) o botão de recolher fica no canto do painel, nunca por cima da barra de topo; no telemóvel o painel
+   está empilhado por cima da lista e recolhê-lo não serve */
+.cat4__painel { position: relative; }
+@media (max-width: 640px) { .cat4__recolher { display: none; } }

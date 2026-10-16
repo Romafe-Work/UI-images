@@ -35,6 +35,7 @@ import './css/entrar-3d.css';
 import './css/inicio-v3-trabalho.css';
 import './css/catalogo-v6.css';
 import './css/lista.css';
+import './css/barra.css';
 import './css/placa.css';
 import './css/categorias.css';
 import './css/icones.css';
@@ -63,6 +64,7 @@ import { iniciar as entrar3d } from './comportamento/entrar-3d';
 import { iniciar as inicioV3 } from './comportamento/inicio-v3';
 import { iniciar as catalogoV6 } from './comportamento/catalogo-v6';
 import { iniciar as lista } from './comportamento/lista';
+import { iniciar as barra } from './comportamento/barra';
 import { iniciar as abertura } from './comportamento/abertura';
 
-montar(goparts, [entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, inicioV3, catalogoV6, lista]);
+montar(goparts, [barra, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, inicioV3, catalogoV6, lista]);

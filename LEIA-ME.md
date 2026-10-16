@@ -320,6 +320,42 @@ Builder») e do esquema que ela escolheu. `portal/lista.ts` (o desenho e as cont
 Precisa do servidor (o protótipo simula): guardar, enviar, eliminar e abrir listas; pôr no carrinho; o preço e o
 stock de cada referência; o histórico das «mais usadas».
 
+## A barra de topo do GoParts a funcionar (16 out. 2026)
+
+Do briefing dela («Implementação completa da Navbar»). O desenho da barra é o mesmo (`portal/base.ts`); cada controlo
+tem agora um papel em `comportamento/barra.ts` (CSS em `css/barra.css`). Uma camada de cada vez, por cima do ecrã;
+Esc fecha, clicar fora fecha, o foco volta ao botão; nas camadas modais (menu, pesquisa, carrinho) o Tab fica dentro
+e a página não rola. Em TS, CSS e WAAPI (sem React nem Framer Motion), com «reduzir movimento» respeitado.
+
+- **☰ Menu**: a gaveta das secções (250 ms; véu 180 ms; entradas em escada), a atual marcada, submenus Catálogo,
+  Documentos e Minha lista; ☰ passa a ✕. No telemóvel é a navegação principal e traz Pesquisar, Mensagens,
+  Definições e Ajuda (que saem da barra abaixo de 640 px).
+- **ROMAFE** abre romafe.com noutra janela; **GoParts** vai ao Início.
+- **Pesquisa (clique, Ctrl+K, ⌘K)**: a paleta global, em todos os ecrãs (substitui a do Início). Procura nas
+  referências, categorias, marcas e modelos de veículos, pedidos, guias, faturas e listas guardadas; agrupa, marca o
+  que coincide, ↑ ↓ Enter Esc, pesquisas recentes (no navegador), referência normalizada (VKBA6556 = VKBA 6556),
+  tolerância a uma letra (duas em palavras longas) marcada «aproximado», resultados guardados por consulta. Abre o
+  resultado no sítio certo (a referência nos Detalhes do Catálogo, o pedido no seu painel, a lista na Minha lista).
+- **Mensagens**: os avisos tirados dos documentos (fatura vencida ou por pagar, guia expedida, pedido à espera de
+  stock, nota de crédito), lidos/por ler, «Marcar como lida», «Marcar todas», «Ver todas». O ponto só aparece com
+  avisos por ler. As mensagens da Romafe não têm serviço — o painel diz isso.
+- **Carrinho**: um só estado (`comportamento/carrinho.ts`, no localStorage, sincronizado entre abas); o número
+  conta unidades. Mini-carrinho com imagem, marca, referência, disponibilidade, quantidade, preço líquido e PVP,
+  tirar com «Desfazer», total sem/com IVA. O «Pedir» do Catálogo e o «Pôr no carrinho» da Minha lista escrevem
+  aqui. Mudanças otimistas; sem rede desfazem-se e o aviso diz porquê.
+- **Definições** (o ícone redondo, que já se chamava assim): tema Claro · Escuro · Sistema e os atalhos.
+- **Ajuda**: as perguntas do ecrã atual primeiro, a resposta no sítio e o apoio (+351 226 158 300).
+- **Conta** (avatar, nome ou seta): o utilizador, a conta de cliente (só há uma: não há troca), Definições, Minhas
+  listas, Ajuda e «Terminar sessão» (limpa o carrinho, os avisos lidos, as pesquisas e o que estava aberto, e
+  volta ao Entrar).
+- Testes: `npm run testar:barra` (16 casos, com o site em `npm run ver`).
+
+**Falta o servidor** (o protótipo usa os dados de exemplo do portal):
+pesquisa no catálogo verdadeiro (referências, equivalências, TecDoc) e nos documentos da conta, com permissões;
+mensagens da Romafe (lista, lida/por ler, contagem); carrinho (ler, acrescentar, mudar quantidade, tirar,
+encomendar) com preço e stock de cada referência; utilizador da sessão (nome, e-mail, contas de cliente a que tem
+acesso, trocar de conta com limpeza do que é da conta); terminar sessão no servidor de identidade; páginas de ajuda.
+
 ## Os ícones do GoParts com movimento e cor (14 out. 2026)
 
 Ela: «em todos os ícones, animações ou cores como pedi» (depois das categorias animadas). Os ajudantes `L()` guardam

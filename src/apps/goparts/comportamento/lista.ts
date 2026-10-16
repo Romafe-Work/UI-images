@@ -24,6 +24,7 @@ import { mostrar } from '../../../comum/ecras';
 import { REFERENCIAS } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { portal } from '../portal/base';
+import * as carrinho from './carrinho';
 import {
   euros, dinheiro, num, plural, contas, totalPeca, totalMao, doCatalogo, linhaPeca, linhaMao, linhaCusto, colunas,
   listaHtml, gavetaHtml, previaHtml, gravacao, botaoLista, ESTADO_NOME, LISTAS, NOVA, IC, L,
@@ -126,7 +127,7 @@ function gravar(lst: HTMLElement, k: Parameters<typeof gravacao>[0]): void {
 }
 function sujar(lst: HTMLElement): void {
   if (lst.classList.contains('is-leitura')) return;
-  lst.dataset.sujo = '1'; gravar(lst, 'sujo');
+  lst.dataset.sujo = '1'; lst.dataset.mexida = '1'; gravar(lst, 'sujo');
   lst.querySelector('.lst__guardar')?.classList.add('is-sujo');
 }
 
@@ -548,6 +549,7 @@ export function iniciar(): void {
       menu(lst, false);
       const c = contas(lerLista(lst, true)), fora = lerLista(lst).pecas.length - c.noCarrinho;
       if (!c.noCarrinho) { avisar(lst, `${L(IC.alert)}<span>Nenhuma peça com preço e stock para pôr no carrinho.</span>`); return; }
+      lerLista(lst, true).pecas.filter((p) => p.pvp !== null && (p.porto ?? 0) + (p.sacavem ?? 0) > 0).forEach((p) => { void carrinho.adicionar(p.ref, p.qtd); });
       avisar(lst, `${L(IC.cart)}<span>${plural(c.noCarrinho, 'peça', 'peças')} no carrinho${fora ? `; ${fora === 1 ? 'fica 1 peça' : `ficam ${fora} peças`} na lista (sem preço, sem stock ou por corrigir)` : ''}.</span>`, undefined, true);
       return;
     }
@@ -677,7 +679,20 @@ export function iniciar(): void {
   /* fechar a janela com alterações por guardar */
   window.addEventListener('beforeunload', (ev) => { if (vivo()?.dataset.sujo) ev.preventDefault(); });
   /* ao chegar à lista: as contas certas e o que veio do Catálogo */
-  const armar = () => { const lst = vivo(); if (!lst) return; if (!lst.dataset.armada) { lst.dataset.armada = '1'; recalcular(lst); } receberDoCatalogo(); };
+  const armar = () => {
+    let lst = vivo(); if (!lst) return;
+    /* (16 out.) pedidos da barra de topo: abrir uma lista guardada, ou «Minhas listas» */
+    let abrirId = '', vista = '';
+    try { abrirId = sessionStorage.getItem('goparts:lista-abrir') || ''; vista = sessionStorage.getItem('goparts:lista-vista') || ''; sessionStorage.removeItem('goparts:lista-abrir'); sessionStorage.removeItem('goparts:lista-vista'); } catch { /* nada */ }
+    const pedida = LISTAS.find((l) => l.id === abrirId);
+    /* sem a pessoa ter mexido nela, troca logo; com alterações feitas aqui, pergunta antes */
+    const atual = lst, guarda = (f: () => void) => (atual.dataset.mexida ? seGuardado(atual, atual, f) : f());
+    if (pedida) guarda(() => abrirLista(vivo()!, pedida));
+    else if (vista === 'listas' && lst.dataset.vista !== 'listas') guarda(() => verListas(vivo()!));
+    lst = vivo()!;
+    if (!lst.dataset.armada) { lst.dataset.armada = '1'; recalcular(lst); }
+    receberDoCatalogo();
+  };
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(armar)));
   requestAnimationFrame(armar);
 }

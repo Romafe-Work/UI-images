@@ -22,6 +22,9 @@ import { escolherGrupo, abrirReferencias, ramo } from './catalogo-v5';
 import { REFERENCIAS, euros } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { doCatalogoParaLista } from './lista';
+import * as carrinho from './carrinho';
+import { encherModelos } from './catalogo-v3';
+import { abrirDetalhes } from './catalogo-v5';
 import { imagemModelo, silhueta } from '../portal/carros';
 import { decorarVistas, cliqueVistas } from './catalogo-vistas';
 import { fichaV4, cliqueFicha, tecladoAbas, procurarAplicaveis } from './ficha-peca';
@@ -160,15 +163,16 @@ function pedir(botao: HTMLButtonElement): void {
     /* a confirmação chegou: o botão confirma, a peça voa para o carrinho e o número sobe */
     botao.innerHTML = `<svg class="btn__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="cat6__visto" d="M20 6 9 17l-5-5"/></svg><span class="btn__rotulo">Adicionado</span>`;
     botao.classList.add('is-feito'); botao.removeAttribute('aria-busy');
-    const carrinho = document.querySelector<HTMLElement>('.ecra:not([hidden]) .portal__icone[aria-label^="Carrinho"]');
-    const selo = carrinho?.querySelector<HTMLElement>('.portal__selo');
-    const subir = () => { if (selo) { const v = Number(selo.textContent || 0) + qtd; selo.textContent = String(v); carrinho!.setAttribute('aria-label', `Carrinho, ${v} artigos`); selo.classList.remove('is-subir'); void selo.offsetWidth; selo.classList.add('is-subir'); } };
+    const iconeCarrinho = document.querySelector<HTMLElement>('.ecra:not([hidden]) .portal__icone[aria-label^="Carrinho"]');
     const mainP = botao.closest<HTMLElement>('.cat6');
+    /* (16 out.) o carrinho é um só (carrinho.ts): o número do topo, o mini-carrinho e a Minha lista leem-no */
+    const ref = botao.closest<HTMLElement>('[data-ref]')?.dataset.ref || mainP?.dataset.ref || '';
+    const subir = () => { void carrinho.adicionar(ref, qtd); };
     if (mainP && botao.closest('.cat5__peca-compra')) { aviso(mainP, `${VISTO}${qtd} ${qtd > 1 ? 'unidades adicionadas' : 'unidade adicionada'} ao carrinho. <button type="button" class="cat3__ligacao" disabled title="Ainda sem ecrã">Ver carrinho</button>`); mainP.querySelector('.cat5__peca-imagem')?.animate([{ transform: 'scale(1)' }, { transform: 'scale(.95)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'ease-out' }); }
     const avisoSr = document.querySelector<HTMLElement>('.ecra:not([hidden]) .cat6__aviso');
     if (avisoSr) avisoSr.textContent = `${qtd} ${qtd > 1 ? 'unidades adicionadas' : 'unidade adicionada'} ao carrinho.`;
-    if (carrinho && !quieto()) {
-      const de = botao.getBoundingClientRect(), para = carrinho.getBoundingClientRect();
+    if (iconeCarrinho && !quieto()) {
+      const de = botao.getBoundingClientRect(), para = iconeCarrinho.getBoundingClientRect();
       const peca = document.createElement('span');
       peca.className = 'cat6__voo';
       peca.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/></svg>';
@@ -489,6 +493,17 @@ function guardarNaLista(main: HTMLElement, b: HTMLButtonElement): void {
 }
 
 /* ---------- ligar ---------- */
+/** (16 out.) O que a pesquisa global ou o menu pediram: uma referência, uma marca, um modelo, um grupo ou a vista universal. */
+function abrirPedido(main: HTMLElement): void {
+  let o: Record<string, string> | null = null;
+  try { o = JSON.parse(sessionStorage.getItem('goparts:catalogo-abrir') || 'null'); sessionStorage.removeItem('goparts:catalogo-abrir'); } catch { return; }
+  if (!o) return;
+  if (o.tipo === 'ref' && REFERENCIAS.some((r) => r[2] === o!.ref)) { abrirDetalhes(main, o.fab, o.ref); ir(main, 'detalhes'); }
+  else if (o.tipo === 'marca') { encherModelos(main, o.marca); ir(main, 'modelos'); }
+  else if (o.tipo === 'modelo') { encherModelos(main, o.marca); main.dataset.modelo = o.modelo; encherVeiculos(main, o.marca, o.modelo); ir(main, 'veiculos'); }
+  else if (o.tipo === 'grupo') { abrirReferencias(main, o.grupo, [], 'universal'); ir(main, 'referencias'); }
+  else if (o.tipo === 'vista' && o.vista === 'universal') ir(main, 'universal' as Vista);
+}
 function armar(): void {
   const portal = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .portal--cat6');
   if (!portal) return;
@@ -496,6 +511,7 @@ function armar(): void {
   const main = portal.querySelector<HTMLElement>('.cat6');
   if (main && !main.dataset.obsVistas) { main.dataset.obsVistas = '1'; let pedido = 0; new MutationObserver(() => { if (!pedido) pedido = requestAnimationFrame(() => { pedido = 0; decorarVistas(main); }); }).observe(main, { childList: true, subtree: true }); }
   if (main) decorarVistas(main);
+  if (main) abrirPedido(main);
   if (main) { fichaV6(main); if (main.dataset.uGrupo) ladoGrupo(main); const aberto = main.querySelector<HTMLElement>('.cat5__arvore .cat5__abrir-ramo[aria-expanded="true"]'); if (aberto && !main.querySelector('.cat6__col-b')) colunaB(main, aberto); decorarModelos(main); contexto(main, (main.dataset.vista || 'marcas') as Vista); vazioMarcas(main); if (!portal.classList.contains('portal--estado')) entradaMarcas(main); requestAnimationFrame(() => segmento(main)); }
   requestAnimationFrame(() => riscas(portal));
 }

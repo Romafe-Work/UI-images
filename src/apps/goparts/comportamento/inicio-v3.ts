@@ -16,6 +16,7 @@
    - O primeiro campo do modo ativo recebe o foco só quando o Início abre e nada mais o tem (nunca a meio
      de uma navegação). No editor nada disto rouba o clique.
    ========================================================= */
+import { abrirPesquisa } from './barra';
 import { mostrar } from '../../../comum/ecras';
 import { listaReferencias, GUIA_TEXTOS } from '../portal/inicio-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
@@ -142,13 +143,6 @@ function repetir(ini: HTMLElement, modo: string, valor: string): void {
 /* ---------- a pesquisa global ---------- */
 let deOnde: HTMLElement | null = null;
 const painel = () => visivel()?.parentElement?.querySelector<HTMLElement>('.ini3__comando') ?? null;
-function abrirComando(): void {
-  const p = painel(); if (!p) return;
-  deOnde = document.activeElement as HTMLElement;
-  p.hidden = false;
-  fundoInerte(p, true);
-  const inp = p.querySelector<HTMLInputElement>('input')!; inp.value = ''; filtrar(p, ''); inp.focus();
-}
 function fecharComando(): void { const p = painel(); if (!p || p.hidden) return; p.hidden = true; fundoInerte(p, false); deOnde?.focus?.(); }
 /** Com a pesquisa global aberta (modal), o resto do portal fica inerte e escondido dos leitores de ecrã. */
 function fundoInerte(p: HTMLElement, sim: boolean): void {
@@ -248,7 +242,8 @@ export function iniciar(): void {
   document.addEventListener('click', (ev) => {
     if (editando()) return;
     const alvo = ev.target as Element, ini = alvo.closest?.<HTMLElement>('.ini3');
-    if (alvo.closest?.('.portal--ini3 .procura, .ini3 [data-comando]')) { ev.preventDefault(); abrirComando(); return; }
+    /* (16 out.) a pesquisa global é a da barra de topo (barra.ts), a mesma em todos os ecrãs */
+    if (alvo.closest?.('.ini3 [data-comando]')) { ev.preventDefault(); abrirPesquisa(alvo.closest<HTMLElement>('[data-comando]')); return; }
     const p = alvo.closest?.<HTMLElement>('.ini3__comando');
     if (p) { if (alvo === p) { fecharComando(); return; } const it = alvo.closest<HTMLElement>('.ini3__comando-item'); if (it) { p.querySelectorAll('.ini3__comando-item').forEach((x) => x.setAttribute('aria-selected', String(x === it))); ev.preventDefault(); ev.stopPropagation(); escolherComando(p); } return; }
     if (!ini) return;
@@ -281,7 +276,6 @@ export function iniciar(): void {
     if (editando()) return;
     const ini = visivel();
     /* Ctrl+K / ⌘K: a pesquisa global, de qualquer sítio do Início */
-    if (ini && (ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); const p = painel(); if (p && !p.hidden) fecharComando(); else abrirComando(); return; }
     const alvo = ev.target as HTMLElement;
     const p = alvo.closest?.<HTMLElement>('.ini3__comando');
     if (p) {

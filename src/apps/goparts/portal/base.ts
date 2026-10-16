@@ -31,28 +31,32 @@ const ABAS: [IdPortal | null, string, string, string?][] = [
   ['lista', 'Minha lista', '<path d="m12 3.5 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.8l6-.8Z"/>', 'star'],
 ];
 
+/* (16 out. 2026, o briefing da navbar) cada controlo tem o seu papel em comportamento/barra.ts, que abre a camada
+   por cima (menu, pesquisa, avisos, carrinho, definições, ajuda, conta). O número do carrinho e o ponto dos avisos
+   vêm do estado (carrinho.ts e os avisos da conta); aqui fica o valor da primeira pintura. */
 function topo(p: Produto, menu = false, definicoes = true): string {
   return `<header class="portal__topo">
     <div class="portal__marca">${menu ? `
-      <button type="button" class="portal__icone portal__menu" aria-label="Menu">${I('<path d="M4 6h16M4 12h16M4 18h16"/>')}</button>` : ''}
-      <span class="romafe portal__romafe">ROMAFE</span>
+      <button type="button" class="portal__icone portal__menu" data-barra="menu" aria-label="Menu" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="portal__menu-l1" d="M4 6h16"/><path class="portal__menu-l2" d="M4 12h16"/><path class="portal__menu-l3" d="M4 18h16"/></svg></button>` : ''}
+      <a class="romafe portal__romafe" href="https://www.romafe.com/" target="_blank" rel="noopener" aria-label="ROMAFE — romafe.com (abre noutra janela)">ROMAFE</a>
       <span class="portal__risco" aria-hidden="true"></span>
-      <span class="portal__produto">${p.nome}<span class="portal__produto-sub">${p.sub}</span></span>
+      ${p.ligar ? `<button type="button" class="portal__produto" data-ir="inicio" aria-label="${p.nome} — Início">${p.nome}<span class="portal__produto-sub">${p.sub}</span></button>` : `<span class="portal__produto">${p.nome}<span class="portal__produto-sub">${p.sub}</span></span>`}
     </div>
-    <div class="procura">
+    <div class="procura" data-barra="pesquisa">
       ${I('<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', ' class="procura__lupa" data-i="search"')}
-      <input class="procura__campo" type="search" placeholder="Pesquisar por referência, marca, modelo, etc." aria-label="Pesquisar">
+      <input class="procura__campo" type="search" placeholder="Pesquisar por referência, marca, modelo, etc." aria-label="Pesquisar (Ctrl+K)" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" readonly>
       <kbd class="procura__atalho">Ctrl + K</kbd>
     </div>
     <div class="portal__accoes">
-      <button type="button" class="portal__icone" aria-label="Mensagens">${I('<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 6 9-6"/>', ' data-i="mail"')}<span class="portal__ponto" aria-label="Novas mensagens"></span></button>
-      <button type="button" class="portal__icone" aria-label="Carrinho, 3 artigos">${I('<path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 7H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>', ' data-i="shopping-cart"')}<span class="portal__selo">3</span></button>
-      ${definicoes ? `<button type="button" class="portal__icone" aria-label="Definições">${I('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>', ' data-i="settings"')}</button>` : ''}
-      <button type="button" class="portal__icone" aria-label="Ajuda">${I('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.6 2.6 0 1 1 3.4 2.5c-.7.3-1 .8-1 1.6v.3"/><path d="M12 17.4h.01"/>', ' data-i="circle-help"')}</button>
-      <button type="button" class="conta">
+      <button type="button" class="portal__icone portal__lupa-movel" data-barra="pesquisa" aria-label="Pesquisar" aria-haspopup="dialog">${I('<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', ' data-i="search"')}</button>
+      <button type="button" class="portal__icone" data-barra="avisos" aria-label="Mensagens" aria-haspopup="dialog" aria-expanded="false" data-dica="Mensagens e avisos">${I('<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 6 9-6"/>', ' data-i="mail"')}<span class="portal__ponto" aria-hidden="true"></span></button>
+      <button type="button" class="portal__icone" data-barra="carrinho" aria-label="Carrinho, 3 artigos" aria-haspopup="dialog" aria-expanded="false" data-dica="Carrinho">${I('<path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 7H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>', ' data-i="shopping-cart"')}<span class="portal__selo" aria-hidden="true">3</span></button>
+      ${definicoes ? `<button type="button" class="portal__icone" data-barra="definicoes" aria-label="Definições" aria-haspopup="dialog" aria-expanded="false" data-dica="Definições">${I('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>', ' data-i="settings"')}</button>` : ''}
+      <button type="button" class="portal__icone" data-barra="ajuda" aria-label="Ajuda" aria-haspopup="dialog" aria-expanded="false" data-dica="Ajuda">${I('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.6 2.6 0 1 1 3.4 2.5c-.7.3-1 .8-1 1.6v.3"/><path d="M12 17.4h.01"/>', ' data-i="circle-help"')}</button>
+      <button type="button" class="conta" data-barra="conta" aria-haspopup="menu" aria-expanded="false" aria-label="Conta de Fernando F. França, Porto">
         <span class="conta__inicial" aria-hidden="true">FF</span>
-        <span class="conta__texto"><span class="conta__nome">Fernando F. França</span><span class="conta__local">Porto · 1 conta</span></span>
-        ${I('<path d="m6 9 6 6 6-6"/>')}
+        <span class="conta__texto" aria-hidden="true"><span class="conta__nome">Fernando F. França</span><span class="conta__local">Porto · 1 conta</span></span>
+        ${I('<path d="m6 9 6 6 6-6"/>', ' class="conta__seta"')}
       </button>
     </div>
   </header>`;
