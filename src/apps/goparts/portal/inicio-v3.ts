@@ -17,7 +17,7 @@
    ========================================================= */
 import { REFERENCIAS, euros } from './catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
-import { CAT_SVG } from './categorias-svg';
+import { blocosHtml, olaHtml, veiculoHtml, naoEncontradoHtml, personalizarHtml, repetirHtml, dadosIniciais, IDENTIFICADOS, type EstadoEspaco } from './inicio-espaco';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import listChecks from 'lucide-static/icons/list-checks.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
@@ -32,7 +32,6 @@ import search from 'lucide-static/icons/search.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
 import packageIcon from 'lucide-static/icons/package.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
-import star from 'lucide-static/icons/star.svg?raw';
 import triangleAlert from 'lucide-static/icons/triangle-alert.svg?raw';
 import disc from 'lucide-static/icons/disc.svg?raw';
 import arrowDownUp from 'lucide-static/icons/arrow-down-up.svg?raw';
@@ -63,7 +62,9 @@ const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(
 /** Os estados do Início (10.1…), escolhidos no próprio ecrã. */
 export type EstadoInicio = '' | 'carga' | 'sugestoes' | 'pesquisa' | 'sem-resultados' | 'erro' | 'rede' | 'falha' | 'vazio' | 'comando'
   /* (14 out.: o briefing dos 17 estados) os que eram da moldura comum passam a ser do Início v3 */
-  | 'esqueleto' | 'pecas' | '404' | '500' | 'sessao' | 'erros';
+  | 'esqueleto' | 'pecas' | '404' | '500' | 'sessao' | 'erros'
+  /* (16 out.: o briefing do espaço de trabalho) os dos blocos novos — inicio-espaco.ts */
+  | 'veiculo' | 'veiculo-nao' | 'linha' | 'repetir' | 'sucesso' | 'personalizar' | 'arrastar' | 'compacta' | 'atualizar' | 'parcial' | 'permissao' | 'sem-stock';
 let uid = 0;
 const rs = (modo: Parameters<typeof rolamentoSvg>[1], cls: string) => rolamentoSvg(`i3-${++uid}`, modo, cls);
 
@@ -85,7 +86,7 @@ function cartaoIdentificar(e: EstadoInicio): string {
   const ic = `<span class="ini3__erro-icone">${L(triangleAlert)}</span>`;
   return `${varios ? `<div class="ini3__resumo" role="alert" tabindex="-1"><p>${L(listChecks)}<b>2 campos precisam de correção</b></p><ul><li><a href="#" data-focar="i3-matricula">Matrícula — o formato é AA-00-AA</a></li><li><a href="#" data-focar="i3-chassis">N.º de chassis — tem 17 caracteres</a></li></ul></div>` : ''}
     <div class="ini3__campos">
-      ${campo('i3-matricula', 'Matrícula', '<b class="ini3__pais">P</b>', `<input id="i3-matricula" value="${erro ? 'AA-12' : ''}" placeholder="Introduza a matrícula" autocomplete="off" spellcheck="false"${erro ? ' aria-invalid="true" aria-describedby="i3-matricula-erro"' : ''}>`, erro ? ' is-erro' : '', erro ? `<p class="ini3__erro" id="i3-matricula-erro">${ic}<span><b>Matrícula incompleta.</b> O formato é AA-00-AA (6 letras ou números).</span></p>` : '')}
+      ${campo('i3-matricula', 'Matrícula', '<b class="ini3__pais">P</b>', `<input id="i3-matricula" value="${erro ? 'AA-12' : e === 'veiculo' ? 'AA-12-BC' : e === 'veiculo-nao' ? 'AB-34-ZZ' : ''}" placeholder="Introduza a matrícula" autocomplete="off" spellcheck="false"${erro ? ' aria-invalid="true" aria-describedby="i3-matricula-erro"' : ''}>`, erro ? ' is-erro' : '', erro ? `<p class="ini3__erro" id="i3-matricula-erro">${ic}<span><b>Matrícula incompleta.</b> O formato é AA-00-AA (6 letras ou números).</span></p>` : '')}
       ${campo('i3-chassis', 'N.º de chassis', L(scanBarcode), `<input id="i3-chassis" value="${varios ? 'VF1RFB00X5' : ''}" placeholder="Introduza o n.º de chassis" autocomplete="off" spellcheck="false"${varios ? ' aria-invalid="true" aria-describedby="i3-chassis-erro"' : ''}>`, varios ? ' is-erro' : '', varios ? `<p class="ini3__erro" id="i3-chassis-erro">${ic}<span><b>Faltam 7 caracteres.</b> O VIN tem 17 letras e números.</span></p>` : '')}
       ${campo('i3-descricao', 'Descrição', L(textIcon), '<input id="i3-descricao" placeholder="Introduza a descrição" autocomplete="off">')}
       ${campo('i3-motor', 'Motor', L(engine), '<input id="i3-motor" placeholder="Introduza o motor" autocomplete="off" spellcheck="false">')}
@@ -165,32 +166,6 @@ const PEDIDOS: [string, string, string, string, string][] = [
   ['P2024/001198', '02/04/2024', 'Entregue', 'ok', euros(87.3)],
   ['P2024/001177', '28/03/2024', 'Entregue', 'ok', euros(512.0)],
 ];
-const VEICULOS: [string, string][] = [['AA-12-BC', 'Renault Clio IV 1.5 dCi · 2017'], ['45-XZ-91', 'Peugeot 308 1.6 BlueHDi · 2019'], ['12-RT-08', 'VW Golf VII 2.0 TDI · 2015']];
-
-function zonas(e: EstadoInicio): string {
-  const vazio = e === 'vazio', falha = e === 'falha', carga = e === 'carga' || e === 'esqueleto';
-  const esq = (n: number, cls = 'ini3__linha') => Array.from({ length: n }, () => `<li class="${cls} ini3__esq" aria-hidden="true"><i></i><i></i></li>`).join('');
-  return `<section class="ini3__zona ini3__zona--categorias" aria-labelledby="i3-cat-t">
-      <header class="ini3__zona-cabeca"><h2 id="i3-cat-t">${L(layoutGrid)}Categorias populares</h2><a href="#" class="ini3__mais" data-ir="catalogo">Todas as categorias${L(chevronRight)}</a></header>
-      <ul class="ini3__categorias">${carga ? esq(10, 'ini3__categoria') : CATEGORIAS.map(([n, ic]) => `<li><button type="button" class="ini3__categoria" data-ir="catalogo">${CAT_SVG[n] ?? L(ic)}<span>${n}</span></button></li>`).join('')}</ul>
-    </section>
-    <div class="ini3__tres">
-      <section class="ini3__zona" aria-labelledby="i3-rec-t">
-        <header class="ini3__zona-cabeca"><h2 id="i3-rec-t">${L(history)}Pesquisas recentes</h2>${vazio ? '' : '<a href="#" class="ini3__mais">Ver todas' + L(chevronRight) + '</a>'}</header>
-        ${vazio ? `<p class="ini3__vazio">${L(history)}As pesquisas que fizer aparecem aqui, para as repetir num clique.</p>` : `<ul class="ini3__linhas">${carga ? esq(4) : RECENTES.map(([modo, titulo, sub, quando]) => `<li class="ini3__linha ini3__recente"><button type="button" class="ini3__linha-botao" data-repetir="${modo}" data-valor="${titulo}"><span class="ini3__linha-icone">${L(modo === 'referencia' ? hash : modo === 'identificar' ? carFront : sliders)}</span><span class="ini3__linha-texto"><b>${titulo}</b><span>${sub}</span></span><time class="ini3__quando">${quando}</time><span class="ini3__repetir">${L(rotateCcw)}Repetir</span></button></li>`).join('')}</ul>`}
-      </section>
-      <section class="ini3__zona" aria-labelledby="i3-ped-t">
-        <header class="ini3__zona-cabeca"><h2 id="i3-ped-t">${L(packageIcon)}Últimos pedidos</h2>${vazio ? '' : `<a href="#" class="ini3__mais" data-ir="pedidos">Ver todos${L(chevronRight)}</a>`}</header>
-        ${falha ? `<div class="ini3__falha" role="alert"><span class="ini3__falha-icone">${L(packageIcon)}</span><div><b>Não foi possível carregar os pedidos.</b><span>O resto do Início continua a funcionar.</span></div><button type="button" class="ini3__tentar" data-tentar-pedidos>${L(rotateCcw)}<span>Tentar novamente</span></button></div><ul class="ini3__linhas" hidden>${PEDIDOS.map(([n, d, est, k, v]) => `<li class="ini3__linha"><button type="button" class="ini3__linha-botao ini3__pedido" data-ir="pedidos"><span class="ini3__linha-texto"><b>${n}</b><span>${d}</span></span><span class="ini3__estado ini3__estado--${k}">${est}</span><span class="ini3__valor">${v}</span><span class="ini3__chevron">${L(chevronRight)}</span></button></li>`).join('')}</ul>`
-          : vazio ? `<p class="ini3__vazio">${L(packageIcon)}Ainda não fez pedidos. Quando fizer, vê aqui o estado de cada um.</p>`
-          : `<ul class="ini3__linhas">${carga ? esq(4) : PEDIDOS.map(([n, d, est, k, v]) => `<li class="ini3__linha"><button type="button" class="ini3__linha-botao ini3__pedido" data-ir="pedidos"><span class="ini3__linha-texto"><b>${n}</b><span>${d}</span></span><span class="ini3__estado ini3__estado--${k}">${est}</span><span class="ini3__valor">${v}</span><span class="ini3__chevron">${L(chevronRight)}</span></button></li>`).join('')}</ul>`}
-      </section>
-      <section class="ini3__zona" aria-labelledby="i3-vei-t">
-        <header class="ini3__zona-cabeca"><h2 id="i3-vei-t">${L(star)}Veículos guardados</h2></header>
-        ${vazio ? `<p class="ini3__vazio">${L(car)}Guarde os veículos que entram mais vezes na oficina para pesquisar peças sem os identificar de novo.</p>` : `<ul class="ini3__linhas">${carga ? esq(3) : VEICULOS.map(([mat, mod]) => `<li class="ini3__linha"><button type="button" class="ini3__linha-botao" data-repetir="identificar" data-valor="${mat}"><span class="ini3__matricula">${mat}</span><span class="ini3__linha-texto"><b>${mod.split(' · ')[0]}</b><span>${mod.split(' · ')[1]}</span></span><span class="ini3__repetir">${L(search)}Peças</span></button></li>`).join('')}</ul>`}
-      </section>
-    </div>`;
-}
 
 /* ---------- a pesquisa global (Ctrl+K) ---------- */
 export const COMANDO = (aberto: boolean) => `<div class="ini3__comando" role="dialog" aria-modal="true" aria-label="Pesquisa global"${aberto ? '' : ' hidden'}>
@@ -270,7 +245,7 @@ export function manutencaoV3(): string {
 }
 
 export function inicioV3(e: EstadoInicio = ''): string {
-  const atual = e === 'sugestoes' || e === 'pesquisa' || e === 'sem-resultados' ? 2 : e === 'erro' || e === 'erros' || e === 'vazio' ? 0 : 2;
+  const atual = e === 'sugestoes' || e === 'pesquisa' || e === 'sem-resultados' ? 2 : e === 'erro' || e === 'erros' || e === 'vazio' || e === 'veiculo' || e === 'veiculo-nao' ? 0 : 2;
   const cartoes: [string, string, (e: EstadoInicio) => string][] = [
     ['Identificar veículo', 'Introduza os dados do veículo para uma pesquisa mais precisa.', cartaoIdentificar],
     ['Selecionar veículo', 'Navegue pelas características do veículo.', cartaoSelecionar],
@@ -279,11 +254,18 @@ export function inicioV3(e: EstadoInicio = ''): string {
   /* a posição de cada cartão já vem no HTML (o comportamento só a muda): o ativo ao centro, os outros de lado,
      `inert` e escondidos dos leitores de ecrã */
   const lado = (i: number) => { const d = ((i - atual + 4) % 3) - 1; return ` style="--d:${d}" data-lado="${d < 0 ? 'ant' : d > 0 ? 'seg' : 'atual'}"${d ? ' inert aria-hidden="true"' : ''}`; };
-  return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3">
-  <main class="ini3${e === 'rede' ? ' is-offline' : ''}${e === 'vazio' ? ' is-guia' : ''}" data-modo="${atual}"${e ? ` data-estado="${e}"` : ''}>
+  /* (16 out.) os blocos do espaço de trabalho, com os dados de origem; o comportamento põe os da pessoa */
+  const d = dadosIniciais(), ee = e as EstadoEspaco;
+  if (e === 'compacta') d.prefs.densidade = 'compacta';
+  if (e === 'sucesso') d.carrinho = 6;
+  if (e === 'vazio') { d.garagem = []; d.atividade = []; d.favoritas = []; d.carrinho = 0; }
+  const veiculo = e === 'veiculo' ? veiculoHtml({ id: 'c1', matricula: 'AA-12-BC', ...IDENTIFICADOS['AA-12-BC'] }, true) : e === 'veiculo-nao' ? naoEncontradoHtml('AB-34-ZZ') : '';
+  return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--ini4">
+  <main class="ini3 ini4${e === 'rede' ? ' is-offline' : ''}${e === 'vazio' ? ' is-guia' : ''}" data-modo="${atual}"${e ? ` data-estado="${e}"` : ''} data-densidade="${d.prefs.densidade}">
     ${e === '404' || e === '500' ? paginaErro(e) : e === 'pecas' ? pecasACarregar() : `
     ${e === 'rede' ? semLigacao() : ''}
-    <section class="ini3__pesquisa" aria-label="Pesquisar peças">
+    ${olaHtml(d, ee)}
+    <section class="ini3__pesquisa" aria-label="Pesquisar peças" data-entra="1">
       <header class="ini3__cabeca">
         <div class="ini3__separadores" role="tablist" aria-label="Como quer pesquisar">
           ${MODOS.map(([id, nome, ic], i) => `<button type="button" role="tab" class="ini3__separador" id="i3-tab-${id}" aria-controls="i3-cartao-${id}" aria-selected="${i === atual}" tabindex="${i === atual ? 0 : -1}" data-modo="${i}">${L(ic)}${nome}</button>`).join('')}
@@ -301,11 +283,14 @@ export function inicioV3(e: EstadoInicio = ''): string {
         </div>
         <button type="button" class="ini3__seta ini3__seta--seg" data-passo="1"><span>${cartoes[(atual + 1) % 3][0]}</span>${L(chevronRight)}</button>
       </div>
+      <div class="ini4__veiculo" data-veiculo aria-live="polite"${veiculo ? '' : ' hidden'}>${veiculo}</div>
       ${e === 'vazio' ? guia() : ''}
     </section>
-    ${zonas(e)}`}
+    ${blocosHtml(d, ee)}`}
   </main>
   ${COMANDO(e === 'comando')}${e === 'sessao' ? sessao() : ''}
+  ${personalizarHtml(d.prefs, { aberta: e === 'personalizar' || e === 'arrastar', arrastar: e === 'arrastar' ? 'garagem' : undefined })}${repetirHtml('P2024/001120', e === 'repetir')}
   <p class="ini3__aviso" role="status" aria-live="polite"></p>
+  <div class="ini4__brinde" data-por-cima role="status" aria-live="polite"${e === 'sucesso' ? '' : ' hidden'}>${e === 'sucesso' ? '<span class="ini4__brinde-texto"><b>3 unidades no carrinho</b> da encomenda P2024/001120 · 6 artigos ficaram de fora (não estão no catálogo atual)</span>' : ''}</div>
 </div>`;
 }

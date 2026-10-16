@@ -20,6 +20,7 @@ import { abrirPesquisa } from './barra';
 import { mostrar } from '../../../comum/ecras';
 import { listaReferencias, GUIA_TEXTOS } from '../portal/inicio-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
+import { identificar, prepararCatalogo, modoPreferido } from './inicio-espaco';
 
 const editando = () => document.body.classList.contains('editando');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -123,8 +124,11 @@ function moverSugestao(inp: HTMLInputElement, passo: number): void {
 
 /* ---------- pesquisar ---------- */
 function pesquisar(card: HTMLElement): void {
+  /* (16 out.) com matrícula ou VIN, o veículo identifica-se aqui mesmo (inicio-espaco.ts); o resto segue para o Catálogo */
+  if (card.id === 'i3-cartao-identificar' && identificar(card)) return;
   const b = card.querySelector<HTMLButtonElement>('[data-pesquisar]');
   if (!b || b.disabled) return;
+  prepararCatalogo(card);
   const antes = b.innerHTML;
   b.disabled = true; b.setAttribute('aria-busy', 'true'); b.classList.add('is-a-pesquisar');
   b.innerHTML = `${rolamentoSvg('i3-b-' + Date.now(), 'pesquisar', 'ini3__rs-botao')}<span class="btn__rotulo">A pesquisar…</span>`;
@@ -223,7 +227,7 @@ function armar(): void {
   if (!ini || ini === atual) { if (!ini) atual = null; return; }
   const primeira = !atual;
   atual = ini;
-  const m = ini.dataset.estado ? Number(ini.dataset.modo) : lerModo() ?? Number(ini.dataset.modo ?? 2);
+  const m = ini.dataset.estado ? Number(ini.dataset.modo) : modoPreferido() ?? lerModo() ?? Number(ini.dataset.modo ?? 2);
   porModo(ini, m);
   /* (14 out.: «só quero uma barra») a risca das abas é a da v2; rIscaAbas fica por chamar */
   void rIscaAbas;

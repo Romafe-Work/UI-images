@@ -183,6 +183,47 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
   Medido com `npm run medir`: zero problemas nos quatro ecrãs.
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
+## 10 · Início do GoParts: o espaço de trabalho com blocos (16 out. 2026)
+
+Do briefing dela («Ultimate Home Dashboard Redesign»), na mesma versão do Início (uma só por ecrã). A pesquisa dos
+três cartões fica como ela a acertou; as zonas de baixo passam a blocos. Desenho em `portal/inicio-espaco.ts`,
+comportamento em `comportamento/inicio-espaco.ts`, CSS em `css/inicio-espaco.css`. O briefing pede React/Framer; o
+projeto é TS + CSS + WAAPI. Testes: `npm run testar:inicio` (11 casos).
+
+- **Saudação**: «Bom dia / Boa tarde / Boa noite, Fernando», a data, a conta, o armazém de saída e o que está pendente
+  (tirado dos documentos: encomendas em preparação e em transporte, fatura vencida, lista por acabar), cada um leva
+  ao seu sítio. «Personalizar Início» à direita.
+- **Veículo identificado**: no cartão Identificar, a matrícula (ou o VIN) identifica-se ali mesmo; o veículo aparece
+  por baixo, a silhueta desenha-se e os dados entram um a um; «Ver peças compatíveis» abre o Catálogo no modelo. A
+  nota diz que a compatibilidade é a do catálogo. Matrícula desconhecida: diz-se e propõe-se o VIN ou Selecionar.
+  Só com descrição ou motor, segue para o Catálogo como antes. Uma referência exata abre a ficha no Catálogo.
+- **Blocos** (ligam-se, desligam-se e reordenam-se): Atalhos (até 6, escolhidos), As minhas encomendas (contadores
+  que filtram, com a marca que desliza; cada encomenda abre o percurso só com os passos dela; «Ver detalhes» e
+  «Repetir encomenda»), Continuar onde fiquei (a marca segue o rato e o foco), A minha garagem (favorito, mudar o
+  nome, tirar com «Desfazer», adicionar pela matrícula; no telemóvel em carrossel), Categorias (os ícones animados
+  de sempre e a seta que aparece), Peças que compras frequentemente (contadas nos pedidos e nas listas; favoritas;
+  «Adicionar» vai ao carrinho do portal), Disponibilidade por armazém (Porto e Sacavém, a contar e a deslizar).
+- **Repetir encomenda**: cada artigo procura-se no catálogo de hoje; entram os que lá estão, com o preço e a saída
+  atuais; os outros ficam de fora e diz-se porquê. Nada vai para o carrinho sem confirmação.
+- **Personalizar Início** (gaveta): blocos com interruptor e pega (arrastar: a peça levanta, o lugar fica marcado, as
+  outras afastam-se, o Início atrás reorganiza-se, assenta com mola; ou ↑ ↓ na pega), densidade, pesquisa ao abrir,
+  atalhos e repor. Guardado por pessoa e conta (`goparts:inicio:ff-porto:v1`).
+- **Movimento**: a entrada em sequência uma vez por sessão; os blocos de baixo quando entram no ecrã
+  (IntersectionObserver), uma vez. Tudo o que muda de sítio desliza com FLIP (só transform). «Reduzir movimento»
+  desliga tudo.
+- **Estados novos** 10.18–10.29: veículo identificado, matrícula não encontrada, percurso aberto, repetir, artigos
+  no carrinho, personalizar, a arrastar, compacta, a atualizar em segundo plano, falha parcial, sem acesso aos
+  preços, referência sem stock. O 10.7 passou a ser das encomendas; o 10.8 mostra os blocos vazios.
+- **O grafite** passou aos valores do briefing (`noite.css`): superfície #191B1E, elevada #23262A, borda #34383D,
+  texto #F5F5F5 e #A7ACB4 — para o portal todo.
+
+O que falta do servidor (nada disto é inventado no ecrã; aqui vem dos dados de exemplo ou do navegador):
+- identificação do veículo por matrícula e por VIN (aqui só 4 matrículas e 1 VIN respondem);
+- garagem, atividade recente, peças favoritas e preferências do Início por utilizador e conta (aqui em localStorage);
+- estado das encomendas e o percurso (aqui do `pedidos-dados.ts`), e a pesquisa de artigos ao repetir;
+- stock por armazém em tempo real e a **hora limite** para sair hoje (o ecrã diz que ainda não vem);
+- permissão «Ver preços» por utilizador; fotografias dos modelos (aqui a silhueta, dita como ilustrativa).
+
 ## 10 · Início do GoParts, v3: o espaço de trabalho de todos os dias (14 out. 2026)
 
 Do briefing dela: o Início é uma ferramenta usada muitas vezes por dia — impressiona pela rapidez, não por

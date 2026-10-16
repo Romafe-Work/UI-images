@@ -9,7 +9,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "medir": "node scripts/medir-ecras.mjs",
-    "testar:barra": "node scripts/testar-barra.mjs"
+    "testar:barra": "node scripts/testar-barra.mjs",
+    "testar:inicio": "node scripts/testar-inicio.mjs"
   },
   "devDependencies": {
     "@types/three": "^0.170.0",

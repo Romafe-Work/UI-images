@@ -689,6 +689,8 @@ export function iniciar(): void {
     const atual = lst, guarda = (f: () => void) => (atual.dataset.mexida ? seGuardado(atual, atual, f) : f());
     if (pedida) guarda(() => abrirLista(vivo()!, pedida));
     else if (vista === 'listas' && lst.dataset.vista !== 'listas') guarda(() => verListas(vivo()!));
+    /* (16 out.) o atalho «Criar lista» do Início */
+    else if (vista === 'nova') guarda(() => mostrarLista(vivo()!, listaHtml('', NOVA())));
     lst = vivo()!;
     if (!lst.dataset.armada) { lst.dataset.armada = '1'; recalcular(lst); }
     receberDoCatalogo();

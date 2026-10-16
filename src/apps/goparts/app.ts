@@ -9,6 +9,7 @@ import { ecrasPortal } from './portal/ecras';
 import { ecrasErro } from './erros/erros';
 import { portal } from './portal/base';
 import { inicioV3, manutencaoV3, type EstadoInicio } from './portal/inicio-v3';
+import { estadosInicioEspaco } from './portal/estados';
 
 /** Os ecrãs de carregamento e de erro, cada um como estado da página que mostra, numerados a seguir
  *  aos estados que ela já tem (10.8, 11.15, 12.24, 13.21, 14.27). */
@@ -48,6 +49,8 @@ function distribuir(): EcraGoParts[] {
     const versoes = novo ? [{ id: 'v1', nota: 'Do briefing dos estados do Início (14 out.), na linguagem mecânica do rolamento', html: novo[0]() }] as EcraGoParts['versoes'] : e.versoes;
     lista.splice(i + 1, 0, { ...e, nome, fluxo: 'Portal', estadoDe: pai, versoes, objetivo: novo ? novo[1] : e.objetivo });
   }
+  /* (16 out.) os estados dos blocos do Início (10.18…) a seguir aos 10.10–10.17 */
+  { let i = lista.length - 1; while (i >= 0 && lista[i].estadoDe !== 'inicio') i--; lista.splice(i + 1, 0, ...estadosInicioEspaco()); }
   /* (15 out., ela: «no fluxo quero que mostres exemplos de diálogos abertos») estes estados entram no mapa, logo a
      seguir ao seu ecrã: os painéis laterais dos Pedidos, das Guias e das Faturas, as pré-visualizações e o diálogo
      de eliminar a lista */
@@ -58,6 +61,7 @@ function distribuir(): EcraGoParts[] {
     'lista-adicionar': 'Diálogo aberto · adicionar peças', 'lista-previsualizar': 'Diálogo aberto · pré-visualização', 'lista-eliminar': 'Diálogo aberto · eliminar',
     'devolucoes-aberta': 'Diálogo aberto · a devolução', 'devolucoes-criar-artigos': 'Diálogo aberto · criar devolução',
     'tecnica-esquema': 'Diálogo aberto · a figura no visor',
+    'inicio-personalizar': 'Diálogo aberto · personalizar o Início', 'inicio-repetir': 'Diálogo aberto · repetir a encomenda',
   };
   return lista.map((e) => (DIALOGOS[e.id] ? { ...e, noFluxo: DIALOGOS[e.id] } : e));
 }

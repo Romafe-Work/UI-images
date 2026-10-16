@@ -25,8 +25,9 @@ const FLUXO = 'Portal';
 export const ecrasPortal: EcraGoParts[] = [
   { id: 'inicio', nome: '10 · Início', fluxo: FLUXO, versoes: [
     /* 14 out. 2026: do briefing dela, o espaço de trabalho de todos os dias; «só quero uma versão por screen» — saiu a v2.2 */
-    { id: 'v3', nota: 'O espaço de trabalho de todos os dias (14 out.): os três modos em separadores com a risca laranja, o carrossel com perspetiva de 3°, sugestões ao escrever, Ctrl+K, e por baixo categorias, pesquisas recentes, últimos pedidos e veículos guardados', html: portal('inicio', inicioV3(), undefined, { menu: true, rodape: false }) }],
-    objetivo: 'O que se vê depois de entrar: três caminhos para chegar à peça — identificar o veículo (matrícula, chassis, descrição, motor), selecioná-lo (tipo, marca, modelo, veículo) ou pesquisar a referência (IAM, OE ou todas, com equivalências).' },
+    /* 16 out. 2026: do briefing «Ultimate Home Dashboard» — a mesma versão (uma só por ecrã), com a saudação e os blocos */
+    { id: 'v3', nota: 'O espaço de trabalho (16 out.): «Bom dia, Fernando» com a conta, o armazém e o que está pendente; a pesquisa dos três cartões (o veículo identificado aparece por baixo, com «Ver peças compatíveis»); e os blocos que se escolhem, escondem e reordenam em «Personalizar Início» — atalhos, as minhas encomendas (contadores e percurso, repetir), continuar onde fiquei, a minha garagem, categorias, peças frequentes e disponibilidade por armazém', html: portal('inicio', inicioV3(), undefined, { menu: true, rodape: false }) }],
+    objetivo: 'O espaço de trabalho de todos os dias: encontrar a peça (identificar o veículo, selecioná-lo ou pesquisar a referência), retomar o que ficou a meio, acompanhar e repetir encomendas, e ver o stock nos armazéns.' },
   /* os estados do Início (10.1, 10.2…), logo a seguir a ele (12 out. 2026) */
   ...estadosInicio(),
   /* 13 out. 2026: ela, «mostra só a v2» — a v3, a v4 e a v5 ficam aqui escritas mas fora da lista

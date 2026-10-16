@@ -27,7 +27,8 @@ import { FATURAS } from './faturas-dados';
 import { devolucoesV1, devDe, cabecaDev, detalheDev, painelCriar, linhaCesto, vazioInicial } from './devolucoes';
 import { DEVOLUCOES, type Devolucao } from './devolucoes-dados';
 
-export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando';
+export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando'
+  | 'inicio-veiculo' | 'inicio-veiculo-nao' | 'inicio-linha' | 'inicio-repetir' | 'inicio-sucesso' | 'inicio-personalizar' | 'inicio-arrastar' | 'inicio-compacta' | 'inicio-atualizar' | 'inicio-parcial' | 'inicio-permissao' | 'inicio-sem-stock';
 export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-guia' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-aberto' | 'faturas-painel-carga' | 'faturas-sem-linhas' | 'faturas-longa' | 'faturas-paga' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
 export type IdEstadoDevolucoes = 'devolucoes-inicio' | 'devolucoes-carga' | 'devolucoes-pesquisa' | 'devolucoes-primeira' | 'devolucoes-vazio' | 'devolucoes-filtros' | 'devolucoes-selecionada' | 'devolucoes-aberta' | 'devolucoes-creditada' | 'devolucoes-por-enviar' | 'devolucoes-a-enviar-rascunho' | 'devolucoes-criar-fatura' | 'devolucoes-criar-artigos' | 'devolucoes-criar-qtd' | 'devolucoes-criar-sem-artigos' | 'devolucoes-criar-rever' | 'devolucoes-a-enviar' | 'devolucoes-enviada' | 'devolucoes-falhou' | 'devolucoes-rede' | 'devolucoes-falha' | 'devolucoes-sessao' | 'devolucoes-sem-permissao' | 'devolucoes-tabela';
@@ -1088,6 +1089,8 @@ const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): E
 const ini3 = (est: EstadoInicio) => () => {
   const html = portal('inicio', inicioV3(est), undefined, { menu: true, rodape: false });
   /* com a pesquisa global aberta (modal), o resto da página fica inerte, como o comportamento faz */
+  /* com a gaveta ou o diálogo abertos (modais), o resto da página fica inerte */
+  if (est === 'personalizar' || est === 'arrastar' || est === 'repetir') return html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3');
   return est === 'comando' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
 };
 export const estadosInicio = (): EcraGoParts[] => [
@@ -1097,9 +1100,25 @@ export const estadosInicio = (): EcraGoParts[] => [
   e('inicio-sem-resultados', '10.4 · Referência sem resultados', 'O contorno de um disco inspecionado uma vez; «Não encontrámos resultados…» e três saídas: limpar, equivalências, catálogo.', ini3('sem-resultados')),
   e('inicio-formulario', '10.5 · Erro no formulário', 'Identificar: a matrícula incompleta — borda, ícone que se desenha e a explicação por baixo; o que se escreveu fica.', ini3('erro')),
   e('inicio-rede', '10.6 · Sem ligação', 'O rolamento abranda até parar: «Estás sem ligação à Internet.» «Tentar novamente» volta a pô-lo a rodar e confirma a ligação.', ini3('rede')),
-  e('inicio-falha', '10.7 · Os pedidos não carregaram', 'Só a zona dos pedidos: a caixa cai uma vez, «Não foi possível carregar os pedidos.» e «Tentar novamente» com o seu próprio carregamento.', ini3('falha')),
-  e('inicio-vazio', '10.8 · Primeira vez', 'A visita guiada pelas três formas de encontrar peças, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete.', ini3('vazio')),
+  e('inicio-falha', '10.7 · As encomendas não carregaram', 'Só o bloco das encomendas: «Não foi possível carregar as encomendas.» e «Tentar novamente» com o seu próprio carregamento; o resto do Início funciona.', ini3('falha')),
+  e('inicio-vazio', '10.8 · Primeira vez', 'A visita guiada pelas três formas de encontrar peças, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete. Os blocos vazios dizem o que vão mostrar: sem encomendas, garagem, atividade nem carrinho.', ini3('vazio')),
   e('inicio-comando', '10.9 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K): o fundo escurece e a caixa cresce de 0,98 para 1; recentes, pedidos, marcas e modelos, categorias e páginas; ↑ ↓ Enter Esc.', ini3('comando')),
+];
+/* 16 out. 2026: os estados dos blocos do espaço de trabalho (o briefing «Ultimate Home Dashboard»); entram a seguir
+   aos 10.10–10.17 (app.ts) */
+export const estadosInicioEspaco = (): EcraGoParts[] => [
+  e('inicio-veiculo', '10.18 · Veículo identificado', 'AA-12-BC: o veículo aparece por baixo da pesquisa, os dados um a um (matrícula, ano, motor, potência…), com «Ver peças compatíveis»; a nota diz que a compatibilidade é a do catálogo; o cartão da garagem fica marcado.', ini3('veiculo')),
+  e('inicio-veiculo-nao', '10.19 · Matrícula não encontrada', 'O serviço de identificação não devolveu nenhum veículo: o que fazer (confirmar, VIN, escolher pela marca); a matrícula escrita fica.', ini3('veiculo-nao')),
+  e('inicio-linha', '10.20 · Percurso de uma encomenda', 'P2024/001233 aberta: o percurso só com os passos dessa encomenda (o atual marcado), a entrega, o valor e «Ver detalhes» / «Repetir encomenda».', ini3('linha')),
+  e('inicio-repetir', '10.21 · Repetir encomenda', 'Cada artigo de P2024/001120 procurado no catálogo de hoje: os que lá estão com o preço e a saída atuais; os outros ficam de fora, e diz-se porquê.', ini3('repetir')),
+  e('inicio-sucesso', '10.22 · Artigos no carrinho', 'Depois de repetir: o aviso diz quantas unidades entraram e quantos artigos ficaram de fora; o número do carrinho salta uma vez.', ini3('sucesso')),
+  e('inicio-personalizar', '10.23 · Personalizar Início', 'A gaveta: blocos (ligar, desligar, ordem pela pega), densidade, pesquisa ao abrir, atalhos (até 6) e repor; o Início atrás muda ao mesmo tempo.', ini3('personalizar')),
+  e('inicio-arrastar', '10.24 · A arrastar um bloco', 'A garagem levantada na lista: o lugar onde cai fica marcado e os outros afastam-se; ao largar, assenta com mola.', ini3('arrastar')),
+  e('inicio-compacta', '10.25 · Densidade compacta', 'Menos espaço entre linhas e blocos, para ecrãs baixos; tudo o resto igual.', ini3('compacta')),
+  e('inicio-atualizar', '10.26 · A atualizar em segundo plano', 'As encomendas continuam à vista enquanto se atualizam: o rolamento pequeno ao pé de «A atualizar…».', ini3('atualizar')),
+  e('inicio-parcial', '10.27 · Falha parcial', 'As peças frequentes e o stock não carregaram: cada bloco diz o seu erro e tenta de novo sozinho; o resto do Início funciona.', ini3('parcial')),
+  e('inicio-permissao', '10.28 · Sem acesso aos preços', 'A conta não tem a permissão «Ver preços»: os preços e «Adicionar» saem e diz-se a quem pedir o acesso.', ini3('permissao')),
+  e('inicio-sem-stock', '10.29 · Referência sem stock', 'INA 538 0001 10: zero nos dois armazéns — sem saída nem levantamento; por encomenda ao fornecedor, 3 a 5 dias úteis.', ini3('sem-stock')),
 ];
 export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-carga', '11.1 · A carregar o Catálogo', 'O cartão da pesquisa e a grelha das marcas em esqueleto.', catalogoCarga),
