@@ -50,7 +50,7 @@ function contexto(main: HTMLElement, vista: Vista): void {
     : parte(main.dataset.marca || '', 'modelos', vista === 'modelos') + parte(main.dataset.modelo || '', 'veiculos', vista === 'veiculos') + parte(main.dataset.versao || '', 'grupos', vista === 'grupos');
   const ref = vista === 'detalhes' && main.dataset.ref ? `<li><span class="cat6__ctx-ref">${main.dataset.ref}</span></li>` : '';
   const carro = !universal && main.dataset.modelo && vista !== 'modelos' ? `<span class="cat6__ctx-carro">${silhueta(main.dataset.carrocaria || '')}</span>` : '';
-  barra.innerHTML = `<span class="cat6__ctx-logo">${logo || '<span class="cat6__ctx-u">U</span>'}</span>${carro}<ol class="cat6__ctx-caminho">${partes}${ref}</ol>${main.dataset.identificado ? `<span class="cat6__ctx-ok" role="status">${rolamentoSvg('ctx-' + ++n, 'carregar', 'cat6__rs-ok')}Veículo identificado · ${main.dataset.identificado}</span>` : ''}`;
+  barra.innerHTML = `<span class="cat6__ctx-logo">${logo || '<span class="cat6__ctx-u">U</span>'}</span>${carro}<ol class="cat6__ctx-caminho">${partes}${ref}</ol>${main.dataset.identificado ? `<span class="cat6__ctx-ok" role="status">${rolamentoSvg('ctx-' + ++n, 'montar', 'cat6__rs-ok')}Veículo identificado · ${main.dataset.identificado}</span>` : ''}`;
 }
 
 /* ---------- as transições partilhadas ---------- */

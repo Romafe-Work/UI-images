@@ -20,7 +20,6 @@ const GIRADOR = (cls = '') => `<span class="girador${cls ? ' ' + cls : ''}" aria
 /** uma barra de esqueleto: largura em %, e a altura pela classe */
 const E = (largura: number | string, cls = '') => `<span class="esq${cls ? ' ' + cls : ''}" style="width:${typeof largura === 'number' ? largura + '%' : largura}"></span>`;
 
-const I_PDF = '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>';
 const I_X = '<path d="M18 6 6 18M6 6l12 12"/>';
 const I_DE_NOVO = '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>';
 const I_GUARDAR = '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>';
@@ -130,7 +129,8 @@ function mais(p: Produto): string {
 </div>`, p);
 }
 
-/* ---------- 25 · progresso com percentagem ---------- */
+/* ---------- 25 · progresso com percentagem ----------
+   (16 out.) o rolamento montado na mesma medida da barra: 64 % feito, 64 % montado */
 function progresso(p: Produto): string {
   return portal('guias', `<div class="portal portal--carga">
   <main class="cg-pagina cg-pagina--atras" aria-hidden="true">
@@ -139,7 +139,7 @@ function progresso(p: Produto): string {
   </main>
   <div class="cg-veu"></div>
   <section class="cg-dialogo" role="dialog" aria-labelledby="cg-dialogo-titulo">
-    <div class="cg-dialogo__icone">${I(I_PDF)}</div>
+    <div class="cg-dialogo__icone cg-dialogo__icone--rs">${rolamentoSvg('pdf-' + p.nome, 'progresso', '', .64)}</div>
     <h2 class="cg-dialogo__titulo" id="cg-dialogo-titulo">A gerar o PDF</h2>
     <p class="cg-dialogo__texto">Guia GR-2026-001256 · 12 páginas</p>
     <div class="progresso" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64"><span style="width:64%"></span></div>
@@ -191,7 +191,7 @@ export function ecrasCarregar(p: Produto): Ecra<IdCarregar>[] {
   const e = (id: IdCarregar, nome: string, objetivo: string, html: string): Ecra<IdCarregar> =>
     ({ id, nome, fluxo: FLUXO, objetivo, versoes: [{ id: 'v1', nota: 'Primeira versão', html }] });
   return [
-    e('carga-pagina', '20 · A carregar a página', 'Depois de entrar, enquanto o portal ainda não existe: o ROMAFE, o nome da app e uma barra sem fim. Não há girador ao centro sozinho: a barra diz que está a andar.', pagina(p)),
+    e('carga-pagina', '20 · A carregar a página', 'Depois de entrar, enquanto o portal ainda não existe: o ROMAFE, o nome da app e o rolamento a montar-se e a desmontar-se enquanto a espera durar.', pagina(p)),
     e('carga-inicio', '21 · Esqueleto do Início', 'O Início com a forma dos três painéis em esqueleto: quando os dados chegam, nada muda de sítio.', inicio(p)),
     e('carga-tabela', '22 · Tabela a carregar', 'Os filtros já escolhidos e a tabela com a cabeça à vista, uma barra fina por cima e linhas em esqueleto.', emTabela(p)),
     e('carga-pesquisa', '23 · Pesquisa em curso', 'O botão em «A pesquisar…», a frase do que se está a procurar e os cartões das peças em esqueleto.', pesquisa(p)),

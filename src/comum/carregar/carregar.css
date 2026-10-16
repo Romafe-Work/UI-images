@@ -109,6 +109,8 @@
 }
 .cg-dialogo__icone { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--r-md); background: var(--c-marca-suave); color: var(--c-marca); }
 .cg-dialogo__icone svg { width: 26px; height: 26px; }
+.cg-dialogo__icone--rs { background: none; width: 64px; height: 64px; }
+.cg-dialogo__icone--rs .rs { width: 64px; height: 64px; }
 .cg-dialogo__titulo { margin: 0; font-family: var(--f-titulo); font-size: var(--t-xl); }
 .cg-dialogo__texto { margin: 0; font-size: var(--t-sm); color: var(--c-texto-2); }
 .cg-dialogo .progresso { width: 100%; height: 8px; }
