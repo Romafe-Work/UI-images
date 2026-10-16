@@ -283,22 +283,42 @@ de cada vez, com «Grupos» para voltar. Serve ao Grupo montagem do veículo e a
 Sem servidor: as confirmações (identificar, carrinho) chegam ao fim de 0,7–0,9 s neste protótipo. O
 carregamento em todos os estados do GoParts passou a ser o rolamento (`GIRADOR` em `portal/estados.ts`).
 
-## 15 · Minha lista (14 out. 2026)
+## 15 · Minha lista: o espaço de orçamento (16 out. 2026)
 
-Ecrã novo, do briefing dela (a aba «Minha lista» passou a ter ecrã). Ela não mandou o ecrã antigo; os campos e
-as operações são os do briefing. `portal/lista.ts`, `css/lista.css`, `comportamento/lista.ts`.
+Substitui a versão de 14 out. (uma só versão por ecrã), a partir do briefing dela («Premium My List & Quotation
+Builder») e do esquema que ela escolheu. `portal/lista.ts` (o desenho e as contas), `css/lista.css`,
+`comportamento/lista.ts`. Em TS, CSS e WAAPI, sem React nem Framer Motion (como o resto do projeto).
 
-- Cabeçalho: o nome editável, o estado (guardada / alterações por guardar / a guardar), o n.º; «Guardar»
-  (laranja, com um ponto quando há alterações) e «Enviar» distintos; «Abrir lista» e «Eliminar» discretos.
-- Peças: Marca, Referência, Descrição, Qtd., «Romafe» (preço líquido) e «Cliente» (PVP, Desc. %, Total), com
-  os cabeçalhos agrupados e a explicação de cada grupo. Mão de obra com o mesmo padrão.
-- As contas: Total = Qtd. × PVP × (1 − Desc.); Subtotal antes de descontos; Descontos; Total sem IVA; e, à
-  parte, o custo das peças na Romafe. Os números passam do valor antigo para o novo (420 ms).
-- Edição na linha (vírgula decimal, validação com a mensagem por baixo, Enter e ↑ ↓ entre linhas), adicionar
-  pela referência (sugestões do catálogo; a peça voa para a tabela, a linha entra e a quantidade recebe o
-  foco), remover com «Remover? Sim / Não» no sítio, duplicar; guardar e enviar com o rolamento no botão e só
-  depois a confirmação; eliminar com um diálogo que diz o nome; aviso ao sair com alterações por guardar.
-- Estados 15.1–15.18 na barra «Estados». No telemóvel as linhas passam a cartões e «Guardar» fica em baixo.
+- Cabeçalho compacto: MINHA LISTA, o nome editável, o estado (Nova · Rascunho · Guardada · Enviada, sempre com o
+  nome e não só a cor), a gravação ao lado (Por guardar · A guardar… · Guardada agora · Não foi guardada), a data e
+  o n.º. À direita «Guardar lista» (laranja, com um ponto quando há alterações; Ctrl+S) e «Mais ações»: Nova lista,
+  Duplicar, Pôr no carrinho, Limpar (com Desfazer) e Eliminar (diálogo que diz o que sai e que não se desfaz).
+- «Minhas listas → Editar lista» no mesmo ecrã, no lugar de Criar / Pesquisar: procurar (nome, n.º, referência),
+  filtrar pelo estado, datas, artigos e total; abrir repõe o que foi guardado; duplicar abre a cópia.
+- Duas colunas (~70/30): Peças, Mão-de-obra, Outros custos e Notas; o Resumo preso à direita. Entre 901 e 1180 px
+  o resumo sobe para cima das secções; até 900 px as linhas são cartões e fica a barra em baixo com o total e
+  «Ver resumo» (o resumo abre por cima).
+- Peças: imagem (desenho do tipo, pecas-img.ts), marca, referência, descrição, disponibilidade (só quando o catálogo
+  a dá), líquido Romafe, Qtd. (− +), PVP, Desc. %, total. Sem preço: «Preço indisponível» e o total «— €»,
+  nunca 0,00 €; o resumo diz «Total parcial» e qual a peça.
+- «Adicionar peças» (Alt+A): a gaveta com a procura (referência, marca, descrição), as mais usadas nas listas
+  guardadas, a disponibilidade e a quantidade; ↑ ↓ Enter Esc. A linha entra no sítio (as outras descem por FLIP),
+  fica acesa um instante e o aviso traz «Desfazer»; a mesma referência soma-se à linha. O Catálogo («Adicionar à
+  minha lista») deixa a referência em sessionStorage e ela entra quando a lista se abre.
+- Mão-de-obra: por hora ou a preço fixo; o editor na secção (sugestões só preenchem a descrição). Vazio compacto.
+- Validação à vista: quantidade de peça inteira ≥ 1, horas > 0, preço ≥ 0 com cêntimos, desconto 0–100 %. O valor
+  escrito fica; a linha sai das contas até se corrigir; «Guardar lista» e «Enviar» esperam.
+- Contas (contas()): linha = Qtd. × PVP × (1 − Desc.), ao cêntimo; base = peças + mão-de-obra + outros − descontos;
+  IVA 23 % (a única taxa nos dados) sobre a base; total com IVA. As regras verdadeiras são as do GoParts.
+- Pré-visualizar: o orçamento como sai, por cima da edição (rascunho, «não é um orçamento emitido»); Imprimir.
+- Guardar e enviar com o rolamento até o servidor (aqui simulado) confirmar; enviada fica só de leitura.
+- Estados 15.1–15.30 na barra «Estados» (os 24 do briefing e os de leitura, sem permissão, pré-visualização,
+  Minhas listas e o editor do serviço). Com um diálogo ou a gaveta abertos, a barra, as abas e a lista ficam inertes.
+- O verificador (`npm run medir`) não conta como sobreposição o que está dentro de `[data-por-cima]` (os avisos
+  flutuantes com «Desfazer»), tal como já não contava as listas de sugestões.
+
+Precisa do servidor (o protótipo simula): guardar, enviar, eliminar e abrir listas; pôr no carrinho; o preço e o
+stock de cada referência; o histórico das «mais usadas».
 
 ## Os ícones do GoParts com movimento e cor (14 out. 2026)
 

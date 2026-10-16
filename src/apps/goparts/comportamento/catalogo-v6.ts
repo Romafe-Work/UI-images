@@ -21,6 +21,7 @@ import { partilhado, encherVeiculos, ir, type Vista } from './catalogo-v3';
 import { escolherGrupo, abrirReferencias, ramo } from './catalogo-v5';
 import { REFERENCIAS, euros } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
+import { doCatalogoParaLista } from './lista';
 import { imagemModelo, silhueta } from '../portal/carros';
 import { decorarVistas, cliqueVistas } from './catalogo-vistas';
 import { fichaV4, cliqueFicha, tecladoAbas, procurarAplicaveis } from './ficha-peca';
@@ -480,6 +481,8 @@ function guardarNaLista(main: HTMLElement, b: HTMLButtonElement): void {
     b.setAttribute('aria-pressed', String(!ja));
     b.innerHTML = antes.replace(/Adicionar à minha lista|Na minha lista/, ja ? 'Adicionar à minha lista' : 'Na minha lista');
     b.classList.toggle('is-na-lista', !ja);
+    /* (16 out.) a referência passa à Minha lista: entra quando a lista se abrir */
+    if (main.dataset.ref) doCatalogoParaLista(main.dataset.ref, !ja);
     if (!ja) { b.querySelector('svg')?.classList.add('is-ligar'); aviso(main, `${VISTO}Guardada na minha lista. <button type="button" class="cat3__ligacao" data-ir="lista">Abrir a lista</button>`); }
     else aviso(main, 'Tirada da minha lista.');
   }, quieto() ? 150 : 700);

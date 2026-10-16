@@ -55,7 +55,7 @@ function distribuir(): EcraGoParts[] {
     'pedidos-aberto': 'Diálogo aberto · o pedido', 'pedidos-guia': 'Diálogo aberto · a guia do pedido',
     'guias-aberta': 'Diálogo aberto · a guia', 'guias-pdf': 'Diálogo aberto · o documento',
     'faturas-aberta': 'Diálogo aberto · o talão', 'faturas-pdf': 'Diálogo aberto · o documento',
-    'lista-eliminar': 'Diálogo aberto · eliminar',
+    'lista-adicionar': 'Diálogo aberto · adicionar peças', 'lista-previsualizar': 'Diálogo aberto · pré-visualização', 'lista-eliminar': 'Diálogo aberto · eliminar',
     'devolucoes-aberta': 'Diálogo aberto · a devolução', 'devolucoes-criar-artigos': 'Diálogo aberto · criar devolução',
     'tecnica-esquema': 'Diálogo aberto · a figura no visor',
   };

@@ -65,6 +65,8 @@ function medir() {
     if (a.contains(b) || b.contains(a)) continue;
     /* uma lista de sugestões aberta (role=listbox) fica por cima do conteúdo de propósito */
     if (!!a.closest('[role="listbox"]') !== !!b.closest('[role="listbox"]')) continue;
+    /* um aviso flutuante (data-por-cima, ex.: «Retiraste… Desfazer») passa por cima do conteúdo de propósito */
+    if (!!a.closest('[data-por-cima]') !== !!b.closest('[data-por-cima]')) continue;
     if (a.tagName === 'LABEL' && (a.control === b || a.htmlFor === b.id)) continue;
     if (b.tagName === 'LABEL' && (b.control === a || b.htmlFor === a.id)) continue;
     const p = recortado(a), q = recortado(b);

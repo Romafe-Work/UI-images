@@ -59,9 +59,10 @@ export const ecrasPortal: EcraGoParts[] = [
   { id: 'faturas', nome: '14 · Faturas', fluxo: FLUXO, versoes: [{ id: 'v2', nota: 'Como os Pedidos e as Guias (15 out.): as faturas e as notas de crédito por ano e mês, o pagamento por baixo da data; clicar abre o painel com a discriminação (valores comerciais, IVA por taxa, total), o pagamento, Pedido → Guia → Fatura, a entrega e os artigos; Tabela com as colunas todas do GO REPAIR', html: portal('faturas', faturasV2(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'As faturas e as notas de crédito: filtros, o total e o que está por pagar, e a lista com os valores e o estado do pagamento.' },
   ...estadosFaturas(),
-  /* 14 out. 2026: do briefing dela, a Minha lista — peças e mão de obra, o resumo ao vivo, guardar e enviar */
-  { id: 'lista', nome: '15 · Minha lista', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'Do briefing dela (14 out.): o editor de listas — nome editável e estado, Guardar e Enviar distintos, peças (Romafe / Cliente) e mão de obra com o mesmo padrão, edição na linha, o resumo preso com os totais que passam do valor antigo ao novo', html: portal('lista', listaHtml(), undefined, { menu: true, rodape: false }) }],
-    objetivo: 'Montar, orçamentar, guardar e enviar uma lista de peças e de mão de obra: edição na própria linha, os totais ao vivo (sem IVA), e o custo das peças na Romafe à parte.' },
+  /* 14 out. 2026: do briefing dela, a Minha lista — peças e mão de obra, o resumo ao vivo, guardar e enviar.
+     16 out. 2026: substituída (uma só versão) pelo espaço de orçamento do segundo briefing */
+  { id: 'lista', nome: '15 · Minha lista', fluxo: FLUXO, versoes: [{ id: 'v2', nota: 'O espaço de orçamento (16 out., do briefing «Premium My List & Quotation Builder» e do esquema dela): cabeçalho compacto com o estado e «Por guardar», «Guardar lista» e «Mais ações»; peças, mão-de-obra (à hora ou fixo), outros custos e notas; o resumo preso com base, IVA 23 % e total com IVA; a gaveta «Adicionar peças», a pré-visualização e «Minhas listas»', html: portal('lista', listaHtml(), undefined, { menu: true, rodape: false }) }],
+    objetivo: 'Montar um orçamento: procurar e adicionar peças, acertar quantidades, preços e descontos, juntar mão-de-obra e outros custos, ver os totais com e sem IVA, pré-visualizar, guardar, enviar ou pôr as peças no carrinho.' },
   ...estadosLista(),
   /* 15 out. 2026: do briefing dela («Returns Management Center») e da nota («daria prioridade à criação de devoluções
      num fluxo guiado e à visualização cronológica»): o ecrã novo, da família dos Pedidos, Guias e Faturas */
@@ -77,33 +78,49 @@ export const ecrasPortal: EcraGoParts[] = [
 ];
 
 function estadosLista(): EcraGoParts[] {
+  /* 16 out. 2026: os 24 estados do briefing do espaço de orçamento, e os que a lista já tinha (enviada, só de leitura,
+     sem permissão) e os da pré-visualização, de «Minhas listas» e do editor do serviço */
   const E: [EstadoLista, string, string][] = [
-    ['nova', '15.1 · Lista nova', 'A lista vazia: o nome para mudar, «Adicionar peça» e «Adicionar mão de obra»; «Enviar» e «Eliminar» desligados.'],
-    ['sujo', '15.2 · Alterações por guardar', 'Uma alteração feita: o estado diz «Alterações por guardar» e o «Guardar» ganha o ponto.'],
-    ['a-guardar', '15.3 · A guardar', 'O rolamento no «Guardar» até o servidor confirmar; o estado diz «A guardar…».'],
-    ['guardada', '15.4 · Guardada', 'O servidor confirmou: «Guardada agora» e a faixa verde.'],
-    ['falhou-guardar', '15.5 · Não foi guardada', 'O servidor não respondeu: nada se perdeu, «Tentar novamente».'],
-    ['a-enviar', '15.6 · A enviar', 'Depois de confirmar o endereço: o rolamento no «Enviar».'],
-    ['enviada', '15.7 · Enviada', 'O servidor confirmou o envio para o endereço.'],
-    ['falhou-enviar', '15.8 · O envio falhou', 'O endereço não foi aceite: a faixa diz porquê e deixa tentar de novo.'],
-    ['invalido', '15.9 · Campo inválido', 'Um PVP que não é número: a mensagem por baixo da célula; «Guardar» e «Enviar» esperam pela correção.'],
-    ['adicionar', '15.10 · A adicionar uma peça', 'A procura da referência aberta e a linha nova a entrar, com o foco na quantidade.'],
-    ['remover', '15.11 · Remover uma linha', 'A confirmação no próprio sítio: «Remover? Sim / Não»; só depois a linha se fecha.'],
-    ['sem-referencia', '15.12 · Referência inexistente', 'A referência escrita não existe no catálogo: o que fazer.'],
-    ['sem-resultados', '15.13 · Procura sem resultados', 'Nenhuma referência começa assim: confirmar ou ir ao Catálogo.'],
-    ['sem-precos', '15.14 · Preços indisponíveis', 'Os preços não chegaram: «—» nos preços e nos totais; as linhas e quantidades continuam.'],
-    ['offline', '15.15 · Sem ligação', 'O rolamento abranda até parar; continua-se a editar; «Guardar» e «Enviar» voltam com a ligação.'],
-    ['leitura', '15.16 · Só de leitura', 'Uma lista já enviada: os campos não se editam; «Duplicar a lista».'],
-    ['sem-permissao', '15.17 · Sem permissão', 'Uma lista de outro utilizador: vê-se e duplica-se, não se altera.'],
-    ['eliminar', '15.18 · Eliminar a lista', 'O diálogo diz o nome da lista e o que acontece; «Eliminar a lista» a vermelho, «Cancelar» à mão.'],
+    ['vazia', '15.1 · Lista vazia', 'Uma lista guardada sem nada: cada secção diz o que falta numa linha, com o botão; nada de tabelas vazias.'],
+    ['nova', '15.2 · Lista nova', 'Estado «Nova», «Por guardar», o nome para escrever; «Eliminar» desligado até haver lista guardada.'],
+    ['pecas', '15.3 · Só com peças', 'Peças com imagem, disponibilidade, PVP e desconto na linha; a mão-de-obra vazia e compacta.'],
+    ['mao', '15.4 · Só com mão-de-obra', 'Serviços à hora e a preço fixo; as peças vazias com «Adicionar peças».'],
+    ['completa', '15.5 · Peças e mão-de-obra', 'Tudo com preço: o resumo com peças, mão-de-obra, descontos, base, IVA 23 % e total com IVA.'],
+    ['sem-preco', '15.6 · Peças sem preço', 'O GoParts não devolveu preços: «Preço indisponível» em cada linha e «— €» no total — nunca 0,00 €.'],
+    ['indisponivel', '15.7 · Peça indisponível', 'Uma peça sem stock no Porto nem em Sacavém: dito na linha (texto e cor); não entra no carrinho.'],
+    ['qtd-invalida', '15.8 · Quantidade inválida', '«1,5» numa peça: a mensagem por baixo, o total da linha em «—», e «Guardar lista» à espera da correção.'],
+    ['desc-invalido', '15.9 · Desconto inválido', '120 %: o desconto vai de 0 a 100 %; o valor escrito fica, não é trocado em silêncio.'],
+    ['sujo', '15.10 · Alterações por guardar', 'Uma quantidade mudada: «Por guardar» ao lado do estado, o ponto no «Guardar lista», a linha marcada.'],
+    ['a-guardar', '15.11 · A guardar', 'O rolamento no botão e no indicador enquanto o servidor não responde.'],
+    ['guardada', '15.12 · Guardada', 'O servidor confirmou: «Guardada agora», o estado passa a Guardada e o aviso em baixo.'],
+    ['falhou-guardar', '15.13 · Não foi guardada', 'O servidor não respondeu: o rolamento encrava, a referência do erro e «Tentar novamente»; nada se perdeu.'],
+    ['offline', '15.14 · Sem ligação', 'O rolamento abranda até parar; continua-se a editar; «Guardar lista» e «Enviar» voltam com a ligação.'],
+    ['sem-resultados', '15.15 · Procura sem resultados', 'Na gaveta: a peça a que falta uma esfera, o que fazer e «Ir ao Catálogo».'],
+    ['adicionar', '15.16 · A adicionar uma peça', 'A gaveta aberta com a procura, a peça escolhida e a quantidade; a linha nova acesa e o aviso com «Desfazer».'],
+    ['remover', '15.17 · A remover uma peça', 'A linha a sair (desvanece e as outras sobem); o aviso «Retiraste…» com «Desfazer».'],
+    ['remover-ultima', '15.18 · Remover a última peça', 'A secção das peças volta ao vazio compacto; a faixa diz o que fica e deixa desfazer.'],
+    ['a-carregar', '15.19 · A abrir uma lista', 'O rolamento monta-se e desmonta-se enquanto a lista não chega; o resumo em «—».'],
+    ['duplicar', '15.20 · Lista duplicada', 'A cópia aberta, estado Nova e por guardar; a faixa diz que a original não muda e leva de volta.'],
+    ['eliminar', '15.21 · Eliminar a lista', 'O diálogo diz o nome, o que sai e que não se desfaz; «Eliminar a lista» a vermelho.'],
+    ['a-enviar', '15.22 · A enviar', 'Depois de confirmar o endereço: o rolamento no «Enviar» até o servidor confirmar.'],
+    ['falhou-enviar', '15.23 · O envio falhou', 'O endereço não foi aceite: a faixa diz porquê; a lista ficou guardada; «Enviar outra vez».'],
+    ['sessao', '15.24 · Sessão expirada', 'O diálogo por cima: a lista fica no ecrã com as alterações; «Iniciar sessão».'],
+    ['enviada', '15.25 · Enviada', 'O servidor confirmou o envio: estado Enviada, só de leitura, «Duplicar lista».'],
+    ['leitura', '15.26 · Só de leitura', 'Uma lista enviada antes: vê-se e duplica-se, não se edita.'],
+    ['sem-permissao', '15.27 · Sem permissão', 'Uma lista de outro utilizador da empresa: vê-se e duplica-se.'],
+    ['previsualizar', '15.28 · Pré-visualização', 'O orçamento como vai sair, por cima da edição: rascunho, não emitido; Imprimir e Voltar à edição.'],
+    ['listas', '15.29 · Minhas listas', 'As listas guardadas: procurar, filtrar por estado, datas, artigos e total; abrir repõe o que foi guardado.'],
+    ['servico', '15.30 · Adicionar serviço', 'O editor do serviço aberto na secção: descrição com sugestões, por hora ou preço fixo, preço, desconto e total.'],
   ];
   return E.map(([est, nome, objetivo]) => {
     let html = listaHtml(est);
-    /* 15.11: a primeira linha já com a confirmação no sítio */
-    if (est === 'remover') html = html.replace('<span class="lst__linha-accoes">', '<span class="lst__linha-accoes is-confirmar">').replace('aria-label="Remover a linha" data-dica="Remover">', 'aria-label="Remover a linha" data-dica="Remover">').replace(/(<span class="lst__linha-accoes is-confirmar">[\s\S]*?<\/button><\/span>)/, (m) => m.replace(/<\/span>$/, '<span class="lst__confirmar" role="group" aria-label="Confirmar remoção"><span>Remover?</span><button type="button" class="lst__sim">Sim</button><button type="button" class="lst__nao">Não</button></span></span>'));
+    /* 15.10: a quantidade mudada (2 → 3) e a linha marcada */
+    if (est === 'sujo') html = html.replace(/(data-ref="VKBA 6556"[^>]*>)/, '$1').replace('lst__linha lst__linha--peca" data-tipo="peca" data-flip data-ref="VKBA 6556"', 'lst__linha lst__linha--peca is-alterada" data-tipo="peca" data-flip data-ref="VKBA 6556"').replace(/(aria-label="Quantidade de SKF VKBA 6556" value=")2"/, '$13"');
     html = html.replace('class="portal ', 'class="portal portal--estado ');
-    /* 15.18: com o diálogo aberto, o resto fica inerte */
-    if (est === 'eliminar') html = html.replace('<main class="lst', '<main inert aria-hidden="true" class="lst');
-    return { id: `lista-${est}` as EcraGoParts['id'], nome, fluxo: FLUXO, estadoDe: 'lista' as EcraGoParts['id'], objetivo, versoes: [{ id: 'v1', nota: 'Do briefing da Minha lista (14 out.)', html: portal('lista', html, undefined, { menu: true, rodape: false }) }] };
+    /* com um diálogo aberto, o resto fica inerte */
+    if (['eliminar', 'sessao', 'previsualizar', 'adicionar', 'sem-resultados'].includes(est)) html = html.replace('<main class="lst', '<main inert aria-hidden="true" class="lst');
+    let final = portal('lista', html, undefined, { menu: true, rodape: false });
+    if (['eliminar', 'sessao', 'previsualizar', 'adicionar', 'sem-resultados'].includes(est)) final = final.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"');
+    return { id: `lista-${est}` as EcraGoParts['id'], nome, fluxo: FLUXO, estadoDe: 'lista' as EcraGoParts['id'], objetivo, versoes: [{ id: 'v1', nota: 'Do briefing do espaço de orçamento (16 out.)', html: final }] };
   });
 }
