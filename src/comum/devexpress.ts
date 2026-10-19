@@ -56,6 +56,10 @@ const REGRAS: [string, Componente][] = [
   ['.esq', { peca: 'Esqueleto', web: '— (CSS nosso)', wpf: '— (CSS nosso)', nota: 'Nenhuma das duas tem esqueletos.' }],
   ['.cg-dialogo, .er-dialogo', { peca: 'Diálogo', web: 'DxPopup', wpf: 'ThemedWindow (DXDialogWindow)' }],
   ['.cg-toast', { peca: 'Aviso pequeno', web: 'DxToast (notify)', wpf: 'NotificationService' }],
+  /* ERP, v10 do início de sessão (19 out. 2026) */
+  ['.rede__tema', { peca: 'Escolha do tema', web: 'DxButtonGroup', wpf: 'ToggleSwitch / SegmentedControl', nota: 'Claro, escuro ou o do sistema; fica guardado.' }],
+  ['.rede__aviso', { peca: 'Aviso no formulário', web: '— (CSS nosso)', wpf: '— (CSS nosso)' }],
+  ['.rede__palco, .rede__canvas', { peca: 'A rede ao fundo', web: '— (Three.js)', wpf: '— (Viewport3D ou imagem parada)', nota: 'Decorativa: sem ela, o desenho parado em SVG.' }],
   ['.er-faixa', { peca: 'Faixa de aviso', web: '— (CSS nosso)', wpf: '— (CSS nosso)' }],
   ['.portal__selo', { peca: 'Contador', web: '— (badge do DxButton não existe: CSS nosso)', wpf: '— (CSS nosso)' }],
 ];

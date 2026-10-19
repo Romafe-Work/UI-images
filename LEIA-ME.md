@@ -142,6 +142,23 @@ não há componente e fica em CSS nosso. «A confirmar» é nome que ainda falta
 | Faixa de aviso | `— (CSS nosso)` | `— (CSS nosso)` |  |
 | Contador | `— (badge do DxButton não existe: CSS nosso)` | `— (CSS nosso)` |  |
 
+## Entrar no ERP, v10: a rede da empresa (19 out. 2026)
+
+Do briefing dela («ROMAFE ERP — Ultimate cinematic login»). É uma versão nova dos quatro ecrãs de entrar
+do ERP (v10; na ajuda, v8). As outras versões ficam como estavam. Não tem nada do GoParts.
+
+- **Ao fundo:** uma rede 3D (Three.js, `src/apps/erp/comportamento/rede-cena.ts`) com os domínios do ERP
+  em sólidos geométricos, ligados por linhas finas. É um só canvas para os quatro ecrãs, como no GoParts.
+  Fases: neutro, foco, valido (a única ligação laranja), pedido, passe e alinhar. Paralaxe só com o rato.
+- **Ao centro:** um cartão liso de 420 px. O correio e a palavra-passe ocupam a mesma célula, por isso a
+  altura do cartão não muda: a troca é feita com opacidade e uma deslocação pequena.
+- **Entrar:** a rede alinha-se, o cartão sai, a moldura do ERP desenha-se no sítio e abre o 10 · Compras.
+  No protótipo qualquer palavra-passe entra, exceto «errada». Um endereço `@grupo-exemplo.pt` vai para o 03.
+- **Estados:** 01.1–01.4 e 02.1–02.7 (`src/apps/erp/entrar-rede.ts`). Só existem na v10.
+- **Cores:** os tokens `--rede-*` do briefing, em claro e escuro. A ação é azul (#0873BC), como o briefing
+  pede para o ERP. O ROMAFE fica em RGB(0, 99, 170).
+- Com «reduzir movimento» ou sem WebGL, a rede é um desenho parado em SVG.
+
 ## 00 · Abertura do GoParts em 3D (14 out. 2026)
 
 Uma versão por ecrã (ela, 14 out.: «só quero uma versão por screen» e «vamos a um screen de cada vez»).

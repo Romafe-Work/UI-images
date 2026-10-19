@@ -1,0 +1,207 @@
+/* =========================================================
+   ERP — v10 do início de sessão: a rede da empresa (19 out. 2026)
+   Os tokens são os do briefing dela para o ERP (claro e escuro), à parte dos do GoParts: o azul #0873BC
+   para identificar e para a ação, o laranja #F58214 só na ligação que se fecha quando o correio está bem
+   escrito. O ROMAFE fica no azul da marca, RGB(0, 99, 170), em Motor, nos dois temas.
+   O cartão: 420 px, liso, borda fina, raio médio, sem vidro e sem sombra forte.
+   Tempos (do briefing): foco do campo 160 ms; hover dos botões 140 ms; entrada do cartão 400 ms; troca
+   de passo 380 ms; a passagem ao ERP 600 ms. A rede tem os seus (rede-cena.ts).
+   A troca correio → palavra-passe não mexe a altura: os dois passos estão na mesma célula, e o cartão
+   tem a altura do maior; muda só a opacidade e uma deslocação pequena.
+   AJUSTÁVEL: o cartão fica ao centro e a página rola se a janela for baixa; de 1024 px para cima nada sai
+   da janela; abaixo de 560 px o cartão ocupa a largura (16 px de margem), sobe para o terço de cima (o
+   teclado do telemóvel não o tapa) e a rede fica mais simples (menos nós, sem paralaxe).
+   Com «reduzir movimento» ou sem WebGL (.is-parado), a rede é o desenho parado em SVG.
+   ========================================================= */
+.rede {
+  --rede-fundo: #f5f7f9; --rede-fundo-2: #edf1f4; --rede-painel: #ffffff; --rede-borda: #d8dee5;
+  --rede-tinta: #17212b; --rede-tinta-2: #66727e; --rede-azul: #0873bc; --rede-azul-premido: #0662a1; --rede-laranja: #f58214;
+  --rede-erro: #b42318; --rede-erro-fundo: #fdf0ee; --rede-info-fundo: #eaf3fa;
+  /* as cores da cena (lidas pelo comportamento) */
+  --rede-no: #ffffff; --rede-aresta: #2a5f8a; --rede-linha: #a9b4bf; --rede-pulso: #0873bc;
+  --rede-curva: cubic-bezier(.22, 1, .36, 1);
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: 100vh; min-height: 100svh;
+  display: grid; grid-template-rows: auto 1fr auto;
+  background: var(--rede-fundo); color: var(--rede-tinta); font-family: var(--f-base);
+}
+[data-theme="dark"] .rede {
+  --rede-fundo: #0d1014; --rede-fundo-2: #14191f; --rede-painel: #1b2026; --rede-borda: #343b45;
+  --rede-tinta: #f5f7f9; --rede-tinta-2: #98a3ae; --rede-azul-premido: #0a82d4;
+  --rede-erro: #ff8a7a; --rede-erro-fundo: #2a1716; --rede-info-fundo: #12212e;
+  --rede-no: #14191f; --rede-aresta: #4f86b3; --rede-linha: #2f3741; --rede-pulso: #3d9be0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rede {
+    --rede-fundo: #0d1014; --rede-fundo-2: #14191f; --rede-painel: #1b2026; --rede-borda: #343b45;
+    --rede-tinta: #f5f7f9; --rede-tinta-2: #98a3ae; --rede-azul-premido: #0a82d4;
+    --rede-erro: #ff8a7a; --rede-erro-fundo: #2a1716; --rede-info-fundo: #12212e;
+    --rede-no: #14191f; --rede-aresta: #4f86b3; --rede-linha: #2f3741; --rede-pulso: #3d9be0;
+  }
+}
+@keyframes rede-aparecer { from { opacity: 0; } }
+@keyframes rede-subir { from { opacity: 0; transform: translateY(12px); } }
+@keyframes rede-girar { to { transform: rotate(360deg); } }
+
+/* ---------- o palco: a rede ao fundo ---------- */
+.rede__palco { position: absolute; inset: 0; z-index: 0; pointer-events: none; transition: opacity .6s ease; }
+/* um véu radial no centro: o sítio do cartão fica mais calmo */
+.rede__palco::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 34% 42% at 50% 50%, var(--rede-fundo) 30%, transparent 100%); opacity: .9; }
+.rede__lugar { position: absolute; inset: 0; }
+.rede__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transition: opacity .8s ease; }
+.rede__parada { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .6s ease; }
+.rede__parada line { stroke: var(--rede-linha); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.rede__parada path { fill: var(--rede-no); stroke: var(--rede-aresta); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.rede.is-cena .rede__parada { opacity: 0; }
+
+/* ---------- em cima: o tema ---------- */
+.rede__topo { position: relative; z-index: 2; display: flex; justify-content: flex-end; padding: 16px clamp(16px, 3vw, 32px); }
+.rede__tema { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-painel); }
+.rede__tema-btn { display: grid; place-items: center; width: 30px; height: 28px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--rede-tinta-2); cursor: pointer; transition: background .14s ease, color .14s ease; }
+.rede__tema-btn svg { width: 16px; height: 16px; }
+.rede__tema-btn:hover { color: var(--rede-tinta); background: var(--rede-fundo-2); }
+.rede__tema-btn[aria-pressed="true"] { color: var(--rede-azul); background: var(--rede-fundo-2); }
+.rede__tema-btn:focus-visible { outline: 2px solid var(--rede-azul); outline-offset: 1px; }
+
+/* ---------- ao centro: o cartão ---------- */
+.rede__centro { position: relative; z-index: 1; display: grid; place-items: center; padding: 8px 16px 24px; }
+.rede__cartao {
+  width: min(420px, 100%); padding: 36px 36px 30px;
+  background: var(--rede-painel); border: 1px solid var(--rede-borda); border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(16, 24, 32, .05);
+  animation: rede-subir .4s var(--rede-curva) .15s both;
+  transition: border-color .16s ease, opacity .45s ease, transform .6s var(--rede-curva);
+}
+.rede__cartao.is-foco { border-color: color-mix(in srgb, var(--rede-azul) 55%, var(--rede-borda)); }
+
+.rede__marca { display: flex; align-items: baseline; gap: 12px; margin-bottom: 26px; }
+.rede__romafe { font-size: 34px; color: var(--c-logotipo); }
+.rede__erp { padding-left: 12px; border-left: 1px solid var(--rede-borda); font-family: var(--f-titulo); font-size: 14px; font-weight: 600; letter-spacing: .14em; color: var(--rede-tinta-2); line-height: 22px; }
+
+/* os dois passos na mesma célula: o cartão tem a altura do maior e nunca muda */
+.rede__passos { display: grid; }
+.rede__passo { grid-area: 1 / 1; display: flex; flex-direction: column; transition: opacity .3s ease, transform .38s var(--rede-curva), visibility 0s linear 0s; }
+.rede__cartao:not(.is-passe) .rede__passo--passe,
+.rede__cartao.is-passe .rede__passo--correio { opacity: 0; visibility: hidden; transition: opacity .2s ease, transform .38s var(--rede-curva), visibility 0s linear .38s; }
+.rede__cartao:not(.is-passe) .rede__passo--passe { transform: translateY(10px); }
+.rede__cartao.is-passe .rede__passo--correio { transform: translateY(-10px); }
+
+.rede__titulo { margin: 0; font-family: var(--f-titulo); font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; color: var(--rede-tinta); }
+.rede__sub { margin: 6px 0 22px; font-size: 15px; line-height: 1.5; color: var(--rede-tinta-2); }
+
+/* a identificação: o correio já escolhido, compacto, com «Mudar» */
+.rede__conta { display: flex; align-items: center; gap: 10px; min-width: 0; margin: -6px 0 18px; padding: 8px 8px 8px 12px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-fundo-2); font-size: 14px; }
+.rede__conta > svg { width: 16px; height: 16px; flex: none; color: var(--rede-azul); }
+.rede__conta-correio { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.rede__mudar { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 5px 8px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-azul); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .14s ease; }
+.rede__mudar svg { width: 14px; height: 14px; }
+.rede__mudar:hover { background: var(--rede-painel); }
+
+/* ---------- o formulário ---------- */
+.rede__form { display: grid; gap: 16px; }
+.rede__campo { display: grid; gap: 6px; }
+.rede__campo label, .rede__rotulos label { font-size: 13px; font-weight: 700; color: var(--rede-tinta); }
+.rede__rotulos { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.rede__caixa { position: relative; display: flex; align-items: center; height: 46px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-painel); transition: border-color .16s ease, box-shadow .16s ease; }
+.rede__caixa:hover { border-color: color-mix(in srgb, var(--rede-tinta-2) 50%, var(--rede-borda)); }
+.rede__caixa:focus-within { border-color: var(--rede-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--rede-azul) 18%, transparent); }
+.rede__campo-icone { width: 18px; height: 18px; flex: none; margin: 0 10px 0 13px; color: var(--rede-tinta-2); transition: color .16s ease; }
+.rede__caixa:focus-within .rede__campo-icone { color: var(--rede-azul); }
+.rede__caixa input { flex: 1; min-width: 0; height: 100%; padding: 0 12px 0 0; border: 0; background: transparent; color: var(--rede-tinta); font: inherit; font-size: 16px; outline: none; }
+.rede__caixa input::placeholder { color: color-mix(in srgb, var(--rede-tinta-2) 75%, transparent); }
+.rede__caixa input:disabled { cursor: not-allowed; opacity: .6; }
+.rede__caixa input:-webkit-autofill { -webkit-text-fill-color: var(--rede-tinta); transition: background-color 9999s; }
+.rede__olho { display: grid; place-items: center; width: 40px; height: 40px; margin-right: 3px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-tinta-2); cursor: pointer; }
+.rede__olho svg { width: 18px; height: 18px; }
+.rede__olho:hover { color: var(--rede-tinta); background: var(--rede-fundo-2); }
+.rede__olho[aria-pressed="true"] { color: var(--rede-azul); }
+.rede__campo.is-erro .rede__caixa { border-color: var(--rede-erro); }
+.rede__campo.is-erro .rede__caixa:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--rede-erro) 18%, transparent); }
+.rede__erro, .rede__maiusculas { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 13px; line-height: 1.4; animation: rede-aparecer .16s ease; }
+.rede__erro { color: var(--rede-erro); font-weight: 600; }
+.rede__maiusculas { color: var(--rede-tinta-2); }
+.rede__erro svg, .rede__maiusculas svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
+.rede__erro[hidden], .rede__maiusculas[hidden] { display: none; }
+.rede__nota { margin: 0; font-size: 13px; line-height: 1.45; color: var(--rede-tinta-2); }
+.rede__nota--caixa { display: flex; gap: 10px; margin-bottom: 18px; padding: 12px; border-radius: 8px; background: var(--rede-fundo-2); }
+.rede__nota--caixa svg { width: 18px; height: 18px; flex: none; color: var(--rede-azul); }
+
+.rede__manter { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--rede-tinta-2); cursor: pointer; }
+.rede__manter input { width: 16px; height: 16px; accent-color: var(--rede-azul); }
+
+/* o aviso por cima do formulário */
+.rede__aviso { display: flex; gap: 10px; margin: -6px 0 18px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.45; animation: rede-aparecer .2s ease; }
+.rede__aviso svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+.rede__aviso p { margin: 0; }
+.rede__aviso-titulo { font-weight: 700; color: var(--rede-tinta); }
+.rede__aviso--erro { background: var(--rede-erro-fundo); color: var(--rede-tinta-2); }
+.rede__aviso--erro svg { color: var(--rede-erro); }
+.rede__aviso--info { background: var(--rede-info-fundo); color: var(--rede-tinta-2); }
+.rede__aviso--info svg { color: var(--rede-azul); }
+
+/* ---------- o botão: azul no ERP, como pede o briefing ---------- */
+.rede__botao { position: relative; width: 100%; min-height: 46px; margin-top: 4px; background: var(--rede-azul); color: #fff; border-radius: 8px; font-weight: 700; transition: background .14s ease, transform .12s ease, opacity .14s ease; }
+.rede__botao:hover:not(:disabled) { background: var(--rede-azul-premido); }
+.rede__botao:active:not(:disabled) { transform: scale(.985); }
+.rede__botao:focus-visible { outline: 2px solid var(--rede-azul); outline-offset: 2px; }
+.rede__botao:disabled { opacity: .45; }
+.rede__botao[aria-busy="true"] { opacity: 1; cursor: progress; }
+.rede__botao .btn__icone { transition: transform .14s ease; }
+.rede__botao:hover:not(:disabled) .btn__icone:last-of-type { transform: translateX(2px); }
+.rede__girar { display: none; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; border-radius: 50%; animation: rede-girar .7s linear infinite; }
+.rede__botao[aria-busy="true"] .rede__girar { display: block; }
+.rede__botao[aria-busy="true"] .btn__icone { display: none; }
+
+.rede__passo .rede__form:has(+ .rede__ajudas) { margin-bottom: 18px; }
+/* a ajuda vai para o fundo do cartão, que tem a altura do passo maior */
+.rede__ajudas { display: flex; justify-content: center; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--rede-borda); }
+.rede__ligacao { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-azul); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color .14s ease; }
+.rede__ligacao svg { width: 16px; height: 16px; }
+.rede__ligacao:hover { text-decoration-color: currentColor; }
+.rede__ligacao--pequena { padding: 0; font-size: 13px; }
+
+/* a ajuda */
+.rede__casos { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 10px; }
+.rede__casos li { display: flex; gap: 12px; padding: 12px; border: 1px solid var(--rede-borda); border-radius: 8px; }
+.rede__casos svg { width: 20px; height: 20px; flex: none; color: var(--rede-azul); margin-top: 1px; }
+.rede__casos p { margin: 0 0 2px; font-weight: 700; font-size: 14px; }
+.rede__casos span { font-size: 13px; line-height: 1.45; color: var(--rede-tinta-2); }
+
+/* ---------- em baixo ---------- */
+.rede__rodape { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 14px clamp(16px, 3vw, 32px); font-size: 12px; color: var(--rede-tinta-2); }
+
+/* ---------- a passagem ao ERP ----------
+   A rede já se alinhou (rede-cena.ts); o cartão sai e a moldura do ERP desenha-se no sítio dela: a barra
+   de cima desce, a coluna dos módulos entra pela esquerda, o fundo passa ao do ERP. Depois abre o 10 · Compras,
+   que tem a mesma moldura, e só o corpo aparece. */
+.rede__concha { position: absolute; inset: 0; z-index: 3; pointer-events: none; visibility: hidden; }
+.rede__concha-topo, .rede__concha-lado { position: absolute; background: var(--c-superficie); }
+.rede__concha-topo { top: 0; left: 0; right: 0; height: 64px; border-bottom: 1px solid var(--c-borda); transform: translateY(-100%); }
+.rede__concha-lado { top: 64px; left: 0; bottom: 0; width: 232px; border-right: 1px solid var(--c-borda); transform: translateX(-100%); }
+.rede.is-a-abrir { background: var(--c-portal-fundo); transition: background .6s ease; }
+.rede.is-a-abrir .rede__palco, .rede.is-a-abrir .rede__topo, .rede.is-a-abrir .rede__rodape { opacity: 0; transition: opacity .35s ease; }
+.rede.is-a-abrir .rede__cartao { opacity: 0; transform: scale(.97); }
+.rede.is-a-abrir .rede__concha { visibility: visible; }
+.rede.is-a-abrir .rede__concha-topo, .rede.is-a-abrir .rede__concha-lado { transform: none; transition: transform .5s var(--rede-curva) .1s; }
+.erp.is-chegada .erp__corpo { animation: rede-subir .45s var(--rede-curva) both; }
+@media (max-width: 1100px) { .rede__concha-lado { width: 92px; } }
+
+/* ---------- ajustável ---------- */
+@media (max-height: 700px) { .rede__centro { place-items: start center; padding-top: 0; } }
+@media (max-width: 559px) {
+  .rede__topo { padding: 12px 16px; }
+  .rede__centro { place-items: start center; padding: 4px 16px 16px; }
+  .rede__cartao { padding: 26px 20px 22px; }
+  .rede__romafe { font-size: 30px; }
+  .rede__titulo { font-size: 22px; }
+  .rede__palco::after { background: radial-gradient(ellipse 70% 40% at 50% 40%, var(--rede-fundo) 30%, transparent 100%); }
+  .rede__rodape { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+}
+
+/* ---------- parado: «reduzir movimento» ou sem WebGL ---------- */
+.rede.is-parado .rede__canvas { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .rede__cartao, .rede__erro, .rede__aviso { animation: none; }
+  .rede__passo, .rede__cartao, .rede__concha-topo, .rede__concha-lado { transition: none; }
+  .rede__girar { animation-duration: 1.6s; }
+}

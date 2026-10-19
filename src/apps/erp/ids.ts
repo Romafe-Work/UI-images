@@ -2,10 +2,11 @@ import { ligacoes, type Ecra } from '../../comum/tipos';
 import type { IdEntrar } from '../../comum/entrar/entrar';
 import type { IdCarregarErp, IdErroErp } from './estados';
 import type { IdCompras } from './compras';
+import type { IdEstadoRede } from './entrar-rede';
 
 /** Os ecrãs do ERP: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */
-export type IdErp = IdEntrar | IdCompras | IdCarregarErp | IdErroErp;
+export type IdErp = IdEntrar | IdEstadoRede | IdCompras | IdCarregarErp | IdErroErp;
 
 export type EcraErp = Ecra<IdErp>;
 
