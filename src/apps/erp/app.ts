@@ -7,6 +7,7 @@ import { REDE_ENTRAR, VERSAO_REDE, NOTA_REDE, estadosRede } from './entrar-rede'
 import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
+import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS_ERP } from './estados';
 
 /* 19 out. 2026: a v10 (a rede da empresa, do briefing dela) junta-se às versões dos quatro ecrãs de entrar;
@@ -20,6 +21,9 @@ function comRede(ecras: Ecra<IdErp>[]): Ecra<IdErp>[] {
   });
 }
 
+/* 19 out. 2026: a fase 1 de Compras (compras/ecras.ts) — o 10 · Compras ganha a v2, na casca do Início */
+const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
+
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 export const erp: App<IdErp> = {
   id: 'erp',
@@ -30,5 +34,5 @@ export const erp: App<IdErp> = {
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR, 'Início': DESCRICAO_INICIO, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
   /* 19 out. 2026: a 00 · Abertura («um ecrã wow como temos no goparts») antes do 01 · Entrar */
-  ecras: [ecraAbertura(), ...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasInicio(), ...ecrasCompras(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [ecraAbertura(), ...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasInicio(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

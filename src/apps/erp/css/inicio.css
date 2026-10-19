@@ -151,21 +151,27 @@
   background: var(--ws-sup); border-bottom: 1px solid var(--ws-borda);
 }
 .ws-topo__gaveta { display: none; }
+.ws-caminho { flex: 0 1 auto; min-width: 0; }
 .ws-caminho ol { display: flex; align-items: center; gap: 6px; margin: 0; padding: 0; list-style: none; white-space: nowrap; }
+/* com pouco espaço, sai o passo do meio (fica a empresa, a lista e o documento): nunca se corta texto */
+@media (max-width: 1400px) { .ws-caminho li:not(:first-child):not(:last-child):not(:nth-last-child(2)) { display: none; } }
+@media (max-width: 1180px) { .ws-caminho li:first-child:not(:nth-last-child(-n+2)) { display: none; } .ws-caminho li:nth-child(2):not(:last-child)::before { content: none; } }
 .ws-caminho li + li::before { content: "/"; margin-right: 6px; color: var(--ws-tinta-3); }
 .ws-caminho__item { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border: 0; border-radius: 4px; background: none; color: var(--ws-tinta-2); cursor: pointer; }
 .ws-caminho__item svg { width: 15px; height: 15px; }
 .ws-caminho__item:hover { background: var(--ws-sup-2); color: var(--ws-tinta); }
 .ws-caminho__aqui { font-weight: 700; }
 .ws-procura {
-  flex: 1; max-width: 520px; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 8px 0 12px; margin: 0 auto;
+  flex: 1 1 160px; min-width: 120px; max-width: 520px; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 8px 0 12px; margin: 0 auto;
   border: 1px solid var(--ws-borda); border-radius: 6px; background: var(--ws-fundo); color: var(--ws-tinta-3); cursor: text; text-align: left;
   transition: border-color .14s ease;
 }
 .ws-procura:hover { border-color: var(--ws-borda-forte); }
 .ws-procura svg { width: 16px; height: 16px; }
 .ws-procura__texto { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-.ws-topo__direita { display: flex; align-items: center; gap: 6px; }
+.ws-topo__direita { flex: none; display: flex; align-items: center; gap: 6px; }
+@media (max-width: 1500px) { .ws-procura__tecla { display: none; } }
+@media (max-width: 1360px) { .ws-conta__texto { display: none; } }
 .ws-topo__criar.btn { min-height: 36px; padding: 0 14px; }
 .ws-selo { position: absolute; top: 3px; right: 2px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--ws-azul); color: #fff; font-size: 11px; font-weight: 700; line-height: 17px; text-align: center; }
 [data-theme="dark"] .ws-selo { color: #101215; }

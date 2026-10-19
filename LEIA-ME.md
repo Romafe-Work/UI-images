@@ -163,6 +163,46 @@ do ERP (v10; na ajuda, v8). As outras versões ficam como estavam.
   pede para o ERP. O ROMAFE fica em RGB(0, 99, 170).
 - Com «reduzir movimento» ou sem WebGL, a rede é um desenho parado em SVG.
 
+## Compras, fase 1: fornecedores, encomendas e receções (19 out. 2026)
+
+Do briefing dela «ROMAFE ERP — Module 01: Compras», só a fase que ela escolheu: **Fornecedores + Encomendas a
+fornecedor + Receções**. Fica na casca do 05 · Início (a barra lateral e o topo são os mesmos). Em Compras, a
+barra lateral só mostra estas três entradas; o que ainda não funciona não aparece. Ficheiros: `src/apps/erp/compras/`
+(`dominio.ts`, `ecras.ts`, `comportamento.ts`) e `css/compras-v2.css`.
+
+- **10 · Compras v2** — Encomendas a fornecedor: resumo em linha (atrasadas, a aprovar, por receber, rascunhos),
+  filtros por estado, procura (referência, fornecedor, artigo), fornecedor, ordenar por coluna, exportar CSV
+  (ponto e vírgula) e nova encomenda. A v1, na moldura antiga, ficou como estava.
+- **11 · Encomenda** — o editor: cabeçalho; artigos editáveis no rascunho (quantidade, preço, desconto, entrega;
+  Enter desce de célula); juntar artigo numa gaveta com os artigos do fornecedor (procura por referência, ref.
+  do fornecedor, descrição, marca ou EAN; Alt+A); resumo à direita (bruto, descontos, portes, base, IVA por taxa,
+  total com IVA); o percurso do documento; receções; histórico. Só as ações válidas para o estado e o perfil.
+  Sair com alterações por guardar pergunta.
+- **12 · Receções / 13 · Receção** — o que está por receber, pela entrega prevista, e as receções registadas.
+  Registar: guia do fornecedor, «chegou bom» e «rejeitado» (com motivo), «Receber tudo o que falta», leitura de
+  código (EAN ou referência e Enter). Mostra a diferença por linha; recebido a mais é recusado.
+- **14 · Fornecedores / 15 · Fornecedor** — lista e ficha: dados, contacto da empresa, condições, desempenho
+  calculado, artigos com a referência do fornecedor e encomendas. Só de leitura: os dados mestres virão da
+  base comum, que ainda está por decidir.
+- **Regras (dominio.ts):**
+  - dinheiro em cêntimos inteiros; desconto por linha arredondado ao cêntimo (meio para cima); IVA por taxa sobre
+    a soma das bases; só euros;
+  - máquina de estados explícita: Rascunho → A aprovar ou Aprovada → Emitida → Parcialmente recebida →
+    Recebida → Fechada, mais Cancelada. «Atrasada» não é estado: é uma condição;
+  - limite do comprador de 10 000,00 €; acima disso aprova a Administração; quem cria não aprova;
+  - permissões por ação (PODE);
+  - numeração por série (EF 2026, RC 2026);
+  - versão por encomenda: guardar sobre uma versão antiga dá conflito, e outra janela que guarde também o mostra;
+  - receção idempotente (chave por formulário); o rejeitado fica à parte e continua a faltar; o stock mexe-se só
+    pelo inventário;
+  - histórico com quem, quando, o quê e o valor de antes e de depois.
+- **Início ligado:** as prioridades das encomendas vêm do domínio (estado, totais e a ação do perfil). Aprovar
+  ou lembrar a partir do Início passa pelas mesmas regras. «Nova encomenda» cria-a em Compras e abre o editor.
+- **Estados:** 10.1–10.2, 11.1–11.3, 13.1, 14.1.
+- **Não há servidor:** a «base» é o localStorage do navegador (`erp:compras:v1`), partilhado por todos os perfis.
+  O backend do Rolgest terá de implementar estas regras e verificar as permissões na API. «Lembrar fornecedor»
+  regista o lembrete no histórico, mas não envia correio. A emissão não manda nada ao fornecedor.
+
 ## 05 · Início do ERP: o espaço de trabalho (19 out. 2026)
 
 Do briefing dela «ROMAFE ERP V11 — Intelligent Enterprise Workspace», com a tabela «A diferença que quero

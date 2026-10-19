@@ -36,13 +36,14 @@ export const PERFIS: Record<IdPerfil, Perfil> = {
 export const EMPRESA = { nome: 'Romafe, SA', local: 'Armazém 60 · Coimbra' };
 
 /* ---------- os módulos (os da moldura) e os destinos dentro deles ---------- */
-export interface Destino { id: string; nome: string; modulo: Modulo; ecra?: 'compras' }
+export interface Destino { id: string; nome: string; modulo: Modulo; ecra?: string }
 export const MODULOS: { id: Modulo; nome: string; icone: string; grupo: 'Trabalho' | 'Consulta' | 'Sistema'; subs: Destino[] }[] = [
   { id: 'inicio', nome: 'Início', icone: 'house', grupo: 'Trabalho', subs: [] },
   { id: 'compras', nome: 'Compras', icone: 'shopping-cart', grupo: 'Trabalho', subs: [
+    /* 19 out.: a fase 1 de Compras (ela: Fornecedores + Encomendas + Receções); o resto não se mostra até existir */
     { id: 'compras-encomendas', nome: 'Encomendas a fornecedor', modulo: 'compras', ecra: 'compras' },
-    { id: 'compras-fornecedores', nome: 'Fornecedores', modulo: 'compras' },
-    { id: 'compras-faturas', nome: 'Faturas de fornecedor', modulo: 'compras' },
+    { id: 'compras-rececoes', nome: 'Receções', modulo: 'compras', ecra: 'compras-rececoes' },
+    { id: 'compras-fornecedores', nome: 'Fornecedores', modulo: 'compras', ecra: 'compras-fornecedores' },
   ] },
   { id: 'vendas', nome: 'Vendas', icone: 'trending-up', grupo: 'Trabalho', subs: [
     { id: 'vendas-encomendas', nome: 'Encomendas de cliente', modulo: 'vendas' },
@@ -77,7 +78,7 @@ export interface Linha { ref: string; desc: string; qtd: string; valor: string }
 export interface Doc {
   /** quem pode tratar o documento (por omissão, os perfis do módulo: AGEM) */ agem?: IdPerfil[];
   ref: string; tipo: string; modulo: Modulo; entidade: string; estado: string; nivel?: Nivel;
-  datas: [string, string][]; total?: string; linhas?: Linha[]; nota?: string; ecra?: 'compras';
+  datas: [string, string][]; total?: string; linhas?: Linha[]; nota?: string; ecra?: string;
   /** a ação que o documento pede, quando pede uma (aprovar, confirmar…) */
   acao?: { id: 'aprovar' | 'lembrar' | 'enviar' | 'conferir' | 'confirmar' | 'arrumar' | 'separar' | 'expedir' | 'renovar' | 'resolver'; rotulo: string; icone: string; feito: string };
 }
@@ -170,7 +171,7 @@ export const PRIORIDADES: Record<IdPerfil, { doc: string; titulo: string; prazo:
 };
 
 /* ---------- continuar onde fiquei (por pessoa: nunca se veem os de outra) ---------- */
-export interface Recente { id: string; tipo: 'rascunho' | 'documento' | 'registo' | 'pesquisa' | 'espaco'; titulo: string; sub: string; quando: string; doc?: string; procura?: string; fixado?: boolean; ecra?: 'compras' }
+export interface Recente { id: string; tipo: 'rascunho' | 'documento' | 'registo' | 'pesquisa' | 'espaco'; titulo: string; sub: string; quando: string; doc?: string; procura?: string; fixado?: boolean; ecra?: string }
 export const RECENTES: Record<IdPerfil, Recente[]> = {
   compras: [
     { id: 'r1', tipo: 'rascunho', titulo: 'EF 2026/0413 · Bosch', sub: 'Rascunho · 6 linhas, faltam 4 preços', quando: 'hoje, 08:42', doc: 'EF 2026/0413' },
@@ -203,7 +204,7 @@ export const RECENTES: Record<IdPerfil, Recente[]> = {
 };
 
 /* ---------- acesso rápido: as operações, com o módulo que cada uma pede ---------- */
-export interface Operacao { id: string; nome: string; icone: string; modulo: Modulo; /** quem pode (por ação, não só por módulo) */ perfis: IdPerfil[]; tecla?: string; tipo: 'criar' | 'procurar' | 'abrir'; procura?: string; ecra?: 'compras'; doc?: string }
+export interface Operacao { id: string; nome: string; icone: string; modulo: Modulo; /** quem pode (por ação, não só por módulo) */ perfis: IdPerfil[]; tecla?: string; tipo: 'criar' | 'procurar' | 'abrir'; procura?: string; ecra?: string; doc?: string }
 export const OPERACOES: Operacao[] = [
   { id: 'nova-ef', nome: 'Nova encomenda a fornecedor', icone: 'file-plus-2', modulo: 'compras', perfis: ['compras', 'admin'], tipo: 'criar', tecla: 'N' },
   { id: 'ver-ef', nome: 'Encomendas a fornecedor', icone: 'shopping-cart', modulo: 'compras', perfis: ['compras', 'armazem', 'financeiro', 'admin'], tipo: 'abrir', ecra: 'compras' },
@@ -271,7 +272,7 @@ export const ATIVIDADE: Record<IdPerfil, { quem: string; texto: string; quando: 
 
 /* ---------- o índice da procura (Ctrl+K) ---------- */
 export type TipoProcura = 'Destinos' | 'Artigos' | 'Fornecedores' | 'Clientes' | 'Compras' | 'Vendas' | 'Armazém' | 'Faturação';
-export interface Achado { tipo: TipoProcura; titulo: string; sub: string; modulo: Modulo; icone: string; doc?: string; ecra?: 'compras'; destino?: string }
+export interface Achado { tipo: TipoProcura; titulo: string; sub: string; modulo: Modulo; icone: string; doc?: string; ecra?: string; ref?: string; destino?: string }
 export const INDICE: Achado[] = [
   ...MODULOS.flatMap((m) => [
     ...(m.id === 'inicio' ? [] : [{ tipo: 'Destinos' as const, titulo: m.nome, sub: 'Módulo', modulo: m.id, icone: m.icone, destino: m.id, ecra: m.id === 'compras' ? 'compras' as const : undefined }]),

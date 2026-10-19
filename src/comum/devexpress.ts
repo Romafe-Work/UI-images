@@ -16,6 +16,18 @@
 export interface Componente { peca: string; web: string; wpf: string; nota?: string }
 
 const REGRAS: [string, Componente][] = [
+  /* ERP · Compras, fase 1 (19 out. 2026) */
+  ['.cp-tabela--linhas, .cp-tabela--linhas .cp-celula', { peca: 'Linhas da encomenda', web: 'DxDataGrid (editing: cell, keyboardNavigation)', wpf: 'GridControl (TableView, EditorShowMode)', nota: 'Enter passa à célula de baixo; o total refaz-se a cada valor.' }],
+  ['.cp-tabela--rec, .cp-tabela--rec .cp-celula', { peca: 'Linhas da receção', web: 'DxDataGrid (editing: cell)', wpf: 'GridControl (TableView)' }],
+  ['.cp-tabela, .cp-ordenar', { peca: 'Lista de documentos', web: 'DxDataGrid (sorting, filterRow off)', wpf: 'GridControl', nota: 'Abaixo de 720 px, cartões (columnHidingEnabled ou um DxList à parte).' }],
+  ['.cp-filtros, .cp-filtro', { peca: 'Filtro por estado', web: 'DxButtonGroup', wpf: 'ListBoxEdit (botões)' }],
+  ['.cp-percurso, .cp-passo', { peca: 'Percurso do documento', web: '— (CSS nosso; DxButton nos passos com documento)', wpf: '— (ItemsControl com template nosso)', nota: 'Só se pinta o que aconteceu.' }],
+  ['.cp-resumo-fin, .cp-contas', { peca: 'Resumo financeiro', web: 'DxForm (só leitura) ou CSS nosso', wpf: 'DataLayoutControl (só leitura)' }],
+  ['.cp-gaveta, .cp-art', { peca: 'Juntar artigo', web: 'DxDrawer com DxList (searchEnabled)', wpf: 'FlyoutControl com ListBoxEdit e SearchControl' }],
+  ['.cp-mais, .cp-mais__menu', { peca: 'Mais ações', web: 'DxDropDownButton', wpf: 'DropDownButton' }],
+  ['.cp-faixa', { peca: 'Faixa de aviso', web: '— (CSS nosso)', wpf: '— (InfoBar nosso)' }],
+  ['.cp-ler, .cp-ler input', { peca: 'Leitura de código', web: 'DxTextBox (o leitor é um teclado)', wpf: 'TextEdit' }],
+  ['.cp-percurso + .cp-editor .cp-input, .cp-campos .cp-input, .cp-campos .cp-select', { peca: 'Campos do cabeçalho', web: 'DxForm (DxTextBox, DxDateBox, DxSelectBox)', wpf: 'DataLayoutControl (TextEdit, DateEdit, ComboBoxEdit)' }],
   /* ERP, 05 · Início (19 out. 2026): primeiro, para ganharem às regras gerais */
   ['.ws-paleta, .ws-paleta__input, .ws-procura', { peca: 'Procura global (Ctrl+K)', web: 'DxPopup com DxTextBox e DxList (grouped)', wpf: 'SearchControl num ThemedWindow (ou HamburgerMenu search)', nota: 'Resultados por tipo, pedidos à API; setas, Enter e Esc.' }],
   ['.ws-lado, .ws-lado__item, .ws-lado__sub', { peca: 'Barra lateral', web: 'DxDrawer com DxTreeView', wpf: 'AccordionControl (ou HamburgerMenu)', nota: 'Recolhe-se; procura de módulos, fixados e recentes.' }],

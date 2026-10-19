@@ -16,10 +16,11 @@
    ========================================================= */
 import { mostrar, mostrarVersao } from '../../../comum/ecras';
 import { VERSAO_REDE } from '../entrar-rede';
+import * as cp from '../compras/dominio';
 import {
-  corpo, estadoPadrao, prefsPadrao, podeTratar, blocoPrioridades, blocoContinuar, blocoFluxo, contas, doc, pode,
+  corpo, casca, paginaInicio, estadoPadrao, prefsPadrao, podeTratar, blocoPrioridades, blocoContinuar, blocoFluxo, contas, doc, pode,
   menuConta, menuAvisos, menuCriar, menuEmpresa, procura, buscar, sugestoes, painel, criar, personalizar,
-  type Estado, type Bloco,
+  type Estado, type Bloco, type Pagina,
 } from '../inicio';
 import { PERFIS, AVISOS, OPERACOES, ETAPAS, type IdPerfil, type Achado, type Doc, type Modulo } from '../inicio-dados';
 
@@ -67,6 +68,13 @@ function guardar(): void {
   gravar(chave(e.perfil), { prefs: e.prefs, feitos: e.feitos, lidas: e.lidas, recentes: e.recentes, criados: e.criados, procuras } satisfies Guardado);
 }
 
+/* ---------- as páginas: o Início e as que os módulos registam (Compras) ---------- */
+let outras: ((id: string, e: Estado) => Pagina) | null = null;
+export const registarPaginas = (f: typeof outras) => { outras = f; };
+const idPagina = () => raiz?.dataset.wsPagina || 'inicio';
+function pagina(): Pagina { const id = idPagina(); return id === 'inicio' || !outras ? paginaInicio(e) : outras(id, e); }
+const desenhado = () => document.dispatchEvent(new CustomEvent('erp:desenhou', { detail: idPagina() }));
+
 /* ---------- desenhar ---------- */
 function marcarTema(): void {
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
@@ -79,10 +87,12 @@ function aplicarRaiz(): void {
 /** Redesenha tudo menos as camadas (menus e diálogos ficam abertos). */
 function redesenhar(): void {
   if (!raiz) return;
-  const tmp = document.createElement('div'); tmp.innerHTML = corpo(e);
+  const lado = raiz.querySelector('.ws-lado')?.scrollTop ?? 0;
+  const tmp = document.createElement('div'); tmp.innerHTML = casca(e, pagina());
   raiz.querySelector('.ws-lado')!.replaceWith(tmp.querySelector('.ws-lado')!);
   raiz.querySelector('.ws-principal')!.replaceWith(tmp.querySelector('.ws-principal')!);
-  aplicarRaiz(); marcarTema();
+  raiz.querySelector('.ws-lado')!.scrollTop = lado;
+  aplicarRaiz(); marcarTema(); desenhado();
 }
 function trocar(sel: string, html: string): HTMLElement | null {
   const velho = raiz?.querySelector(sel); if (!velho) return null;
@@ -175,17 +185,26 @@ function escolherProcura(i?: number): void {
 /** Abre o que se escolheu: o documento no painel (o título voa da lista para o painel), o ecrã, ou um aviso. */
 function abrirAchado(x: Achado, de: HTMLElement | null): void {
   if (x.doc && doc(e, x.doc)) { abrirDoc(x.doc, de); return; }
-  if (x.ecra) { fechar(false); irPara(x.ecra); return; }
+  if (x.ecra) { fechar(false); irPara(x.ecra, x.ref); return; }
   if (x.tipo === 'Destinos') { fechar(); semEcra(x.titulo); return; }
   transitar(de, () => { fechar(false); abrir('painel', painel(e, '', x), null); });
 }
 
 /* ---------- ir a outro ecrã, abrir um documento ---------- */
-function irPara(ecra: 'compras' | 'inicio'): void {
-  if (ecra === 'inicio') { document.getElementById('ws-trabalho')?.scrollIntoView({ block: 'start' }); window.scrollTo({ top: 0 }); return; }
+/** Vai a outro ecrã do ERP; `ref` é o documento a abrir lá (fica na sessão, por página). */
+export function irPara(ecra: string, ref?: string): void {
+  if (ref) gravar(`erp:ref:${ecra}`, ref, sessionStorage);
+  if (ecra === (raiz?.dataset.wsPagina || 'inicio') && !ref) { window.scrollTo({ top: 0 }); return; }
+  if (saidaBloqueada && !saidaBloqueada(() => { saidaBloqueada = null; irPara(ecra, ref); })) return;
+  /* no mesmo ecrã (outro documento), redesenha-se; noutro, o protótipo muda de ecrã e a casca arma-se lá */
+  const mesmo = ecra === (raiz?.dataset.wsPagina || 'inicio') && !!raiz?.isConnected;
+  const ir = () => { if (mesmo) redesenhar(); else { mostrar(ecra); if (ecra === 'compras') mostrarVersao('v2'); } window.scrollTo({ top: 0 }); };
   const doc_ = document as Document & { startViewTransition?: (f: () => void) => unknown };
-  if (doc_.startViewTransition && !quieto()) doc_.startViewTransition(() => mostrar(ecra)); else mostrar(ecra);
+  if (doc_.startViewTransition && !quieto()) doc_.startViewTransition(ir); else ir();
 }
+/** Uma página com alterações por guardar pode travar a saída: devolve false e chama `seguir` se a pessoa confirmar. */
+let saidaBloqueada: ((seguir: () => void) => boolean) | null = null;
+export const travarSaida = (f: typeof saidaBloqueada) => { saidaBloqueada = f; };
 function transitar(de: HTMLElement | null, f: () => void): void {
   const d = document as Document & { startViewTransition?: (f: () => void) => unknown };
   if (!d.startViewTransition || quieto() || !de) { f(); return; }
@@ -244,6 +263,11 @@ async function tratar(ref: string, b: HTMLButtonElement): Promise<void> {
   await espera(ESPERA);
   if (!raiz) return;
   if (e.carga === 'offline' || !navigator.onLine) { ocupar(b, null); aviso('Sem ligação: não foi possível guardar. Tenta outra vez quando a ligação voltar.'); return; }
+  /* as encomendas a fornecedor passam pelo domínio de Compras (as mesmas regras do editor) */
+  const doDominio = !!cp.encomenda(ref);
+  if (doDominio) {
+    try { cp.transitar(e.perfil, ref, d.acao.id as cp.Acao); } catch (err) { ocupar(b, null); aviso(err instanceof cp.Recusa ? err.message : 'Não foi possível guardar.'); return; }
+  }
   /* só depois da resposta do servidor: o estado muda, a linha marca-se, e sai da lista */
   e.feitos[ref] = d.acao.feito; guardar();
   const feito = d.acao.feito[0].toUpperCase() + d.acao.feito.slice(1);
@@ -259,6 +283,7 @@ async function tratar(ref: string, b: HTMLButtonElement): Promise<void> {
     window.setTimeout(() => { tirarLinha(li); contar(); }, quieto() ? 0 : 650);
   } else contar();
   trocar('[data-bloco="fluxo"]', blocoFluxo(e));
+  if (doDominio) { aviso(`${d.ref} ${d.acao.feito}. Está no histórico da encomenda.`); return; }
   aviso(`${d.ref} ${d.acao.feito}.`, () => {
     delete e.feitos[ref]; guardar();
     trocar('[data-bloco="prioridades"]', blocoPrioridades(e))?.classList.add('is-volta');
@@ -292,6 +317,16 @@ async function criarRascunho(b: HTMLButtonElement): Promise<void> {
   await espera(ESPERA);
   if (e.carga === 'offline' || !navigator.onLine) { ocupar(b, null); aviso('Sem ligação: o rascunho não foi criado.'); return; }
   const ef = op === 'nova-ef';
+  /* a encomenda a fornecedor é um documento de Compras: cria-se lá e abre-se no editor */
+  if (ef) {
+    const f = cp.FORNECEDORES.find((x) => x.nome === ent);
+    try {
+      const x = cp.criar(e.perfil, f?.id ?? '');
+      fechar(false); irPara('compras-encomenda', x.ref);
+      aviso(`Rascunho ${x.ref} criado. Junta os artigos.`);
+    } catch (err) { aviso(err instanceof cp.Recusa ? err.message : 'Não foi possível criar.'); }
+    return;
+  }
   const n = (ef ? 414 : 1181) + e.criados.filter((d) => d.modulo === (ef ? 'compras' : 'vendas')).length;
   const ref = ef ? `EF 2026/0${n}` : `EC 2026/${n}`;
   const d: Doc = { ref, tipo: ef ? 'Encomenda a fornecedor' : 'Encomenda de cliente', modulo: ef ? 'compras' : 'vendas', entidade: ent, estado: 'Rascunho', nivel: 'normal', datas: [['Começada', 'agora'], ['Armazém', 'Armazém 60 · Coimbra']], nota: 'Ainda sem linhas.', ...(ef ? { ecra: 'compras' as const } : {}) };
@@ -395,7 +430,7 @@ function aoClicar(ev: MouseEvent): void {
   }
   if ((b = q('[data-ws-filtro]'))) { e.filtro = b.dataset.wsFiltro as Estado['filtro']; trocar('[data-bloco="prioridades"]', blocoPrioridades(e)); raiz.querySelector<HTMLElement>(`[data-ws-filtro="${e.filtro}"]`)?.focus(); return; }
   if ((b = q('[data-ws-etapa]'))) { escolherEtapa(b.dataset.wsEtapa!); return; }
-  if ((b = q('[data-ws-ir]'))) { ev.preventDefault(); if (camada) fechar(false); raiz.classList.remove('is-gaveta'); irPara(b.dataset.wsIr as 'compras' | 'inicio'); return; }
+  if ((b = q('[data-ws-ir]'))) { ev.preventDefault(); if (camada) fechar(false); raiz.classList.remove('is-gaveta'); irPara(b.dataset.wsIr!, b.dataset.wsRef); return; }
   if ((b = q('[data-ws-sem-ecra]'))) { semEcra(b.dataset.wsSemEcra!); return; }
   if ((b = q('[data-ws-abrir-sub]'))) {
     const ul = raiz.querySelector<HTMLElement>(`#ws-sub-${b.dataset.wsAbrirSub}`)!; ul.hidden = !ul.hidden; b.setAttribute('aria-expanded', String(!ul.hidden));
@@ -524,10 +559,10 @@ function armar(): void {
   carregar(r);
   /* o que o estado do ecrã traz aberto já está desenhado; o resto redesenha-se com o estado guardado */
   const abrirJa = r.dataset.wsAbrir;
-  const t = document.createElement('div'); t.innerHTML = corpo(e);
+  const t = document.createElement('div'); t.innerHTML = casca(e, pagina());
   r.querySelector('.ws-lado')!.replaceWith(t.querySelector('.ws-lado')!);
   r.querySelector('.ws-principal')!.replaceWith(t.querySelector('.ws-principal')!);
-  aplicarRaiz(); marcarTema();
+  aplicarRaiz(); marcarTema(); desenhado();
   if (abrirJa) {
     const c = r.querySelector<HTMLElement>('[data-ws-camadas]')!;
     if (abrirJa.startsWith('procura:')) { c.innerHTML = ''; abrirProcura(abrirJa.slice(8), null); }
@@ -549,3 +584,9 @@ export function iniciar(): void {
   document.addEventListener('click', (ev) => { if ((ev.target as Element).closest?.('.ws .segmented__btn[data-tema]')) requestAnimationFrame(marcarTema); });
   window.addEventListener('online', () => { if (raiz && e.carga === 'offline') aviso('A ligação voltou.'); });
 }
+
+/** O que os módulos usam da casca (avisos, camadas, navegação, o perfil). */
+export const ws = {
+  estado: () => e, raiz: () => raiz, aviso, abrir: (tipo: string, html: string, volta: HTMLElement | null) => abrir(tipo, html, volta), fechar, irPara, redesenhar, ocupar,
+  camada: () => camada?.tipo ?? null, espera: (ms = ESPERA) => espera(ms), lembrar: (ref: string) => lembrar(ref),
+};

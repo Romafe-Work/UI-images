@@ -23,6 +23,7 @@
 import type { Ecra } from '../../comum/tipos';
 import type { IdErp } from './ids';
 import { ic } from './inicio-icones';
+import * as cp from './compras/dominio';
 import {
   PERFIS, EMPRESA, HOJE, MODULOS, DOCS, PRIORIDADES, RECENTES, OPERACOES, ETAPAS, AVISOS, PRAZOS, ATIVIDADE, INDICE, nomeModulo,
   AGEM, type IdPerfil, type Modulo, type Nivel, type Recente, type Doc, type Achado, type Operacao,
@@ -59,7 +60,27 @@ export const estadoPadrao = (perfil: IdPerfil = 'compras'): Estado => ({
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 export const pode = (e: Estado, m: Modulo) => PERFIS[e.perfil].modulos.includes(m);
 export const podeTratar = (e: Estado, d: Doc) => (d.agem ?? AGEM[d.modulo]).includes(e.perfil);
-export const doc = (e: Estado, ref: string): Doc | undefined => DOCS[ref] || e.criados.find((d) => d.ref === ref);
+/** As encomendas a fornecedor vêm do domínio de Compras (compras/dominio.ts): o estado, os totais e a ação
+ *  que o perfil pode fazer são os de lá; os outros documentos ainda são os de exemplo (DOCS). */
+export function docDeEncomenda(e: Estado, ref: string): Doc | undefined {
+  const x = cp.encomenda(ref); if (!x) return undefined;
+  const t = cp.totais(x), f = cp.fornecedor(x.forn), atr = cp.atrasada(x);
+  const acoes = cp.acoesDe(x, e.perfil);
+  const acao = acoes.includes('aprovar') ? { id: 'aprovar' as const, rotulo: 'Aprovar', icone: 'check', feito: 'aprovada' }
+    : acoes.includes('lembrar') && x.lembrada !== cp.HOJE ? { id: 'lembrar' as const, rotulo: 'Lembrar fornecedor', icone: 'send', feito: 'lembrete registado' } : undefined;
+  return {
+    ref, tipo: 'Encomenda a fornecedor', modulo: 'compras', entidade: f?.nome ?? '—', ecra: 'compras-encomenda', agem: [e.perfil],
+    estado: atr ? `Atrasada ${cp.diasAtraso(x.entrega)} dias` : x.estado,
+    nivel: atr ? 'atrasada' : x.estado === 'A aprovar' ? (cp.diasAtraso(x.data) > 14 ? 'atrasada' : 'urgente') : x.estado === 'Rascunho' ? 'normal' : 'info',
+    datas: [['Data', cp.dia(x.data)], ['Entrega prevista', cp.dia(x.entrega)]], total: `${cp.euros(t.base)} s/ IVA`,
+    linhas: x.linhas.map((l) => ({ ref: l.ref, desc: cp.artigo(l.ref)?.desc ?? '', qtd: `${l.qtd.toLocaleString('pt-PT')} ${cp.artigo(l.ref)?.un ?? ''}`, valor: cp.linhaLiquida(l) === null ? 'Sem preço' : cp.euros(cp.linhaLiquida(l)!) })),
+    nota: x.estado === 'A aprovar' ? (e.perfil === 'admin' ? `Acima do limite do comprador (${cp.euros(cp.LIMITE_COMPRADOR)}): a aprovação é tua.` : 'À espera da Administração (acima do limite do comprador).') : x.estado === 'Parcialmente recebida' ? `Faltam ${x.linhas.filter((l) => cp.pendente(l)).length} de ${x.linhas.length} linhas.` : x.notas || undefined,
+    acao,
+  };
+}
+/** Uma encomenda só é prioridade enquanto pede alguma coisa a alguém. */
+const pedeAtencao = (ref: string) => { const x = cp.encomenda(ref); return !x || x.estado === 'A aprovar' || x.estado === 'Rascunho' || x.estado === 'Parcialmente recebida' || cp.atrasada(x); };
+export const doc = (e: Estado, ref: string): Doc | undefined => docDeEncomenda(e, ref) || DOCS[ref] || e.criados.find((d) => d.ref === ref);
 const NIVEL: Record<Nivel, { nome: string; icone: string }> = {
   atrasada: { nome: 'Atrasada', icone: 'clock' }, urgente: { nome: 'Urgente', icone: 'triangle-alert' },
   normal: { nome: 'Por tratar', icone: 'circle-dot' }, info: { nome: 'Para saber', icone: 'info' },
@@ -74,7 +95,7 @@ export function prioridades(e: Estado) {
   if (e.carga === 'vazio') return [];
   return PRIORIDADES[e.perfil]
     .map((p) => ({ ...p, d: doc(e, p.doc)! }))
-    .filter((p) => p.d && pode(e, p.d.modulo))
+    .filter((p) => p.d && pode(e, p.d.modulo) && pedeAtencao(p.doc))
     .sort((a, b) => ORDEM_NIVEL.indexOf(a.d.nivel ?? 'normal') - ORDEM_NIVEL.indexOf(b.d.nivel ?? 'normal'));
 }
 export const contas = (e: Estado) => {
@@ -85,16 +106,17 @@ export const contas = (e: Estado) => {
 };
 
 /* ---------- a barra lateral ---------- */
-function lado(e: Estado): string {
+function lado(e: Estado, ondeEstou = 'inicio'): string {
   const grupos = ['Trabalho', 'Consulta', 'Sistema'] as const;
   const mods = MODULOS.filter((m) => pode(e, m.id));
   const item = (m: typeof MODULOS[number]) => {
-    const ativo = m.id === 'inicio';
+    const ativo = m.id === ondeEstou;
+    const dentro = m.subs.some((x) => x.id === ondeEstou);
     const fixo = e.prefs.fixados.includes(m.id);
-    const sub = m.subs.length ? `<ul class="ws-lado__subs" id="ws-sub-${m.id}" hidden>${m.subs.map((s) => `<li><button type="button" class="ws-lado__sub" ${s.ecra ? `data-ws-ir="${s.ecra}"` : `data-ws-sem-ecra="${esc(s.nome)}"`}>${esc(s.nome)}${s.ecra ? '' : '<span class="ws-lado__falta">sem ecrã</span>'}</button></li>`).join('')}</ul>` : '';
+    const sub = m.subs.length ? `<ul class="ws-lado__subs" id="ws-sub-${m.id}"${dentro ? '' : ' hidden'}>${m.subs.map((s) => `<li><button type="button" class="ws-lado__sub"${s.id === ondeEstou ? ' aria-current="page"' : ''} ${s.ecra ? `data-ws-ir="${s.ecra}"` : `data-ws-sem-ecra="${esc(s.nome)}"`}>${esc(s.nome)}${s.ecra ? '' : '<span class="ws-lado__falta">sem ecrã</span>'}</button></li>`).join('')}</ul>` : '';
     return `<li class="ws-lado__li" data-modulo="${m.id}">
       <div class="ws-lado__linha">
-        <button type="button" class="ws-lado__item"${ativo ? ' aria-current="page"' : ''} data-dica="${m.nome}" ${m.subs.length ? `aria-expanded="false" aria-controls="ws-sub-${m.id}" data-ws-abrir-sub="${m.id}"` : m.id === 'inicio' ? 'data-ws-ir="inicio"' : `data-ws-sem-ecra="${m.nome}"`}>${ic(m.icone, 'ws-lado__icone')}<span class="ws-lado__nome">${m.nome}</span>${m.subs.length ? ic('chevron-down', 'ws-lado__seta') : ''}</button>
+        <button type="button" class="ws-lado__item${dentro ? ' is-dentro' : ''}"${ativo ? ' aria-current="page"' : ''} data-dica="${m.nome}" ${m.subs.length ? `aria-expanded="${dentro}" aria-controls="ws-sub-${m.id}" data-ws-abrir-sub="${m.id}"` : m.id === 'inicio' ? 'data-ws-ir="inicio"' : `data-ws-sem-ecra="${m.nome}"`}>${ic(m.icone, 'ws-lado__icone')}<span class="ws-lado__nome">${m.nome}</span>${m.subs.length ? ic('chevron-down', 'ws-lado__seta') : ''}</button>
         ${m.id === 'inicio' ? '' : `<button type="button" class="ws-lado__pino${fixo ? ' is-fixo' : ''}" aria-pressed="${fixo}" aria-label="${fixo ? 'Tirar dos fixados' : 'Fixar'}: ${m.nome}" data-ws-fixar="${m.id}">${ic(fixo ? 'pin-off' : 'pin')}</button>`}
       </div>${sub}</li>`;
   };
@@ -106,7 +128,7 @@ function lado(e: Estado): string {
       ${ibtn(e.prefs.lado === 'recolhido' ? 'Abrir a barra lateral' : 'Recolher a barra lateral', 'panel-left', 'data-ws-lado aria-expanded="' + (e.prefs.lado !== 'recolhido') + '"', 'ws-lado__recolher')}
     </div>
     <div class="ws-lado__procura">${ic('search', 'ws-lado__lupa')}<input type="search" class="ws-lado__campo" placeholder="Procurar módulo" aria-label="Procurar módulo" data-ws-procura-modulo></div>
-    ${fixados.length ? `<p class="ws-lado__grupo">Fixados</p><ul class="ws-lado__lista ws-lado__lista--fixados">${fixados.map((id) => { const m = MODULOS.find((x) => x.id === id)!; return `<li><button type="button" class="ws-lado__item ws-lado__item--fixado" data-dica="${m.nome}" ${m.id === 'compras' ? 'data-ws-ir="compras"' : `data-ws-sem-ecra="${m.nome}"`}>${ic(m.icone, 'ws-lado__icone')}<span class="ws-lado__nome">${m.nome}</span></button></li>`; }).join('')}</ul>` : ''}
+    ${fixados.length ? `<p class="ws-lado__grupo">Fixados</p><ul class="ws-lado__lista ws-lado__lista--fixados">${fixados.map((id) => { const m = MODULOS.find((x) => x.id === id)!; return `<li><button type="button" class="ws-lado__item ws-lado__item--fixado" data-dica="${m.nome}" ${m.id === 'compras' ? 'data-ws-ir="compras"' : `data-ws-sem-ecra="${m.nome}"`}${m.subs.some((x) => x.id === ondeEstou) ? ' aria-current="true"' : ''}>${ic(m.icone, 'ws-lado__icone')}<span class="ws-lado__nome">${m.nome}</span></button></li>`; }).join('')}</ul>` : ''}
     ${grupos.map((g) => { const ms = mods.filter((m) => m.grupo === g); return ms.length ? `<p class="ws-lado__grupo">${g}</p><ul class="ws-lado__lista" data-grupo="${g}">${ms.map(item).join('')}</ul>` : ''; }).join('')}
     <p class="ws-lado__nada" hidden>Nenhum módulo com esse nome.</p>
     ${recentes.length ? `<p class="ws-lado__grupo">Recentes</p><ul class="ws-lado__lista ws-lado__lista--recentes">${recentes.map((r) => `<li><button type="button" class="ws-lado__item ws-lado__item--recente" data-dica="${esc(r.titulo)}" data-ws-retomar="${r.id}">${ic('history', 'ws-lado__icone')}<span class="ws-lado__nome">${esc(r.titulo)}</span></button></li>`).join('')}</ul>` : ''}
@@ -114,14 +136,15 @@ function lado(e: Estado): string {
 }
 
 /* ---------- o topo ---------- */
-function topo(e: Estado): string {
+export interface Passo { nome: string; ir?: string; ref?: string }
+function topo(e: Estado, caminho: Passo[] = [{ nome: 'Início' }]): string {
   const p = PERFIS[e.perfil];
   const porLer = AVISOS[e.perfil].filter((a) => !e.lidas.includes(a.id)).length;
   return `<header class="ws-topo">
     ${ibtn('Menu', 'panel-left', 'data-ws-gaveta aria-expanded="false"', 'ws-topo__gaveta')}
     <nav class="ws-caminho" aria-label="Onde estás"><ol>
       <li><button type="button" class="ws-caminho__item" data-ws-menu="empresa" aria-haspopup="true" aria-expanded="false">${ic('building-2')}${EMPRESA.nome}</button></li>
-      <li aria-current="page"><span class="ws-caminho__aqui">Início</span></li>
+      ${caminho.map((c, i) => i === caminho.length - 1 ? `<li aria-current="page"><span class="ws-caminho__aqui">${esc(c.nome)}</span></li>` : `<li><button type="button" class="ws-caminho__item" data-ws-ir="${c.ir}"${c.ref ? ` data-ws-ref="${esc(c.ref)}"` : ''}>${esc(c.nome)}</button></li>`).join('')}
     </ol></nav>
     <button type="button" class="ws-procura" data-ws-procura aria-label="Procurar no ERP (Ctrl+K)">${ic('search')}<span class="ws-procura__texto">Procurar artigos, documentos, fornecedores…</span><kbd class="ws-procura__tecla">Ctrl K</kbd></button>
     <div class="ws-topo__direita">
@@ -311,7 +334,9 @@ export function buscar(e: Estado, q: string): [string, Achado[]][] {
   const palavras = sem(q).split(/\s+/).filter(Boolean);
   if (!palavras.length) return [];
   const tudo = [...INDICE, ...e.criados.map((d): Achado => ({ tipo: 'Compras', titulo: `${d.ref} · ${d.entidade}`, sub: `${d.tipo} · ${d.estado}`, modulo: d.modulo, icone: 'file-pen', doc: d.ref, ecra: d.ecra }))];
-  const achados = tudo.filter((x) => pode(e, x.modulo) && palavras.every((w) => sem(x.titulo + ' ' + x.sub).includes(w)));
+  const achados = tudo.filter((x) => pode(e, x.modulo) && palavras.every((w) => sem(x.titulo + ' ' + x.sub).includes(w)))
+    /* os fornecedores e as encomendas abrem nas páginas de Compras */
+    .map((x) => { const f = x.tipo === 'Fornecedores' ? cp.FORNECEDORES.find((y) => y.nome === x.titulo) : undefined; return f ? { ...x, doc: undefined, ecra: 'compras-fornecedor', ref: f.id } : x; });
   const grupos = new Map<string, Achado[]>();
   achados.forEach((x) => { const g = grupos.get(x.tipo) || []; if (g.length < 5) g.push(x); grupos.set(x.tipo, g); });
   return [...grupos.entries()];
@@ -360,7 +385,7 @@ export function painel(e: Estado, ref: string, extra?: Achado): string {
       ${d.acao && !feito && !podeTratar(e, d) ? `<p class="ws-painel__falta">${ic('lock')}Só leitura: ${esc(d.acao.rotulo.toLowerCase())} é com ${(d.agem ?? AGEM[d.modulo]).filter((x) => x !== 'admin').map((x) => PERFIS[x].nome).join(' ou ')}.</p>` : ''}
       ${d.ecra ? '' : `<p class="ws-painel__falta">${ic('info')}O módulo ${nomeModulo(d.modulo)} ainda não tem ecrã no protótipo: o documento completo abrirá lá.</p>`}
     </div>
-    <footer class="ws-painel__pe">${acao}${d.ecra ? btn('Abrir em Compras', 'arrow-right', { cls: 'btn--ghost', attrs: 'data-ws-ir="compras"' }) : ''}${btn('Fechar', 'x', { cls: 'btn--ghost', attrs: 'data-ws-fechar' })}</footer>
+    <footer class="ws-painel__pe">${acao}${d.ecra ? btn(d.ecra === 'compras-encomenda' ? 'Abrir a encomenda' : 'Abrir em Compras', 'arrow-right', { cls: 'btn--ghost', attrs: `data-ws-ir="${d.ecra}"${d.ecra === 'compras-encomenda' ? ` data-ws-ref="${esc(d.ref)}"` : ''}` }) : ''}${btn('Fechar', 'x', { cls: 'btn--ghost', attrs: 'data-ws-fechar' })}</footer>
   </aside></div>`;
 }
 
@@ -405,13 +430,24 @@ export function personalizar(e: Estado): string {
   </div></div>`;
 }
 
-/* ---------- o ecrã inteiro ---------- */
-export function corpo(e: Estado): string {
-  const b = e.prefs.blocos;
-  return `${lado(e)}
+/* ---------- a casca: a barra lateral, o topo e as camadas, à volta de uma página ---------- */
+/** Uma página do ERP dentro da casca: onde se está na barra lateral, o caminho e o conteúdo. */
+export interface Pagina { onde: string; caminho: Passo[]; html: string }
+export function casca(e: Estado, p: Pagina): string {
+  return `${lado(e, p.onde)}
   <div class="ws-principal">
-    ${topo(e)}
+    ${topo(e, p.caminho)}
     ${e.carga === 'offline' ? `<p class="ws-faixa" role="status">${ic('wifi-off')}Sem ligação ao servidor desde as 09:41. As alterações ficam guardadas e seguem quando a ligação voltar.</p>` : ''}
+    ${p.html}
+  </div>
+  <div class="ws-camadas" data-ws-camadas data-por-cima></div>
+  <div class="ws-avisos-curtos" role="status" aria-live="polite" data-ws-toasts data-por-cima></div>`;
+}
+
+/* ---------- o Início ---------- */
+export function paginaInicio(e: Estado): Pagina {
+  const b = e.prefs.blocos;
+  return { onde: 'inicio', caminho: [{ nome: 'Início' }], html: `
     <div class="ws-area${b.contexto ? '' : ' sem-contexto'}">
       <main class="ws-trabalho" id="ws-trabalho">
         ${cabeca(e)}
@@ -420,11 +456,9 @@ export function corpo(e: Estado): string {
         ${b.fluxo ? blocoFluxo(e) : ''}
       </main>
       ${b.contexto ? contexto(e) : `<button type="button" class="ws-contexto-abrir" data-ws-contexto aria-expanded="false">${ic('panel-right')}<span>Contexto</span></button>`}
-    </div>
-  </div>
-  <div class="ws-camadas" data-ws-camadas data-por-cima></div>
-  <div class="ws-avisos-curtos" role="status" aria-live="polite" data-ws-toasts data-por-cima></div>`;
+    </div>` };
 }
+export const corpo = (e: Estado) => casca(e, paginaInicio(e));
 
 /** O Início com um estado (os estados do ecrã guardam o que mudam em data-ws-*; o comportamento lê-os). */
 function ecra(o: { perfil?: IdPerfil; carga?: Estado['carga']; abrir?: string; densidade?: Prefs['densidade']; lado?: Prefs['lado'] } = {}): string {
