@@ -62,6 +62,7 @@ import i_lock from 'lucide-static/icons/lock.svg?raw';
 import i_rows_3 from 'lucide-static/icons/rows-3.svg?raw';
 import i_rows_2 from 'lucide-static/icons/rows-2.svg?raw';
 import i_undo_2 from 'lucide-static/icons/undo-2.svg?raw';
+import i_clipboard_list from 'lucide-static/icons/clipboard-list.svg?raw';
 import i_circle_check from 'lucide-static/icons/circle-check.svg?raw';
 import i_keyboard from 'lucide-static/icons/keyboard.svg?raw';
 
@@ -128,6 +129,7 @@ const RAW: Record<string, string> = {
   'rows-2': i_rows_2,
   'undo-2': i_undo_2,
   'circle-check': i_circle_check,
+  'clipboard-list': i_clipboard_list,
   'keyboard': i_keyboard,
 };
 const limpo = new Map<string, string>();

@@ -163,6 +163,55 @@ do ERP (v10; na ajuda, v8). As outras versões ficam como estavam.
   pede para o ERP. O ROMAFE fica em RGB(0, 99, 170).
 - Com «reduzir movimento» ou sem WebGL, a rede é um desenho parado em SVG.
 
+## Compras, fase 2: requisições e pedidos de cotação (19 out. 2026)
+
+Ela: «para requisições e cotações». Ficheiros: `src/apps/erp/compras/dominio2.ts`, `ecras2.ts`, `comportamento2.ts`;
+o CSS fica no fim de `css/compras-v2.css`. Na barra lateral, Compras passa a ter Requisições, Cotações,
+Encomendas, Receções e Fornecedores.
+
+- **16 · Requisições / 17 · Requisição** — qualquer departamento pede artigos: quantidade, custo estimado (vem
+  do último preço), para quando, porquê, centro de custo e anexos.
+  - Estados: Rascunho → Em aprovação → Aprovada ou Rejeitada (com motivo, que fica no histórico) → Convertida
+    ou Encerrada.
+  - Até 2 500,00 € estimados aprova Compras; acima, a Administração. Quem pede não aprova a sua.
+  - Compras e Administração veem todas; os outros, as suas e as que têm para aprovar.
+  - Aprovada, converte-se em pedido de cotação ou numa encomenda por fornecedor habitual.
+- **18 · Cotações / 19 · Cotação** — artigos, fornecedores, prazo de resposta e entrega desejada.
+  - O ERP não manda correio: o pedido exporta-se (CSV) e depois marca-se como enviado.
+  - As respostas registam-se por fornecedor: preço, desconto, mínimo, prazo, portes, pagamento, validade,
+    disponibilidade e referência do fornecedor. Só euros.
+- **A comparação** — lado a lado e sem IVA, com a regra de arredondamento da encomenda.
+  - Mostra a mais barata (menor total com portes) e a mais rápida (menor prazo), com o critério escrito.
+  - Assinala as propostas caducadas (não se escolhem), as incompletas e as que pedem abaixo do mínimo do
+    fornecedor.
+  - Escolher destaca a coluna e mostra o resumo (total, diferença para a mais barata, data de chegada,
+    pagamento) e «Criar encomenda»; nada se grava até confirmar.
+  - Ao confirmar, a encomenda é criada em rascunho com os preços e o prazo da proposta; o pedido fica Decidido
+    e as requisições de origem ficam com a encomenda.
+- **Início:** «Requisição por aprovar» (com Aprovar na linha), «Requisição aprovada por converter», «Propostas para
+  comparar» e «Fornecedores sem resposta» entram nas prioridades. «Nova requisição de compra» está no acesso
+  rápido e em Criar, para todos os perfis.
+- **Estados:** 17.1–17.2 e 19.1–19.3.
+- **Sem servidor:** a «base» é `erp:compras:fase2:v1`. Dos anexos, o protótipo só guarda o nome e o tamanho.
+
+## 00 · Abertura v2 (19 out. 2026)
+
+Do briefing dela «V2 Cinematic Opening Experience» (`abertura-v2.ts`, `comportamento/abertura-v2.ts`,
+`css/abertura-v2.css`; a v1 ficou como estava). Sem rolamento, sem fotografias, sem Three.js: SVG e CSS em
+perspetiva.
+
+- **Em cerca de 3 s:** os traços tortos alinham-se com a grelha. As molduras dos domínios (Compras, Vendas,
+  Armazém, Stocks, Logística, Financeiro, Administração) aparecem soltas, cada uma à sua altura e com a sombra
+  no plano, ligadas entre si. Depois descem e alinham-se à volta da moldura central, o plano roda para a frente
+  e o ROMAFE aparece lá dentro, com «ROMAFE ERP» e «Gestão integrada. Operações simplificadas.».
+- **A ação** está lá desde o início e vem da sessão (`sessao.ts`): «Entrar no ERP» leva ao 01 · Entrar v10;
+  «Abrir espaço de trabalho» leva ao 05 · Início. Sem rede, «Entrar» fica desligado.
+- **O lançador:** só Compras está disponível; «Abrir Compras» só aparece com sessão e com acesso, e o cartão passa
+  a ser o contentor do ERP (View Transitions). Os outros módulos dizem «Em desenvolvimento» e não se clicam.
+- **Interrompe-se** com «Saltar introdução», Esc, qualquer tecla ou um clique no fundo. Passa uma vez por sessão;
+  com «reduzir movimento» aparece a composição final, parada. Depois do fim, a estrutura segue o rato devagar.
+- **Estados:** 00.1–00.7 (regresso, com sessão, a verificar, sem acesso, erro, sem ligação, movimento reduzido).
+
 ## Compras, fase 1: fornecedores, encomendas e receções (19 out. 2026)
 
 Do briefing dela «ROMAFE ERP — Module 01: Compras», só a fase que ela escolheu: **Fornecedores + Encomendas a

@@ -24,6 +24,7 @@ import type { Ecra } from '../../comum/tipos';
 import type { IdErp } from './ids';
 import { ic } from './inicio-icones';
 import * as cp from './compras/dominio';
+import * as cp2 from './compras/dominio2';
 import {
   PERFIS, EMPRESA, HOJE, MODULOS, DOCS, PRIORIDADES, RECENTES, OPERACOES, ETAPAS, AVISOS, PRAZOS, ATIVIDADE, INDICE, nomeModulo,
   AGEM, type IdPerfil, type Modulo, type Nivel, type Recente, type Doc, type Achado, type Operacao,
@@ -78,9 +79,39 @@ export function docDeEncomenda(e: Estado, ref: string): Doc | undefined {
     acao,
   };
 }
+/** As requisições e os pedidos de cotação (fase 2 de Compras), como documentos do Início. */
+function docDeFase2(e: Estado, ref: string): Doc | undefined {
+  const r = ref.startsWith('RQ ') ? cp2.requisicao(ref) : undefined;
+  if (r) {
+    const aprova = r.estado === 'Em aprovação' && r.aprovador === e.perfil && r.requerente !== e.perfil;
+    return { ref, tipo: 'Requisição de compra', modulo: 'compras', entidade: `${PERFIS[r.requerente].pessoa} · ${r.departamento}`, estado: r.estado, ecra: 'compras-requisicao', agem: [e.perfil],
+      nivel: r.necessaria <= cp.somarDias(cp.HOJE, 3) ? 'urgente' : 'normal', total: `${cp.euros(cp2.custoReq(r))} estimados`,
+      datas: [['Pedida', cp.dia(r.data)], ['Precisa em', cp.dia(r.necessaria)]], nota: r.justificacao,
+      linhas: r.linhas.map((l) => ({ ref: l.ref, desc: cp.artigo(l.ref)?.desc ?? '', qtd: `${l.qtd} ${cp.artigo(l.ref)?.un ?? ''}`, valor: l.custo === null ? 'Sem custo' : cp.euros(l.qtd * l.custo) })),
+      acao: aprova ? { id: 'aprovar', rotulo: 'Aprovar', icone: 'check', feito: 'aprovada' } : undefined };
+  }
+  const c = ref.startsWith('PC ') ? cp2.cotacao(ref) : undefined;
+  if (c) return { ref, tipo: 'Pedido de cotação', modulo: 'compras', entidade: `${c.ofertas.length} de ${c.fornecedores.length} responderam`, estado: c.estado, ecra: 'compras-cotacao', agem: [e.perfil],
+    nivel: cp2.prazoPassou(c) && cp2.semResposta(c).length ? 'atrasada' : 'normal', datas: [['Responder até', cp.dia(c.prazoResposta)], ['Entrega desejada', cp.dia(c.entrega)]],
+    nota: c.estado === 'Com respostas' ? 'Compara as propostas e escolhe; a encomenda só se cria quando confirmares.' : undefined };
+  return undefined;
+}
+/** As prioridades que vêm dos documentos de Compras da fase 2, conforme o perfil. */
+function prioridadesFase2(e: Estado): { doc: string; titulo: string; prazo: string; quando: string }[] {
+  const p = e.perfil, out: { doc: string; titulo: string; prazo: string; quando: string }[] = [];
+  cp2.requisicoes().forEach((r) => {
+    if (r.estado === 'Em aprovação' && r.aprovador === p && r.requerente !== p) out.push({ doc: r.ref, titulo: 'Requisição por aprovar', prazo: cp.dia(r.necessaria).slice(0, 5), quando: `de ${PERFIS[r.requerente].pessoa}` });
+    else if (r.estado === 'Aprovada' && cp2.pode2(p, 'req-converter')) out.push({ doc: r.ref, titulo: 'Requisição aprovada por converter', prazo: cp.dia(r.necessaria).slice(0, 5), quando: r.departamento });
+  });
+  if (cp2.pode2(p, 'pc-gerir')) cp2.cotacoes().forEach((c) => {
+    if (c.estado === 'Com respostas') out.push({ doc: c.ref, titulo: 'Propostas para comparar', prazo: cp.dia(c.prazoResposta).slice(0, 5), quando: `${c.ofertas.length} de ${c.fornecedores.length} responderam` });
+    else if (c.estado === 'Enviado' && cp2.prazoPassou(c)) out.push({ doc: c.ref, titulo: 'Fornecedores sem resposta', prazo: cp.dia(c.prazoResposta).slice(0, 5), quando: `${cp2.semResposta(c).length} por responder` });
+  });
+  return out;
+}
 /** Uma encomenda só é prioridade enquanto pede alguma coisa a alguém. */
 const pedeAtencao = (ref: string) => { const x = cp.encomenda(ref); return !x || x.estado === 'A aprovar' || x.estado === 'Rascunho' || x.estado === 'Parcialmente recebida' || cp.atrasada(x); };
-export const doc = (e: Estado, ref: string): Doc | undefined => docDeEncomenda(e, ref) || DOCS[ref] || e.criados.find((d) => d.ref === ref);
+export const doc = (e: Estado, ref: string): Doc | undefined => docDeEncomenda(e, ref) || docDeFase2(e, ref) || DOCS[ref] || e.criados.find((d) => d.ref === ref);
 const NIVEL: Record<Nivel, { nome: string; icone: string }> = {
   atrasada: { nome: 'Atrasada', icone: 'clock' }, urgente: { nome: 'Urgente', icone: 'triangle-alert' },
   normal: { nome: 'Por tratar', icone: 'circle-dot' }, info: { nome: 'Para saber', icone: 'info' },
@@ -93,7 +124,7 @@ const ibtn = (rotulo: string, icone: string, attrs = '', cls = '') => `<button t
 /** As prioridades ainda abertas do perfil, já pela ordem (atrasadas primeiro). */
 export function prioridades(e: Estado) {
   if (e.carga === 'vazio') return [];
-  return PRIORIDADES[e.perfil]
+  return [...PRIORIDADES[e.perfil], ...prioridadesFase2(e)]
     .map((p) => ({ ...p, d: doc(e, p.doc)! }))
     .filter((p) => p.d && pode(e, p.d.modulo) && pedeAtencao(p.doc))
     .sort((a, b) => ORDEM_NIVEL.indexOf(a.d.nivel ?? 'normal') - ORDEM_NIVEL.indexOf(b.d.nivel ?? 'normal'));
@@ -385,7 +416,7 @@ export function painel(e: Estado, ref: string, extra?: Achado): string {
       ${d.acao && !feito && !podeTratar(e, d) ? `<p class="ws-painel__falta">${ic('lock')}Só leitura: ${esc(d.acao.rotulo.toLowerCase())} é com ${(d.agem ?? AGEM[d.modulo]).filter((x) => x !== 'admin').map((x) => PERFIS[x].nome).join(' ou ')}.</p>` : ''}
       ${d.ecra ? '' : `<p class="ws-painel__falta">${ic('info')}O módulo ${nomeModulo(d.modulo)} ainda não tem ecrã no protótipo: o documento completo abrirá lá.</p>`}
     </div>
-    <footer class="ws-painel__pe">${acao}${d.ecra ? btn(d.ecra === 'compras-encomenda' ? 'Abrir a encomenda' : 'Abrir em Compras', 'arrow-right', { cls: 'btn--ghost', attrs: `data-ws-ir="${d.ecra}"${d.ecra === 'compras-encomenda' ? ` data-ws-ref="${esc(d.ref)}"` : ''}` }) : ''}${btn('Fechar', 'x', { cls: 'btn--ghost', attrs: 'data-ws-fechar' })}</footer>
+    <footer class="ws-painel__pe">${acao}${d.ecra ? btn(d.ecra === 'compras-encomenda' ? 'Abrir a encomenda' : d.ecra === 'compras-requisicao' ? 'Abrir a requisição' : d.ecra === 'compras-cotacao' ? 'Abrir o pedido' : 'Abrir em Compras', 'arrow-right', { cls: 'btn--ghost', attrs: `data-ws-ir="${d.ecra}"${d.ecra.startsWith('compras-') ? ` data-ws-ref="${esc(d.ref)}"` : ''}` }) : ''}${btn('Fechar', 'x', { cls: 'btn--ghost', attrs: 'data-ws-fechar' })}</footer>
   </aside></div>`;
 }
 

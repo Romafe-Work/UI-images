@@ -40,7 +40,10 @@ export interface Destino { id: string; nome: string; modulo: Modulo; ecra?: stri
 export const MODULOS: { id: Modulo; nome: string; icone: string; grupo: 'Trabalho' | 'Consulta' | 'Sistema'; subs: Destino[] }[] = [
   { id: 'inicio', nome: 'Início', icone: 'house', grupo: 'Trabalho', subs: [] },
   { id: 'compras', nome: 'Compras', icone: 'shopping-cart', grupo: 'Trabalho', subs: [
-    /* 19 out.: a fase 1 de Compras (ela: Fornecedores + Encomendas + Receções); o resto não se mostra até existir */
+    /* 19 out.: as fases 1 (Encomendas, Receções, Fornecedores) e 2 (Requisições, Cotações) de Compras;
+       o resto não se mostra até existir */
+    { id: 'compras-requisicoes', nome: 'Requisições', modulo: 'compras', ecra: 'compras-requisicoes' },
+    { id: 'compras-cotacoes', nome: 'Cotações', modulo: 'compras', ecra: 'compras-cotacoes' },
     { id: 'compras-encomendas', nome: 'Encomendas a fornecedor', modulo: 'compras', ecra: 'compras' },
     { id: 'compras-rececoes', nome: 'Receções', modulo: 'compras', ecra: 'compras-rececoes' },
     { id: 'compras-fornecedores', nome: 'Fornecedores', modulo: 'compras', ecra: 'compras-fornecedores' },
@@ -206,6 +209,7 @@ export const RECENTES: Record<IdPerfil, Recente[]> = {
 /* ---------- acesso rápido: as operações, com o módulo que cada uma pede ---------- */
 export interface Operacao { id: string; nome: string; icone: string; modulo: Modulo; /** quem pode (por ação, não só por módulo) */ perfis: IdPerfil[]; tecla?: string; tipo: 'criar' | 'procurar' | 'abrir'; procura?: string; ecra?: string; doc?: string }
 export const OPERACOES: Operacao[] = [
+  { id: 'nova-rq', nome: 'Nova requisição de compra', icone: 'clipboard-list', modulo: 'inicio', perfis: ['compras', 'armazem', 'vendas', 'financeiro', 'admin'], tipo: 'criar' },
   { id: 'nova-ef', nome: 'Nova encomenda a fornecedor', icone: 'file-plus-2', modulo: 'compras', perfis: ['compras', 'admin'], tipo: 'criar', tecla: 'N' },
   { id: 'ver-ef', nome: 'Encomendas a fornecedor', icone: 'shopping-cart', modulo: 'compras', perfis: ['compras', 'armazem', 'financeiro', 'admin'], tipo: 'abrir', ecra: 'compras' },
   { id: 'stock', nome: 'Consultar stock', icone: 'boxes', modulo: 'stocks', perfis: ['compras', 'armazem', 'vendas', 'admin'], tipo: 'procurar', procura: '' },

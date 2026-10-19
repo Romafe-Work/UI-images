@@ -54,7 +54,7 @@ function contexto(id: string): Contexto {
   if (id === 'compras-fornecedores') c.q = ws.raiz()?.querySelector<HTMLInputElement>('[data-cp-forn-q]')?.value ?? (ws.raiz()?.dataset.wsRef ? '' : qForn) ?? '';
   return c;
 }
-registarPaginas((id, e) => paginaCompras(id, e, contexto(id)));
+registarPaginas(['compras', 'compras-encomenda', 'compras-rececoes', 'compras-rececao', 'compras-fornecedores', 'compras-fornecedor'], (id, e) => paginaCompras(id, e, contexto(id)));
 
 /* ---------- ajudas ---------- */
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => ws.raiz()?.querySelector<T>(sel) ?? null;
@@ -275,8 +275,8 @@ function aoClicar(ev: MouseEvent): void {
     return;
   }
   if (q('[data-cp-recarregar]')) { recarregar(); edicao = edicaoDe(edicao!.enc.ref); ws.redesenhar(); ws.aviso('Recarregada: estás a ver a última versão.'); return; }
-  if (q('[data-cp-sair-sem]')) { const s = seguirDepois; edicao = null; seguirDepois = null; ws.fechar(false); s?.(); return; }
-  if ((b = q('[data-cp-sair-guardar]'))) { const s = seguirDepois; guardarRascunho(b as HTMLButtonElement).then((ok) => { if (ok) { seguirDepois = null; ws.fechar(false); s?.(); } }); return; }
+  if (q('[data-cp-sair-sem]') && seguirDepois) { const s = seguirDepois; edicao = null; seguirDepois = null; ws.fechar(false); s(); return; }
+  if ((b = q('[data-cp-sair-guardar]')) && seguirDepois) { const s = seguirDepois; guardarRascunho(b as HTMLButtonElement).then((ok) => { if (ok) { seguirDepois = null; ws.fechar(false); s?.(); } }); return; }
   /* a receção */
   if (q('[data-cp-tudo]') && rec) {
     const x = encomenda(rec.ref)!; x.linhas.forEach((l) => { const v = rec!.linhas[l.id] ?? { aceite: 0, rejeitada: 0, motivo: '' }; rec!.linhas[l.id] = { ...v, aceite: Math.max(0, pendente(l) - v.rejeitada) }; });

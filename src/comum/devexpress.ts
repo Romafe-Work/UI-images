@@ -20,6 +20,12 @@ const REGRAS: [string, Componente][] = [
   ['.ab2__palco, .ab2__plano, .ab2__moldura', { peca: 'A estrutura da abertura', web: '— (SVG e CSS nossos)', wpf: '— (Viewport3D ou um vídeo da sequência)', nota: 'Decorativa; sem ela, a composição final parada.' }],
   ['.ab2__lista, .ab2__mod', { peca: 'Lançador de módulos', web: 'DxTileView', wpf: 'TileLayoutControl', nota: 'Só os módulos que existem se clicam.' }],
   ['.ab2__tema', { peca: 'Escolha do tema', web: 'DxButtonGroup', wpf: 'ToggleSwitch / SegmentedControl' }],
+  /* ERP · Compras, fase 2 (19 out. 2026) */
+  ['.cp-tabela--cmp, .cp-cmp', { peca: 'Comparação de propostas', web: 'DxDataGrid (colunas por fornecedor, bandas) ou DxPivotGrid', wpf: 'GridControl (bandas por fornecedor)', nota: 'Destaques e escolha em CSS nosso; nada se grava até confirmar.' }],
+  ['.cp-escolha', { peca: 'Resumo da escolha', web: 'DxForm (só leitura) com DxButton', wpf: 'DataLayoutControl com SimpleButton' }],
+  ['.cp-forns, .cp-forns input', { peca: 'Fornecedores do pedido', web: 'DxTagBox ou DxList (selectionMode: multiple)', wpf: 'ListBoxEdit (CheckedListBoxEditStyleSettings)' }],
+  ['.cp-anexar, .cp-anexos', { peca: 'Anexos', web: 'DxFileUploader', wpf: '— (OpenFileDialog e lista nossa)' }],
+  ['.cp-dialogo--largo', { peca: 'Registar a resposta do fornecedor', web: 'DxPopup com DxForm e DxDataGrid (editing)', wpf: 'ThemedWindow com DataLayoutControl e GridControl' }],
   /* ERP · Compras, fase 1 (19 out. 2026) */
   ['.cp-tabela--linhas, .cp-tabela--linhas .cp-celula', { peca: 'Linhas da encomenda', web: 'DxDataGrid (editing: cell, keyboardNavigation)', wpf: 'GridControl (TableView, EditorShowMode)', nota: 'Enter passa à célula de baixo; o total refaz-se a cada valor.' }],
   ['.cp-tabela--rec, .cp-tabela--rec .cp-celula', { peca: 'Linhas da receção', web: 'DxDataGrid (editing: cell)', wpf: 'GridControl (TableView)' }],

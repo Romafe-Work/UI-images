@@ -17,6 +17,7 @@
 import { mostrar, mostrarVersao } from '../../../comum/ecras';
 import { VERSAO_REDE } from '../entrar-rede';
 import * as cp from '../compras/dominio';
+import * as cp2 from '../compras/dominio2';
 import { terminarSessao } from '../sessao';
 import {
   corpo, casca, paginaInicio, estadoPadrao, prefsPadrao, podeTratar, blocoPrioridades, blocoContinuar, blocoFluxo, contas, doc, pode,
@@ -70,10 +71,11 @@ function guardar(): void {
 }
 
 /* ---------- as páginas: o Início e as que os módulos registam (Compras) ---------- */
-let outras: ((id: string, e: Estado) => Pagina) | null = null;
-export const registarPaginas = (f: typeof outras) => { outras = f; };
+const outras = new Map<string, (id: string, e: Estado) => Pagina>();
+/** Cada módulo regista as suas páginas (os ids dos ecrãs) e a função que as desenha. */
+export const registarPaginas = (ids: string[], f: (id: string, e: Estado) => Pagina) => { ids.forEach((id) => outras.set(id, f)); };
 const idPagina = () => raiz?.dataset.wsPagina || 'inicio';
-function pagina(): Pagina { const id = idPagina(); return id === 'inicio' || !outras ? paginaInicio(e) : outras(id, e); }
+function pagina(): Pagina { const id = idPagina(), f = outras.get(id); return f ? f(id, e) : paginaInicio(e); }
 const desenhado = () => document.dispatchEvent(new CustomEvent('erp:desenhou', { detail: idPagina() }));
 
 /* ---------- desenhar ---------- */
@@ -196,7 +198,7 @@ function abrirAchado(x: Achado, de: HTMLElement | null): void {
 export function irPara(ecra: string, ref?: string): void {
   if (ref) gravar(`erp:ref:${ecra}`, ref, sessionStorage);
   if (ecra === (raiz?.dataset.wsPagina || 'inicio') && !ref) { window.scrollTo({ top: 0 }); return; }
-  if (saidaBloqueada && !saidaBloqueada(() => { saidaBloqueada = null; irPara(ecra, ref); })) return;
+  for (const g of guardas) if (!g(() => irPara(ecra, ref))) return;
   /* no mesmo ecrã (outro documento), redesenha-se; noutro, o protótipo muda de ecrã e a casca arma-se lá */
   const mesmo = ecra === (raiz?.dataset.wsPagina || 'inicio') && !!raiz?.isConnected;
   const ir = () => { if (mesmo) redesenhar(); else { mostrar(ecra); if (ecra === 'compras') mostrarVersao('v2'); } window.scrollTo({ top: 0 }); };
@@ -204,8 +206,8 @@ export function irPara(ecra: string, ref?: string): void {
   if (doc_.startViewTransition && !quieto()) doc_.startViewTransition(ir); else ir();
 }
 /** Uma página com alterações por guardar pode travar a saída: devolve false e chama `seguir` se a pessoa confirmar. */
-let saidaBloqueada: ((seguir: () => void) => boolean) | null = null;
-export const travarSaida = (f: typeof saidaBloqueada) => { saidaBloqueada = f; };
+const guardas: ((seguir: () => void) => boolean)[] = [];
+export const travarSaida = (f: (seguir: () => void) => boolean) => { guardas.push(f); };
 function transitar(de: HTMLElement | null, f: () => void): void {
   const d = document as Document & { startViewTransition?: (f: () => void) => unknown };
   if (!d.startViewTransition || quieto() || !de) { f(); return; }
@@ -265,9 +267,9 @@ async function tratar(ref: string, b: HTMLButtonElement): Promise<void> {
   if (!raiz) return;
   if (e.carga === 'offline' || !navigator.onLine) { ocupar(b, null); aviso('Sem ligação: não foi possível guardar. Tenta outra vez quando a ligação voltar.'); return; }
   /* as encomendas a fornecedor passam pelo domínio de Compras (as mesmas regras do editor) */
-  const doDominio = !!cp.encomenda(ref);
+  const doDominio = !!cp.encomenda(ref) || !!cp2.requisicao(ref);
   if (doDominio) {
-    try { cp.transitar(e.perfil, ref, d.acao.id as cp.Acao); } catch (err) { ocupar(b, null); aviso(err instanceof cp.Recusa ? err.message : 'Não foi possível guardar.'); return; }
+    try { if (ref.startsWith('RQ ')) cp2.transitarReq(e.perfil, ref, 'aprovar'); else cp.transitar(e.perfil, ref, d.acao.id as cp.Acao); } catch (err) { ocupar(b, null); aviso(err instanceof cp.Recusa ? err.message : 'Não foi possível guardar.'); return; }
   }
   /* só depois da resposta do servidor: o estado muda, a linha marca-se, e sai da lista */
   e.feitos[ref] = d.acao.feito; guardar();
@@ -344,6 +346,7 @@ async function criarRascunho(b: HTMLButtonElement): Promise<void> {
 function operacao(id: string, de: HTMLElement): void {
   const o = OPERACOES.find((x) => x.id === id); if (!o || !pode(e, o.modulo) || !o.perfis.includes(e.perfil)) return;
   if (camada) fechar(false);
+  if (o.id === 'nova-rq') { try { const r = cp2.criarReq(e.perfil); irPara('compras-requisicao', r.ref); aviso(`${r.ref} criada. Junta os artigos e diz porque precisas.`); } catch (err) { aviso(err instanceof cp.Recusa ? err.message : 'Não foi possível criar.'); } return; }
   if (o.tipo === 'criar') { if (o.id === 'nova-ef' || o.id === 'nova-ec') abrir('painel', criar(e, o.id), de); return; }
   if (o.tipo === 'procurar') { abrirProcura('', de); const inp = raiz!.querySelector<HTMLInputElement>('[data-ws-paleta-input]'); if (inp) inp.placeholder = `${o.nome}: escreve a referência ou o nome…`; return; }
   if (o.ecra) irPara(o.ecra); else if (o.doc) abrirDoc(o.doc, de);

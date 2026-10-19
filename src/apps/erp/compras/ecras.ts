@@ -28,16 +28,16 @@ import {
 export type IdCompras2 = 'compras-encomenda' | 'compras-rececoes' | 'compras-rececao' | 'compras-fornecedores' | 'compras-fornecedor'
   | 'cp-sem-acesso' | 'cp-lista-atrasadas' | 'cp-enc-aprovar' | 'cp-enc-rascunho' | 'cp-enc-erros' | 'cp-enc-recebida' | 'cp-rec-form' | 'cp-rec-vista' | 'cp-forn-skf';
 
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const PASSOS_COMPRAS = (pag: string, ...mais: { nome: string; ir?: string; ref?: string }[]) => [{ nome: 'Compras', ir: 'compras' }, ...(pag ? [{ nome: pag, ir: pag === 'Encomendas a fornecedor' ? 'compras' : pag === 'Receções' ? 'compras-rececoes' : 'compras-fornecedores' }] : []), ...mais];
+export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const PASSOS_COMPRAS = (pag: string, ...mais: { nome: string; ir?: string; ref?: string }[]) => [{ nome: 'Compras', ir: 'compras' }, ...(pag ? [{ nome: pag, ir: pag === 'Encomendas a fornecedor' ? 'compras' : pag === 'Receções' ? 'compras-rececoes' : pag === 'Requisições' ? 'compras-requisicoes' : pag === 'Cotações' ? 'compras-cotacoes' : 'compras-fornecedores' }] : []), ...mais];
 
 /* ---------- peças comuns ---------- */
 const COR_ESTADO: Record<EstadoEnc, string> = {
   'Rascunho': 'rascunho', 'A aprovar': 'aprovar', 'Aprovada': 'aprovada', 'Emitida': 'emitida', 'Parcialmente recebida': 'parcial', 'Recebida': 'recebida', 'Fechada': 'fechada', 'Cancelada': 'cancelada',
 };
 export const estadoEnc = (e: Encomenda) => `<span class="cp-est cp-est--${COR_ESTADO[e.estado]}">${e.estado}</span>${atrasada(e) ? `<span class="cp-est cp-est--atraso">${ic('clock')}Atrasada ${diasAtraso(e.entrega)} d</span>` : ''}`;
-const semAcesso = (o: string) => `<div class="cp-vazio cp-vazio--fechado" role="alert">${ic('lock', 'cp-vazio__icone')}<p class="cp-vazio__titulo">Sem acesso a ${o}</p><p class="cp-vazio__texto">O teu perfil não vê Compras. Se precisares, pede acesso ao administrador da tua empresa.</p></div>`;
-const cabeca = (titulo: string, sub: string, accoes = '', antes = '') => `<header class="cp-cabeca">${antes}<div class="cp-cabeca__texto"><h1 class="cp-cabeca__titulo">${titulo}</h1><p class="cp-cabeca__sub">${sub}</p></div><div class="cp-cabeca__accoes">${accoes}</div></header>`;
+export const semAcesso = (o: string) => `<div class="cp-vazio cp-vazio--fechado" role="alert">${ic('lock', 'cp-vazio__icone')}<p class="cp-vazio__titulo">Sem acesso a ${o}</p><p class="cp-vazio__texto">O teu perfil não vê Compras. Se precisares, pede acesso ao administrador da tua empresa.</p></div>`;
+export const cabeca = (titulo: string, sub: string, accoes = '', antes = '') => `<header class="cp-cabeca">${antes}<div class="cp-cabeca__texto"><h1 class="cp-cabeca__titulo">${titulo}</h1><p class="cp-cabeca__sub">${sub}</p></div><div class="cp-cabeca__accoes">${accoes}</div></header>`;
 const recebidoDe = (e: Encomenda) => { const q = e.linhas.reduce((s, l) => s + l.qtd, 0), r = e.linhas.reduce((s, l) => s + l.recebida, 0); return { q, r, p: q ? r / q : 0 }; };
 
 /* ---------- 10 · Encomendas a fornecedor ---------- */
@@ -55,7 +55,7 @@ export const FILTROS: [Filtro, string, (e: Encomenda) => boolean][] = [
 ];
 export interface VistaLista { filtro: Filtro; q: string; forn: string; ordem: 'ref' | 'data' | 'entrega' | 'base'; desc: boolean }
 export const vistaPadrao = (): VistaLista => ({ filtro: 'todas', q: '', forn: '', ordem: 'ref', desc: true });
-const sem = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+export const sem = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 export function filtrar(v: VistaLista): Encomenda[] {
   const f = FILTROS.find((x) => x[0] === v.filtro)![2];
   const q = sem(v.q.trim());

@@ -67,6 +67,9 @@ export const FORNECEDORES: Fornecedor[] = [
   { id: 'valeo', nome: 'Valeo', legal: 'Valeo Service Portugal, Lda.', nif: 'PT 500 000 005', cidade: 'Lisboa', morada: 'Rua de exemplo, 5 · 1000-005 Lisboa', pagamento: '45 dias', prazo: 7, moeda: 'EUR', entrega: 'Entregue no armazém (DAP)', contacto: { papel: 'Encomendas', correio: 'encomendas@valeo.exemplo.pt', telefone: '210 000 005' }, ativo: true },
   { id: 'gates', nome: 'Gates', legal: 'Gates Europe, BV', nif: 'BE 0000000006', cidade: 'Erembodegem', morada: 'Straat van voorbeeld, 6 · 9320 Erembodegem', pagamento: '60 dias', prazo: 15, moeda: 'EUR', entrega: 'Entregue no armazém (DAP)', contacto: { papel: 'Order desk', correio: 'orders@gates.exemplo.be', telefone: '+32 2 000 00 06' }, ativo: true },
   { id: 'ngk', nome: 'NGK', legal: 'NGK Spark Plug Europe, GmbH', nif: 'DE 000000007', cidade: 'Ratingen', morada: 'Beispielstraße 7 · 40880 Ratingen', pagamento: '30 dias', prazo: 10, moeda: 'EUR', entrega: 'Entregue no armazém (DAP)', contacto: { papel: 'Vendas', correio: 'vendas@ngk.exemplo.de', telefone: '+49 2102 000 007' }, ativo: true },
+  /* dois distribuidores de exemplo (19 out., fase 2): cotam artigos de várias marcas, com a referência deles */
+  { id: 'rnorte', nome: 'Rolamentos do Norte', legal: 'Rolamentos do Norte, Lda. (exemplo)', nif: 'PT 500 000 009', cidade: 'Braga', morada: 'Rua de exemplo, 9 · 4700-009 Braga', pagamento: '30 dias', prazo: 3, moeda: 'EUR', entrega: 'Entregue no armazém (DAP)', contacto: { papel: 'Comercial', correio: 'comercial@rnorte.exemplo.pt', telefone: '253 000 009' }, ativo: true },
+  { id: 'itrans', nome: 'Ibérica de Transmisiones', legal: 'Ibérica de Transmisiones, S.L. (exemplo)', nif: 'ES B00000010', cidade: 'Vigo', morada: 'Calle de ejemplo, 10 · 36201 Vigo', pagamento: '30 dias', prazo: 15, moeda: 'EUR', entrega: 'Portes à parte (EXW)', contacto: { papel: 'Ventas', correio: 'ventas@itrans.exemplo.es', telefone: '+34 986 000 010' }, ativo: true },
   { id: 'ufi', nome: 'UFI Filters', legal: 'UFI Filters Ibérica, S.L.', nif: 'ES B00000008', cidade: 'Barcelona', morada: 'Calle de ejemplo, 8 · 08001 Barcelona', pagamento: '30 dias', prazo: 6, moeda: 'EUR', entrega: 'Entregue no armazém (DAP)', contacto: { papel: 'Pedidos', correio: 'pedidos@ufi.exemplo.es', telefone: '+34 930 000 008' }, ativo: true },
 ];
 export const fornecedor = (id: string) => FORNECEDORES.find((f) => f.id === id);
@@ -110,7 +113,7 @@ export interface Rececao { ref: string; chave: string; enc: string; guia: string
 export interface Movimento { quando: string; ref: string; qtd: number; armazem: string; origem: string; chave: string }
 
 const L = (id: string, ref: string, qtd: number, preco: number | null, entrega: string, recebida = 0, desc = 0): LinhaEnc => ({ id, ref, qtd, preco, desc, iva: 2300, entrega, recebida, rejeitada: 0 });
-const ev = (quando: string, quem: IdPerfil | 'sistema', acao: string, detalhe?: string, doc?: string): Evento => ({ quando, quem: quem === 'sistema' ? 'Sistema' : PERFIS[quem].pessoa, acao, detalhe, doc });
+export const ev = (quando: string, quem: IdPerfil | 'sistema', acao: string, detalhe?: string, doc?: string): Evento => ({ quando, quem: quem === 'sistema' ? 'Sistema' : PERFIS[quem].pessoa, acao, detalhe, doc });
 
 function semente(): { enc: Encomenda[]; rec: Rececao[]; mov: Movimento[]; series: Record<string, number> } {
   const enc: Encomenda[] = [
@@ -232,7 +235,7 @@ export function acoesDe(e: Encomenda, p: IdPerfil): Acao[] {
 
 /* ---------- as operações (o que no produto é um pedido à API) ---------- */
 export class Recusa extends Error { constructor(msg: string, readonly tipo: 'validacao' | 'permissao' | 'conflito' | 'estado' = 'validacao') { super(msg); } }
-const agora = () => { const d = new Date(); return `19/10/2026 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+export const agora = () => { const d = new Date(); return `19/10/2026 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 const proximo = (serie: string) => { const b = db(); b.series[serie] = (b.series[serie] ?? 0) + 1; return `${serie}/${String(b.series[serie]).padStart(4, '0')}`; };
 
 /** Valida uma encomenda antes de a submeter (o rascunho pode estar incompleto). */
@@ -329,6 +332,12 @@ export const NOME_ACAO: Record<Acao, string> = {
   ver: 'Ver', criar: 'Criar', editar: 'Alterar', submeter: 'Submeter', aprovar: 'Aprovar', rejeitar: 'Rejeitar', emitir: 'Emitir', cancelar: 'Cancelar',
   fechar: 'Fechar', duplicar: 'Duplicar', receber: 'Registar receção', lembrar: 'Lembrar fornecedor', fornecedores: 'Ver fornecedores',
 };
+
+/** Uma nota no histórico de uma encomenda (outro documento que a criou ou a refere). */
+export function anotar(ref: string, quem: IdPerfil, acao: string, detalhe?: string, doc?: string): void {
+  const e = encomenda(ref); if (!e) return;
+  e.historico.push(ev(agora(), quem, acao, detalhe, doc)); gravar();
+}
 
 export function duplicar(p: IdPerfil, ref: string): Encomenda {
   const o = encomenda(ref); if (!o) throw new Recusa('A encomenda já não existe.', 'estado');

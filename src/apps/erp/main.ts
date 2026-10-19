@@ -18,6 +18,7 @@ import { iniciar as rede } from './comportamento/rede';
 import { iniciar as abertura } from './comportamento/abertura';
 import { iniciar as inicio } from './comportamento/inicio';
 import { iniciar as compras } from './compras/comportamento';
+import { iniciar as compras2 } from './compras/comportamento2';
 import { iniciar as abertura2 } from './comportamento/abertura-v2';
 
-montar(erp, [entrar, rede, abertura, abertura2, inicio, compras]);
+montar(erp, [entrar, rede, abertura, abertura2, inicio, compras, compras2]);
