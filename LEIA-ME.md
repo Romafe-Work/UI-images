@@ -149,8 +149,9 @@ do ERP (v10; na ajuda, v8). As outras versões ficam como estavam.
 
 - **Ao fundo:** uma rede 3D (Three.js, `src/apps/erp/comportamento/rede-cena.ts`) com peças da Romafe
   desenhadas a traço (`rede-pecas.ts`), ligadas por linhas finas: rolamento de esferas, de rolos cónicos,
-  axial, chumaceira, correia com polias, carreto, retentor e corrente; ao centro, um rolamento maior. As
-  esferas, os rolos e as polias rodam. Era com sólidos geométricos, até ela dizer «não quero cubos, quero
+  axial, chumaceira, correia com polias, carreto, retentor e corrente, e os lubrificantes (ela: «coloca
+  óleos»): bidão de 5 L, garrafa de 1 L, almotolia com a gota a pingar e lata de massa; ao fundo, esferas e
+  gotas soltas; ao centro, um rolamento maior. As esferas, os rolos e as polias rodam. Era com sólidos geométricos, até ela dizer «não quero cubos, quero
   mais rolamentos… coisa da Romafe» (19 out.). É um só canvas para os quatro ecrãs, como no GoParts.
   Fases: neutro, foco, valido (a única ligação laranja), pedido, passe e alinhar. Paralaxe só com o rato.
 - **Ao centro:** um cartão liso de 420 px. O correio e a palavra-passe ocupam a mesma célula, por isso a
@@ -161,6 +162,24 @@ do ERP (v10; na ajuda, v8). As outras versões ficam como estavam.
 - **Cores:** os tokens `--rede-*` do briefing, em claro e escuro. A ação é azul (#0873BC), como o briefing
   pede para o ERP. O ROMAFE fica em RGB(0, 99, 170).
 - Com «reduzir movimento» ou sem WebGL, a rede é um desenho parado em SVG.
+
+## 00 · Abertura do ERP (19 out. 2026)
+
+Ela: «quero um ecrã wow como temos no goparts». É a abertura do GoParts (o mesmo SKF 6206, de
+`goparts/comportamento/rolamento-3d.ts`) com o que é do ERP (`src/apps/erp/abertura.ts`,
+`comportamento/abertura.ts` e `abertura-cena.ts`, `css/abertura.css`):
+
+- a esfera sozinha, o rolamento monta-se, e uma gota de óleo cai e entra nele (a película âmbar na pista;
+  as esferas passam a rodar mais soltas);
+- a vista explodida mostra os dados do artigo no ERP em vez das cotas: referência, stock no armazém 60,
+  fornecedor, custo médio e a compra a caminho (dados de exemplo);
+- à volta forma-se a rede da v10, com as peças e os óleos; as partículas formam o ROMAFE, com «ERP» ao lado
+  como no cartão, a linha laranja e «Tudo ligado. Tudo sob controlo.»;
+- aos 7,4 s passa ao 01 · Entrar v10: a marca voa para o cartão e a rede, que é a mesma cena e o mesmo
+  canvas (`redeNaAbertura` em `rede.ts`), continua sem recomeçar.
+
+Uma vez por sessão; depois, o logótipo e «Ver outra vez». «Saltar» ou Esc vão já ao 01. `#…&pausa=3.8`
+para a sequência num instante. Com «reduzir movimento» ou sem WebGL, só o logótipo.
 
 ## 00 · Abertura do GoParts em 3D (14 out. 2026)
 

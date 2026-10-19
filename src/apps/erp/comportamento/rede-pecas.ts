@@ -5,6 +5,10 @@
    por trás para as linhas de trás não se cruzarem com a peça:
      rolamento rígido de esferas · rolamento de rolos cónicos · rolamento axial · chumaceira ·
      correia com polias · carreto · retentor · corrente
+   e, a seguir (ela: «coloca óleos»), os lubrificantes: bidão de óleo de 5 L · garrafa de óleo de 1 L ·
+   almotolia (com a gota a pingar) · lata de massa; e gotas soltas entre as esferas, ao fundo.
+   As peças torneadas (garrafa, lata, almotolia) são anéis e geratrizes à volta do eixo y, com a silhueta
+   lisa no plano do meio: a metade de trás dos anéis fica escondida, e a peça lê-se como um sólido.
    Cada peça tem um grupo `gira` (as esferas, os rolos, a polia, o carreto) que roda à volta do eixo
    dela; o resto fica parado. As medidas são de desenho (raio exterior ≈ 0,5), não cotas de catálogo.
    ========================================================= */
@@ -158,14 +162,107 @@ export function esfera(m: Materiais): Peca {
   return p;
 }
 
-/** As peças da rede, pela ordem do anel. */
+/* ---------- os lubrificantes ---------- */
+
+/** O contorno de uma gota (ponta em cima), de altura 2r, centrado em (cx, cy). */
+function contornoGota(r: number, cx = 0, cy = 0, z = 0, seg = 28): number[] {
+  const p: number[] = [];
+  for (let i = 0; i < seg; i++) { const t = (i / seg) * Math.PI * 2; p.push(cx + Math.sin(t) * Math.sin(t / 2) * r * 0.95, cy + Math.cos(t) * r, z); }
+  return p;
+}
+function silhueta(p: number[], m: Material, z = 0): Mesh {
+  const s = new Shape(); for (let i = 0; i < p.length; i += 3) (i ? s.lineTo(p[i], p[i + 1]) : s.moveTo(p[i], p[i + 1])); s.closePath();
+  const f = new Mesh(new ShapeGeometry(s), m); f.position.z = z; f.renderOrder = -1; return f;
+}
+
+/** Uma peça torneada à volta do eixo y: um anel em cada ponto do perfil (raio, altura), `n` geratrizes,
+ *  e a silhueta lisa no plano do meio, que esconde a metade de trás. */
+function torneado(perfil: [number, number][], m: Materiais, n = 6): Group {
+  const g = new Group();
+  perfil.forEach(([r, y]) => { if (r > 0.01) { const p: number[] = []; for (let i = 0; i < SEG; i++) { const a = (i / SEG) * Math.PI * 2; p.push(Math.cos(a) * r, y, Math.sin(a) * r); } g.add(laco(p, m.linha)); } });
+  for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + Math.PI / 2; g.add(linha(perfil.flatMap(([r, y]) => [Math.cos(a) * r, y, Math.sin(a) * r]), m.linha)); }
+  const sil = [...perfil.map(([r, y]) => [r, y, 0]), ...[...perfil].reverse().map(([r, y]) => [-r, y, 0])].flat();
+  g.add(silhueta(sil, m.fundo));
+  return g;
+}
+
+/** Bidão de óleo de 5 L: o corpo, a pega com o furo, o bocal com a tampa, e o rótulo com a gota. */
+export function bidao(m: Materiais): Peca {
+  const p = novo(0, true), e = 0.13;
+  const caixa = (x0: number, y0: number, x1: number, y1: number, rc: number) => {
+    const s = new Shape();
+    s.moveTo(x0 + rc, y0); s.lineTo(x1 - rc, y0); s.quadraticCurveTo(x1, y0, x1, y0 + rc); s.lineTo(x1, y1 - rc); s.quadraticCurveTo(x1, y1, x1 - rc, y1);
+    s.lineTo(x0 + rc, y1); s.quadraticCurveTo(x0, y1, x0, y1 - rc); s.lineTo(x0, y0 + rc); s.quadraticCurveTo(x0, y0, x0 + rc, y0);
+    return s;
+  };
+  const faces = (s: Shape, z: number, fundo = true) => {
+    const c = s.getPoints(8).flatMap((v) => [v.x, v.y, 0]);
+    p.g.add(laco(c.map((v, i) => (i % 3 === 2 ? z : v)), m.linha), laco(c.map((v, i) => (i % 3 === 2 ? -z : v)), m.linha));
+    if (fundo) { const f = new Mesh(new ShapeGeometry(s, 8), m.fundo); f.renderOrder = -1; p.g.add(f); }
+  };
+  const corpo = caixa(-0.38, -0.5, 0.38, 0.34, 0.08);
+  faces(corpo, e);
+  p.g.add(segs([-0.38, -0.42, e, -0.38, -0.42, -e, 0.38, -0.42, e, 0.38, -0.42, -e, -0.38, 0.26, e, -0.38, 0.26, -e, 0.38, 0.26, e, 0.38, 0.26, -e], m.linha));
+  const pega = caixa(0.02, 0.34, 0.36, 0.56, 0.07); pega.holes.push(caixa(0.09, 0.4, 0.29, 0.5, 0.04));
+  faces(pega, 0.05);
+  faces(caixa(-0.32, 0.34, -0.12, 0.52, 0.02), 0.07);
+  p.g.add(segs([-0.32, 0.44, 0.07, -0.12, 0.44, 0.07], m.linha));
+  /* o rótulo e a gota */
+  p.g.add(laco(caixa(-0.27, -0.36, 0.27, 0.16, 0.04).getPoints(6).flatMap((v) => [v.x, v.y, e + 0.002]), m.linha));
+  p.g.add(laco(contornoGota(0.11, 0, -0.08, e + 0.003), m.linha));
+  return p;
+}
+
+/** Garrafa de óleo de 1 L: torneada, com o rótulo (duas linhas à volta) e a tampa. */
+export function garrafa(m: Materiais): Peca {
+  const p = novo(0, true), g = torneado([[0.27, -0.5], [0.3, -0.46], [0.3, -0.3], [0.3, 0.04], [0.3, 0.12], [0.2, 0.26], [0.1, 0.31], [0.1, 0.36], [0.13, 0.36], [0.13, 0.5]], m);
+  g.add(laco(contornoGota(0.08, 0, -0.13, 0.302, 20), m.linha));
+  g.rotation.x = 0.28; p.g.add(g);
+  return p;
+}
+
+/** Lata de massa lubrificante: larga e baixa, a tampa com a aba, vista um pouco de cima. */
+export function lata(m: Materiais): Peca {
+  const p = novo(0, true), g = torneado([[0.44, -0.28], [0.44, 0.17], [0.48, 0.19], [0.48, 0.28], [0.36, 0.28]], m, 8);
+  g.rotation.x = 0.42; p.g.add(g);
+  return p;
+}
+
+/** Almotolia: o corpo em cone, o bico comprido, a asa; a gota forma-se na ponta do bico e cai. */
+export function almotolia(m: Materiais): Peca {
+  const p = novo(0, true), g = torneado([[0.34, -0.48], [0.36, -0.44], [0.36, -0.3], [0.14, 0.02], [0.07, 0.08], [0.07, 0.12]], m);
+  g.rotation.x = 0.25; g.position.x = -0.1; p.g.add(g);
+  /* o bico: um tubo fino da tampa até à ponta */
+  const [x0, y0, x1, y1, w] = [-0.06, 0.12, 0.5, 0.5, 0.025];
+  p.g.add(segs([x0 - w, y0 + w, 0, x1 - w, y1 + w, 0, x0 + w, y0 - w, 0, x1 + w, y1 - w, 0], m.linha));
+  /* a asa, do lado de trás */
+  const asa: number[] = []; for (let i = 0; i <= 20; i++) { const a = Math.PI * 0.55 + (i / 20) * Math.PI * 0.9; asa.push(-0.46 + Math.cos(a) * 0.16, -0.2 + Math.sin(a) * 0.2, 0); }
+  p.g.add(linha(asa, m.linha));
+  const gota = new Group(); gota.position.set(x1 + 0.01, y1 - 0.1, 0); gota.userData.y0 = gota.position.y;
+  gota.add(silhueta(contornoGota(0.06, 0, 0, 0, 20), m.fundo), laco(contornoGota(0.06, 0, 0, 0.001, 20), m.linha));
+  p.g.add(gota); p.g.userData.gota = gota;
+  return p;
+}
+
+/** Uma gota de óleo solta (como as esferas, ao fundo). */
+export function gota(m: Materiais): Peca {
+  const p = novo(0, true), c = contornoGota(0.12);
+  p.g.add(silhueta(c, m.fundo), laco(c.map((v, i) => (i % 3 === 2 ? 0.001 : v)), m.linha), linha([-0.035, -0.02, 0.002, -0.05, -0.07, 0.002], m.linha));
+  return p;
+}
+
+/** As peças da rede, pela ordem do anel (as seis primeiras são as do telemóvel). */
 export const PECAS: { nome: string; criar: (m: Materiais) => Peca }[] = [
   { nome: 'Rolamento rígido de esferas', criar: (m) => rolamento(m) },
+  { nome: 'Bidão de óleo', criar: bidao },
   { nome: 'Chumaceira', criar: chumaceira },
   { nome: 'Rolamento de rolos cónicos', criar: rolos },
+  { nome: 'Garrafa de óleo', criar: garrafa },
   { nome: 'Correia e polias', criar: correia },
   { nome: 'Rolamento axial', criar: axial },
+  { nome: 'Almotolia', criar: almotolia },
   { nome: 'Carreto', criar: carreto },
   { nome: 'Retentor', criar: retentor },
+  { nome: 'Lata de massa', criar: lata },
   { nome: 'Corrente', criar: corrente },
 ];

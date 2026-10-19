@@ -59,6 +59,9 @@ const REGRAS: [string, Componente][] = [
   /* ERP, v10 do início de sessão (19 out. 2026) */
   ['.rede__tema', { peca: 'Escolha do tema', web: 'DxButtonGroup', wpf: 'ToggleSwitch / SegmentedControl', nota: 'Claro, escuro ou o do sistema; fica guardado.' }],
   ['.rede__aviso', { peca: 'Aviso no formulário', web: '— (CSS nosso)', wpf: '— (CSS nosso)' }],
+  /* ERP, 00 · Abertura (19 out. 2026) */
+  ['.erp-ab__cena, .erp-ab__rede', { peca: 'A abertura em 3D', web: '— (Three.js)', wpf: '— (Viewport3D, ou um vídeo da sequência)', nota: 'Decorativa e de uma só vez por sessão; sem WebGL, só o logótipo.' }],
+  ['.erp-ab__rotulo, .erp-ab__cotas', { peca: 'Dados do artigo na vista explodida', web: '— (CSS nosso, por cima da cena)', wpf: '— (Adorner por cima do Viewport3D)' }],
   ['.rede__palco, .rede__canvas', { peca: 'A rede ao fundo', web: '— (Three.js)', wpf: '— (Viewport3D ou imagem parada)', nota: 'Decorativa: sem ela, o desenho parado em SVG.' }],
   ['.er-faixa', { peca: 'Faixa de aviso', web: '— (CSS nosso)', wpf: '— (CSS nosso)' }],
   ['.portal__selo', { peca: 'Contador', web: '— (badge do DxButton não existe: CSS nosso)', wpf: '— (CSS nosso)' }],

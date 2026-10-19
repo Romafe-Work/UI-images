@@ -30,10 +30,12 @@ let carregar: Promise<CenaRede | null> | null = null;
 let raiz: HTMLElement | null = null;
 let semWebgl = false;
 let ocupado = false;
+/* de onde se leem as cores quando a rede está fora destes ecrãs (na 00 · Abertura) */
+let fonteCores: HTMLElement | null = null;
 
 const temWebgl = () => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } };
 const cores = () => {
-  const s = getComputedStyle(raiz ?? document.documentElement);
+  const s = getComputedStyle(raiz ?? fonteCores ?? document.documentElement);
   const v = (n: string, d: string) => s.getPropertyValue(n).trim() || d;
   return { no: v('--rede-no', '#ffffff'), aresta: v('--rede-aresta', '#0873bc'), linha: v('--rede-linha', '#9aa6b2'), pulso: v('--rede-pulso', '#0873bc'), laranja: v('--rede-laranja', '#f58214') };
 };
@@ -51,12 +53,23 @@ function obterCena(): Promise<CenaRede | null> {
   return carregar;
 }
 
+/** A 00 · Abertura (abertura.ts) começa a rede no palco dela; ao passar ao 01, armar() muda o mesmo canvas
+ *  para o palco do 01, e a rede continua sem recomeçar. */
+export async function redeNaAbertura(lugar: HTMLElement): Promise<CenaRede | null> {
+  if (quieto() || !temWebgl()) return null;
+  fonteCores = lugar;
+  const c = await obterCena();
+  if (!c || !lugar.isConnected) return null;
+  lugar.appendChild(c.canvas); c.medir(); c.pintar(); c.repor(); c.ligar();
+  return c;
+}
+
 const fase = (f: Fase) => { cena?.irPara(f); if (raiz) raiz.dataset.rede = f; };
 
 /** O ecrã à vista mudou: o canvas vai para o palco dele, e a cena para a fase dele. */
 async function armar(): Promise<void> {
   const r = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .rede');
-  if (!r) { raiz = null; cena?.parar(); return; }
+  if (!r) { raiz = null; if (!document.querySelector('.ecra:not([hidden]) > .versao:not([hidden]) .erp-ab')) cena?.parar(); return; }
   const mudou = r !== raiz;
   raiz = r;
   r.classList.remove('is-a-abrir');

@@ -5,6 +5,7 @@ import { entrarErp } from './entrar';
 import { ecrasCompras, DESCRICAO_COMPRAS } from './compras';
 import { REDE_ENTRAR, VERSAO_REDE, NOTA_REDE, estadosRede } from './entrar-rede';
 import type { Ecra } from '../../comum/tipos';
+import { ecraAbertura } from './abertura';
 import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS_ERP } from './estados';
 
 /* 19 out. 2026: a v10 (a rede da empresa, do briefing dela) junta-se às versões dos quatro ecrãs de entrar;
@@ -27,5 +28,6 @@ export const erp: App<IdErp> = {
   marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
-  ecras: [...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasCompras(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  /* 19 out. 2026: a 00 · Abertura («um ecrã wow como temos no goparts») antes do 01 · Entrar */
+  ecras: [ecraAbertura(), ...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasCompras(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

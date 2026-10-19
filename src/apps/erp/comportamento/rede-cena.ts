@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — a rede da empresa: a cena 3D dos ecrãs de entrar da v10 (19 out. 2026)
    Do briefing dela («Everything connected. Everything under control.»): peças da Romafe (rolamentos,
-   chumaceira, correia, carreto, retentor, corrente — rede-pecas.ts) ligadas por linhas finas, à volta do cartão. Uma só cena e um só canvas para os
+   chumaceira, correia, carreto, retentor, corrente, e os óleos e a massa — rede-pecas.ts) ligadas por linhas finas, à volta do cartão. Uma só cena e um só canvas para os
    quatro ecrãs (comportamento/rede.ts muda-o de ecrã sem perder o contexto); cada ecrã só muda os ALVOS,
    e os valores seguem-nos com uma mola amortecida — de um ecrã para o outro nada recomeça.
 
@@ -23,7 +23,7 @@ import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, LineSegments, BufferGeometry, BufferAttribute,
   MeshBasicMaterial, LineBasicMaterial, PointsMaterial, Points, Color, Vector3, Vector2,
 } from 'three';
-import { PECAS, rolamento, esfera, type Peca } from './rede-pecas';
+import { PECAS, rolamento, esfera, gota, type Peca } from './rede-pecas';
 
 export type Fase = 'neutro' | 'foco' | 'valido' | 'pedido' | 'passe' | 'alinhar';
 
@@ -101,18 +101,18 @@ export class CenaRede {
     /* as peças da Romafe num anel largo à volta do centro, onde o cartão fica; o centro fica livre */
     pecas.forEach((d, i) => {
       const a = (i / n) * Math.PI * 2 + 0.35;
-      const anel = new Vector3(Math.cos(a) * 6.6, Math.sin(a) * 3.7, 0);
+      const anel = new Vector3(Math.cos(a) * 6.8, Math.sin(a) * 3.8, 0);
       const solto = new Vector3(anel.x * (0.95 + rnd() * 0.3) + (rnd() - 0.5) * 1.6, anel.y * (0.9 + rnd() * 0.35) + (rnd() - 0.5) * 1.2, (rnd() - 0.5) * 5);
-      const alinhado = new Vector3(Math.cos(a) * 5.4, Math.sin(a) * 3.2, 0);
-      this.nos.push(this.criarNo(d.criar(m), 1.3, solto, anel, alinhado, true, i * 0.06, rnd));
+      const alinhado = new Vector3(Math.cos(a) * 5.6, Math.sin(a) * 3.3, 0);
+      this.nos.push(this.criarNo(d.criar(m), n > 8 ? 1.15 : 1.3, solto, anel, alinhado, true, i * 0.06, rnd));
     });
-    /* nós secundários: esferas soltas, mais longe; dão estrutura à rede */
+    /* nós secundários: esferas e gotas de óleo soltas, mais longe; dão estrutura à rede */
     if (!this.leve) {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 12; i++) {
         const a = rnd() * Math.PI * 2, raio = 7.4 + rnd() * 2.6;
         const anel = new Vector3(Math.cos(a) * raio, Math.sin(a) * raio * 0.55, -2 - rnd() * 2);
         const solto = anel.clone().add(new Vector3((rnd() - 0.5) * 2, (rnd() - 0.5) * 1.4, (rnd() - 0.5) * 3));
-        this.nos.push(this.criarNo(esfera({ linha: this.mat.arestaLonge, fundo: this.mat.corpo }), 1.2, solto, anel, anel.clone().multiplyScalar(0.92), false, 0.5 + i * 0.04, rnd));
+        this.nos.push(this.criarNo((i % 3 === 1 ? gota : esfera)({ linha: this.mat.arestaLonge, fundo: this.mat.corpo }), 1.2, solto, anel, anel.clone().multiplyScalar(0.92), false, 0.5 + i * 0.04, rnd));
       }
     }
     /* o nó central: um rolamento maior, a peça que deu origem à Romafe; fica atrás do cartão até ao «alinhar» */
@@ -132,7 +132,7 @@ export class CenaRede {
       return this.ligs[this.ligs.length - 1];
     };
     for (let i = 0; i < n; i++) lig(i, (i + 1) % n, 0.5 + i * 0.07);
-    [[0, 3], [1, 5], [2, 6]].forEach(([a, b], k) => { if (a < n && b < n) lig(a, b, 0.9 + k * 0.1); });
+    [[0, 3], [1, 5], [2, 6], [4, 8], [7, 10], [9, 11]].forEach(([a, b], k) => { if (a < n && b < n) lig(a, b, 0.9 + k * 0.1); });
     for (let i = n; i < this.nos.length; i++) {
       let melhor = 0, d = Infinity;
       for (let j = 0; j < n; j++) { const dd = this.nos[i].anel.distanceTo(this.nos[j].anel); if (dd < d) { d = dd; melhor = j; } }
@@ -140,7 +140,7 @@ export class CenaRede {
     }
     for (let i = 0; i < n; i++) lig(i, -1, 0, true);
     /* a ligação que se fecha quando o correio está bem escrito: do domínio mais perto do campo ao centro */
-    this.ligValida = lig(this.leve ? 3 : 4, -1, 0, true);
+    this.ligValida = lig(this.leve ? 3 : 6, -1, 0, true);
     this.ligValida.linha.material = this.mat.laranja;
 
     const pg = new BufferGeometry(); pg.setAttribute('position', new BufferAttribute(new Float32Array(3 * 6), 3));
@@ -246,6 +246,9 @@ export class CenaRede {
       const giro = dt * no.peca.vel * (0.35 + this.v.vel * 0.65) * (i % 2 ? -1 : 1);
       no.peca.gira.rotation.z += giro;
       const outra = no.g.userData.outra as Group | undefined; if (outra) outra.rotation.z += giro * outra.userData.razao;
+      /* a gota da almotolia: forma-se na ponta do bico, cai e some (≈ 1,6 s) */
+      const pinga = no.g.userData.gota as Group | undefined;
+      if (pinga) { const q = (this.t * 0.62 + no.fase) % 1; pinga.position.y = pinga.userData.y0 - Math.max(0, q - 0.45) * 0.7; pinga.scale.setScalar(Math.max(0.001, q < 0.45 ? q / 0.45 : q > 0.85 ? (1 - q) / 0.15 : 1)); }
       no.g.scale.setScalar(Math.max(0.001, e * vida * no.tam));
     });
 

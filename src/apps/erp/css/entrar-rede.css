@@ -13,26 +13,30 @@
    teclado do telemóvel não o tapa) e a rede fica mais simples (menos nós, sem paralaxe).
    Com «reduzir movimento» ou sem WebGL (.is-parado), a rede é o desenho parado em SVG.
    ========================================================= */
-.rede {
+
+.rede, .erp-ab {
   --rede-fundo: #f5f7f9; --rede-fundo-2: #edf1f4; --rede-painel: #ffffff; --rede-borda: #d8dee5;
   --rede-tinta: #17212b; --rede-tinta-2: #66727e; --rede-azul: #0873bc; --rede-azul-premido: #0662a1; --rede-laranja: #f58214;
   --rede-erro: #b42318; --rede-erro-fundo: #fdf0ee; --rede-info-fundo: #eaf3fa;
   /* as cores da cena (lidas pelo comportamento) */
   --rede-no: #ffffff; --rede-aresta: #2a5f8a; --rede-linha: #a9b4bf; --rede-pulso: #0873bc;
   --rede-curva: cubic-bezier(.22, 1, .36, 1);
+}
+/* (os mesmos tokens servem à 00 · Abertura, .erp-ab, que passa a rede a este ecrã) */
+.rede {
   position: relative; isolation: isolate; overflow: hidden;
   min-height: 100vh; min-height: 100svh;
   display: grid; grid-template-rows: auto 1fr auto;
   background: var(--rede-fundo); color: var(--rede-tinta); font-family: var(--f-base);
 }
-[data-theme="dark"] .rede {
+[data-theme="dark"] .rede, [data-theme="dark"] .erp-ab {
   --rede-fundo: #0d1014; --rede-fundo-2: #14191f; --rede-painel: #1b2026; --rede-borda: #343b45;
   --rede-tinta: #f5f7f9; --rede-tinta-2: #98a3ae; --rede-azul-premido: #0a82d4;
   --rede-erro: #ff8a7a; --rede-erro-fundo: #2a1716; --rede-info-fundo: #12212e;
   --rede-no: #14191f; --rede-aresta: #4f86b3; --rede-linha: #2f3741; --rede-pulso: #3d9be0;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .rede {
+  :root:not([data-theme="light"]) .rede, :root:not([data-theme="light"]) .erp-ab {
     --rede-fundo: #0d1014; --rede-fundo-2: #14191f; --rede-painel: #1b2026; --rede-borda: #343b45;
     --rede-tinta: #f5f7f9; --rede-tinta-2: #98a3ae; --rede-azul-premido: #0a82d4;
     --rede-erro: #ff8a7a; --rede-erro-fundo: #2a1716; --rede-info-fundo: #12212e;

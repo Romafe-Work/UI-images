@@ -1,0 +1,84 @@
+/* =========================================================
+   ERP — 00 · Abertura (19 out. 2026): o ecrã «wow», como a do GoParts (goparts/css/abertura.css)
+   O fundo e as cores são os tokens --rede-* do 01 · Entrar v10 (entrar-rede.css serve-os também a
+   .erp-ab), para a passagem ao 01 não ter costura. Por baixo, a rede (o canvas que rede.ts traz); por
+   cima, o rolamento (abertura-cena.ts, canvas transparente); e em HTML, os dados do artigo da vista
+   explodida, a marca, a frase e os botões.
+   Estados (comportamento/abertura.ts): .is-cena, .is-cotas, .is-rede, .is-marca, .is-erp, .is-linha,
+   .is-final, .is-parada, .is-espera. Nada mexe width/height: só opacidade e transform.
+   ========================================================= */
+.erp-ab {
+  --erp-ab-aco: #7d8a97;
+  position: relative; min-height: max(100vh, 520px); min-height: max(100svh, 520px); overflow: hidden; isolation: isolate;
+  background: var(--rede-fundo); color: var(--rede-tinta); font-family: var(--f-base);
+}
+[data-theme="dark"] .erp-ab { --erp-ab-aco: #c8d0d8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .erp-ab { --erp-ab-aco: #c8d0d8; } }
+
+/* a rede, por baixo; esbate-se ao centro, como atrás do cartão do 01 */
+.erp-ab__rede { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .9s ease; }
+.erp-ab__rede::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 34% 42% at 50% 50%, var(--rede-fundo) 30%, transparent 100%); opacity: .9; }
+.erp-ab.is-rede .erp-ab__rede { opacity: 1; }
+
+.erp-ab__cena { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; opacity: 0; transition: opacity .6s ease; }
+.erp-ab__cena.is-arrastar { cursor: grabbing; }
+.is-cena .erp-ab__cena { opacity: 1; }
+.is-marca .erp-ab__cena { cursor: default; pointer-events: none; }
+
+/* os dados do artigo: a linha desenha-se da peça para fora, e o texto aparece no fim dela */
+.erp-ab__cotas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.erp-ab__cota line { stroke: var(--rede-azul); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s var(--rede-curva); }
+.erp-ab__cota circle { fill: var(--rede-fundo); stroke: var(--rede-azul); stroke-width: 1.25; opacity: 0; transition: opacity .3s ease; }
+.is-cotas .erp-ab__cota line { stroke-dashoffset: 0; }
+.is-cotas .erp-ab__cota circle { opacity: 1; }
+.is-cotas .erp-ab__cota:nth-child(2) line { transition-delay: .06s; } .is-cotas .erp-ab__cota:nth-child(3) line { transition-delay: .12s; }
+.is-cotas .erp-ab__cota:nth-child(4) line { transition-delay: .18s; } .is-cotas .erp-ab__cota:nth-child(5) line { transition-delay: .24s; }
+.erp-ab__rotulos { position: absolute; inset: 0; pointer-events: none; }
+.erp-ab__rotulo { position: absolute; left: 0; top: 0; padding: 4px 10px; font-family: var(--f-mono); font-size: 12px; color: var(--rede-tinta); white-space: nowrap; background: var(--rede-painel); border: 1px solid var(--rede-borda); border-left: 2px solid var(--rede-azul); border-radius: 4px; opacity: 0; transition: opacity .3s ease .25s; }
+.erp-ab__rotulo.is-esq { border-left: 1px solid var(--rede-borda); border-right: 2px solid var(--rede-azul); }
+.erp-ab__rotulo--titulo { left: 32px; top: 32px; transform: none !important; color: var(--rede-tinta-2); background: transparent; border: 0; border-left: 1px solid var(--rede-borda); border-radius: 0; }
+.is-cotas .erp-ab__rotulo { opacity: 1; }
+.is-marca .erp-ab__cotas, .is-marca .erp-ab__rotulo:not(.erp-ab__rotulo--titulo) { opacity: 0 !important; transition: opacity .2s ease; }
+
+/* a marca: ROMAFE | ERP numa linha, como no cartão do 01 (para onde voa); a linha e a frase por baixo */
+.erp-ab__centro { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 14px; pointer-events: none; }
+.erp-ab__marca { display: flex; align-items: baseline; gap: clamp(12px, 1.6vw, 22px); }
+.erp-ab__romafe.romafe { font-size: clamp(64px, 11vw, 168px); line-height: .9; color: var(--c-logotipo); opacity: 0; transition: opacity .45s ease; }
+.erp-ab__erp { padding-left: clamp(12px, 1.6vw, 22px); border-left: 1px solid var(--rede-borda); font-family: var(--f-titulo); font-size: clamp(18px, 2.4vw, 34px); font-weight: 600; letter-spacing: .14em; color: var(--rede-tinta-2); opacity: 0; transform: translateX(-8px); transition: opacity .5s ease, transform .6s var(--rede-curva); }
+.erp-ab__linha { display: block; width: min(460px, 64vw); height: 2px; background: var(--rede-laranja); transform: scaleX(0); transform-origin: left center; transition: transform .6s cubic-bezier(.65, 0, .35, 1); }
+.erp-ab__frase { margin: 0; font-family: var(--f-titulo); font-size: clamp(15px, 1.4vw, 19px); color: var(--rede-tinta-2); opacity: 0; transform: translateY(8px); transition: opacity .5s ease .15s, transform .6s var(--rede-curva) .15s; }
+.is-marca .erp-ab__romafe { opacity: 1; }
+.is-erp .erp-ab__erp { opacity: 1; transform: none; }
+.is-linha .erp-ab__linha { transform: scaleX(1); }
+.is-linha .erp-ab__frase { opacity: 1; transform: none; }
+
+.erp-ab__dica { position: absolute; left: 50%; bottom: 40px; display: inline-flex; align-items: center; gap: 8px; margin: 0; transform: translateX(-50%); font-family: var(--f-mono); font-size: 12px; color: var(--rede-tinta-2); opacity: 0; transition: opacity .4s ease; pointer-events: none; white-space: nowrap; }
+.erp-ab__dica svg { width: 16px; height: 16px; color: var(--rede-azul); }
+.is-cena:not(.is-marca) .erp-ab__dica { opacity: 1; transition-delay: 1.2s; }
+.erp-ab__espera { position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%); font-family: var(--f-mono); font-size: 13px; color: var(--rede-tinta-2); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+.is-espera .erp-ab__espera { opacity: 1; }
+
+/* os botões: ícone e texto; o ícone na cor da ação */
+.erp-ab__accoes { position: absolute; right: 24px; top: 20px; display: flex; gap: 8px; z-index: 2; }
+.erp-ab__botao.btn { min-height: 42px; padding: 0 18px; border-radius: 999px; background: var(--rede-painel); color: var(--rede-tinta); border: 1px solid var(--rede-borda); gap: 10px; }
+.erp-ab__botao .btn__icone { width: 16px; height: 16px; color: var(--c-acao); transition: transform .2s var(--rede-curva); }
+.erp-ab__botao[hidden] { display: none; }
+@media (hover: hover) {
+  .erp-ab__botao.btn { transition: border-color .14s ease; }
+  .erp-ab__botao.btn:hover { border-color: var(--c-acao); background: var(--rede-painel); }
+  .erp-ab__saltar.btn:hover .btn__icone { transform: translateX(3px); }
+}
+.erp-ab__botao.btn:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+
+.is-parada .erp-ab__romafe, .is-parada .erp-ab__erp, .is-parada .erp-ab__linha, .is-parada .erp-ab__frase { transition: opacity .35s ease; transform: none; }
+
+@media (max-width: 560px) {
+  .erp-ab__accoes { right: 12px; top: 12px; }
+  .erp-ab__botao.btn { padding: 0 14px; }
+  .erp-ab__rotulo { font-size: 11px; }
+  .erp-ab__cota[data-cota="gai"], .erp-ab__rotulo[data-cota="gai"], .erp-ab__cota[data-cota="lar"], .erp-ab__rotulo[data-cota="lar"], .erp-ab__rotulo--titulo { display: none; }
+  .erp-ab__rede::after { background: radial-gradient(ellipse 70% 40% at 50% 50%, var(--rede-fundo) 30%, transparent 100%); }
+}
+
+/* a passagem ao 01: a marca voa para o cartão; o resto troca com um desvanecer */
+::view-transition-group(erp-marca) { animation-duration: .7s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
