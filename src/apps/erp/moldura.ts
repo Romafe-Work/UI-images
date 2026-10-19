@@ -64,7 +64,7 @@ function topo(): string {
 function lado(ativo: Modulo | null, sub: number | null): string {
   return `<nav class="erp__lado" aria-label="Módulos">${MODULOS.map(([id, nome]) => {
     const tem = id === 'inicio' || id === 'compras';
-    const btn = `<button type="button" class="erp__modulo"${tem ? '' : ' disabled title="Ainda sem ecrã"'}${id === ativo ? ' aria-current="true"' : ''}>${I(IC[id])}<span>${nome}</span></button>`;
+    const btn = `<button type="button" class="erp__modulo"${tem ? ` data-ir="${id}"` : ' disabled title="Ainda sem ecrã"'}${id === ativo ? ' aria-current="true"' : ''}>${I(IC[id])}<span>${nome}</span></button>`;
     if (id !== 'compras' || ativo !== 'compras') return btn;
     return btn + `<div class="erp__sub">${COMPRAS.map((s, i) => `<button type="button" class="erp__subitem"${i === sub ? ' aria-current="true"' : ''}>${s}</button>`).join('')}</div>`;
   }).join('')}

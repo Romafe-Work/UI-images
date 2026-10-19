@@ -163,6 +163,41 @@ do ERP (v10; na ajuda, v8). As outras versões ficam como estavam.
   pede para o ERP. O ROMAFE fica em RGB(0, 99, 170).
 - Com «reduzir movimento» ou sem WebGL, a rede é um desenho parado em SVG.
 
+## 05 · Início do ERP: o espaço de trabalho (19 out. 2026)
+
+Do briefing dela «ROMAFE ERP V11 — Intelligent Enterprise Workspace», com a tabela «A diferença que quero
+entre GoParts e ERP»: no ERP o centro são as tarefas e as operações; listas e painéis, não cartões de produto;
+animações de fluxos e de mudanças de estado. O briefing aponta para o 01 · Entrar v10, mas descreve o ecrã de
+depois de entrar: é um ecrã novo (`src/apps/erp/inicio.ts`, `inicio-dados.ts`, `inicio-icones.ts`,
+`comportamento/inicio.ts`, `css/inicio.css`). O «Entrar» da v10 passa a abrir aqui (ou nas Encomendas, se a
+pessoa o escolher em Personalizar); o desenho da v10 não mudou.
+
+- **As minhas prioridades:** a lista do perfil, atrasadas primeiro; cada linha tem o título, a referência,
+  a entidade, o nível (Atrasada, Urgente, Por tratar, Para saber, com palavra e ícone, não só cor), o prazo,
+  o estado, o módulo e a ação. Tratar: espera pela resposta, marca a linha, tira-a com as de baixo a subir
+  (FLIP), atualiza as contas e dá «Desfazer». Filtros por nível.
+- **Continuar onde fiquei:** rascunhos, documentos, fichas, pesquisas e listas fixadas; abrir um documento
+  põe-no aqui; fixar sobe-o. Guarda-se por pessoa.
+- **Acesso rápido:** só as operações do perfil (permissões por ação, não só por módulo); ordena-se e
+  esconde-se em Personalizar. Alt+N: nova encomenda a fornecedor.
+- **O fluxo das operações:** Compra → Chegada → Arrumação → Venda → Separação → Expedição → Faturação (as
+  etapas dos módulos que existem; a chegada não é prevista). Escolher uma etapa mostra o que lá está; as
+  etapas sem acesso ficam fechadas.
+- **Contexto** (recolhe-se): alertas, prazos, atividade e os atalhos fixados.
+- **Topo:** caminho, procura Ctrl+K (por tipo, só nos módulos do perfil, setas/Enter/Esc, recentes; o título
+  voa para o painel), Criar, Avisos (por ler, marcar como lidos), Tema, Conta (perfil, empresa, «Ver como
+  (protótipo)», Personalizar, Terminar sessão).
+- **Barra lateral:** recolhe-se, procura de módulos, fixados, recentes, submenus, setas do teclado. Os
+  destinos sem ecrã dizem-no.
+- **Personalizar:** blocos, ordem do acesso rápido, fixados, o que abre ao entrar, densidade (Confortável /
+  Compacta) e tema; repor. Fica no navegador, por pessoa (`erp:espaco:<correio>`).
+- **Estados:** 05.1–05.12 (a carregar, tudo em dia, sem ligação, procura, procura sem resultados, avisos,
+  documento, nova encomenda, personalizar, compacta, perfis Armazém e Administração).
+- **Não há servidor:** os dados são de exemplo (as encomendas são as do 10 · Compras) e a «resposta» é uma
+  espera de 0,55 s. Os perfis e as permissões são de exemplo até haver a lista do Rolgest; no produto quem
+  decide o que se vê é a API. Os separadores de trabalho (secção 14 do briefing) ficaram de fora: o protótipo
+  só tem um ecrã por módulo e seriam cópias.
+
 ## 00 · Abertura do ERP (19 out. 2026)
 
 Ela: «quero um ecrã wow como temos no goparts». É a abertura do GoParts (o mesmo SKF 6206, de

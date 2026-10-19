@@ -16,6 +16,25 @@
 export interface Componente { peca: string; web: string; wpf: string; nota?: string }
 
 const REGRAS: [string, Componente][] = [
+  /* ERP, 05 · Início (19 out. 2026): primeiro, para ganharem às regras gerais */
+  ['.ws-paleta, .ws-paleta__input, .ws-procura', { peca: 'Procura global (Ctrl+K)', web: 'DxPopup com DxTextBox e DxList (grouped)', wpf: 'SearchControl num ThemedWindow (ou HamburgerMenu search)', nota: 'Resultados por tipo, pedidos à API; setas, Enter e Esc.' }],
+  ['.ws-lado, .ws-lado__item, .ws-lado__sub', { peca: 'Barra lateral', web: 'DxDrawer com DxTreeView', wpf: 'AccordionControl (ou HamburgerMenu)', nota: 'Recolhe-se; procura de módulos, fixados e recentes.' }],
+  ['.ws-lado__campo', { peca: 'Procurar módulo', web: 'DxTextBox (mode: search) a filtrar o DxTreeView', wpf: 'AccordionControl (ShowSearchControl)' }],
+  ['.ws-pris, .ws-pri', { peca: 'As minhas prioridades', web: 'DxList (itemTemplate) com DxButton na linha', wpf: 'GridControl (TableView sem cabeçalho) ou ListBoxEdit com template', nota: 'A ação na linha; ao tratar, a linha sai com animação nossa.' }],
+  ['.ws-filtros, .ws-filtro', { peca: 'Filtro das prioridades', web: 'DxButtonGroup', wpf: 'ListBoxEdit (botões)' }],
+  ['.ws-conts, .ws-cont', { peca: 'Continuar onde fiquei', web: 'DxList', wpf: 'ListBoxEdit com template', nota: 'Os recentes vêm da API, por utilizador.' }],
+  ['.ws-ops, .ws-op', { peca: 'Acesso rápido', web: 'DxTileView (ou DxButton)', wpf: 'TileLayoutControl' }],
+  ['.ws-fluxo, .ws-fluxo__no', { peca: 'O fluxo das operações', web: '— (SVG e CSS nossos; DxButton nos nós)', wpf: '— (ItemsControl com template nosso)', nota: 'Nenhuma das duas tem um diagrama de processo destes.' }],
+  ['.ws-contexto, .ws-ctx', { peca: 'Painel de contexto', web: 'DxDrawer (position: right) ou DxScrollView', wpf: 'DockLayoutManager (LayoutPanel recolhível)' }],
+  ['.ws-menu--avisos, .ws-topo__avisos', { peca: 'Avisos', web: 'DxPopover com DxList', wpf: 'FlyoutControl com ListBoxEdit' }],
+  ['.ws-menu--conta, .ws-conta', { peca: 'Menu da conta', web: 'DxDropDownButton (ou DxPopover)', wpf: 'DropDownButton com PopupControlContainer' }],
+  ['.ws-menu--criar, .ws-topo__criar', { peca: 'Criar', web: 'DxDropDownButton', wpf: 'DropDownButton (SplitButton)' }],
+  ['.ws-painel', { peca: 'Documento no painel', web: 'DxDrawer (position: right, openedStateMode: overlap)', wpf: 'FlyoutControl (ou DockLayoutManager)' }],
+  ['.ws-dialogo', { peca: 'Personalizar o meu espaço', web: 'DxPopup com DxForm', wpf: 'ThemedWindow (DXDialogWindow) com DataLayoutControl' }],
+  ['.ws-ordem, .ws-ordem__item', { peca: 'Ordenar o acesso rápido', web: 'DxList (itemDragging) ou DxSortable', wpf: 'ListBoxEdit (AllowDrop) / GridControl com DragDropManager' }],
+  ['.ws-interruptor', { peca: 'Interruptor', web: 'DxSwitch', wpf: 'ToggleSwitchEdit' }],
+  ['.ws-tema', { peca: 'Escolha do tema', web: 'DxButtonGroup', wpf: 'ToggleSwitch / SegmentedControl' }],
+  ['.ws-toast', { peca: 'Aviso pequeno', web: 'DxToast (notify)', wpf: 'NotificationService' }],
   /* listas e tabelas */
   ['table, .cg-tabela, .erp-tabela, .er-tabela, .tabela-dados', { peca: 'Tabela', web: 'DxDataGrid', wpf: 'GridControl', nota: 'Ordenar, filtrar, paginar e «carregar mais» vêm do próprio componente.' }],
   ['.cg-mais', { peca: 'Carregar mais', web: 'DxDataGrid (scrolling: infinite)', wpf: 'GridControl (InfiniteSource)' }],

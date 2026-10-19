@@ -19,6 +19,7 @@
 import { mostrar } from '../../../comum/ecras';
 import { CORREIO } from '../entrar-rede';
 import type { CenaRede, Fase } from './rede-cena';
+import { destinoAoEntrar } from './inicio';
 
 const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -180,8 +181,9 @@ async function abrirErp(r: HTMLElement, b: HTMLButtonElement | null): Promise<vo
   }
   if (b) ocupar(b, null);
   ocupado = false;
-  mostrar('compras');
-  const erp = document.querySelector<HTMLElement>('.ecra:not([hidden]) .erp');
+  /* 19 out.: entra-se no 05 · Início (o espaço de trabalho), ou nas Encomendas se a pessoa escolheu isso */
+  mostrar(destinoAoEntrar());
+  const erp = document.querySelector<HTMLElement>('.ecra:not([hidden]) .erp, .ecra:not([hidden]) .ws');
   if (erp && !quieto()) { erp.classList.add('is-chegada'); window.setTimeout(() => erp.classList.remove('is-chegada'), 700); }
 }
 
