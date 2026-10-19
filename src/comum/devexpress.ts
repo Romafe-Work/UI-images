@@ -16,6 +16,10 @@
 export interface Componente { peca: string; web: string; wpf: string; nota?: string }
 
 const REGRAS: [string, Componente][] = [
+  /* ERP, 00 · Abertura v2 (19 out. 2026) */
+  ['.ab2__palco, .ab2__plano, .ab2__moldura', { peca: 'A estrutura da abertura', web: '— (SVG e CSS nossos)', wpf: '— (Viewport3D ou um vídeo da sequência)', nota: 'Decorativa; sem ela, a composição final parada.' }],
+  ['.ab2__lista, .ab2__mod', { peca: 'Lançador de módulos', web: 'DxTileView', wpf: 'TileLayoutControl', nota: 'Só os módulos que existem se clicam.' }],
+  ['.ab2__tema', { peca: 'Escolha do tema', web: 'DxButtonGroup', wpf: 'ToggleSwitch / SegmentedControl' }],
   /* ERP · Compras, fase 1 (19 out. 2026) */
   ['.cp-tabela--linhas, .cp-tabela--linhas .cp-celula', { peca: 'Linhas da encomenda', web: 'DxDataGrid (editing: cell, keyboardNavigation)', wpf: 'GridControl (TableView, EditorShowMode)', nota: 'Enter passa à célula de baixo; o total refaz-se a cada valor.' }],
   ['.cp-tabela--rec, .cp-tabela--rec .cp-celula', { peca: 'Linhas da receção', web: 'DxDataGrid (editing: cell)', wpf: 'GridControl (TableView)' }],

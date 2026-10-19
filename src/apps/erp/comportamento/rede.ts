@@ -20,6 +20,7 @@ import { mostrar } from '../../../comum/ecras';
 import { CORREIO } from '../entrar-rede';
 import type { CenaRede, Fase } from './rede-cena';
 import { destinoAoEntrar } from './inicio';
+import { abrirSessao } from '../sessao';
 
 const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -172,6 +173,7 @@ async function entrar(b: HTMLButtonElement): Promise<void> {
 }
 
 async function abrirErp(r: HTMLElement, b: HTMLButtonElement | null): Promise<void> {
+  abrirSessao(r.querySelector('.rede__conta-correio')?.textContent?.trim() || CORREIO);
   if (!quieto()) {
     fase('alinhar');
     await espera(550);

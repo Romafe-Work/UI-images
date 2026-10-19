@@ -8,6 +8,7 @@ import './css/entrar-rede.css';
 import './css/abertura.css';
 import './css/inicio.css';
 import './css/compras-v2.css';
+import './css/abertura-v2.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -17,5 +18,6 @@ import { iniciar as rede } from './comportamento/rede';
 import { iniciar as abertura } from './comportamento/abertura';
 import { iniciar as inicio } from './comportamento/inicio';
 import { iniciar as compras } from './compras/comportamento';
+import { iniciar as abertura2 } from './comportamento/abertura-v2';
 
-montar(erp, [entrar, rede, abertura, inicio, compras]);
+montar(erp, [entrar, rede, abertura, abertura2, inicio, compras]);

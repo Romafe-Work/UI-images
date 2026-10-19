@@ -17,6 +17,7 @@
 import { mostrar, mostrarVersao } from '../../../comum/ecras';
 import { VERSAO_REDE } from '../entrar-rede';
 import * as cp from '../compras/dominio';
+import { terminarSessao } from '../sessao';
 import {
   corpo, casca, paginaInicio, estadoPadrao, prefsPadrao, podeTratar, blocoPrioridades, blocoContinuar, blocoFluxo, contas, doc, pode,
   menuConta, menuAvisos, menuCriar, menuEmpresa, procura, buscar, sugestoes, painel, criar, personalizar,
@@ -458,7 +459,7 @@ function aoClicar(ev: MouseEvent): void {
   if (q('[data-ws-criar-ok]')) { criarRascunho(q<HTMLButtonElement>('[data-ws-criar-ok]')!); return; }
   if (q('[data-ws-fechar]')) { fechar(); return; }
   if ((b = q('[data-ws-repetir]'))) { repetir(b as HTMLButtonElement); return; }
-  if (q('[data-ws-sair]')) { fechar(false); mostrar('entrada'); mostrarVersao(VERSAO_REDE); return; }
+  if (q('[data-ws-sair]')) { fechar(false); terminarSessao(); mostrar('entrada'); mostrarVersao(VERSAO_REDE); return; }
 }
 
 async function repetir(b: HTMLButtonElement): Promise<void> {
