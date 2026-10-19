@@ -145,10 +145,13 @@ não há componente e fica em CSS nosso. «A confirmar» é nome que ainda falta
 ## Entrar no ERP, v10: a rede da empresa (19 out. 2026)
 
 Do briefing dela («ROMAFE ERP — Ultimate cinematic login»). É uma versão nova dos quatro ecrãs de entrar
-do ERP (v10; na ajuda, v8). As outras versões ficam como estavam. Não tem nada do GoParts.
+do ERP (v10; na ajuda, v8). As outras versões ficam como estavam.
 
-- **Ao fundo:** uma rede 3D (Three.js, `src/apps/erp/comportamento/rede-cena.ts`) com os domínios do ERP
-  em sólidos geométricos, ligados por linhas finas. É um só canvas para os quatro ecrãs, como no GoParts.
+- **Ao fundo:** uma rede 3D (Three.js, `src/apps/erp/comportamento/rede-cena.ts`) com peças da Romafe
+  desenhadas a traço (`rede-pecas.ts`), ligadas por linhas finas: rolamento de esferas, de rolos cónicos,
+  axial, chumaceira, correia com polias, carreto, retentor e corrente; ao centro, um rolamento maior. As
+  esferas, os rolos e as polias rodam. Era com sólidos geométricos, até ela dizer «não quero cubos, quero
+  mais rolamentos… coisa da Romafe» (19 out.). É um só canvas para os quatro ecrãs, como no GoParts.
   Fases: neutro, foco, valido (a única ligação laranja), pedido, passe e alinhar. Paralaxe só com o rato.
 - **Ao centro:** um cartão liso de 420 px. O correio e a palavra-passe ocupam a mesma célula, por isso a
   altura do cartão não muda: a troca é feita com opacidade e uma deslocação pequena.

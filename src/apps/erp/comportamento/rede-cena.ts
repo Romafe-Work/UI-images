@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — a rede da empresa: a cena 3D dos ecrãs de entrar da v10 (19 out. 2026)
-   Do briefing dela («Everything connected. Everything under control.»): os domínios do ERP como sólidos
-   geométricos pequenos, ligados por linhas finas, à volta do cartão. Uma só cena e um só canvas para os
+   Do briefing dela («Everything connected. Everything under control.»): peças da Romafe (rolamentos,
+   chumaceira, correia, carreto, retentor, corrente — rede-pecas.ts) ligadas por linhas finas, à volta do cartão. Uma só cena e um só canvas para os
    quatro ecrãs (comportamento/rede.ts muda-o de ecrã sem perder o contexto); cada ecrã só muda os ALVOS,
    e os valores seguem-nos com uma mola amortecida — de um ecrã para o outro nada recomeça.
 
@@ -20,31 +20,18 @@
    Tempos (do briefing): alinhar a rede 400–650 ms; a passagem ao ERP 500–800 ms.
    ========================================================= */
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, LineSegments, EdgesGeometry, BufferGeometry, BufferAttribute,
+  WebGLRenderer, Scene, PerspectiveCamera, Group, LineSegments, BufferGeometry, BufferAttribute,
   MeshBasicMaterial, LineBasicMaterial, PointsMaterial, Points, Color, Vector3, Vector2,
-  BoxGeometry, OctahedronGeometry, TetrahedronGeometry, IcosahedronGeometry, DodecahedronGeometry, CylinderGeometry, ConeGeometry,
-  type BufferGeometry as BG,
 } from 'three';
+import { PECAS, rolamento, esfera, type Peca } from './rede-pecas';
 
 export type Fase = 'neutro' | 'foco' | 'valido' | 'pedido' | 'passe' | 'alinhar';
-
-/** Os domínios do ERP, cada um com a sua forma (sem nomes no ecrã: o briefing não quer rótulos atrás do formulário). */
-const DOMINIOS: { nome: string; forma: () => BG }[] = [
-  { nome: 'Armazém', forma: () => new BoxGeometry(0.62, 0.62, 0.62) },
-  { nome: 'Finanças', forma: () => new OctahedronGeometry(0.46) },
-  { nome: 'Compras', forma: () => new TetrahedronGeometry(0.5) },
-  { nome: 'Vendas', forma: () => new IcosahedronGeometry(0.42) },
-  { nome: 'Análise', forma: () => new DodecahedronGeometry(0.42) },
-  { nome: 'Logística', forma: () => new CylinderGeometry(0.36, 0.36, 0.5, 6) },
-  { nome: 'Inventário', forma: () => new ConeGeometry(0.4, 0.62, 4) },
-  { nome: 'Administração', forma: () => new CylinderGeometry(0.42, 0.42, 0.14, 8) },
-];
 
 /* um número pseudo-aleatório fixo: a composição é sempre a mesma */
 function semente(n: number): () => number { let s = n; return () => ((s = (s * 16807) % 2147483647) / 2147483647); }
 
 interface No {
-  g: Group; corpo: Mesh; arestas: LineSegments;
+  g: Group; peca: Peca; tam: number; inclina: Vector2;
   solto: Vector3;          // onde fica na composição espalhada
   anel: Vector3;           // onde fica na composição arrumada
   alinhado: Vector3;       // onde fica quando a rede se alinha (anel de frente)
@@ -64,6 +51,7 @@ const ALVOS: Record<Fase, Alvos> = {
   alinhar: { org: 1,    aperto: 0.9,  rodar: 0.5, vel: 0.15, centro: 1,   valido: 1, alinhar: 1, perto: 0.35 },
 };
 /* a rapidez (1/s) com que cada valor segue o alvo: ≈ 0,5 s para alinhar */
+/* (a v10 nasceu com sólidos geométricos; a 19 out. ela pediu «mais rolamentos… coisa da Romafe»: rede-pecas.ts) */
 const RAPIDEZ: Alvos = { org: 5, aperto: 5, rodar: 3, vel: 3, centro: 6, valido: 7, alinhar: 6.5, perto: 4 };
 
 export class CenaRede {
@@ -74,7 +62,7 @@ export class CenaRede {
   private nos: No[] = [];
   private ligs: Lig[] = [];
   private centro: Group;
-  private centroCorpo: Mesh;
+  private centroPeca: Peca;
   private impulsos: Impulso[] = [];
   private pontos: Points;
   private v: Alvos = { ...ALVOS.neutro };
@@ -88,7 +76,7 @@ export class CenaRede {
   /* num ecrã ao alto, o anel estreita-se e cresce na vertical, para a rede ficar à volta do cartão */
   private escala = new Vector2(1, 1);
   private mat = {
-    corpo: new MeshBasicMaterial({ transparent: true, opacity: 0.9, depthWrite: false }),
+    corpo: new MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: true }),
     aresta: new LineBasicMaterial({ transparent: true }),
     arestaLonge: new LineBasicMaterial({ transparent: true }),
     lig: new LineBasicMaterial({ transparent: true }),
@@ -107,29 +95,30 @@ export class CenaRede {
     this.cam.position.set(0, 0, 15);
 
     const rnd = semente(1945);
-    const dominios = this.leve ? DOMINIOS.slice(0, 6) : DOMINIOS;
-    const n = dominios.length;
-    /* os domínios num anel largo à volta do centro, onde o cartão fica; o centro fica livre */
-    dominios.forEach((d, i) => {
+    const pecas = this.leve ? PECAS.slice(0, 6) : PECAS;
+    const n = pecas.length;
+    const m = { linha: this.mat.aresta, fundo: this.mat.corpo };
+    /* as peças da Romafe num anel largo à volta do centro, onde o cartão fica; o centro fica livre */
+    pecas.forEach((d, i) => {
       const a = (i / n) * Math.PI * 2 + 0.35;
       const anel = new Vector3(Math.cos(a) * 6.6, Math.sin(a) * 3.7, 0);
       const solto = new Vector3(anel.x * (0.95 + rnd() * 0.3) + (rnd() - 0.5) * 1.6, anel.y * (0.9 + rnd() * 0.35) + (rnd() - 0.5) * 1.2, (rnd() - 0.5) * 5);
       const alinhado = new Vector3(Math.cos(a) * 5.4, Math.sin(a) * 3.2, 0);
-      this.nos.push(this.criarNo(d.forma(), solto, anel, alinhado, true, i * 0.06, rnd));
+      this.nos.push(this.criarNo(d.criar(m), 1.3, solto, anel, alinhado, true, i * 0.06, rnd));
     });
-    /* nós secundários: pontos de passagem pequenos, mais longe; dão estrutura à rede */
+    /* nós secundários: esferas soltas, mais longe; dão estrutura à rede */
     if (!this.leve) {
       for (let i = 0; i < 10; i++) {
         const a = rnd() * Math.PI * 2, raio = 7.4 + rnd() * 2.6;
         const anel = new Vector3(Math.cos(a) * raio, Math.sin(a) * raio * 0.55, -2 - rnd() * 2);
         const solto = anel.clone().add(new Vector3((rnd() - 0.5) * 2, (rnd() - 0.5) * 1.4, (rnd() - 0.5) * 3));
-        this.nos.push(this.criarNo(new OctahedronGeometry(0.13), solto, anel, anel.clone().multiplyScalar(0.92), false, 0.5 + i * 0.04, rnd));
+        this.nos.push(this.criarNo(esfera({ linha: this.mat.arestaLonge, fundo: this.mat.corpo }), 1.2, solto, anel, anel.clone().multiplyScalar(0.92), false, 0.5 + i * 0.04, rnd));
       }
     }
-    /* o nó central: o ERP; fica atrás do cartão até ao «alinhar» */
-    this.centroCorpo = new Mesh(new IcosahedronGeometry(0.62, 1), this.mat.corpo);
+    /* o nó central: um rolamento maior, a peça que deu origem à Romafe; fica atrás do cartão até ao «alinhar» */
+    this.centroPeca = rolamento(m, 0.75);
     this.centro = new Group();
-    this.centro.add(this.centroCorpo, new LineSegments(new EdgesGeometry(this.centroCorpo.geometry), this.mat.ligCentral));
+    this.centro.add(this.centroPeca.g);
     this.centro.position.set(0, 0, -1.5); this.centro.scale.setScalar(0.001);
     this.mundo.add(this.centro);
 
@@ -164,14 +153,14 @@ export class CenaRede {
     this.ro.observe(canvas);
   }
 
-  private criarNo(geo: BG, solto: Vector3, anel: Vector3, alinhado: Vector3, dominio: boolean, atraso: number, rnd: () => number): No {
-    const corpo = new Mesh(geo, this.mat.corpo);
-    const arestas = new LineSegments(new EdgesGeometry(geo), dominio ? this.mat.aresta : this.mat.arestaLonge);
-    const g = new Group(); g.add(corpo, arestas);
-    g.rotation.set(rnd() * Math.PI, rnd() * Math.PI, 0);
+  private criarNo(peca: Peca, tam: number, solto: Vector3, anel: Vector3, alinhado: Vector3, dominio: boolean, atraso: number, rnd: () => number): No {
+    const g = peca.g;
+    /* de frente para a câmara, inclinadas no máximo ±35°, para se ler a peça */
+    const inclina = new Vector2((rnd() - 0.5) * (g.userData.direita ? 0.5 : 1.1), (rnd() - 0.5) * 1.2);
+    g.rotation.set(inclina.x, inclina.y, g.userData.direita ? (rnd() - 0.5) * 0.3 : rnd() * Math.PI);
     g.scale.setScalar(0.001);
     this.mundo.add(g);
-    return { g, corpo, arestas, solto, anel, alinhado, prof: Math.min(1, Math.max(0, (-solto.z + 2.5) / 5)), fase: rnd() * Math.PI * 2, dominio, atraso };
+    return { g, peca, tam, inclina, solto, anel, alinhado, prof: Math.min(1, Math.max(0, (-solto.z + 2.5) / 5)), fase: rnd() * Math.PI * 2, dominio, atraso };
   }
 
   /** As cores vêm do CSS (--rede-*), e mudam com o tema. */
@@ -251,16 +240,20 @@ export class CenaRede {
       /* paralaxe por profundidade: os de trás mexem menos */
       p.x -= this.ratoSuave.x * (1 - no.prof) * 0.25;
       no.g.position.copy(p);
-      no.g.rotation.y += dt * (0.12 + i * 0.006) * this.v.vel;
-      no.g.rotation.x += dt * 0.05 * this.v.vel;
-      no.g.scale.setScalar(Math.max(0.001, e * vida));
+      /* a peça balança devagar à volta da sua inclinação; as esferas, os rolos e as polias rodam */
+      no.g.rotation.x = no.inclina.x * (1 - this.v.alinhar) + Math.sin(this.t * 0.3 + no.fase) * 0.2 * calma;
+      no.g.rotation.y = no.inclina.y * (1 - this.v.alinhar) + Math.cos(this.t * 0.26 + no.fase) * 0.24 * calma;
+      const giro = dt * no.peca.vel * (0.35 + this.v.vel * 0.65) * (i % 2 ? -1 : 1);
+      no.peca.gira.rotation.z += giro;
+      const outra = no.g.userData.outra as Group | undefined; if (outra) outra.rotation.z += giro * outra.userData.razao;
+      no.g.scale.setScalar(Math.max(0.001, e * vida * no.tam));
     });
 
     /* o nó central aparece no alinhar e vem à frente */
     const c = this.v.centro;
     this.centro.scale.setScalar(Math.max(0.001, (0.15 + c * 0.85) * Math.min(1, c * 3) * vida));
     this.centro.position.z = -1.5 + this.v.alinhar * 1.5;
-    this.centro.rotation.y += dt * 0.3;
+    this.centroPeca.gira.rotation.z += dt * 1.2;
     this.mat.ligCentral.opacity = Math.min(1, this.v.alinhar) * 0.9 * vida;
 
     /* as ligações desenham-se de a para b; as centrais só existem no alinhar; a laranja no «valido» */
@@ -280,7 +273,7 @@ export class CenaRede {
     });
     this.mat.laranja.opacity = Math.min(1, this.v.valido) * (1 - this.v.alinhar * 0.6) * vida;
     this.mat.lig.opacity = 0.9 * vida; this.mat.aresta.opacity = 0.8 * vida; this.mat.arestaLonge.opacity = 0.8 * vida;
-    this.mat.corpo.opacity = 0.9 * vida;
+    this.mat.corpo.opacity = vida;
 
     /* os impulsos: um ponto curto a percorrer uma ligação, de 2 a 4 s; mais seguidos no pedido */
     this.proximoImpulso -= dt;

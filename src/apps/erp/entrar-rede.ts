@@ -1,8 +1,8 @@
 /* =========================================================
    ERP — v10 do início de sessão: a rede da empresa (19 out. 2026)
-   Do briefing dela («ROMAFE ERP — Ultimate cinematic login»): o ERP com uma identidade própria, sem nada
-   do GoParts (nem rolamento, nem peças, nem catálogo). Ao fundo, uma rede 3D de domínios da empresa
-   ligados por linhas finas (comportamento/rede-cena.ts); ao centro, um cartão liso, sem vidro nem sombra.
+   Do briefing dela («ROMAFE ERP — Ultimate cinematic login»): o ERP com uma identidade própria, sem as peças
+   de catálogo do GoParts. Ao fundo, uma rede 3D de peças da Romafe (19 out.: «mais
+   rolamentos… coisa da Romafe») ligadas por linhas finas (comportamento/rede-cena.ts); ao centro, um cartão liso, sem vidro nem sombra.
      01 — só o correio: «Continuar» acende-se quando o endereço está bem escrito (isso não diz que a conta
           existe); ao continuar, o campo encolhe para a identificação e aparece a palavra-passe, no mesmo
           cartão (02). Um endereço de empresa com início de sessão próprio segue para o 03.
@@ -43,18 +43,19 @@ import pencil from 'lucide-static/icons/pencil.svg?raw';
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
 export const VERSAO_REDE = 'v10';
-export const NOTA_REDE = 'A rede da empresa (19 out., do briefing dela): os domínios do ERP ligados em 3D à volta de um cartão liso ao centro; o correio passa a palavra-passe no mesmo cartão, e ao entrar a rede alinha-se e abre o ERP';
+export const NOTA_REDE = 'A rede da empresa (19 out., do briefing dela): rolamentos e outras peças da Romafe ligados em 3D à volta de um cartão liso ao centro; o correio passa a palavra-passe no mesmo cartão, e ao entrar a rede alinha-se e abre o ERP';
 export const CORREIO = 'rui.matos@romafe.pt';
 
 /* ---------- o desenho parado da rede (sem WebGL, com «reduzir movimento», e enquanto a cena carrega) ---------- */
 function redeParada(): string {
+  /* as peças em traço, como na cena: rolamentos (anéis e esferas) e um carreto */
   const n = 8, cx = 800, cy = 450;
   const pts = Array.from({ length: n }, (_, i) => { const a = (i / n) * Math.PI * 2 + 0.35; return [cx + Math.cos(a) * 610, cy + Math.sin(a) * 330]; });
-  const formas = ['M-9-9h18v18h-18z', 'M0-12 12 0 0 12-12 0z', 'M0-12 11 8h-22z', 'M-10-6 0-12 10-6v12L0 12-10 6z', 'M0-11 10-3 6 9h-12l-4-12z', 'M-10-6 0-12 10-6v12L0 12-10 6z', 'M0-12 10 9h-20z', 'M-10 0a10 10 0 1 0 20 0a10 10 0 1 0-20 0'];
+  const rol = (x: number, y: number) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})"><circle r="26"/><circle r="21"/><circle r="11"/><circle r="8"/>${Array.from({ length: 9 }, (_, i) => { const a = (i / 9) * Math.PI * 2; return `<circle r="3.6" cx="${(Math.cos(a) * 15.5).toFixed(1)}" cy="${(Math.sin(a) * 15.5).toFixed(1)}"/>`; }).join('')}</g>`;
   const ligs: [number, number][] = [...pts.map((_, i) => [i, (i + 1) % n] as [number, number]), [0, 3], [1, 5], [2, 6]];
   return `<svg class="rede__parada" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     ${ligs.map(([a, b]) => `<line x1="${pts[a][0].toFixed(0)}" y1="${pts[a][1].toFixed(0)}" x2="${pts[b][0].toFixed(0)}" y2="${pts[b][1].toFixed(0)}"/>`).join('')}
-    ${pts.map(([x, y], i) => `<path transform="translate(${x.toFixed(0)} ${y.toFixed(0)})" d="${formas[i]}"/>`).join('')}
+    ${pts.map(([x, y]) => rol(x, y)).join('')}
   </svg>`;
 }
 const PARADA = redeParada();
