@@ -40,7 +40,7 @@ import moon from 'lucide-static/icons/moon.svg?raw';
 import monitor from 'lucide-static/icons/monitor.svg?raw';
 import pencil from 'lucide-static/icons/pencil.svg?raw';
 
-const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
 export const VERSAO_REDE = 'v10';
 export const NOTA_REDE = 'A rede da empresa (19 out., do briefing dela): rolamentos e outras peças da Romafe ligados em 3D à volta de um cartão liso ao centro; o correio passa a palavra-passe no mesmo cartão, e ao entrar a rede alinha-se e abre o ERP';
@@ -61,7 +61,7 @@ function redeParada(): string {
 const PARADA = redeParada();
 
 type Passo = 'correio' | 'passe' | 'empresa' | 'ajuda';
-interface Op {
+export interface Op {
   /** o que está escrito no correio (vazio = por escrever) */
   correio?: string;
   erroCorreio?: string;
@@ -76,6 +76,9 @@ interface Op {
   fator?: boolean;
   /** a fase da rede neste ecrã (data-rede) */
   rede?: string;
+  /** 20 out.: a v11, o início de sessão geral (entrar-central.ts): a marca sem «ERP», textos de todas as
+      aplicações, e depois da palavra-passe a escolha da empresa e da aplicação */
+  geral?: boolean;
 }
 
 const tema = `<div class="rede__tema" role="group" aria-label="Tema">
@@ -85,10 +88,11 @@ const tema = `<div class="rede__tema" role="group" aria-label="Tema">
 </div>`;
 
 const marca = `<div class="rede__marca"><span class="romafe rede__romafe">ROMAFE</span><span class="rede__erp">ERP</span></div>`;
+const marcaGeral = `<div class="rede__marca"><span class="romafe rede__romafe">ROMAFE</span></div>`;
 
-const aviso = (a?: Op['aviso']) => (a ? `<div class="rede__aviso rede__aviso--${a[3]}" role="${a[3] === 'erro' ? 'alert' : 'status'}">${L(a[0])}<div><p class="rede__aviso-titulo">${a[1]}</p><p>${a[2]}</p></div></div>` : '');
+export const aviso = (a?: Op['aviso']) => (a ? `<div class="rede__aviso rede__aviso--${a[3]}" role="${a[3] === 'erro' ? 'alert' : 'status'}">${L(a[0])}<div><p class="rede__aviso-titulo">${a[1]}</p><p>${a[2]}</p></div></div>` : '');
 
-const botao = (texto: string, icone: string, o: { depois?: boolean; ir?: string; rede?: string; desligado?: boolean; ocupado?: boolean; tipo?: 'submit' | 'button'; classe?: string } = {}) =>
+export const botao = (texto: string, icone: string, o: { depois?: boolean; ir?: string; rede?: string; desligado?: boolean; ocupado?: boolean; tipo?: 'submit' | 'button'; classe?: string } = {}) =>
   `<button type="${o.tipo || 'submit'}" class="btn rede__botao${o.classe ? ' ' + o.classe : ''}"${o.ir ? ` data-ir="${o.ir}"` : ''}${o.rede ? ` data-rede-acao="${o.rede}"` : ''}${o.desligado ? ' disabled' : ''}${o.ocupado ? ' aria-busy="true"' : ''}>${o.depois ? '' : L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span>${o.depois ? L(icone, 'btn__icone') : ''}<span class="rede__girar" aria-hidden="true"></span></button>`;
 
 /* o passo do correio (01) */
@@ -134,7 +138,7 @@ function passoPasse(k: string, o: Op): string {
   }
   return `<div class="rede__passo rede__passo--passe">
     <h1 class="rede__titulo" id="rede-titulo-${k}">Introduz a palavra-passe</h1>
-    <p class="rede__sub">Para entrares no ROMAFE ERP.</p>
+    <p class="rede__sub">${o.geral ? 'Para entrares nas aplicações da Romafe.' : 'Para entrares no ROMAFE ERP.'}</p>
     ${conta}
     ${aviso(o.aviso)}
     <form class="rede__form" data-rede-form="passe" novalidate>
@@ -147,19 +151,19 @@ function passoPasse(k: string, o: Op): string {
       </div>
       <label class="rede__manter"><input type="checkbox" name="manter"> <span>Manter a sessão neste computador</span></label>
       ${o.repetir
-        ? botao('Tentar outra vez', rotateCw, { rede: 'entrar', ir: 'compras' })
-        : botao(o.ocupado ? 'A entrar…' : 'Entrar', logIn, { rede: 'entrar', ir: 'compras', desligado: o.bloqueado || o.ocupado, ocupado: o.ocupado })}
+        ? botao('Tentar outra vez', rotateCw, { rede: 'entrar', ir: o.geral ? 'escolher-empresa' : 'compras' })
+        : botao(o.ocupado ? 'A entrar…' : 'Entrar', logIn, { rede: 'entrar', ir: o.geral ? 'escolher-empresa' : 'compras', desligado: o.bloqueado || o.ocupado, ocupado: o.ocupado })}
     </form>
   </div>`;
 }
 
-function moldura(k: string, passo: Passo, corpo: string, o: Op): string {
-  return `<div class="rede" data-passo="${passo}" data-rede="${o.rede || (passo === 'passe' ? 'passe' : 'neutro')}">
+export function moldura(k: string, passo: Passo | 'central', corpo: string, o: Op): string {
+  return `<div class="rede${o.geral ? ' rede--geral' : ''}" data-passo="${passo}" data-rede="${o.rede || (passo === 'passe' ? 'passe' : 'neutro')}"${o.geral ? ' data-geral' : ''}>
   <div class="rede__palco" aria-hidden="true">${PARADA}<div class="rede__lugar"></div></div>
   <header class="rede__topo">${tema}</header>
   <main class="rede__centro">
     <section class="rede__cartao${passo === 'passe' ? ' is-passe' : ''}" aria-labelledby="rede-titulo-${k}">
-      ${marca}
+      ${o.geral ? marcaGeral : marca}
       ${corpo}
     </section>
   </main>
@@ -170,35 +174,35 @@ function moldura(k: string, passo: Passo, corpo: string, o: Op): string {
 
 /* 01 e 02 levam os dois passos na mesma célula; só um está ativo (o outro fica inerte e invisível) */
 function cartaoDois(k: string, ativo: 'correio' | 'passe', o: Op): string {
-  const c = passoCorreio(k + (ativo === 'correio' ? '' : '-c'), ativo === 'correio' ? o : { correio: CORREIO });
-  const p = passoPasse(k + (ativo === 'passe' ? '' : '-p'), ativo === 'passe' ? o : {});
+  const c = passoCorreio(k + (ativo === 'correio' ? '' : '-c'), ativo === 'correio' ? o : { correio: CORREIO, geral: o.geral });
+  const p = passoPasse(k + (ativo === 'passe' ? '' : '-p'), ativo === 'passe' ? o : { geral: o.geral });
   const marcar = (html: string, sim: boolean) => (sim ? html : html.replace('class="rede__passo ', 'inert class="rede__passo ').replace(/ id="rede-titulo-[^"]*"/, ''));
   return `<div class="rede__passos">${marcar(c, ativo === 'correio')}${marcar(p, ativo === 'passe')}</div>`;
 }
 
-const correio = (k: string, o: Op = {}) => moldura(k, 'correio', cartaoDois(k, 'correio', o), o);
-const passe = (k: string, o: Op = {}) => moldura(k, 'passe', cartaoDois(k, 'passe', o), o);
+export const correio = (k: string, o: Op = {}) => moldura(k, 'correio', cartaoDois(k, 'correio', o), o);
+export const passe = (k: string, o: Op = {}) => moldura(k, 'passe', cartaoDois(k, 'passe', o), o);
 
-const empresa = (k: string) => moldura(k, 'empresa', `
+export const empresa = (k: string, geral = false) => moldura(k, 'empresa', `
   <div class="rede__passo">
     <h1 class="rede__titulo" id="rede-titulo-${k}">A conta da empresa</h1>
     <p class="rede__sub">Este endereço entra pela página da tua empresa.</p>
     <div class="rede__conta">${L(mail)}<span class="rede__conta-correio">ana.costa@grupo-exemplo.pt</span><button type="button" class="rede__mudar" data-ir="entrada">${L(pencil)}Mudar</button></div>
-    <p class="rede__nota rede__nota--caixa">${L(building)}<span>A palavra-passe e o segundo fator são os da empresa. No fim voltas ao ROMAFE ERP, já com a sessão aberta.</span></p>
-    <form class="rede__form" novalidate>${botao('Continuar na página da empresa', externalLink, { ir: 'compras', rede: 'empresa', depois: true })}</form>
-  </div>`, { rede: 'foco' });
+    <p class="rede__nota rede__nota--caixa">${L(building)}<span>A palavra-passe e o segundo fator são os da empresa. ${geral ? 'No fim voltas aqui, já com a sessão aberta, para escolheres a empresa e a aplicação.' : 'No fim voltas ao ROMAFE ERP, já com a sessão aberta.'}</span></p>
+    <form class="rede__form" novalidate>${botao('Continuar na página da empresa', externalLink, { ir: geral ? 'escolher-empresa' : 'compras', rede: 'empresa', depois: true })}</form>
+  </div>`, { rede: 'foco', geral });
 
-const ajuda = (k: string) => moldura(k, 'ajuda', `
+export const ajuda = (k: string, geral = false) => moldura(k, 'ajuda', `
   <div class="rede__passo">
     <h1 class="rede__titulo" id="rede-titulo-${k}">Precisa de ajuda?</h1>
-    <p class="rede__sub">Os casos mais comuns para entrar no ERP.</p>
+    <p class="rede__sub">Os casos mais comuns para ${geral ? 'entrar' : 'entrar no ERP'}.</p>
     <ul class="rede__casos">
       <li>${L(keyRound)}<div><p>Esqueci-me da palavra-passe</p><span>No passo da palavra-passe, «Esqueceste-te?»: recebes um correio para a mudar.</span></div></li>
-      <li>${L(userX)}<div><p>Não tenho conta, ou está bloqueada</p><span>As contas do ERP são criadas pelo administrador da tua empresa. Fala com ele.</span></div></li>
+      <li>${L(userX)}<div><p>Não tenho conta, ou está bloqueada</p><span>${geral ? 'As contas' : 'As contas do ERP'} são criadas pelo administrador da tua empresa. Fala com ele.</span></div></li>
       <li>${L(building)}<div><p>Entro com a conta da empresa</p><span>Escreve o endereço da empresa no primeiro passo: seguimos para a página dela.</span></div></li>
     </ul>
     ${botao('Voltar a entrar', arrowLeft, { ir: 'entrada', tipo: 'button' })}
-  </div>`, { rede: 'neutro' });
+  </div>`, { rede: 'neutro', geral });
 
 /** A v10 de cada um dos quatro ecrãs de entrar. */
 export const REDE_ENTRAR: Record<'entrada' | 'palavra-passe' | 'federado' | 'ajuda', string> = {

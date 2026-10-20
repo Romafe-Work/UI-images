@@ -212,3 +212,46 @@
   .rede__passo, .rede__cartao, .rede__concha-topo, .rede__concha-lado { transition: none; }
   .rede__girar { animation-duration: 1.6s; }
 }
+
+/* ---------- v11 (20 out.): o início de sessão geral — 06 · a empresa e 07 · a aplicação ----------
+   As linhas são as do cartão (borda fina, raio de 8 px, fundo do painel); a que abre leva a ação azul
+   à direita; as que não abrem daqui ficam à mesma altura, só sem seta e com a razão em texto. */
+.central__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.central__opcao {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 12px;
+  border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-painel); color: var(--rede-tinta);
+  font: inherit; text-align: left;
+}
+button.central__opcao { cursor: pointer; transition: border-color .14s ease, background .14s ease, transform .12s ease; }
+button.central__opcao:hover:not(:disabled) { border-color: color-mix(in srgb, var(--rede-azul) 55%, var(--rede-borda)); background: var(--rede-fundo-2); }
+button.central__opcao:active:not(:disabled) { transform: scale(.99); }
+button.central__opcao:focus-visible { outline: 2px solid var(--rede-azul); outline-offset: 2px; }
+button.central__opcao[aria-busy="true"] { cursor: progress; border-color: var(--rede-azul); }
+.central__icone { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 8px; background: var(--rede-fundo-2); color: var(--rede-azul); }
+.central__icone svg { width: 18px; height: 18px; }
+.central__texto { display: grid; gap: 1px; flex: 1; min-width: 0; }
+.central__nome { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.central__desc { font-size: 13px; line-height: 1.35; color: var(--rede-tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.central__marca { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 12px; font-weight: 600; color: var(--rede-tinta-2); }
+.central__marca svg { width: 13px; height: 13px; }
+.central__marca[hidden] { display: none; }
+.central__seta { flex: none; width: 18px; height: 18px; color: var(--rede-tinta-2); transition: transform .14s ease, color .14s ease; }
+button.central__opcao:hover .central__seta { transform: translateX(2px); color: var(--rede-azul); }
+.central__abrir { display: inline-flex; align-items: center; gap: 2px; flex: none; padding: 6px 8px 6px 12px; border-radius: 6px; background: var(--rede-azul); color: #fff; font-size: 13px; font-weight: 700; transition: background .14s ease; }
+.central__abrir svg { width: 16px; height: 16px; transition: transform .14s ease; }
+button.central__opcao:hover .central__abrir { background: var(--rede-azul-premido); }
+button.central__opcao:hover .central__abrir svg { transform: translateX(2px); }
+.central__opcao.is-fechada .central__icone { color: var(--rede-tinta-2); }
+.central__opcao.is-fechada .central__nome { color: var(--rede-tinta-2); }
+.central__estado { display: inline-flex; align-items: center; gap: 6px; flex: none; max-width: 44%; font-size: 12px; line-height: 1.3; color: var(--rede-tinta-2); text-align: right; }
+.central__estado svg { width: 13px; height: 13px; flex: none; }
+.central__girar { width: 14px; height: 14px; border: 2px solid color-mix(in srgb, var(--rede-azul) 30%, transparent); border-top-color: var(--rede-azul); border-radius: 50%; animation: rede-girar .8s linear infinite; }
+.central__empresa { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.central strong { color: var(--rede-tinta); font-weight: 600; }
+.central .rede__aviso { margin-bottom: 14px; }
+.central + .central__lista, .central > .central__lista { margin-bottom: 4px; }
+@media (max-width: 559px) {
+  .central__marca { display: none; }
+  .central__estado { max-width: 38%; }
+}
+@media (prefers-reduced-motion: reduce) { .central__girar { animation-duration: 2.4s; } }

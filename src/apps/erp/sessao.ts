@@ -14,3 +14,13 @@ export function abrirSessao(correio: string): void { try { sessionStorage.setIte
 export function terminarSessao(): void { try { sessionStorage.removeItem(CHAVE); } catch { /* */ } }
 /** O perfil de quem está na sessão: o de «Ver como» (protótipo), senão o de Compras (o Rui Matos do login). */
 export function perfilDaSessao(): IdPerfil { try { const v = sessionStorage.getItem('erp:perfil'); return v ? JSON.parse(v) as IdPerfil : 'compras'; } catch { return 'compras'; } }
+
+/* 20 out. 2026: a v11 (o início de sessão geral) escolhe a empresa depois de entrar. A da sessão fica na
+   sessão do navegador; a última usada fica guardada neste computador, para vir marcada da próxima vez. */
+const CHAVE_EMPRESA = 'erp:empresa', CHAVE_ULTIMA = 'romafe:empresa-ultima';
+export function lerEmpresa(): string | null { try { return sessionStorage.getItem(CHAVE_EMPRESA); } catch { return null; } }
+export function escolherEmpresa(id: string): void {
+  try { sessionStorage.setItem(CHAVE_EMPRESA, id); } catch { /* */ }
+  try { localStorage.setItem(CHAVE_ULTIMA, id); } catch { /* */ }
+}
+export function ultimaEmpresa(): string | null { try { return localStorage.getItem(CHAVE_ULTIMA); } catch { return null; } }

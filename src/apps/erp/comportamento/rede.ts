@@ -20,7 +20,8 @@ import { mostrar } from '../../../comum/ecras';
 import { CORREIO } from '../entrar-rede';
 import type { CenaRede, Fase } from './rede-cena';
 import { destinoAoEntrar } from './inicio';
-import { abrirSessao } from '../sessao';
+import { abrirSessao, terminarSessao, escolherEmpresa, lerEmpresa, lerSessao, ultimaEmpresa } from '../sessao';
+import { EMPRESAS } from '../entrar-central';
 
 const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -75,7 +76,7 @@ async function armar(): Promise<void> {
   const mudou = r !== raiz;
   raiz = r;
   r.classList.remove('is-a-abrir');
-  if (mudou) prepararCorreio(r);
+  if (mudou) { prepararCorreio(r); if (r.dataset.passo === 'central') prepararCentral(r); }
   if (editando() || quieto() || (!cena && !temWebgl())) { semWebgl = semWebgl || !temWebgl(); r.classList.add('is-parado'); return; }
   const c = await obterCena();
   if (!c || raiz !== r) { if (!c) r.classList.add('is-parado'); return; }
@@ -169,7 +170,31 @@ async function entrar(b: HTMLButtonElement): Promise<void> {
     inp.value = ''; inp.focus();
     return;
   }
-  await abrirErp(r, b);
+  if (r.hasAttribute('data-geral')) await aEmpresa(r, b); else await abrirErp(r, b);
+}
+
+/* v11 (20 out.): o início de sessão geral — depois de entrar não se abre o ERP, escolhe-se a empresa
+   (06) e depois a aplicação (07). Com uma empresa só, salta-se o 06. */
+async function aEmpresa(r: HTMLElement, b: HTMLButtonElement | null): Promise<void> {
+  abrirSessao(r.querySelector('.rede__conta-correio')?.textContent?.trim() || CORREIO);
+  if (b) ocupar(b, null);
+  ocupado = false;
+  if (EMPRESAS.length === 1) { escolherEmpresa(EMPRESAS[0].id); mostrar('escolher-app'); }
+  else mostrar('escolher-empresa');
+  requestAnimationFrame(() => { raiz?.querySelector<HTMLElement>('.central__opcao:not([disabled])')?.focus(); });
+}
+
+/* nos 06 e 07, o que vem da sessão: o correio de quem entrou, a última empresa usada, a empresa escolhida */
+function prepararCentral(r: HTMLElement): void {
+  const s = lerSessao();
+  if (s) r.querySelectorAll('.rede__conta-correio').forEach((x) => { x.textContent = s.correio; });
+  const ultima = ultimaEmpresa();
+  if (ultima && r.querySelector(`[data-empresa="${ultima}"]`)) {
+    r.querySelectorAll<HTMLElement>('[data-empresa]').forEach((op) => { op.querySelector<HTMLElement>('[data-central-ultima]')!.hidden = op.dataset.empresa !== ultima; });
+  }
+  /* no 07 (não nos estados, que mostram uma empresa de propósito), a empresa escolhida */
+  const e = EMPRESAS.find((x) => x.id === lerEmpresa());
+  if (e && r.closest('.ecra')?.getAttribute('data-ecra') === 'escolher-app') r.querySelectorAll('[data-central-empresa]').forEach((x) => { x.textContent = e.nome; });
 }
 
 async function abrirErp(r: HTMLElement, b: HTMLButtonElement | null): Promise<void> {
@@ -187,6 +212,21 @@ async function abrirErp(r: HTMLElement, b: HTMLButtonElement | null): Promise<vo
   mostrar(destinoAoEntrar());
   const erp = document.querySelector<HTMLElement>('.ecra:not([hidden]) .erp, .ecra:not([hidden]) .ws');
   if (erp && !quieto()) { erp.classList.add('is-chegada'); window.setTimeout(() => erp.classList.remove('is-chegada'), 700); }
+}
+
+/* 07: o ERP abre com a espera na própria linha (o pedido da sessão da empresa), e depois como na v10 */
+async function abrirDaLista(b: HTMLButtonElement): Promise<void> {
+  const r = raiz!; const sitio = b.querySelector<HTMLElement>('.central__abrir');
+  const sitioSeta = sitio?.querySelector('svg')?.outerHTML;
+  ocupado = true; b.disabled = true; b.setAttribute('aria-busy', 'true');
+  if (sitio) sitio.outerHTML = '<span class="central__estado"><span class="central__girar" aria-hidden="true"></span>A abrir…</span>';
+  fase('pedido');
+  await espera(quieto() ? 200 : 600);
+  if (raiz !== r) { ocupado = false; return; }
+  await abrirErp(r, null);
+  /* a linha volta ao normal, para quando se voltar ao 07 */
+  b.disabled = false; b.removeAttribute('aria-busy');
+  b.querySelector('.central__estado')?.replaceWith(Object.assign(document.createElement('span'), { className: 'central__abrir', innerHTML: 'Abrir' + (sitioSeta ?? '') }));
 }
 
 function aoClicar(ev: MouseEvent): void {
@@ -208,7 +248,10 @@ function aoClicar(ev: MouseEvent): void {
   if (acao === 'continuar') continuar(b as HTMLButtonElement);
   else if (acao === 'mudar') mudar();
   else if (acao === 'entrar') entrar(b as HTMLButtonElement);
-  else if (acao === 'empresa') { ocupado = true; ocupar(b as HTMLButtonElement, 'A abrir a página da empresa…'); fase('pedido'); window.setTimeout(() => abrirErp(raiz!, b as HTMLButtonElement), 900); }
+  else if (acao === 'empresa') { ocupado = true; ocupar(b as HTMLButtonElement, 'A abrir a página da empresa…'); fase('pedido'); const r = raiz!; window.setTimeout(() => (r.hasAttribute('data-geral') ? aEmpresa(r, b as HTMLButtonElement) : abrirErp(r, b as HTMLButtonElement)), 900); }
+  else if (acao === 'empresa-escolher') { escolherEmpresa(b.dataset.empresa || EMPRESAS[0].id); mostrar('escolher-app'); requestAnimationFrame(() => { raiz?.querySelector<HTMLElement>('.central__opcao.is-principal')?.focus(); }); }
+  else if (acao === 'abrir-erp') abrirDaLista(b as HTMLButtonElement);
+  else if (acao === 'sair') { terminarSessao(); mostrar('entrada'); }
 }
 
 export function iniciar(): void {
