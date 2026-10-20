@@ -13,7 +13,6 @@
    ========================================================= */
 import { PEDIDOS, LINHAS, euros, type Pedido, type LinhaPedido } from './pedidos-dados';
 import { GUIAS } from './guias-dados';
-import { FATURAS } from './faturas-dados';
 import { DEVOLUCOES, estadoDev } from './devolucoes-dados';
 import { etapa } from './pedidos-v4';
 
@@ -80,36 +79,28 @@ export type Linha = { l: LinhaPedido; p: Pedido; n: number; valor: number; artig
 export const LINHAS_TODAS: Linha[] = LINHAS.map((l) => { const p = pedidoDe(l.num); return { l, p, n: dia(l.data), valor: valorPedido(p), artigos: artigosPedido(p), etapa: etapa(p) }; }).sort((a, b) => b.n - a.n);
 export const pedidosEm = (p: Periodo) => LINHAS_TODAS.filter((x) => dentro(x.n, p));
 
-/* ---------- os indicadores ---------- */
+/* ---------- os indicadores ----------
+   (20 out., V6) o resumo operacional: quatro números do «agora», que não dependem de nenhum período (o período
+   ficou só no gráfico). Cada um abre a lista certa, já filtrada. */
 export type Kpi = {
-  id: 'efetuados' | 'curso' | 'valor' | 'recolha' | 'devolucoes' | 'docs';
+  id: 'curso' | 'transporte' | 'recolha' | 'devolucoes';
   nome: string; valor: number; texto: string; sub?: string;
-  /** o que se conta, dito por extenso (fica na dica e para os leitores de ecrã) */
+  /** o que se conta, dito por extenso (fica para os leitores de ecrã) */
   def: string;
-  /** só nos que dependem do período: o mesmo número no período anterior, quando está todo dentro do histórico */
-  antes?: { valor: number; texto: string };
-  /** «agora»: não depende do período */
-  agora?: boolean;
   /** para onde leva: [ecrã, etapa do filtro] */
   ir: [string, string?];
 };
-export function kpis(p: Periodo): Kpi[] {
-  const ant = anterior(p);
-  const comPedidos = ant.de >= INICIO_PEDIDOS, comDocs = ant.de >= INICIO_DOCS;
-  const ped = pedidosEm(p), pedAnt = pedidosEm(ant);
-  const soma = (xs: Linha[]) => +xs.reduce((s, x) => s + x.valor, 0).toFixed(2);
-  const docs = (q: Periodo) => FATURAS.filter((f) => dentro(dia(f.guia.data), q));
+export function kpis(): Kpi[] {
   const emCurso = LINHAS_TODAS.filter((x) => x.etapa.k !== 'concluido');
+  const transporte = LINHAS_TODAS.filter((x) => x.etapa.k === 'expedido');
   const recolha = LINHAS_TODAS.filter((x) => x.etapa.k === 'recolher');
   const devAbertas = DEVOLUCOES.filter((d) => estadoDev(d) !== 'creditada');
-  const f = docs(p), nc = f.filter((x) => x.guia.tipo === 'credito').length;
+  const prep = emCurso.filter((x) => x.etapa.k === 'preparacao' || x.etapa.k === 'preparado').length;
   return [
-    { id: 'efetuados', nome: 'Pedidos efetuados', valor: ped.length, texto: String(ped.length), def: 'Pedidos feitos no período, pela data do pedido.', antes: comPedidos ? { valor: pedAnt.length, texto: String(pedAnt.length) } : undefined, ir: ['pedidos'] },
-    { id: 'curso', nome: 'Pedidos em curso', valor: emCurso.length, texto: String(emCurso.length), sub: emCurso.length ? `${emCurso.filter((x) => x.etapa.k === 'expedido').length} expedidos · ${emCurso.filter((x) => x.etapa.k === 'preparacao' || x.etapa.k === 'preparado').length} em preparação` : undefined, def: 'Pedidos ainda não entregues nem levantados, de qualquer data.', agora: true, ir: ['pedidos'] },
-    { id: 'valor', nome: 'Valor das compras', valor: soma(ped), texto: euros(soma(ped)), sub: 'sem IVA', def: 'A soma dos artigos dos pedidos feitos no período, sem IVA.', antes: comPedidos ? { valor: soma(pedAnt), texto: euros(soma(pedAnt)) } : undefined, ir: ['pedidos'] },
-    { id: 'recolha', nome: 'Disponíveis para recolha', valor: recolha.length, texto: String(recolha.length), sub: recolha.length ? undefined : 'Nenhum pronto no balcão', def: 'Pedidos prontos a levantar no balcão, de qualquer data.', agora: true, ir: ['pedidos', 'recolher'] },
-    { id: 'devolucoes', nome: 'Devoluções em aberto', valor: devAbertas.length, texto: String(devAbertas.length), sub: devAbertas.length ? `${devAbertas.filter((d) => estadoDev(d) === 'rascunho').length} por enviar · ${devAbertas.filter((d) => estadoDev(d) === 'enviada').length} à espera do crédito` : undefined, def: 'Devoluções por enviar ou enviadas e ainda sem nota de crédito.', agora: true, ir: ['devolucoes'] },
-    { id: 'docs', nome: 'Documentos recentes', valor: f.length, texto: String(f.length), sub: f.length ? `${f.length - nc} ${f.length - nc === 1 ? 'fatura' : 'faturas'}${nc ? ` · ${nc} ${nc === 1 ? 'nota de crédito' : 'notas de crédito'}` : ''}` : undefined, def: 'Faturas e notas de crédito emitidas no período (cada uma com a sua guia de remessa).', antes: comDocs ? { valor: docs(ant).length, texto: String(docs(ant).length) } : undefined, ir: ['faturas'] },
+    { id: 'curso', nome: 'Pedidos em curso', valor: emCurso.length, texto: String(emCurso.length), sub: emCurso.length ? `${prep} em preparação` : 'Nenhum por entregar', def: 'Pedidos ainda não entregues nem levantados.', ir: ['pedidos', prep ? 'preparacao' : undefined] },
+    { id: 'transporte', nome: 'Em transporte', valor: transporte.length, texto: String(transporte.length), sub: transporte.length ? transporte.map((x) => x.l.num).join(', ') : 'Nenhum a caminho', def: 'Pedidos expedidos e ainda não entregues.', ir: ['pedidos', 'expedido'] },
+    { id: 'recolha', nome: 'Para recolha', valor: recolha.length, texto: String(recolha.length), sub: recolha.length ? 'Prontos no balcão' : 'Nenhum pronto no balcão', def: 'Pedidos prontos a levantar no balcão.', ir: ['pedidos', 'recolher'] },
+    { id: 'devolucoes', nome: 'Devoluções abertas', valor: devAbertas.length, texto: String(devAbertas.length), sub: devAbertas.length ? `${devAbertas.filter((d) => estadoDev(d) === 'rascunho').length} por enviar · ${devAbertas.filter((d) => estadoDev(d) === 'enviada').length} à espera do crédito` : 'Nenhuma por tratar', def: 'Devoluções por enviar ou enviadas e ainda sem nota de crédito.', ir: ['devolucoes'] },
   ];
 }
 

@@ -28,6 +28,7 @@ import { devolucoesV1, devDe, cabecaDev, detalheDev, painelCriar, linhaCesto, va
 import { DEVOLUCOES, type Devolucao } from './devolucoes-dados';
 
 export type IdEstadoInicio = 'inicio-carga' | 'inicio-modelos' | 'inicio-pesquisa' | 'inicio-sem-resultados' | 'inicio-formulario' | 'inicio-rede' | 'inicio-falha' | 'inicio-vazio' | 'inicio-comando'
+  | 'inicio-parcial-form' | 'inicio-vin' | 'inicio-candidatos' | 'inicio-marca' | 'inicio-modelos-carga' | 'inicio-modelos-nada' | 'inicio-veic-escolhido' | 'inicio-resultados' | 'inicio-filtros' | 'inicio-servico' | 'inicio-limpa'
   | 'inicio-veiculo' | 'inicio-veiculo-nao' | 'inicio-linha' | 'inicio-repetir' | 'inicio-sucesso' | 'inicio-personalizar' | 'inicio-arrastar' | 'inicio-compacta' | 'inicio-atualizar' | 'inicio-parcial' | 'inicio-permissao' | 'inicio-sem-stock';
 export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-selecionado' | 'pedidos-encontrado' | 'pedidos-repetir' | 'pedidos-repetido' | 'pedidos-repetido-parte' | 'pedidos-guia' | 'pedidos-a-abrir' | 'pedidos-processamento' | 'pedidos-recolher' | 'pedidos-expedido' | 'pedidos-gaveta' | 'pedidos-sessao' | 'pedidos-sem-permissao' | 'pedidos-documento' | 'pedidos-carga' | 'pedidos-filtrar' | 'pedidos-vazio' | 'pedidos-datas' | 'pedidos-rede' | 'pedidos-falha' | 'pedidos-aberto' | 'pedidos-primeira';
 export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-aberto' | 'faturas-painel-carga' | 'faturas-sem-linhas' | 'faturas-longa' | 'faturas-paga' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
@@ -1094,24 +1095,37 @@ const ini3 = (est: EstadoInicio) => () => {
   if (est === 'personalizar' || est === 'arrastar' || est === 'repetir') return html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3');
   return est === 'comando' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
 };
+/* (20 out., V6) os estados da pesquisa pela ordem do briefing «Complete UX Refinement, Search Cards…»: escolher,
+   identificar (matrícula, VIN, descrição), selecionar (marca → modelo → motorização), referência e resultados.
+   As peças compatíveis (a carregar, encontradas, nenhuma) são do Catálogo: 11.11, 11.15 e 11.24. */
 export const estadosInicio = (): EcraGoParts[] => [
-  e('inicio-carga', '18.1 · A carregar a pesquisa', 'O rolamento monta-se e roda no lugar da pesquisa — «A preparar o teu espaço…» — e os blocos aparecem à medida que os dados chegam.', ini3('carga')),
-  e('inicio-modelos', '18.2 · Sugestões ao escrever', 'Na referência, «VKBA»: as sugestões agrupadas (referências, fabricantes, pesquisas recentes), a parte escrita destacada, a escolhida com a risca laranja; ↑ ↓ Enter Esc.', ini3('sugestoes')),
-  e('inicio-pesquisa', '18.3 · A pesquisar a referência', 'O rolamento roda no lugar do ícone do campo e no botão: «A procurar referências…». Sem cobrir a página.', ini3('pesquisa')),
-  e('inicio-sem-resultados', '18.4 · Referência sem resultados', 'O contorno de um disco inspecionado uma vez; «Não encontrámos resultados…» e três saídas: limpar, equivalências, catálogo.', ini3('sem-resultados')),
-  e('inicio-formulario', '18.5 · Erro no formulário', 'Identificar: a matrícula incompleta — borda, ícone que se desenha e a explicação por baixo; o que se escreveu fica.', ini3('erro')),
-  e('inicio-rede', '18.6 · Sem ligação', 'O rolamento abranda até parar: «Estás sem ligação à Internet.» «Tentar novamente» volta a pô-lo a rodar e confirma a ligação.', ini3('rede')),
-  e('inicio-vazio', '18.7 · Primeira vez', 'A visita guiada pelas três formas de encontrar peças, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete. Os blocos vazios dizem o que vão mostrar: sem garagem, atividade nem peças frequentes.', ini3('vazio')),
-  e('inicio-comando', '18.8 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K): o fundo escurece e a caixa cresce de 0,98 para 1; recentes, pedidos, marcas e modelos, categorias e páginas; ↑ ↓ Enter Esc.', ini3('comando')),
+  e('inicio-vazio', '18.1 · Primeira pesquisa', 'A visita guiada pelas três formas de pesquisar, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete. Os blocos de baixo dizem o que vão mostrar.', ini3('vazio')),
+  e('inicio-carga', '18.2 · A carregar a pesquisa', 'O rolamento monta-se e roda no lugar do formulário; os cartões já se podem escolher.', ini3('carga')),
+  e('inicio-parcial-form', '18.3 · Matrícula a meio', '«AA-12-B»: a ajuda por baixo diz quanto falta; ainda não é erro.', ini3('parcial-form')),
+  e('inicio-formulario', '18.4 · Matrícula inválida', 'A matrícula incompleta: a borda, o ícone e a explicação por baixo; o que se escreveu fica.', ini3('erro')),
+  e('inicio-vin', '18.5 · VIN inválido', '«Mais opções» aberto: o VIN com 10 caracteres — «Faltam 7». A matrícula vazia não é erro: basta um dos campos.', ini3('vin')),
+  e('inicio-candidatos', '18.6 · Vários veículos possíveis', 'Pela descrição «Clio 1.5 dCi»: os veículos do catálogo que respondem, para confirmar um. Nada se dá como certo antes da confirmação.', ini3('candidatos')),
+  e('inicio-veiculo-nao', '18.7 · Veículo não identificado', 'O serviço de identificação não devolveu nenhum veículo: o que fazer (confirmar, VIN, escolher pela marca); a matrícula escrita fica.', ini3('veiculo-nao')),
+  e('inicio-veiculo', '18.8 · Veículo confirmado', 'AA-12-BC: o veículo aparece por baixo, os dados um a um, com «Ver peças compatíveis»; a compatibilidade é a do catálogo.', ini3('veiculo')),
+  e('inicio-marca', '18.9 · Marca escolhida', 'Por veículo: a Renault passou ao resumo em cima e o Modelo acendeu; a Motorização e o Ano esperam.', ini3('marca')),
+  e('inicio-modelos-carga', '18.10 · Modelos a carregar', 'O Modelo diz «A carregar modelos…» com o rolamento pequeno; nada salta quando chegam.', ini3('modelos-carga')),
+  e('inicio-modelos-nada', '18.11 · Marca sem modelos', 'A Fiat não tem modelos no catálogo: di-lo e aponta a referência ou a matrícula; o Modelo fica desligado.', ini3('modelos-nada')),
+  e('inicio-veic-escolhido', '18.12 · Veículo escolhido', 'Renault › Clio IV › 1.5 dCi: «Selecionar veículo» mostra o veículo por baixo, com «Ver peças compatíveis».', ini3('veic-escolhido')),
+  e('inicio-modelos', '18.13 · Sugestões ao escrever', 'Na referência, «VKBA»: as sugestões agrupadas (referências, fabricantes, pesquisas recentes); ↑ ↓ Enter Esc.', ini3('sugestoes')),
+  e('inicio-pesquisa', '18.14 · A pesquisar', 'O botão em «A pesquisar…»; os cartões encolhem e os resultados chegam em esqueleto, no mesmo sítio.', ini3('pesquisa')),
+  e('inicio-resultados', '18.15 · Resultados', '«SKF»: a contagem, a ordem, Lista ou Grelha, as marcas com o número de cada uma; cada peça com o stock, o preço líquido, «Adicionar» e a ficha.', ini3('resultados')),
+  e('inicio-filtros', '18.16 · Com filtros', '«kit» com a marca SKF e «Só com stock»: os filtros ativos em etiquetas que se tiram; quantos há sem eles.', ini3('filtros')),
+  e('inicio-sem-resultados', '18.17 · Referência não encontrada', '«XQ-99812»: o que fazer — a pesquisa parcial, limpar ou o catálogo universal; o que se escreveu fica.', ini3('sem-resultados')),
+  e('inicio-limpa', '18.18 · Pesquisa limpa', 'Depois de «Limpar pesquisa»: os resultados saem, os cartões voltam ao tamanho e o foco volta ao campo.', ini3('limpa')),
+  e('inicio-servico', '18.19 · Pesquisa indisponível', 'O serviço de pesquisa não respondeu: «Tentar novamente» e o catálogo; o que se escreveu continua no campo.', ini3('servico')),
+  e('inicio-rede', '18.20 · Sem ligação', 'O rolamento abranda até parar: «Estás sem ligação à Internet.» «Tentar novamente» confirma a ligação.', ini3('rede')),
+  e('inicio-comando', '18.21 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K): recentes, pedidos, marcas e modelos, categorias e páginas; ↑ ↓ Enter Esc.', ini3('comando')),
 ];
-/* 16 out. 2026: os estados dos blocos do espaço de trabalho (o briefing «Ultimate Home Dashboard»); entram a seguir
-   aos 18.9–18.15 (app.ts); (20 out., V5) os das encomendas e de «Personalizar Início» saíram com o painel */
+/* 16 out. 2026: os estados dos blocos de baixo; entram a seguir aos da página (app.ts, 18.22–18.28) */
 export const estadosInicioEspaco = (): EcraGoParts[] => [
-  e('inicio-veiculo', '18.16 · Veículo identificado', 'AA-12-BC: o veículo aparece por baixo da pesquisa, os dados um a um (matrícula, ano, motor, potência…), com «Ver peças compatíveis»; a nota diz que a compatibilidade é a do catálogo; o cartão da garagem fica marcado.', ini3('veiculo')),
-  e('inicio-veiculo-nao', '18.17 · Matrícula não encontrada', 'O serviço de identificação não devolveu nenhum veículo: o que fazer (confirmar, VIN, escolher pela marca); a matrícula escrita fica.', ini3('veiculo-nao')),
-  e('inicio-parcial', '18.18 · Falha parcial', 'As peças frequentes e o stock não carregaram: cada bloco diz o seu erro e tenta de novo sozinho; o resto da pesquisa funciona.', ini3('parcial')),
-  e('inicio-permissao', '18.19 · Sem acesso aos preços', 'A conta não tem a permissão «Ver preços»: os preços e «Adicionar» saem e diz-se a quem pedir o acesso.', ini3('permissao')),
-  e('inicio-sem-stock', '18.20 · Referência sem stock', 'INA 538 0001 10: zero nos dois armazéns — sem saída nem levantamento; por encomenda ao fornecedor, 3 a 5 dias úteis.', ini3('sem-stock')),
+  e('inicio-parcial', '18.29 · Falha parcial', 'As peças frequentes e o stock não carregaram: cada bloco diz o seu erro e tenta de novo sozinho; o resto da pesquisa funciona.', ini3('parcial')),
+  e('inicio-permissao', '18.30 · Sem acesso aos preços', 'A conta não tem a permissão «Ver preços»: os preços e «Adicionar» saem e diz-se a quem pedir o acesso.', ini3('permissao')),
+  e('inicio-sem-stock', '18.31 · Referência sem stock', 'INA 538 0001 10: zero nos dois armazéns — sem saída nem levantamento; por encomenda ao fornecedor, 3 a 5 dias úteis.', ini3('sem-stock')),
 ];
 export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-carga', '11.1 · A carregar o Catálogo', 'O cartão da pesquisa e a grelha das marcas em esqueleto.', catalogoCarga),

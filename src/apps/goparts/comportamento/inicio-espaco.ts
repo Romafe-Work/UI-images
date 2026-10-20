@@ -19,10 +19,10 @@
 import { mostrar } from '../../../comum/ecras';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import * as carrinho from './carrinho';
-import { REFERENCIAS } from '../portal/catalogo-dados';
+import { REFERENCIAS, veiculosDe } from '../portal/catalogo-dados';
 import {
   PREFS, CHAVE_PREFS, GARAGEM, ORDEM_PESQUISA, CHAVE_GARAGEM, CHAVE_ATIVIDADE, CHAVE_FAVORITAS, FAVORITAS, IDENTIFICADOS, VINS, BLOCOS,
-  atividadeInicial, normalizarMatricula, nomeCarro, olaHtml, veiculoHtml, naoEncontradoHtml, encomendasHtml, continuarHtml, garagemHtml,
+  atividadeInicial, normalizarMatricula, nomeCarro, olaHtml, veiculoHtml, naoEncontradoHtml, candidatosHtml, encomendasHtml, continuarHtml, garagemHtml,
   atalhosHtml, frequentesHtml, personalizarHtml, atencaoHtml, resumoHtml, repetirHtml, repetirDe, dispCorpo, saudacao, L, IC,
   type Prefs, type Carro, type Atividade, type IdBloco, type IdAtalho, type Dados,
 } from '../portal/inicio-espaco';
@@ -97,7 +97,7 @@ function registar(a: Omit<Atividade, 'quando'>): void {
   l.unshift({ ...a, quando: Date.now() }); gravar(CHAVE_ATIVIDADE, l.slice(0, 20));
 }
 function abrirVeiculoNoCatalogo(c: Pick<Carro, 'marca' | 'modelo' | 'matricula'> & Partial<Carro>, grupo = ''): void {
-  registar({ tipo: 'veiculo', titulo: nomeCarro({ id: '', ano: 0, v: 0, ...c } as Carro), sub: `${grupo || 'Peças compatíveis'} · ${c.matricula}`, dados: { matricula: c.matricula } });
+  registar({ tipo: 'veiculo', titulo: nomeCarro({ id: '', ano: 0, v: 0, ...c } as Carro), sub: `${grupo || 'Peças compatíveis'}${c.matricula ? ` · ${c.matricula}` : ''}`, dados: { matricula: c.matricula } });
   ir('catalogo', 'goparts:catalogo-abrir', JSON.stringify({ tipo: 'modelo', marca: c.marca, modelo: c.modelo }));
 }
 
@@ -162,6 +162,18 @@ function limparErros(card: HTMLElement): void {
 export function identificar(card: HTMLElement): boolean {
   const ini = card.closest<HTMLElement>('.ini4'); if (!ini) return false;
   const mat = card.querySelector<HTMLInputElement>('#i3-matricula')?.value.trim() ?? '', vin = (card.querySelector<HTMLInputElement>('#i3-chassis')?.value ?? '').trim().toUpperCase().replace(/\s/g, '');
+  /* (20 out., V6) sem matrícula nem VIN: a descrição ou o motor dão os veículos possíveis, para confirmar um */
+  if (!mat && !vin && ini.closest('.portal--pq')) {
+    const texto = [card.querySelector<HTMLInputElement>('#i3-descricao')?.value, card.querySelector<HTMLInputElement>('#i3-motor')?.value].filter(Boolean).join(' ').trim();
+    limparErros(card);
+    if (!texto) { erroCampo(card, 'i3-matricula', '<b>Escreve a matrícula.</b> Ou abre «Mais opções de identificação» e usa o VIN, a descrição ou o motor.'); return true; }
+    const b = card.querySelector<HTMLElement>('[data-pesquisar]'); if (!b || b.getAttribute('aria-busy')) return true;
+    const repor = aCarregar(b, 'A procurar…');
+    void espera(600).then(() => { repor(); const sitio = ini.querySelector<HTMLElement>('[data-veiculo]'); if (!sitio) return;
+      flip(blocos(ini), () => { sitio.innerHTML = candidatosHtml(texto); sitio.hidden = false; });
+      entrar(sitio.firstElementChild!, 320, 'translateY(10px)'); sitio.querySelector<HTMLElement>('[data-confirmar-veiculo], [data-ir-modo]')?.focus({ preventScroll: true }); });
+    return true;
+  }
   if (!mat && !vin) return false;
   limparErros(card);
   if (mat && !normalizarMatricula(mat)) { erroCampo(card, 'i3-matricula', '<b>A matrícula não está completa.</b> O formato é AA-00-AA (6 letras ou números).'); return true; }
@@ -180,12 +192,23 @@ function mostrarVeiculo(ini: HTMLElement, c: Carro | null, procurado: string, or
   ini.querySelectorAll('.ini4__carro').forEach((x) => x.classList.toggle('is-escolhido', !!c && (x as HTMLElement).dataset.matricula === c.matricula));
   const aviso = ini.closest('.portal--ini4')?.querySelector('.ini3__aviso'); if (aviso) aviso.textContent = c ? `Veículo identificado: ${nomeCarro(c)}, ${c.ano}.` : `Nenhum veículo com ${procurado}.`;
   if (c) {
-    registar({ tipo: 'veiculo', titulo: nomeCarro(c), sub: `Identificado · ${c.matricula}`, dados: { matricula: c.matricula } });
+    registar({ tipo: 'veiculo', titulo: nomeCarro(c), sub: c.matricula ? `Identificado · ${c.matricula}` : 'Escolhido pela marca e modelo', dados: { matricula: c.matricula } });
     const g = garagem(), x = g.find((q) => q.matricula === c.matricula);
     if (x && real(ini)) { x.quando = 'hoje'; gravar(CHAVE_GARAGEM, g); }
   }
   sitio.querySelector<HTMLElement>(c ? '[data-pecas-matricula]' : '[data-ir-modo]')?.focus({ preventScroll: true });
   const r = sitio.getBoundingClientRect(); if (r.bottom > window.innerHeight) sitio.scrollIntoView({ block: 'nearest', behavior: quieto() ? 'auto' : 'smooth' });
+}
+/** (20 out., V6) «Selecionar veículo»: a marca, o modelo e a motorização escolhidos dão o veículo, por baixo. */
+export function escolherVeiculo(card: HTMLElement): boolean {
+  const ini = card.closest<HTMLElement>('.ini4'); if (!ini) return false;
+  const marca = card.dataset.marcaCat ?? '', modelo = card.querySelector<HTMLSelectElement>('#i3-modelo')?.value ?? '', v = card.querySelector<HTMLSelectElement>('#i3-variante')?.value ?? '';
+  if (!marca || !modelo) return false;
+  const vs = veiculosDe(marca, modelo), i = v === '' ? -1 : Number(v);
+  if (i < 0) { const s = card.querySelector<HTMLSelectElement>('#i3-variante'); s?.focus(); return true; }
+  const ano = Number(card.querySelector<HTMLSelectElement>('#i3-ano')?.value) || vs[i]?.desde || 0;
+  mostrarVeiculo(ini, { id: '', matricula: '', marca, modelo, v: i, ano }, '', 'marca e modelo');
+  return true;
 }
 function fecharVeiculo(ini: HTMLElement): void {
   const sitio = ini.querySelector<HTMLElement>('[data-veiculo]'); if (!sitio || sitio.hidden) return;
@@ -625,6 +648,9 @@ export function iniciar(): void {
     if (q('[data-fechar-veiculo]')) { fecharVeiculo(ini); return; }
     if ((b = q('[data-ir-modo]'))) { fecharVeiculo(ini); ini.querySelector<HTMLElement>(`.ini3__separador[data-modo="${b.dataset.irModo}"]`)?.click(); return; }
     if ((b = q('[data-usar-matricula]'))) { usarNaPesquisa(ini, b.dataset.usarMatricula!); return; }
+    /* (20 out., V6) um dos veículos possíveis (pela descrição) confirmado; as peças de um veículo sem matrícula */
+    if ((b = q('[data-confirmar-veiculo]'))) { const [marca, modelo, v] = b.dataset.confirmarVeiculo!.split('|'); const ve = veiculosDe(marca, modelo)[Number(v)]; mostrarVeiculo(ini, { id: '', matricula: '', marca, modelo, v: Number(v), ano: ve?.desde ?? 0 }, '', 'descrição'); return; }
+    if ((b = q('[data-pecas-modelo]'))) { const [marca, modelo] = b.dataset.pecasModelo!.split('|'); abrirVeiculoNoCatalogo({ marca, modelo, matricula: '' }); return; }
     /* encomendas */
     if ((b = q('[data-kpi]'))) { filtrarEnc(ini, b.getAttribute('aria-pressed') === 'true' ? null : b.dataset.kpi!); return; }
     if ((b = q('.ini4__enc'))) { abrirEnc(b); return; }

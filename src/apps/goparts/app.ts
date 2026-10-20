@@ -15,9 +15,9 @@ import { estadosInicioEspaco } from './portal/estados';
  *  aos estados que ela já tem (10.8, 11.15, 12.24, 13.21, 14.27). */
 const ONDE: Record<string, [IdGoParts, string]> = {
   /* (20 out., V5) a pesquisa saiu do Início: os estados que mostram a pesquisa passam ao 18 · Pesquisar peças */
-  'carga-pagina': ['inicio', '10.7 · A carregar o portal'], 'carga-inicio': ['pesquisa', '18.9 · Esqueleto da pesquisa'], 'carga-pecas': ['pesquisa', '18.10 · Peças a carregar'],
-  'erro-404': ['pesquisa', '18.11 · Página não encontrada'], 'erro-500': ['pesquisa', '18.12 · Erro do servidor'], 'erro-sessao': ['pesquisa', '18.13 · Sessão expirada'],
-  'erro-formulario': ['pesquisa', '18.14 · Erros no formulário (página)'], 'erro-manutencao': ['pesquisa', '18.15 · Em manutenção'],
+  'carga-pagina': ['inicio', '10.7 · A carregar o portal'], 'carga-inicio': ['pesquisa', '18.22 · Esqueleto da pesquisa'], 'carga-pecas': ['pesquisa', '18.23 · Peças a carregar'],
+  'erro-404': ['pesquisa', '18.24 · Página não encontrada'], 'erro-500': ['pesquisa', '18.25 · Erro do servidor'], 'erro-sessao': ['pesquisa', '18.26 · Sessão expirada'],
+  'erro-formulario': ['pesquisa', '18.27 · Dois campos com erro'], 'erro-manutencao': ['pesquisa', '18.28 · Em manutenção'],
   'carga-pesquisa': ['catalogo', '11.21 · Pesquisa em curso'], 'erro-vazio': ['catalogo', '11.22 · Pesquisa sem resultados'], 'erro-encomenda': ['catalogo', '11.23 · Encomenda não concluída'],
   'carga-tabela': ['pedidos', '12.25 · Tabela a carregar'], 'carga-mais': ['pedidos', '12.26 · Carregar mais'], 'erro-rede': ['pedidos', '12.27 · Sem ligação (página)'],
   'erro-403': ['guias', '13.22 · Acesso negado (página)'],

@@ -20,7 +20,8 @@ import { abrirPesquisa } from './barra';
 import { mostrar } from '../../../comum/ecras';
 import { listaReferencias, GUIA_TEXTOS } from '../portal/inicio-v3';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
-import { identificar, prepararCatalogo, modoPreferido } from './inicio-espaco';
+import { identificar, prepararCatalogo, modoPreferido, escolherVeiculo } from './inicio-espaco';
+import { escolherMarca, pesquisarReferencia } from './pesquisa';
 
 const editando = () => document.body.classList.contains('editando');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -29,7 +30,6 @@ const lerModo = () => { try { const v = Number(localStorage.getItem(CHAVE)); ret
 const guardarModo = (m: number) => { try { localStorage.setItem(CHAVE, String(m)); } catch { /* sem armazenamento */ } };
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ini3');
 const MARCAS = ['Alfa Romeo', 'Audi', 'BMW', 'Citroën', 'Dacia', 'Fiat', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mercedes-Benz', 'Nissan', 'Opel', 'Peugeot', 'Renault', 'Seat', 'Skoda', 'Toyota', 'Volkswagen', 'Volvo'];
-const MODELOS: Record<string, string[]> = { Renault: ['Clio IV', 'Mégane IV', 'Captur', 'Kangoo'], Volkswagen: ['Golf VII', 'Polo VI', 'Passat B8'], Peugeot: ['208', '308', '3008'] };
 
 /* ---------- os modos e o carrossel ---------- */
 function porModo(ini: HTMLElement, m: number, focar = false): void {
@@ -103,11 +103,8 @@ function fechar(inp: HTMLInputElement): void {
 }
 function usar(inp: HTMLInputElement, valor: string): void {
   inp.value = valor; fechar(inp);
-  if (inp.dataset.sugerir === 'marca') {
-    const card = inp.closest('.ini3__cartao')!, mod = card.querySelector<HTMLSelectElement>('#i3-modelo'), vari = card.querySelector<HTMLSelectElement>('#i3-variante');
-    if (mod) { mod.disabled = false; mod.innerHTML = `<option>Escolha o modelo</option>${(MODELOS[valor] ?? ['Todos os modelos']).map((m) => `<option>${m}</option>`).join('')}`; mod.focus(); }
-    if (vari) { vari.disabled = true; vari.innerHTML = '<option>Escolha o modelo</option>'; }
-  }
+  /* (20 out., V6) a marca escolhida: os modelos dela no catálogo (a carregar, depois a lista, ou «sem modelos») */
+  if (inp.dataset.sugerir === 'marca') escolherMarca(inp.closest<HTMLElement>('.ini3__cartao')!, valor);
 }
 function moverSugestao(inp: HTMLInputElement, passo: number): void {
   const lista = document.getElementById(inp.getAttribute('aria-controls')!) as HTMLElement | null;
@@ -126,6 +123,11 @@ function moverSugestao(inp: HTMLInputElement, passo: number): void {
 function pesquisar(card: HTMLElement): void {
   /* (16 out.) com matrícula ou VIN, o veículo identifica-se aqui mesmo (inicio-espaco.ts); o resto segue para o Catálogo */
   if (card.id === 'i3-cartao-identificar' && identificar(card)) return;
+  /* (20 out., V6) na Pesquisar peças: o veículo escolhido aparece por baixo; a referência mostra os resultados aqui */
+  if (card.closest('.pq')) {
+    if (card.id === 'i3-cartao-selecionar' && escolherVeiculo(card)) return;
+    if (card.id === 'i3-cartao-referencia') { pesquisarReferencia(card); return; }
+  }
   const b = card.querySelector<HTMLButtonElement>('[data-pesquisar]');
   if (!b || b.disabled) return;
   prepararCatalogo(card);

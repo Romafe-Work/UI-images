@@ -227,25 +227,49 @@ export function olaHtml(d: Dados, _e: EstadoEspaco = ''): string {
 export function veiculoHtml(c: Carro, naGaragem: boolean, origem = 'matrícula'): string {
   const v = versaoDe(c);
   const linhas: [string, string][] = [
-    ['Matrícula', c.matricula], ['Ano', String(c.ano)], ['Motor', v ? `${v.versao} · ${v.motor}` : '—'],
+    ...(c.matricula ? [['Matrícula', c.matricula] as [string, string]] : []), ['Ano', String(c.ano)], ['Motor', v ? `${v.versao} · ${v.motor}` : '—'],
     ['Potência', v ? `${v.kw} kW · ${v.cv} cv` : '—'], ['Cilindrada', v ? `${v.cc.toLocaleString('pt-PT')} cm³` : '—'],
     ['Combustível', v?.combustivel ?? '—'], ['Carroçaria', carrocariaDe(c)], ['Produção', v?.anos ?? '—'],
   ];
   return `<div class="ini4__veiculo-caixa" data-matricula="${c.matricula}">
     <div class="ini4__veiculo-img">${imagemModelo(c.modelo, carrocariaDe(c))}<p>Imagem ilustrativa da carroçaria. A fotografia do modelo entra quando o fornecedor do catálogo a der.</p></div>
     <div class="ini4__veiculo-texto">
-      <p class="ini4__veiculo-sobre">${L(check)}Veículo identificado pela ${origem}</p>
+      <p class="ini4__veiculo-sobre">${L(check)}${origem === 'marca e modelo' ? 'Veículo escolhido pela marca e modelo' : origem === 'descrição' ? 'Veículo confirmado por ti, a partir da descrição' : `Veículo identificado pela ${origem}`}</p>
       <h2 class="ini4__veiculo-nome">${esc(marcaNome(c.marca))} ${esc(modeloCurto(c.marca, c.modelo))} <span>${esc(v?.versao ?? '')}</span></h2>
       <dl class="ini4__veiculo-dados">${linhas.map(([k, val], i) => `<div style="--i:${i}"><dt>${k}</dt><dd>${esc(val)}</dd></div>`).join('')}</dl>
       <p class="ini4__veiculo-nota">${L(info)}As peças que aparecem a seguir são as que o catálogo liga a esta versão. Quando houver dúvida, confirme pela referência OE na ficha da peça.</p>
-      <div class="ini4__veiculo-accoes">${acao('Ver peças compatíveis', arrowRight, ` data-pecas-matricula="${c.matricula}"`)}${naGaragem ? `<span class="ini4__na-garagem">${L(check)}Está na garagem</span>` : btn('Guardar na garagem', save, ` data-guardar-matricula="${c.matricula}"`)}${btn('Fechar', x, ' data-fechar-veiculo')}</div>
+      <div class="ini4__veiculo-accoes">${c.matricula ? acao('Ver peças compatíveis', arrowRight, ` data-pecas-matricula="${c.matricula}"`) : acao('Ver peças compatíveis', arrowRight, ` data-pecas-modelo="${esc(c.marca)}|${esc(c.modelo)}"`)}${!c.matricula ? '' : naGaragem ? `<span class="ini4__na-garagem">${L(check)}Está na garagem</span>` : btn('Guardar na garagem', save, ` data-guardar-matricula="${c.matricula}"`)}${btn('Fechar', x, ' data-fechar-veiculo')}</div>
     </div>
   </div>`;
 }
-export function naoEncontradoHtml(m: string): string {
+/* (20 out., V6) identificar pela descrição ou pelo motor: os veículos do catálogo que respondem, para confirmar um.
+   Procura-se por palavras na marca, no modelo, na versão e no código do motor (sem acentos). */
+const pal = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9.]+/).filter(Boolean);
+export function procurarVeiculos(texto: string): { marca: string; modelo: string; v: number }[] {
+  const q = pal(texto); if (!q.length) return [];
+  const r: { marca: string; modelo: string; v: number }[] = [];
+  Object.entries(MODELOS).forEach(([marca, ms]) => ms.forEach(([modelo]) => veiculosDe(marca, modelo).forEach((ve, v) => {
+    const t = pal(`${marcaNome(marca)} ${marca} ${modelo} ${ve.versao} ${ve.motor} ${ve.combustivel}`);
+    if (q.every((p) => t.some((w) => w.startsWith(p)))) r.push({ marca, modelo, v });
+  })));
+  return r;
+}
+export function candidatosHtml(texto: string): string {
+  const l = procurarVeiculos(texto);
+  if (!l.length) return naoEncontradoHtml(texto, 'descrição');
+  return `<div class="ini4__veiculo-caixa ini4__candidatos" role="group" aria-labelledby="i4-cand-t">
+    <div><h2 class="ini4__veiculo-nome" id="i4-cand-t">${l.length === 1 ? 'Encontrámos 1 veículo' : `Encontrámos ${l.length} veículos`} para «${esc(texto)}»</h2>
+    <p>A descrição não chega para ter a certeza: confirma qual é o teu.</p>
+    <ul class="ini4__cand-lista" role="list">${l.slice(0, 8).map((c, i) => { const ve = veiculosDe(c.marca, c.modelo)[c.v]; return `<li style="--i:${i}"><button type="button" class="ini4__cand" data-confirmar-veiculo="${esc(c.marca)}|${esc(c.modelo)}|${c.v}">
+      <b>${esc(marcaNome(c.marca))} ${esc(modeloCurto(c.marca, c.modelo))} ${esc(ve.versao)}</b><span>${ve.kw} kW / ${ve.cv} cv · ${esc(ve.motor.split(',')[0])} · ${esc(ve.anos)}</span>${L(arrowRight)}</button></li>`; }).join('')}</ul>
+    ${l.length > 8 ? `<p class="ini4__cand-mais">E mais ${l.length - 8}. Escreve mais da descrição (por exemplo, o ano ou a potência) para reduzir.</p>` : ''}
+    <div class="ini4__veiculo-accoes">${btn('Fechar', x, ' data-fechar-veiculo')}</div></div>
+  </div>`;
+}
+export function naoEncontradoHtml(m: string, por = 'matrícula'): string {
   return `<div class="ini4__veiculo-caixa ini4__veiculo-caixa--nada" role="alert">
     <span class="ini4__nada-icone">${L(carFront)}</span>
-    <div><h2 class="ini4__veiculo-nome">Não encontrámos um veículo com a matrícula ${esc(m)}.</h2>
+    <div><h2 class="ini4__veiculo-nome">Não encontrámos um veículo com ${por === 'matrícula' ? 'a matrícula' : por === 'descrição' ? 'a descrição' : 'o'} ${esc(m)}.</h2>
     <p>Confirme a matrícula. Se estiver certa, pesquise pelo n.º de chassis (VIN) ou escolha o veículo pela marca e modelo.</p>
     <div class="ini4__veiculo-accoes">${btn('Selecionar veículo', IC.list, ' data-ir-modo="1"')}${btn('Fechar', x, ' data-fechar-veiculo')}</div></div>
   </div>`;

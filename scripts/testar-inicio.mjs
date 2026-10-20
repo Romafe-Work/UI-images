@@ -91,28 +91,20 @@ await caso('peças: adicionar ao carrinho, favoritas e ver o stock', 1440, async
   certo(await p.$eval(`${I} [data-disp-ref]`, (s) => s.value) === 'VKBA 6556', 'o stock não mudou de referência');
   certo((await p.textContent(`${I} .ini4__armazem [data-qtd]`)).trim() === '12', 'o Porto devia ter 12');
 }, 'pesquisa');
-await caso('painel: a pesquisa já não está no Início; os seis números e o período', 1440, async (p) => {
+await caso('painel: sem os formulários da pesquisa; os quatro números do agora', 1440, async (p) => {
   certo(!(await p.$(`${N} .ini3__cartao`)), 'o Início ainda tem os formulários da pesquisa');
-  const n = await p.$$eval(`${N} .pn__kpi`, (l) => l.length); certo(n === 6, `há ${n} números`);
-  const ef = () => p.textContent(`${N} [data-kpi="efetuados"] .pn__kpi-valor`);
-  certo((await ef()).trim() === '2', `7 dias devia dar 2 pedidos, deu ${await ef()}`);
-  const curso = await p.textContent(`${N} [data-kpi="curso"] .pn__kpi-valor`);
-  await p.click(`${N} [data-periodo="30"]`); await p.waitForTimeout(500);
-  certo((await ef()).trim() === '5', `30 dias devia dar 5 pedidos, deu ${await ef()}`);
-  certo((await p.textContent(`${N} [data-kpi="curso"] .pn__kpi-valor`)) === curso, 'o «em curso» mudou com o período');
-  certo(!(await p.textContent(`${N} [data-kpi="efetuados"] [data-antes]`)).trim(), '30 dias não tem histórico para comparar e mostrou o anterior');
-  await p.click(`${N} [data-periodo="hoje"]`); await p.waitForTimeout(500);
-  certo((await ef()).trim() === '0', 'hoje devia dar 0');
+  const v = await p.$$eval(`${N} .pn__kpi`, (l) => l.map((b) => [b.dataset.kpi, b.querySelector('.pn__kpi-valor').textContent.trim()]));
+  certo(JSON.stringify(v) === JSON.stringify([['curso', '3'], ['transporte', '1'], ['recolha', '0'], ['devolucoes', '2']]), `os números são ${JSON.stringify(v)}`);
+  certo(await p.$eval(`${N} [data-kpi="recolha"]`, (b) => b.disabled), 'o zero da recolha devia estar desligado');
 });
-await caso('painel: personalizado — datas trocadas dão erro, as certas aplicam-se', 1440, async (p) => {
-  await p.click(`${N} [data-periodo="pers"]`);
+await caso('gráfico: personalizado — datas trocadas dão erro, as certas aplicam-se', 1440, async (p) => {
+  await p.click(`${N} [data-graf-periodo="pers"]`);
   await p.fill(`${N} [data-pers] [name="de"]`, '2024-04-10'); await p.fill(`${N} [data-pers] [name="ate"]`, '2024-04-01');
   await p.click(`${N} [data-pers] [type="submit"]`);
   certo((await p.textContent(`${N} .pn__pers-erro`)).includes('antes'), 'não disse que as datas estão trocadas');
   await p.fill(`${N} [data-pers] [name="de"]`, '2024-03-14'); await p.fill(`${N} [data-pers] [name="ate"]`, '2024-04-16');
-  await p.click(`${N} [data-pers] [type="submit"]`); await p.waitForTimeout(500);
-  certo((await p.textContent(`${N} [data-kpi="efetuados"] .pn__kpi-valor`)).trim() === '6', 'o período personalizado não contou os 6 pedidos');
-  certo((await p.textContent(`${N} [data-graf-total]`)).includes('2 892,15'), `o gráfico não acompanhou: ${await p.textContent(`${N} [data-graf-total]`)}`);
+  await p.click(`${N} [data-pers] [type="submit"]`); await p.waitForTimeout(600);
+  certo((await p.textContent(`${N} [data-graf-total]`)).includes('2 892,15'), `o gráfico não mudou: ${await p.textContent(`${N} [data-graf-total]`)}`);
 });
 await caso('gráfico: número de pedidos, 90 dias com os dias sem dados, a dica pelo teclado', 1440, async (p) => {
   await p.evaluate((s) => document.querySelector(s).scrollIntoView(), `${N} [data-graf]`); await p.waitForTimeout(1200);
@@ -127,15 +119,26 @@ await caso('gráfico: número de pedidos, 90 dias com os dias sem dados, a dica 
   const y0 = await p.$$eval(`${N} .pn__g text`, (l) => l.find((t) => t.textContent === '0')?.textContent);
   certo(y0 === '0', 'a escala não começa no zero');
 });
-await caso('estados e números levam às listas filtradas; o zero não se clica', 1440, async (p) => {
-  certo(await p.$eval(`${N} [data-kpi="recolha"]`, (b) => b.disabled), 'o zero da recolha devia estar desligado');
-  await p.click(`${N} .pn__estado--expedido`); await p.waitForTimeout(700);
+await caso('números e alertas levam às listas filtradas; o voltar do navegador', 1440, async (p) => {
+  await p.click(`${N} [data-kpi="transporte"]`); await p.waitForTimeout(700);
   certo(await ecra(p) === 'pedidos', 'não foi aos Pedidos');
   certo(await p.$eval('.ecra:not([hidden]) > .versao:not([hidden]) .ped4__etapa-f[aria-pressed="true"]', (b) => b.dataset.etapa) === 'expedido', 'os Pedidos não vieram filtrados');
   await p.goBack(); await p.waitForTimeout(700);
   certo(await ecra(p) === 'inicio', `o «voltar» do navegador foi a ${await ecra(p)}`);
   await p.click(`${N} .pn__alerta-li:first-child .pn__alerta-acao`); await p.waitForTimeout(700);
   certo(await ecra(p) === 'faturas', 'o alerta da fatura vencida não abriu as Faturas');
+});
+await caso('atalho da pesquisa: «Referência» abre a Pesquisar peças nesse cartão, com o foco no campo', 1440, async (p) => {
+  await p.click(`${N} .pn__procura-modo[data-pn-pesquisa="2"]`); await p.waitForTimeout(800);
+  certo(await ecra(p) === 'pesquisa', 'não foi à Pesquisar peças');
+  certo(await p.evaluate(() => document.activeElement?.id) === 'i3-referencia', `o foco ficou em ${await p.evaluate(() => document.activeElement?.id || document.activeElement?.tagName)}`);
+});
+await caso('frequentes: adicionar ao carrinho e abrir uma lista', 1440, async (p) => {
+  const antes = await unidades(p);
+  await p.click(`${N} [data-pn-pedir="VKMV 6PK1873"]`); await p.waitForTimeout(600);
+  certo(await unidades(p) === antes + 1, 'não entrou no carrinho');
+  await p.click(`${N} [data-pn-lista]`); await p.waitForTimeout(600);
+  certo(await ecra(p) === 'lista', 'a lista não abriu');
 });
 await caso('últimos pedidos: a linha abre o pedido; ver todos', 1440, async (p) => {
   const n = await p.$$eval(`${N} .pn__linha`, (l) => l.length); certo(n === 5, `há ${n} linhas`);
@@ -168,7 +171,7 @@ await caso('personalizar: esconder, mover com o teclado, atalhos e período ao a
   await p.keyboard.press('Escape');
   await p.reload(); await p.waitForTimeout(900);
   certo(await p.$(`${N} [data-w="atividade"][hidden]`), 'não guardou o escondido');
-  certo(await p.getAttribute(N, 'data-periodo') === '30', 'não guardou o período ao abrir');
+  certo(await p.$(`${N} [data-graf-periodo="30"][aria-checked="true"]`), 'não guardou o período do gráfico');
   certo(await p.$(`${N} [data-pn-atalho="guias"]`), 'não guardou o atalho');
   const o = await p.$$eval(`${N} [data-w]`, (l) => Object.fromEntries(l.map((x) => [x.dataset.w, Number(x.style.order)])));
   certo(o.atencao === 0, `a ordem não mudou: ${JSON.stringify(o)}`);
@@ -214,6 +217,66 @@ await caso('telemóvel: atenção primeiro, sem deslocação horizontal, a tabel
   certo(topo === 'atencao', `o primeiro bloco é ${topo}`);
   certo(await p.$eval(`${N} .pn__tabela thead`, (t) => getComputedStyle(t).display === 'none'), 'a tabela não passou a cartões');
 });
+await caso('pesquisa: três cartões e um só formulário; mudar de cartão guarda o que se escreveu', 1440, async (p) => {
+  certo((await p.$$(`${I} .pq__modo`)).length === 3, 'não há três cartões');
+  const vis = () => p.$$eval(`${I} .ini3__cartao`, (l) => l.filter((c) => getComputedStyle(c).display !== 'none').length);
+  certo(await vis() === 1, 'vê-se mais de um formulário');
+  await p.click(`${I} .pq__modo[data-modo="0"]`); await p.fill(`${I} #i3-matricula`, 'AA-12');
+  await p.click(`${I} .pq__modo[data-modo="2"]`); certo(await vis() === 1, 'vê-se mais de um formulário');
+  await p.click(`${I} .pq__modo[data-modo="0"]`);
+  certo(await p.inputValue(`${I} #i3-matricula`) === 'AA-12', 'perdeu a matrícula');
+  certo(await p.isHidden(`${I} #i3-chassis`), 'o VIN devia estar em «Mais opções», fechado');
+}, 'pesquisa');
+await caso('pesquisa por referência: escrita de qualquer forma, exata primeiro, filtros e limpar', 1440, async (p) => {
+  await p.click(`${I} .pq__modo[data-modo="2"]`);
+  await p.fill(`${I} #i3-referencia`, 'vkba-6556'); await p.keyboard.press('Escape');
+  await p.click(`${I} #i3-cartao-referencia [data-pesquisar]`); await p.waitForTimeout(900);
+  const primeira = await p.$eval(`${I} .pr__item`, (li) => li.dataset.ref);
+  certo(primeira === 'VKBA 6556', `a primeira é ${primeira}`);
+  certo(await p.$(`${I} .pr__tipo--equivalente`), 'não juntou as equivalentes');
+  await p.click(`${I} [data-pr-vista="grelha"]`);
+  certo(await p.$(`${I} .pr__lista[data-vista="grelha"]`), 'a grelha não mudou');
+  await p.click(`${I} [data-pr-marca="FAG"]`);
+  certo((await p.$$eval(`${I} .pr__item`, (l) => l.map((x) => x.querySelector('.pr__fab').textContent))).every((m) => m === 'FAG'), 'o filtro da marca não filtrou');
+  await p.click(`${I} [data-pr-limpar]`); await p.waitForTimeout(400);
+  certo(await p.isHidden(`${I} [data-pr]`), 'os resultados não saíram');
+  certo(await p.evaluate(() => document.activeElement?.id) === 'i3-referencia', 'o foco não voltou ao campo');
+}, 'pesquisa');
+await caso('pesquisa por referência: não encontrada → pesquisa parcial', 1440, async (p) => {
+  await p.click(`${I} .pq__modo[data-modo="2"]`);
+  await p.fill(`${I} #i3-referencia`, 'XQ-99812'); await p.keyboard.press('Escape');
+  await p.click(`${I} #i3-cartao-referencia [data-pesquisar]`); await p.waitForTimeout(900);
+  certo((await p.textContent(`${I} [data-pr]`)).includes('Não encontrámos'), 'não disse que não encontrou');
+  certo(await p.$(`${I} [data-pr-parcial]`), 'não ofereceu a pesquisa parcial');
+}, 'pesquisa');
+await caso('por veículo: marca → modelo → motorização, nada antes do tempo; selecionar mostra o veículo', 1440, async (p) => {
+  await p.click(`${I} .pq__modo[data-modo="1"]`);
+  certo(await p.$eval(`${I} #i3-modelo`, (s) => s.disabled), 'o modelo devia esperar pela marca');
+  await p.fill(`${I} #i3-marca`, 'Ren'); await p.waitForTimeout(400);
+  await p.click(`${I} #i3-marca-lista [data-valor="Renault"]`); await p.waitForTimeout(700);
+  certo(!(await p.$eval(`${I} #i3-modelo`, (s) => s.disabled)), 'o modelo não acendeu');
+  certo(await p.$eval(`${I} #i3-variante`, (s) => s.disabled), 'a motorização devia esperar pelo modelo');
+  await p.selectOption(`${I} #i3-modelo`, 'Clio IV (BH_)'); await p.waitForTimeout(200);
+  await p.selectOption(`${I} #i3-variante`, '1'); await p.waitForTimeout(200);
+  certo((await p.textContent(`${I} [data-passos]`)).includes('Clio IV'), 'o resumo não mostra o modelo');
+  await p.click(`${I} #i3-cartao-selecionar [data-pesquisar]`); await p.waitForTimeout(500);
+  certo((await p.textContent(`${I} .ini4__veiculo`)).includes('Renault Clio IV'), 'o veículo não apareceu');
+}, 'pesquisa');
+await caso('por veículo: uma marca sem modelos no catálogo di-lo', 1440, async (p) => {
+  await p.click(`${I} .pq__modo[data-modo="1"]`);
+  await p.fill(`${I} #i3-marca`, 'Fia'); await p.waitForTimeout(400);
+  await p.click(`${I} #i3-marca-lista [data-valor="Fiat"]`); await p.waitForTimeout(700);
+  certo((await p.textContent(`${I} #i3-cartao-selecionar`)).includes('ainda não tem modelos da Fiat'), 'não disse que não há modelos');
+}, 'pesquisa');
+await caso('por matrícula: pela descrição, os veículos possíveis e confirmar um', 1440, async (p) => {
+  await p.click(`${I} .pq__modo[data-modo="0"]`);
+  await p.click(`${I} #i3-cartao-identificar .pq__mais > summary`);
+  await p.fill(`${I} #i3-descricao`, 'Clio 1.5 dCi');
+  await p.click(`${I} #i3-cartao-identificar [data-pesquisar]`); await p.waitForTimeout(900);
+  const n = await p.$$eval(`${I} [data-confirmar-veiculo]`, (l) => l.length); certo(n > 1, `há ${n} veículos possíveis`);
+  await p.click(`${I} [data-confirmar-veiculo]`); await p.waitForTimeout(400);
+  certo((await p.textContent(`${I} .ini4__veiculo`)).includes('a partir da descrição'), 'não mostrou o veículo confirmado');
+}, 'pesquisa');
 await caso('pesquisa no telemóvel: sem deslocação horizontal', 390, async (p) => {
   const w = await p.evaluate(() => document.documentElement.scrollWidth);
   certo(w <= 390, `a página tem ${w} px de largura`);

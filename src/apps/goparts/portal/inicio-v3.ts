@@ -15,14 +15,15 @@
      nem movimento contínuo. Os dados são os de exemplo do resto do protótipo.
    Comportamento: comportamento/inicio-v3.ts. CSS: css/inicio-v3-trabalho.css.
    ========================================================= */
-import { REFERENCIAS, euros } from './catalogo-dados';
+import { REFERENCIAS, euros, MODELOS, veiculosDe } from './catalogo-dados';
+import { resultadosHtml, FILTROS } from './pesquisa-resultados';
+import calendar from 'lucide-static/icons/calendar.svg?raw';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
-import { blocosPesquisa, veiculoHtml, naoEncontradoHtml, dadosIniciais, IDENTIFICADOS, type EstadoEspaco } from './inicio-espaco';
+import { blocosPesquisa, veiculoHtml, naoEncontradoHtml, candidatosHtml, dadosIniciais, IDENTIFICADOS, type EstadoEspaco } from './inicio-espaco';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import listChecks from 'lucide-static/icons/list-checks.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
 import house from 'lucide-static/icons/house.svg?raw';
-import refreshCw from 'lucide-static/icons/refresh-cw.svg?raw';
 import carFront from 'lucide-static/icons/car-front.svg?raw';
 import sliders from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import hash from 'lucide-static/icons/hash.svg?raw';
@@ -64,7 +65,9 @@ export type EstadoInicio = '' | 'carga' | 'sugestoes' | 'pesquisa' | 'sem-result
   /* (14 out.: o briefing dos 17 estados) os que eram da moldura comum passam a ser do Início v3 */
   | 'esqueleto' | 'pecas' | '404' | '500' | 'sessao' | 'erros'
   /* (16 out.: o briefing do espaço de trabalho) os dos blocos novos — inicio-espaco.ts */
-  | 'veiculo' | 'veiculo-nao' | 'linha' | 'repetir' | 'sucesso' | 'personalizar' | 'arrastar' | 'compacta' | 'atualizar' | 'parcial' | 'permissao' | 'sem-stock';
+  | 'veiculo' | 'veiculo-nao' | 'linha' | 'repetir' | 'sucesso' | 'personalizar' | 'arrastar' | 'compacta' | 'atualizar' | 'parcial' | 'permissao' | 'sem-stock'
+  /* (20 out., V6: os estados da pesquisa do briefing) */
+  | 'parcial-form' | 'vin' | 'candidatos' | 'sugestoes-marca' | 'marca' | 'modelos-carga' | 'modelos-nada' | 'veic-escolhido' | 'resultados' | 'filtros' | 'servico' | 'limpa';
 let uid = 0;
 const rs = (modo: Parameters<typeof rolamentoSvg>[1], cls: string) => rolamentoSvg(`i3-${++uid}`, modo, cls);
 
@@ -77,66 +80,72 @@ const MODOS: [string, string, string][] = [['identificar', 'Matrícula', carFron
    (azul, azul, laranja), o ícone num quadrado, o título, o subtítulo e o desenho de linhas; por baixo, o corpo
    liso com todos os campos, um por linha, cada um com o seu ícone; «Pesquisa avançada» (ou «Limpar») e a
    ação a laranja. Os outros dois cartões veem-se dos lados, inclinados. */
-const DESENHOS = ['<svg class="ini3__desenho" viewBox="0 0 160 100" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true">           <path d="M8 70c0-8 4-12 14-14l22-4 26-20c6-4 12-6 22-6h28c10 0 16 4 22 12l12 16"/><path d="M54 52l24-18c4-3 9-4 14-4h22l12 22Z"/>           <path d="M8 70v14h18M60 84h50M146 84h14"/><circle cx="43" cy="84" r="14"/><circle cx="43" cy="84" r="7"/><circle cx="128" cy="84" r="14"/><circle cx="128" cy="84" r="7"/></svg>', '<svg class="ini3__desenho" viewBox="0 0 160 100" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">           <g transform="translate(112 44)"><circle r="16"/><circle r="7"/><path d="M0-30v8M0 22v8M-30 0h8M22 0h8M-21-21l6 6M15 15l6 6M21-21l-6 6M-15 15l-6 6"/></g>           <g transform="translate(68 80)"><circle r="12"/><circle r="5"/><path d="M0-22v6M0 16v6M-22 0h6M16 0h6M-15-15l4 4M11 11l4 4M15-15l-4 4M-11 11l-4 4"/></g></svg>', '<svg class="ini3__desenho" viewBox="0 0 160 100" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">           <g transform="translate(100 50)"><circle r="44"/><circle r="36"/><circle r="16"/><circle r="7"/>           <circle cx="0" cy="-11" r="2"/><circle cx="10.5" cy="-3.4" r="2"/><circle cx="6.5" cy="9" r="2"/><circle cx="-6.5" cy="9" r="2"/><circle cx="-10.5" cy="-3.4" r="2"/>           <path d="M-44 0a44 44 0 0 1 12-30l6 6M-30-36a44 44 0 0 1 20-8"/></g></svg>'];
 const botao = (texto: string, icone = search, estado = '') => `<button type="button" class="btn ini3__botao${estado === 'pesquisa' ? ' is-a-pesquisar' : ''}" data-pesquisar${estado === 'pesquisa' ? ' aria-busy="true" disabled' : ''}>${estado === 'pesquisa' ? `${rs('pesquisar', 'ini3__rs-botao')}<span class="btn__rotulo">A pesquisar…</span>` : `${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span>`}</button>`;
 const secundario = (texto: string, icone: string, extra = '') => `<button type="button" class="btn ini3__secundario"${extra}>${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
 const campo = (id: string, rotulo: string, icone: string, input: string, extra = '', depois = '') => `<div class="ini3__campo${extra}"><label for="${id}">${rotulo}</label><div class="ini3__caixa"><span class="ini3__chip" aria-hidden="true">${icone}</span>${input}</div>${depois}</div>`;
 
+/* ---------- (20 out., V6) os três formulários, um de cada vez, por baixo dos cartões de escolha ----------
+   Do briefing «Complete UX Refinement, Search Cards…»: o principal à vista (a matrícula; a marca, o modelo e a
+   motorização; a referência) e o resto em «Mais opções», que se abre. Os ids dos campos são os de antes: o
+   comportamento (inicio-v3.ts, inicio-espaco.ts, pesquisa.ts) é o mesmo. */
+const MARCAS_CAT: Record<string, string> = { BMW: 'BMW', Opel: 'Opel', Peugeot: 'Peugeot', Renault: 'Renault', Toyota: 'Toyota', Volkswagen: 'VW' };
+export { MARCAS_CAT };
+const mais = (resumo: string, corpo: string, aberto = false, rotulo = 'Mais opções de identificação') => `<details class="pq__mais"${aberto ? ' open' : ''}><summary>${L(sliders)}<span><b>${rotulo}</b><small>${resumo}</small></span>${L(chevronRight, 'pq__opcoes-seta')}</summary><div class="pq__mais-corpo">${corpo}</div></details>`;
 function cartaoIdentificar(e: EstadoInicio): string {
-  /* 10.5 um campo errado; 10.16 dois, com o resumo em cima (cada erro leva ao seu campo) */
-  const erro = e === 'erro' || e === 'erros', varios = e === 'erros';
+  /* 18.x: matrícula errada; VIN errado (com o resumo dos erros em cima); a matrícula a meio */
+  const erro = e === 'erro' || e === 'erros', varios = e === 'erros' || e === 'vin';
   const ic = `<span class="ini3__erro-icone">${L(triangleAlert)}</span>`;
-  return `${varios ? `<div class="ini3__resumo" role="alert" tabindex="-1"><p>${L(listChecks)}<b>2 campos precisam de correção</b></p><ul><li><a href="#" data-focar="i3-matricula">Matrícula — o formato é AA-00-AA</a></li><li><a href="#" data-focar="i3-chassis">N.º de chassis — tem 17 caracteres</a></li></ul></div>` : ''}
-    <div class="ini3__campos">
-      ${campo('i3-matricula', 'Matrícula', '<b class="ini3__pais">P</b>', `<input id="i3-matricula" value="${erro ? 'AA-12' : e === 'veiculo' ? 'AA-12-BC' : e === 'veiculo-nao' ? 'AB-34-ZZ' : ''}" placeholder="Introduza a matrícula" autocomplete="off" spellcheck="false"${erro ? ' aria-invalid="true" aria-describedby="i3-matricula-erro"' : ''}>`, erro ? ' is-erro' : '', erro ? `<p class="ini3__erro" id="i3-matricula-erro">${ic}<span><b>Matrícula incompleta.</b> O formato é AA-00-AA (6 letras ou números).</span></p>` : '')}
-      ${campo('i3-chassis', 'N.º de chassis', L(scanBarcode), `<input id="i3-chassis" value="${varios ? 'VF1RFB00X5' : ''}" placeholder="Introduza o n.º de chassis" autocomplete="off" spellcheck="false"${varios ? ' aria-invalid="true" aria-describedby="i3-chassis-erro"' : ''}>`, varios ? ' is-erro' : '', varios ? `<p class="ini3__erro" id="i3-chassis-erro">${ic}<span><b>Faltam 7 caracteres.</b> O VIN tem 17 letras e números.</span></p>` : '')}
-      ${campo('i3-descricao', 'Descrição', L(textIcon), '<input id="i3-descricao" placeholder="Introduza a descrição" autocomplete="off">')}
-      ${campo('i3-motor', 'Motor', L(engine), '<input id="i3-motor" placeholder="Introduza o motor" autocomplete="off" spellcheck="false">')}
+  const mat = erro ? 'AA-12' : e === 'veiculo' ? 'AA-12-BC' : e === 'veiculo-nao' ? 'AB-34-ZZ' : e === 'parcial-form' ? 'AA-12-B' : '';
+  return `${e === 'erros' ? `<div class="ini3__resumo" role="alert" tabindex="-1"><p>${L(listChecks)}<b>2 campos precisam de correção</b></p><ul><li><a href="#" data-focar="i3-matricula">Matrícula — o formato é AA-00-AA</a></li><li><a href="#" data-focar="i3-chassis">N.º de chassis — tem 17 caracteres</a></li></ul></div>` : ''}
+    <div class="pq__linha">
+      ${campo('i3-matricula', 'Matrícula', '<b class="ini3__pais">P</b>', `<input id="i3-matricula" value="${mat}" placeholder="AA-00-AA" autocomplete="off" spellcheck="false" maxlength="10"${erro ? ' aria-invalid="true" aria-describedby="i3-matricula-erro"' : ' aria-describedby="i3-matricula-ajuda"'}>`, erro ? ' is-erro' : '', erro ? `<p class="ini3__erro" id="i3-matricula-erro">${ic}<span><b>Matrícula incompleta.</b> O formato é AA-00-AA (6 letras ou números).</span></p>` : `<p class="pq__ajuda" id="i3-matricula-ajuda">${e === 'parcial-form' ? 'Falta 1 carácter.' : 'Só a matrícula chega para identificar a versão exata.'}</p>`)}
+      ${botao('Identificar veículo', carFront, e)}
     </div>
-    <div class="ini3__pe">${secundario('Limpar', eraser, ' data-limpar')}${botao('Pesquisar', search, e)}</div>`;
+    ${mais('N.º de chassis (VIN), descrição ou motor', `<div class="ini3__campos pq__campos3">
+      ${campo('i3-chassis', 'N.º de chassis (VIN)', L(scanBarcode), `<input id="i3-chassis" value="${varios ? 'VF1RFB00X5' : ''}" placeholder="17 letras e números" autocomplete="off" spellcheck="false" maxlength="20"${varios ? ' aria-invalid="true" aria-describedby="i3-chassis-erro"' : ''}>`, varios ? ' is-erro' : '', varios ? `<p class="ini3__erro" id="i3-chassis-erro">${ic}<span><b>Faltam 7 caracteres.</b> O VIN tem 17 letras e números.</span></p>` : '')}
+      ${campo('i3-descricao', 'Descrição', L(textIcon), `<input id="i3-descricao" value="${e === 'candidatos' ? 'Clio 1.5 dCi' : ''}" placeholder="Ex.: Clio 1.5 dCi" autocomplete="off">`)}
+      ${campo('i3-motor', 'Código do motor', L(engine), '<input id="i3-motor" placeholder="Ex.: K9K" autocomplete="off" spellcheck="false">')}
+    </div><p class="pq__ajuda">Basta um campo. O VIN identifica a versão exata; a descrição e o motor mostram os veículos possíveis, para escolheres o teu.</p>`, varios || e === 'candidatos')}
+    <div class="ini3__pe pq__pe">${secundario('Limpar', eraser, ' data-limpar')}</div>`;
 }
 
 function cartaoSelecionar(e: EstadoInicio): string {
-  const marca = e === 'sugestoes' ? 'Ren' : '';
-  return `<div class="ini3__campos">
-      ${campo('i3-tipo', 'Tipo de veículo', L(carFront), '<select id="i3-tipo"><option>Automóvel ligeiro</option><option>Comercial ligeiro</option><option>Pesado</option><option>Motociclo</option></select>')}
-      ${campo('i3-marca', 'Marca', L(tag), `<input id="i3-marca" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="i3-marca-lista" value="${marca}" placeholder="Selecione a marca" autocomplete="off" data-sugerir="marca">`, ' ini3__sugere', '<ul class="ini3__lista" id="i3-marca-lista" role="listbox" hidden></ul>')}
-      ${campo('i3-modelo', 'Modelo', L(layers), '<select id="i3-modelo" disabled><option>Selecione o modelo</option></select>')}
-      ${campo('i3-variante', 'Veículo', L(car), '<select id="i3-variante" disabled><option>Selecione o veículo</option></select>')}
+  /* 18.x: a marca escolhida (os modelos ativos), os modelos a carregar, uma marca sem modelos, o veículo escolhido */
+  const marca = e === 'sugestoes-marca' ? 'Ren' : e === 'marca' || e === 'modelos-carga' || e === 'veic-escolhido' ? 'Renault' : e === 'modelos-nada' ? 'Fiat' : '';
+  const modelos = e === 'marca' || e === 'veic-escolhido' ? (MODELOS.Renault ?? []).map((m) => m[0]) : [];
+  const modelo = e === 'veic-escolhido' ? 'Clio IV (BH_)' : '';
+  const vs = modelo ? veiculosDe('Renault', modelo) : [];
+  const passo = (n: string, v: string) => `<li class="${v ? 'is-feito' : ''}"><span>${n}</span><b>${v || '—'}</b></li>`;
+  return `<ol class="pq__passos" data-passos aria-label="O que já escolheste">${passo('Marca', marca.length > 3 ? marca : '')}${passo('Modelo', modelo ? 'Clio IV' : '')}${passo('Motorização', vs[1] ? `${vs[1].versao} · ${vs[1].cv} cv` : '')}</ol>
+    <div class="ini3__campos pq__campos4">
+      ${campo('i3-marca', 'Marca', L(tag), `<input id="i3-marca" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="i3-marca-lista" value="${marca}" placeholder="Escreve ou escolhe a marca" autocomplete="off" data-sugerir="marca">`, ' ini3__sugere', `<ul class="ini3__lista" id="i3-marca-lista" role="listbox" hidden></ul>${e === 'modelos-nada' ? `<p class="pq__ajuda pq__ajuda--aviso" role="status">${L(triangleAlert)}O catálogo ainda não tem modelos da Fiat. Pesquisa pela referência ou pela matrícula.</p>` : ''}`)}
+      ${campo('i3-modelo', 'Modelo', L(layers), `<select id="i3-modelo"${modelos.length ? '' : ' disabled'}${e === 'modelos-carga' ? ' aria-busy="true"' : ''}><option value="">${e === 'modelos-carga' ? 'A carregar modelos…' : modelos.length ? 'Escolhe o modelo' : 'Escolhe primeiro a marca'}</option>${modelos.map((m) => `<option${m === modelo ? ' selected' : ''}>${m}</option>`).join('')}</select>`, e === 'modelos-carga' ? ' is-a-carregar' : '', e === 'modelos-carga' ? `<p class="pq__ajuda" role="status">${rs('pesquisar', 'pq__rs')}A carregar os modelos da Renault…</p>` : '')}
+      ${campo('i3-variante', 'Motorização', L(engine), `<select id="i3-variante"${vs.length ? '' : ' disabled'}><option value="">${vs.length ? 'Escolhe a motorização' : 'Escolhe primeiro o modelo'}</option>${vs.map((v, i) => `<option value="${i}"${i === 1 ? ' selected' : ''}>${v.versao} · ${v.kw} kW / ${v.cv} cv · ${v.motor.split(',')[0]}</option>`).join('')}</select>`)}
+      ${campo('i3-ano', 'Ano', L(calendar), `<select id="i3-ano"${vs.length ? '' : ' disabled'}><option value="">${vs.length ? 'Qualquer ano' : 'Escolhe primeiro a motorização'}</option>${vs[1] ? Array.from({ length: Math.max(1, (vs[1].ate || 2026) - vs[1].desde + 1) }, (_, k) => vs[1].desde + k).map((a) => `<option>${a}</option>`).join('') : ''}</select>`)}
     </div>
-    <div class="ini3__pe">${secundario('Pesquisa avançada', list, ' data-ir="catalogo"')}${botao('Selecionar', circleCheck, e)}</div>`;
+    ${mais('Tipo de veículo', campo('i3-tipo', 'Tipo de veículo', L(carFront), '<select id="i3-tipo"><option>Automóvel ligeiro</option><option>Comercial ligeiro</option><option>Pesado</option><option>Motociclo</option></select>'), false, 'Mais opções')}
+    <div class="ini3__pe pq__pe">${secundario('Limpar', eraser, ' data-limpar')}${botao('Selecionar veículo', circleCheck, e === 'veic-escolhido' ? '' : e).replace('data-pesquisar', `data-pesquisar${modelo ? '' : ' disabled aria-disabled="true"'}`)}</div>`;
 }
 
 let grupoOrigem = 0;
 function cartaoReferencia(e: EstadoInicio): string {
   const nome = `i3-origem-${++grupoOrigem}`;
-  const ref = e === 'sugestoes' ? 'VKBA' : e === 'pesquisa' ? 'VKBA 6556' : e === 'sem-resultados' ? 'XQ-99812' : '';
+  const ref = e === 'sugestoes' ? 'VKBA' : e === 'pesquisa' ? 'VKBA 6556' : e === 'sem-resultados' ? 'XQ-99812' : e === 'resultados' || e === 'servico' ? 'SKF' : e === 'filtros' ? 'kit' : '';
   const aberta = e === 'sugestoes';
-  /* 10.3 a pesquisar: o rolamento no lugar do ícone do campo, e «A procurar referências…» */
   const chip = e === 'pesquisa' ? rs('pesquisar', 'ini3__rs-campo') : L(scanBarcode);
-  return `<div class="ini3__campos">
-      ${campo('i3-referencia', 'Referência', chip, `<input id="i3-referencia" role="combobox" aria-autocomplete="list" aria-expanded="${aberta}" aria-controls="i3-ref-lista" value="${ref}" placeholder="Introduza a referência" autocomplete="off" spellcheck="false" data-sugerir="referencia"${e === 'pesquisa' ? ' aria-busy="true"' : ''}>`, ' ini3__sugere',
+  return `<div class="pq__linha">
+      ${campo('i3-referencia', 'Referência', chip, `<input id="i3-referencia" role="combobox" aria-autocomplete="list" aria-expanded="${aberta}" aria-controls="i3-ref-lista" value="${ref}" placeholder="Introduz a referência, marca ou descrição da peça" autocomplete="off" spellcheck="false" data-sugerir="referencia"${e === 'pesquisa' ? ' aria-busy="true"' : ''}>`, ' ini3__sugere',
         `<ul class="ini3__lista" id="i3-ref-lista" role="listbox"${aberta ? '' : ' hidden'}>${aberta ? sugestoesAgrupadas('VKBA') : ''}</ul>${e === 'pesquisa' ? '<p class="ini3__procura" role="status">A procurar referências…</p>' : ''}`)}
-      <details class="pq__opcoes"><summary>${L(sliders)}Opções avançadas <span class="pq__opcoes-resumo">Todas as origens · com equivalências</span>${L(chevronRight, 'pq__opcoes-seta')}</summary>
+      ${botao('Pesquisar referência', search, e)}
+    </div>
+      <details class="pq__opcoes"><summary>${L(sliders)}Opções avançadas <span class="pq__opcoes-resumo">Origem, equivalências e pesquisa parcial</span>${L(chevronRight, 'pq__opcoes-seta')}</summary>
       <fieldset class="ini3__opcoes"><legend class="sr-only">Origem e opções</legend>
         ${['IAM', 'OE', 'Todas'].map((t, i) => `<label class="ini3__marcar"><input type="radio" name="${nome}"${i === 2 ? ' checked' : ''}> ${t}</label>`).join('')}
-        <label class="ini3__marcar"><input type="checkbox" checked> Incluir equivalências</label>
-        <label class="ini3__marcar"><input type="checkbox"> Pesquisa parcial</label>
-      </fieldset></details>
-      ${e === 'sem-resultados' ? semResultados : ''}
-    </div>
-    <div class="ini3__pe">${secundario('Pesquisa avançada', list, ' data-ir="catalogo"')}${botao('Pesquisar', search, e)}</div>`;
+        <label class="ini3__marcar"><input type="checkbox" checked data-pq-equivalencias> Incluir equivalências</label>
+        <label class="ini3__marcar"><input type="checkbox" data-pq-parcial> Pesquisa parcial</label>
+      </fieldset></details>`;
 }
 
-/* 10.4 sem resultados: o contorno de um disco de travão, inspecionado uma vez por uma linha que o atravessa */
-const semResultados = `<div class="ini3__nada" role="status">
-  <svg class="ini3__nada-desenho" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-    <circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="30"/><circle cx="60" cy="60" r="12"/>
-    ${Array.from({ length: 5 }, (_, i) => { const a = (i / 5) * Math.PI * 2; return `<circle cx="${(60 + Math.cos(a) * 21).toFixed(1)}" cy="${(60 + Math.sin(a) * 21).toFixed(1)}" r="3"/>`; }).join('')}
-    <line class="ini3__nada-linha" x1="6" y1="10" x2="6" y2="110"/></svg>
-  <div><p class="ini3__nada-titulo">Não encontrámos resultados para esta referência.</p><p class="ini3__nada-texto">Verifica a referência ou experimenta pesquisar por equivalências.</p>
-  <div class="ini3__nada-accoes">${secundario('Limpar pesquisa', eraser, ' data-limpar')}${secundario('Pesquisar equivalências', refreshCw, ' data-equivalencias')}${secundario('Voltar ao catálogo', layoutGrid, ' data-ir="catalogo"')}</div></div>
-</div>`;
 
 /** 10.2 as sugestões agrupadas: referências, fabricantes e pesquisas recentes, com a parte escrita destacada. */
 function sugestoesAgrupadas(q: string): string {
@@ -198,9 +207,9 @@ const aPreparar = () => `<div class="ini3__preparar" role="status" aria-live="po
 const semLigacao = () => `<div class="ini3__rede" role="status" aria-live="polite">${rs('offline', 'ini3__rs-rede')}<div class="ini3__rede-texto"><b>Estás sem ligação à Internet.</b><span>Verifica a ligação e tenta novamente. Continuas a ver o que já estava carregado.</span></div><button type="button" class="ini3__tentar" data-religar>${L(rotateCcw)}<span>Tentar novamente</span></button></div>`;
 /* 10.8 primeira vez: a visita guiada, um modo de cada vez; o resto da página fica à vista, esbatido */
 const GUIA: [string, string][] = [
-  ['Identificar veículo', 'Escreve a matrícula, o n.º de chassis, a descrição ou o motor: encontramos a versão exata do veículo.'],
-  ['Selecionar veículo', 'Escolhe o tipo, a marca, o modelo e o veículo, passo a passo.'],
-  ['Pesquisar referências', 'Escreve a referência da peça: IAM, OE ou todas, com as equivalências entre marcas.'],
+  ['Por matrícula', 'Escreve a matrícula: identificamos a versão exata. Em «Mais opções», o VIN, a descrição ou o motor.'],
+  ['Por veículo', 'Escolhe a marca, o modelo e a motorização, um passo de cada vez.'],
+  ['Por referência', 'Escreve a referência, a marca ou a descrição: os resultados aparecem aqui, com o preço e o stock.'],
 ];
 const guia = () => `<div class="ini3__guia" role="dialog" aria-label="Três formas de encontrar peças" data-guia="0">
   <p class="ini3__guia-passo"><b>1</b> de 3</p>
@@ -248,52 +257,54 @@ export function manutencaoV3(): string {
 }
 
 export function inicioV3(e: EstadoInicio = ''): string {
-  const atual = e === 'sugestoes' || e === 'pesquisa' || e === 'sem-resultados' ? 2 : e === 'erro' || e === 'erros' || e === 'vazio' || e === 'veiculo' || e === 'veiculo-nao' ? 0 : 2;
-  const cartoes: [string, string, (e: EstadoInicio) => string][] = [
-    ['Identificar veículo', 'Introduza os dados do veículo para uma pesquisa mais precisa.', cartaoIdentificar],
-    ['Selecionar veículo', 'Navegue pelas características do veículo.', cartaoSelecionar],
-    ['Pesquisar referências', 'Pesquise pela referência da peça, aplicável a várias marcas.', cartaoReferencia],
+  const M1 = ['sugestoes-marca', 'marca', 'modelos-carga', 'modelos-nada', 'veic-escolhido'], M2 = ['sugestoes', 'pesquisa', 'sem-resultados', 'resultados', 'filtros', 'servico'];
+  const atual = M2.includes(e) ? 2 : M1.includes(e) ? 1 : 0;
+  /* (20 out., V6) os três cartões de escolha: ícone, título, o que faz e a ação */
+  const cartoes: [string, string, string, (e: EstadoInicio) => string][] = [
+    ['Por matrícula', 'Identifica um veículo através da matrícula ou do número de chassis.', 'Identificar veículo', cartaoIdentificar],
+    ['Por veículo', 'Seleciona a marca, o modelo e a motorização.', 'Selecionar veículo', cartaoSelecionar],
+    ['Por referência', 'Encontra uma peça através da referência, marca ou descrição.', 'Pesquisar referência', cartaoReferencia],
   ];
-  /* a posição de cada cartão já vem no HTML (o comportamento só a muda): o ativo ao centro, os outros de lado,
-     `inert` e escondidos dos leitores de ecrã */
+  const ICONES = [carFront, car, hash];
   const lado = (i: number) => { const d = ((i - atual + 4) % 3) - 1; return ` style="--d:${d}" data-lado="${d < 0 ? 'ant' : d > 0 ? 'seg' : 'atual'}"${d ? ' inert aria-hidden="true"' : ''}`; };
-  /* (16 out.) os blocos do espaço de trabalho, com os dados de origem; o comportamento põe os da pessoa */
   const d = dadosIniciais(), ee = e as EstadoEspaco;
-  if (e === 'compacta') d.prefs.densidade = 'compacta';
-  if (e === 'sucesso') d.carrinho = 6;
   if (e === 'vazio') { d.garagem = []; d.atividade = []; d.favoritas = []; d.carrinho = 0; }
-  const veiculo = e === 'veiculo' ? veiculoHtml({ id: 'c1', matricula: 'AA-12-BC', ...IDENTIFICADOS['AA-12-BC'] }, true) : e === 'veiculo-nao' ? naoEncontradoHtml('AB-34-ZZ') : '';
-  /* (20 out., V5) o ecrã «Pesquisar peças»: o título, «Como queres pesquisar?» com um só formulário de cada vez
-     (os outros dois não espreitam), a pesquisa avançada que se abre, e por baixo o que ajuda a pesquisar —
-     continuar, garagem, categorias, peças frequentes e stock. O painel da atividade ficou no Início (painel.ts). */
+  const escolhido = () => { const v = veiculosDe('Renault', 'Clio IV (BH_)')[1]; return veiculoHtml({ id: '', matricula: '', marca: 'Renault', modelo: 'Clio IV (BH_)', v: 1, ano: v?.desde ?? 2013 }, false, 'marca e modelo'); };
+  const veiculo = e === 'veiculo' ? veiculoHtml({ id: 'c1', matricula: 'AA-12-BC', ...IDENTIFICADOS['AA-12-BC'] }, true) : e === 'veiculo-nao' ? naoEncontradoHtml('AB-34-ZZ') : e === 'candidatos' ? candidatosHtml('Clio 1.5 dCi') : e === 'veic-escolhido' ? escolhido() : '';
+  /* os resultados da referência, no próprio ecrã */
+  const f = { ...FILTROS, q: e === 'pesquisa' ? 'VKBA 6556' : e === 'sem-resultados' ? 'XQ-99812' : e === 'filtros' ? 'kit' : 'SKF', marcas: e === 'filtros' ? ['SKF'] : [], stock: e === 'filtros' };
+  const comResultados = ['pesquisa', 'sem-resultados', 'resultados', 'filtros', 'servico'].includes(e);
+  const resultados = comResultados ? resultadosHtml(f, { estado: e === 'pesquisa' ? 'carga' : e === 'servico' ? 'servico' : '' }) : '';
+  /* (20 out., V5) o ecrã «Pesquisar peças»; (V6) os três cartões de escolha em cima, um só formulário por baixo
+     (no painel ligado ao cartão escolhido), os resultados a seguir, e o que ajuda a pesquisar. */
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--ini4 portal--pq">
-  <main class="ini3 ini4 pq${e === 'rede' ? ' is-offline' : ''}${e === 'vazio' ? ' is-guia' : ''}" data-modo="${atual}"${e ? ` data-estado="${e}"` : ''} data-densidade="${d.prefs.densidade}">
+  <main class="ini3 ini4 pq${e === 'rede' ? ' is-offline' : ''}${e === 'vazio' ? ' is-guia' : ''}${comResultados ? ' is-com-resultados' : ''}" data-modo="${atual}"${e ? ` data-estado="${e}"` : ''} data-densidade="${d.prefs.densidade}">
     ${e === '404' || e === '500' ? paginaErro(e) : e === 'pecas' ? pecasACarregar() : `
     ${e === 'rede' ? semLigacao() : ''}
     <header class="pq__cabeca" data-entra="0">
-      <div class="pq__cabeca-texto"><h1 class="pq__titulo">Pesquisar peças</h1><p class="pq__sub">Encontra rapidamente a peça certa para o teu veículo.</p></div>
-      <div class="pq__cabeca-accoes">${secundario('Catálogo', layoutGrid, ' data-ir="catalogo"')}${secundario('Pesquisa global', search, ' data-comando aria-keyshortcuts="Control+K"')}</div>
+      <div class="pq__cabeca-texto"><h1 class="pq__titulo">Pesquisar peças</h1><p class="pq__sub">Encontra rapidamente as peças certas para o teu veículo.</p></div>
+      <div class="pq__cabeca-accoes">${secundario('Catálogo', layoutGrid, ' data-ir="catalogo"')}</div>
     </header>
     <section class="ini3__pesquisa pq__pesquisa" aria-labelledby="i3-pesquisa-t" data-entra="1">
-      <h2 class="ini3__pesquisa-titulo" id="i3-pesquisa-t">Como queres pesquisar?</h2>
-      <header class="ini3__cabeca">
-        <div class="ini3__separadores" role="tablist" aria-label="Como queres pesquisar">
-          ${MODOS.map(([id, nome, ic], i) => `<button type="button" role="tab" class="ini3__separador" id="i3-tab-${id}" aria-controls="i3-cartao-${id}" aria-selected="${i === atual}" tabindex="${i === atual ? 0 : -1}" data-modo="${i}">${L(ic)}${nome}</button>`).join('')}
-          <i class="ini3__risca" aria-hidden="true"></i>
-        </div>
-      </header>
+      <h2 class="sr-only" id="i3-pesquisa-t">Como queres pesquisar?</h2>
+      <div class="ini3__separadores pq__modos" role="tablist" aria-label="Como queres pesquisar">
+        ${cartoes.map(([t, desc, acao], i) => `<button type="button" role="tab" class="ini3__separador pq__modo" id="i3-tab-${MODOS[i][0]}" aria-controls="i3-cartao-${MODOS[i][0]}" aria-selected="${i === atual}" tabindex="${i === atual ? 0 : -1}" data-modo="${i}">
+          <span class="pq__modo-icone">${L(ICONES[i])}</span>
+          <span class="pq__modo-texto"><b>${t}</b><span>${desc}</span></span>
+          <span class="pq__modo-acao">${acao}${L(chevronRight)}</span>
+        </button>`).join('')}
+      </div>
       ${e === 'carga' ? aPreparar() : ''}
-      <div class="ini3__palco"${e === 'carga' ? ' hidden' : ''}>
-        <button type="button" class="ini3__seta ini3__seta--ant" data-passo="-1" tabindex="-1" aria-hidden="true">${L(chevronLeft)}<span>${cartoes[(atual + 2) % 3][0]}</span></button>
-        <div class="ini3__pista">
-          ${cartoes.map(([t, s, corpo], i) => `<section class="ini3__cartao ini3__cartao--${i === 2 ? 'laranja' : 'azul'}" id="i3-cartao-${MODOS[i][0]}" role="tabpanel" aria-labelledby="i3-tab-${MODOS[i][0]}" data-cartao="${i}"${lado(i)}${e === 'esqueleto' ? ' aria-busy="true"' : ''}>
-            <header class="ini3__cartao-cabeca"><span class="ini3__cartao-icone">${L(MODOS[i][2])}</span><div><h2>${t}</h2><p>${s}</p></div>${DESENHOS[i]}</header>
-            <div class="ini3__corpo">${e === 'esqueleto' ? '<div class="ini3__esq-bloco" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' : corpo(e)}</div>
+      <div class="pq__painel"${e === 'carga' ? ' hidden' : ''}>
+        <div class="ini3__palco"><div class="ini3__pista">
+          ${cartoes.map(([t, , , corpo], i) => `<section class="ini3__cartao pq__form" id="i3-cartao-${MODOS[i][0]}" role="tabpanel" aria-labelledby="i3-tab-${MODOS[i][0]}" aria-label="${t}" data-cartao="${i}"${lado(i)}${e === 'esqueleto' ? ' aria-busy="true"' : ''}>
+            <div class="ini3__corpo">${e === 'esqueleto' ? '<div class="ini3__esq-bloco" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' : corpo(i === atual ? e : '')}</div>
           </section>`).join('')}
-        </div>
-        <button type="button" class="ini3__seta ini3__seta--seg" data-passo="1" tabindex="-1" aria-hidden="true"><span>${cartoes[(atual + 1) % 3][0]}</span>${L(chevronRight)}</button>
+        </div></div>
       </div>
       <div class="ini4__veiculo" data-veiculo aria-live="polite"${veiculo ? '' : ' hidden'}>${veiculo}</div>
+      <section class="pr" data-pr aria-labelledby="pr-t" aria-live="polite"${comResultados ? '' : ' hidden'}>${resultados}</section>
+      ${e === 'limpa' ? '<p class="pq__aviso-limpa" role="status">A pesquisa foi limpa. Escolhe outra forma de pesquisar ou escreve outra referência.</p>' : ''}
       <details class="pq__avancada">
         <summary>${L(list)}<span><b>Pesquisa avançada</b><small>Pelo catálogo: marcas e modelos, grupos de montagem sem veículo, informação técnica</small></span>${L(chevronRight, 'pq__opcoes-seta')}</summary>
         <ul class="pq__avancada-lista" role="list">

@@ -346,6 +346,37 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
   Medido com `npm run medir`: zero problemas nos quatro ecrãs.
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
+## GoParts V6: cartões de pesquisa, resultados no ecrã e Início mais limpo (20 out. 2026)
+
+Do briefing «Complete UX Refinement, Search Cards, Premium Animations & All Screen States». Feitas as fases 1 e 2
+(simplificar e o fluxo da pesquisa) no 18 e no 10. O movimento comum e os estados dos outros ecrãs ficam para a
+seguir, um ecrã de cada vez.
+
+- **18 · Pesquisar peças:**
+  - Três cartões de escolha lado a lado: Por matrícula, Por veículo e Por referência. Os ícones vêm em quadrados
+    azul, azul e laranja, como na v2.2.
+  - Por baixo, um só painel com o formulário do cartão escolhido. O bico do painel aponta para esse cartão.
+  - Matrícula: a matrícula e «Identificar veículo». O VIN, a descrição e o motor ficam em «Mais opções de
+    identificação». A descrição ou o motor mostram os veículos possíveis, e é preciso confirmar um.
+  - Veículo: marca → modelo → motorização → ano. Nada acende antes do passo anterior e o que já se escolheu aparece
+    num resumo em cima. Uma marca sem modelos no catálogo diz isso.
+  - Referência: os resultados aparecem no próprio ecrã (`portal/pesquisa-resultados.ts`):
+    - a referência é normalizada e as exatas vêm primeiro; há pesquisa parcial e equivalências;
+    - filtros de marca, família e «só com stock»; ordem; Lista (por omissão) ou Grelha;
+    - copiar a referência, «Adicionar» (só confirma depois do carrinho) e a ficha.
+  - Estados 18.1–18.31 pela ordem do briefing. As peças compatíveis (a carregar, encontradas, nenhuma) são as do
+    Catálogo.
+- **10 · Início:**
+  - Um atalho compacto para a pesquisa (Matrícula, Veículo, Referência), que passa aos três cartões com View
+    Transitions.
+  - Quatro números do «agora»: em curso, em transporte, para recolha e devoluções abertas.
+  - O período fica só no gráfico (7, 30, 90 dias ou personalizado).
+  - Últimos pedidos | atenção, atividade | acesso rápido, e «Referências frequentes e listas».
+  - Saiu o «Estado das encomendas»: os números já levam às listas filtradas.
+  - As preferências passaram a `v2`.
+- **Sem servidor:** a compatibilidade peça–veículo não está nos dados de exemplo e cada resultado diz isso. Não há
+  filtro por preço nem por compatibilidade.
+
 ## GoParts V5: o Início é o painel e a pesquisa tem o seu ecrã (20 out. 2026)
 
 Do briefing «New Command Dashboard & Separate Parts Search Workspace». Os dois objetivos ficam separados:

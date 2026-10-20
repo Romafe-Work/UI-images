@@ -20,7 +20,7 @@ import {
   PREFS_PN, CHAVE_PN, ORDEM_W, WIDGETS, ATALHOS_PN, IC_PN, desenharGrafico, totalGrafico, atalhosHtml, gavetaHtml, atividadeLista,
   evolucaoHtml, pedidosHtml, cabecaHtml, blocosPn, type PrefsPn, type IdW, type IdAtalhoPn, type Metrica,
 } from '../portal/painel';
-import { HOJE, NOME_PERIODO, kpis, serie, periodo, textoPeriodo, eventosDocs, curta, longa, euros, deIso, iso, type IdPeriodo, type Periodo, type Evento } from '../portal/painel-dados';
+import { HOJE, serie, periodo, textoPeriodo, eventosDocs, curta, longa, euros, deIso, type IdPeriodo, type Periodo, type Evento } from '../portal/painel-dados';
 import { CHAVE_ATIVIDADE, atividadeInicial, saudacao, L, type Atividade } from '../portal/inicio-espaco';
 
 const editando = () => document.body.classList.contains('editando');
@@ -43,9 +43,6 @@ function aviso(pn: HTMLElement, t: string): void { const a = pn.closest('.portal
 /* =========================================================
    O período
    ========================================================= */
-function periodoDe(pn: HTMLElement): Periodo {
-  return periodo((pn.dataset.periodo as IdPeriodo) || '7', Number(pn.dataset.de), Number(pn.dataset.ate));
-}
 function marcaSeg(seg: HTMLElement | null): void {
   if (!seg) return;
   const m = seg.querySelector<HTMLElement>('.pn__seg-marca'), a = seg.querySelector<HTMLElement>('[aria-checked="true"]');
@@ -56,36 +53,6 @@ function escolherSeg(seg: HTMLElement, b: HTMLElement): void {
   seg.querySelectorAll<HTMLElement>('[role="radio"]').forEach((x) => { const sim = x === b; x.setAttribute('aria-checked', String(sim)); x.tabIndex = sim ? 0 : -1; });
   marcaSeg(seg);
 }
-/** Muda o período do Início: os números, os âmbitos e o gráfico (que segue o período). */
-function mudarPeriodo(pn: HTMLElement, p: Periodo): void {
-  pn.dataset.periodo = p.id; pn.dataset.de = String(p.de); pn.dataset.ate = String(p.ate);
-  const seg = pn.querySelector<HTMLElement>('.pn__periodo .pn__seg'), b = seg?.querySelector<HTMLElement>(`[data-periodo="${p.id}"]`);
-  if (seg && b) escolherSeg(seg, b);
-  const form = pn.querySelector<HTMLFormElement>('[data-pers]'); if (form) { form.hidden = p.id !== 'pers'; if (p.id === 'pers') { (form.elements.namedItem('de') as HTMLInputElement).value = iso(p.de); (form.elements.namedItem('ate') as HTMLInputElement).value = iso(p.ate); } }
-  /* os números */
-  kpis(p).forEach((k) => {
-    const b = pn.querySelector<HTMLElement>(`[data-kpi="${k.id}"]`); if (!b || k.agora) return;
-    const v = b.querySelector<HTMLElement>('.pn__kpi-valor')!, de = Number(v.dataset.valor);
-    v.dataset.valor = String(k.valor);
-    contar(v, de, k.valor, k.id === 'valor');
-    b.querySelector('[data-sub]')!.textContent = k.sub ?? '';
-    b.querySelector('[data-antes]')!.textContent = k.antes ? `Período anterior: ${k.antes.texto}` : '';
-    if (de !== k.valor && !quieto()) b.animate([{ boxShadow: 'inset 0 0 0 1px var(--c-acao)' }, { boxShadow: 'inset 0 0 0 1px transparent' }], { duration: 700, easing: 'ease-out' });
-  });
-  pn.querySelectorAll<HTMLElement>('[data-w="resumo"] [data-ambito]').forEach((a) => { a.innerHTML = `${L(IC_PN.calendarRange)}${NOME_PERIODO[p.id]} · ${textoPeriodo(p)}`; });
-  /* o gráfico acompanha: Hoje → os últimos 7 dias */
-  const g = pn.querySelector<HTMLElement>('[data-graf]');
-  if (g) grafico(pn, p.id === 'hoje' ? periodo('7') : p, g.dataset.metrica as Metrica, true);
-  aviso(pn, `Período: ${NOME_PERIODO[p.id]}, ${textoPeriodo(p)}.`);
-}
-function contar(el: HTMLElement, de: number, para: number, moeda: boolean): void {
-  const fmt = (n: number) => (moeda ? euros(n) : String(Math.round(n)));
-  if (quieto() || de === para) { el.textContent = fmt(para); return; }
-  const t0 = performance.now(), dur = 400;
-  const passo = (t: number) => { const k = Math.min(1, (t - t0) / dur), e = 1 - (1 - k) ** 3; el.textContent = fmt(de + (para - de) * e); if (k < 1) requestAnimationFrame(passo); else el.textContent = fmt(para); };
-  requestAnimationFrame(passo);
-}
-
 /* =========================================================
    O gráfico
    ========================================================= */
@@ -100,7 +67,7 @@ function grafico(pn: HTMLElement, p: Periodo, metrica: Metrica, mudanca = false)
   g.dataset.metrica = metrica; g.dataset.de = String(p.de); g.dataset.ate = String(p.ate);
   /* os segmentos do bloco */
   const w = g.closest<HTMLElement>('[data-w="evolucao"]')!;
-  const sm = w.querySelector<HTMLElement>(`[data-metrica="${metrica}"]`), sp = w.querySelector<HTMLElement>(`[data-graf-periodo="${p.id === 'hoje' ? '7' : p.id}"]`);
+  const sm = w.querySelector<HTMLElement>(`[data-metrica="${metrica}"]`), sp = w.querySelector<HTMLElement>(`[data-graf-periodo="${p.id}"]`);
   if (sm) escolherSeg(sm.parentElement!, sm); if (sp) escolherSeg(sp.parentElement!, sp);
   const { w: W, h: H } = dimensoes(tela);
   const st: EstadoG = { de: p.de, ate: p.ate, metrica, pontos, xs: [], acumulado: [], foco: -1, visto: antes?.visto ?? false, anim: 0 };
@@ -244,9 +211,8 @@ function aplicarPrefs(pn: HTMLElement, p: PrefsPn): void {
 }
 function desenhar(pn: HTMLElement): void {
   const p = prefs(), per = periodo(p.periodo);
-  pn.dataset.periodo = per.id; pn.dataset.de = String(per.de); pn.dataset.ate = String(per.ate);
   const t = document.createElement('template');
-  t.innerHTML = cabecaHtml(per) + blocosPn(per, p);
+  t.innerHTML = cabecaHtml() + blocosPn(per, p);
   pn.replaceChildren(...Array.from(t.content.childNodes));
   atividade(pn);
 }
@@ -374,18 +340,29 @@ async function tentar(pn: HTMLElement, b: HTMLElement): Promise<void> {
   b.setAttribute('aria-busy', 'true'); (b as HTMLButtonElement).disabled = true;
   b.querySelector('.btn__rotulo')!.textContent = 'A carregar…';
   await espera(900);
-  const p = periodoDe(pn), pr = real(pn) ? prefs() : structuredClone(PREFS_PN);
+  const gg = pn.querySelector<HTMLElement>('[data-graf]'), p = gg ? { id: 'pers' as IdPeriodo, de: Number(gg.dataset.de), ate: Number(gg.dataset.ate) } : periodo('7'), pr = real(pn) ? prefs() : structuredClone(PREFS_PN);
   const html = w === 'evolucao' ? evolucaoHtml(p, pr) : w === 'pedidos' ? pedidosHtml(pr) : '';
   if (!html) return;
   const t = document.createElement('template'); t.innerHTML = html.trim();
   const novo = t.content.firstElementChild as HTMLElement; novo.style.order = bloco.style.order; bloco.replaceWith(novo);
   entrar(novo.querySelector('[data-corpo]'), 260);
-  if (w === 'evolucao') requestAnimationFrame(() => { novo.querySelectorAll<HTMLElement>('.pn__seg').forEach(marcaSeg); grafico(pn, p.id === 'hoje' ? periodo('7') : p, 'valor'); });
+  if (w === 'evolucao') requestAnimationFrame(() => { novo.querySelectorAll<HTMLElement>('.pn__seg').forEach(marcaSeg); grafico(pn, periodo(pr.periodo), 'valor'); });
 }
 
 /* =========================================================
    Ligar
    ========================================================= */
+/** «Adicionar» das referências frequentes: só diz «No carrinho» depois de o carrinho aceitar. */
+async function pedir(b: HTMLElement): Promise<void> {
+  if (b.getAttribute('aria-busy')) return;
+  const antes = b.innerHTML; b.setAttribute('aria-busy', 'true'); (b as HTMLButtonElement).disabled = true;
+  b.querySelector('.btn__rotulo')!.textContent = 'A adicionar…';
+  const ok = await carrinho.adicionar(b.dataset.pnPedir!, 1);
+  b.removeAttribute('aria-busy');
+  b.innerHTML = `${L(ok ? IC_PN.check : IC_PN.triangleAlert, 'btn__icone')}<span class="btn__rotulo">${ok ? 'No carrinho' : 'Não adicionado'}</span>`;
+  b.classList.toggle('is-feito', ok);
+  window.setTimeout(() => { b.innerHTML = antes; b.classList.remove('is-feito'); (b as HTMLButtonElement).disabled = false; }, ok ? 1600 : 2400);
+}
 function redesenharGrafico(pn: HTMLElement): void {
   const g = pn.querySelector<HTMLElement>('[data-graf]'); if (!g) return;
   const st = G.get(g), p = periodo((pn.querySelector<HTMLElement>('[data-graf-periodo][aria-checked="true"]')?.dataset.grafPeriodo as IdPeriodo) || '7', Number(g.dataset.de), Number(g.dataset.ate));
@@ -438,23 +415,24 @@ export function iniciar(): void {
     }
     if (!pn.contains(t)) return;
     if ((b = q('[data-pn-personalizar]'))) { abrirGaveta(pn, b, b.dataset.pnPersonalizar ?? ''); return; }
-    /* o período do Início */
-    if ((b = q('[role="radio"][data-periodo]'))) {
-      const id = b.dataset.periodo as IdPeriodo;
-      if (id === 'pers') { escolherSeg(b.parentElement!, b); const f = pn.querySelector<HTMLFormElement>('[data-pers]')!; f.hidden = false; entrar(f, 200, 'translateY(-4px)'); f.querySelector<HTMLInputElement>('input')?.focus(); return; }
-      mudarPeriodo(pn, periodo(id)); return;
-    }
+    /* (V6) o atalho da pesquisa: abre a Pesquisar peças no modo escolhido */
+    if ((b = q('[data-pn-pesquisa]'))) { irPara('pesquisa', Number(b.dataset.pnPesquisa)); return; }
+    if ((b = q('[data-pn-ficha]'))) { ir('catalogo', 'goparts:catalogo-abrir', JSON.stringify({ tipo: 'ref', fab: b.dataset.pnFab, ref: b.dataset.pnFicha })); return; }
+    if ((b = q('[data-pn-pedir]'))) { void pedir(b); return; }
+    if ((b = q('[data-pn-lista]'))) { ir('lista', 'goparts:lista-abrir', b.dataset.pnLista); return; }
     /* o gráfico */
     if ((b = q('[data-metrica]')) && b.matches('[role="radio"]')) { const gg = pn.querySelector<HTMLElement>('[data-graf]'); if (gg) { const st = G.get(gg)!; grafico(pn, { id: 'pers', de: st.de, ate: st.ate }, b.dataset.metrica as Metrica, true); } return; }
     if ((b = q('[data-graf-periodo]'))) {
       const id = b.dataset.grafPeriodo as IdPeriodo, gg = pn.querySelector<HTMLElement>('[data-graf]'); if (!gg) return;
-      const p = id === 'pers' ? (pn.dataset.periodo === 'pers' ? periodoDe(pn) : periodo('pers')) : periodo(id);
-      grafico(pn, p, gg.dataset.metrica as Metrica, true);
-      if (id === 'pers' && pn.dataset.periodo !== 'pers') { const sp = b.parentElement!.querySelector<HTMLElement>('[data-graf-periodo="pers"]')!; escolherSeg(b.parentElement!, sp); }
+      const f = pn.querySelector<HTMLFormElement>('[data-w="evolucao"] [data-pers]');
+      /* «Personalizado» abre as datas; o gráfico muda quando se aplicam */
+      if (id === 'pers') { escolherSeg(b.parentElement!, b); if (f) { f.hidden = false; entrar(f, 200, 'translateY(-4px)'); f.querySelector<HTMLInputElement>('input')?.focus(); } return; }
+      if (f) f.hidden = true;
+      grafico(pn, periodo(id), gg.dataset.metrica as Metrica, true);
       return;
     }
     /* para onde levam os números, os estados, os alertas, os pedidos e a atividade */
-    if ((b = q('[data-pn-ir]'))) { const e = b.dataset.etapa; if (e) irFiltrado(b.dataset.pnIr!, e); else irPara(b.dataset.pnIr!); return; }
+    if ((b = q('[data-pn-ir]'))) { const e = b.dataset.etapa; if (e) irFiltrado(b.dataset.pnIr!, e); else if (b.dataset.pnChave) ir(b.dataset.pnIr!, b.dataset.pnChave, b.dataset.pnValor); else irPara(b.dataset.pnIr!); return; }
     if ((b = q('[data-ir-doc]'))) { ir(b.dataset.irDoc!, b.dataset.chave, b.dataset.valor); return; }
     if ((b = q('[data-ir-filtro]'))) { irFiltrado(b.dataset.irFiltro!, b.dataset.etapaAlvo!); return; }
     if ((b = q('[data-abrir-pedido]'))) { ir('pedidos', 'goparts:abrir-pedido', b.dataset.abrirPedido); return; }
@@ -467,7 +445,7 @@ export function iniciar(): void {
   document.addEventListener('submit', (ev) => {
     const f = ev.target as HTMLFormElement; if (!f.matches?.('.pn [data-pers]')) return;
     ev.preventDefault();
-    const pn = f.closest<HTMLElement>('.pn')!, err = f.querySelector<HTMLElement>('.pn__pers-erro')!;
+    const pn = f.closest<HTMLElement>('.pn')!, err = f.querySelector<HTMLElement>('.pn__pers-erro')!, gg = pn.querySelector<HTMLElement>('[data-graf]');
     const de = (f.elements.namedItem('de') as HTMLInputElement).value, ate = (f.elements.namedItem('ate') as HTMLInputElement).value;
     if (!de || !ate) { err.textContent = 'Escolhe as duas datas.'; return; }
     const a = deIso(de), b = deIso(ate);
@@ -475,7 +453,8 @@ export function iniciar(): void {
     if (b > HOJE) { err.textContent = `Os dados vão até ${curta(HOJE, true)}.`; return; }
     if (b - a > 365) { err.textContent = 'Escolhe no máximo um ano.'; return; }
     err.textContent = '';
-    mudarPeriodo(pn, periodo('pers', a, b));
+    if (gg) grafico(pn, periodo('pers', a, b), gg.dataset.metrica as Metrica, true);
+    aviso(pn, `Gráfico: ${textoPeriodo(periodo('pers', a, b))}.`);
   });
 
   /* o gráfico: o rato, o dedo e as setas */
