@@ -96,8 +96,8 @@ function passoCorreio(k: string, o: Op): string {
   const valor = o.correio ?? '';
   const valido = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valor);
   return `<div class="rede__passo rede__passo--correio">
-    <h1 class="rede__titulo" id="rede-titulo-${k}">Bem-vindo ao ROMAFE ERP</h1>
-    <p class="rede__sub">Entra na tua área de trabalho.</p>
+    <h1 class="rede__escondido" id="rede-titulo-${k}">Iniciar sessão</h1>
+    <p class="rede__sub rede__sub--abre">Entra na tua área de trabalho.</p>
     ${aviso(o.aviso)}
     <form class="rede__form" data-rede-form="correio" novalidate>
       <div class="rede__campo${o.erroCorreio ? ' is-erro' : ''}">

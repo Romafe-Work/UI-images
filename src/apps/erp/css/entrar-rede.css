@@ -92,6 +92,9 @@
 
 .rede__titulo { margin: 0; font-family: var(--f-titulo); font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; color: var(--rede-tinta); }
 .rede__sub { margin: 6px 0 22px; font-size: 15px; line-height: 1.5; color: var(--rede-tinta-2); }
+/* 20 out.: sem o «Bem-vindo ao ROMAFE ERP» (retorno do Gonçalo); o título fica só para leitores de ecrã */
+.rede__escondido { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }
+.rede__sub--abre { margin-top: 0; }
 
 /* a identificação: o correio já escolhido, compacto, com «Mudar» */
 .rede__conta { display: flex; align-items: center; gap: 10px; min-width: 0; margin: -6px 0 18px; padding: 8px 8px 8px 12px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-fundo-2); font-size: 14px; }
