@@ -231,7 +231,7 @@ button.central__opcao[aria-busy="true"] { cursor: progress; border-color: var(--
 .central__icone svg { width: 18px; height: 18px; }
 .central__texto { display: grid; gap: 1px; flex: 1; min-width: 0; }
 .central__nome { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.central__desc { font-size: 13px; line-height: 1.35; color: var(--rede-tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.central__desc { font-size: 13px; line-height: 1.35; color: var(--rede-tinta-2); }
 .central__marca { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 12px; font-weight: 600; color: var(--rede-tinta-2); }
 .central__marca svg { width: 13px; height: 13px; }
 .central__marca[hidden] { display: none; }
@@ -255,3 +255,6 @@ button.central__opcao:hover .central__abrir svg { transform: translateX(2px); }
   .central__estado { max-width: 38%; }
 }
 @media (prefers-reduced-motion: reduce) { .central__girar { animation-duration: 2.4s; } }
+/* as outras aplicações que abrem daqui: a mesma ação, sem o azul cheio (o azul cheio é só o do ERP, que é esta app) */
+.central__abrir--leve { background: transparent; color: var(--rede-azul); border: 1px solid var(--rede-borda); }
+button.central__opcao:hover .central__abrir--leve { background: var(--rede-fundo-2); }

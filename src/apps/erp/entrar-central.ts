@@ -7,8 +7,10 @@
              aplicações; «Entrar» já não abre o ERP, abre o 06.
      06 — a empresa: as empresas a que a conta tem acesso (spec Rolgest v10: uma pessoa pode ter várias
           e troca sem sair). A última usada vem marcada. Com uma empresa só, este passo não aparece.
-     07 — a aplicação: as da empresa escolhida. Só o ERP abre neste protótipo (o cartão sai e a moldura do
-          ERP desenha-se, como na v10); as outras ainda têm início de sessão próprio, e a Pick entra no PDA.
+     07 — a aplicação: as da plataforma, conforme a licença da empresa escolhida. (20 out., ela: «o login é
+          global; depois do login é que se vai para as apps».) O ERP abre como na v10 (o cartão sai e a moldura
+          do ERP desenha-se); o GoParts abre o Início dele, já com a sessão; o GoShop ainda não tem ecrãs no
+          protótipo; a Pick entra-se no PDA (o mesmo início de sessão, no terminal).
    No produto é o Keycloak que sabe quem é a pessoa; as empresas e as aplicações vêm da API do Rolgest
    (GET /v1/empresas) e da licença de cada empresa. A v10 fica como estava.
    ========================================================= */
@@ -18,9 +20,8 @@ import mail from 'lucide-static/icons/mail.svg?raw';
 import building from 'lucide-static/icons/building-2.svg?raw';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
 import layoutDashboard from 'lucide-static/icons/layout-dashboard.svg?raw';
-import calendarDays from 'lucide-static/icons/calendar-days.svg?raw';
-import car from 'lucide-static/icons/car.svg?raw';
-import headset from 'lucide-static/icons/headset.svg?raw';
+import store from 'lucide-static/icons/store.svg?raw';
+import shoppingCart from 'lucide-static/icons/shopping-cart.svg?raw';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
 import arrowLeftRight from 'lucide-static/icons/arrow-left-right.svg?raw';
@@ -39,12 +40,11 @@ export const EMPRESAS: Empresa[] = [
   { id: 'exemplo-logistica', nome: 'Exemplo Logística, Lda', local: 'Lisboa · empresa de exemplo', semErp: true },
 ];
 
-/* as aplicações: só o ERP está no início de sessão geral; as outras dizem porquê não abrem daqui */
-const APPS = [
+/* as aplicações da plataforma: as que abrem daqui levam a página delas (pagina); as outras dizem porquê não abrem */
+const APPS: { id: string; nome: string; desc: string; icone: string; pagina?: string; estado?: string }[] = [
   { id: 'erp', nome: 'ROMAFE ERP', desc: 'Compras, stocks, vendas e a gestão da empresa.', icone: layoutDashboard },
-  { id: 'ausencias', nome: 'Ausências', desc: 'Férias, faltas e as aprovações.', icone: calendarDays, estado: 'Ainda com início de sessão próprio' },
-  { id: 'frota', nome: 'Frota', desc: 'Viaturas, manutenções e quilómetros.', icone: car, estado: 'Ainda com início de sessão próprio' },
-  { id: 'tickets', nome: 'Pedidos de suporte', desc: 'Pedidos à informática e o seguimento.', icone: headset, estado: 'Ainda com início de sessão próprio' },
+  { id: 'goparts', nome: 'GoParts', desc: 'O marketplace de peças auto.', icone: store, pagina: 'goparts' },
+  { id: 'goshop', nome: 'GoShop', desc: 'A loja online de peças.', icone: shoppingCart, estado: 'Ainda sem ecrãs no protótipo' },
   { id: 'pick', nome: 'Pick', desc: 'A aplicação do armazém.', icone: scanBarcode, estado: 'Entra-se no PDA' },
 ];
 
@@ -84,6 +84,7 @@ function passoApp(k: string, o: OpApp = {}): string {
     const corpo = `<span class="central__icone">${L(a.icone)}</span><span class="central__texto"><span class="central__nome">${a.nome}</span><span class="central__desc">${a.desc}</span></span>`;
     if (a.id === 'erp' && e.semErp) return `<li><div class="central__opcao is-fechada" data-app="erp">${corpo}<span class="central__estado">${L(lock)}A empresa não tem esta aplicação</span></div></li>`;
     if (a.id === 'erp') return `<li><button type="button" class="central__opcao is-principal" data-ir="inicio" data-rede-acao="abrir-erp" data-app="erp"${o.abrir ? ' aria-busy="true" disabled' : ''}>${corpo}${o.abrir ? '<span class="central__estado"><span class="central__girar" aria-hidden="true"></span>A abrir…</span>' : `<span class="central__abrir">Abrir${L(chevronRight)}</span>`}</button></li>`;
+    if (a.pagina) return `<li><button type="button" class="central__opcao" data-rede-acao="abrir-app" data-app="${a.id}" data-pagina="${a.pagina}">${corpo}<span class="central__abrir central__abrir--leve">Abrir${L(chevronRight)}</span></button></li>`;
     return `<li><div class="central__opcao is-fechada" data-app="${a.id}">${corpo}<span class="central__estado">${a.estado}</span></div></li>`;
   };
   return `<div class="rede__passo central">
@@ -121,7 +122,7 @@ export function ecrasCentral(): EcraErp[] {
     e('central-sem-empresa', 'escolher-empresa', '06.1 · Sem empresa', 'A conta entrou no Keycloak mas não tem acesso a nenhuma empresa do Rolgest: diz-se isso, e quem dá o acesso. Não se mostra uma lista vazia.',
       m('06-1', passoEmpresa('06-1', { vazio: true }))),
     { id: 'escolher-app', nome: '07 · Escolher a aplicação', fluxo: 'Entrar',
-      objetivo: 'As aplicações da empresa escolhida. O ERP abre o espaço de trabalho (05 · Início); as outras ainda têm início de sessão próprio, e a Pick entra-se no PDA. «Trocar» volta às empresas.',
+      objetivo: 'Depois do início de sessão global, as aplicações da empresa escolhida. O ERP abre o espaço de trabalho (05 · Início); o GoParts abre o Início dele; o GoShop ainda não tem ecrãs; a Pick entra-se no PDA. «Trocar» volta às empresas.',
       versoes: v(m('07', passoApp('07'))) },
     e('central-a-abrir', 'escolher-app', '07.1 · A abrir o ERP', 'Depois de escolher o ERP: a espera na própria linha, enquanto se pede a sessão da empresa; depois o cartão sai e a moldura do ERP desenha-se.',
       m('07-1', passoApp('07-1', { abrir: true }), 'pedido')),

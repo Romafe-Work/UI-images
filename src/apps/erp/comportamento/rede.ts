@@ -251,6 +251,8 @@ function aoClicar(ev: MouseEvent): void {
   else if (acao === 'empresa') { ocupado = true; ocupar(b as HTMLButtonElement, 'A abrir a página da empresa…'); fase('pedido'); const r = raiz!; window.setTimeout(() => (r.hasAttribute('data-geral') ? aEmpresa(r, b as HTMLButtonElement) : abrirErp(r, b as HTMLButtonElement)), 900); }
   else if (acao === 'empresa-escolher') { escolherEmpresa(b.dataset.empresa || EMPRESAS[0].id); mostrar('escolher-app'); requestAnimationFrame(() => { raiz?.querySelector<HTMLElement>('.central__opcao.is-principal')?.focus(); }); }
   else if (acao === 'abrir-erp') abrirDaLista(b as HTMLButtonElement);
+  /* (20 out.) as outras aplicações da plataforma: a página delas, no mesmo modo de ver (#so=…), já no Início */
+  else if (acao === 'abrir-app') { const so = new URLSearchParams(location.hash.slice(1)).get('so'); location.href = `../${b.dataset.pagina}/#ecra=inicio${so ? `&so=${so}` : ''}`; }
   else if (acao === 'sair') { terminarSessao(); mostrar('entrada'); }
 }
 
