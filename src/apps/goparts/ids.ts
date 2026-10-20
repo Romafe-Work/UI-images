@@ -13,7 +13,10 @@ export type IdEstadoEntrar = 'entrada-vazio' | 'palavra-passe-erro';
 /** Os estados da Minha lista (15.1…). */
 export type IdEstadoLista = 'lista-vazia' | 'lista-nova' | 'lista-pecas' | 'lista-mao' | 'lista-completa' | 'lista-sem-preco' | 'lista-indisponivel' | 'lista-qtd-invalida' | 'lista-desc-invalido' | 'lista-sujo' | 'lista-a-guardar' | 'lista-guardada' | 'lista-falhou-guardar' | 'lista-offline' | 'lista-sem-resultados' | 'lista-adicionar' | 'lista-remover' | 'lista-remover-ultima' | 'lista-a-carregar' | 'lista-duplicar' | 'lista-eliminar' | 'lista-a-enviar' | 'lista-falhou-enviar' | 'lista-sessao' | 'lista-enviada' | 'lista-leitura' | 'lista-sem-permissao' | 'lista-previsualizar' | 'lista-listas' | 'lista-servico';
 
-export type IdGoParts = IdEstadoEntrar | 'abertura' | IdEntrar | IdCarregar | IdErro | 'inicio' | IdEstadoInicio | 'catalogo' | IdEstadoCatalogo | 'pedidos' | IdEstadoPedidos | 'guias' | IdEstadoGuias | 'faturas' | IdEstadoFaturas | 'lista' | IdEstadoLista | 'devolucoes' | IdEstadoDevolucoes | 'tecnica' | IdEstadoTecnica;
+/** (20 out., V5) os estados do Início, que passou a painel (10.x). */
+export type IdEstadoPainel = 'painel-carga' | 'painel-vazio' | 'painel-falha' | 'painel-pers' | 'painel-pedidos' | 'painel-personalizar';
+
+export type IdGoParts = IdEstadoEntrar | 'abertura' | IdEntrar | IdCarregar | IdErro | 'inicio' | IdEstadoPainel | 'pesquisa' | IdEstadoInicio | 'catalogo' | IdEstadoCatalogo | 'pedidos' | IdEstadoPedidos | 'guias' | IdEstadoGuias | 'faturas' | IdEstadoFaturas | 'lista' | IdEstadoLista | 'devolucoes' | IdEstadoDevolucoes | 'tecnica' | IdEstadoTecnica;
 
 export type EcraGoParts = Ecra<IdGoParts>;
 

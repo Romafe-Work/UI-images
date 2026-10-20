@@ -8,7 +8,8 @@
    - O indicador do ativo: ao mudar de ecrã, desliza da secção de onde se veio para a atual.
    - Sem escolha guardada, abre recolhida abaixo de 1440 px (o conteúdo dos ecrãs largos, como a Minha lista,
      precisa da largura) e aberta acima. Depois de a pessoa escolher, vale a escolha dela.
-   - Abaixo de 1200 px (o tablet) não há barra: o ☰ abre a gaveta (barra.ts).
+   - (20 out., V5) No tablet (768–1199 px) a barra fica sempre recolhida, sem mexer na escolha guardada; abaixo de
+     768 px (o telemóvel) não há barra: o ☰ abre a gaveta (barra.ts).
    ========================================================= */
 const CHAVE = 'goparts:lado';
 const RAIZ = 'gp-lado-recolhido';
@@ -21,10 +22,11 @@ const recolhido = () => document.documentElement.classList.contains(RAIZ);
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .portal__lado');
 
 const ESTREITA = '(max-width: 1439.98px)';
+const TABLET = '(max-width: 1199.98px)';
 function escolhida(): string | null { try { return localStorage.getItem(CHAVE); } catch { return null; } }
 function porOmissao(): void {
   const e = escolhida();
-  document.documentElement.classList.toggle(RAIZ, e ? e === 'recolhido' : window.matchMedia(ESTREITA).matches);
+  document.documentElement.classList.toggle(RAIZ, window.matchMedia(TABLET).matches || (e ? e === 'recolhido' : window.matchMedia(ESTREITA).matches));
 }
 /* logo ao carregar o módulo, antes da primeira pintura dos ecrãs */
 porOmissao();
@@ -45,7 +47,7 @@ function guardar(r: boolean): void {
 const FECHADO = 'inset(0 calc(100% - 68px) 0 0)';
 let aAnimar = false;
 function alternar(): void {
-  if (aAnimar) return;
+  if (aAnimar || window.matchMedia(TABLET).matches) return;
   const lado = visivel();
   const r = !recolhido();
   guardar(r);
@@ -91,6 +93,7 @@ export function iniciar(): void {
   window.addEventListener('resize', () => posicionar(false), { passive: true });
   /* sem escolha guardada, a barra segue a largura da janela */
   window.matchMedia(ESTREITA).addEventListener('change', () => { if (!escolhida()) { porOmissao(); marcarBotoes(); requestAnimationFrame(() => posicionar(false)); } });
+  window.matchMedia(TABLET).addEventListener('change', () => { porOmissao(); marcarBotoes(); requestAnimationFrame(() => posicionar(false)); });
   document.addEventListener('click', (ev) => {
     const b = (ev.target as Element).closest?.('[data-lado-recolher]');
     if (!b || editando()) return;
@@ -107,6 +110,6 @@ export function iniciar(): void {
   /* noutro separador mudou-se a escolha */
   window.addEventListener('storage', (ev) => {
     if (ev.key !== CHAVE) return;
-    document.documentElement.classList.toggle(RAIZ, ev.newValue === 'recolhido'); marcarBotoes(); posicionar(false);
+    porOmissao(); marcarBotoes(); posicionar(false);
   });
 }

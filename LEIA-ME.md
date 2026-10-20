@@ -346,6 +346,46 @@ não perde o contexto WebGL) e dá à cena a fase nova; os valores seguem os alv
   Medido com `npm run medir`: zero problemas nos quatro ecrãs.
 - Sem servidor neste protótipo: «Entrar» leva ao Início como no resto; não se finge outra coisa.
 
+## GoParts V5: o Início é o painel e a pesquisa tem o seu ecrã (20 out. 2026)
+
+Do briefing «New Command Dashboard & Separate Parts Search Workspace». Os dois objetivos ficam separados:
+**10 · Início** acompanha a atividade e **18 · Pesquisar peças** serve para encontrar a peça. O 18 vem logo a
+seguir ao Início no mapa. O número 18 foi escolhido para não renumerar os ecrãs 11–17.
+
+- **Barra lateral:** três grupos, Principal (Início, Pesquisar peças, Catálogo), Documentos e Ferramentas. O Início e
+  a Pesquisa mostram por baixo do nome o que têm. No tablet (768–1199 px) a barra fica sempre recolhida. Só no
+  telemóvel (< 768 px) há o ☰ com a gaveta, que também já tem a Pesquisar peças.
+- **10 · Início** (`portal/painel.ts`, `portal/painel-dados.ts`, `comportamento/painel.ts`, `css/painel.css`):
+  - Cabeçalho com a saudação, a conta, o armazém e a data. O período escolhe-se entre Hoje, 7 dias, 30 dias e
+    Personalizado.
+  - Blocos: seis números, a evolução das compras (valor ou n.º de pedidos; 7, 30 ou 90 dias, ou personalizado), o
+    estado das encomendas, «Requer a tua atenção», os últimos pedidos, a atividade recente por dia e o acesso rápido.
+  - Cada número, estado, alerta, linha e atividade abre o documento ou a lista já filtrada.
+  - «Personalizar» muda a ordem dos blocos (arrastando ou com ↑ ↓), esconde blocos, escolhe os atalhos e o período ao
+    abrir, e repõe a disposição de origem.
+  - Estados 10.1–10.7.
+- **Os números não são inventados.** Contam-se nos documentos de exemplo e acabam a **16/04/2024**. Os períodos contam
+  para trás a partir desse dia, e o cabeçalho di-lo («Dados até 16/04/2024 (exemplo)»). O histórico de pedidos
+  começa a 14/03/2024:
+  - no gráfico, os dias anteriores aparecem tracejados com «Sem dados» e não a zero;
+  - a comparação com o período anterior só aparece quando esse período está todo dentro do histórico;
+  - não há percentagens.
+  - O que é «agora» não muda com o período: em curso, para recolha, devoluções em aberto, estados e alertas.
+  - Com servidor, cada número vem de um ponto de agregação por conta.
+- **Gráfico:** acumulado em degraus, sem IVA, com a escala a começar em zero. A entrada anima pela ordem eixos →
+  pontos → linha → total, uma vez, quando o gráfico aparece. A dica responde ao rato, ao dedo e às setas
+  (Home/End).
+- **18 · Pesquisar peças** (o que era o Início v3/V4, `portal/inicio-v3.ts`):
+  - «Como queres pesquisar?» com Matrícula, Veículo e Referência, um formulário de cada vez. Os campos ficam todos
+    no cartão.
+  - As opções da referência e a «Pesquisa avançada» (catálogo, universal, informação técnica) abrem-se ao clicar.
+  - Por baixo: continuar, garagem, peças frequentes, stock e categorias.
+  - Os estados passaram de 10.x a 18.1–18.20. Os das encomendas e de «Personalizar Início» saíram com o painel.
+- **Entre ecrãs** (`comportamento/navegar.ts`): o topo e a barra ficam parados e o conteúdo troca com View
+  Transitions (≈ 300 ms). Ao chegar à pesquisa, o foco vai para o campo. O «voltar» do navegador funciona entre os
+  ecrãs do portal.
+- Testes: `npm run testar:inicio` (painel e pesquisa).
+
 ## 10 · Início do GoParts: o espaço de trabalho com blocos (16 out. 2026)
 
 Do briefing dela («Ultimate Home Dashboard Redesign»), na mesma versão do Início (uma só por ecrã). A pesquisa dos

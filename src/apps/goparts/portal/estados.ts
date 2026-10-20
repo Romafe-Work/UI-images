@@ -1080,45 +1080,38 @@ const devSemPermissao = () => d16('e1623', (r) => {
 const devTabela = () => d16('e1624', (r) => { devAberta(r, 'DV2024/00035', 'e1624'); }, devolucoesV1('tabela'));
 
 /* ---------- a lista: cada estado logo a seguir ao seu ecrã ---------- */
-const PAI: Record<string, IdGoParts> = { inicio: 'inicio', catalogo: 'catalogo', pedidos: 'pedidos', guias: 'guias', faturas: 'faturas', devolucoes: 'devolucoes' };
+/* (20 out., V5) os estados «inicio-…» são da pesquisa, que saiu do Início para o seu ecrã (18 · Pesquisar peças) */
+const PAI: Record<string, IdGoParts> = { inicio: 'pesquisa', catalogo: 'catalogo', pedidos: 'pedidos', guias: 'guias', faturas: 'faturas', devolucoes: 'devolucoes' };
 const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): EcraGoParts =>
   ({ id, nome, fluxo: 'Portal', objetivo, estadoDe: PAI[id.split('-')[0]], versoes: [{ id: 'v1', nota: 'No estilo do ecrã de cima (12 out.)', html: html() }] });
 
 /* 14 out. 2026: o Início v3 (o espaço de trabalho de todos os dias) traz os seus próprios estados, tirados do
    mesmo desenho (inicio-v3.ts); os do v2.2 saíram com ele */
 const ini3 = (est: EstadoInicio) => () => {
-  const html = portal('inicio', inicioV3(est), undefined, { menu: true, rodape: false });
+  const html = portal('pesquisa', inicioV3(est), undefined, { menu: true, rodape: false });
   /* com a pesquisa global aberta (modal), o resto da página fica inerte, como o comportamento faz */
   /* com a gaveta ou o diálogo abertos (modais), o resto da página fica inerte */
   if (est === 'personalizar' || est === 'arrastar' || est === 'repetir') return html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3');
   return est === 'comando' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
 };
 export const estadosInicio = (): EcraGoParts[] => [
-  e('inicio-carga', '10.1 · A carregar o Início', 'O rolamento monta-se e roda no lugar da pesquisa — «A preparar o teu espaço…» — e as zonas aparecem à medida que os dados chegam.', ini3('carga')),
-  e('inicio-modelos', '10.2 · Sugestões ao escrever', 'Na referência, «VKBA»: as sugestões agrupadas (referências, fabricantes, pesquisas recentes), a parte escrita destacada, a escolhida com a risca laranja; ↑ ↓ Enter Esc.', ini3('sugestoes')),
-  e('inicio-pesquisa', '10.3 · A pesquisar a referência', 'O rolamento roda no lugar do ícone do campo e no botão: «A procurar referências…». Sem cobrir a página.', ini3('pesquisa')),
-  e('inicio-sem-resultados', '10.4 · Referência sem resultados', 'O contorno de um disco inspecionado uma vez; «Não encontrámos resultados…» e três saídas: limpar, equivalências, catálogo.', ini3('sem-resultados')),
-  e('inicio-formulario', '10.5 · Erro no formulário', 'Identificar: a matrícula incompleta — borda, ícone que se desenha e a explicação por baixo; o que se escreveu fica.', ini3('erro')),
-  e('inicio-rede', '10.6 · Sem ligação', 'O rolamento abranda até parar: «Estás sem ligação à Internet.» «Tentar novamente» volta a pô-lo a rodar e confirma a ligação.', ini3('rede')),
-  e('inicio-falha', '10.7 · As encomendas não carregaram', 'Só o bloco das encomendas: «Não foi possível carregar as encomendas.» e «Tentar novamente» com o seu próprio carregamento; o resto do Início funciona.', ini3('falha')),
-  e('inicio-vazio', '10.8 · Primeira vez', 'A visita guiada pelas três formas de encontrar peças, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete. Os blocos vazios dizem o que vão mostrar: sem encomendas, garagem, atividade nem carrinho.', ini3('vazio')),
-  e('inicio-comando', '10.9 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K): o fundo escurece e a caixa cresce de 0,98 para 1; recentes, pedidos, marcas e modelos, categorias e páginas; ↑ ↓ Enter Esc.', ini3('comando')),
+  e('inicio-carga', '18.1 · A carregar a pesquisa', 'O rolamento monta-se e roda no lugar da pesquisa — «A preparar o teu espaço…» — e os blocos aparecem à medida que os dados chegam.', ini3('carga')),
+  e('inicio-modelos', '18.2 · Sugestões ao escrever', 'Na referência, «VKBA»: as sugestões agrupadas (referências, fabricantes, pesquisas recentes), a parte escrita destacada, a escolhida com a risca laranja; ↑ ↓ Enter Esc.', ini3('sugestoes')),
+  e('inicio-pesquisa', '18.3 · A pesquisar a referência', 'O rolamento roda no lugar do ícone do campo e no botão: «A procurar referências…». Sem cobrir a página.', ini3('pesquisa')),
+  e('inicio-sem-resultados', '18.4 · Referência sem resultados', 'O contorno de um disco inspecionado uma vez; «Não encontrámos resultados…» e três saídas: limpar, equivalências, catálogo.', ini3('sem-resultados')),
+  e('inicio-formulario', '18.5 · Erro no formulário', 'Identificar: a matrícula incompleta — borda, ícone que se desenha e a explicação por baixo; o que se escreveu fica.', ini3('erro')),
+  e('inicio-rede', '18.6 · Sem ligação', 'O rolamento abranda até parar: «Estás sem ligação à Internet.» «Tentar novamente» volta a pô-lo a rodar e confirma a ligação.', ini3('rede')),
+  e('inicio-vazio', '18.7 · Primeira vez', 'A visita guiada pelas três formas de encontrar peças, um cartão de cada vez (Seguinte, Anterior, Saltar); não se repete. Os blocos vazios dizem o que vão mostrar: sem garagem, atividade nem peças frequentes.', ini3('vazio')),
+  e('inicio-comando', '18.8 · Pesquisa global (Ctrl+K)', 'Ctrl+K (⌘K): o fundo escurece e a caixa cresce de 0,98 para 1; recentes, pedidos, marcas e modelos, categorias e páginas; ↑ ↓ Enter Esc.', ini3('comando')),
 ];
 /* 16 out. 2026: os estados dos blocos do espaço de trabalho (o briefing «Ultimate Home Dashboard»); entram a seguir
-   aos 10.10–10.17 (app.ts) */
+   aos 18.9–18.15 (app.ts); (20 out., V5) os das encomendas e de «Personalizar Início» saíram com o painel */
 export const estadosInicioEspaco = (): EcraGoParts[] => [
-  e('inicio-veiculo', '10.18 · Veículo identificado', 'AA-12-BC: o veículo aparece por baixo da pesquisa, os dados um a um (matrícula, ano, motor, potência…), com «Ver peças compatíveis»; a nota diz que a compatibilidade é a do catálogo; o cartão da garagem fica marcado.', ini3('veiculo')),
-  e('inicio-veiculo-nao', '10.19 · Matrícula não encontrada', 'O serviço de identificação não devolveu nenhum veículo: o que fazer (confirmar, VIN, escolher pela marca); a matrícula escrita fica.', ini3('veiculo-nao')),
-  e('inicio-linha', '10.20 · Percurso de uma encomenda', 'P2024/001233 aberta: o percurso só com os passos dessa encomenda (o atual marcado), a entrega, o valor e «Ver detalhes» / «Repetir encomenda».', ini3('linha')),
-  e('inicio-repetir', '10.21 · Repetir encomenda', 'Cada artigo de P2024/001120 procurado no catálogo de hoje: os que lá estão com o preço e a saída atuais; os outros ficam de fora, e diz-se porquê.', ini3('repetir')),
-  e('inicio-sucesso', '10.22 · Artigos no carrinho', 'Depois de repetir: o aviso diz quantas unidades entraram e quantos artigos ficaram de fora; o número do carrinho salta uma vez.', ini3('sucesso')),
-  e('inicio-personalizar', '10.23 · Personalizar Início', 'A gaveta: blocos (ligar, desligar, ordem pela pega), densidade, pesquisa ao abrir, atalhos (até 6) e repor; o Início atrás muda ao mesmo tempo.', ini3('personalizar')),
-  e('inicio-arrastar', '10.24 · A arrastar um bloco', 'A garagem levantada na lista: o lugar onde cai fica marcado e os outros afastam-se; ao largar, assenta com mola.', ini3('arrastar')),
-  e('inicio-compacta', '10.25 · Densidade compacta', 'Menos espaço entre linhas e blocos, para ecrãs baixos; tudo o resto igual.', ini3('compacta')),
-  e('inicio-atualizar', '10.26 · A atualizar em segundo plano', 'As encomendas continuam à vista enquanto se atualizam: o rolamento pequeno ao pé de «A atualizar…».', ini3('atualizar')),
-  e('inicio-parcial', '10.27 · Falha parcial', 'As peças frequentes e o stock não carregaram: cada bloco diz o seu erro e tenta de novo sozinho; o resto do Início funciona.', ini3('parcial')),
-  e('inicio-permissao', '10.28 · Sem acesso aos preços', 'A conta não tem a permissão «Ver preços»: os preços e «Adicionar» saem e diz-se a quem pedir o acesso.', ini3('permissao')),
-  e('inicio-sem-stock', '10.29 · Referência sem stock', 'INA 538 0001 10: zero nos dois armazéns — sem saída nem levantamento; por encomenda ao fornecedor, 3 a 5 dias úteis.', ini3('sem-stock')),
+  e('inicio-veiculo', '18.16 · Veículo identificado', 'AA-12-BC: o veículo aparece por baixo da pesquisa, os dados um a um (matrícula, ano, motor, potência…), com «Ver peças compatíveis»; a nota diz que a compatibilidade é a do catálogo; o cartão da garagem fica marcado.', ini3('veiculo')),
+  e('inicio-veiculo-nao', '18.17 · Matrícula não encontrada', 'O serviço de identificação não devolveu nenhum veículo: o que fazer (confirmar, VIN, escolher pela marca); a matrícula escrita fica.', ini3('veiculo-nao')),
+  e('inicio-parcial', '18.18 · Falha parcial', 'As peças frequentes e o stock não carregaram: cada bloco diz o seu erro e tenta de novo sozinho; o resto da pesquisa funciona.', ini3('parcial')),
+  e('inicio-permissao', '18.19 · Sem acesso aos preços', 'A conta não tem a permissão «Ver preços»: os preços e «Adicionar» saem e diz-se a quem pedir o acesso.', ini3('permissao')),
+  e('inicio-sem-stock', '18.20 · Referência sem stock', 'INA 538 0001 10: zero nos dois armazéns — sem saída nem levantamento; por encomenda ao fornecedor, 3 a 5 dias úteis.', ini3('sem-stock')),
 ];
 export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-carga', '11.1 · A carregar o Catálogo', 'O cartão da pesquisa e a grelha das marcas em esqueleto.', catalogoCarga),

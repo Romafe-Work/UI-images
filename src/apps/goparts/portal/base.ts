@@ -7,7 +7,7 @@
    ========================================================= */
 import type { IdGoParts } from '../ids';
 
-export type IdPortal = Extract<IdGoParts, 'inicio' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica'>;
+export type IdPortal = Extract<IdGoParts, 'inicio' | 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica'>;
 
 /** De que produto é o portal: o GoParts, ou o GoShop, que usa a mesma moldura
     (8 out. 2026, para os ecrãs de carregamento das duas apps). `ligar` diz se
@@ -87,19 +87,22 @@ function rodape(): string {
    O comportamento (recolher, guardar a escolha, o indicador que vem do ecrã anterior) está em
    comportamento/lado.ts; o desenho em css/lado.css. No lugar das abas fica um marcador vazio, para as
    linhas da grelha de cada ecrã continuarem as mesmas. */
-const DOCS: IdPortal[] = ['pedidos', 'guias', 'faturas', 'devolucoes'];
+/* (20 out., V5 — briefing «New Command Dashboard & Separate Parts Search Workspace») três grupos com título:
+   Principal (Início, Pesquisar peças, Catálogo), Documentos e Ferramentas. O Início e a Pesquisa levam por baixo
+   do nome o que têm (só com a barra aberta). A Pesquisar peças é um ecrã à parte do Catálogo (a pesquisa saiu do
+   Início); o Catálogo continua com as marcas, os modelos e a pesquisa universal. */
+const PESQUISA: typeof ABAS[number] = ['pesquisa', 'Pesquisar peças', '<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', 'search'];
+const SUB: Partial<Record<IdPortal, string>> = { inicio: 'Painel e atividade', pesquisa: 'Matrícula, veículo e referência' };
+const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
+const NOME_LADO: Partial<Record<IdPortal, string>> = { tecnica: 'Informação técnica' };
 function lado(ativa: IdPortal | null, p: Produto): string {
-  const item = ([id, nome, d, ic]: typeof ABAS[number]) => `<li><button type="button" class="lado__item"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}</span></button></li>`;
-  const antes = ABAS.filter(([id]) => !DOCS.includes(id!) && id !== 'tecnica' && id !== 'lista');
-  const docs = ABAS.filter(([id]) => DOCS.includes(id!));
-  const depois = ABAS.filter(([id]) => id === 'tecnica' || id === 'lista');
+  const todas = [...ABAS, PESQUISA];
+  const item = ([id, nome0, d, ic]: typeof ABAS[number]) => { const nome = (id && NOME_LADO[id]) || nome0, sub = id ? SUB[id] : undefined;
+    return `<li><button type="button" class="lado__item${sub ? ' lado__item--sub' : ''}"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}${sub ? `<small class="lado__sub">${sub}</small>` : ''}</span></button></li>`; };
   return `<nav class="portal__lado" aria-label="Secções" data-lado>
     <div class="lado__rolo">
-      <ul class="lado__lista" role="list">${antes.map(item).join('')}</ul>
-      <p class="lado__grupo" id="lado-docs"><span class="lado__rotulo">Documentos</span></p>
-      <ul class="lado__lista" role="list" aria-labelledby="lado-docs">${docs.map(item).join('')}</ul>
-      <p class="lado__grupo" aria-hidden="true"></p>
-      <ul class="lado__lista" role="list">${depois.map(item).join('')}</ul>
+      ${GRUPOS.map(([g, ids], i) => `<p class="lado__grupo${i === 0 ? ' lado__grupo--primeiro' : ''}" id="lado-g${i}"><span class="lado__rotulo">${g}</span></p>
+      <ul class="lado__lista" role="list" aria-labelledby="lado-g${i}">${ids.map((id) => item(todas.find((a) => a[0] === id)!)).join('')}</ul>`).join('')}
       <span class="lado__ativo" aria-hidden="true"></span>
     </div>
     <div class="lado__pe">

@@ -14,6 +14,7 @@ import { faturasV2 } from './faturas-v2';
 import { listaHtml, type EstadoLista } from './lista';
 import { guiasV3 } from './guias-v3';
 import { inicioV3 } from './inicio-v3';
+import { painelV5, type EstadoPn } from './painel';
 import { catalogoV5 } from './catalogo-v5';
 
 /** O catálogo v6: o da v5 com as classes do desenho novo (o Início v3) e do motor de transições. */
@@ -23,12 +24,17 @@ import { pedidosV4 } from './pedidos-v4';
 const FLUXO = 'Portal';
 
 export const ecrasPortal: EcraGoParts[] = [
+  /* 20 out. 2026 (V5, briefing «New Command Dashboard & Separate Parts Search Workspace»): o Início passa a painel da
+     atividade e a pesquisa de peças vai para o seu ecrã (18 · Pesquisar peças, logo a seguir). Uma só versão por
+     ecrã: a v3 (o espaço de trabalho com a pesquisa) saiu daqui — o código dela é o da Pesquisar peças. */
   { id: 'inicio', nome: '10 · Início', fluxo: FLUXO, versoes: [
-    /* 14 out. 2026: do briefing dela, o espaço de trabalho de todos os dias; «só quero uma versão por screen» — saiu a v2.2 */
-    /* 16 out. 2026: do briefing «Ultimate Home Dashboard» — a mesma versão (uma só por ecrã), com a saudação e os blocos */
-    { id: 'v3', nota: 'O espaço de trabalho (16 out.): «Bom dia, Fernando» com a conta, o armazém e o que está pendente; a pesquisa dos três cartões (o veículo identificado aparece por baixo, com «Ver peças compatíveis»); e os blocos que se escolhem, escondem e reordenam em «Personalizar Início» — atalhos, as minhas encomendas (contadores e percurso, repetir), continuar onde fiquei, a minha garagem, categorias, peças frequentes e disponibilidade por armazém', html: portal('inicio', inicioV3(), undefined, { menu: true, rodape: false }) }],
-    objetivo: 'O espaço de trabalho de todos os dias: encontrar a peça (identificar o veículo, selecioná-lo ou pesquisar a referência), retomar o que ficou a meio, acompanhar e repetir encomendas, e ver o stock nos armazéns.' },
-  /* os estados do Início (10.1, 10.2…), logo a seguir a ele (12 out. 2026) */
+    { id: 'v5', nota: 'O painel da atividade (20 out., V5): saudação, conta, armazém e o período (Hoje, 7 dias, 30 dias, Personalizado); o resumo em seis números; a evolução das compras (valor ou n.º de pedidos, 7/30/90 dias); o estado das encomendas; o que requer atenção; os últimos pedidos; a atividade por dia; o acesso rápido. Cada bloco leva ao ecrã certo, já filtrado; «Personalizar» ordena, esconde e escolhe os atalhos', html: portal('inicio', painelV5(), undefined, { menu: true, rodape: false }) }],
+    objetivo: 'Perceber de relance a atividade da conta e agir: quanto se comprou e quando, onde está cada encomenda, o que pede uma ação (faturas vencidas, recolhas, devoluções), os últimos pedidos e documentos, e os atalhos para o resto do portal. Pesquisar peças é no ecrã seguinte.' },
+  ...estadosPainel(),
+  { id: 'pesquisa', nome: '18 · Pesquisar peças', fluxo: FLUXO, versoes: [
+    { id: 'v1', nota: 'A pesquisa que estava no Início (20 out., V5): «Como queres pesquisar?» — Matrícula, Veículo ou Referência, um formulário de cada vez; o veículo identificado por baixo; as opções da referência e a pesquisa avançada (catálogo, universal, informação técnica) que se abrem; e o que ajuda a pesquisar — continuar onde fiquei, a garagem, as peças frequentes, o stock por armazém e as categorias', html: portal('pesquisa', inicioV3(), undefined, { menu: true, rodape: false }) }],
+    objetivo: 'Encontrar a peça certa: identificar o veículo pela matrícula ou pelo VIN, escolhê-lo pela marca e modelo, ou pesquisar a referência (com equivalências); depois, as peças compatíveis no catálogo.' },
+  /* os estados da pesquisa (18.1…), que eram os do Início v3 e do espaço de trabalho */
   ...estadosInicio(),
   /* 13 out. 2026: ela, «mostra só a v2» — a v3, a v4 e a v5 ficam aqui escritas mas fora da lista
      (o filtro no fim); para voltarem, basta tirar o filtro */
@@ -77,6 +83,23 @@ export const ecrasPortal: EcraGoParts[] = [
     objetivo: 'Consultar a informação técnica de um veículo: escolhê-lo pela marca, modelo ou código do motor, e depois a manutenção, a reparação, o diagnóstico e os esquemas do WorkshopData, com o veículo sempre à vista.' },
   ...estadosTecnica(),
 ];
+
+/** (20 out., V5) os estados do painel (10.1…). */
+function estadosPainel(): EcraGoParts[] {
+  const E: [EstadoPn, EcraGoParts['id'], string, string][] = [
+    ['carga', 'painel-carga', '10.1 · A carregar o Início', 'Cada bloco em esqueleto, com a forma do que vai mostrar; os números em «–». Os blocos chegam um a um, sem saltos.'],
+    ['vazio', 'painel-vazio', '10.2 · Conta sem atividade', 'Uma conta nova: os números a zero (nada de percentagens inventadas), o gráfico diz que começa com o primeiro pedido, e cada bloco leva a «Pesquisar peças».'],
+    ['falha', 'painel-falha', '10.3 · Dois blocos não carregaram', 'A evolução das compras e os últimos pedidos falharam: cada um diz o seu erro e tenta de novo sozinho; o resto do Início funciona.'],
+    ['pers', 'painel-pers', '10.4 · Período personalizado', 'De 14/03 a 16/04/2024: as datas no cabeçalho, os números e o gráfico desse intervalo; o que é «agora» não muda.'],
+    ['pedidos-n', 'painel-pedidos', '10.5 · Gráfico em n.º de pedidos', 'A mesma evolução contada em pedidos: os degraus sobem um por pedido; a escala começa no zero.'],
+    ['personalizar', 'painel-personalizar', '10.6 · Personalizar o Início', 'A gaveta: a ordem dos blocos (pela pega ou ↑ ↓), mostrar e esconder, o período ao abrir, o acesso rápido e repor.'],
+  ];
+  return E.map(([est, id, nome, objetivo]) => {
+    let html = portal('inicio', painelV5(est).replace('class="portal ', 'class="portal portal--estado '), undefined, { menu: true, rodape: false });
+    if (est === 'personalizar') html = html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__lado"', '<nav class="portal__lado" inert aria-hidden="true"').replace('<main class="pn"', '<main inert aria-hidden="true" class="pn"');
+    return { id, nome, fluxo: FLUXO, estadoDe: 'inicio' as EcraGoParts['id'], objetivo, versoes: [{ id: 'v1', nota: 'Do briefing do painel (20 out., V5)', html }] };
+  });
+}
 
 function estadosLista(): EcraGoParts[] {
   /* 16 out. 2026: os 24 estados do briefing do espaço de orçamento, e os que a lista já tinha (enviada, só de leitura,

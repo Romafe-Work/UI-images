@@ -21,6 +21,12 @@
 .lado__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .lado__grupo { margin: 14px 0 6px; padding: 0 14px; min-height: 1px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--c-texto-3); white-space: nowrap; overflow: hidden; }
 .lado__grupo:empty { margin: 10px 14px; background: var(--c-borda); }
+/* (20 out., V5) três grupos com título; o primeiro encosta ao topo. O Início e a Pesquisa levam o que têm por baixo do nome */
+.lado__grupo--primeiro { margin-top: 2px; }
+.lado__item--sub { height: 50px; }
+.lado__item--sub .lado__rotulo { display: grid; line-height: 1.2; }
+.lado__sub { overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--c-texto-3); }
+.lado__item[aria-current="page"] .lado__sub { color: var(--c-texto-2); }
 
 .lado__item {
   position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 14px;
@@ -55,6 +61,9 @@
 @keyframes lado-rotulo { from { opacity: 0; transform: translateX(-4px); } }
 :root.gp-lado-recolhido .portal__lado .lado__grupo { color: transparent; }
 :root.gp-lado-recolhido .portal__lado .lado__grupo::before { content: ""; display: block; height: 1px; margin-top: 6px; background: var(--c-borda); }
+:root.gp-lado-recolhido .portal__lado .lado__grupo--primeiro { margin: 0; min-height: 0; }
+:root.gp-lado-recolhido .portal__lado .lado__grupo--primeiro::before { display: none; }
+:root.gp-lado-recolhido .portal__lado .lado__item--sub { height: 40px; }
 :root.gp-lado-recolhido .portal__lado .lado__seta { transform: rotate(180deg); }
 :root.gp-lado-recolhido .lado__rolo { overflow: visible; }
 :root.gp-lado-recolhido .portal__lado [data-dica]::after {
@@ -70,11 +79,15 @@
 /* o botão de recolher, aberto, diz o que faz no próprio texto: sem dica */
 :root:not(.gp-lado-recolhido) .lado__recolher::after { display: none; }
 
-/* ---------- o ☰ só abaixo de 1200 px (o tablet), onde a barra dá lugar à gaveta ---------- */
-@media (min-width: 1200px) {
+/* ---------- (20 out., V5) o tablet (768–1199 px) fica com a barra recolhida, só com os ícones e as dicas, sem o
+   botão de abrir (lado.ts recolhe-a sem gravar a escolha); o ☰ e a gaveta só no telemóvel, abaixo de 768 px ---------- */
+@media (min-width: 768px) {
   .portal--lateral .portal__menu { display: none !important; }
 }
-@media (max-width: 1199.98px) {
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .portal__lado .lado__pe { display: none; }
+}
+@media (max-width: 767.98px) {
   .portal.portal--lateral, :root.gp-lado-recolhido .portal.portal--lateral { grid-template-columns: minmax(0, 1fr); }
   .portal--lateral > *, .portal--lateral > .portal__topo { grid-column: 1; }
   .portal__lado { display: none; }

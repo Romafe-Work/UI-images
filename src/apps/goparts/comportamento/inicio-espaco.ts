@@ -21,7 +21,7 @@ import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import * as carrinho from './carrinho';
 import { REFERENCIAS } from '../portal/catalogo-dados';
 import {
-  PREFS, CHAVE_PREFS, GARAGEM, CHAVE_GARAGEM, CHAVE_ATIVIDADE, CHAVE_FAVORITAS, FAVORITAS, IDENTIFICADOS, VINS, BLOCOS,
+  PREFS, CHAVE_PREFS, GARAGEM, ORDEM_PESQUISA, CHAVE_GARAGEM, CHAVE_ATIVIDADE, CHAVE_FAVORITAS, FAVORITAS, IDENTIFICADOS, VINS, BLOCOS,
   atividadeInicial, normalizarMatricula, nomeCarro, olaHtml, veiculoHtml, naoEncontradoHtml, encomendasHtml, continuarHtml, garagemHtml,
   atalhosHtml, frequentesHtml, personalizarHtml, atencaoHtml, resumoHtml, repetirHtml, repetirDe, dispCorpo, saudacao, L, IC,
   type Prefs, type Carro, type Atividade, type IdBloco, type IdAtalho, type Dados,
@@ -116,8 +116,11 @@ function desenhar(ini: HTMLElement): void {
   const ola = ini.querySelector('.ini4__ola'); if (ola) { const t = document.createElement('template'); t.innerHTML = olaHtml(d).trim(); ola.replaceWith(t.content.firstElementChild!); }
   const escolhida = ini.querySelector<HTMLElement>('.ini4__veiculo-caixa[data-matricula]')?.dataset.matricula ?? '';
   trocar(ini, 'atencao', atencaoHtml(d)); trocar(ini, 'resumo', resumoHtml(d)); trocar(ini, 'atalhos', atalhosHtml(d)); trocar(ini, 'continuar', continuarHtml(d)); trocar(ini, 'garagem', garagemHtml(d, '', escolhida)); trocar(ini, 'frequentes', frequentesHtml(d));
-  aplicarPrefs(ini, d.prefs);
+  aplicarPrefs(ini, prefsDoEcra(ini, d.prefs));
 }
+/** (20 out., V5) No ecrã «Pesquisar peças» os blocos ficam pela ordem de origem e todos à vista: a personalização
+    era do Início antigo (o painel novo tem a sua, comportamento/painel.ts). */
+const prefsDoEcra = (ini: HTMLElement, p: Prefs): Prefs => (ini.classList.contains('pq') ? { ...p, ordem: [...ORDEM_PESQUISA, ...p.ordem.filter((b) => !ORDEM_PESQUISA.includes(b))], escondidos: [], densidade: 'confortavel' } : p);
 function aplicarPrefs(ini: HTMLElement, p: Prefs): void {
   ini.dataset.densidade = p.densidade;
   ini.querySelector('[data-blocos]')?.setAttribute('data-densidade', p.densidade);
@@ -651,6 +654,8 @@ export function iniciar(): void {
     /* atalhos e categorias */
     if ((b = q('[data-atalho]'))) { atalho(ini, b.dataset.atalho as IdAtalho); return; }
     if ((b = q('[data-categoria]'))) { abrirCategoria(b.dataset.categoria!); return; }
+    /* (20 out., V5) a pesquisa avançada da Pesquisar peças: a pesquisa universal do catálogo (os grupos sem veículo) */
+    if (q('[data-pq-universal]')) { ir('catalogo', 'goparts:catalogo-abrir', JSON.stringify({ tipo: 'vista', vista: 'universal' })); return; }
   });
 
   document.addEventListener('submit', (ev) => {

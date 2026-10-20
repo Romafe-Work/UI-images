@@ -143,6 +143,8 @@ function itensMenu(): Item[] {
   const vistaLista = document.querySelector('.ecra:not([hidden]) .lst')?.getAttribute('data-vista');
   return [
     { id: 'inicio', nome: 'Início', ic: IC.casa, ir: () => ir('inicio') },
+    /* (20 out., V5) a pesquisa de peças saiu do Início para o seu ecrã */
+    { id: 'pesquisa', nome: 'Pesquisar peças', ic: IC.lupa, ir: () => ir('pesquisa') },
     { id: 'catalogo', nome: 'Catálogo', ic: IC.caixa, filhos: [
       { nome: 'Marcas e modelos', ir: () => ir('catalogo') },
       { nome: 'Pesquisa universal (por grupo)', ir: () => abrirCatalogo({ tipo: 'vista', vista: 'universal' }) }] },
@@ -151,7 +153,7 @@ function itensMenu(): Item[] {
       { nome: 'Guias de remessa', ir: () => ir('guias'), eAtual: actual === 'guias' },
       { nome: 'Faturas', ir: () => ir('faturas'), eAtual: actual === 'faturas' },
       { nome: 'Devoluções', ir: () => ir('devolucoes'), eAtual: actual === 'devolucoes' }] },
-    { id: 'tecnica', nome: 'Informações técnicas', ic: IC.chave, ir: () => ir('tecnica') },
+    { id: 'tecnica', nome: 'Informação técnica', ic: IC.chave, ir: () => ir('tecnica') },
     { id: 'lista', nome: 'Minha lista', ic: IC.estrela, filhos: [
       { nome: 'A lista aberta', ir: () => ir('lista'), eAtual: actual === 'lista' && vistaLista !== 'listas' },
       { nome: 'Minhas listas', ir: () => ir('lista', 'goparts:lista-vista', 'listas'), eAtual: actual === 'lista' && vistaLista === 'listas' }] },

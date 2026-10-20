@@ -29,7 +29,7 @@ const T = '.ecra:not([hidden]) > .versao:not([hidden]) .portal__topo';
 const ecra = (p) => p.evaluate(() => document.querySelector('.ecra:not([hidden])')?.dataset.ecra);
 const certo = (v, msg) => { if (!v) throw new Error(msg); };
 
-await caso('menu: abre, marca o ecrã, Esc fecha e o foco volta', 900, async (p) => {
+await caso('menu: abre, marca o ecrã, Esc fecha e o foco volta', 700, async (p) => {
   await p.click(`${T} [data-barra="menu"]`);
   await p.waitForSelector('.bc-menu');
   certo(await p.getAttribute(`${T} [data-barra="menu"]`, 'aria-expanded') === 'true', 'o botão não diz aberto');
@@ -38,7 +38,7 @@ await caso('menu: abre, marca o ecrã, Esc fecha e o foco volta', 900, async (p)
   certo(!(await p.$('.bc-menu')), 'o menu não fechou');
   certo(await p.evaluate(() => document.activeElement?.dataset.barra) === 'menu', 'o foco não voltou ao botão');
 });
-await caso('menu: Documentos → Faturas leva ao ecrã', 900, async (p) => {
+await caso('menu: Documentos → Faturas leva ao ecrã', 700, async (p) => {
   await p.click(`${T} [data-barra="menu"]`);
   await p.click('.bc-menu__pai:has-text("Documentos")');
   await p.click('.bc-menu__filho:has-text("Faturas")');

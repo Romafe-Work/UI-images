@@ -14,9 +14,10 @@ import { estadosInicioEspaco } from './portal/estados';
 /** Os ecrãs de carregamento e de erro, cada um como estado da página que mostra, numerados a seguir
  *  aos estados que ela já tem (10.8, 11.15, 12.24, 13.21, 14.27). */
 const ONDE: Record<string, [IdGoParts, string]> = {
-  'carga-pagina': ['inicio', '10.10 · A carregar o portal'], 'carga-inicio': ['inicio', '10.11 · Esqueleto do Início'], 'carga-pecas': ['inicio', '10.12 · Peças a carregar'],
-  'erro-404': ['inicio', '10.13 · Página não encontrada'], 'erro-500': ['inicio', '10.14 · Erro do servidor'], 'erro-sessao': ['inicio', '10.15 · Sessão expirada'],
-  'erro-formulario': ['inicio', '10.16 · Erros no formulário (página)'], 'erro-manutencao': ['inicio', '10.17 · Em manutenção'],
+  /* (20 out., V5) a pesquisa saiu do Início: os estados que mostram a pesquisa passam ao 18 · Pesquisar peças */
+  'carga-pagina': ['inicio', '10.7 · A carregar o portal'], 'carga-inicio': ['pesquisa', '18.9 · Esqueleto da pesquisa'], 'carga-pecas': ['pesquisa', '18.10 · Peças a carregar'],
+  'erro-404': ['pesquisa', '18.11 · Página não encontrada'], 'erro-500': ['pesquisa', '18.12 · Erro do servidor'], 'erro-sessao': ['pesquisa', '18.13 · Sessão expirada'],
+  'erro-formulario': ['pesquisa', '18.14 · Erros no formulário (página)'], 'erro-manutencao': ['pesquisa', '18.15 · Em manutenção'],
   'carga-pesquisa': ['catalogo', '11.21 · Pesquisa em curso'], 'erro-vazio': ['catalogo', '11.22 · Pesquisa sem resultados'], 'erro-encomenda': ['catalogo', '11.23 · Encomenda não concluída'],
   'carga-tabela': ['pedidos', '12.25 · Tabela a carregar'], 'carga-mais': ['pedidos', '12.26 · Carregar mais'], 'erro-rede': ['pedidos', '12.27 · Sem ligação (página)'],
   'erro-403': ['guias', '13.22 · Acesso negado (página)'],
@@ -25,9 +26,9 @@ const ONDE: Record<string, [IdGoParts, string]> = {
 /* 14 out. 2026 (o briefing dos 17 estados do Início): no GoParts, estes estados passam a ser do Início v3, na
    mesma linguagem mecânica (o rolamento); a moldura comum fica para o GoShop */
 const ini3 = (est: EstadoInicio) => () => {
-  const html = portal('inicio', inicioV3(est), undefined, { menu: true, rodape: false });
+  const html = portal('pesquisa', inicioV3(est), undefined, { menu: true, rodape: false });
   /* com o diálogo da sessão expirada (modal), o resto da página fica inerte */
-  return est === 'sessao' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
+  return est === 'sessao' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__lado"', '<nav class="portal__lado" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
 };
 const NOVOS: Record<string, [() => string, string]> = {
   'carga-inicio': [ini3('esqueleto'), 'A forma exata do Início em esqueleto, com um pulsar lento: cada zona troca quando os dados chegam, sem saltos.'],
@@ -41,7 +42,7 @@ const NOVOS: Record<string, [() => string, string]> = {
 function distribuir(): EcraGoParts[] {
   const lista: EcraGoParts[] = [...ecrasPortal];
   for (const e of [...ecrasCarregar(GOPARTS), ...ecrasErro()] as EcraGoParts[]) {
-    const [pai, nome] = ONDE[e.id] ?? ['inicio', e.nome];
+    const [pai, nome] = ONDE[e.id] ?? ['pesquisa', e.nome];
     let i = lista.length - 1;
     while (i >= 0 && lista[i].id !== pai && lista[i].estadoDe !== pai) i--;
     while (i + 1 < lista.length && lista[i + 1].estadoDe === pai) i++;
@@ -49,8 +50,8 @@ function distribuir(): EcraGoParts[] {
     const versoes = novo ? [{ id: 'v1', nota: 'Do briefing dos estados do Início (14 out.), na linguagem mecânica do rolamento', html: novo[0]() }] as EcraGoParts['versoes'] : e.versoes;
     lista.splice(i + 1, 0, { ...e, nome, fluxo: 'Portal', estadoDe: pai, versoes, objetivo: novo ? novo[1] : e.objetivo });
   }
-  /* (16 out.) os estados dos blocos do Início (10.18…) a seguir aos 10.10–10.17 */
-  { let i = lista.length - 1; while (i >= 0 && lista[i].estadoDe !== 'inicio') i--; lista.splice(i + 1, 0, ...estadosInicioEspaco()); }
+  /* (16 out.) os estados dos blocos do espaço de trabalho a seguir aos outros — (20 out., V5) agora da Pesquisar peças, 18.16… */
+  { let i = lista.length - 1; while (i >= 0 && lista[i].estadoDe !== 'pesquisa') i--; lista.splice(i + 1, 0, ...estadosInicioEspaco()); }
   /* (15 out., ela: «no fluxo quero que mostres exemplos de diálogos abertos») estes estados entram no mapa, logo a
      seguir ao seu ecrã: os painéis laterais dos Pedidos, das Guias e das Faturas, as pré-visualizações e o diálogo
      de eliminar a lista */
@@ -61,7 +62,7 @@ function distribuir(): EcraGoParts[] {
     'lista-adicionar': 'Diálogo aberto · adicionar peças', 'lista-previsualizar': 'Diálogo aberto · pré-visualização', 'lista-eliminar': 'Diálogo aberto · eliminar',
     'devolucoes-aberta': 'Diálogo aberto · a devolução', 'devolucoes-criar-artigos': 'Diálogo aberto · criar devolução',
     'tecnica-esquema': 'Diálogo aberto · a figura no visor',
-    'inicio-personalizar': 'Diálogo aberto · personalizar o Início', 'inicio-repetir': 'Diálogo aberto · repetir a encomenda',
+    'painel-personalizar': 'Diálogo aberto · personalizar o Início',
   };
   return lista.map((e) => (DIALOGOS[e.id] ? { ...e, noFluxo: DIALOGOS[e.id] } : e));
 }
@@ -75,7 +76,7 @@ export const goparts: App<IdGoParts> = {
   tela: { l: 1440, a: 900 },
   fluxos: {
     'Entrar': DESCRICAO_ENTRAR,
-    'Portal': 'Depois de entrar: o Início com as três pesquisas, o catálogo, os pedidos, as guias de remessa, as faturas, a Minha lista, as devoluções e as informações técnicas.',
+    'Portal': 'Depois de entrar: o Início (o painel da atividade), a pesquisa de peças, o catálogo, os pedidos, as guias de remessa, as faturas, a Minha lista, as devoluções e as informações técnicas.',
   },
   /* 14 out. 2026: os quatro ecrãs de entrar à volta do rolamento 3D (entrar-3d.ts), do briefing dela; saíram a v1 e a v2 */
   /* 12 out. 2026: os quatro ecrãs de entrar são os do estilo do Início v2.2, com a
