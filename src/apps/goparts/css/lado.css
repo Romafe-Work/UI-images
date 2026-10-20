@@ -1,0 +1,87 @@
+/* =========================================================
+   GOPARTS — a barra lateral (20 out. 2026)
+   Por baixo do topo, à esquerda, em todos os ecrãs do portal. Aberta 248 px; recolhida 68 px.
+   Os ícones ficam sempre a 24 px da borda (o mesmo recuo aberta e recolhida), por isso não mexem.
+   Tokens do portal (--c-*): no escuro é o grafite. O azul da Romafe só no indicador do ativo; o laranja
+   no foco. Só clip-path, transform e opacity animam; a coluna muda num passo (comportamento/lado.ts).
+   Tempos: hover 150 ms; recolher/abrir 240 ms; o indicador 280 ms; as dicas 120 ms (ao fim de 300 ms).
+   ========================================================= */
+.portal.portal--lateral { position: relative; grid-template-columns: var(--lado-l, 248px) minmax(0, 1fr); }
+:root.gp-lado-recolhido .portal--lateral { --lado-l: 68px; }
+.portal--lateral > * { grid-column: 2; }
+.portal--lateral > .portal__topo { grid-column: 1 / -1; }
+.portal__lugar-abas { display: block; height: 0; }
+
+.portal__lado {
+  position: absolute; inset: 0; z-index: 1; grid-column: 1 / 2; grid-row: 2 / -1;
+  display: flex; flex-direction: column; min-height: 0;
+  background: var(--c-superficie); border-right: 1px solid var(--c-borda);
+}
+.lado__rolo { position: relative; flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 12px 10px; scrollbar-width: thin; }
+.lado__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.lado__grupo { margin: 14px 0 6px; padding: 0 14px; min-height: 1px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--c-texto-3); white-space: nowrap; overflow: hidden; }
+.lado__grupo:empty { margin: 10px 14px; background: var(--c-borda); }
+
+.lado__item {
+  position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 14px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--c-texto-2);
+  font: inherit; font-size: 14px; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.lado__item > svg { flex: none; width: 20px; height: 20px; }
+.lado__rotulo { min-width: 0; overflow: hidden; text-overflow: ellipsis; transition: opacity 160ms ease; }
+.lado__item:hover:not(:disabled) { background: var(--c-superficie-2); color: var(--c-texto); }
+.lado__item:active:not(:disabled) { transform: translateY(1px); }
+.lado__item:focus-visible { outline: 2px solid var(--c-acao); outline-offset: -2px; }
+.lado__item:disabled { opacity: .55; cursor: default; }
+.lado__item[aria-current="page"] { background: var(--c-superficie-2); color: var(--c-texto); }
+.lado__item[aria-current="page"] > svg { color: var(--c-logotipo, #0063aa); }
+[data-theme="dark"] .lado__item[aria-current="page"] > svg { color: var(--c-texto); }
+/* o indicador do ativo: um traço azul à esquerda, que desliza de ecrã para ecrã */
+.lado__ativo { position: absolute; left: 0; top: 0; width: 3px; border-radius: 0 3px 3px 0; background: var(--c-logotipo, #0063aa); pointer-events: none; }
+.lado__ativo[hidden] { display: none; }
+
+.lado__pe { flex: none; padding: 8px 10px 12px; border-top: 1px solid var(--c-borda); }
+.lado__recolher { color: var(--c-texto-3); font-weight: 500; }
+.lado__seta { transition: transform 240ms cubic-bezier(.22, 1, .36, 1); }
+
+/* ---------- recolhida: só os ícones, o nome na dica ---------- */
+.lado__lista { grid-template-columns: minmax(0, 1fr); }
+.portal__lado.is-a-recolher .lado__rotulo { opacity: 0; }
+/* recolhida, o nome sai do desenho mas continua para os leitores de ecrã (e na dica) */
+:root.gp-lado-recolhido .portal__lado .lado__rotulo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:root.gp-lado-recolhido .portal__lado .lado__grupo:empty::before { display: none; }
+.portal__lado.is-a-abrir .lado__rotulo { animation: lado-rotulo 200ms ease 60ms both; }
+@keyframes lado-rotulo { from { opacity: 0; transform: translateX(-4px); } }
+:root.gp-lado-recolhido .portal__lado .lado__grupo { color: transparent; }
+:root.gp-lado-recolhido .portal__lado .lado__grupo::before { content: ""; display: block; height: 1px; margin-top: 6px; background: var(--c-borda); }
+:root.gp-lado-recolhido .portal__lado .lado__seta { transform: rotate(180deg); }
+:root.gp-lado-recolhido .lado__rolo { overflow: visible; }
+:root.gp-lado-recolhido .portal__lado [data-dica]::after {
+  content: attr(data-dica); position: absolute; z-index: 30; left: calc(100% + 10px); top: 50%;
+  padding: 4px 8px; border-radius: 6px; background: var(--c-texto); color: var(--c-superficie);
+  font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none;
+  opacity: 0; transform: translate(-2px, -50%); transition: opacity 120ms ease, transform 120ms ease;
+}
+:root.gp-lado-recolhido .portal__lado [data-dica]:focus-visible::after { opacity: 1; transform: translate(0, -50%); }
+@media (hover: hover) and (pointer: fine) {
+  :root.gp-lado-recolhido .portal__lado [data-dica]:hover::after { opacity: 1; transform: translate(0, -50%); transition-delay: 300ms; }
+}
+/* o botão de recolher, aberto, diz o que faz no próprio texto: sem dica */
+:root:not(.gp-lado-recolhido) .lado__recolher::after { display: none; }
+
+/* ---------- o ☰ só abaixo de 1200 px (o tablet), onde a barra dá lugar à gaveta ---------- */
+@media (min-width: 1200px) {
+  .portal--lateral .portal__menu { display: none !important; }
+}
+@media (max-width: 1199.98px) {
+  .portal.portal--lateral, :root.gp-lado-recolhido .portal.portal--lateral { grid-template-columns: minmax(0, 1fr); }
+  .portal--lateral > *, .portal--lateral > .portal__topo { grid-column: 1; }
+  .portal__lado { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lado__item, .lado__rotulo, .lado__seta { transition: none; }
+  .portal__lado.is-a-abrir .lado__rotulo { animation: none; }
+}
+/* com o visor da Inf. técnica aberto (uma janela por cima de tudo), a barra fica atrás dele, fora do foco e dos leitores */
+.portal--lateral:has(.tec__visor:not([hidden])) .portal__lado { visibility: hidden; }

@@ -150,7 +150,7 @@ const painel = () => visivel()?.parentElement?.querySelector<HTMLElement>('.ini3
 function fecharComando(): void { const p = painel(); if (!p || p.hidden) return; p.hidden = true; fundoInerte(p, false); deOnde?.focus?.(); }
 /** Com a pesquisa global aberta (modal), o resto do portal fica inerte e escondido dos leitores de ecrã. */
 function fundoInerte(p: HTMLElement, sim: boolean): void {
-  p.parentElement!.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__abas, :scope > .ini3').forEach((el) => { el.inert = sim; if (sim) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
+  p.parentElement!.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__abas, :scope > .portal__lado, :scope > .ini3').forEach((el) => { el.inert = sim; if (sim) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
 }
 function filtrar(p: HTMLElement, q: string): void {
   const lista = p.querySelector<HTMLElement>('.ini3__comando-lista')!;

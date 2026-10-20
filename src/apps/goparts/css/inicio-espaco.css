@@ -91,7 +91,7 @@
 .ini4__bloco-cabeca h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 700; color: var(--i3-tinta); }
 .ini4__bloco-cabeca h2 svg { width: 18px; height: 18px; color: var(--i3-tinta-2); }
 .ini4__bloco-accoes { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.ini4__mais { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--i3-azul); text-decoration: none; }
+.ini4__mais { display: inline-flex; min-height: 32px; padding: 0 4px; border: 0; border-radius: 6px; background: none; font-family: inherit; cursor: pointer; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--i3-azul); text-decoration: none; }
 .ini4__mais svg { width: 15px; height: 15px; transition: transform .14s ease; }
 @media (hover: hover) and (pointer: fine) { .ini4__mais:hover svg { transform: translateX(2px); } }
 .ini4__contagem, .ini4__atualizado, .ini4__a-atualizar { font-size: 12.5px; color: var(--i3-tinta-3); }
@@ -424,3 +424,69 @@
 @media (prefers-reduced-motion: reduce) {
   .ini4 *, .ini4__gaveta *, .ini4__dialogo * { animation: none !important; transition: none !important; }
 }
+
+/* =========================================================
+   (20 out. 2026, briefing V4) Requer a tua atenção · Resumo da atividade · Acesso rápido em mosaico
+   A cor só no ícone de cada linha (erro, aviso, informação); as superfícies ficam neutras, como no resto.
+   ========================================================= */
+.ini4__conta-alertas { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--i3-sup-2); border: 1px solid var(--i3-borda); font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; color: var(--i3-tinta); }
+.ini4__alertas { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ini4__alerta { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: var(--i4-linha); padding: 8px 10px 8px 12px; border: 1px solid var(--i3-borda); border-radius: 8px; background: var(--i3-sup-2); }
+.ini4__alerta-icone { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--i3-sup); border: 1px solid var(--i3-borda); }
+.ini4__alerta-icone svg { width: 17px; height: 17px; }
+.ini4__alerta--erro .ini4__alerta-icone svg { color: var(--c-erro); }
+.ini4__alerta--aviso .ini4__alerta-icone svg { color: var(--c-aviso); }
+.ini4__alerta--info .ini4__alerta-icone svg { color: var(--i3-azul); }
+.ini4__alerta-texto { display: grid; gap: 1px; min-width: 0; }
+.ini4__alerta-texto b { font-size: 14px; line-height: 1.3; }
+.ini4__alerta-texto > span { font-size: 13px; line-height: 1.35; color: var(--i3-tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ini4__alerta-ref { font-family: var(--f-mono, ui-monospace, monospace); font-weight: 600; color: var(--i3-tinta); }
+.ini4__alerta-acao.btn { min-height: 34px; padding: 0 12px; font-size: 13px; white-space: nowrap; }
+.ini4__alertas-nada { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border: 1px solid var(--i3-borda); border-radius: 8px; background: var(--i3-sup-2); font-size: 14px; font-weight: 600; }
+.ini4__alertas-nada svg { width: 18px; height: 18px; color: var(--c-ok); }
+.ini4__alertas-mais { margin: 0; font-size: 13px; color: var(--i3-tinta-2); }
+
+.ini4__resumo { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ini4__metrica { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; column-gap: 8px; width: 100%; min-height: 72px; padding: 10px 12px; border: 1px solid var(--i3-borda); border-radius: 8px; background: var(--i3-sup-2); font: inherit; text-align: left; color: var(--i3-tinta); cursor: pointer; transition: border-color .14s ease, background-color .14s ease, transform .12s ease; }
+.ini4__metrica-icone { grid-row: 1; display: grid; place-items: center; }
+.ini4__metrica-icone svg { width: 17px; height: 17px; color: var(--i3-tinta-2); }
+.ini4__metrica b { grid-row: 1; font-size: 22px; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ini4__metrica > span:not(.ini4__metrica-icone) { grid-column: 1 / -1; font-size: 12.5px; line-height: 1.3; color: var(--i3-tinta-2); }
+.ini4__metrica-seta { grid-row: 1; grid-column: 3; width: 16px; height: 16px; color: var(--i3-tinta-3); transition: transform .14s ease, color .14s ease; }
+.ini4__metrica--preparacao .ini4__metrica-icone svg { color: var(--c-aviso); }
+.ini4__metrica--expedido .ini4__metrica-icone svg { color: var(--i3-azul); }
+.ini4__metrica--recolher .ini4__metrica-icone svg { color: var(--c-ok); }
+.ini4__metrica:disabled { cursor: default; }
+.ini4__metrica:disabled b { color: var(--i3-tinta-3); }
+.ini4__metrica:active:not(:disabled) { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) {
+  .ini4__metrica:not(:disabled):hover { border-color: var(--i3-borda-forte); background: var(--i3-sup); }
+  .ini4__metrica:not(:disabled):hover .ini4__metrica-seta { transform: translateX(2px); color: var(--c-acao); }
+}
+/* um número que mudou: um realce breve na borda (fora do fluxo, sem mexer a altura) */
+.ini4__metrica.is-mudou { animation: i4-mudou 1.2s ease; }
+@keyframes i4-mudou { 0%, 40% { border-color: var(--c-acao); } }
+
+/* a entrega por baixo de cada pedido, à vista sem abrir */
+.ini4__enc-entrega { display: inline-flex; align-items: center; gap: 5px; min-width: 0; font-size: 12.5px; color: var(--i3-tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ini4__enc-entrega svg { flex: none; width: 13px; height: 13px; }
+
+/* Acesso rápido: mosaico de botões, o título à vista */
+.ini4__bloco--atalhos { grid-template-columns: none; }
+.ini4__bloco--atalhos .ini4__bloco-cabeca { display: flex; }
+.ini4__bloco--atalhos h2 { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; }
+.ini4__bloco--atalhos .ini4__bloco-accoes, .ini4__bloco--atalhos .ini4__atalhos { grid-column: auto; grid-row: auto; }
+.ini4__bloco--atalhos .ini4__atalhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.ini4__bloco--atalhos .ini4__atalho { width: 100%; height: 44px; }
+.ini4__bloco--atalhos .ini4__atalho-num { margin-left: auto; }
+
+@media (max-width: 560px) {
+  .ini4__alerta { grid-template-columns: auto minmax(0, 1fr); }
+  .ini4__alerta-acao.btn { grid-column: 1 / -1; justify-self: stretch; min-height: 44px; }
+  .ini4__resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ini4__bloco--atalhos .ini4__atalhos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .ini4__metrica.is-mudou { animation: none; } }
+/* (20 out., V4) o título da pesquisa, por cima dos três modos */
+.ini3__pesquisa-titulo { margin: 0 0 10px; font-family: var(--f-titulo); font-size: 20px; font-weight: 600; line-height: 1.2; color: var(--i3-tinta); }
+@media (max-width: 560px) { .ini3__pesquisa-titulo { font-size: 18px; } }

@@ -307,7 +307,7 @@ function enviar(lst: HTMLElement, destino: string): void {
 type ComOrigem = HTMLElement & { _de?: HTMLElement | null };
 /** Com uma gaveta, pré-visualização ou diálogo aberto, a página por baixo (barra, abas e lista) fica inerte. */
 function inerte(r: HTMLElement, sim: boolean): void {
-  r.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__abas, :scope > .lst').forEach((el) => { el.inert = sim; if (sim) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
+  r.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__abas, :scope > .portal__lado, :scope > .lst').forEach((el) => { el.inert = sim; if (sim) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
 }
 function abrirDialogo(r: HTMLElement, tipo: string, de?: HTMLElement): void {
   const d = r.querySelector<ComOrigem>(`[data-dialogo="${tipo}"]`); if (!d) return;

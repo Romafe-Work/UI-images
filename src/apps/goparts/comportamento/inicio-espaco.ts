@@ -23,7 +23,7 @@ import { REFERENCIAS } from '../portal/catalogo-dados';
 import {
   PREFS, CHAVE_PREFS, GARAGEM, CHAVE_GARAGEM, CHAVE_ATIVIDADE, CHAVE_FAVORITAS, FAVORITAS, IDENTIFICADOS, VINS, BLOCOS,
   atividadeInicial, normalizarMatricula, nomeCarro, olaHtml, veiculoHtml, naoEncontradoHtml, encomendasHtml, continuarHtml, garagemHtml,
-  atalhosHtml, frequentesHtml, personalizarHtml, repetirHtml, repetirDe, dispCorpo, saudacao, L, IC,
+  atalhosHtml, frequentesHtml, personalizarHtml, atencaoHtml, resumoHtml, repetirHtml, repetirDe, dispCorpo, saudacao, L, IC,
   type Prefs, type Carro, type Atividade, type IdBloco, type IdAtalho, type Dados,
 } from '../portal/inicio-espaco';
 
@@ -84,6 +84,7 @@ function aCarregar(b: HTMLElement, texto: string): () => void {
   return () => { b.innerHTML = antes; b.removeAttribute('aria-busy'); (b as HTMLButtonElement).disabled = false; };
 }
 const espera = (ms: number) => new Promise((r) => window.setTimeout(r, quieto() ? Math.min(ms, 150) : ms));
+import { irFiltrado } from './filtro-chegada';
 function ir(id: string, chave?: string, valor?: string): void { if (chave) try { sessionStorage.setItem(chave, valor ?? ''); } catch { /* abre só o ecrã */ } mostrar(id); }
 const barra = (tipo: string) => document.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) [data-barra="${tipo}"]:not([hidden])`)?.click();
 
@@ -114,7 +115,7 @@ function desenhar(ini: HTMLElement): void {
   ini.querySelector('[data-blocos]')?.setAttribute('data-densidade', d.prefs.densidade);
   const ola = ini.querySelector('.ini4__ola'); if (ola) { const t = document.createElement('template'); t.innerHTML = olaHtml(d).trim(); ola.replaceWith(t.content.firstElementChild!); }
   const escolhida = ini.querySelector<HTMLElement>('.ini4__veiculo-caixa[data-matricula]')?.dataset.matricula ?? '';
-  trocar(ini, 'atalhos', atalhosHtml(d)); trocar(ini, 'continuar', continuarHtml(d)); trocar(ini, 'garagem', garagemHtml(d, '', escolhida)); trocar(ini, 'frequentes', frequentesHtml(d));
+  trocar(ini, 'atencao', atencaoHtml(d)); trocar(ini, 'resumo', resumoHtml(d)); trocar(ini, 'atalhos', atalhosHtml(d)); trocar(ini, 'continuar', continuarHtml(d)); trocar(ini, 'garagem', garagemHtml(d, '', escolhida)); trocar(ini, 'frequentes', frequentesHtml(d));
   aplicarPrefs(ini, d.prefs);
 }
 function aplicarPrefs(ini: HTMLElement, p: Prefs): void {
@@ -271,7 +272,7 @@ function fecharDialogo(el: HTMLElement): void {
 }
 /** Com um diálogo ou a gaveta abertos, o resto da página fica inerte e escondido dos leitores de ecrã. */
 function fundo(portal: HTMLElement, sim: boolean): void {
-  portal.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__abas, :scope > .ini4').forEach((el) => { el.inert = sim; if (sim) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
+  portal.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__abas, :scope > .portal__lado, :scope > .ini4').forEach((el) => { el.inert = sim; if (sim) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden'); });
 }
 async function confirmarRepetir(b: HTMLElement): Promise<void> {
   const dlg = b.closest<HTMLElement>('.ini4__dialogo')!, ini = dlg.closest('.portal--ini4')!.querySelector<HTMLElement>('.ini4')!;
@@ -441,6 +442,8 @@ function atalho(ini: HTMLElement, a: IdAtalho): void {
     window.setTimeout(() => ini.querySelector<HTMLInputElement>(m === 2 ? '#i3-referencia' : '#i3-matricula')?.focus({ preventScroll: true }), quieto() ? 0 : 300);
   } else if (a === 'carrinho') barra('carrinho');
   else if (a === 'pedidos') mostrar('pedidos');
+  else if (a === 'faturas') mostrar('faturas');
+  else if (a === 'devolucoes') mostrar('devolucoes');
   else if (a === 'lista') ir('lista', 'goparts:lista-vista', 'nova');
   else if (a === 'suporte') barra('ajuda');
   else if (a === 'favoritos') {
@@ -610,6 +613,9 @@ export function iniciar(): void {
     if ((b = q('[data-filtrar-enc]'))) { const bl = ini.querySelector<HTMLElement>('[data-bloco="encomendas"]'); if (bl && !bl.hidden) { filtrarEnc(ini, b.dataset.filtrarEnc!); bl.scrollIntoView({ block: 'nearest', behavior: quieto() ? 'auto' : 'smooth' }); } else mostrar('pedidos'); return; }
     if (q('[data-ir-fatura-vencida]')) { void import('../portal/faturas-dados').then(({ FATURAS }) => { const f = FATURAS.find((x) => x.pagamento === 'vencida'); ir('faturas', 'goparts:abrir-fatura', f?.num); }); return; }
     if ((b = q('[data-abrir-lista]'))) { ir('lista', 'goparts:lista-abrir', b.dataset.abrirLista); return; }
+    /* (20 out., V4) os alertas e os números do resumo: o documento aberto, ou a lista já filtrada (filtro-chegada.ts) */
+    if ((b = q('[data-ir-doc]'))) { ir(b.dataset.irDoc!, b.dataset.chave, b.dataset.valor); return; }
+    if ((b = q('[data-ir-filtro]'))) { irFiltrado(b.dataset.irFiltro!, b.dataset.etapaAlvo!); return; }
     /* o veículo */
     if ((b = q('[data-pecas-matricula]'))) { const m = b.dataset.pecasMatricula!, c = garagem().find((x) => x.matricula === m) ?? (IDENTIFICADOS[m] ? { id: '', matricula: m, ...IDENTIFICADOS[m] } : null); if (c) abrirVeiculoNoCatalogo(c, c.ultima); return; }
     if ((b = q('[data-guardar-matricula]'))) { const m = b.dataset.guardarMatricula!; void adicionarCarro(ini, ini.querySelector<HTMLFormElement>('[data-garagem-nova]')!, m).then(() => { const s = ini.querySelector('[data-guardar-matricula]'); if (s) s.outerHTML = `<span class="ini4__na-garagem">${L(IC.check)}Está na garagem</span>`; }); return; }
@@ -624,7 +630,7 @@ export function iniciar(): void {
     if ((b = q('[data-repetir-enc]'))) { abrirDialogo(ini, b.dataset.repetirEnc!, b); return; }
     if ((b = q('[data-tentar]'))) {
       const bl = b.closest<HTMLElement>('[data-bloco]')!, id = bl.dataset.bloco as IdBloco, r = aCarregar(b, 'A carregar…');
-      void espera(900).then(() => { r(); const d = dados(); const html = id === 'encomendas' ? encomendasHtml(d) : id === 'frequentes' ? frequentesHtml(d) : null;
+      void espera(900).then(() => { r(); const d = dados(); const html = id === 'encomendas' ? encomendasHtml(d) : id === 'frequentes' ? frequentesHtml(d) : id === 'atencao' ? atencaoHtml(d) : id === 'resumo' ? resumoHtml(d) : null;
         if (html) { const n = trocar(ini, id, html); if (n) { n.style.order = bl.style.order; entrar(n.lastElementChild!, 260); requestAnimationFrame(() => { if (id === 'frequentes') marcaSeg(n); }); } }
         else if (id === 'disponibilidade') { void import('../portal/inicio-espaco').then(({ disponibilidadeHtml }) => { const n = trocar(ini, id, disponibilidadeHtml(d)); if (n) { n.style.order = bl.style.order; entrar(n.lastElementChild!, 260); } }); } });
       return;
@@ -657,7 +663,7 @@ export function iniciar(): void {
     const g = t.closest?.<HTMLElement>('.ini4__gaveta'); if (!g) return;
     if (t.matches('[data-atalho-escolha]')) {
       const n = g.querySelectorAll('[data-atalho-escolha]:checked').length;
-      if (n > 6) { (t as HTMLInputElement).checked = false; brinde(g.closest('.portal--ini4')!.querySelector('.ini4')!, 'Cabem até 6 atalhos. Desligue um para ligar este.', undefined, true); return; }
+      if (n > 8) { (t as HTMLInputElement).checked = false; brinde(g.closest('.portal--ini4')!.querySelector('.ini4')!, 'Cabem até 8 atalhos. Desligue um para ligar este.', undefined, true); return; }
     }
     aplicar(g);
   });

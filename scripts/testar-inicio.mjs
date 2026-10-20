@@ -75,29 +75,61 @@ await caso('garagem: mudar o nome, tirar e desfazer, adicionar pela matrícula',
   await p.fill(`${I} #i4-nova-mat`, '78ql22'); await p.click(`${I} [data-garagem-nova] button[type="submit"]`); await p.waitForTimeout(400);
   certo(await p.$(`${I} .ini4__carro[data-matricula="78-QL-22"]`), 'não adicionou');
 });
-await caso('encomendas: os contadores filtram; abre o percurso', 1440, async (p) => {
-  await p.click(`${I} [data-kpi="entregue"]`);
-  const vis = await p.$$eval(`${I} .ini4__enc-li:not([hidden])`, (l) => l.map((x) => x.dataset.estadoEnc));
-  certo(vis.length === 3 && vis.every((x) => x === 'entregue'), `filtro errado: ${vis}`);
-  await p.click(`${I} [data-kpi="entregue"]`);
-  certo((await p.$$(`${I} .ini4__enc-li:not([hidden])`)).length === 4, 'não voltou às quatro');
+await caso('últimos pedidos: os quatro mais recentes, a entrega à vista, abre o percurso', 1440, async (p) => {
+  certo((await p.$$(`${I} .ini4__enc-li:not([hidden])`)).length === 4, 'não mostra os quatro mais recentes');
+  certo((await p.textContent(`${I} .ini4__enc-li[data-enc="P2024/001198"] .ini4__enc-entrega`)).includes('Levantar no balcão'), 'a entrega não aparece na linha');
   await p.click(`${I} .ini4__enc-li[data-enc="P2024/001233"] .ini4__enc`);
   certo(await p.isVisible(`${I} .ini4__enc-li[data-enc="P2024/001233"] .ini4__percurso`), 'o percurso não abriu');
   certo((await p.textContent(`${I} .ini4__enc-li[data-enc="P2024/001233"] [aria-current="step"]`)).includes('Expedido'), 'o passo atual está errado');
+  await p.click(`${I} [data-bloco="encomendas"] .ini4__mais`); await p.waitForTimeout(400);
+  certo(await ecra(p) === 'pedidos', '«Ver todos os pedidos» não foi aos Pedidos');
 });
-await caso('repetir encomenda: só os artigos do catálogo atual vão para o carrinho', 1440, async (p) => {
+await caso('repetir encomenda: o diálogo diz quantas unidades, e são essas que entram no carrinho', 1440, async (p) => {
   const antes = await unidades(p);
-  await p.click(`${I} [data-kpi="entregue"]`);
-  await p.click(`${I} .ini4__enc-li[data-enc="P2024/001120"] .ini4__enc`);
-  await p.click(`${I} [data-repetir-enc="P2024/001120"]`);
+  /* o P2024/001120 não está entre os quatro mais recentes (está no Pedidos); mostra-se só para o teste */
+  const num = 'P2024/001120';
+  await p.$eval(`${I} .ini4__enc-li[data-enc="${num}"]`, (li) => { li.hidden = false; });
+  await p.click(`${I} .ini4__enc-li[data-enc="${num}"] .ini4__enc`);
+  await p.click(`${I} [data-repetir-enc="${num}"]`);
   await p.waitForSelector(`${P} .ini4__dialogo:not([hidden])`);
   certo((await p.$$(`${P} .ini4__dialogo .ini4__rep-li.is-fora`)).length === 6, 'devia deixar 6 artigos de fora');
   await p.keyboard.press('Escape');
   certo(await p.$(`${P} .ini4__dialogo[hidden]`), 'Esc não fechou');
-  await p.click(`${I} [data-repetir-enc="P2024/001120"]`);
+  await p.click(`${I} [data-repetir-enc="${num}"]`);
+  const diz = Number((await p.textContent(`${P} .ini4__dialogo-pe b`) || '0').match(/\d+/)?.[0] || 0);
+  const fora = (await p.$$(`${P} .ini4__dialogo .ini4__rep-li.is-fora`)).length, todos = (await p.$$(`${P} .ini4__dialogo .ini4__rep-li`)).length;
+  certo(diz > 0 && fora < todos, `o diálogo devia ter artigos para repetir (${diz} unidades, ${fora} de ${todos} fora)`);
   await p.click(`${P} [data-confirmar-repetir]`); await p.waitForTimeout(700);
-  certo(await unidades(p) === antes + 4, `o carrinho devia ter mais 4 (tem ${await unidades(p)} de ${antes})`);
-  certo((await p.textContent(`${P} .ini4__brinde`)).includes('4 unidades'), 'o aviso não diz quantas');
+  certo(await unidades(p) === antes + diz, `o carrinho devia ter mais ${diz} (tem ${await unidades(p)} de ${antes})`);
+});
+await caso('requer a tua atenção: a fatura vencida primeiro, e abre a fatura', 1440, async (p) => {
+  const primeiro = await p.textContent(`${I} .ini4__alerta-li:first-child .ini4__alerta-texto b`);
+  certo(primeiro.includes('Fatura vencida'), `o primeiro alerta é «${primeiro}»`);
+  await p.click(`${I} .ini4__alerta-li:first-child .ini4__alerta-acao`); await p.waitForTimeout(600);
+  certo(await ecra(p) === 'faturas', 'não foi às Faturas');
+});
+await caso('resumo da atividade: cada número abre a lista filtrada; o zero não se clica', 1440, async (p) => {
+  certo(await p.$eval(`${I} .ini4__metrica--recolher`, (b) => b.disabled), 'o zero devia estar desligado');
+  await p.click(`${I} .ini4__metrica--expedido`); await p.waitForTimeout(600);
+  certo(await ecra(p) === 'pedidos', 'não foi aos Pedidos');
+  certo(await p.$eval('.ecra:not([hidden]) > .versao:not([hidden]) .ped4__etapa-f[aria-pressed="true"]', (b) => b.dataset.etapa) === 'expedido', 'os Pedidos não vieram filtrados');
+  await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="inicio"]'); await p.waitForTimeout(500);
+  await p.click(`${I} .ini4__metrica--devolucoes`); await p.waitForTimeout(600);
+  certo(await ecra(p) === 'devolucoes', 'não foi às Devoluções');
+  certo(await p.$eval('.ecra:not([hidden]) > .versao:not([hidden]) .ped4__etapa-f[aria-pressed="true"]', (b) => b.dataset.etapa) === 'rascunho', 'as Devoluções não vieram filtradas');
+});
+await caso('barra lateral: recolhe, fica guardada, e o ☰ só aparece abaixo de 1200 px', 1440, async (p) => {
+  const L = '.ecra:not([hidden]) > .versao:not([hidden]) .portal__lado';
+  certo(await p.isHidden('.ecra:not([hidden]) > .versao:not([hidden]) .portal__menu'), 'o ☰ aparece com a barra');
+  await p.click(`${L} [data-lado-recolher]`); await p.waitForTimeout(400);
+  certo((await p.$eval(L, (n) => n.getBoundingClientRect().width)) <= 70, 'não recolheu');
+  certo(await p.$eval(`${L} [data-lado-recolher]`, (b) => b.getAttribute('aria-expanded')) === 'false', 'aria-expanded não mudou');
+  await p.reload(); await p.waitForTimeout(900);
+  certo(await p.evaluate(() => document.documentElement.classList.contains('gp-lado-recolhido')), 'a escolha não ficou guardada');
+  await p.click(`${L} [data-lado-recolher]`); await p.waitForTimeout(400);
+  await p.click(`${L} .lado__item[data-lado-item="faturas"]`); await p.waitForTimeout(400);
+  certo(await ecra(p) === 'faturas', 'a barra não navegou');
+  certo(await p.$eval(`${L} .lado__item[aria-current="page"]`, (b) => b.dataset.ladoItem) === 'faturas', 'a secção ativa não mudou');
 });
 await caso('peças: adicionar ao carrinho, favoritas e ver o stock', 1440, async (p) => {
   const antes = await unidades(p);
@@ -131,7 +163,7 @@ await caso('personalizar: esconder, mover com o teclado, densidade, guarda e rep
 });
 await caso('personalizar: arrastar a garagem para o topo pela pega', 1440, async (p) => {
   await p.click(`${I} [data-personalizar]`); await p.waitForSelector(`${P} .ini4__gaveta:not([hidden])`);
-  const de = await p.$(`${P} [data-bloco-ordem="garagem"] [data-pega]`), para = await p.$(`${P} [data-bloco-ordem="atalhos"]`);
+  const de = await p.$(`${P} [data-bloco-ordem="garagem"] [data-pega]`), para = await p.$(`${P} [data-bloco-ordem]`);
   const a = await de.boundingBox(), b = await para.boundingBox();
   await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await p.mouse.down();
   for (let k = 1; k <= 8; k++) await p.mouse.move(a.x + a.width / 2, a.y + (b.y + 4 - a.y) * k / 8);
@@ -146,6 +178,11 @@ await caso('atalhos: criar lista abre uma lista nova', 1440, async (p) => {
   await p.click(`${I} [data-atalho="lista"]`); await p.waitForTimeout(600);
   certo(await ecra(p) === 'lista', 'não foi à Minha lista');
   certo((await p.textContent('.ecra:not([hidden]) > .versao:not([hidden]) .lst')).includes('Nova lista'), 'não abriu uma lista nova');
+});
+await caso('telemóvel: sem barra lateral, o ☰ abre a gaveta', 390, async (p) => {
+  certo(await p.isHidden('.ecra:not([hidden]) > .versao:not([hidden]) .portal__lado'), 'a barra lateral aparece no telemóvel');
+  await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .portal__menu');
+  certo(await p.waitForSelector('.bc-menu', { state: 'visible', timeout: 2000 }), 'a gaveta não abriu');
 });
 await caso('telemóvel: sem deslocação horizontal', 390, async (p) => {
   const w = await p.evaluate(() => document.documentElement.scrollWidth);

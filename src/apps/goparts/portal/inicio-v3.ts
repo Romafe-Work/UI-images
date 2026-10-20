@@ -68,7 +68,8 @@ export type EstadoInicio = '' | 'carga' | 'sugestoes' | 'pesquisa' | 'sem-result
 let uid = 0;
 const rs = (modo: Parameters<typeof rolamentoSvg>[1], cls: string) => rolamentoSvg(`i3-${++uid}`, modo, cls);
 
-const MODOS: [string, string, string][] = [['identificar', 'Identificar', carFront], ['selecionar', 'Selecionar', sliders], ['referencia', 'Referência', hash]];
+/* (20 out., briefing V4) os nomes dos modos: a matrícula (e o n.º de chassis, VIN), o veículo pela marca e modelo, a referência */
+const MODOS: [string, string, string][] = [['identificar', 'Por matrícula', carFront], ['selecionar', 'Por veículo', sliders], ['referencia', 'Por referência', hash]];
 
 /* ---------- os três cartões ----------
    (ela, 14 out., com uma imagem: «assim») — como os cartões da v2.2: em cima uma faixa com a cor do modo
@@ -265,7 +266,8 @@ export function inicioV3(e: EstadoInicio = ''): string {
     ${e === '404' || e === '500' ? paginaErro(e) : e === 'pecas' ? pecasACarregar() : `
     ${e === 'rede' ? semLigacao() : ''}
     ${olaHtml(d, ee)}
-    <section class="ini3__pesquisa" aria-label="Pesquisar peças" data-entra="1">
+    <section class="ini3__pesquisa" aria-labelledby="i3-pesquisa-t" data-entra="1">
+      <h2 class="ini3__pesquisa-titulo" id="i3-pesquisa-t">O que procuras hoje?</h2>
       <header class="ini3__cabeca">
         <div class="ini3__separadores" role="tablist" aria-label="Como quer pesquisar">
           ${MODOS.map(([id, nome, ic], i) => `<button type="button" role="tab" class="ini3__separador" id="i3-tab-${id}" aria-controls="i3-cartao-${id}" aria-selected="${i === atual}" tabindex="${i === atual ? 0 : -1}" data-modo="${i}">${L(ic)}${nome}</button>`).join('')}

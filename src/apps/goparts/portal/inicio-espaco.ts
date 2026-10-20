@@ -15,6 +15,8 @@
 import { REFERENCIAS, euros, saida, veiculosDe, MODELOS, type Referencia, type Veiculo } from './catalogo-dados';
 import { LINHAS, PEDIDOS, type Pedido, type LinhaPedido } from './pedidos-dados';
 import { FATURAS } from './faturas-dados';
+import { DEVOLUCOES, estadoDev } from './devolucoes-dados';
+import { etapa } from './pedidos-v4';
 import { LISTAS } from './lista';
 import { CAT_SVG } from './categorias-svg';
 import { imagemModelo } from './carros';
@@ -73,29 +75,33 @@ let uid = 0;
 /* =========================================================
    Os blocos e as preferências
    ========================================================= */
-export type IdBloco = 'atalhos' | 'encomendas' | 'continuar' | 'garagem' | 'categorias' | 'frequentes' | 'disponibilidade';
+export type IdBloco = 'atencao' | 'resumo' | 'atalhos' | 'encomendas' | 'continuar' | 'garagem' | 'categorias' | 'frequentes' | 'disponibilidade';
 /** nome · o que mostra · largura (todo = a linha toda; meio = meia linha a partir de 901 px) */
 export const BLOCOS: Record<IdBloco, [string, string, 'todo' | 'meio', string]> = {
-  atalhos: ['Atalhos', 'Os caminhos que usa mais vezes', 'todo', zap],
-  encomendas: ['As minhas encomendas', 'Contadores e o percurso de cada encomenda', 'meio', packageIcon],
+  /* (20 out., briefing V4) o que pede uma ação e o resumo, logo por baixo da pesquisa */
+  atencao: ['Requer a tua atenção', 'Faturas vencidas, pedidos prontos a levantar, devoluções por enviar', 'meio', triangleAlert],
+  resumo: ['Resumo da atividade', 'Os pedidos por estado, as devoluções e as listas — cada número abre a lista filtrada', 'meio', layoutGrid],
+  atalhos: ['Acesso rápido', 'Os caminhos que usa mais vezes', 'meio', zap],
+  encomendas: ['Últimos pedidos', 'O estado e o percurso de cada pedido, sem sair do Início', 'meio', packageIcon],
   continuar: ['Continuar onde fiquei', 'A última pesquisa, referência, categoria e lista', 'meio', history],
   garagem: ['A minha garagem', 'Os veículos guardados', 'todo', carFront],
   categorias: ['Categorias', 'As famílias de peças mais procuradas', 'todo', layoutGrid],
-  frequentes: ['Peças que compras frequentemente', 'Das suas encomendas e listas, e as favoritas', 'meio', repeat],
+  frequentes: ['Peças frequentes', 'Das suas encomendas e listas, e as favoritas', 'meio', repeat],
   disponibilidade: ['Disponibilidade por armazém', 'O stock de uma referência no Porto e em Sacavém', 'meio', warehouse],
 };
-/* a ordem de origem segue a prioridade do telemóvel do briefing: encomendas, continuar, garagem, categorias, peças */
-export const ORDEM: IdBloco[] = ['atalhos', 'encomendas', 'continuar', 'garagem', 'categorias', 'frequentes', 'disponibilidade'];
+/* (20 out., briefing V4) a ordem segue a do telemóvel do briefing: atenção, pedidos, continuar, garagem, acesso rápido,
+   peças; no computador ficam aos pares (atenção | resumo, pedidos | continuar, …) */
+export const ORDEM: IdBloco[] = ['atencao', 'resumo', 'encomendas', 'continuar', 'garagem', 'atalhos', 'frequentes', 'categorias', 'disponibilidade'];
 
-export type IdAtalho = 'referencia' | 'identificar' | 'carrinho' | 'pedidos' | 'lista' | 'favoritos' | 'suporte';
+export type IdAtalho = 'referencia' | 'identificar' | 'carrinho' | 'pedidos' | 'lista' | 'faturas' | 'devolucoes' | 'favoritos' | 'suporte';
 export const ATALHOS: Record<IdAtalho, [string, string]> = {
-  referencia: ['Pesquisar referência', hash], identificar: ['Identificar veículo', carFront], carrinho: ['Ver carrinho', cart],
+  referencia: ['Pesquisar peça', hash], faturas: ['Consultar faturas', receipt], devolucoes: ['Abrir devoluções', rotateCcw], identificar: ['Identificar veículo', carFront], carrinho: ['Ver carrinho', cart],
   pedidos: ['Consultar pedidos', packageIcon], lista: ['Criar lista', listPlus], favoritos: ['Peças favoritas', star], suporte: ['Contactar o apoio', headset],
 };
 export type Prefs = { ordem: IdBloco[]; escondidos: IdBloco[]; densidade: 'confortavel' | 'compacta'; modo: -1 | 0 | 1 | 2; atalhos: IdAtalho[] };
-export const PREFS: Prefs = { ordem: [...ORDEM], escondidos: [], densidade: 'confortavel', modo: -1, atalhos: ['referencia', 'identificar', 'carrinho', 'pedidos', 'lista'] };
+export const PREFS: Prefs = { ordem: [...ORDEM], escondidos: [], densidade: 'confortavel', modo: -1, atalhos: ['referencia', 'identificar', 'carrinho', 'pedidos', 'lista', 'faturas', 'devolucoes'] };
 /** As preferências são da pessoa e da conta: num servidor, guardam-se no perfil; aqui, no navegador. */
-export const CHAVE_PREFS = 'goparts:inicio:ff-porto:v1';
+export const CHAVE_PREFS = 'goparts:inicio:ff-porto:v2'; // v2 a 20 out.: os blocos novos e a ordem do briefing V4
 
 /* =========================================================
    A garagem e a identificação do veículo
@@ -204,19 +210,16 @@ export function pendentes(): [string, string, string, string][] {
   if (rasc) p.push(['lista', `${rasc} ${rasc === 1 ? 'lista por acabar' : 'listas por acabar'}`, list, `data-abrir-lista="${LISTAS.find((l) => l.estado === 'rascunho')!.id}"`]);
   return p;
 }
-export function olaHtml(d: Dados, e: EstadoEspaco = ''): string {
+export function olaHtml(d: Dados, _e: EstadoEspaco = ''): string {
   const agora = new Date(d.agora), data = `${DIAS[agora.getDay()]}, ${agora.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })}`;
-  const pend = e === 'vazio' ? [] : pendentes();
+  /* (20 out., V4) a saudação fica compacta: o que está pendente passou ao bloco «Requer a tua atenção» */
   return `<header class="ini4__ola" data-entra="0">
-    <div class="ini4__ola-texto"><p class="ini4__ola-data">${data}</p><h1 class="ini4__ola-titulo"><span data-saudacao>${saudacao(agora.getHours())}</span>, Fernando</h1><p class="ini4__ola-sub">O teu espaço de trabalho GoParts.</p></div>
+    <div class="ini4__ola-texto"><p class="ini4__ola-data">${data}</p><h1 class="ini4__ola-titulo"><span data-saudacao>${saudacao(agora.getHours())}</span>, Fernando</h1><p class="ini4__ola-sub">Este é o resumo da tua atividade no GoParts.</p></div>
     ${btn('Personalizar Início', settings2, ' data-personalizar aria-haspopup="dialog"', 'ini4__personalizar')}
     <dl class="ini4__contexto">
       <div><dt>Conta</dt><dd>Fernando F. França · Porto</dd></div>
       <div><dt>Armazém de saída</dt><dd>${L(mapPin)}Porto (1)</dd></div>
     </dl>
-    <div class="ini4__ola-fim">
-      ${pend.length ? `<ul class="ini4__pendentes" aria-label="Pendentes">${pend.map(([k, t, ic, a]) => `<li><button type="button" class="ini4__pendente ini4__pendente--${k}" ${a}>${L(ic)}<span>${t}</span>${L(chevronRight)}</button></li>`).join('')}</ul>` : `<p class="ini4__pendentes-nada">${L(check)}Nada pendente.</p>`}
-    </div>
   </header>`;
 }
 
@@ -261,6 +264,55 @@ function bloco(id: IdBloco, corpo: string, d: Dados, accoes = ''): string {
 const falhaBloco = (o: string, tentar: string) => `<div class="ini4__falha" role="alert"><span class="ini4__falha-icone">${L(triangleAlert)}</span><div><b>Não foi possível carregar ${o}.</b><span>O resto do Início continua a funcionar.</span></div>${btn('Tentar novamente', rotateCcw, ` data-tentar="${tentar}"`)}</div>`;
 const vazioBloco = (ic: string, texto: string, accoes = '') => `<div class="ini4__vazio">${L(ic)}<p>${texto}</p>${accoes}</div>`;
 
+/* ---------- (20 out., V4) Requer a tua atenção ----------
+   Só o que pede uma ação e que os dados confirmam: faturas vencidas, pedidos prontos a levantar, devoluções por enviar
+   e devoluções enviadas à espera do crédito. As mais importantes primeiro. «Não tens ações pendentes» só aparece
+   quando as fontes responderam (num estado de falha diz-se que não se conseguiu verificar). */
+type Alerta = { k: 'erro' | 'aviso' | 'info'; ic: string; titulo: string; ref: string; quando: string; acao: string; attr: string };
+export function alertas(): Alerta[] {
+  const a: Alerta[] = [];
+  FATURAS.filter((f) => f.pagamento === 'vencida').forEach((f) => a.push({ k: 'erro', ic: receipt, titulo: 'Fatura vencida', ref: f.num, quando: `Venceu a ${f.vencimento}`, acao: 'Ver fatura', attr: ` data-ir-doc="faturas" data-chave="goparts:abrir-fatura" data-valor="${f.num}"` }));
+  PEDIDOS.forEach((p) => { if (etapa(p).k !== 'recolher') return; const l = LINHAS.find((x) => x.num === p.num); const passo = p.percurso.filter((s) => s[1]).pop();
+    a.push({ k: 'aviso', ic: store, titulo: `Pronto a levantar${l ? ` no balcão · ${l.armazem}` : ''}`, ref: p.num, quando: passo?.[1] ? `Desde ${passo[1]}` : 'Pronto', acao: 'Ver pedido', attr: ` data-ir-doc="pedidos" data-chave="goparts:abrir-pedido" data-valor="${p.num}"` }); });
+  DEVOLUCOES.filter((d) => estadoDev(d) === 'rascunho').forEach((d) => a.push({ k: 'aviso', ic: rotateCcw, titulo: 'Devolução por enviar', ref: d.num, quando: 'Ainda não foi enviada', acao: 'Abrir devoluções', attr: ' data-ir-filtro="devolucoes" data-etapa-alvo="rascunho"' }));
+  DEVOLUCOES.filter((d) => estadoDev(d) === 'enviada').forEach((d) => a.push({ k: 'info', ic: clock, titulo: 'Devolução à espera do crédito', ref: d.num, quando: d.enviada ? `Enviada a ${d.enviada}` : 'Enviada', acao: 'Abrir devoluções', attr: ' data-ir-filtro="devolucoes" data-etapa-alvo="enviada"' }));
+  return a;
+}
+export function atencaoHtml(d: Dados, e: EstadoEspaco = ''): string {
+  const lista = e === 'vazio' ? [] : alertas();
+  const corpo = e === 'carga' || e === 'esqueleto' ? `<ul class="ini4__alertas">${esq(3, 'ini4__alerta-li')}</ul>`
+    : e === 'falha' || e === 'parcial' ? `<div class="ini4__falha" role="alert"><span class="ini4__falha-icone">${L(triangleAlert)}</span><div><b>Não foi possível verificar se há ações pendentes.</b><span>As faturas e as devoluções não responderam. O resto do Início continua a funcionar.</span></div>${btn('Tentar novamente', rotateCcw, ' data-tentar="atencao"')}</div>`
+    : !lista.length ? `<p class="ini4__alertas-nada">${L(check)}Não tens ações pendentes.</p>`
+    : `<ul class="ini4__alertas">${lista.slice(0, 4).map((x, i) => `<li class="ini4__alerta-li" style="--i:${i}"><div class="ini4__alerta ini4__alerta--${x.k}">
+        <span class="ini4__alerta-icone">${L(x.ic)}</span>
+        <span class="ini4__alerta-texto"><b>${esc(x.titulo)}</b><span><span class="ini4__alerta-ref">${esc(x.ref)}</span> · ${esc(x.quando)}</span></span>
+        <button type="button" class="btn ini4__btn ini4__alerta-acao"${x.attr}>${L(arrowRight, 'btn__icone')}<span class="btn__rotulo">${x.acao}</span></button>
+      </div></li>`).join('')}</ul>${lista.length > 4 ? `<p class="ini4__alertas-mais">E mais ${lista.length - 4} — veja-os em Mensagens e avisos.</p>` : ''}`;
+  return bloco('atencao', corpo, d, lista.length && e !== 'falha' && e !== 'parcial' ? `<span class="ini4__conta-alertas">${lista.length}</span>` : '');
+}
+
+/* ---------- (20 out., V4) Resumo da atividade ----------
+   Os números contam-se dos documentos, pelos mesmos estados que os Pedidos e as Devoluções mostram nas pílulas;
+   cada um abre esse ecrã já filtrado. Um zero não leva a lado nenhum. */
+export function resumo(): { k: string; nome: string; ic: string; n: number; attr: string }[] {
+  const conta = (k: string) => PEDIDOS.filter((p) => etapa(p).k === k).length;
+  return [
+    { k: 'preparacao', nome: 'Pedidos em preparação', ic: clock, n: conta('preparacao') + conta('preparado'), attr: ` data-ir-filtro="pedidos" data-etapa-alvo="${conta('preparacao') ? 'preparacao' : 'preparado'}"` },
+    { k: 'expedido', nome: 'Em transporte', ic: truck, n: conta('expedido'), attr: ' data-ir-filtro="pedidos" data-etapa-alvo="expedido"' },
+    { k: 'recolher', nome: 'Prontos para recolha', ic: store, n: conta('recolher'), attr: ' data-ir-filtro="pedidos" data-etapa-alvo="recolher"' },
+    { k: 'devolucoes', nome: 'Devoluções por enviar', ic: rotateCcw, n: DEVOLUCOES.filter((x) => estadoDev(x) === 'rascunho').length, attr: ' data-ir-filtro="devolucoes" data-etapa-alvo="rascunho"' },
+    { k: 'listas', nome: 'Listas guardadas', ic: list, n: LISTAS.length, attr: ' data-ir-doc="lista" data-chave="goparts:lista-vista" data-valor="listas"' },
+  ];
+}
+export function resumoHtml(d: Dados, e: EstadoEspaco = ''): string {
+  const carga = e === 'carga' || e === 'esqueleto';
+  const corpo = e === 'falha' ? falhaBloco('o resumo', 'resumo')
+    : `<ul class="ini4__resumo">${resumo().map((r, i) => { const n = e === 'vazio' ? 0 : r.n;
+      return `<li style="--i:${i}"><button type="button" class="ini4__metrica ini4__metrica--${r.k}"${carga || !n ? ' disabled' : r.attr}${n ? ` aria-label="${r.nome}: ${n}. Abrir a lista filtrada"` : ''}>
+        <span class="ini4__metrica-icone">${L(r.ic)}</span><b data-conta="${n}">${carga ? '–' : n}</b><span>${r.nome}</span>${n && !carga ? L(chevronRight, 'ini4__metrica-seta') : ''}</button></li>`; }).join('')}</ul>`;
+  return bloco('resumo', corpo, d);
+}
+
 /* ---------- Atalhos ---------- */
 export function atalhosHtml(d: Dados, e: EstadoEspaco = ''): string {
   return bloco('atalhos', `<ul class="ini4__atalhos">${d.prefs.atalhos.map((a) => `<li><button type="button" class="ini4__atalho" data-atalho="${a}">${L(ATALHOS[a][1])}<span>${ATALHOS[a][0]}</span>${a === 'carrinho' && e !== 'vazio' ? `<b class="ini4__atalho-num" data-carrinho-num>${d.carrinho}</b>` : ''}</button></li>`).join('')}</ul>`, d,
@@ -272,12 +324,15 @@ export function encomendasHtml(d: Dados, e: EstadoEspaco = '', aberta = ''): str
   const todas = encomendas();
   const n = (k: EstadoEnc) => todas.filter((x) => x.estado === k).length;
   const kpis = `<div class="ini4__kpis" role="group" aria-label="Filtrar por estado">${ESTADOS_ENC.map(([k, t, ic]) => `<button type="button" class="ini4__kpi ini4__kpi--${k}" data-kpi="${k}" aria-pressed="false"${e === 'carga' || e === 'esqueleto' ? ' disabled' : ''}>${L(ic)}<b data-conta="${n(k)}">${e === 'carga' || e === 'esqueleto' ? '–' : n(k)}</b><span>${t}</span></button>`).join('')}<i class="ini4__kpi-marca" aria-hidden="true"></i></div>`;
-  const corpo = e === 'carga' || e === 'esqueleto' ? `${kpis}<ul class="ini4__encs">${esq(4, 'ini4__enc-li')}</ul>`
+  /* (20 out., V4) os contadores passaram ao «Resumo da atividade»; aqui ficam os últimos pedidos (os contadores só
+     voltam a aparecer filtrados quando se vem de um número do resumo) */
+  void kpis;
+  const corpo = e === 'carga' || e === 'esqueleto' ? `<ul class="ini4__encs">${esq(4, 'ini4__enc-li')}</ul>`
     : e === 'vazio' ? vazioBloco(packageIcon, 'Ainda não fez encomendas. Quando fizer, acompanha aqui cada uma, do pedido à entrega.', btn('Ir ao catálogo', layoutGrid, ' data-ir="catalogo"'))
-    : e === 'falha' ? `${kpis}${falhaBloco('as encomendas', 'encomendas')}`
-    : `${kpis}<ul class="ini4__encs">${todas.map((x, i) => encomendaHtml(x, x.linha.num === aberta, i >= 4)).join('')}</ul><p class="ini4__filtro-nada" hidden>Nenhuma encomenda neste estado.</p>`;
+    : e === 'falha' ? falhaBloco('os pedidos', 'encomendas')
+    : `<ul class="ini4__encs">${todas.map((x, i) => encomendaHtml(x, x.linha.num === aberta, i >= 4)).join('')}</ul><p class="ini4__filtro-nada" hidden>Nenhuma encomenda neste estado.</p>`;
   const atualizar = e === 'atualizar' ? `<span class="ini4__a-atualizar" role="status">${rolamentoSvg(`i4-at-${++uid}`, 'pesquisar', 'ini4__rs')}A atualizar…</span>` : `<span class="ini4__atualizado" role="status">Atualizado às ${new Date(d.agora).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}</span>`;
-  return bloco('encomendas', corpo, d, e === 'vazio' ? '' : `${atualizar}${btn('Atualizar', refreshCcw, ' data-atualizar-enc' + (e === 'atualizar' ? ' disabled' : ''), 'ini4__btn--leve')}<a href="#" class="ini4__mais" data-ir="pedidos">Ver todas${L(chevronRight)}</a>`);
+  return bloco('encomendas', corpo, d, e === 'vazio' ? '' : `${atualizar}${btn('Atualizar', refreshCcw, ' data-atualizar-enc' + (e === 'atualizar' ? ' disabled' : ''), 'ini4__btn--leve')}<button type="button" class="ini4__mais" data-ir="pedidos">Ver todos os pedidos${L(chevronRight)}</button>`);
 }
 /** As quatro mais recentes à vista; as outras só aparecem quando um contador as filtra. */
 export function encomendaHtml(x: Encomenda, aberta = false, extra = false): string {
@@ -286,7 +341,7 @@ export function encomendaHtml(x: Encomenda, aberta = false, extra = false): stri
   return `<li class="ini4__enc-li" data-enc="${x.linha.num}" data-estado-enc="${x.estado}"${extra ? ' data-extra hidden' : ''}>
     <button type="button" class="ini4__enc" aria-expanded="${aberta}" aria-controls="${id}">
       <span class="ini4__enc-ponto ini4__enc-ponto--${x.estado}" aria-hidden="true"></span>
-      <span class="ini4__enc-texto"><b>${x.linha.num}</b><span>${x.linha.data} · ${x.artigos} ${x.artigos === 1 ? 'artigo' : 'artigos'}</span></span>
+      <span class="ini4__enc-texto"><b>${x.linha.num}</b><span>${x.linha.data} · ${x.artigos} ${x.artigos === 1 ? 'artigo' : 'artigos'}</span><span class="ini4__enc-entrega">${L(x.linha.recolher ? store : truck)}${esc(metodo)}</span></span>
       <span class="ini4__enc-estado">${ESTADO_UM[x.estado]}</span>
       <span class="ini4__enc-valor">${euros(x.valor)}</span>
       ${L(chevronDown, 'ini4__enc-seta')}
@@ -346,7 +401,7 @@ export function garagemHtml(d: Dados, e: EstadoEspaco = '', escolhida = ''): str
       <div class="ini4__novo-linha"><input id="i4-nova-mat" placeholder="AA-00-AA" autocomplete="off" spellcheck="false" aria-describedby="i4-nova-ajuda i4-nova-erro" maxlength="10"><button type="submit" class="btn ini4__btn">${L(plus, 'btn__icone')}<span class="btn__rotulo">Adicionar</span></button></div>
       <p class="ini4__novo-erro" id="i4-nova-erro" role="alert"></p></form></li>`;
   const corpo = e === 'carga' || e === 'esqueleto' ? `<ul class="ini4__garagem">${esq(3, 'ini4__carro')}</ul>`
-    : `${carros.length ? '' : `<p class="ini4__garagem-vazia">${L(carFront)}Guarde os veículos que entram mais vezes na oficina: pesquisa peças sem os identificar de novo.</p>`}<ul class="ini4__garagem" aria-label="Veículos guardados">${carros.map((c) => carroHtml(c, c.matricula === escolhida)).join('')}${novo}</ul>`;
+    : `${carros.length ? '' : `<p class="ini4__garagem-vazia">${L(carFront)}Guarda os veículos que consultas mais vezes.</p>`}<ul class="ini4__garagem" aria-label="Veículos guardados">${carros.map((c) => carroHtml(c, c.matricula === escolhida)).join('')}${novo}</ul>`;
   return bloco('garagem', corpo, d, carros.length ? `<span class="ini4__contagem">${carros.length} ${carros.length === 1 ? 'veículo' : 'veículos'}</span>` : '');
 }
 
@@ -455,6 +510,6 @@ export function repetirHtml(num: string, aberto = false): string {
 /** Os blocos todos, pela ordem das preferências (o CSS põe-nos no sítio com `order`). */
 export function blocosHtml(d: Dados, e: EstadoEspaco = ''): string {
   return `<div class="ini4__blocos" data-blocos data-densidade="${d.prefs.densidade}">
-    ${atalhosHtml(d, e)}${encomendasHtml(d, e, e === 'linha' ? 'P2024/001233' : '')}${continuarHtml(d, e)}${garagemHtml(d, e, e === 'veiculo' ? 'AA-12-BC' : '')}${categoriasHtml(d, e)}${frequentesHtml(d, e)}${disponibilidadeHtml(d, e)}
+    ${atencaoHtml(d, e)}${resumoHtml(d, e)}${atalhosHtml(d, e)}${encomendasHtml(d, e, e === 'linha' ? 'P2024/001233' : '')}${continuarHtml(d, e)}${garagemHtml(d, e, e === 'veiculo' ? 'AA-12-BC' : '')}${categoriasHtml(d, e)}${frequentesHtml(d, e)}${disponibilidadeHtml(d, e)}
   </div>`;
 }

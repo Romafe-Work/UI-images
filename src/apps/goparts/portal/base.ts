@@ -79,6 +79,35 @@ function rodape(): string {
   </footer>`;
 }
 
+/* ---------- V4 (20 out. 2026, briefing «Collapsible Sidebar & Intelligent Home Dashboard») ----------
+   As oito abas passam a uma barra lateral à esquerda, por baixo do topo (a marca fica no topo, uma vez só).
+   Aberta ~248 px com ícone e nome; recolhida 68 px só com ícones, a dica com o nome e o indicador do ativo.
+   Os documentos (Pedidos, Guias, Faturas, Devoluções) juntos, com o título por cima. Abaixo de 1200 px não
+   há barra: o ☰ do topo abre a gaveta das secções (comportamento/barra.ts), que já existia.
+   O comportamento (recolher, guardar a escolha, o indicador que vem do ecrã anterior) está em
+   comportamento/lado.ts; o desenho em css/lado.css. No lugar das abas fica um marcador vazio, para as
+   linhas da grelha de cada ecrã continuarem as mesmas. */
+const DOCS: IdPortal[] = ['pedidos', 'guias', 'faturas', 'devolucoes'];
+function lado(ativa: IdPortal | null, p: Produto): string {
+  const item = ([id, nome, d, ic]: typeof ABAS[number]) => `<li><button type="button" class="lado__item"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}</span></button></li>`;
+  const antes = ABAS.filter(([id]) => !DOCS.includes(id!) && id !== 'tecnica' && id !== 'lista');
+  const docs = ABAS.filter(([id]) => DOCS.includes(id!));
+  const depois = ABAS.filter(([id]) => id === 'tecnica' || id === 'lista');
+  return `<nav class="portal__lado" aria-label="Secções" data-lado>
+    <div class="lado__rolo">
+      <ul class="lado__lista" role="list">${antes.map(item).join('')}</ul>
+      <p class="lado__grupo" id="lado-docs"><span class="lado__rotulo">Documentos</span></p>
+      <ul class="lado__lista" role="list" aria-labelledby="lado-docs">${docs.map(item).join('')}</ul>
+      <p class="lado__grupo" aria-hidden="true"></p>
+      <ul class="lado__lista" role="list">${depois.map(item).join('')}</ul>
+      <span class="lado__ativo" aria-hidden="true"></span>
+    </div>
+    <div class="lado__pe">
+      <button type="button" class="lado__item lado__recolher" data-lado-recolher aria-expanded="true" aria-label="Recolher o menu" data-dica="Abrir o menu">${I('<path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/>', ' class="lado__seta"')}<span class="lado__rotulo">Recolher o menu</span></button>
+    </div>
+  </nav><span class="portal__lugar-abas" aria-hidden="true"></span>`;
+}
+
 /** O que muda na moldura de uma versão: o botão do menu à esquerda da marca, e sem rodapé (Início v3). */
 export interface Moldura { menu?: boolean; rodape?: boolean }
 
@@ -86,7 +115,9 @@ export interface Moldura { menu?: boolean; rodape?: boolean }
 export function portal(ativa: IdPortal | null, corpo: string, p: Produto = GOPARTS, m: Moldura = {}): string {
   const abre = corpo.indexOf('>') + 1;
   const fecha = corpo.lastIndexOf('</div>');
-  return corpo.slice(0, abre) + topo(p, m.menu) + abas(ativa, p) + corpo.slice(abre, fecha) + (m.rodape === false ? '' : rodape()) + corpo.slice(fecha);
+  /* (20 out.) com o ☰ (todos os ecrãs do portal), as abas são a barra lateral */
+  const inicio = m.menu ? corpo.slice(0, abre).replace('class="portal', 'class="portal portal--lateral') : corpo.slice(0, abre);
+  return inicio + topo(p, m.menu) + (m.menu ? lado(ativa, p) : abas(ativa, p)) + corpo.slice(abre, fecha) + (m.rodape === false ? '' : rodape()) + corpo.slice(fecha);
 }
 
 /* ---------- v2 (12 out. 2026): uma barra só ----------
