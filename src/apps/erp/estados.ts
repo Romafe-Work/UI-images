@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — os ecrãs de carregamento e de erro (12 out. 2026)
    Ela: «para o ERP vamos criar os ecrãs de loading e de error states».
-   As mesmas regras do GoParts: o esqueleto tem a forma do que vem; o
+   As mesmas regras do Peça A Peça: o esqueleto tem a forma do que vem; o
    girador só onde não se sabe a forma; a percentagem só quando se sabe
    quanto falta. Cada erro diz o que aconteceu, o que fazer e dá uma saída.
    O conteúdo é do módulo de Compras, o primeiro do ERP.

@@ -1,12 +1,12 @@
 /* =========================================================
    GOPARTS — os quatro ecrãs de entrar (15 out. 2026), a partir de uma imagem dela («quero o ecrã de login do
    goparts do género da imagem»): a página toda escura, partida ao meio por uma linha fina.
-     À esquerda — o título grande em maiúsculas, a frase, um traço e as três coisas que o GoParts faz (ícones
+     À esquerda — o título grande em maiúsculas, a frase, um traço e as três coisas que o Peça A Peça faz (ícones
                   laranja); por trás, linhas finas em onda e pontos laranja; em baixo, à direita do texto, o
                   rolamento 3D de sempre (um só canvas que comportamento/entrar-3d.ts passa de ecrã para ecrã),
                   que continua a montar-se de passo em passo: o anel exterior (01), o interior e as esferas (02),
                   a vista explodida com as cotas (03), as peças suspensas (04).
-     À direita  — o ROMAFE (Motor, azul) com o risco laranja e o GoParts, o «Bem-vindo», a frase, e o formulário
+     À direita  — o ROMAFE (Motor, azul) com o risco laranja e o Peça A Peça, o «Bem-vindo», a frase, e o formulário
                   liso: campos sublinhados com o asterisco laranja, a ligação laranja à direita, o botão laranja
                   com ícone, e a pergunta final («Quer vender peças? Abrir loja»).
    Fica o fluxo de sempre (primeiro o correio, depois a palavra-passe ou a página da empresa). Uma só versão
@@ -50,7 +50,7 @@ const PONTOS: [number, number][] = [[8, 14], [34, 9], [62, 6], [88, 11], [21, 38
 
 function moldura(fase: Fase, corpo: string, k: string): string {
   return `<div class="ent3" data-fase="${fase}">
-  <section class="ent3__palco" aria-label="GoParts">
+  <section class="ent3__palco" aria-label="Peça A Peça">
     ${ONDAS}
     <div class="ent3__pontos" aria-hidden="true">${PONTOS.map(([x, y]) => `<i style="left:${x}%;top:${y}%"></i>`).join('')}</div>
     <div class="ent3__texto">
@@ -70,7 +70,7 @@ function moldura(fase: Fase, corpo: string, k: string): string {
     <p class="ent3__ficha" aria-hidden="true">SKF 6206 · D 62 · d 30 · B 16 mm</p>
   </section>
   <main class="ent3__lado">
-    <div class="ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__produto">GoParts</span></div>
+    <div class="ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__produto">Peça A Peça</span></div>
     <div class="ent3__form" id="ent3-${k}">${corpo}</div>
     <footer class="ent3__rodape"><span>2026 © Romafe SA</span><a href="tel:+351226158300">${L(phone)}+351 226 158 300</a></footer>
   </main>
@@ -90,7 +90,7 @@ const entrada = (vazio: boolean) => moldura('entrada', `
     <div class="ent3__linha"><button type="button" class="ent3__ligacao" data-ir="federado">${L(building)}Conta da empresa</button><button type="button" class="ent3__ligacao ent3__ligacao--laranja" data-ir="ajuda">Precisa de ajuda?</button></div>
     ${BOTAO('Continuar', arrowRight, vazio ? ' disabled aria-disabled="true"' : ' data-ir="palavra-passe" data-ent3="continuar"', true)}
   </div>
-  <p class="ent3__vender">${L(store)}Quer vender peças? <a href="#">Abrir loja no GoParts</a></p>`, vazio ? 'entrada-vazio' : 'entrada');
+  <p class="ent3__vender">${L(store)}Quer vender peças? <a href="#">Abrir loja no Peça A Peça</a></p>`, vazio ? 'entrada-vazio' : 'entrada');
 
 const palavra = (erro: boolean) => moldura('palavra', `
   ${VOLTAR('entrada')}
@@ -107,7 +107,7 @@ const empresa = moldura('empresa', `
   ${VOLTAR('entrada')}
   ${cabeca('A conta da empresa', 'A sua empresa tem a sua própria página de início de sessão.')}
   ${conta}
-  <p class="ent3__nota">${L(building)}<span>Este endereço pertence a uma empresa com início de sessão próprio. Vai continuar na página da empresa e volta ao GoParts no fim.</span></p>
+  <p class="ent3__nota">${L(building)}<span>Este endereço pertence a uma empresa com início de sessão próprio. Vai continuar na página da empresa e volta ao Peça A Peça no fim.</span></p>
   <div class="ent3__campos">${BOTAO('Continuar na página da empresa', externalLink, ' data-ir="inicio" data-ent3="empresa"')}</div>
   <p class="ent3__vender">Não é a sua empresa? <button type="button" class="ent3__ligacao ent3__ligacao--laranja" data-ir="entrada">Usar outro endereço</button></p>`, 'federado');
 
@@ -117,7 +117,7 @@ const ajuda = moldura('ajuda', `
   ${cabeca('Precisa de ajuda?', 'Os casos mais comuns, e o apoio da Romafe.')}
   <ul class="ent3__ajudas">
     <li tabindex="0" data-peca="int">${L(keyRound)}<div><p>Esqueci-me da palavra-passe</p><span>Em «A palavra-passe», escolha «Esqueceu-se da palavra-passe?» e siga o correio que recebe.</span></div></li>
-    <li tabindex="0" data-peca="ext">${L(userPlus)}<div><p>Ainda não tenho conta</p><span>Peça-a ao apoio da Romafe, ou abra loja no GoParts para vender.</span></div></li>
+    <li tabindex="0" data-peca="ext">${L(userPlus)}<div><p>Ainda não tenho conta</p><span>Peça-a ao apoio da Romafe, ou abra loja no Peça A Peça para vender.</span></div></li>
     <li tabindex="0" data-peca="gai">${L(building)}<div><p>Entro com a conta da empresa</p><span>Escreva o endereço da empresa: seguimos para a página dela.</span></div></li>
     <li tabindex="0" data-peca="esf">${L(headset)}<div><p>Falar com o apoio</p><span>Dias úteis, das 9h às 18h.</span><a class="ent3__telefone" href="tel:+351226158300">${L(phone)}+351 226 158 300</a></div></li>
   </ul>

@@ -120,7 +120,7 @@ function estadosLista(): EcraGoParts[] {
     ['pecas', '15.3 · Só com peças', 'Peças com imagem, disponibilidade, PVP e desconto na linha; a mão-de-obra vazia e compacta.'],
     ['mao', '15.4 · Só com mão-de-obra', 'Serviços à hora e a preço fixo; as peças vazias com «Adicionar peças».'],
     ['completa', '15.5 · Peças e mão-de-obra', 'Tudo com preço: o resumo com peças, mão-de-obra, descontos, base, IVA 23 % e total com IVA.'],
-    ['sem-preco', '15.6 · Peças sem preço', 'O GoParts não devolveu preços: «Preço indisponível» em cada linha e «— €» no total — nunca 0,00 €.'],
+    ['sem-preco', '15.6 · Peças sem preço', 'O Peça A Peça não devolveu preços: «Preço indisponível» em cada linha e «— €» no total — nunca 0,00 €.'],
     ['indisponivel', '15.7 · Peça indisponível', 'Uma peça sem stock no Porto nem em Sacavém: dito na linha (texto e cor); não entra no carrinho.'],
     ['qtd-invalida', '15.8 · Quantidade inválida', '«1,5» numa peça: a mensagem por baixo, o total da linha em «—», e «Guardar lista» à espera da correção.'],
     ['desc-invalido', '15.9 · Desconto inválido', '120 %: o desconto vai de 0 a 100 %; o valor escrito fica, não é trocado em silêncio.'],

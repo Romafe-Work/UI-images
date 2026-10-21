@@ -109,7 +109,7 @@ function recalcular(lst: HTMLElement): void {
   const falta = lst.querySelector<HTMLElement>('[data-falta]');
   if (falta) {
     falta.hidden = !ct.semPreco.length;
-    if (ct.semPreco.length) falta.innerHTML = `${L(IC.alert)}<span><b>Total parcial.</b> Falta o preço de ${plural(ct.semPreco.length, 'peça', 'peças')} (${ct.semPreco.map((p) => p.ref).join(', ')}); entra quando o GoParts o devolver.</span>`;
+    if (ct.semPreco.length) falta.innerHTML = `${L(IC.alert)}<span><b>Total parcial.</b> Falta o preço de ${plural(ct.semPreco.length, 'peça', 'peças')} (${ct.semPreco.map((p) => p.ref).join(', ')}); entra quando o Peça A Peça o devolver.</span>`;
   }
   const invalidos = lst.querySelectorAll('.lst__linha [aria-invalid="true"]').length;
   const prev = lst.querySelector<HTMLButtonElement>('[data-previa]'); if (prev) prev.disabled = nada;

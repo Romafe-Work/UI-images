@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — 05 · Início: o espaço de trabalho (19 out. 2026)
    Do briefing dela «ROMAFE ERP V11 — Intelligent Enterprise Workspace», com a tabela «A diferença que
-   quero entre GoParts e ERP»: no ERP o centro são as tarefas e as operações, não a pesquisa de peças;
+   quero entre Peça A Peça e ERP»: no ERP o centro são as tarefas e as operações, não a pesquisa de peças;
    listas e painéis de contexto, não cartões de produto; as animações são de fluxos e de mudanças de
    estado. O que ela mais valoriza: «Continuar onde fiquei».
    O briefing aponta para o 01 · Entrar v10, mas o que descreve é o ecrã que se vê depois de entrar:

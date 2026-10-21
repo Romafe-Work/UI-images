@@ -46,6 +46,7 @@ import './css/placa.css';
 import './css/categorias.css';
 import './css/icones.css';
 import './css/estados-animacoes.css';
+import './css/limpo.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';

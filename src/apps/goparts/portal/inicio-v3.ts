@@ -84,8 +84,6 @@ const botao = (texto: string, icone = search, estado = '') => `<button type="but
 const secundario = (texto: string, icone: string, extra = '') => `<button type="button" class="btn ini3__secundario"${extra}>${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
 const campo = (id: string, rotulo: string, icone: string, input: string, extra = '', depois = '') => `<div class="ini3__campo${extra}"><label for="${id}">${rotulo}</label><div class="ini3__caixa"><span class="ini3__chip" aria-hidden="true">${icone}</span>${input}</div>${depois}</div>`;
 
-/* (V8) os desenhos de linhas dos cartões antigos (o carro, as engrenagens, o rolamento) voltam aos cartões de escolha */
-const DESENHOS = ['<svg class="pq__modo-desenho" viewBox="0 0 160 100" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true">           <path d="M8 70c0-8 4-12 14-14l22-4 26-20c6-4 12-6 22-6h28c10 0 16 4 22 12l12 16"/><path d="M54 52l24-18c4-3 9-4 14-4h22l12 22Z"/>           <path d="M8 70v14h18M60 84h50M146 84h14"/><circle cx="43" cy="84" r="14"/><circle cx="43" cy="84" r="7"/><circle cx="128" cy="84" r="14"/><circle cx="128" cy="84" r="7"/></svg>', '<svg class="pq__modo-desenho" viewBox="0 0 160 100" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">           <g transform="translate(112 44)"><circle r="16"/><circle r="7"/><path d="M0-30v8M0 22v8M-30 0h8M22 0h8M-21-21l6 6M15 15l6 6M21-21l-6 6M-15 15l-6 6"/></g>           <g transform="translate(68 80)"><circle r="12"/><circle r="5"/><path d="M0-22v6M0 16v6M-22 0h6M16 0h6M-15-15l4 4M11 11l4 4M15-15l-4 4M-11 11l-4 4"/></g></svg>', '<svg class="pq__modo-desenho" viewBox="0 0 160 100" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">           <g transform="translate(100 50)"><circle r="44"/><circle r="36"/><circle r="16"/><circle r="7"/>           <circle cx="0" cy="-11" r="2"/><circle cx="10.5" cy="-3.4" r="2"/><circle cx="6.5" cy="9" r="2"/><circle cx="-6.5" cy="9" r="2"/><circle cx="-10.5" cy="-3.4" r="2"/>           <path d="M-44 0a44 44 0 0 1 12-30l6 6M-30-36a44 44 0 0 1 20-8"/></g></svg>'];
 
 /* ---------- (20 out., V6) os três formulários, um de cada vez, por baixo dos cartões de escolha ----------
    Do briefing «Complete UX Refinement, Search Cards…»: o principal à vista (a matrícula; a marca, o modelo e a
@@ -251,10 +249,10 @@ const sessao = () => `<div class="ini3__comando ini3__sessao" role="alertdialog"
 /** 10.17 em manutenção: a página inteira, sem o portal; o rolamento em vista explodida, devagar. */
 export function manutencaoV3(): string {
   return `<div class="portal--ini3 ini3-manutencao" role="alert">
-  <div class="ini3-manutencao__marca"><span class="romafe">ROMAFE</span><span class="ini3-manutencao__risco" aria-hidden="true"></span><span>GoParts</span></div>
+  <div class="ini3-manutencao__marca"><span class="romafe">ROMAFE</span><span class="ini3-manutencao__risco" aria-hidden="true"></span><span>Peça A Peça</span></div>
   ${rs('manutencao', 'ini3__rs-manutencao')}
   <h1>Estamos a afinar o motor.</h1>
-  <p>O GoParts está temporariamente indisponível para manutenção. Prevemos voltar <b>hoje às 07:00</b>.</p>
+  <p>O Peça A Peça está temporariamente indisponível para manutenção. Prevemos voltar <b>hoje às 07:00</b>.</p>
   <p class="ini3-manutencao__apoio">Encomendas urgentes: Apoio Romafe · <a href="tel:+351226158300">+351 226 158 300</a> · romafe@romafe.com</p>
 </div>`;
 }
@@ -295,7 +293,6 @@ export function inicioV3(e: EstadoInicio = ''): string {
           <span class="pq__modo-icone">${L(ICONES[i])}</span>
           <span class="pq__modo-texto"><b>${t}</b><span>${desc}</span></span>
           <span class="pq__modo-acao">${acao}${L(chevronRight)}</span>
-          ${DESENHOS[i]}
         </button>`).join('')}
       </div>
       ${e === 'carga' ? aPreparar() : ''}

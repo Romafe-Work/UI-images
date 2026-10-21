@@ -19,7 +19,6 @@ import { base, iva, total, euros } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
 import { pilulasEstado } from './pedidos-v4';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
-import hash from 'lucide-static/icons/hash.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import eraser from 'lucide-static/icons/eraser.svg?raw';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
@@ -270,27 +269,33 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
       <div><h1 class="ped4__titulo">Faturas</h1><p class="ped4__sub">Consulte os documentos de faturação da sua conta.</p></div>
     </header>
 
-    <section class="ped4__filtros" aria-label="Filtrar faturas">
-      <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="fat2-campos">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
-      <form class="ped4__campos fat2__campos" id="fat2-campos" novalidate>
-        ${campo('fat2-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-        ${campo('fat2-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-        ${campo('fat2-num', 'N.º da fatura', hash, 'type="text" placeholder="FT2024/… ou NC2024/…" autocomplete="off"')}
-        <div class="ped4__botoes">
+    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar faturas">
+      <form class="ped4__campos ped4__campos--botao fat2__campos" id="fat2-campos" novalidate>
+        <div class="ped4__barra-f">
+          ${campo('fat2-num', 'N.º da fatura', search, 'type="text" placeholder="Pesquisar pelo n.º (FT2024/… ou NC2024/…)" autocomplete="off"')}
+          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="fat2-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+        </div>
+        <div class="ped4__painel-f" id="fat2-painel" role="group" aria-label="Filtros">
+          <div class="ped4__painel-campos">
+            ${campo('fat2-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('fat2-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+          </div>
+          <div class="ped4__baixo">
+            <div class="ped4__estados" role="group" aria-label="Tipo de documento">
+            <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layers)}Todas <span class="ped4__est-n">${FATURAS.length}</span></button>
+            <button type="button" class="ped4__est" data-filtro="fatura" aria-pressed="false">${L(receipt)}Fatura <span class="ped4__est-n">${nF}</span></button>
+            <button type="button" class="ped4__est" data-filtro="credito" aria-pressed="false">${L(undo)}Nota de crédito <span class="ped4__est-n">${nC}</span></button>
+            <i class="ped4__est-risca" aria-hidden="true"></i>
+            </div>
+            ${pilulasEstado(est.map(([k, icone]) => ({ k, nome: PAGAMENTO[k].nome, icone, n: FATURAS.filter((f) => f.pagamento === k).length })), FATURAS.length, 'Pagamento')}
+          </div>
+          <div class="ped4__botoes">
           <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Pesquisar</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          </div>
         </div>
       </form>
-      <div class="ped4__baixo">
-        <div class="ped4__estados" role="group" aria-label="Tipo de documento">
-          <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layers)}Todas <span class="ped4__est-n">${FATURAS.length}</span></button>
-          <button type="button" class="ped4__est" data-filtro="fatura" aria-pressed="false">${L(receipt)}Fatura <span class="ped4__est-n">${nF}</span></button>
-          <button type="button" class="ped4__est" data-filtro="credito" aria-pressed="false">${L(undo)}Nota de crédito <span class="ped4__est-n">${nC}</span></button>
-          <i class="ped4__est-risca" aria-hidden="true"></i>
-        </div>
-        ${pilulasEstado(est.map(([k, icone]) => ({ k, nome: PAGAMENTO[k].nome, icone, n: FATURAS.filter((f) => f.pagamento === k).length })), FATURAS.length, 'Pagamento')}
-        <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
-      </div>
+      <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
     </section>
 
     <div class="fat2__corpo">

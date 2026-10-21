@@ -9,11 +9,11 @@ import type { IdGoParts } from '../ids';
 
 export type IdPortal = Extract<IdGoParts, 'inicio' | 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica'>;
 
-/** De que produto é o portal: o GoParts, ou o GoShop, que usa a mesma moldura
+/** De que produto é o portal: o Peça A Peça, ou o GoShop, que usa a mesma moldura
     (8 out. 2026, para os ecrãs de carregamento das duas apps). `ligar` diz se
     as abas levam a ecrãs que existem nesta app. */
 export interface Produto { nome: string; sub: string; ligar: boolean }
-export const GOPARTS: Produto = { nome: 'GoParts', sub: 'O marketplace de peças auto', ligar: true };
+export const GOPARTS: Produto = { nome: 'Peça A Peça', sub: 'O marketplace de peças auto', ligar: true };
 export const GOSHOP: Produto = { nome: 'GoShop', sub: 'A loja online de peças', ligar: false };
 
 const I = (d: string, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${d}</svg>`;

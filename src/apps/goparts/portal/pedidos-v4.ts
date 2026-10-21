@@ -1,6 +1,6 @@
 /* =========================================================
    GOPARTS — 12 · Histórico de pedidos v4 (15 out. 2026)
-   Do briefing dela («ROMAFE GoParts — Histórico de Pedidos»): filtros compactos num painel liso (nada de painel
+   Do briefing dela («ROMAFE Peça A Peça — Histórico de Pedidos»): filtros compactos num painel liso (nada de painel
    azul), o estado num seletor com a risca laranja, a tabela com o pedido que se abre na própria linha (resumo,
    percurso, artigos, entrega, documentos e ações) e, em alternativa, o mesmo pedido num painel à direita.
    O percurso mostra só os passos que o pedido tem, com as horas que tem; nada se inventa. Os dados são os de
@@ -10,7 +10,6 @@
 import { azulejoPeca } from './pecas-img';
 import { PEDIDOS, LINHAS, euros, type Pedido, type LinhaPedido } from './pedidos-dados';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
-import hash from 'lucide-static/icons/hash.svg?raw';
 import barcode from 'lucide-static/icons/barcode.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import eraser from 'lucide-static/icons/eraser.svg?raw';
@@ -203,28 +202,34 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
       </dl>
     </header>
 
-    <section class="ped4__filtros" aria-label="Filtrar pedidos">
-      <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="ped4-campos">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
-      <form class="ped4__campos" id="ped4-campos" novalidate>
-        ${campo('ped4-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-        ${campo('ped4-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-        ${campo('ped4-num', 'N.º do pedido', hash, 'type="text" placeholder="P2024/…" autocomplete="off"')}
-        ${campo('ped4-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
-        <div class="ped4__botoes">
+    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar pedidos">
+      <form class="ped4__campos ped4__campos--botao" id="ped4-campos" novalidate>
+        <div class="ped4__barra-f">
+          ${campo('ped4-num', 'N.º do pedido', search, 'type="text" placeholder="Pesquisar pelo n.º do pedido (P2024/…)" autocomplete="off"')}
+          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="ped4-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+        </div>
+        <div class="ped4__painel-f" id="ped4-painel" role="group" aria-label="Filtros">
+          <div class="ped4__painel-campos">
+            ${campo('ped4-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('ped4-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('ped4-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
+          </div>
+          <div class="ped4__baixo">
+            <div class="ped4__estados" role="group" aria-label="Estado do pedido">
+            <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layoutList)}Todos <span class="ped4__est-n">${n('todos')}</span></button>
+            <button type="button" class="ped4__est" data-filtro="proc" aria-pressed="false">${L(circleCheck)}Processado <span class="ped4__est-n">${n('proc')}</span></button>
+            <button type="button" class="ped4__est" data-filtro="sem" aria-pressed="false">${L(clock)}Sem processamento <span class="ped4__est-n">${n('sem')}</span></button>
+            <i class="ped4__est-risca" aria-hidden="true"></i>
+            </div>
+            ${etapasPedidos()}
+          </div>
+          <div class="ped4__botoes">
           <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Pesquisar</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          </div>
         </div>
       </form>
-      <div class="ped4__baixo">
-        <div class="ped4__estados" role="group" aria-label="Estado do pedido">
-          <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layoutList)}Todos <span class="ped4__est-n">${n('todos')}</span></button>
-          <button type="button" class="ped4__est" data-filtro="proc" aria-pressed="false">${L(circleCheck)}Processado <span class="ped4__est-n">${n('proc')}</span></button>
-          <button type="button" class="ped4__est" data-filtro="sem" aria-pressed="false">${L(clock)}Sem processamento <span class="ped4__est-n">${n('sem')}</span></button>
-          <i class="ped4__est-risca" aria-hidden="true"></i>
-        </div>
-        ${etapasPedidos()}
-        <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
-      </div>
+      <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
     </section>
 
     <section class="ped4__lista" aria-label="Pedidos" data-vista="${op.vista ?? 'cronologia'}">

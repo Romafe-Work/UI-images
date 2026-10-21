@@ -3,7 +3,7 @@
    Cada controlo do topo (portal/base.ts) abre uma camada por cima, uma de cada vez:
    - Menu (☰ → ✕): a gaveta das secções, com a atual marcada e os submenus (Catálogo, Documentos, Minha lista);
      no telemóvel é a navegação principal e traz também Pesquisar, Mensagens, Definições e Ajuda.
-   - ROMAFE abre romafe.com noutra janela; GoParts vai ao Início (data-ir).
+   - ROMAFE abre romafe.com noutra janela; Peça A Peça vai ao Início (data-ir).
    - Pesquisa (clique, Ctrl+K ou ⌘K): a paleta global — referências, categorias, marcas e modelos de veículos,
      pedidos, guias, faturas e listas, dos dados que o portal já tem; agrupada, com o que coincide marcado, ↑ ↓ Enter
      Esc, pesquisas recentes, referência normalizada (VKBA6556 = VKBA 6556) e tolerância a uma letra trocada.
@@ -166,8 +166,8 @@ function abrirMenu(de: HTMLElement | null): void {
   acoesMenu = [];
   const acao = (f: () => void) => { acoesMenu.push(f); return acoesMenu.length - 1; };
   let i = 0;
-  const html = `<nav class="bc__caixa bc-menu" role="dialog" aria-modal="true" aria-label="Menu do GoParts">
-    <header class="bc-menu__topo"><span class="bc-menu__marca"><span class="romafe">ROMAFE</span><b>GoParts</b></span><button type="button" class="bc__fechar" data-fechar aria-label="Fechar o menu">${IC.x}</button></header>
+  const html = `<nav class="bc__caixa bc-menu" role="dialog" aria-modal="true" aria-label="Menu do Peça A Peça">
+    <header class="bc-menu__topo"><span class="bc-menu__marca"><span class="romafe">ROMAFE</span><b>Peça A Peça</b></span><button type="button" class="bc__fechar" data-fechar aria-label="Fechar o menu">${IC.x}</button></header>
     <ul class="bc-menu__lista" role="list">${itens.map((it) => {
       const atual = it.id === actual || (it.id === 'documentos' && eDoc);
       if (!it.filhos) return `<li style="--i:${i++}"><button type="button" class="bc-menu__item" data-acao="${acao(it.ir!)}"${atual ? ' aria-current="page"' : ''}>${it.ic}<span>${it.nome}</span></button></li>`;
@@ -283,7 +283,7 @@ let resultados: Res[] = [];
 let consulta = '';
 function abrirPesquisa(de: HTMLElement | null, texto = ''): void {
   const html = `<div class="bc__caixa bc-pal" role="dialog" aria-modal="true" aria-label="Pesquisa global">
-    <label class="bc-pal__campo">${IC.lupa}<span class="sr-only">Pesquisar no GoParts</span>
+    <label class="bc-pal__campo">${IC.lupa}<span class="sr-only">Pesquisar no Peça A Peça</span>
       <input type="text" role="combobox" aria-expanded="true" aria-controls="bc-pal-lista" aria-autocomplete="list" placeholder="Referência, marca, modelo, pedido, fatura, lista…" autocomplete="off" spellcheck="false" value="${esc(texto)}">
       <kbd>Esc</kbd></label>
     <div class="bc-pal__corpo"><span class="bc-pal__ativo" aria-hidden="true"></span><ul class="bc-pal__lista" id="bc-pal-lista" role="listbox" aria-label="Resultados"></ul></div>
@@ -407,7 +407,7 @@ function pintarCarrinho(el: HTMLElement, foco?: string): void {
     ${linhas.length ? `<footer class="bc-carr__pe">
       <dl><div><dt>Total sem IVA</dt><dd>${euros(c.base)}</dd></div><div><dt>IVA 23 %</dt><dd>${euros(c.iva)}</dd></div><div class="bc-carr__total"><dt>Total com IVA</dt><dd>${euros(c.total)}</dd></div></dl>
       <button type="button" class="btn btn--ghost" data-ir-catalogo>${IC.caixa}<span class="btn__rotulo">Continuar a comprar</span></button>
-      <p class="bc-carr__nota">${IC.info}<span>Encomendar ainda não tem ecrã: falta o carrinho completo e o serviço de encomendas do GoParts. Preços líquidos de exemplo.</span></p>
+      <p class="bc-carr__nota">${IC.info}<span>Encomendar ainda não tem ecrã: falta o carrinho completo e o serviço de encomendas do Peça A Peça. Preços líquidos de exemplo.</span></p>
     </footer>` : ''}`;
   if (foco) el.querySelector<HTMLElement>(foco)?.focus();
 }
@@ -451,7 +451,7 @@ function abrirAjuda(de: HTMLElement | null): void {
 }
 function abrirConta(de: HTMLElement | null): void {
   const el = abrir('conta', de, `<section class="bc__caixa bc-pop bc-conta" aria-label="Conta">
-    <header class="bc-conta__quem"><span class="conta__inicial" aria-hidden="true">FF</span><span><b>Fernando F. França</b><small>Cliente GoParts · Porto</small></span></header>
+    <header class="bc-conta__quem"><span class="conta__inicial" aria-hidden="true">FF</span><span><b>Fernando F. França</b><small>Cliente Peça A Peça · Porto</small></span></header>
     <div class="bc-conta__grupo"><h3 id="bc-conta-contas">Conta de cliente</h3>
       <ul role="list" aria-labelledby="bc-conta-contas"><li class="bc-conta__atual">${IC.visto}<span><b>Porto</b><small>A conta em uso · a única associada a este utilizador</small></span></li></ul></div>
     <div class="bc-conta__menu" role="menu" aria-label="Ações da conta">

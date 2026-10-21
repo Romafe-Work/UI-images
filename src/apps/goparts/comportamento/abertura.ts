@@ -73,7 +73,7 @@ function mostrarFinal(depois: number): void {
   if (!editando()) saida = window.setTimeout(seguir, depois);
 }
 
-/** A linha do tempo do que é HTML (o logótipo, o GoParts, a linha), ao mesmo relógio da cena. */
+/** A linha do tempo do que é HTML (o logótipo, o Peça A Peça, a linha), ao mesmo relógio da cena. */
 function marcarTempos(ab: HTMLElement, T: { logotipo: number; goparts: number; linha: number }): void {
   const t0 = performance.now(), p = pausa();
   const passo = () => {

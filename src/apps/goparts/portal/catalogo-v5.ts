@@ -6,7 +6,7 @@
    duas linhas e «Limpar filtros»; depois, «9 veículos encontrados» com
    «Resultados por página», Tabela / Lista e a tabela com o (i) de cada linha,
    que abre os detalhes por baixo dela. A imagem era do GO REPAIR; aqui fica
-   com a cara do GoParts. Marcas e Modelos ficam como na v4.
+   com a cara do Peça A Peça. Marcas e Modelos ficam como na v4.
    ========================================================= */
 import { catalogoV4 } from './catalogo-v4';
 import { L } from './catalogo-v3';

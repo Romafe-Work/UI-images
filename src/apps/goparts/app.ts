@@ -23,7 +23,7 @@ const ONDE: Record<string, [IdGoParts, string]> = {
   'erro-403': ['guias', '13.22 · Acesso negado (página)'],
   'carga-progresso': ['faturas', '14.28 · A gerar o PDF (página)'],
 };
-/* 14 out. 2026 (o briefing dos 17 estados do Início): no GoParts, estes estados passam a ser do Início v3, na
+/* 14 out. 2026 (o briefing dos 17 estados do Início): no Peça A Peça, estes estados passam a ser do Início v3, na
    mesma linguagem mecânica (o rolamento); a moldura comum fica para o GoShop */
 const ini3 = (est: EstadoInicio) => () => {
   const html = portal('pesquisa', inicioV3(est), undefined, { menu: true, rodape: false });
@@ -69,10 +69,10 @@ function distribuir(): EcraGoParts[] {
 
 export const goparts: App<IdGoParts> = {
   id: 'goparts',
-  nome: 'GoParts',
+  nome: 'Peça A Peça',
   sub: 'O marketplace de peças auto',
   grupo: 'MarketPlace',
-  marca: 'GOPARTS',
+  marca: 'PEÇA A PEÇA',
   tela: { l: 1440, a: 900 },
   fluxos: {
     'Entrar': DESCRICAO_ENTRAR,

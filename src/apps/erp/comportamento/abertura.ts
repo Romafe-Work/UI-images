@@ -1,5 +1,5 @@
 /* =========================================================
-   ERP — 00 · Abertura: quando e como corre a cena (19 out. 2026), como a do GoParts
+   ERP — 00 · Abertura: quando e como corre a cena (19 out. 2026), como a do Peça A Peça
    - Quando a abertura aparece, escolhe o modo:
        «completa» — na primeira vez da sessão: carrega a cena (import dinâmico de abertura-cena.ts, com o
                     Three.js) e corre a sequência; aos 4,2 s põe a rede da v10 por baixo (rede.ts); no fim

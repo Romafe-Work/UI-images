@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — v10 do início de sessão: a rede da empresa (19 out. 2026)
    Do briefing dela («ROMAFE ERP — Ultimate cinematic login»): o ERP com uma identidade própria, sem as peças
-   de catálogo do GoParts. Ao fundo, uma rede 3D de peças da Romafe (19 out.: «mais
+   de catálogo do Peça A Peça. Ao fundo, uma rede 3D de peças da Romafe (19 out.: «mais
    rolamentos… coisa da Romafe») ligadas por linhas finas (comportamento/rede-cena.ts); ao centro, um cartão liso, sem vidro nem sombra.
      01 — só o correio: «Continuar» acende-se quando o endereço está bem escrito (isso não diz que a conta
           existe); ao continuar, o campo encolhe para a identificação e aparece a palavra-passe, no mesmo
@@ -12,7 +12,7 @@
      04 — precisa de ajuda?
    O cartão tem sempre a mesma altura nos passos 01 e 02 (os dois passos ocupam a mesma célula): a troca
    faz-se com opacidade e deslocação, e nada à volta mexe. O ROMAFE é o de sempre (Motor, RGB 0 99 170).
-   A ação principal é azul, como pede o briefing para o ERP; no GoParts continua laranja.
+   A ação principal é azul, como pede o briefing para o ERP; no Peça A Peça continua laranja.
    Não há servidor neste protótipo: qualquer palavra-passe entra, exceto «errada», que mostra a recusa.
    Os outros desfechos (tentativas a mais, sem ligação, serviço parado, segundo fator) são estados.
    ========================================================= */

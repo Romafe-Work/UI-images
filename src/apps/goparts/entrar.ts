@@ -1,6 +1,6 @@
 /* =========================================================
-   GOPARTS — o que o início de sessão tem de próprio no GoParts
-   O marketplace da Romafe. A 8 out. 2026 chamou-se Part Picker por umas horas; ela voltou a GoParts.
+   GOPARTS — o que o início de sessão tem de próprio no Peça A Peça
+   O marketplace da Romafe. A 8 out. 2026 chamou-se Part Picker por umas horas; ela voltou a GoParts. A 21 out. passou a chamar-se Peça A Peça.
    Completo, como o do ERP. A linha por baixo do nome, a apresentação e o
    convite são propostas, por confirmar: num marketplace vendem muitos, e
    quem entra tanto pode comprar como vender.
@@ -13,9 +13,9 @@ export const entrarGoParts: OpcoesEntrar = {
   /* como no ERP: o ROMAFE sempre azul e o cartão sempre no mesmo sítio */
   comRomafe: true,
   fixo: true,
-  marca: { nome: 'GOPARTS', sub: 'O marketplace de peças auto' },
-  produto: 'GoParts',
-  convite: { texto: 'Quer vender peças?', ligacao: 'Abrir loja no GoParts' },
+  marca: { nome: 'PEÇA A PEÇA', sub: 'O marketplace de peças auto' },
+  produto: 'Peça A Peça',
+  convite: { texto: 'Quer vender peças?', ligacao: 'Abrir loja no Peça A Peça' },
   apresentacao: {
     titulo: 'Muitos vendedores,<br>uma só encomenda',
     vantagens: [

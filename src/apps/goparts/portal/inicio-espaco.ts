@@ -214,7 +214,7 @@ export function olaHtml(d: Dados, _e: EstadoEspaco = ''): string {
   const agora = new Date(d.agora), data = `${DIAS[agora.getDay()]}, ${agora.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })}`;
   /* (20 out., V4) a saudação fica compacta: o que está pendente passou ao bloco «Requer a tua atenção» */
   return `<header class="ini4__ola" data-entra="0">
-    <div class="ini4__ola-texto"><p class="ini4__ola-data">${data}</p><h1 class="ini4__ola-titulo"><span data-saudacao>${saudacao(agora.getHours())}</span>, Fernando</h1><p class="ini4__ola-sub">Este é o resumo da tua atividade no GoParts.</p></div>
+    <div class="ini4__ola-texto"><p class="ini4__ola-data">${data}</p><h1 class="ini4__ola-titulo"><span data-saudacao>${saudacao(agora.getHours())}</span>, Fernando</h1><p class="ini4__ola-sub">Este é o resumo da tua atividade no Peça A Peça.</p></div>
     ${btn('Personalizar Início', settings2, ' data-personalizar aria-haspopup="dialog"', 'ini4__personalizar')}
     <dl class="ini4__contexto">
       <div><dt>Conta</dt><dd>Fernando F. França · Porto</dd></div>

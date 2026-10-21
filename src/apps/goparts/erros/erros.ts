@@ -1,6 +1,6 @@
 /* =========================================================
    GOPARTS — os ecrãs de erro
-   Ela, 8 out. 2026: «no GoParts fazer agora os ecrãs de erro».
+   Ela, 8 out. 2026: «no Peça A Peça fazer agora os ecrãs de erro».
    Cada um diz o que aconteceu em linguagem de quem compra peças, o que
    fazer a seguir, e dá sempre uma saída: um botão (ícone e texto) e o
    contacto da Romafe. O código técnico fica pequeno, para o apoio.
@@ -97,9 +97,9 @@ function manutencao(): string {
   return `<div class="er-manutencao" role="alert">
     <span class="romafe er-manutencao__romafe">ROMAFE</span>
     <span class="er-manutencao__risco" aria-hidden="true"></span>
-    <p class="er-manutencao__produto">GoParts</p>
+    <p class="er-manutencao__produto">Peça A Peça</p>
     ${rolamentoSvg('manutencao', 'manutencao', 'er-manutencao__rolamento')}
-    <h1 class="er-titulo">Estamos a melhorar o GoParts</h1>
+    <h1 class="er-titulo">Estamos a melhorar o Peça A Peça</h1>
     <p class="er-texto">O portal volta <strong>hoje às 07:00</strong>. Para encomendas urgentes até lá, ligue para o apoio.</p>
     ${APOIO}
   </div>`;

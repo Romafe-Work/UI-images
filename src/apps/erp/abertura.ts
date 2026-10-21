@@ -1,6 +1,6 @@
 /* =========================================================
-   ERP — 00 · Abertura (19 out. 2026): o ecrã «wow», como a do GoParts
-   Ela: «quero um ecrã wow como temos no goparts». É a abertura cinematográfica do GoParts (o rolamento
+   ERP — 00 · Abertura (19 out. 2026): o ecrã «wow», como a do Peça A Peça
+   Ela: «quero um ecrã wow como temos no goparts». É a abertura cinematográfica do Peça A Peça (o rolamento
    SKF 6206 que se monta, abre em vista explodida e se desfaz em partículas que formam o ROMAFE), com o
    que é do ERP:
      0–1 s     uma esfera de aço sozinha, a flutuar;

@@ -14,7 +14,7 @@
    v10) ou «Abrir espaço de trabalho» com sessão (vai ao 05 · Início) — e o lançador de módulos: só Compras
    está disponível («Abrir Compras», que abre as Encomendas a fornecedor e passa a moldura do cartão para o
    contentor do ERP); os outros dizem «Em desenvolvimento» e não se clicam.
-   Diferente do GoParts e da v1: sem rolamento, sem fotografias, sem partículas nem brilhos. SVG e CSS
+   Diferente do Peça A Peça e da v1: sem rolamento, sem fotografias, sem partículas nem brilhos. SVG e CSS
    (sem Three.js); o palco é decorativo (aria-hidden) e tudo o que conta está em HTML normal.
    A v1 fica como estava.
    ========================================================= */

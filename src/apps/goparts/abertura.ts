@@ -3,7 +3,7 @@
    A história: v1 o rolamento em fundo claro; v2 pela imagem dela; v3 as fotografias da Romafe
    numa moldura; v4 no estilo do getlayers.ai com um fumo azul e laranja («não gosto»). Depois ela
    mandou o briefing: «um rolamento mecânico 3D que se desmonta, transforma as suas peças em
-   partículas e revela o logótipo ROMAFE, antes de entrar suavemente no GoParts» — abertura de
+   partículas e revela o logótipo ROMAFE, antes de entrar suavemente no Peça A Peça» — abertura de
    cerca de 7 s, fundo azul-noite liso, sem brilhos nem gradientes, laranja contido, o logótipo
    verdadeiro (não refeito em 3D), saltar, e não repetir em cada navegação. E «só quero uma
    versão por screen»: esta é a única.
@@ -16,7 +16,7 @@
                finas, ligadas às peças; depois voltam a montar-se;
      4,2–5,5 s as peças desfazem-se em partículas, a câmara avança, e as partículas voam até à forma
                exata do ROMAFE (tirada da própria letra Motor);
-     5,5–6,4 s as partículas dão lugar ao logótipo verdadeiro (HTML, azul, Motor); o GoParts aparece
+     5,5–6,4 s as partículas dão lugar ao logótipo verdadeiro (HTML, azul, Motor); o Peça A Peça aparece
                por baixo e a linha laranja desenha-se;
      6,6 s     passa ao 01 · Entrar: a marca voa para a barra de cima (View Transitions).
    (14 out.: ela mandou apagar a página pública; a abertura leva ao login.)
@@ -40,13 +40,13 @@ const COTAS: [string, string][] = [
   ['lar', 'B 16 mm'],
 ];
 
-const html = `<main class="abertura abertura--v5" aria-label="GoParts, da Romafe: a abrir">
+const html = `<main class="abertura abertura--v5" aria-label="Peça A Peça, da Romafe: a abrir">
   <canvas class="ab5__cena" aria-hidden="true"></canvas>
   <svg class="ab5__cotas" aria-hidden="true">${COTAS.map(([k]) => `<g class="ab5__cota" data-cota="${k}"><line pathLength="1"/><circle r="3"/></g>`).join('')}</svg>
   <div class="ab5__rotulos" aria-hidden="true">${COTAS.map(([k, t]) => `<span class="ab5__rotulo" data-cota="${k}">${t}</span>`).join('')}<span class="ab5__rotulo ab5__rotulo--titulo">SKF 6206 · rolamento rígido de esferas</span></div>
   <div class="ab5__marca">
     <span class="romafe ab5__romafe">ROMAFE</span>
-    <span class="ab5__goparts">GoParts</span>
+    <span class="ab5__goparts">Peça A Peça</span>
     <i class="ab5__linha" aria-hidden="true"></i>
   </div>
   <p class="ab5__dica" aria-hidden="true">${L(move3d)}Arraste para rodar o rolamento</p>
@@ -60,8 +60,8 @@ const html = `<main class="abertura abertura--v5" aria-label="GoParts, da Romafe
 export function ecraAbertura(): EcraGoParts {
   return {
     id: 'abertura', nome: '00 · Abertura', fluxo: 'Entrar',
-    objetivo: 'A entrada no GoParts, na primeira visita: um rolamento 3D monta-se, desmonta-se em vista explodida com as cotas, desfaz-se em partículas que formam o ROMAFE, e passa ao 01 · Entrar. Salta-se com «Saltar» ou Esc.',
+    objetivo: 'A entrada no Peça A Peça, na primeira visita: um rolamento 3D monta-se, desmonta-se em vista explodida com as cotas, desfaz-se em partículas que formam o ROMAFE, e passa ao 01 · Entrar. Salta-se com «Saltar» ou Esc.',
     /* 14 out. 2026: «só quero uma versão por screen» — as anteriores saíram */
-    versoes: [{ id: 'v5', nota: 'A única (14 out.): abertura cinematográfica em 3D (Three.js) — o rolamento SKF 6206 monta-se, abre em vista explodida com as cotas a laranja, desfaz-se em partículas que formam o ROMAFE; o GoParts e a linha laranja; passa ao login', html }],
+    versoes: [{ id: 'v5', nota: 'A única (14 out.): abertura cinematográfica em 3D (Three.js) — o rolamento SKF 6206 monta-se, abre em vista explodida com as cotas a laranja, desfaz-se em partículas que formam o ROMAFE; o Peça A Peça e a linha laranja; passa ao login', html }],
   };
 }

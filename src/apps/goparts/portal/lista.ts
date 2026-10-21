@@ -15,7 +15,7 @@
    Dados: as referências e os preços são os do catálogo (catalogo-dados.ts, de exemplo); a SKF02553 «Autocolante»
    é a do ecrã antigo que ela mandou e não tem preço — «Preço indisponível» nunca é 0,00 €. IVA só a 23 % (a única
    taxa nos dados). Contas: linha = Qtd. × PVP × (1 − Desc.), arredondada ao cêntimo; base = peças + mão-de-obra +
-   outros custos − descontos; IVA sobre a base. As regras de arredondamento verdadeiras são as do GoParts.
+   outros custos − descontos; IVA sobre a base. As regras de arredondamento verdadeiras são as do Peça A Peça.
    Comportamento: comportamento/lista.ts. CSS: css/lista.css.
    ========================================================= */
 import { silhueta } from './carros';
@@ -139,7 +139,7 @@ export function linhaPeca(p: Peca, i: number, o: OpcoesLinha = {}): string {
     ${azulejoPeca(p.desc, 'lst__img', p.ref)}
     <div class="lst__id-peca"><p class="lst__ref-l"><span class="lst__marca">${p.marca}</span><b class="lst__ref">${p.ref}</b></p><p class="lst__desc">${p.desc}</p><p class="lst__info">${disp}${p.liquido !== null ? `<span class="lst__liq" data-dica="O que a oficina paga à Romafe, por unidade, sem IVA">Líquido Romafe ${euros(p.liquido)}/un.</span>` : ''}</p></div>
     <div class="lst__c lst__c--qtd${o.erroQtd ? ' is-erro' : ''}"><span class="lst__rot" aria-hidden="true">Qtd.</span>${passos('lst__q', p.qtd, `Quantidade de ${nome}`, so, o.erroQtd ? ` aria-invalid="true" aria-describedby="lst-eq-${i}"` : '').replace(`value="${num(p.qtd)}"`, o.erroQtd ? `value="${o.erroQtd}"` : `value="${num(p.qtd)}"`)}${o.erroQtd ? erroCampo(`lst-eq-${i}`, 'Inteiro, 1 ou mais') : ''}</div>
-    <div class="lst__c lst__c--pvp"><span class="lst__rot" aria-hidden="true">PVP un.</span>${sem ? `<span class="lst__pendente" data-dica="O GoParts não devolveu preço para esta referência"><span class="sr-only">${nome}: </span>Preço indisponível</span>` : campoNum('lst__pvp', `PVP unitário de ${nome}, sem IVA`, dinheiro(p.pvp!), so ? ' readonly' : '')}</div>
+    <div class="lst__c lst__c--pvp"><span class="lst__rot" aria-hidden="true">PVP un.</span>${sem ? `<span class="lst__pendente" data-dica="O Peça A Peça não devolveu preço para esta referência"><span class="sr-only">${nome}: </span>Preço indisponível</span>` : campoNum('lst__pvp', `PVP unitário de ${nome}, sem IVA`, dinheiro(p.pvp!), so ? ' readonly' : '')}</div>
     <div class="lst__c lst__c--d${o.erroD ? ' is-erro' : ''}"><span class="lst__rot" aria-hidden="true">Desc. %</span>${campoNum('lst__d', `Desconto de ${nome}, em percentagem`, o.erroD ?? num(p.d), (so || sem ? ' readonly' : '') + (o.erroD ? ` aria-invalid="true" aria-describedby="lst-ed-${i}"` : ''))}${o.erroD ? erroCampo(`lst-ed-${i}`, 'De 0 a 100 %') : ''}</div>
     <div class="lst__c lst__c--total"><span class="lst__rot" aria-hidden="true">Total</span><b class="lst__total" data-total>${t === null || o.erroQtd || o.erroD ? '<span class="lst__sem">— €</span>' : euros(t)}</b></div>
     <div class="lst__c--fim">${accoesLinha(so, nome)}</div>
@@ -211,7 +211,7 @@ function totalTexto(c: ReturnType<typeof contas>): string { return c.nPecas && c
 export function resumoHtml(l: Lista, o: { so?: boolean; e?: EstadoLista } = {}): string {
   const c = contas(l), e = o.e ?? '', carregar = e === 'a-carregar';
   const v = (n: number, neg = false) => carregar ? '<span class="lst__sem">—</span>' : euros(neg ? -n : n);
-  const falta = c.semPreco.length ? `<p class="lst__falta" data-falta>${L(alert)}<span><b>Total parcial.</b> Falta o preço de ${plural(c.semPreco.length, 'peça', 'peças')} (${c.semPreco.map((p) => p.ref).join(', ')}); entra quando o GoParts o devolver.</span></p>` : '<p class="lst__falta" data-falta hidden></p>';
+  const falta = c.semPreco.length ? `<p class="lst__falta" data-falta>${L(alert)}<span><b>Total parcial.</b> Falta o preço de ${plural(c.semPreco.length, 'peça', 'peças')} (${c.semPreco.map((p) => p.ref).join(', ')}); entra quando o Peça A Peça o devolver.</span></p>` : '<p class="lst__falta" data-falta hidden></p>';
   const aEnviar = e === 'a-enviar', vazia = !c.nPecas && !c.nMao && !c.nCustos;
   const enviar = aEnviar ? `<button type="button" class="btn lst__sec" aria-busy="true" disabled>${rolamentoSvg('lst-e', 'pesquisar', 'lst__rs')}<span class="btn__rotulo">A enviar…</span></button>`
     : botao('lst__sec', send, 'Enviar', ` data-enviar${vazia || o.so || ['qtd-invalida', 'desc-invalido', 'offline'].includes(e) ? ' disabled' : ''}`);
@@ -231,7 +231,7 @@ export function resumoHtml(l: Lista, o: { so?: boolean; e?: EstadoLista } = {}):
       <div class="lst__resumo-accoes">${botao('lst__sec', eye, 'Pré-visualizar', ` data-previa${vazia ? ' disabled' : ''}`)}${enviar}</div>
       ${o.so ? '' : `<button type="button" class="lst__carrinho" data-carrinho${c.noCarrinho ? '' : ' disabled'}>${L(cart)}<span>Pôr <b data-n="carrinho">${plural(c.noCarrinho, 'peça', 'peças')}</b> no carrinho</span></button>`}
       <p class="lst__custo">${L(info)}<span>Custo das peças na Romafe: <b data-soma="custo">${v(c.custo)}</b> (líquido, sem IVA)</span></p>
-      <p class="lst__exemplo">Valores de exemplo, do catálogo; os preços, as regras comerciais e os arredondamentos são os do GoParts.</p>
+      <p class="lst__exemplo">Valores de exemplo, do catálogo; os preços, as regras comerciais e os arredondamentos são os do Peça A Peça.</p>
     </aside>`;
 }
 
@@ -272,7 +272,7 @@ export function editorHtml(l: Lista, e: EstadoLista = ''): string {
   return `<div class="lst__corpo">
       <div class="lst__seccoes">
         <section class="lst__seccao" data-seccao="pecas" data-flip aria-labelledby="lst-t-pecas">
-          ${cabecaSeccao('lst-t-pecas', pkg, 'Peças', 'Referências do catálogo GoParts. O PVP e o desconto do cliente editam-se na linha.', l.pecas.length, carregar ? '' : addP)}
+          ${cabecaSeccao('lst-t-pecas', pkg, 'Peças', 'Referências do catálogo Peça A Peça. O PVP e o desconto do cliente editam-se na linha.', l.pecas.length, carregar ? '' : addP)}
           ${carregar ? esqueleto(1) : l.pecas.length ? `${colunas('peca')}<ul class="lst__linhas" role="list">${linhasP}</ul>`
             : vazioSeccao(so ? 'Esta lista não tem peças.' : 'Ainda não há peças. Procura pela referência, marca ou descrição — ou, no Catálogo, usa «Adicionar à minha lista».', addP.replace('lst__adicionar', 'lst__adicionar lst__adicionar--cheio'))}
         </section>
@@ -377,15 +377,15 @@ export function previaHtml(l: Lista, aberta = false): string {
     <div class="lst__previa-caixa">
       <header class="lst__previa-barra"><h2 id="lst-p-t">${L(fileText)}Pré-visualização <small>rascunho — não é um orçamento emitido</small></h2><span>${botao('btn--ghost btn--sm', printer, 'Imprimir', ' data-imprimir')}${botao('btn--ghost btn--sm', arrowLeft, 'Voltar à edição', ' data-fechar-previa')}</span></header>
       <article class="lst__doc">
-        <header class="lst__doc-topo"><span><span class="romafe">ROMAFE</span><small>GoParts · Orçamento</small></span><span><b>${l.nome}</b>${l.id ? `Lista ${l.id}` : 'Lista por guardar'}<br>${l.atualizada.startsWith('hoje') || l.atualizada.startsWith('ainda') ? '16/10/2026' : l.atualizada}</span></header>
-        <p class="lst__doc-marca">RASCUNHO · sem validade comercial até ser emitido pelo GoParts</p>
+        <header class="lst__doc-topo"><span><span class="romafe">ROMAFE</span><small>Peça A Peça · Orçamento</small></span><span><b>${l.nome}</b>${l.id ? `Lista ${l.id}` : 'Lista por guardar'}<br>${l.atualizada.startsWith('hoje') || l.atualizada.startsWith('ainda') ? '16/10/2026' : l.atualizada}</span></header>
+        <p class="lst__doc-marca">RASCUNHO · sem validade comercial até ser emitido pelo Peça A Peça</p>
         ${pecas}${mao}${outros}
         <table class="lst__doc-totais"><tbody>
           <tr><td>Peças (PVP)</td><td>${euros(c.pecas)}</td></tr><tr><td>Mão-de-obra</td><td>${euros(c.mao)}</td></tr>${c.outros ? `<tr><td>Outros custos</td><td>${euros(c.outros)}</td></tr>` : ''}<tr><td>Descontos</td><td>${euros(-c.descontos)}</td></tr>
           <tr class="b"><td>Base tributável (sem IVA)</td><td>${euros(c.base)}</td></tr><tr><td>IVA 23 % sobre ${euros(c.base)}</td><td>${euros(c.iva)}</td></tr>
           <tr class="t"><td>Total com IVA${c.semPreco.length ? ' (parcial)' : ''}</td><td>${euros(c.total)}</td></tr>
         </tbody></table>
-        ${c.semPreco.length ? `<p class="lst__doc-nota">Sem o preço de ${c.semPreco.map((p) => p.ref).join(', ')}, que o GoParts ainda não devolveu.</p>` : ''}
+        ${c.semPreco.length ? `<p class="lst__doc-nota">Sem o preço de ${c.semPreco.map((p) => p.ref).join(', ')}, que o Peça A Peça ainda não devolveu.</p>` : ''}
         ${l.notas ? `<h3>Notas</h3><p class="lst__doc-notas">${l.notas}</p>` : ''}
       </article>
     </div>
@@ -435,7 +435,7 @@ export function listaHtml(e: EstadoLista = '', propria?: Lista): string {
     leitura: faixa('info', `<span class="lst__faixa-ic">${L(lock)}</span>`, 'Esta lista foi enviada e é só de leitura.', 'Foi enviada a 10/10/2026. Para fazer outra a partir dela, duplica-a.', botao('btn--claro btn--sm', copy, 'Duplicar lista', ` data-duplicar-lista="${l.id}"`)),
     'sem-permissao': faixa('erro', `<span class="lst__faixa-ic">${L(lock)}</span>`, 'Não tens permissão para alterar esta lista.', 'Foi criada por outro utilizador da empresa. Podes vê-la e duplicá-la.', botao('btn--claro btn--sm', copy, 'Duplicar lista', ` data-duplicar-lista="${l.id}"`)),
     duplicar: faixa('ok', `<span class="lst__faixa-ic">${L(copy)}</span>`, 'Criaste uma cópia de «Reparação Peugeot 308».', 'Estás a editar a cópia: as peças, os serviços e as notas são os mesmos, e a original não muda. Guarda-a para ficar em «Minhas listas».', botao('btn--claro btn--sm', arrowLeft, 'Voltar à original', ` data-abrir-lista="${LISTAS[0].id}"`)),
-    'sem-preco': faixa('aviso', `<span class="lst__faixa-ic">${L(alert)}</span>`, 'O GoParts não devolveu os preços.', 'As peças e as quantidades estão certas; os preços e o total aparecem quando o serviço de preços responder. Nada aparece a 0,00 €.', botao('btn--claro btn--sm', rotate, 'Pedir os preços outra vez', ' data-religar')),
+    'sem-preco': faixa('aviso', `<span class="lst__faixa-ic">${L(alert)}</span>`, 'O Peça A Peça não devolveu os preços.', 'As peças e as quantidades estão certas; os preços e o total aparecem quando o serviço de preços responder. Nada aparece a 0,00 €.', botao('btn--claro btn--sm', rotate, 'Pedir os preços outra vez', ' data-religar')),
     'remover-ultima': faixa('info', `<span class="lst__faixa-ic">${L(packageX)}</span>`, 'Retiraste a última peça.', 'A lista fica com zero peças; os serviços e as notas ficam. Podes desfazer até guardar.', botao('btn--claro btn--sm', undo, 'Desfazer', ' data-desfazer')),
   } as Record<string, string>)[e] ?? '';
   const porque = invalido ? `<p class="lst__porque" id="lst-porque">${L(alert)}Há 1 campo por corrigir; a lista guarda-se depois de o corrigires.</p>` : '';

@@ -32,7 +32,6 @@ import filePen from 'lucide-static/icons/file-pen-line.svg?raw';
 import receipt from 'lucide-static/icons/receipt.svg?raw';
 import shoppingCart from 'lucide-static/icons/shopping-cart.svg?raw';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
-import hash from 'lucide-static/icons/hash.svg?raw';
 import barcode from 'lucide-static/icons/barcode.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import eraser from 'lucide-static/icons/eraser.svg?raw';
@@ -303,22 +302,28 @@ export function devolucoesV1(vista: 'cronologia' | 'tabela' = 'cronologia', list
       </div>
     </header>
 
-    <section class="ped4__filtros" aria-label="Filtrar devoluções">
-      <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="dev-campos">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
-      <form class="ped4__campos" id="dev-campos" novalidate>
-        ${campo('dev-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-        ${campo('dev-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-        ${campo('dev-num', 'N.º da devolução', hash, 'type="text" placeholder="DV2024/…" autocomplete="off"')}
-        ${campo('dev-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
-        <div class="ped4__botoes">
+    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar devoluções">
+      <form class="ped4__campos ped4__campos--botao" id="dev-campos" novalidate>
+        <div class="ped4__barra-f">
+          ${campo('dev-num', 'N.º da devolução', search, 'type="text" placeholder="Pesquisar pelo n.º da devolução (DV2024/…)" autocomplete="off"')}
+          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="dev-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+        </div>
+        <div class="ped4__painel-f" id="dev-painel" role="group" aria-label="Filtros">
+          <div class="ped4__painel-campos">
+            ${campo('dev-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('dev-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('dev-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
+          </div>
+          <div class="ped4__baixo">
+            ${estadosDev(lista)}
+          </div>
+          <div class="ped4__botoes">
           <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Pesquisar</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          </div>
         </div>
       </form>
-      <div class="ped4__baixo">
-        ${estadosDev(lista)}
-        <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
-      </div>
+      <ul class="ped4__chips" aria-label="Filtros aplicados"></ul>
     </section>
 
     <section class="ped4__lista" aria-label="Devoluções" data-vista="${vista}">

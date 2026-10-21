@@ -323,7 +323,7 @@ const VIDEO_ROMAFE = 'https://www.romafe.com/assets/video/intro.mp4';
 const MARCAS = ['SKF', 'TRW', 'VALEO', 'HELLA', 'NGK NTK', 'CORTECO', 'UFI', 'MANNOL'];
 
 /* Na v9 as três apps diferem (ela, 8 out. 2026: «os ecrãs entre ERP, GoShop e
-   GoParts devem diferir»; a v8 fica igual nas três), e continuam da mesma família: o vídeo, o ROMAFE
+   Peça A Peça devem diferir»; a v8 fica igual nas três), e continuam da mesma família: o vídeo, o ROMAFE
    azul, a caixa branca e o botão laranja são os mesmos.
      interna      o vídeo desde o escritório; a caixa ao meio; faixa azul
                   com factos da casa (do site da Romafe)
@@ -357,9 +357,9 @@ function paginaVideo(cartao: string, tipo?: Familia): string {
    Ela, 8 out. 2026: «não quero ter sempre a imagem do armazém, o vídeo do
    mesmo». A fachada da sede (o letreiro ROMAFE), parada; caixa ao meio;
    faixa azul com os factos da casa. Também se fez para o GoShop (texto da
-   Romafe Automotive; antes um bloco laranja) e para o GoParts (uma parede
+   Romafe Automotive; antes um bloco laranja) e para o Peça A Peça (uma parede
    de marcas), e ela não gostou de nenhuma das duas: saíram. */
-/* GoParts (8 out. 2026): o armazém não faz sentido numa loja de peças para
+/* Peça A Peça (8 out. 2026): o armazém não faz sentido numa loja de peças para
    oficinas — ela mostrou o login atual, uma oficina com um bloco de motor.
    É a fotografia de romafe.com (assets/img/components/about/products.jpg). */
 function paginaCena(cartao: string, tipo: Familia): string {
@@ -641,7 +641,7 @@ function numerar(vs: (VersaoEntrar & { ponto?: boolean })[]): [VersaoEntrar, ...
   return vs.map(({ ponto, ...v }) => (ponto ? { ...v, id: `v${n}.${++p}` } : (p = 0, { ...v, id: 'v' + ++n }))) as [VersaoEntrar, ...VersaoEntrar[]];
 }
 
-/** As versões do login das apps completas (ERP, GoShop, GoParts),
+/** As versões do login das apps completas (ERP, GoShop, Peça A Peça),
     iguais nas três desde 8 out. 2026 — o que ela foi pedindo no ERP vale para
     a Web: saem a v5 (fundo desenhado) e a v6 (família com o cartão ao lado);
     entram a de pouco texto com a fotografia em diagonal, a da fotografia
@@ -662,15 +662,15 @@ export function versoesRomafe(o: OpcoesEntrar, selo: string, v4: Partial<OpcoesE
     { id: '', nota: 'Pouco texto à volta: a fotografia sem texto com faixas azuis em diagonal, e o cartão com o ROMAFE, o nome, o campo e a ajuda', opcoes: { ...minimo, minimo: { selo } }, sem: semAjuda },
     /* a da fotografia toda com formas nos cantos saiu do ERP a 8 out. 2026 */
     ...(erp ? [] : [{ id: '', nota: 'A fotografia no ecrã todo, com formas azuis nos cantos, e o cartão da anterior ao centro', opcoes: { ...minimo, minimo: { selo, centro: true } }, sem: semAjuda }]),
-    /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no GoParts */
+    /* 8 out. 2026: o vídeo do armazém ao fundo, primeiro no ERP e depois, a pedido dela, no GoShop e no Peça A Peça */
     { id: '', nota: 'O vídeo do armazém ao fundo, a caixa ao meio e, em baixo, as marcas que a Romafe distribui', opcoes: { ...minimo, minimo: { selo, foto: 'video' } } },
-    /* 8 out. 2026: uma interface diferente em cada app (ela: «os ecrãs entre ERP, GoShop e GoParts devem diferir»; a v8 fica igual nas três) */
-    /* só no ERP: no GoParts e no GoShop saiu (8 out. 2026; o GoShop «está mais relacionado com vendas») */
+    /* 8 out. 2026: uma interface diferente em cada app (ela: «os ecrãs entre ERP, GoShop e Peça A Peça devem diferir»; a v8 fica igual nas três) */
+    /* só no ERP: no Peça A Peça e no GoShop saiu (8 out. 2026; o GoShop «está mais relacionado com vendas») */
     ...(erp ? [{ id: '', nota: 'O vídeo desde o escritório e a faixa azul com os factos da casa', opcoes: { ...minimo, minimo: { selo, foto: 'video' as const, tipo } } }] : []),
     /* 8 out. 2026: sem o armazém (ela não quer sempre a mesma imagem) — no ERP a fachada da sede */
     ...(erp ? [{ id: '', nota: 'Sem o armazém: a fachada da sede, parada, e a faixa azul com os factos da casa', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const } } }] : []),
-    /* GoParts: a oficina, como o login que existe hoje (a do vídeo por app saiu) */
-    ...(tipo === 'marketplace' ? [{ id: '', nota: 'A oficina com o bloco de motor, como o login atual do GoParts, a caixa ao meio e as famílias de peças em baixo', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const, tipo } } }] : []),
+    /* Peça A Peça: a oficina, como o login que existe hoje (a do vídeo por app saiu) */
+    ...(tipo === 'marketplace' ? [{ id: '', nota: 'A oficina com o bloco de motor, como o login atual do Peça A Peça, a caixa ao meio e as famílias de peças em baixo', opcoes: { ...minimo, minimo: { selo, foto: 'cena' as const, tipo } } }] : []),
   ]);
 }
 

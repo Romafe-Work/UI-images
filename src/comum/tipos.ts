@@ -40,7 +40,7 @@ export interface App<Id extends string = string> {
   id: IdApp;
   nome: string;
   sub: string;
-  /** o tipo de aplicação na porta de entrada: o GoShop é a WebShop e o GoParts o MarketPlace */
+  /** o tipo de aplicação na porta de entrada: o GoShop é a WebShop e o Peça A Peça o MarketPlace */
   grupo: 'ERP' | 'WebShop' | 'MarketPlace' | 'Pick';
   /** o nome no canto do editor e no título do mapa */
   marca: string;

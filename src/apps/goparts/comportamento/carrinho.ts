@@ -6,7 +6,7 @@
    Cada mudança é otimista: o número muda logo, e o servidor confirma depois. Sem servidor neste protótipo, a
    confirmação é simulada; sem rede (navigator.onLine falso) falha, e a mudança desfaz-se com o aviso.
    O número do ícone conta UNIDADES (2 × VKBA 6556 + 1 × VKPC 88618 = 3), não linhas.
-   Integração por fazer: GET/POST/PATCH/DELETE do carrinho do GoParts, e o preço/stock de cada referência.
+   Integração por fazer: GET/POST/PATCH/DELETE do carrinho do Peça A Peça, e o preço/stock de cada referência.
    ========================================================= */
 import { REFERENCIAS, saida, type Referencia } from '../portal/catalogo-dados';
 

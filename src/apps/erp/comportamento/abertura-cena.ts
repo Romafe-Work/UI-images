@@ -1,7 +1,7 @@
 /* =========================================================
    ERP — 00 · Abertura: a cena 3D do rolamento (19 out. 2026)
    Carrega-se à parte (import dinâmico em comportamento/abertura.ts), só quando a abertura aparece.
-   É a do GoParts (o mesmo SKF 6206 de goparts/comportamento/rolamento-3d.ts, o mesmo aço), com o que é
+   É a do Peça A Peça (o mesmo SKF 6206 de goparts/comportamento/rolamento-3d.ts, o mesmo aço), com o que é
    do ERP: a gota de óleo que lubrifica o rolamento, e as cotas da vista explodida trocadas pelos dados
    do artigo no ERP (referência, stock, fornecedor, custo, a encomenda de compra). A rede das peças e
    dos óleos não é desta cena: é a da v10 (rede-cena.ts), que abertura.ts põe por baixo, num canvas

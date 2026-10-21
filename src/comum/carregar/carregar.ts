@@ -1,5 +1,5 @@
 /* =========================================================
-   ROMAFE — os ecrãs de carregamento (GoShop e GoParts)
+   ROMAFE — os ecrãs de carregamento (GoShop e Peça A Peça)
    Ela, 8 out. 2026: «faz os screens de loading para ambas as apps, o
    loading de full page, loading em tabela, skeletons… todos os tipos».
    Os mesmos sete nas duas apps, dentro da moldura do portal de cada uma.

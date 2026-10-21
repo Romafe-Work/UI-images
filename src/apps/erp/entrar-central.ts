@@ -9,7 +9,7 @@
           e troca sem sair). A última usada vem marcada. Com uma empresa só, este passo não aparece.
      07 — a aplicação: as da plataforma, conforme a licença da empresa escolhida. (20 out., ela: «o login é
           global; depois do login é que se vai para as apps».) O ERP abre como na v10 (o cartão sai e a moldura
-          do ERP desenha-se); o GoParts abre o Início dele, já com a sessão; o GoShop ainda não tem ecrãs no
+          do ERP desenha-se); o Peça A Peça abre o Início dele, já com a sessão; o GoShop ainda não tem ecrãs no
           protótipo; a Pick entra-se no PDA (o mesmo início de sessão, no terminal).
    No produto é o Keycloak que sabe quem é a pessoa; as empresas e as aplicações vêm da API do Rolgest
    (GET /v1/empresas) e da licença de cada empresa. A v10 fica como estava.
@@ -43,7 +43,7 @@ export const EMPRESAS: Empresa[] = [
 /* as aplicações da plataforma: as que abrem daqui levam a página delas (pagina); as outras dizem porquê não abrem */
 const APPS: { id: string; nome: string; desc: string; icone: string; pagina?: string; estado?: string }[] = [
   { id: 'erp', nome: 'ROMAFE ERP', desc: 'Compras, stocks, vendas e a gestão da empresa.', icone: layoutDashboard },
-  { id: 'goparts', nome: 'GoParts', desc: 'O marketplace de peças auto.', icone: store, pagina: 'goparts' },
+  { id: 'goparts', nome: 'Peça A Peça', desc: 'O marketplace de peças auto.', icone: store, pagina: 'goparts' },
   { id: 'goshop', nome: 'GoShop', desc: 'A loja online de peças.', icone: shoppingCart, estado: 'Ainda sem ecrãs no protótipo' },
   { id: 'pick', nome: 'Pick', desc: 'A aplicação do armazém.', icone: scanBarcode, estado: 'Entra-se no PDA' },
 ];
@@ -122,7 +122,7 @@ export function ecrasCentral(): EcraErp[] {
     e('central-sem-empresa', 'escolher-empresa', '06.1 · Sem empresa', 'A conta entrou no Keycloak mas não tem acesso a nenhuma empresa do Rolgest: diz-se isso, e quem dá o acesso. Não se mostra uma lista vazia.',
       m('06-1', passoEmpresa('06-1', { vazio: true }))),
     { id: 'escolher-app', nome: '07 · Escolher a aplicação', fluxo: 'Entrar',
-      objetivo: 'Depois do início de sessão global, as aplicações da empresa escolhida. O ERP abre o espaço de trabalho (05 · Início); o GoParts abre o Início dele; o GoShop ainda não tem ecrãs; a Pick entra-se no PDA. «Trocar» volta às empresas.',
+      objetivo: 'Depois do início de sessão global, as aplicações da empresa escolhida. O ERP abre o espaço de trabalho (05 · Início); o Peça A Peça abre o Início dele; o GoShop ainda não tem ecrãs; a Pick entra-se no PDA. «Trocar» volta às empresas.',
       versoes: v(m('07', passoApp('07'))) },
     e('central-a-abrir', 'escolher-app', '07.1 · A abrir o ERP', 'Depois de escolher o ERP: a espera na própria linha, enquanto se pede a sessão da empresa; depois o cartão sai e a moldura do ERP desenha-se.',
       m('07-1', passoApp('07-1', { abrir: true }), 'pedido')),

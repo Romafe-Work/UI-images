@@ -5,7 +5,7 @@ import type { IdErro } from './erros/erros';
 import type { IdEstadoInicio, IdEstadoCatalogo, IdEstadoPedidos, IdEstadoGuias, IdEstadoFaturas, IdEstadoDevolucoes } from './portal/estados';
 import type { IdEstadoTecnica } from './portal/tecnica-estados';
 
-/** Os ecrãs do GoParts: os do início de sessão (comuns) e os seus. Um ecrã novo
+/** Os ecrãs do Peça A Peça: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */
 /** Os estados dos ecrãs de entrar (01.1 sem dados, 02.1 palavra-passe errada). */
 export type IdEstadoEntrar = 'entrada-vazio' | 'palavra-passe-erro';
