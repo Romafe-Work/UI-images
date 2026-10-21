@@ -14,6 +14,8 @@ export default defineConfig({
         pecaapeca: resolve(import.meta.dirname, 'peca-a-peca/index.html'),
         goparts: resolve(import.meta.dirname, 'goparts/index.html'),
         mobile: resolve(import.meta.dirname, 'mobile/index.html'),
+        identidade: resolve(import.meta.dirname, 'identidade/index.html'),
+        fluxos: resolve(import.meta.dirname, 'fluxos/index.html'),
       },
     },
   },

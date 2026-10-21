@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluxos ecrã a ecrã · Ecrãs Romafe</title>
+<script>try{var t=localStorage.getItem("uiux:tema");if(t&&t!=="auto")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body class="fx-corpo">
+<div class="fx">
+  <aside class="fx-lado" aria-label="Diagramas">
+    <header class="fx-marca"><a href="../" class="fx-voltar" aria-label="Voltar aos Ecrãs Romafe">←</a><span class="romafe fx-romafe">ROMAFE</span><span>Fluxos ecrã a ecrã</span></header>
+    <div class="fx-procurar"><label class="sr-only" for="fx-procura">Procurar um ecrã</label><input id="fx-procura" type="search" placeholder="Procurar um ecrã em todos os diagramas" autocomplete="off"><ul id="fx-resultados" class="fx-resultados" hidden></ul></div>
+    <nav id="fx-lista" class="fx-lista"></nav>
+    <section class="fx-bloco"><h2>Grupos</h2><div id="fx-grupos"></div><label class="fx-chk"><input type="checkbox" id="fx-estados"><span>Estados de cada ecrã como subnós</span></label></section>
+    <section class="fx-bloco"><h2>Legenda</h2><ul id="fx-legenda" class="fx-legenda"></ul></section>
+    <div class="segmented fx-tema" role="group" aria-label="Tema"><button type="button" class="segmented__btn" data-tema="light">Claro</button><button type="button" class="segmented__btn" data-tema="dark">Escuro</button><button type="button" class="segmented__btn" data-tema="auto">Auto</button></div>
+  </aside>
+  <main class="fx-area" id="fx-area">
+    <header class="fx-cabeca">
+      <div><h1 id="fx-titulo"></h1><p id="fx-desc"></p><div id="fx-verificacao" class="fx-verificacao"></div></div>
+      <div class="fx-barra" role="toolbar" aria-label="Diagrama">
+        <button type="button" class="fx-btn" id="fx-menos" aria-label="Diminuir">−</button><span id="fx-zoom" class="fx-zoom">100 %</span><button type="button" class="fx-btn" id="fx-mais" aria-label="Aumentar">+</button>
+        <button type="button" class="fx-btn" id="fx-ajustar">Ajustar</button>
+        <details class="fx-exportar"><summary class="fx-btn">Exportar</summary><div class="fx-menu">
+          <button type="button" data-exportar="svg">SVG</button><button type="button" data-exportar="png">PNG</button><button type="button" data-exportar="pdf">PDF (imprimir)</button>
+          <button type="button" data-exportar="mmd">Mermaid (.mmd)</button><button type="button" data-exportar="copiar-mmd">Copiar o Mermaid</button><button type="button" data-exportar="ligacao">Copiar a ligação</button>
+        </div></details>
+        <button type="button" class="fx-btn" data-exportar="inteiro">Ecrã inteiro</button>
+      </div>
+    </header>
+    <div class="fx-tela" id="fx-tela"><div class="fx-palco" id="fx-palco"></div></div>
+    <aside class="fx-painel" id="fx-painel" hidden aria-label="O ecrã escolhido"></aside>
+    <p class="fx-aviso" id="fx-aviso" role="status" hidden></p>
+  </main>
+</div>
+<script type="module" src="/src/fluxos/main.ts"></script>
+</body>
+</html>

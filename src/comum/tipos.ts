@@ -34,7 +34,7 @@ export interface Ecra<Id extends string = string> {
   noFluxo?: string;
 }
 
-export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';
+export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile' | 'identidade';
 
 export interface App<Id extends string = string> {
   id: IdApp;
@@ -43,7 +43,7 @@ export interface App<Id extends string = string> {
   nome: string;
   sub: string;
   /** o tipo de aplicação na porta de entrada: o GoShop é a WebShop e o Peça A Peça o MarketPlace */
-  grupo: 'ERP' | 'WebShop' | 'MarketPlace' | 'Pick';
+  grupo: 'ERP' | 'WebShop' | 'MarketPlace' | 'Pick' | 'Identidade';
   /** o nome no canto do editor e no título do mapa */
   marca: string;
   tela: Tela;

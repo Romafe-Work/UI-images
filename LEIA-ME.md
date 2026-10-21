@@ -1,13 +1,15 @@
 # Ecrãs Romafe
 
-Todos os ecrãs da Romafe num só sítio, divididos em quatro apps (a Web são duas):
+Todos os ecrãs da Romafe num só sítio, divididos em cinco apps (a Web são duas), e os fluxos ecrã a ecrã:
 
-| Pasta | App | Tela de desenho (os ecrãs ajustam-se à janela) |
-| --- | --- | --- |
-| `src/apps/erp/` | ERP — Romafe, a plataforma de gestão | 1440×900 |
-| `src/apps/goshop/` | WebShop — GoShop | 1440×900 |
-| `src/apps/goparts/` | MarketPlace — GoParts | 1440×900 |
-| `src/apps/mobile/` | Mobile — Pick, a app do armazém no PDA | 320×533 (o EDA61K) |
+| Pasta | App | Página | Tela de desenho (os ecrãs ajustam-se à janela) |
+| --- | --- | --- | --- |
+| `src/apps/identidade/` | ROMAFE Identity — uma conta para todas | `identidade/` | 1440×900 |
+| `src/apps/erp/` | ERP — Romafe, a plataforma de gestão | `erp/` | 1440×900 |
+| `src/apps/goshop/` | WebShop — GoShop | `goshop/` | 1440×900 |
+| `src/apps/goparts/` | MarketPlace — Peça A Peça (era GoParts; o código fica `goparts`) | `peca-a-peca/` (`goparts/` reencaminha) | 1440×900 |
+| `src/apps/mobile/` | Pick, a app do armazém no PDA | `mobile/` | 320×533 (o EDA61K) |
+| `src/fluxos/` | Fluxos ecrã a ecrã (diagramas) | `fluxos/` | — |
 
 `index.html` é a porta de entrada: as três apps e uma caixa para procurar
 qualquer ecrã pelo nome, pelo fluxo ou pelo que ele faz. Cada resultado tem
@@ -21,11 +23,48 @@ npm run ver         # http://localhost:5173 — a versão compilada, como no sit
 npm run dev         # o servidor de desenvolvimento (para mexer no código)
 npm run verificar   # só o TypeScript
 npm run medir       # todos os ecrãs cabem e ajustam-se à janela (ver «Ecrãs ajustáveis»)
+npm run testar:fluxos  # os diagramas desenham-se e cumprem as regras (ecrãs que existem, sem becos)
 npm run build       # verifica e gera dist/, que é o que vai para o site
 ```
 
 Cada push para `main` compila e publica no GitHub Pages
 (`.github/workflows/publicar.yml`). Se o TypeScript falhar, não publica.
+
+## Fluxos ecrã a ecrã (21 out. 2026)
+
+`fluxos/` — os diagramas do ecossistema, a partir dos ecrãs reais (briefing «Complete screen flow diagrams»).
+Os diagramas são dados (`src/fluxos/dados.ts`): nós com o tipo (ecrã, ação, decisão, correu bem, aviso, erro,
+sistema, início, fim, por definir) e, nos ecrãs, o ecrã verdadeiro `[app, id]`; arestas com o rótulo e a animação.
+O Mermaid dispõe-nos (sem posições à mão). `src/fluxos/verificar.ts` confirma que cada ecrã existe, que nada fica
+sem entrada e que nenhuma ação, decisão, aviso ou erro é um beco; o resultado aparece por cima de cada diagrama.
+
+- Diagramas: Ecossistema ROMAFE; ROMAFE Identity (entrar e encaminhar); Pick — mapa principal, Inventário passo a
+  passo, erros/rede/sessão; as jornadas A–I; ERP; Peça A Peça.
+- Decisões respeitadas: a app do PDA é a **Pick**; **sem rede, a Pick para** (nada se guarda no PDA, por isso não
+  há sincronização); só há o armazém 60 (sem escolha de armazém); as tarefas vêm do motor; sem os menus vindos da
+  base de dados (ela: «nada»). O que não tem ecrã aparece «Por definir».
+- Arrastar, roda/+/−, Ajustar; clicar num nó acende o caminho até ele e abre o painel (objetivo, estados, de onde
+  se vem, para onde se vai, notas do PDA, «Abrir o ecrã»); procurar em todos os diagramas; recolher grupos;
+  estados como subnós; exportar SVG, PNG, PDF (imprimir) e Mermaid; copiar a ligação (`#d=…&no=…`); ecrã inteiro.
+
+## ROMAFE Identity (21 out. 2026)
+
+`identidade/` — o início de sessão comum (briefing «One login, three applications»; ela: só ecrãs, sem
+«Bem-vindo»). Desktop partido ao meio: à esquerda a cena em grafite (caixa, rolamento, estante e gestão ligam-se ao
+ROMAFE, ≈1,2 s, uma vez); à direita e-mail primeiro, palavra-passe, «Onde queres trabalhar?» com as aplicações do
+registo. Estados 01.1–01.9, 02.1–02.4, 03.1–03.5, recuperar e o PDA (navegador seguro do Android). Para
+experimentar: a palavra-passe «errada» dá o erro de credenciais. Sem segundo fator nem SSO inventados.
+
+## Peça A Peça: o novo nome, o UI limpo e o Início V9 (21 out. 2026)
+
+- O GoParts chama-se **Peça A Peça** em tudo o que se vê; no código ficam `goparts`, `IdGoParts`, `EcraGoParts`.
+- `css/limpo.css` (por último): sem enfeites (faixas, quadrados de cor, pílulas, brilhos), a pesquisa do topo
+  calma, títulos numa só letra. Escuro com as cores do briefing (#0F1115, #171A20, #1D2128, azul #1F6FBF).
+- Início V9: «O que procuras hoje?» (três cartões grandes: azul, azul, laranja; abrem a pesquisa no modo),
+  sete atalhos com o seu número, pedidos e atenção, o resumo em cinco cartões. O rolamento do cabeçalho anda.
+- Filtros num só botão: nos documentos (Pedidos, Guias, Faturas, Devoluções) e nos resultados da pesquisa
+  («Filtros (n)», gaveta com «Mostrar N resultados», etiquetas com ×, seis por página).
+- Menu lateral animado (fundo que entra da esquerda, o escolhido cresce do ícone, entrada na primeira vez).
 
 ## Ecrãs ajustáveis (12 out. 2026)
 

@@ -13,8 +13,9 @@ import { erp } from '../apps/erp/app';
 import { goshop } from '../apps/goshop/app';
 import { goparts } from '../apps/goparts/app';
 import { mobile } from '../apps/mobile/app';
+import { identidade } from '../apps/identidade/app';
 
-const APPS: App[] = [erp, goshop, goparts, mobile];
+const APPS: App[] = [identidade, erp, goshop, goparts, mobile];
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string | null, txt?: string | null): HTMLElementTagNameMap[K] {
   const n = document.createElement(tag);

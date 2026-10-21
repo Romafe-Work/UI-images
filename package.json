@@ -10,11 +10,13 @@
     "preview": "vite preview",
     "medir": "node scripts/medir-ecras.mjs",
     "testar:barra": "node scripts/testar-barra.mjs",
-    "testar:inicio": "node scripts/testar-inicio.mjs"
+    "testar:inicio": "node scripts/testar-inicio.mjs",
+    "testar:fluxos": "node scripts/testar-fluxos.mjs"
   },
   "devDependencies": {
     "@types/three": "^0.170.0",
     "lucide-static": "^1.55.0",
+    "mermaid": "^11.4.1",
     "simple-icons": "^16.35.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.3"

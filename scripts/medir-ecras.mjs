@@ -11,7 +11,7 @@ const BASE = process.argv[2] || 'http://localhost:5173';
 
 const LARGAS = [[1024, 700], [1280, 720], [1448, 787], [1440, 900], [1920, 1080]];
 const ESTREITAS = [[320, 533], [360, 640], [412, 780]];
-const APPS = [['erp', LARGAS], ['goshop', LARGAS], ['peca-a-peca', LARGAS], ['mobile', ESTREITAS]];
+const APPS = [['identidade', LARGAS], ['erp', LARGAS], ['goshop', LARGAS], ['peca-a-peca', LARGAS], ['mobile', ESTREITAS]];
 
 function medir() {
   const visivel = (e) => {
