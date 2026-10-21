@@ -32,7 +32,20 @@ function validar(inp: HTMLInputElement): void {
 }
 const mudou = (el: Element) => { el.classList.remove('is-mudou'); void (el as HTMLElement).offsetWidth; el.classList.add('is-mudou'); };
 
+/** (21 out.) «Confirmar contagem»: o botão responde, fica em «A registar…» enquanto o servidor responde, e só depois
+    o ecrã da contagem registada (o verde). Corre antes da navegação do protótipo (na janela, em captura). */
+function confirmar(ev: Event): void {
+  const b = (ev.target as Element).closest?.<HTMLButtonElement>('[data-confirmar]');
+  if (!b || editando() || b.dataset.registado) return;
+  ev.preventDefault(); ev.stopImmediatePropagation();
+  if (b.disabled) return;
+  const antes = b.innerHTML; b.disabled = true; b.classList.add('is-a-registar'); b.setAttribute('aria-busy', 'true');
+  b.innerHTML = '<span class="girador girador--claro" aria-hidden="true"></span><span class="btn__rotulo">A registar…</span>';
+  window.setTimeout(() => { apitar(true); b.innerHTML = antes; b.disabled = false; b.classList.remove('is-a-registar'); b.removeAttribute('aria-busy'); b.dataset.registado = '1'; b.click(); delete b.dataset.registado; }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 100 : 350);
+}
+
 export function iniciar(): void {
+  window.addEventListener('click', confirmar, true);
   document.addEventListener('click', (ev) => {
     if (editando()) return;
     const t = ev.target as Element;
@@ -56,6 +69,6 @@ export function iniciar(): void {
   document.addEventListener('input', (ev) => { const i = ev.target as HTMLElement; if (i.matches?.('.iv-qtd__n')) validar(i as HTMLInputElement); });
   document.addEventListener('keydown', (ev) => {
     const i = ev.target as HTMLElement;
-    if (ev.key === 'Enter' && i.matches?.('.iv-qtd__n')) { ev.preventDefault(); const b = i.closest('.pk')?.querySelector<HTMLButtonElement>('[data-confirmar]'); if (b && !b.disabled) { apitar(true); b.click(); } else apitar(false); }
+    if (ev.key === 'Enter' && i.matches?.('.iv-qtd__n')) { ev.preventDefault(); const b = i.closest('.pk')?.querySelector<HTMLButtonElement>('[data-confirmar]'); if (b && !b.disabled) b.click(); else apitar(false); }
   });
 }

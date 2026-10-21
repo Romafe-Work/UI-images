@@ -87,3 +87,8 @@
 .pk-abrir__nome { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 22px; }
 .pk-abrir__barra { width: 180px; margin-top: var(--e-4); }
 .pk-abrir__texto { margin: 0; font-size: 13px; color: var(--c-texto-2); }
+/* (21 out.) a abrir: o carrinho leva a caixa ao longo da via enquanto liga ao servidor (sem percentagem) */
+.pk-abrir__via { position: relative; width: 180px; height: 26px; margin-top: var(--e-4); border-bottom: 2px solid var(--c-borda); overflow: hidden; }
+.pk-abrir__carro { position: absolute; bottom: 2px; left: 0; width: 34px; animation: pk-via 1.6s cubic-bezier(.45, 0, .55, 1) infinite; }
+@keyframes pk-via { from { transform: translateX(-36px); } to { transform: translateX(184px); } }
+@media (prefers-reduced-motion: reduce) { .pk-abrir__carro { animation: none; left: 73px; } }

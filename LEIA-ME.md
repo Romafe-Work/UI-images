@@ -413,6 +413,28 @@ protótipo, tocar na área do leitor faz de tecla física (com o apito e a vibra
   Depois de entrar, abre o Inventário. Não há leitura de cartão para entrar: isso fica à espera de uma política
   aprovada.
 
+- **«Every movement counts»** (21 out.; `cena.ts`, `css/cena.css`, `comportamento/navegar.ts`): a escolha dela foi um
+  porta-paletes elétrico em 2,5D que entrega uma caixa numa posição, com princípio, meio e fim.
+  - **00 · Abertura (≈ 1,5 s):**
+    - o armazém aparece em perspetiva;
+    - o porta-paletes entra a acelerar (as rodas giram) e mete os garfos na posição 60300102, ao nível do chão;
+    - pousa a caixa e recua;
+    - o feixe lê o código, e o código transforma-se no indicador de leitura do PDA.
+
+    «Entrar» está sempre à mão.
+  - **A caixa é o fio condutor:** passa da abertura para a entrada e da entrada para o Inventário (View
+    Transitions). As passagens têm direção, e voltar desliza ao contrário.
+  - **Inventário:**
+    - a faixa azul com a caixa, a rede e o servidor;
+    - «Continuar inventário», «Iniciar inventário» e «Consultar contagens»;
+    - o percurso Posição → Artigo → Quantidade → Registada, com o carrinho no passo atual;
+    - a leitura com uma linha de varrimento e o artigo com um pulso;
+    - «Confirmar» com «A registar…» antes do verde;
+    - a carregar, a estante enche-se.
+  - **A abrir a Pick:** o carrinho leva a caixa ao longo de uma via.
+  - **Cores:** as do briefing, escuro #0E1620 / #1B2A39 e claro #F3F7FA / #FFFFFF.
+  - **Sem offline** (decidido): não há «guardado no aparelho», «por sincronizar» nem conflitos.
+
 ## GoParts V7 e V8: o Início como ponto de controlo, e as cores da marca no portal todo (21 out. 2026)
 
 - **V7 (Início):**

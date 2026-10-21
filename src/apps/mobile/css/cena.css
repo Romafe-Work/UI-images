@@ -1,0 +1,129 @@
+/* =========================================================
+   PICK — a cena da marca (21 out. 2026): o porta-paletes que entrega a caixa. Ver cena.ts e entrar-industrial.ts.
+   Cores do briefing: escuro #0E1620 / #1B2A39, claro #F3F7FA / #FFFFFF; azul ROMAFE #0876BD, laranja #F58214.
+   A abertura (≈ 1,5 s, cada vez que aparece; «Entrar» está sempre à mão):
+     0–150 o armazém · 150–700 o porta-paletes entra a acelerar e trava na posição · 700–850 pousa a caixa (o corpo
+     acusa o peso) · 850–1150 recua · 1150–1330 o feixe lê o código · 1250–1450 o código passa a ser o indicador de
+     leitura do PDA · 1300–1500 a marca e as verificações.
+   O estado parado (sem animação, «reduzir movimento», no editor e nos estados) é o fim da história: a caixa na
+   posição, com o indicador, e o porta-paletes de lado.
+   ========================================================= */
+/* ---------- as cores (claro e escuro) do porta-paletes, da caixa e da posição ---------- */
+.pka, .pki, .pk {
+  --pkc-laranja: #f58214; --pkc-laranja-topo: #ffa04a; --pkc-laranja-lado: #c9650a; --pkc-fita: rgba(255, 255, 255, .45);
+  --pkp-azul: #0876bd; --pkp-azul-topo: #2495db; --pkp-azul-lado: #075a94; --pkp-metal: #3c4b5c; --pkp-metal-2: #5b6b7d; --pkp-borracha: #1a222c; --pkp-sombra: rgba(15, 25, 35, .18);
+  --pkq-traco: #0876bd; --pkq-traco-2: rgba(8, 118, 189, .35); --pka-traco: rgba(8, 118, 189, .22); --pka-chao: rgba(8, 118, 189, .06);
+}
+[data-theme="dark"] :is(.pka, .pki, .pk) { --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.pka, .pki, .pk) { --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05); } }
+/* o fundo do briefing V2 */
+.pka, .pki { --k-fundo: #f3f7fa; --k-sup: #ffffff; }
+[data-theme="dark"] :is(.pka, .pki) { --k-fundo: #0e1620; --k-fundo-2: #142130; --k-sup: #1b2a39; --k-borda: #33475c; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.pka, .pki) { --k-fundo: #0e1620; --k-fundo-2: #142130; --k-sup: #1b2a39; --k-borda: #33475c; } }
+
+/* a caixa */
+.pk-caixa-viva { display: block; width: 100%; height: auto; overflow: visible; }
+.pkc-frente { fill: var(--pkc-laranja); }
+.pkc-topo { fill: var(--pkc-laranja-topo); }
+.pkc-lado { fill: var(--pkc-laranja-lado); }
+.pkc-fita { stroke: var(--pkc-fita); stroke-width: 1.4; }
+.pkc-etiqueta rect { fill: #fff; }
+.pkc-codigo { stroke: #172534; stroke-width: 1.3; opacity: 0; }
+.pkc-numeros { stroke: #9aa7b4; stroke-width: 1; stroke-dasharray: 2 1.5; opacity: 0; }
+.pkc-feixe { stroke: #e3262a; stroke-width: 1.6; opacity: 0; }
+.pkc-indicador path { stroke: var(--pkp-azul); stroke-width: 2.2; stroke-linecap: round; }
+.pkc-indicador-l { stroke: var(--pkc-laranja) !important; }
+
+/* o porta-paletes */
+.pk-porta { display: block; width: 100%; height: auto; overflow: visible; }
+.pkp-sombra { fill: var(--pkp-sombra); }
+.pkp-timao { stroke: var(--pkp-metal); stroke-width: 6; stroke-linecap: round; }
+.pkp-pega { fill: var(--pkp-borracha); }
+.pkp-garfo { fill: var(--pkp-metal); } .pkp-garfo-fundo { fill: var(--pkp-metal-2); }
+.pkp-encosto { fill: var(--pkp-metal); } .pkp-encosto-l { stroke: var(--pkp-metal-2); stroke-width: 1.5; }
+.pkp-corpo-frente { fill: var(--pkp-azul); } .pkp-corpo-topo { fill: var(--pkp-azul-topo); } .pkp-corpo-lado { fill: var(--pkp-azul-lado); }
+.pkp-faixa { fill: var(--pkc-laranja); }
+.pkp-visor { fill: #0b1724; } .pkp-visor-l { stroke: #39d98a; stroke-width: 1.6; stroke-linecap: round; }
+.pkp-luz { fill: var(--pkc-laranja-topo); }
+.pkp-roda > circle:first-child { fill: var(--pkp-borracha); }
+.pkp-cubo { fill: var(--pkp-metal-2); }
+.pkp-raio { stroke: var(--pkp-metal-2); stroke-width: 1.4; }
+.pkp-roda { transform-box: fill-box; transform-origin: center; }
+.pkp-corpo { transform-box: fill-box; }
+
+/* o armazém e a posição */
+.pk-armazem { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pka-chao { fill: var(--pka-chao); }
+.pka-fuga { stroke: var(--pka-traco); stroke-width: 1; }
+.pka-estante path, .pka-estante rect { stroke: var(--pka-traco); stroke-width: 1.4; }
+.pka-estante rect { fill: color-mix(in srgb, var(--pkc-laranja) 10%, transparent); }
+.pk-posicao-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pkq-montante { stroke: var(--pkq-traco); stroke-width: 5; stroke-linecap: round; }
+.pkq-montante-fundo { stroke: var(--pkq-traco-2); stroke-width: 3; }
+.pkq-viga { stroke: var(--pkq-traco); stroke-width: 3.5; stroke-linejoin: round; }
+.pkq-etq { fill: #ffffff; stroke: var(--pkq-traco); stroke-width: 1; }
+.pkq-etq-t { fill: #172534; font-family: var(--f-mono, ui-monospace, monospace); font-size: 7.5px; font-weight: 700; letter-spacing: .05em; }
+
+/* ---------- 00 · Abertura: o palco (320 × 260) e o fim da história como estado parado ---------- */
+.pka { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.pka-palco { position: relative; width: 320px; max-width: 100%; height: 252px; margin: 0 auto; overflow: hidden; }
+.pka-posicao { position: absolute; left: 196px; bottom: 14px; width: 120px; }
+.pka-porta { position: absolute; left: 112px; bottom: 6px; width: 190px; transform: translateX(-112px); }
+.pka-caixa { position: absolute; left: 222px; bottom: 14px; width: 62px; }
+.pka-baixo { display: grid; align-content: end; gap: 12px; padding: 4px 20px calc(14px + env(safe-area-inset-bottom)); }
+.pka-baixo .pki-marca { justify-content: center; }
+/* em ecrãs mais altos que o PDA, o palco cresce (sem mudar as posições: escala) */
+@media (min-height: 640px) { .pka-palco { transform: scale(1.12); transform-origin: center bottom; margin-top: 24px; } }
+
+/* ---------- a sequência (o comportamento põe .is-abrir); «Entrar» nunca espera por ela ---------- */
+.pka.is-abrir .pk-armazem { animation: pka-aparece 150ms ease both; }
+.pka.is-abrir .pka-posicao { animation: pka-aparece 200ms ease 60ms both; }
+.pka.is-abrir .pka-porta { animation: pka-porta 1000ms 150ms both; }
+@keyframes pka-porta {
+  0% { transform: translateX(-310px); animation-timing-function: cubic-bezier(.35, 0, .2, 1); }
+  55% { transform: translateX(0); }
+  70% { transform: translateX(0); animation-timing-function: cubic-bezier(.5, 0, .5, 1); }
+  100% { transform: translateX(-112px); }
+}
+.pka.is-abrir .pka-caixa { animation: pka-caixa 700ms 150ms both; }
+@keyframes pka-caixa {
+  0% { transform: translate(-310px, -14px); animation-timing-function: cubic-bezier(.35, 0, .2, 1); }
+  78.6% { transform: translate(0, -14px); animation-timing-function: cubic-bezier(.4, 0, .6, 1); }
+  100% { transform: translate(0, 0); }
+}
+.pka.is-abrir .pkp-roda { animation: pka-rodas 1000ms 150ms both; }
+@keyframes pka-rodas { 0% { transform: rotate(0); animation-timing-function: cubic-bezier(.35, 0, .2, 1); } 55% { transform: rotate(720deg); } 70% { transform: rotate(720deg); animation-timing-function: cubic-bezier(.5, 0, .5, 1); } 100% { transform: rotate(460deg); } }
+.pka.is-abrir .pkp-corpo { animation: pka-peso 160ms ease-out 700ms both; }
+@keyframes pka-peso { 50% { transform: translateY(1.5px); } }
+.pka.is-abrir .pkc-codigo, .pka.is-abrir .pkc-numeros { animation: pka-codigo 1450ms both; }
+@keyframes pka-codigo { 0%, 79% { opacity: 1; } 90%, 100% { opacity: 0; } }
+.pka.is-abrir .pkc-feixe { animation: pka-feixe 180ms linear 1150ms both; }
+@keyframes pka-feixe { 0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(34px); } }
+.pka.is-abrir .pkc-indicador { animation: pka-indicador 220ms cubic-bezier(.3, 1.4, .5, 1) 1250ms both; transform-box: fill-box; transform-origin: center; }
+@keyframes pka-indicador { from { opacity: 0; transform: scale(1.3); } }
+.pka.is-abrir .pka-baixo .pki-marca { animation: pki-entra 260ms ease 1300ms both; }
+.pka.is-abrir .pka-passo { animation: pki-entra 220ms ease both; animation-delay: calc(1340ms + var(--i) * 70ms); }
+
+/* ---------- 01 · Entrar: o mesmo fim da história, pequeno (a caixa que veio da abertura) ---------- */
+.pki-palco { position: relative; width: 150px; height: 120px; }
+.pki-palco .pka-posicao { left: 30px; bottom: 0; width: 90px; }
+.pki-palco .pka-caixa { left: 49px; bottom: 0; width: 46px; }
+
+/* ---------- a caixa que passa de ecrã para ecrã (View Transitions; comportamento/navegar.ts) ---------- */
+.ecra:not([hidden]) > .versao:not([hidden]) .pk-caixa-viva { view-transition-name: pk-caixa; }
+::view-transition-group(pk-caixa) { animation-duration: 380ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+:root[data-pk-sentido]::view-transition-old(root) { animation: pk-sai 180ms cubic-bezier(.4, 0, 1, 1) both; }
+:root[data-pk-sentido]::view-transition-new(root) { animation: pk-entra 240ms cubic-bezier(.22, 1, .36, 1) 40ms both; }
+:root[data-pk-sentido="tras"]::view-transition-old(root) { animation-name: pk-sai-tras; }
+:root[data-pk-sentido="tras"]::view-transition-new(root) { animation-name: pk-entra-tras; }
+@keyframes pk-sai { to { opacity: 0; transform: translateX(-24px); } }
+@keyframes pk-entra { from { opacity: 0; transform: translateX(24px); } }
+@keyframes pk-sai-tras { to { opacity: 0; transform: translateX(24px); } }
+@keyframes pk-entra-tras { from { opacity: 0; transform: translateX(-24px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pka *, .pka { animation: none !important; }
+}
+/* sem altura: com um aviso, o palco da abertura encolhe (escala, sem mexer nas posições); o da entrada é mais baixo */
+.pka:has(.pki-aviso) .pka-palco { transform: scale(.62); transform-origin: center top; margin-bottom: -100px; }
+.pki-palco { transform: scale(.78); transform-origin: center bottom; margin-top: -26px; }

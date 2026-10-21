@@ -16,6 +16,7 @@
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
 import { I, IC, BOTAO, GIRADOR, E, pick, aviso } from './estados';
+import { CAIXA, CARRINHO_MINI } from './cena';
 
 export type IdInventario = 'inv-inicio' | 'inv-lista' | 'inv-posicao' | 'inv-artigo' | 'inv-quantidade' | 'inv-guardada' | 'inv-unidades' | 'inv-fim-posicao'
   | 'inv-contados' | 'inv-corrigir' | 'inv-pausa' | 'inv-submeter' | 'inv-divergencias' | 'inv-recontar' | 'inv-corrigir-posicao' | 'inv-consultar';
@@ -67,23 +68,35 @@ const quantidade = (valor = '12', o: { erro?: string; unidades?: boolean } = {})
   </div>`;
 const linhaContada = (ref: string, desc: string, q: string, quando: string, extra = '') => `<li class="iv-linha${extra}"><div><b>${ref}</b><span>${desc}</span></div><div class="iv-linha__q"><b>${q}</b><span>${quando}</span></div></li>`;
 const CONTADOS = [linhaContada('SKF VKBA 6556', 'Kit de rolamento de roda', '4 un.', '10:42'), linhaContada('SKF VKMV 6PK1873', 'Correia poli-V', '12 un.', '10:40')].join('');
+/** (21 out., «Every movement counts») o percurso de cada contagem: posição → artigo → quantidade → registada, com o
+    carrinho no passo em que se está. São os passos reais de uma contagem, não uma percentagem decorativa. */
+const PASSOS = ['Posição', 'Artigo', 'Quantidade', 'Registada'];
+const jornada = (feitos: number) => `<ol class="iv-jornada" aria-label="Passos desta contagem" style="--feito:${feitos}">${PASSOS.map((p, i) => `<li class="${i < feitos ? 'is-feito' : i === feitos ? 'is-atual' : ''}"${i === feitos ? ' aria-current="step"' : ''}><i aria-hidden="true"></i><span>${p}</span></li>`).join('')}<span class="iv-jornada__carro" aria-hidden="true">${CARRINHO_MINI}</span></ol>`;
 const progresso = (feitas: number, total: number) => `<div class="iv-prog"><p><span>Posições contadas</span><b>${feitas} de ${total}</b></p><div class="iv-prog__barra" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${feitas}" aria-label="Posições contadas"><i style="--p:${(feitas / total).toFixed(3)}"></i></div></div>`;
 
 /* =========================================================
    Os ecrãs
    ========================================================= */
-/* 40 · o Inventário: a contagem atribuída primeiro (continuar), as outras e as duas operações */
+/* 40 · o Inventário (21 out., com mais energia): a faixa azul com a caixa que veio da entrada; a contagem para continuar
+   à frente de tudo; iniciar a seguinte e consultar as contagens; as duas operações */
 const inicio = (sem = false) => pick(`
-    <h1 class="iv-titulo">Inventário</h1>
+    <header class="iv-cabeca">
+      <div class="iv-cabeca__texto"><p class="iv-cabeca__sobre">Armazém 60 · Arrumação</p><h1>Inventário</h1>
+        <p class="iv-cabeca__estado"><span class="iv-pilula"><i></i>Rede</span><span class="iv-pilula"><i></i>Servidor</span></p></div>
+      <div class="iv-cabeca__caixa">${CAIXA()}</div>
+    </header>
     ${sem ? `<section class="iv-vazio">${I(IC.cafe)}<p><b>Não tem contagens atribuídas.</b> Quando o gestor planear uma contagem para si, aparece aqui.</p></section>`
     : `<button type="button" class="iv-continuar" data-ir="inv-posicao">
-      <span class="iv-continuar__rot">Continuar contagem</span>
+      <span class="iv-continuar__rot">Continuar inventário</span>
       <span class="iv-continuar__inv">${INV}</span>
-      <span class="iv-continuar__meta">Zona 30 · por posição · às cegas</span>
+      <span class="iv-continuar__meta">Zona 30 · por posição · às cegas · parou em ${POS}</span>
       ${progresso(18, 46)}
       <span class="iv-continuar__acao">Continuar ${I(IC2.seta)}</span>
     </button>
-    <button type="button" class="iv-opcao" data-ir="inv-lista">${I(IC2.lista)}<span><b>Contagens atribuídas</b><small>2 por fazer</small></span>${I(IC2.seta, 'iv-opcao__seta')}</button>`}
+    <div class="iv-accoes">
+      <button type="button" class="iv-opcao" data-ir="inv-posicao">${I(IC.ler)}<span><b>Iniciar inventário</b><small>INV-2026-015 · cíclica · zona 10</small></span>${I(IC2.seta, 'iv-opcao__seta')}</button>
+      <button type="button" class="iv-opcao" data-ir="inv-lista">${I(IC2.lista)}<span><b>Consultar contagens</b><small>3 atribuídas · 1 submetida</small></span>${I(IC2.seta, 'iv-opcao__seta')}</button>
+    </div>`}
     <h2 class="iv-subtitulo">Operações</h2>
     <div class="iv-quadrados">
       <button type="button" class="iv-quadrado" data-ir="inv-corrigir-posicao">${I(IC.corrigir)}<span>Corrigir posição</span></button>
@@ -112,7 +125,7 @@ const posicao = (est: '' | 'ok' | 'fora' = '') => pick(`${contagemTopo('', false
   { funcao: FUNCAO, pe: est === 'fora' ? BOTAO('Ler a etiqueta certa', IC.ler, 'btn--acao', ' data-ir="inv-posicao"') : est === 'ok' ? '' : BOTAO('Escrever a posição à mão', IC2.teclado, 'btn--ghost') });
 
 /* 44 · na posição: ler cada artigo; o que já se contou aqui por baixo */
-const artigo = (est: '' | 'desconhecido' | 'repetido' | 'sem-rede' = '') => pick(`${contagemTopo()}
+const artigo = (est: '' | 'desconhecido' | 'repetido' | 'sem-rede' = '') => pick(`${contagemTopo()}${jornada(1)}
     ${est === 'desconhecido' ? aviso('erro', IC.codigo, 'Artigo não encontrado.', 'O código <strong>5601234000017</strong> não é de nenhum artigo do catálogo nem desta contagem.')
     + '<p class="pk-nota">Leia outra etiqueta do artigo. Se não tiver, separe-o e avise o gestor: fica registado como artigo por identificar nesta posição.</p>'
     : est === 'repetido' ? aviso('aviso', IC.aviso, `Já contou ${ART.ref} nesta posição`, 'Registou <strong>12 un.</strong> às 10:44. Leu de novo o mesmo código.')
@@ -125,7 +138,7 @@ const artigo = (est: '' | 'desconhecido' | 'repetido' | 'sem-rede' = '') => pick
     : est === 'sem-rede' ? BOTAO('Tentar de novo', IC.denovo) : est === 'desconhecido' ? BOTAO('Ler outra vez', IC.ler, 'btn--acao', ' data-ir="inv-artigo"') : BOTAO('Acabei esta posição', IC.fechar, 'btn--ghost', ' data-ir="inv-fim-posicao"') });
 
 /* 45 · o artigo lido e a quantidade (às cegas: nunca se mostra a do sistema) */
-const qtdEcra = (est: '' | 'invalida' | 'a-guardar' | 'nao-guardou' = '') => pick(`${contagemTopo()}
+const qtdEcra = (est: '' | 'invalida' | 'a-guardar' | 'nao-guardou' = '') => pick(`${contagemTopo()}${jornada(2)}
     ${artigoHtml(est === '')}
     ${quantidade(est === 'invalida' ? '1,5' : '12', { erro: est === 'invalida' ? 'Este artigo conta-se à unidade: escreva um número inteiro.' : undefined })}
     ${est === 'nao-guardou' ? aviso('erro', IC.servidor, 'A contagem não ficou registada', 'O servidor não respondeu. Os 12 continuam escritos: confirme outra vez.') : ''}`,
@@ -133,7 +146,7 @@ const qtdEcra = (est: '' | 'invalida' | 'a-guardar' | 'nao-guardou' = '') => pic
     : BOTAO('Confirmar contagem', IC.fechar, 'btn--acao', ` data-confirmar data-ir="inv-guardada"${est === 'invalida' ? ' disabled' : ''}`) });
 
 /* 46 · registada: o verde por um instante e o leitor pronto para o artigo seguinte (não se espera pela animação) */
-const guardada = () => pick(`${contagemTopo()}
+const guardada = () => pick(`${contagemTopo()}${jornada(4)}
     <p class="iv-registada" role="status">${I(IC.fechar)}<span><b>${ART.ref} · 12 ${ART.un}</b> registado às 10:44</span></p>
     ${leitor({ titulo: 'Leia o artigo seguinte', texto: 'Ou «Acabei esta posição» quando não houver mais.', codigo: ART.ean, tipo: 'artigo', ir: 'inv-repetido', estado: 'ok' })}
     <h2 class="iv-subtitulo">Contados nesta posição <span>3</span></h2><ul class="iv-linhas" role="list">${linhaContada(ART.ref, ART.desc, `12 ${ART.un}`, '10:44', ' is-nova')}${CONTADOS}</ul>`,
@@ -216,9 +229,9 @@ const consultar = (fechado = false) => pick(fechado
   { funcao: FUNCAO, pe: BOTAO('Voltar ao Inventário', IC.voltar, 'btn--ghost', ' data-ir="inv-inicio"') });
 
 /* estados que não são de um ecrã só */
-const carga = () => pick(`<p class="pk-estado" role="status">${GIRADOR('girador--pequeno')}A carregar as suas contagens…</p>
-    <section class="pk-cartao" aria-hidden="true">${E(40, 'esq--rotulo')}${E(70, 'esq--titulo')}${E(90, 'esq--texto')}</section>
-    <section class="pk-cartao" aria-hidden="true">${E(55, 'esq--texto')}${E(35, 'esq--texto')}</section>`, { funcao: FUNCAO });
+/* 40.2 · a carregar: uma estante que se enche de caixas em contorno, enquanto as contagens chegam (sem percentagem) */
+const carga = () => pick(`<section class="iv-enche" role="status" aria-live="polite"><svg viewBox="0 0 200 120" fill="none" aria-hidden="true"><path class="iv-enche__est" d="M10 6v110M190 6v110M10 42h180M10 80h180M10 116h180"/>${[[18, 16, 30, 24], [54, 20, 26, 20], [86, 14, 34, 26], [128, 18, 28, 22], [22, 54, 36, 24], [64, 58, 26, 20], [98, 52, 30, 26], [140, 56, 34, 22], [30, 92, 28, 22], [66, 90, 34, 24]].map(([x, y, w, h], i) => `<rect class="iv-enche__cx" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" style="--i:${i}"/>`).join('')}</svg><p>${GIRADOR('girador--pequeno')}A carregar as suas contagens…</p></section>
+    <section class="pk-cartao" aria-hidden="true">${E(40, 'esq--rotulo')}${E(70, 'esq--titulo')}${E(90, 'esq--texto')}</section>`, { funcao: FUNCAO });
 const semPermissao = () => pick(aviso('erro', IC.gestor, 'Sem permissão para contar', 'A sua conta não tem a permissão «Registar contagens» para o armazém 60. Peça-a ao gestor do turno.'), { funcao: FUNCAO, pe: BOTAO('Voltar ao Inventário', IC.voltar, 'btn--ghost', ' data-ir="inv-inicio"') });
 const sessao = () => pick(aviso('aviso', IC.relogio, 'A sua sessão terminou', `Esteve 15 minutos sem usar a Pick. O ${INV} continua seu, na posição ${POS}.`)
     + '<div class="campo"><label class="campo__label" for="iv-pp">Palavra-passe</label><input class="input pk-campo" id="iv-pp" type="password" placeholder="A sua palavra-passe"></div>',

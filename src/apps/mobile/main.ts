@@ -6,6 +6,7 @@ import '../../comum/carregar/carregar.css';
 import './css/pick.css';
 import './css/inventario.css';
 import './css/entrar-industrial.css';
+import './css/cena.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -13,5 +14,6 @@ import { iniciar as entrar } from '../../comum/entrar/comportamento';
 import { mobile } from './app';
 import { iniciar as inventario } from './comportamento/inventario';
 import { iniciar as entrarIndustrial } from './comportamento/entrar-industrial';
+import { iniciar as navegar } from './comportamento/navegar';
 
-montar(mobile, [entrar, inventario, entrarIndustrial]);
+montar(mobile, [navegar, entrar, inventario, entrarIndustrial]);

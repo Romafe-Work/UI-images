@@ -4,9 +4,9 @@
    mais profissional», «falta uma abertura»). Uma versão por ecrã; as v1–v4, a palavra-passe à parte e o cliente
    federado saíram (o utilizador e a palavra-passe estão no mesmo ecrã). Com o que está decidido: o nome é Pick,
    entra-se com palavra-passe (17 set.), sem entrada offline (16 set.), o terminal é o EDA61K (320 × 533 dp).
-   - 00 · Abertura: o desenho em ecrã inteiro — as barras de um código, lidas por uma linha, arrumam-se numa estante
-     e a caixa laranja assenta; por baixo, as verificações do aparelho (o leitor, a rede, o servidor), uma a uma, só
-     com o que o PDA consegue saber. «Entrar» leva à entrada.
+   - 00 · Abertura (21 out., «Every movement counts»): o porta-paletes entra com a caixa, pousa-a na posição
+     60300102 e recua; o feixe lê o código, que passa a ser o indicador de leitura do PDA (cena.ts); por baixo, as
+     verificações do aparelho (o leitor, a rede, o servidor). «Entrar» está sempre à mão.
    - 01 · Entrar: a marca da família (ROMAFE em Motor · risco laranja · Pick), a linha de estado (a rede e o servidor
      em separado), a estante desenhada com as posições escritas (armazém 60 · zona · coluna · prateleira) e a folha
      do formulário: utilizador e palavra-passe com o ícone, mostrar a palavra-passe, «Entrar» laranja.
@@ -14,6 +14,7 @@
    Sem ler um cartão para entrar: só com uma política aprovada (o código de um cartão não é uma palavra-passe).
    ========================================================= */
 import { I, IC, GIRADOR } from './estados';
+import { CAIXA, PORTA_PALETES, ARMAZEM, POSICAO } from './cena';
 
 export type EstadoEntrarPk = '' | 'a-entrar' | 'sucesso' | 'credenciais' | 'sem-rede' | 'servidor' | 'tempo' | 'sessao' | 'bloqueada' | 'pda' | 'auth' | 'restaurar' | 'preenchido';
 export type EstadoAberturaPk = '' | 'sem-rede' | 'leitor';
@@ -26,23 +27,6 @@ const IC2 = {
   pessoa: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', seta: '<path d="M5 12h14M13 6l6 6-6 6"/>', leitor: IC.ler,
 };
 
-/** A estante: os montantes, três prateleiras com a posição escrita, a caixa laranja com a etiqueta (o sinal da Pick);
-    e as barras do código com a linha que as lê (só se veem na abertura). */
-export const ESTANTE = (barras = false) => `<svg class="pki-estante-svg" viewBox="0 0 200 128" fill="none" aria-hidden="true" focusable="false">
-  ${barras ? `<g class="pki-barras">${[[38, 3], [45, 2], [50, 5], [59, 2], [64, 3], [71, 6], [81, 2], [86, 4], [94, 2], [100, 5], [109, 3], [116, 2], [121, 6], [131, 2], [137, 4], [145, 3], [152, 2], [157, 5]].map(([x, w], i) => `<rect x="${x}" y="22" width="${w}" height="74" style="--i:${i}"/>`).join('')}</g>
-  <line class="pki-linha" x1="30" y1="16" x2="30" y2="102"/>` : ''}
-  <g class="pki-estrutura" stroke-linecap="round">
-    <path class="pki-montante" d="M34 118V10M166 118V10"/>
-    <path class="pki-prateleira" d="M34 40h132M34 76h132M34 112h132"/>
-    <path class="pki-pe" d="M28 118h12M160 118h12" />
-  </g>
-  <g class="pki-etiquetas">
-    <rect x="40" y="42" width="34" height="9" rx="1.5"/><text x="57" y="49" text-anchor="middle">60300101</text>
-    <rect x="40" y="78" width="34" height="9" rx="1.5"/><text x="57" y="85" text-anchor="middle">60300102</text>
-  </g>
-  <g class="pki-caixa"><rect class="pki-caixa-corpo" x="110" y="50" width="38" height="26" rx="2.5"/><path class="pki-caixa-fita" d="M110 58h38M129 50v8"/><rect class="pki-caixa-etq" x="114" y="62" width="16" height="9" rx="1"/><path class="pki-caixa-cod" d="M116 64.5v4M118 64.5v4M120.5 64.5v4M122.5 64.5v4M125 64.5v4M127 64.5v4"/></g>
-  <g class="pki-caixa pki-caixa--2"><rect class="pki-caixa-corpo pki-caixa-corpo--2" x="122" y="92" width="30" height="20" rx="2.5"/><path class="pki-caixa-fita" d="M122 98h30M137 92v6"/></g>
-</svg>`;
 /** A marca da família: ROMAFE (Motor, azul) · o risco laranja · Pick, com «Operações de armazém» por baixo. */
 const MARCA = `<div class="pki-marca"><span class="romafe pki-romafe">ROMAFE</span><span class="pki-risco" aria-hidden="true"></span><p class="pki-produto"><b>Pick</b><span>Operações de armazém</span></p></div>`;
 const estadoLinha = (rede: 'ok' | 'mal', servidor: 'ok' | 'mal' | '—') => `<header class="pki-estado" aria-label="Estado do PDA">
@@ -59,20 +43,24 @@ const aviso = (k: 'erro' | 'aviso' | 'ok' | 'info', icone: string, titulo: strin
 export function aberturaPick(e: EstadoAberturaPk = ''): string {
   const passos: [string, string, string][] = [
     ['leitor', 'Leitor de códigos', e === 'leitor' ? 'mal' : 'ok'],
-    ['rede', 'Rede do armazém', e === 'sem-rede' ? 'mal' : e === 'leitor' ? 'ok' : 'ok'],
-    ['servidor', 'Servidor da Romafe', e === 'sem-rede' ? 'espera' : e === 'leitor' ? 'ok' : 'ok'],
+    ['rede', 'Rede do armazém', e === 'sem-rede' ? 'mal' : 'ok'],
+    ['servidor', 'Servidor da Romafe', e === 'sem-rede' ? 'espera' : 'ok'],
   ];
+  /* (21 out., briefing «Every movement counts») a história com princípio, meio e fim: o armazém aparece; o
+     porta-paletes entra com a caixa e mete os garfos na posição 60300102 (ao nível do chão); pousa-a e recua; o feixe
+     lê o código, e o código passa a ser o indicador de leitura do PDA. É essa caixa que segue para a entrada. */
   return `<div class="pka${e ? ` pka--${e}` : ''}" data-pka>
-  <div class="pka-grelha" aria-hidden="true"></div>
-  <div class="pka-centro">${ESTANTE(true)}${MARCA}</div>
-  <section class="pka-verificar" aria-label="A preparar o PDA">
-    <ul class="pka-passos" role="list">${passos.map(([k, t, s], i) => `<li class="pka-passo is-${s}" style="--i:${i}" data-passo="${k}"><span class="pka-passo__marca" aria-hidden="true">${s === 'ok' ? I(IC.fechar) : s === 'mal' ? I(IC.aviso) : GIRADOR('girador--pequeno')}</span><span>${t}</span><b>${s === 'ok' ? 'Pronto' : s === 'mal' ? (k === 'leitor' ? 'Não responde' : 'Sem sinal') : 'À espera'}</b></li>`).join('')}</ul>
-    ${e === 'sem-rede' ? aviso('aviso', IC.semrede, 'Sem rede', 'A Pick precisa de rede para trabalhar. Aproxime-se de uma zona com sinal; continua sozinha quando houver.')
-    : e === 'leitor' ? aviso('erro', IC2.leitor, 'O leitor não responde', 'Reinicie o leitor. Se continuar, avise o gestor do turno: pode entrar na mesma, mas os códigos terão de ser escritos.')
-    : ''}
-    <button type="button" class="pka-entrar" data-ir="entrada"${e === 'sem-rede' ? ' disabled' : ''}>${I(IC.entrar)}<span>${e === 'leitor' ? 'Entrar na mesma' : 'Entrar'}</span></button>
-  </section>
-  <p class="pka-versao">Pick 1.0 · Romafe</p>
+  <div class="pka-palco" aria-hidden="true">${ARMAZEM}<div class="pka-posicao">${POSICAO}</div><div class="pka-porta">${PORTA_PALETES}</div><div class="pka-caixa">${CAIXA()}</div></div>
+  <div class="pka-baixo">
+    ${MARCA}
+    <section class="pka-verificar" aria-label="A preparar o PDA">
+      <ul class="pka-passos" role="list">${passos.map(([k, t, s], i) => `<li class="pka-passo is-${s}" style="--i:${i}" data-passo="${k}"><span class="pka-passo__marca" aria-hidden="true">${s === 'ok' ? I(IC.fechar) : s === 'mal' ? I(IC.aviso) : GIRADOR('girador--pequeno')}</span><span>${t}</span><b>${s === 'ok' ? 'Pronto' : s === 'mal' ? (k === 'leitor' ? 'Não responde' : 'Sem sinal') : 'À espera'}</b></li>`).join('')}</ul>
+      ${e === 'sem-rede' ? aviso('aviso', IC.semrede, 'Sem rede', 'A Pick precisa de rede para trabalhar. Aproxime-se de uma zona com sinal; continua sozinha quando houver.')
+      : e === 'leitor' ? aviso('erro', IC2.leitor, 'O leitor não responde', 'Reinicie o leitor. Se continuar, avise o gestor do turno: pode entrar na mesma, mas os códigos terão de ser escritos.')
+      : ''}
+      <button type="button" class="pka-entrar" data-ir="entrada"${e === 'sem-rede' ? ' disabled' : ''}>${I(IC.entrar)}<span>${e === 'leitor' ? 'Entrar na mesma' : 'Entrar'}</span></button>
+    </section>
+  </div>
 </div>`;
 }
 
@@ -99,7 +87,7 @@ export function entrarIndustrial(e: EstadoEntrarPk = ''): string {
     : `<button type="submit" class="pki-entrar"${semRede || semServidor ? ' disabled' : ''}><span>Entrar</span>${I(IC2.seta)}</button>`;
   return `<div class="pki${e ? ` pki--${e}` : ''}" data-pki>
   ${estadoLinha(semRede ? 'mal' : 'ok', semRede ? '—' : semServidor ? 'mal' : 'ok')}
-  <div class="pki-topo"><div class="pka-grelha" aria-hidden="true"></div>${MARCA}<div class="pki-desenho">${ESTANTE()}</div></div>
+  <div class="pki-topo"><div class="pka-grelha" aria-hidden="true"></div>${MARCA}<div class="pki-desenho"><div class="pki-palco" aria-hidden="true"><div class="pka-posicao">${POSICAO}</div><div class="pka-caixa">${CAIXA()}</div></div></div></div>
   <form class="pki-form" data-pki-form novalidate>
     <div class="pki-ola"><h1>Bem-vindo ao armazém</h1><p>Identifique-se para começar o turno.</p></div>
     ${AVISO[e] ?? ''}

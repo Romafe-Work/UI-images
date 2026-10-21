@@ -170,3 +170,59 @@
 @media (prefers-reduced-motion: reduce) {
   .iv-leitor, .iv-artigo, .iv-linha, .iv-registada, .iv-qtd__n, .iv-soma b, .iv-prog__barra i { animation: none !important; transition: none !important; }
 }
+
+/* =========================================================
+   (21 out., «Every movement counts») mais energia no Inventário, com significado
+   ========================================================= */
+/* as cores do briefing nos ecrãs da Pick: escuro #0E1620 / #1B2A39; claro #F3F7FA / #FFFFFF */
+.pk { --c-superficie-2: #f3f7fa; }
+[data-theme="dark"] .pk { --c-superficie-2: #0e1620; --c-superficie: #1b2a39; --c-borda: #33475c; --c-borda-forte: #4a6178; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pk { --c-superficie-2: #0e1620; --c-superficie: #1b2a39; --c-borda: #33475c; --c-borda-forte: #4a6178; } }
+
+/* a faixa do Inventário: azul ROMAFE, a caixa (que veio da entrada) à direita, a rede e o servidor */
+.iv-cabeca { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 76px; align-items: center; gap: 8px; margin: -12px -12px 0; padding: 14px 14px 16px; background: #0876bd; color: #fff; overflow: hidden; }
+.iv-cabeca::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px); background-size: 16px 16px; pointer-events: none; }
+.iv-cabeca__texto { position: relative; }
+.iv-cabeca__sobre { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; opacity: .85; }
+.iv-cabeca h1 { margin: 2px 0 6px; font-family: var(--f-titulo); font-size: 26px; line-height: 1.1; color: #fff; }
+.iv-cabeca__estado { display: flex; gap: 6px; margin: 0; }
+.iv-pilula { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, .16); font-size: 11.5px; font-weight: 700; }
+.iv-pilula i { width: 7px; height: 7px; border-radius: 50%; background: #39d98a; }
+.iv-cabeca__caixa { position: relative; width: 76px; }
+.iv-accoes { display: grid; gap: 8px; }
+
+/* o percurso da contagem, com o carrinho no passo atual */
+.iv-jornada { position: relative; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding: 22px 0 0; }
+.iv-jornada li { position: relative; display: grid; justify-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--c-texto-3); }
+.iv-jornada li::before { content: ""; position: absolute; top: 5px; left: -50%; right: 50%; height: 2px; background: var(--c-borda); }
+.iv-jornada li:first-child::before { display: none; }
+.iv-jornada li.is-feito::before, .iv-jornada li.is-atual::before { background: var(--c-ok); }
+.iv-jornada li i { position: relative; z-index: 1; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--c-borda-forte); background: var(--c-superficie); }
+.iv-jornada li.is-feito i { border-color: var(--c-ok); background: var(--c-ok); }
+.iv-jornada li.is-atual i { border-color: var(--c-acao); background: var(--c-acao); box-shadow: 0 0 0 3px var(--c-acao-suave, rgba(245, 130, 20, .2)); }
+.iv-jornada li.is-feito, .iv-jornada li.is-atual { color: var(--c-texto); }
+.iv-jornada__carro { position: absolute; top: 0; left: calc((min(var(--feito), 3) + .5) * 25% - 13px); width: 26px; transition: left 260ms cubic-bezier(.22, 1, .36, 1); animation: iv-carro 260ms cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes iv-carro { from { transform: translateX(-24px); opacity: 0; } }
+.pk-mini { display: block; width: 100%; height: auto; }
+.pkm-corpo { fill: #0876bd; } .pkm-garfo { fill: var(--pkp-metal, #3c4b5c); } .pkm-caixa { fill: #f58214; } .pkm-roda { fill: var(--pkp-borracha, #1a222c); } .pkm-timao { stroke: var(--pkp-metal, #3c4b5c); stroke-width: 1.6; stroke-linecap: round; }
+
+/* a leitura: uma linha de varrimento passa uma vez (≤ 180 ms); o artigo chega com um pulso */
+.iv-leitor { position: relative; overflow: hidden; }
+.iv-leitor.is-lido::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: #e3262a; box-shadow: 0 0 10px 2px rgba(227, 38, 42, .35); animation: iv-varre 180ms linear forwards; }
+@keyframes iv-varre { to { transform: translateX(320px); opacity: .2; } }
+.iv-artigo { position: relative; overflow: hidden; }
+.iv-artigo.is-novo::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: #e3262a; animation: iv-varre 160ms linear forwards; }
+.iv-artigo.is-novo { animation: iv-pulso 240ms ease-out; }
+@keyframes iv-pulso { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-ok) 45%, transparent); } 100% { box-shadow: 0 0 0 8px transparent; } }
+
+/* a carregar: a estante enche-se */
+.iv-enche { display: grid; justify-items: center; gap: 8px; padding: 12px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.iv-enche svg { width: 200px; height: auto; }
+.iv-enche__est { stroke: #0876bd; stroke-width: 3; stroke-linecap: round; }
+.iv-enche__cx { stroke: var(--c-borda-forte); stroke-width: 1.5; stroke-dasharray: 3 2; fill: none; animation: iv-cx 1.6s ease-in-out infinite; animation-delay: calc(var(--i) * 120ms); }
+@keyframes iv-cx { 0%, 100% { opacity: .25; } 40% { opacity: 1; fill: color-mix(in srgb, #f58214 18%, transparent); } }
+.iv-enche p { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; color: var(--c-texto-2); }
+
+/* o botão de confirmar em «a registar» */
+.pk-botao.is-a-registar { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .iv-jornada__carro, .iv-leitor.is-lido::after, .iv-artigo.is-novo::after, .iv-artigo.is-novo, .iv-enche__cx { animation: none !important; transition: none !important; } }

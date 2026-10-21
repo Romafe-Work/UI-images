@@ -12,6 +12,7 @@
    - posições com oito algarismos: armazém 60 · zona · coluna · prateleira.
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
+import { CARRINHO_MINI } from './cena';
 
 export type IdCarregarPick = 'carga-pagina' | 'carga-tarefa' | 'carga-leitura' | 'carga-fechar';
 export type IdErroPick = 'erro-rede' | 'erro-codigo' | 'erro-posicao' | 'erro-quantidade' | 'erro-sessao' | 'erro-servidor' | 'erro-sem-tarefa';
@@ -69,7 +70,7 @@ const pagina = () => `<div class="pk pk--cheio" role="status" aria-live="polite"
     <span class="romafe pk-abrir__romafe">ROMAFE</span>
     <span class="pk-abrir__risco" aria-hidden="true"></span>
     <p class="pk-abrir__nome">Pick</p>
-    <div class="progresso progresso--indeterminado pk-abrir__barra" aria-hidden="true"><span></span></div>
+    <div class="pk-abrir__via" aria-hidden="true"><span class="pk-abrir__carro">${CARRINHO_MINI}</span></div>
     <p class="pk-abrir__texto">A ligar ao servidor…</p>
   </div>`;
 

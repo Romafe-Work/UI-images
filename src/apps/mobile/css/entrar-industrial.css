@@ -76,7 +76,6 @@
 @keyframes pki-aparece { from { opacity: 0; } }
 .pka.is-abrir .pki-marca { animation: pki-entra 300ms ease 1150ms both; }
 .pka.is-abrir .pka-passo { animation: pki-entra 240ms ease both; animation-delay: calc(1200ms + var(--i) * 140ms); }
-.pka.is-abrir .pka-entrar { animation: pki-entra 240ms ease 1650ms both; }
 @keyframes pki-entra { from { opacity: 0; transform: translateY(6px); } }
 
 /* ---------- 01 · Entrar ---------- */
