@@ -10,7 +10,8 @@
    O .lst__resumo é também usado pelas Faturas (faturas-v2.css): as regras base do resumo não dependem do .lst.
    ========================================================= */
 .portal--lista { height: auto; min-height: 100vh; overflow: visible; background: var(--i3-fundo); color: var(--i3-tinta); }
-.lst { display: grid; align-content: start; gap: 14px; width: 100%; max-width: 1480px; margin: 0 auto; padding: 16px 24px 48px; }
+.lst { display: grid; align-content: start; gap: 14px; width: 100%; max-width: none; margin: 0; padding: 16px 24px 48px; }
+/* (21 out.) ela: «queria ocupar a width toda» — sem largura máxima: a lista e o resumo ocupam a janela toda */
 .lst :focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
 .lst .btn { min-height: 40px; border-radius: 8px; gap: 8px; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
 .lst .btn:active:not(:disabled) { transform: translateY(1px); }
