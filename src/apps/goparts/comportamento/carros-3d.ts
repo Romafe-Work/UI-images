@@ -44,13 +44,14 @@ function modelo(carro: string): { grupo: Group; rodas: Group[] } {
   const jante = new MeshPhysicalMaterial({ color: '#e3e7eb', metalness: 1, roughness: .2 });
   /* o desenho tem o y para baixo e 240 × 100: o centro do carro vai à origem, o chão a y = 0 */
   const chao = (y + raio * 100) / 100;
-  const ajustar = (g: ExtrudeGeometry) => { g.scale(.01, -.01, 1); g.translate(-1.2, chao, 0); return g; };
+  /* o y do desenho inverte-se; o z também, para as faces continuarem viradas para fora */
+  const ajustar = (g: ExtrudeGeometry) => { g.scale(.01, -.01, -1); g.translate(-1.2, chao, 0); g.computeVertexNormals(); return g; };
   const bisel = { bevelEnabled: true, bevelThickness: .05, bevelSize: .025, bevelSegments: 4, curveSegments: 24 };
   const carroc = new ExtrudeGeometry(formas(corpo), { depth: LARGURA - .1, ...bisel }); carroc.translate(0, 0, -(LARGURA - .1) / 2);
   const grupo = new Group();
   grupo.add(new Mesh(ajustar(carroc), pintura));
   const vid = formas(janelas);
-  if (vid.length) { const g = new ExtrudeGeometry(vid, { depth: LARGURA - .04, bevelEnabled: false, curveSegments: 16 }); g.translate(0, 0, -(LARGURA - .04) / 2); grupo.add(new Mesh(ajustar(g), vidro)); }
+  if (vid.length) { const g = new ExtrudeGeometry(vid, { depth: LARGURA + .03, bevelEnabled: false, curveSegments: 16 }); g.translate(0, 0, -(LARGURA + .03) / 2); grupo.add(new Mesh(ajustar(g), vidro)); }
   /* as rodas: o pneu, a jante e cinco raios, a sobressair dos lados */
   const rodas: Group[] = [];
   for (const x of [58, 182]) for (const s of [1, -1]) {
@@ -58,7 +59,7 @@ function modelo(carro: string): { grupo: Group; rodas: Group[] } {
     const p = new Mesh(new CylinderGeometry(raio, raio, .2, 40), pneu); p.rotation.x = Math.PI / 2; roda.add(p);
     const j = new Mesh(new CylinderGeometry(raio * .62, raio * .62, .21, 32), jante); j.rotation.x = Math.PI / 2; roda.add(j);
     for (let k = 0; k < 5; k++) { const b = new Mesh(new CylinderGeometry(.012, .012, raio * .55, 8), pneu); b.position.set(0, 0, s * .106); b.rotation.z = (k / 5) * Math.PI * 2; b.translateY(raio * .28); roda.add(b); }
-    roda.position.set(x / 100 - 1.2, chao - y / 100, s * (LARGURA / 2 - .04));
+    roda.position.set(x / 100 - 1.2, chao - y / 100, s * (LARGURA / 2 - .02));
     grupo.add(roda); rodas.push(roda);
   }
   grupo.add(sombra());
@@ -93,7 +94,7 @@ function desenhar(t: number): void {
     const a = quieto() ? -.65 : it.fase + t / 2600; /* um giro em ~16 s */
     grupo.rotation.y = a;
     rodas.forEach((rd) => { rd.rotation.z = quieto() ? 0 : -t / 260; });
-    cam.aspect = w / h; cam.position.set(0, 1.0, Math.max(3.6, 3.2 / (.425 * cam.aspect))); cam.lookAt(0, .45, 0); cam.updateProjectionMatrix();
+    cam.aspect = w / h; cam.position.set(0, 1.0, Math.max(3.3, 2.9 / (.425 * cam.aspect))); cam.lookAt(0, .3, 0); cam.updateProjectionMatrix();
     r.render(cena, cam);
     cena.remove(grupo);
     it.ctx.clearRect(0, 0, w, h); it.ctx.drawImage(r.domElement, 0, 0, w, h);
