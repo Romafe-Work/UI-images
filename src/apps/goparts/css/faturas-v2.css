@@ -27,8 +27,8 @@
 .fat2__det-valores { grid-area: valores; } .fat2__det-pag { grid-area: pag; }
 .fat2__disc { display: grid; gap: 10px; }
 .fat2__disc-t { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
-.fat2__iva { border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
-.fat2__iva-abrir { display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border: 0; border-radius: 8px; background: none; color: var(--c-texto); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; transition: background-color 150ms ease; }
+.fat2__iva { border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); }
+.fat2__iva-abrir { display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border: 0; border-radius: var(--r-md); background: none; color: var(--c-texto); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; transition: background-color 150ms ease; }
 .fat2__iva-abrir > svg:first-child { width: 16px; height: 16px; color: var(--c-acao); }
 .fat2__iva-abrir small { font-size: 12px; font-weight: 500; color: var(--c-texto-2); }
 .fat2__iva-abrir b { font-variant-numeric: tabular-nums; }
@@ -49,7 +49,7 @@
 .fat2__fim .gui3__v--total { margin: 0 -14px -4px; }
 .fat2 [data-kpi], .fat2__disc dd { font-variant-numeric: tabular-nums; }
 
-.fat2__pagamento { display: grid; gap: 8px; justify-items: start; padding: 12px 14px; border: 1px solid var(--c-borda); border-left-width: 3px; border-radius: 8px; }
+.fat2__pagamento { display: grid; gap: 8px; justify-items: start; padding: 12px 14px; border: 1px solid var(--c-borda); border-left-width: 3px; border-radius: var(--r-md); }
 .fat2__pagamento p { margin: 0; font-size: 14px; color: var(--c-texto-2); }
 .fat2__pagamento--paga { border-left-color: var(--c-ok); } .fat2__pagamento--aberto { border-left-color: var(--c-marca); }
 .fat2__pagamento--vencida { border-left-color: var(--c-erro); } .fat2__pagamento--creditada { border-left-color: var(--c-aviso); }
@@ -89,14 +89,14 @@
 .fat2__linhas { display: grid; margin: 0; padding: 0; list-style: none; }
 .fat2__linha { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto minmax(84px, auto); align-items: center; gap: 12px; padding: 9px 0; border-top: 1px dashed var(--c-borda); }
 .fat2__linha:first-child { border-top: 0; }
-.fat2__l-i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 6px; background: var(--c-superficie-2); color: var(--c-texto-3); }
+.fat2__l-i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-md); background: var(--c-superficie-2); color: var(--c-texto-3); }
 .fat2__l-i svg { width: 16px; height: 16px; }
 .fat2__l-desc { display: grid; min-width: 0; }
 .fat2__l-desc b { font-size: 14px; font-weight: 600; color: var(--c-texto); }
 .fat2__l-desc small { font-family: var(--f-mono); font-size: 11px; color: var(--c-texto-3); }
 .fat2__l-q { font-size: 13px; color: var(--c-texto-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .fat2__l-v { font-weight: 600; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.fat2__sem-linhas { display: flex; gap: 8px; margin: 0; padding: 10px 12px; border: 1px dashed var(--c-borda); border-radius: 8px; font-size: 14px; color: var(--c-texto-2); }
+.fat2__sem-linhas { display: flex; gap: 8px; margin: 0; padding: 10px 12px; border: 1px dashed var(--c-borda); border-radius: var(--r-md); font-size: 14px; color: var(--c-texto-2); }
 .fat2__sem-linhas svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--c-marca); }
 
 /* o resumo financeiro do talão */
@@ -105,10 +105,10 @@
 .fat2__r dt { color: var(--c-texto-2); }
 .fat2__r dd { margin: 0; text-align: right; white-space: nowrap; color: var(--c-texto); }
 .fat2__r--iva dt { flex: 1; }
-.fat2__recibo .fat2__iva-abrir { display: inline-flex; grid-template-columns: none; align-items: center; gap: 8px; width: auto; padding: 4px 8px 4px 0; border-radius: 6px; background: none; font-weight: 500; color: var(--c-texto-2); }
+.fat2__recibo .fat2__iva-abrir { display: inline-flex; grid-template-columns: none; align-items: center; gap: 8px; width: auto; padding: 4px 8px 4px 0; border-radius: var(--r-md); background: none; font-weight: 500; color: var(--c-texto-2); }
 .fat2__recibo .fat2__iva-abrir:hover { background: none; color: var(--c-texto); }
 .fat2__recibo .fat2__iva-abrir small { display: inline; font-size: 12px; color: var(--c-texto-3); }
-.fat2__recibo .fat2__iva-corpo { margin: 2px 0 6px; padding: 4px 12px 10px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.fat2__recibo .fat2__iva-corpo { margin: 2px 0 6px; padding: 4px 12px 10px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); }
 .fat2__iva-t-titulo { margin: 6px 0 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
 /* o traço do talão e o total em destaque (uma vez: a risca laranja passa por baixo e o valor acende) */
 .fat2__traco { height: 0; margin: 8px 0 4px; border-top: 2px dashed var(--c-borda-forte, var(--c-borda)); transform-origin: left; }

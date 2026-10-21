@@ -12,6 +12,7 @@
    — é o «servidor» do protótipo; o ecrã não faz contas próprias. Feito em TypeScript e CSS, sem React.
    Comportamento: comportamento/guias-v3.ts. CSS: css/guias-v3.css (+ css/pedidos-v4.css).
    ========================================================= */
+import { menuFiltro } from './filtro-barra';
 import { listaCompras } from './pecas-img';
 import { GUIAS, base, iva, total, euros, type Guia } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
@@ -216,30 +217,30 @@ export function guiasV3(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
       </dl>
     </header>
 
-    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar guias">
-      <form class="ped4__campos ped4__campos--botao" id="gui3-campos" novalidate>
-        <div class="ped4__barra-f">
-          ${campo('gui3-num', 'N.º da guia de remessa', search, 'type="text" placeholder="Pesquisar pelo n.º da guia (GR2024/…)" autocomplete="off"')}
-          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="gui3-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
-        </div>
-        <div class="ped4__painel-f" id="gui3-painel" role="group" aria-label="Filtros">
-          <div class="ped4__painel-campos">
-            ${campo('gui3-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-            ${campo('gui3-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-            ${campo('gui3-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
-          </div>
-          <div class="ped4__baixo">
-            <div class="ped4__estados" role="group" aria-label="Tipo de documento">
+    <section class="ped4__filtros ped4__filtros--botao fb" aria-label="Filtrar guias">
+      <form class="ped4__campos ped4__campos--botao" data-enter="seguinte" data-enter-fim="submeter" id="gui3-campos" novalidate>
+        <div class="ped4__barra-f fb__barra">
+          ${campo('gui3-num', 'N.º da guia de remessa', search, 'type="text" placeholder="Pesquisar pelo n.º da guia (GR2024/…)" autocomplete="off" data-enter="proprio"')}
+          ${menuFiltro('Tipo', `<div class="ped4__estados" role="group" aria-label="Tipo de documento">
             <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layers)}Todos <span class="ped4__est-n">${GUIAS.length}</span></button>
             <button type="button" class="ped4__est" data-filtro="fatura" aria-pressed="false">${L(receipt)}Fatura <span class="ped4__est-n">${nF}</span></button>
             <button type="button" class="ped4__est" data-filtro="credito" aria-pressed="false">${L(undo)}Nota de crédito <span class="ped4__est-n">${nC}</span></button>
             <i class="ped4__est-risca" aria-hidden="true"></i>
-            </div>
-            ${estadosGuias()}
-          </div>
+            </div>`)}
+          ${menuFiltro('Estado', `${estadosGuias()}`)}
+          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="gui3-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+          <button type="button" class="fb__limpar ped4__limpar" data-limpar-tudo>Limpar tudo</button>
+        </div>
+        <div class="ped4__painel-f fb__painel" id="gui3-painel" role="dialog" aria-label="Filtrar guias">
+          <h3 class="fb__titulo">Filtrar guias</h3>
+          <fieldset class="fb__grupo"><legend>Período</legend><div class="fb__datas">
+            ${campo('gui3-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('gui3-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+          </div><small class="fb__datas-erro" data-fb-datas-erro hidden></small></fieldset>
+          <fieldset class="fb__grupo"><legend>Referência</legend>${campo('gui3-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}</fieldset>
           <div class="ped4__botoes">
-          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar filtros</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar filtros</span></button>
           </div>
         </div>
       </form>

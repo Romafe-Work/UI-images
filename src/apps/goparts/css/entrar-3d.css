@@ -104,7 +104,7 @@
 .ent3__caixa:focus-within .ent3__campo-icone { color: var(--ent3-azul); }
 .ent3__caixa input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font: inherit; font-size: 17px; color: var(--ent3-tinta); }
 .ent3__caixa input::placeholder { color: var(--ent3-tinta-3); }
-.ent3__olho { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 6px; background: none; color: var(--ent3-tinta-2); cursor: pointer; }
+.ent3__olho { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: var(--r-md); background: none; color: var(--ent3-tinta-2); cursor: pointer; }
 .ent3__olho svg { width: 18px; height: 18px; }
 .ent3__olho:focus-visible { outline: 2px solid var(--ent3-azul); }
 .ent3__campo.is-erro .ent3__caixa { border-bottom-color: var(--c-erro); }
@@ -121,7 +121,7 @@
 .ent3__manter { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ent3-tinta-2); cursor: pointer; }
 .ent3__manter input { width: 17px; height: 17px; margin: 0; accent-color: var(--c-acao); }
 
-.ent3__botao.btn { width: 100%; min-height: 52px; border-radius: 8px; font-size: 17px; font-weight: 600; gap: 10px; box-shadow: 0 8px 22px -14px var(--c-acao); transition: background-color .16s ease, transform .1s ease; }
+.ent3__botao.btn { width: 100%; min-height: 52px; border-radius: var(--r-md); font-size: 17px; font-weight: 600; gap: 10px; box-shadow: 0 8px 22px -14px var(--c-acao); transition: background-color .16s ease, transform .1s ease; }
 .ent3__botao .btn__icone { width: 18px; height: 18px; transition: transform .16s ease; }
 @media (hover: hover) and (pointer: fine) { .ent3__botao.btn:not(:disabled):hover .btn__icone { transform: translateX(2px); } }
 .ent3__botao.btn:not(:disabled):active { transform: scale(.98); }

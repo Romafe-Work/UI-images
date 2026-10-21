@@ -4,6 +4,7 @@
    .html ao lado, e a base põe o topo, as abas e o rodapé.
    ========================================================= */
 
+import { garagemPagina } from './garagem';
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas, estadosDevolucoes } from './estados';
@@ -24,6 +25,8 @@ import { pedidosV4 } from './pedidos-v4';
 const FLUXO = 'Portal';
 
 export const ecrasPortal: EcraGoParts[] = [
+  /* 21 out.: a garagem passa a ecrã próprio, o primeiro do menu (ela: «a minha garagem deve ser a primeira opção de menu») */
+  { id: 'garagem', nome: '09 · A minha garagem', fluxo: FLUXO, objetivo: 'Os veículos com que a oficina trabalha: o favorito primeiro, marcar, mudar o nome, tirar e adicionar pela matrícula; «Peças compatíveis» abre o Catálogo com o veículo e «Usar na pesquisa» identifica-o na Pesquisar peças.', versoes: [{ id: 'v1', nota: 'A garagem como ecrã (21 out.), com o bloco que estava na Pesquisar peças', html: portal('garagem', garagemPagina(), undefined, { menu: true, rodape: false }) }] },
   /* 20 out. 2026 (V5, briefing «New Command Dashboard & Separate Parts Search Workspace»): o Início passa a painel da
      atividade e a pesquisa de peças vai para o seu ecrã (18 · Pesquisar peças, logo a seguir). Uma só versão por
      ecrã: a v3 (o espaço de trabalho com a pesquisa) saiu daqui — o código dela é o da Pesquisar peças. */

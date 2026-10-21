@@ -126,7 +126,7 @@ export function gavetaFiltrosHtml(f: Filtros): string {
   const conta = (pred: (a: Achado) => boolean) => todos.filter(pred).length;
   return `<div class="pr__gaveta" data-por-cima role="dialog" aria-modal="true" aria-labelledby="pr-g-t">
     <div class="pr__veu" data-pr-fechar></div>
-    <form class="pr__gaveta-caixa" data-pr-form novalidate>
+    <form class="pr__gaveta-caixa" data-pr-form novalidate data-enter="seguinte" data-enter-fim="submeter">
       <header class="pr__g-cabeca"><h2 id="pr-g-t">${L(sliders)}Filtros</h2><button type="button" class="btn pr__btn pr__btn--leve" data-pr-fechar>${L(x, 'btn__icone')}<span class="btn__rotulo">Fechar</span></button></header>
       <div class="pr__g-corpo">
         <fieldset class="pr__g-grupo"><legend>Marca</legend>

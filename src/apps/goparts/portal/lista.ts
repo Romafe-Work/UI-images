@@ -242,7 +242,7 @@ export const colunas = (tipo: 'peca' | 'mao' | 'custo') => `<div class="lst__col
 
 /** O editor de um serviço novo (inline, por baixo da secção). As sugestões só preenchem a descrição. */
 export function editorServico(aberto = false): string {
-  return `<form class="lst__editor" data-editor-servico${aberto ? '' : ' hidden'} aria-label="Novo serviço">
+  return `<form class="lst__editor" data-editor-servico data-enter="seguinte" data-enter-fim="submeter"${aberto ? '' : ' hidden'} aria-label="Novo serviço">
       <label class="lst__campo"><span>Descrição do serviço</span><input name="desc" required placeholder="Ex.: Substituição de rolamento" autocomplete="off"></label>
       <p class="lst__sugestoes-servico"><span>Sugestões:</span>${['Substituição de rolamento', 'Diagnóstico', 'Montagem', 'Revisão'].map((s) => `<button type="button" class="lst__chip" data-sugestao="${s}">${s}</button>`).join('')}</p>
       <div class="lst__editor-linha">
@@ -273,17 +273,17 @@ export function editorHtml(l: Lista, e: EstadoLista = ''): string {
       <div class="lst__seccoes">
         <section class="lst__seccao" data-seccao="pecas" data-flip aria-labelledby="lst-t-pecas">
           ${cabecaSeccao('lst-t-pecas', pkg, 'Peças', 'Referências do catálogo Peça A Peça. O PVP e o desconto do cliente editam-se na linha.', l.pecas.length, carregar ? '' : addP)}
-          ${carregar ? esqueleto(1) : l.pecas.length ? `${colunas('peca')}<ul class="lst__linhas" role="list">${linhasP}</ul>`
+          ${carregar ? esqueleto(1) : l.pecas.length ? `${colunas('peca')}<ul class="lst__linhas" role="list" data-enter="seguinte">${linhasP}</ul>`
             : vazioSeccao(so ? 'Esta lista não tem peças.' : 'Ainda não há peças. Procura pela referência, marca ou descrição — ou, no Catálogo, usa «Adicionar à minha lista».', addP.replace('lst__adicionar', 'lst__adicionar lst__adicionar--cheio'))}
         </section>
         <section class="lst__seccao" data-seccao="mao" data-flip aria-labelledby="lst-t-mao">
           ${cabecaSeccao('lst-t-mao', wrench, 'Mão-de-obra', 'Adiciona os serviços necessários à reparação — à hora ou a preço fixo.', l.mao.length, carregar || !l.mao.length ? '' : addM)}
-          ${carregar ? esqueleto(2) : l.mao.length ? `${colunas('mao')}<ul class="lst__linhas" role="list">${linhasM}</ul>` : vazioSeccao(so ? 'Sem serviços.' : 'Sem serviços nesta lista.', e === 'servico' ? '' : addM)}
+          ${carregar ? esqueleto(2) : l.mao.length ? `${colunas('mao')}<ul class="lst__linhas" role="list" data-enter="seguinte">${linhasM}</ul>` : vazioSeccao(so ? 'Sem serviços.' : 'Sem serviços nesta lista.', e === 'servico' ? '' : addM)}
           ${so || carregar ? '' : editorServico(e === 'servico')}
         </section>
         <section class="lst__seccao lst__seccao--leve" data-seccao="custos" data-flip aria-labelledby="lst-t-custos">
           ${cabecaSeccao('lst-t-custos', receipt, 'Outros custos', 'Deslocação, consumíveis, tratamento de resíduos… o que entra além das peças e dos serviços.', l.custos.length, carregar || !l.custos.length ? '' : addC)}
-          ${carregar ? '' : l.custos.length ? `${colunas('custo')}<ul class="lst__linhas" role="list">${linhasC}</ul>` : vazioSeccao(so ? 'Sem outros custos.' : 'Sem outros custos.', addC)}
+          ${carregar ? '' : l.custos.length ? `${colunas('custo')}<ul class="lst__linhas" role="list" data-enter="seguinte">${linhasC}</ul>` : vazioSeccao(so ? 'Sem outros custos.' : 'Sem outros custos.', addC)}
         </section>
         <section class="lst__seccao lst__seccao--leve" data-seccao="notas" data-flip aria-labelledby="lst-t-notas">
           <header class="lst__seccao-cabeca"><div><h2 id="lst-t-notas">${L(note)}Notas</h2><p class="lst__seccao-sub">Aparecem no fim do orçamento.</p></div></header>

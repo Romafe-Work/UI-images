@@ -7,7 +7,7 @@
    - A silhueta do carro ao lado do nome da lista (Minha lista).
    ========================================================= */
 .pc-art { display: inline-flex; align-items: center; gap: 12px; }
-.pc-img { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; overflow: hidden; border: 1px solid #dfe2e6; border-radius: 8px; background: #f4f5f7; }
+.pc-img { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; overflow: hidden; border: 1px solid #dfe2e6; border-radius: var(--r-md); background: #f4f5f7; }
 .pc-img svg, .pc-img img { width: 38px; height: 38px; object-fit: contain; transition: transform 220ms cubic-bezier(.22, 1, .36, 1); }
 :is(tr, li):hover .pc-img svg, :is(tr, li):hover .pc-img img { transform: scale(1.08); }
 [data-theme="dark"] .pc-img { border-color: transparent; }
@@ -17,7 +17,7 @@
 
 /* a silhueta do carro ao lado do nome da lista */
 .lst__topo { align-items: center; }
-.lst__carro { display: grid; place-items: center; flex: none; width: 96px; height: 48px; margin-right: 4px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); color: var(--c-texto-2); }
+.lst__carro { display: grid; place-items: center; flex: none; width: 96px; height: 48px; margin-right: 4px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); color: var(--c-texto-2); }
 .lst__carro svg { width: 84px; height: auto; }
 @media (max-width: 760px) { .lst__carro { display: none; } .pc-img { width: 40px; height: 40px; } .pc-img svg { width: 34px; height: 34px; } }
 @media (prefers-reduced-motion: reduce) { .pc-img svg, .pc-img img { transition: none; } }

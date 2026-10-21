@@ -7,7 +7,7 @@
    ========================================================= */
 import type { IdGoParts } from '../ids';
 
-export type IdPortal = Extract<IdGoParts, 'inicio' | 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica'>;
+export type IdPortal = Extract<IdGoParts, 'garagem' | 'inicio' | 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica'>;
 
 /** De que produto é o portal: o Peça A Peça, ou o GoShop, que usa a mesma moldura
     (8 out. 2026, para os ecrãs de carregamento das duas apps). `ligar` diz se
@@ -45,7 +45,7 @@ function topo(p: Produto, menu = false, definicoes = false): string {
     </div>
     <div class="procura" data-barra="pesquisa">
       ${I('<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', ' class="procura__lupa" data-i="search"')}
-      <input class="procura__campo" type="search" placeholder="Pesquisar referência, marca ou peça…" aria-label="Pesquisar (Ctrl+K)" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" readonly>
+      <input class="procura__campo" type="search" placeholder="Pesquisar peças, referências ou marcas…" aria-label="Pesquisar (Ctrl+K)" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" readonly>
       <kbd class="procura__atalho">Ctrl K</kbd>
     </div>
     <div class="portal__accoes">
@@ -92,13 +92,15 @@ function rodape(): string {
    Principal (Início, Pesquisar peças, Catálogo), Documentos e Ferramentas. O Início e a Pesquisa levam por baixo
    do nome o que têm (só com a barra aberta). A Pesquisar peças é um ecrã à parte do Catálogo (a pesquisa saiu do
    Início); o Catálogo continua com as marcas, os modelos e a pesquisa universal. */
+/* (21 out.) ela: «a minha garagem deve ser a primeira opção de menu» */
+const GARAGEM: typeof ABAS[number] = ['garagem', 'A minha garagem', '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>', 'car'];
 const PESQUISA: typeof ABAS[number] = ['pesquisa', 'Pesquisar peças', '<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', 'search'];
 /* (21 out.) ela: «só título mesmo» — saíram os subtítulos do Início e da Pesquisa */
 const SUB: Partial<Record<IdPortal, string>> = {};
-const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
+const GRUPOS: [string, IdPortal[]][] = [['Principal', ['garagem', 'inicio', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
 const NOME_LADO: Partial<Record<IdPortal, string>> = { tecnica: 'Informação técnica' };
 function lado(ativa: IdPortal | null, p: Produto): string {
-  const todas = [...ABAS, PESQUISA];
+  const todas = [...ABAS, PESQUISA, GARAGEM];
   const item = ([id, nome0, d, ic]: typeof ABAS[number]) => { const nome = (id && NOME_LADO[id]) || nome0, sub = id ? SUB[id] : undefined;
     return `<li><button type="button" class="lado__item${sub ? ' lado__item--sub' : ''}"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}${sub ? `<small class="lado__sub">${sub}</small>` : ''}</span></button></li>`; };
   return `<nav class="portal__lado" aria-label="Secções" data-lado>

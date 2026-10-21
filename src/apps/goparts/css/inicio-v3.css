@@ -55,8 +55,8 @@
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: var(--e-4); padding: var(--e-5); align-items: start;
 }
-.portal--v3 .painel { background: var(--c-superficie); border-color: var(--c-borda); border-radius: 12px; }
-.portal--v3 .painel__cabeca { background: var(--v3-azul); padding: var(--e-4) var(--e-5); min-height: 116px; border-radius: 12px 12px 0 0; }
+.portal--v3 .painel { background: var(--c-superficie); border-color: var(--c-borda); border-radius: var(--r-md); }
+.portal--v3 .painel__cabeca { background: var(--v3-azul); padding: var(--e-4) var(--e-5); min-height: 116px; border-radius: var(--r-md) 12px 0 0; }
 .portal--v3 .painel__cabeca--acao { background: var(--c-acao); }
 .portal--v3 .painel__marca { width: 56px; height: 56px; background: rgba(255,255,255,.22); }
 .portal--v3 .painel__marca svg { width: 30px; height: 30px; }

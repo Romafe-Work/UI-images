@@ -7,6 +7,7 @@
    pedidos-dados.ts (os mesmos seis pedidos da v2 e da v3). Feito em TypeScript e CSS, sem React.
    O comportamento está em comportamento/pedidos-v4.ts e o CSS em css/pedidos-v4.css.
    ========================================================= */
+import { menuFiltro } from './filtro-barra';
 import { azulejoPeca } from './pecas-img';
 import { PEDIDOS, LINHAS, euros, type Pedido, type LinhaPedido } from './pedidos-dados';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
@@ -202,30 +203,30 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
       </dl>
     </header>
 
-    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar pedidos">
-      <form class="ped4__campos ped4__campos--botao" id="ped4-campos" novalidate>
-        <div class="ped4__barra-f">
-          ${campo('ped4-num', 'N.º do pedido', search, 'type="text" placeholder="Pesquisar pelo n.º do pedido (P2024/…)" autocomplete="off"')}
-          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="ped4-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
-        </div>
-        <div class="ped4__painel-f" id="ped4-painel" role="group" aria-label="Filtros">
-          <div class="ped4__painel-campos">
-            ${campo('ped4-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-            ${campo('ped4-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-            ${campo('ped4-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
-          </div>
-          <div class="ped4__baixo">
-            <div class="ped4__estados" role="group" aria-label="Estado do pedido">
+    <section class="ped4__filtros ped4__filtros--botao fb" aria-label="Filtrar pedidos">
+      <form class="ped4__campos ped4__campos--botao" data-enter="seguinte" data-enter-fim="submeter" id="ped4-campos" novalidate>
+        <div class="ped4__barra-f fb__barra">
+          ${campo('ped4-num', 'N.º do pedido', search, 'type="text" placeholder="Pesquisar pelo n.º do pedido (P2024/…)" autocomplete="off" data-enter="proprio"')}
+          ${menuFiltro('Processamento', `<div class="ped4__estados" role="group" aria-label="Estado do pedido">
             <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layoutList)}Todos <span class="ped4__est-n">${n('todos')}</span></button>
             <button type="button" class="ped4__est" data-filtro="proc" aria-pressed="false">${L(circleCheck)}Processado <span class="ped4__est-n">${n('proc')}</span></button>
             <button type="button" class="ped4__est" data-filtro="sem" aria-pressed="false">${L(clock)}Sem processamento <span class="ped4__est-n">${n('sem')}</span></button>
             <i class="ped4__est-risca" aria-hidden="true"></i>
-            </div>
-            ${etapasPedidos()}
-          </div>
+            </div>`)}
+          ${menuFiltro('Estado', `${etapasPedidos()}`)}
+          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="ped4-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+          <button type="button" class="fb__limpar ped4__limpar" data-limpar-tudo>Limpar tudo</button>
+        </div>
+        <div class="ped4__painel-f fb__painel" id="ped4-painel" role="dialog" aria-label="Filtrar pedidos">
+          <h3 class="fb__titulo">Filtrar pedidos</h3>
+          <fieldset class="fb__grupo"><legend>Período</legend><div class="fb__datas">
+            ${campo('ped4-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('ped4-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+          </div><small class="fb__datas-erro" data-fb-datas-erro hidden></small></fieldset>
+          <fieldset class="fb__grupo"><legend>Referência</legend>${campo('ped4-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}</fieldset>
           <div class="ped4__botoes">
-          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar filtros</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar filtros</span></button>
           </div>
         </div>
       </form>

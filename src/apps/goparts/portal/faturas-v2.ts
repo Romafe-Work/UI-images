@@ -13,6 +13,7 @@
    Molde dos Pedidos v5 e das Guias v3 (classes ped4__*, gui3__* do percurso e dos valores); o que é só das faturas
    tem fat2__*. Comportamento: comportamento/faturas-v2.ts. CSS: css/faturas-v2.css. Sem React.
    ========================================================= */
+import { menuFiltro } from './filtro-barra';
 import { listaCompras } from './pecas-img';
 import { FATURAS, type Fatura, type Pagamento } from './faturas-dados';
 import { base, iva, total, euros } from './guias-dados';
@@ -269,29 +270,30 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
       <div><h1 class="ped4__titulo">Faturas</h1><p class="ped4__sub">Consulte os documentos de faturação da sua conta.</p></div>
     </header>
 
-    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar faturas">
-      <form class="ped4__campos ped4__campos--botao fat2__campos" id="fat2-campos" novalidate>
-        <div class="ped4__barra-f">
-          ${campo('fat2-num', 'N.º da fatura', search, 'type="text" placeholder="Pesquisar pelo n.º (FT2024/… ou NC2024/…)" autocomplete="off"')}
-          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="fat2-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
-        </div>
-        <div class="ped4__painel-f" id="fat2-painel" role="group" aria-label="Filtros">
-          <div class="ped4__painel-campos">
-            ${campo('fat2-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-            ${campo('fat2-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-          </div>
-          <div class="ped4__baixo">
-            <div class="ped4__estados" role="group" aria-label="Tipo de documento">
+    <section class="ped4__filtros ped4__filtros--botao fb" aria-label="Filtrar faturas">
+      <form class="ped4__campos ped4__campos--botao fat2__campos" data-enter="seguinte" data-enter-fim="submeter" id="fat2-campos" novalidate>
+        <div class="ped4__barra-f fb__barra">
+          ${campo('fat2-num', 'N.º da fatura', search, 'type="text" placeholder="Pesquisar pelo n.º (FT2024/… ou NC2024/…)" autocomplete="off" data-enter="proprio"')}
+          ${menuFiltro('Tipo', `<div class="ped4__estados" role="group" aria-label="Tipo de documento">
             <button type="button" class="ped4__est" data-filtro="todos" aria-pressed="true">${L(layers)}Todas <span class="ped4__est-n">${FATURAS.length}</span></button>
             <button type="button" class="ped4__est" data-filtro="fatura" aria-pressed="false">${L(receipt)}Fatura <span class="ped4__est-n">${nF}</span></button>
             <button type="button" class="ped4__est" data-filtro="credito" aria-pressed="false">${L(undo)}Nota de crédito <span class="ped4__est-n">${nC}</span></button>
             <i class="ped4__est-risca" aria-hidden="true"></i>
-            </div>
-            ${pilulasEstado(est.map(([k, icone]) => ({ k, nome: PAGAMENTO[k].nome, icone, n: FATURAS.filter((f) => f.pagamento === k).length })), FATURAS.length, 'Pagamento')}
-          </div>
+            </div>`)}
+          ${menuFiltro('Pagamento', `${pilulasEstado(est.map(([k, icone]) => ({ k, nome: PAGAMENTO[k].nome, icone, n: FATURAS.filter((f) => f.pagamento === k).length })), FATURAS.length, 'Pagamento')}`)}
+          <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="fat2-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+          <button type="button" class="fb__limpar ped4__limpar" data-limpar-tudo>Limpar tudo</button>
+        </div>
+        <div class="ped4__painel-f fb__painel" id="fat2-painel" role="dialog" aria-label="Filtrar faturas">
+          <h3 class="fb__titulo">Filtrar faturas</h3>
+          <fieldset class="fb__grupo"><legend>Período</legend><div class="fb__datas">
+            ${campo('fat2-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+            ${campo('fat2-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
+          </div><small class="fb__datas-erro" data-fb-datas-erro hidden></small></fieldset>
+          
           <div class="ped4__botoes">
-          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar filtros</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar filtros</span></button>
           </div>
         </div>
       </form>

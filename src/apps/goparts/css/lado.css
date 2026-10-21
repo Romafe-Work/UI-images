@@ -30,7 +30,7 @@
 
 .lado__item {
   position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 14px;
-  border: 0; border-radius: 8px; background: transparent; color: var(--c-texto-2);
+  border: 0; border-radius: var(--r-md); background: transparent; color: var(--c-texto-2);
   font: inherit; font-size: 14px; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer;
   transition: background-color 150ms ease, color 150ms ease;
 }
@@ -68,7 +68,7 @@
 :root.gp-lado-recolhido .lado__rolo { overflow: visible; }
 :root.gp-lado-recolhido .portal__lado [data-dica]::after {
   content: attr(data-dica); position: absolute; z-index: 30; left: calc(100% + 10px); top: 50%;
-  padding: 4px 8px; border-radius: 6px; background: var(--c-texto); color: var(--c-superficie);
+  padding: 4px 8px; border-radius: var(--r-md); background: var(--c-texto); color: var(--c-superficie);
   font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none;
   opacity: 0; transform: translate(-2px, -50%); transition: opacity 120ms ease, transform 120ms ease;
 }

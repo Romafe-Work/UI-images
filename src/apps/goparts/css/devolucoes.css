@@ -28,7 +28,7 @@
 .dev__item.is-novo .ped4__c-cartao { border-color: color-mix(in srgb, var(--c-ok) 60%, var(--c-borda)); }
 
 /* o vazio de quem ainda não tem devoluções */
-.dev__vazio { display: grid; justify-items: center; gap: 12px; max-width: 520px; margin: 24px auto; padding: 32px 24px; border: 1px dashed var(--c-borda-forte); border-radius: 8px; text-align: center; color: var(--c-texto-2); }
+.dev__vazio { display: grid; justify-items: center; gap: 12px; max-width: 520px; margin: 24px auto; padding: 32px 24px; border: 1px dashed var(--c-borda-forte); border-radius: var(--r-md); text-align: center; color: var(--c-texto-2); }
 .dev__vazio > svg { width: 40px; height: 40px; color: var(--c-texto-3); stroke-width: 1.5; }
 .dev__vazio p { margin: 0; line-height: 1.5; }
 .dev__vazio strong { display: block; margin-bottom: 4px; font-size: 17px; color: var(--c-texto); }
@@ -40,7 +40,7 @@
 .dev__l-q { white-space: nowrap; font-size: 13px; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
 .dev__l-q b { font-family: var(--f-titulo); font-size: 17px; color: var(--c-texto); }
 .dev__linhas .fat2__linha { grid-template-columns: 48px minmax(0, 1fr) auto; }
-.dev__soma { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; padding: 10px 12px; border-radius: 6px; background: var(--c-superficie-2); font-size: 14px; color: var(--c-texto-2); }
+.dev__soma { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; padding: 10px 12px; border-radius: var(--r-md); background: var(--c-superficie-2); font-size: 14px; color: var(--c-texto-2); }
 .dev__soma svg { width: 16px; height: 16px; flex: none; color: var(--c-texto-3); }
 .dev__soma b { color: var(--c-texto); font-variant-numeric: tabular-nums; }
 
@@ -70,7 +70,7 @@
 .dev__p-texto small { font-size: 12px; color: var(--c-texto-3); }
 .dev__p-linha { position: absolute; left: 15px; top: 16px; bottom: 16px; width: 2px; background: var(--c-borda); }
 .dev__p-linha i { position: absolute; inset: 0; background: var(--c-ok); transform-origin: top; transform: scaleY(var(--enche, 0)); }
-.dev__p-caixa { position: absolute; z-index: 2; left: 4px; top: 4px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: var(--c-acao); color: #fff; opacity: 0; pointer-events: none; }
+.dev__p-caixa { position: absolute; z-index: 2; left: 4px; top: 4px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: var(--r-md); background: var(--c-acao); color: #fff; opacity: 0; pointer-events: none; }
 .dev__p-caixa svg { width: 14px; height: 14px; }
 
 /* ---------- criar uma devolução ---------- */
@@ -90,12 +90,12 @@
 .dev__c-corpo { flex: 1; display: grid; align-content: start; gap: 14px; padding: 18px 20px 24px; }
 .dev__c-intro { margin: 0; color: var(--c-texto-2); }
 .dev__c-guias { display: grid; gap: 8px; }
-.dev__c-guia { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie); color: var(--c-texto); font: inherit; text-align: left; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
+.dev__c-guia { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto); font: inherit; text-align: left; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
 .dev__c-guia:hover { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
 .dev__c-guia:focus-visible { outline: 2px solid var(--azul-fundo); outline-offset: 2px; }
 .dev__c-guia[aria-checked="true"] { border-color: var(--c-acao); box-shadow: inset 2px 0 0 var(--c-acao); }
 .dev__c-guia[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
-.dev__c-g-i { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 6px; background: var(--c-superficie-2); color: var(--c-marca); }
+.dev__c-g-i { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-md); background: var(--c-superficie-2); color: var(--c-marca); }
 .dev__c-guia[aria-checked="true"] .dev__c-g-i { background: var(--c-acao); color: #fff; }
 .dev__c-g-i svg { width: 18px; height: 18px; }
 .dev__c-g-t { display: grid; min-width: 0; }
@@ -110,12 +110,12 @@
 .dev__c-art.is-indisponivel { opacity: .6; }
 .dev__c-nao { font-size: 12px; color: var(--c-texto-3); white-space: nowrap; }
 .dev__c-art .btn[disabled] { opacity: .6; }
-.dev__c-cesto { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.dev__c-cesto { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); }
 .dev__c-cesto .ped4__h { margin: 0; }
 .dev__c-linha { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto 28px; align-items: center; gap: 4px 10px; padding: 8px 0; border-top: 1px solid var(--c-borda); }
 .dev__c-linha:first-child { border-top: 0; }
 
-.dev__c-qtd { display: inline-flex; align-items: center; border: 1px solid var(--c-borda-forte); border-radius: 6px; background: var(--c-superficie); }
+.dev__c-qtd { display: inline-flex; align-items: center; border: 1px solid var(--c-borda-forte); border-radius: var(--r-md); background: var(--c-superficie); }
 .dev__c-qtd button { display: grid; place-items: center; width: 28px; height: 30px; border: 0; background: none; color: var(--c-texto-2); cursor: pointer; }
 .dev__c-qtd button:hover:not([disabled]) { color: var(--c-acao); }
 .dev__c-qtd button[disabled] { opacity: .35; cursor: default; }
@@ -125,10 +125,10 @@
 .dev__c-linha.is-invalida .dev__c-qtd { border-color: var(--c-erro); }
 .dev__c-q-erro { grid-column: 2 / -1; font-size: 12px; color: var(--c-erro); }
 .dev__c-q-erro[hidden] { display: none; }
-.dev__c-tirar { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--c-texto-3); cursor: pointer; }
+.dev__c-tirar { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid transparent; border-radius: var(--r-md); background: none; color: var(--c-texto-3); cursor: pointer; }
 .dev__c-tirar:hover { border-color: var(--c-borda-forte); color: var(--c-texto); }
 .dev__c-tirar svg { width: 15px; height: 15px; }
-.dev__c-vazio { display: flex; align-items: center; gap: 8px; margin: 0; padding: 14px 10px; border: 1px dashed var(--c-borda-forte); border-radius: 6px; font-size: 14px; color: var(--c-texto-2); }
+.dev__c-vazio { display: flex; align-items: center; gap: 8px; margin: 0; padding: 14px 10px; border: 1px dashed var(--c-borda-forte); border-radius: var(--r-md); font-size: 14px; color: var(--c-texto-2); }
 .dev__c-vazio[hidden] { display: none; }
 .dev__c-vazio svg { width: 18px; height: 18px; flex: none; color: var(--c-texto-3); }
 .dev__c-resumo { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0; border-top: 2px solid var(--c-texto); padding-top: 10px; }
@@ -141,11 +141,11 @@
 .dev__c-erro[hidden] { display: none; }
 .dev__c-obs textarea { width: 100%; min-height: 76px; padding: 10px 12px; resize: vertical; font: inherit; }
 .dev__c-obs small { font-weight: 400; color: var(--c-texto-3); }
-.dev__c-rever-dl { padding: 12px 14px; border: 1px solid var(--c-borda); border-radius: 8px; background: var(--c-superficie-2); }
+.dev__c-rever-dl { padding: 12px 14px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie-2); }
 .dev__c-pe { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--c-borda); background: var(--c-superficie); }
 .dev__c-pe-dir { display: flex; flex-wrap: wrap; gap: 10px; }
 /* a resposta do servidor: enviada ou guardada (só depois de confirmada) */
-.dev__c-ok { display: grid; justify-items: start; gap: 12px; padding: 18px; border: 1px solid color-mix(in srgb, var(--c-ok) 50%, var(--c-borda)); border-left: 3px solid var(--c-ok); border-radius: 8px; background: var(--c-superficie); }
+.dev__c-ok { display: grid; justify-items: start; gap: 12px; padding: 18px; border: 1px solid color-mix(in srgb, var(--c-ok) 50%, var(--c-borda)); border-left: 3px solid var(--c-ok); border-radius: var(--r-md); background: var(--c-superficie); }
 .dev__c-ok > svg { width: 28px; height: 28px; color: var(--c-ok); }
 .dev__c-ok p { margin: 0; }
 .dev__c-ok strong { display: block; font-size: 17px; }

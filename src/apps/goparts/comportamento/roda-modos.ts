@@ -17,7 +17,7 @@ const PASSO = 4000, PAUSA = 60000;
 let ultimo = 0, porCima = false, automatico = false;
 
 function pode(ini: HTMLElement): boolean {
-  return !quieto() && !editando() && !ini.dataset.estado && !ini.classList.contains('is-com-resultados')
+  return !quieto() && !editando() && !ini.dataset.estado && !ini.classList.contains('is-com-resultados') && !ini.querySelector('[data-veiculo]:not([hidden])')
     && window.matchMedia('(min-width: 768px)').matches && document.visibilityState === 'visible';
 }
 /** Põe o modo `m` ao meio (a ordem visual; a do teclado não muda) e anima a passagem. */

@@ -16,6 +16,7 @@
    por «você», como o resto do portal (o briefing tinha «tu»). Feito em TypeScript e CSS, sem React.
    Comportamento: comportamento/devolucoes.ts. CSS: css/devolucoes.css (+ css/pedidos-v4.css e css/guias-v3.css).
    ========================================================= */
+import { menuFiltro } from './filtro-barra';
 import { DEVOLUCOES, referencias, unidades, estadoDev, NOME_ESTADO, type Devolucao, type EstadoDev } from './devolucoes-dados';
 import { GUIAS, total as totalGuia, euros } from './guias-dados';
 import { PEDIDOS } from './pedidos-dados';
@@ -302,24 +303,24 @@ export function devolucoesV1(vista: 'cronologia' | 'tabela' = 'cronologia', list
       </div>
     </header>
 
-    <section class="ped4__filtros ped4__filtros--botao" aria-label="Filtrar devoluções">
-      <form class="ped4__campos ped4__campos--botao" id="dev-campos" novalidate>
-        <div class="ped4__barra-f">
-          ${campo('dev-num', 'N.º da devolução', search, 'type="text" placeholder="Pesquisar pelo n.º da devolução (DV2024/…)" autocomplete="off"')}
+    <section class="ped4__filtros ped4__filtros--botao fb" aria-label="Filtrar devoluções">
+      <form class="ped4__campos ped4__campos--botao" data-enter="seguinte" data-enter-fim="submeter" id="dev-campos" novalidate>
+        <div class="ped4__barra-f fb__barra">
+          ${campo('dev-num', 'N.º da devolução', search, 'type="text" placeholder="Pesquisar pelo n.º da devolução (DV2024/…)" autocomplete="off" data-enter="proprio"')}
+          ${menuFiltro('Estado', `${estadosDev(lista)}`)}
           <button type="button" class="btn btn--ghost btn--sm ped4__filtros-abrir" aria-expanded="false" aria-controls="dev-painel">${L(slidersHorizontal, 'btn__icone')}<span class="btn__rotulo">Filtros</span><span class="ped4__filtros-n" hidden></span></button>
+          <button type="button" class="fb__limpar ped4__limpar" data-limpar-tudo>Limpar tudo</button>
         </div>
-        <div class="ped4__painel-f" id="dev-painel" role="group" aria-label="Filtros">
-          <div class="ped4__painel-campos">
+        <div class="ped4__painel-f fb__painel" id="dev-painel" role="dialog" aria-label="Filtrar devoluções">
+          <h3 class="fb__titulo">Filtrar devoluções</h3>
+          <fieldset class="fb__grupo"><legend>Período</legend><div class="fb__datas">
             ${campo('dev-de', 'Data a partir de', calendar, 'type="text" value="01/03/2024" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
             ${campo('dev-ate', 'Data até', calendar, 'type="text" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off"')}
-            ${campo('dev-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}
-          </div>
-          <div class="ped4__baixo">
-            ${estadosDev(lista)}
-          </div>
+          </div><small class="fb__datas-erro" data-fb-datas-erro hidden></small></fieldset>
+          <fieldset class="fb__grupo"><legend>Referência</legend>${campo('dev-ref', 'Referência', barcode, 'type="text" placeholder="Referência da peça" autocomplete="off"')}</fieldset>
           <div class="ped4__botoes">
-          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar</span></button>
-          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+          <button type="button" class="btn btn--ghost ped4__limpar">${L(eraser, 'btn__icone')}<span class="btn__rotulo">Limpar filtros</span></button>
+          <button type="submit" class="btn btn--acao ped4__pesquisar">${L(search, 'btn__icone')}<span class="btn__rotulo">Aplicar filtros</span></button>
           </div>
         </div>
       </form>

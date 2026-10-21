@@ -13,35 +13,39 @@
    igualmente, para não haver duas tonalidades do mesmo estado.
    ========================================================= */
 :root {
-  /* (21 out.) ela não gostou do fundo do escuro do briefing (#0F1115): voltam as camadas azul-carvão do V8 */
-  --g-fundo: #0d1218; --g-barra: #151d27; --g-sup: #1a242f; --g-sup-2: #223040; --g-borda: #354354; --g-borda-forte: #4a5b70;
-  --g-tinta: #f7fafc; --g-tinta-2: #a9b8c9; --g-tinta-3: #8394a8;
-  --g-azul: #0876bd; --g-azul-tinta: #2495db; --g-azul-suave: rgba(36, 149, 219, .16); --g-laranja: #f57c12;
+  /* (21 out., briefing «Premium background & top navigation») camadas com profundidade, sem ser tudo da mesma cor:
+     fundo #0D131A, topo #141D27, barra lateral #17212C, superfícies #1B2733 / #223140, bordas #344556,
+     texto #F5F8FA / #A9B8C6, azul ROMAFE #147DC0 (em texto, #3A9AD8), laranja #F58214. */
+  --g-fundo: #0d131a; --g-barra: #141d27; --g-sup: #1b2733; --g-sup-2: #223140; --g-borda: #344556; --g-borda-forte: #4a5d70;
+  --g-tinta: #f5f8fa; --g-tinta-2: #a9b8c6; --g-tinta-3: #8596a6;
+  --g-azul: #147dc0; --g-azul-tinta: #3a9ad8; --g-azul-suave: rgba(20, 125, 192, .18); --g-laranja: #f58214;
 }
 .portal--noite, .portal--ini3 {
-  --gp-azul: #0876bd; --gp-azul-fundo: #075a94; --gp-azul-vivo: #2495db; --gp-laranja: #f57c12; --gp-laranja-mais: #ff922b;
-  --gp-lado: #ffffff; --gp-lado-ativo: #eaf1f7; --gp-lado-tinta: #172534; --gp-lado-tinta-2: #4a5b6d;
-  --c-portal-fundo: #f4f7fa; --c-superficie: #ffffff; --c-superficie-2: #eaf1f7; --c-superficie-3: #eaf1f7;
-  --c-borda: #d7e1e9; --c-borda-forte: #b8c7d4; --c-texto: #172534; --c-texto-2: #46576a; --c-texto-3: #66788c;
-  --c-marca: #0876bd; --c-marca-suave: rgba(8, 118, 189, .1);
+  /* (21 out.) o claro do briefing: fundo #F4F7FA, topo branco, barra lateral #F7F9FB, superfícies branca e #EDF2F6,
+     bordas #DAE2EA, texto #172534 / #647586 — não é o escuro ao contrário */
+  --gp-azul: #147dc0; --gp-azul-fundo: #0f639a; --gp-azul-vivo: #147dc0; --gp-laranja: #f58214; --gp-laranja-mais: #ff922b;
+  --gp-topo: #ffffff; --gp-lado: #f7f9fb; --gp-lado-ativo: #e6eef5; --gp-lado-tinta: #172534; --gp-lado-tinta-2: #4f6173;
+  --c-portal-fundo: #f4f7fa; --c-superficie: #ffffff; --c-superficie-2: #edf2f6; --c-superficie-3: #edf2f6;
+  --c-borda: #dae2ea; --c-borda-forte: #bccad6; --c-texto: #172534; --c-texto-2: #647586; --c-texto-3: #6f8090;
+  --c-marca: #147dc0; --c-marca-suave: rgba(20, 125, 192, .1);
   --c-acao: #f57c12; --c-acao-premido: #e06d08; --c-acao-suave: rgba(245, 124, 18, .12); --c-acao-marcador: #f57c12;
   --c-ok: #12875c; --c-ok-suave: #e3f5ee; --c-aviso: #b7791f; --c-aviso-suave: #fdf1dc; --c-erro: #d23f45; --c-erro-suave: #fbe7e8;
-  --i3-fundo: #f4f7fa; --i3-sup: #ffffff; --i3-sup-2: #eaf1f7; --i3-borda: #d7e1e9; --i3-borda-forte: #b8c7d4;
-  --i3-tinta: #172534; --i3-tinta-2: rgba(23, 37, 52, .74); --i3-tinta-3: rgba(23, 37, 52, .56);
-  --i3-azul: #0876bd; --i3-azul-suave: rgba(8, 118, 189, .1);
-  --azul-fundo: #0876bd;
+  --i3-fundo: #f4f7fa; --i3-sup: #ffffff; --i3-sup-2: #edf2f6; --i3-borda: #dae2ea; --i3-borda-forte: #bccad6;
+  --i3-tinta: #172534; --i3-tinta-2: #4f6173; --i3-tinta-3: #647586;
+  --i3-azul: #147dc0; --i3-azul-suave: rgba(20, 125, 192, .1);
+  --azul-fundo: #147dc0;
 }
 [data-theme="dark"] .portal--noite, [data-theme="dark"] .portal--ini3 {
-  --gp-lado: var(--g-barra); --gp-lado-ativo: #223040; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
+  --gp-topo: var(--g-barra); --gp-lado: #17212c; --gp-lado-ativo: #223140; --gp-lado-tinta: #f5f8fa; --gp-lado-tinta-2: #a9b8c6;
   --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
-  --c-acao: #f57c12; --c-acao-premido: #ff922b;
+  --c-acao: #f58214; --c-acao-premido: #ff922b; --gp-azul-vivo: #3a9ad8;
   --i3-azul: var(--g-azul-tinta);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .portal--noite, :root:not([data-theme="light"]) .portal--ini3 {
-    --gp-lado: var(--g-barra); --gp-lado-ativo: #1d2128; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
+    --gp-topo: var(--g-barra); --gp-lado: #17212c; --gp-lado-ativo: #223140; --gp-lado-tinta: #f5f8fa; --gp-lado-tinta-2: #a9b8c6;
     --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
-    --c-acao: #f57c12; --c-acao-premido: #ff922b;
+    --c-acao: #f58214; --c-acao-premido: #ff922b; --gp-azul-vivo: #3a9ad8;
     --i3-azul: var(--g-azul-tinta);
   }
 }
@@ -49,7 +53,7 @@
 /* ---------- o topo e a barra lateral: a moldura da marca ----------
    No escuro, o topo e a barra são do mesmo azul-carvão (um «L» que emoldura o conteúdo); no claro, brancos com a
    linha de cima azul. O item ativo: fundo mais claro, texto forte e o traço LARANJA à esquerda, que desliza. */
-.portal--noite .portal__topo, .portal--ini3 .portal__topo { background: var(--gp-lado); border-bottom: 1px solid var(--c-borda); box-shadow: inset 0 3px 0 var(--gp-azul); }
+.portal--noite .portal__topo, .portal--ini3 .portal__topo { background: var(--gp-topo, var(--gp-lado)); border-bottom: 1px solid var(--c-borda); box-shadow: inset 0 3px 0 var(--gp-azul); }
 .portal--lateral .portal__lado { background: var(--gp-lado); }
 .portal--lateral .lado__item { color: var(--gp-lado-tinta-2); }
 .portal--lateral .lado__item:hover:not(:disabled) { background: var(--gp-lado-ativo); color: var(--gp-lado-tinta); }

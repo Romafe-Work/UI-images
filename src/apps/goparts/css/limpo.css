@@ -15,7 +15,7 @@
    ganha a superfície e o contorno azul. */
 .portal .portal__topo .procura {
   height: 40px; max-width: 520px; gap: 10px; padding: 0 8px 0 14px;
-  border: 1px solid transparent; border-radius: 10px;
+  border: 1px solid transparent; border-radius: var(--r-md);
   background: color-mix(in srgb, var(--c-texto) 6%, transparent); box-shadow: none;
   transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
 }
@@ -26,7 +26,7 @@
 .portal .portal__topo .procura__lupa { width: 17px; height: 17px; color: var(--c-texto-3); }
 .portal .portal__topo .procura__campo { padding: 0; font-size: 14px; }
 .portal .portal__topo .procura__campo::placeholder { color: var(--c-texto-3); }
-.portal .portal__topo .procura__atalho { padding: 2px 7px; border: 0; border-radius: 6px; background: color-mix(in srgb, var(--c-texto) 8%, transparent); color: var(--c-texto-3); font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+.portal .portal__topo .procura__atalho { padding: 2px 7px; border: 0; border-radius: var(--r-md); background: color-mix(in srgb, var(--c-texto) 8%, transparent); color: var(--c-texto-3); font-size: 11px; font-weight: 600; letter-spacing: .02em; }
 
 /* ---------- uma só letra: os títulos dos blocos em Lato, como o texto ---------- */
 .portal--lateral :is(h1, h2, h3) { font-family: var(--f-base); letter-spacing: -.005em; }
@@ -63,12 +63,12 @@
 .ped4__barra-f { display: flex; align-items: center; gap: 10px; }
 .ped4__barra-f .ped4__campo { flex: 1; max-width: 520px; }
 .ped4__barra-f .ped4__campo label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.ped4__barra-f .ped4__input { height: 40px; border-radius: 10px; }
-.ped4 .ped4__barra-f .ped4__filtros-abrir { display: inline-flex; flex: none; height: 40px; padding: 0 14px; border-radius: 10px; }
+.ped4__barra-f .ped4__input { height: 40px; border-radius: var(--r-md); }
+.ped4 .ped4__barra-f .ped4__filtros-abrir { display: inline-flex; flex: none; height: 40px; padding: 0 14px; border-radius: var(--r-md); }
 .ped4__filtros-abrir[aria-expanded="true"] { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
 .ped4__filtros-n { border-radius: 999px; }
 .ped4:not(.filtros-abertos) .ped4__painel-f { display: none; }
-.ped4__painel-f { display: grid; gap: 18px; margin-top: 10px; padding: 18px; border: 1px solid var(--c-borda); border-radius: 10px; background: var(--c-superficie); }
+.ped4__painel-f { display: grid; gap: 18px; margin-top: 10px; padding: 18px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
 .ped4__painel-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
 .ped4__painel-f .ped4__baixo { display: grid; gap: 14px; }
 .ped4__painel-f .ped4__est-risca { display: none; }
@@ -110,10 +110,10 @@
 .portal--lateral .portal__topo .portal__produto { display: block; font-family: var(--f-base); font-size: 17px; font-weight: 700; letter-spacing: -.005em; white-space: nowrap; color: var(--c-texto); }
 .portal--lateral .portal__topo .procura { justify-self: center; width: 100%; max-width: 560px; margin: 0 24px; }
 .portal--lateral .portal__topo .portal__accoes { gap: 4px; }
-.portal--lateral .portal__topo .portal__icone { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; color: var(--c-texto-2); }
+.portal--lateral .portal__topo .portal__icone { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-md); color: var(--c-texto-2); }
 .portal--lateral .portal__topo .portal__icone svg { width: 20px; height: 20px; }
 .portal--lateral .portal__topo [data-barra="carrinho"] { margin-left: 8px; }
-.portal--lateral .portal__topo .conta { display: inline-flex; align-items: center; gap: 10px; height: 40px; margin-left: 12px; padding: 0 8px 0 4px; border: 0; border-radius: 10px; background: none; }
+.portal--lateral .portal__topo .conta { display: inline-flex; align-items: center; gap: 10px; height: 40px; margin-left: 12px; padding: 0 8px 0 4px; border: 0; border-radius: var(--r-md); background: none; }
 @media (hover: hover) and (pointer: fine) { .portal--lateral .portal__topo .conta:hover { background: var(--gp-lado-ativo, var(--c-superficie-2)); } }
 .portal--lateral .portal__topo .conta__inicial { width: 32px; height: 32px; font-size: 13px; }
 .portal--lateral .portal__topo .conta__nome { font-size: 14px; font-weight: 600; white-space: nowrap; }
@@ -138,3 +138,100 @@
   .portal--lateral .portal__topo [data-barra="carrinho"] { margin-left: 0; }
   .portal--lateral .portal__topo .conta { margin-left: 4px; padding: 0 4px; }
 }
+
+/* =========================================================
+   (21 out., briefing «Premium background & top navigation») ícones maiores, topo de 70 px e preso
+   A decisão dela: ícones de 22–24 px em botões de 44 px, topo de ≈ 70 px. Pesquisa de 44 px com a lupa de 20 px;
+   avatar de 38 px; o nome só quando há espaço. O topo fica preso ao rolar (sem mudar de altura) e o menu lateral
+   também. Tempos: passar 140 ms, premir 100 ms.
+   ========================================================= */
+.portal--lateral > .portal__topo { position: sticky; top: 0; z-index: 40; height: 70px; min-height: 70px; }
+.portal--lateral .portal__topo .portal__romafe { font-size: 28px; }
+.portal--lateral .portal__topo .portal__produto { font-size: 18px; }
+.portal--lateral .portal__topo .portal__risco { height: 24px; }
+.portal--lateral .portal__topo .procura { height: 44px; max-width: 580px; padding: 0 10px 0 16px; gap: 12px; }
+.portal--lateral .portal__topo .procura:focus-within { max-width: 620px; border-color: var(--gp-azul, #147dc0); box-shadow: 0 0 0 3px var(--c-marca-suave); }
+.portal--lateral .portal__topo .procura__lupa { width: 20px; height: 20px; }
+.portal--lateral .portal__topo .procura__campo { font-size: 15px; }
+.portal--lateral .portal__topo .procura__atalho { padding: 3px 8px; font-size: 12px; }
+.portal--lateral .portal__topo .portal__accoes { gap: 6px; }
+.portal--lateral .portal__topo .portal__icone { width: 44px; height: 44px; border-radius: var(--r-md); transition: background-color 140ms ease, color 140ms ease, transform 100ms ease; }
+.portal--lateral .portal__topo .portal__icone svg { width: 22px; height: 22px; stroke-width: 1.8; }
+@media (hover: hover) and (pointer: fine) { .portal--lateral .portal__topo .portal__icone:hover { background: var(--gp-lado-ativo, var(--c-superficie-2)); color: var(--c-texto); } }
+.portal--lateral .portal__topo .portal__icone:active { transform: scale(.94); }
+.portal--lateral .portal__topo .portal__icone:focus-visible, .portal--lateral .portal__topo .conta:focus-visible { outline: 2px solid var(--gp-azul, #147dc0); outline-offset: 2px; }
+/* o selo do carrinho e o ponto dos avisos dentro do botão, sem tocar no vizinho */
+.portal--lateral .portal__topo [data-barra="carrinho"] { position: relative; margin-left: 4px; }
+.portal--lateral .portal__topo .portal__selo { top: 4px; right: 3px; min-width: 18px; height: 18px; font-size: 11px; line-height: 18px; }
+.portal--lateral .portal__topo .portal__ponto { top: 10px; right: 10px; width: 8px; height: 8px; }
+.portal--lateral .portal__topo .conta { height: 48px; margin-left: 10px; padding: 0 10px 0 5px; gap: 10px; border-radius: var(--r-md); }
+.portal--lateral .portal__topo .conta__inicial { width: 38px; height: 38px; font-size: 14px; }
+.portal--lateral .portal__topo .conta__nome { font-size: 14.5px; }
+@media (max-width: 1279.98px) { .portal--lateral .portal__topo .conta__nome { display: none; } }
+/* o menu lateral também fica à vista ao rolar, por baixo do topo */
+.portal--lateral .portal__lado .lado__rolo { position: sticky; top: 70px; max-height: calc(100vh - 70px); }
+.portal--lateral .lado__item > svg { width: 21px; height: 21px; }
+@media (max-width: 767.98px) {
+  .portal--lateral > .portal__topo { height: 60px; min-height: 60px; padding: 0 6px 0 2px; padding-top: env(safe-area-inset-top); }
+  .portal--lateral .portal__topo .portal__icone { width: 44px; height: 44px; }
+  .portal--lateral .portal__topo .portal__icone svg { width: 23px; height: 23px; }
+  .portal--lateral .portal__topo .conta { height: 44px; margin-left: 2px; padding: 0 3px; }
+  .portal--lateral .portal__topo .conta__inicial { width: 36px; height: 36px; }
+}
+
+/* (21 out.) ela: «em toda a app as borders devem ser md» — todos os cantos de 5 a 18 px passaram a var(--r-md)
+   (10 px, tokens.css); ficam os traços pequenos (2–4 px) e os redondos (avatares, pontos, selos) */
+
+/* =========================================================
+   (21 out., briefing «Premium filter bar») a barra de filtros dos documentos (portal/filtro-barra.ts)
+   Uma linha: a pesquisa, um menu por dimensão, «Filtros» e «Limpar tudo» (só com filtros aplicados). O período e
+   a referência num painel que se abre por baixo, à direita; no telemóvel, uma folha que sobe de baixo.
+   ========================================================= */
+.ped4 .fb { gap: 10px; }
+.fb .ped4__campos--botao { position: relative; }
+.fb .fb__barra { flex-wrap: wrap; gap: 8px; }
+.fb .fb__barra > .ped4__campo { flex: 1 1 280px; max-width: 440px; }
+.fb-menu { position: relative; }
+.fb-menu__btn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto-2); font: inherit; font-size: 14px; cursor: pointer; transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease; }
+.fb-menu__btn b { font-weight: 700; color: var(--c-texto); }
+.fb-menu__seta { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform 180ms ease; }
+.fb-menu.is-aberto .fb-menu__seta { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) { .fb-menu__btn:hover { border-color: var(--c-borda-forte); } }
+.fb-menu.is-ativo .fb-menu__btn { border-color: color-mix(in srgb, var(--gp-azul, #147dc0) 60%, var(--c-borda)); background: color-mix(in srgb, var(--gp-azul, #147dc0) 8%, var(--c-superficie)); }
+.fb-menu.is-ativo .fb-menu__btn b { color: var(--gp-azul-vivo, var(--gp-azul)); }
+.fb-menu__btn:focus-visible { outline: 2px solid var(--gp-azul, #147dc0); outline-offset: 2px; }
+.fb-menu__lista { position: absolute; z-index: 35; top: calc(100% + 6px); left: 0; min-width: 240px; padding: 6px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); box-shadow: 0 12px 28px -12px rgba(0, 0, 0, .35); animation: fb-abre 180ms cubic-bezier(.22, 1, .36, 1); }
+@keyframes fb-abre { from { opacity: 0; transform: translateY(-4px); } }
+.fb-menu__lista > div { display: grid !important; gap: 2px; padding: 0 !important; border: 0 !important; background: none !important; }
+.fb-menu__lista :is(.ped4__est-risca, .ped4__etapas-r) { display: none !important; }
+.fb-menu__lista :is(.ped4__est, .ped4__etapa-f) { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 38px; margin: 0; padding: 0 10px; border: 0 !important; border-radius: var(--r-md); background: none; box-shadow: none !important; color: var(--c-texto); font: inherit; font-size: 14px; font-weight: 500; text-align: left; cursor: pointer; }
+.fb-menu__lista :is(.ped4__est, .ped4__etapa-f) svg { width: 16px; height: 16px; color: var(--c-texto-3); }
+.fb-menu__lista :is(.ped4__est, .ped4__etapa-f):hover, .fb-menu__lista :is(.ped4__est, .ped4__etapa-f):focus-visible { background: var(--c-superficie-2); outline: none; }
+.fb-menu__lista :is(.ped4__est, .ped4__etapa-f)[aria-pressed="true"] { background: color-mix(in srgb, var(--gp-azul, #147dc0) 10%, transparent); color: var(--c-texto); font-weight: 700; }
+.fb-menu__lista :is(.ped4__est, .ped4__etapa-f)[aria-pressed="true"] svg { color: var(--gp-azul-vivo, var(--gp-azul)); }
+.fb-menu__lista .ped4__est-n { justify-self: end; min-width: 22px; padding: 0 6px; border-radius: 999px; background: var(--c-superficie-2); font-size: 12px; font-weight: 600; color: var(--c-texto-2); text-align: center; }
+.fb .ped4__barra-f .ped4__filtros-abrir { height: 40px; }
+.fb__limpar { display: none; height: 40px; padding: 0 8px; border: 0; background: none; color: var(--gp-azul-vivo, var(--gp-azul)); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.fb__limpar:hover { text-decoration: underline; }
+.fb:has(.ped4__chips li) .fb__limpar { display: inline-flex; align-items: center; }
+/* o painel: por baixo da barra, à direita, sem cartão grande permanente */
+.ped4 .fb .fb__painel { position: absolute; z-index: 34; top: calc(100% + 8px); right: 0; display: grid; gap: 16px; width: min(400px, 100%); margin: 0; padding: 18px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .4); animation: fb-abre 200ms cubic-bezier(.22, 1, .36, 1); }
+.ped4:not(.filtros-abertos) .fb .fb__painel { display: none; }
+.fb__titulo { margin: 0; font-size: 16px; font-weight: 700; }
+.fb__grupo { display: grid; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.fb__grupo legend { margin-bottom: 6px; padding: 0; font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--c-texto-3); }
+.fb__datas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fb__grupo .ped4__campo label { font-size: 12px; }
+.fb__datas-erro { font-size: 13px; font-weight: 600; color: var(--c-erro); }
+.fb .fb__painel .ped4__botoes { display: flex; justify-content: space-between; gap: 8px; padding-top: 14px; border-top: 1px solid var(--c-borda); }
+.fb .ped4__chips:empty { display: none; }
+@media (max-width: 767.98px) {
+  .fb .fb__barra > .ped4__campo { flex-basis: 100%; max-width: none; }
+  .fb-menu__lista { position: fixed; left: 8px; right: 8px; top: auto; bottom: 8px; min-width: 0; padding: 8px; }
+  .fb-menu__lista :is(.ped4__est, .ped4__etapa-f) { min-height: 48px; }
+  .ped4 .fb .fb__painel { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 85vh; overflow-y: auto; border-radius: var(--r-md) var(--r-md) 0 0; padding-bottom: max(18px, env(safe-area-inset-bottom)); animation-name: fb-sobe; }
+  @keyframes fb-sobe { from { transform: translateY(40px); opacity: 0; } }
+  .fb .fb__painel .ped4__botoes { position: sticky; bottom: 0; background: var(--c-superficie); }
+}
+@media (prefers-reduced-motion: reduce) { .fb-menu__lista, .ped4 .fb .fb__painel { animation: none; } .fb-menu__btn, .fb-menu__seta { transition: none; } }
+.fb__grupo .ped4__campo:has(input[id$="-ref"]) > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

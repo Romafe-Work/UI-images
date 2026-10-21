@@ -27,7 +27,7 @@
 .c22__cartao {
   grid-area: c; position: relative; overflow: hidden;
   display: grid; align-content: start; gap: var(--e-4);
-  padding: var(--e-5) var(--e-6); border-radius: 18px; color: #fff;
+  padding: var(--e-5) var(--e-6); border-radius: var(--r-md); color: #fff;
   border: 1px solid rgba(255,255,255,.18);
   transition: transform .6s cubic-bezier(.2,.8,.2,1), width .6s cubic-bezier(.2,.8,.2,1), opacity .4s ease, filter .4s ease;
 }
@@ -65,7 +65,7 @@
 
 /* ---------- dentro do cartão ---------- */
 .c22__cabeca { display: flex; align-items: center; gap: var(--e-4); }
-.c22__marca { display: grid; place-items: center; width: 72px; height: 72px; flex: none; border-radius: 16px; background: rgba(255,255,255,.18); }
+.c22__marca { display: grid; place-items: center; width: 72px; height: 72px; flex: none; border-radius: var(--r-md); background: rgba(255,255,255,.18); }
 .c22__marca svg { width: 40px; height: 40px; }
 .c22__titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: clamp(24px, 2.4vw, 36px); line-height: 1.1; }
 .c22__sub { margin: 6px 0 0; font-size: 16px; line-height: 1.4; color: rgba(255,255,255,.9); }

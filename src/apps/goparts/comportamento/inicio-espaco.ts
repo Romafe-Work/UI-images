@@ -16,6 +16,7 @@
      fica marcado e assenta com mola; o Início atrás reorganiza-se ao mesmo tempo), ↑ ↓ na pega, densidade,
      pesquisa ao abrir, atalhos (até 6), repor.
    ========================================================= */
+import { irPara } from './navegar';
 import { mostrar } from '../../../comum/ecras';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import * as carrinho from './carrinho';
@@ -218,6 +219,8 @@ function fecharVeiculo(ini: HTMLElement): void {
 }
 /** Usar um veículo da garagem na pesquisa: vai ao modo Identificar, escreve a matrícula e identifica. */
 function usarNaPesquisa(ini: HTMLElement, matricula: string): void {
+  /* (21 out.) no ecrã A minha garagem não há formulário: vai à Pesquisar peças e identifica lá */
+  if (!ini.querySelector('#i3-cartao-identificar')) { try { sessionStorage.setItem('goparts:garagem-usar', matricula); } catch { /* abre só a pesquisa */ } irPara('pesquisa', 0); return; }
   ini.querySelector<HTMLElement>('.ini3__separador[data-modo="0"]')?.click();
   const card = ini.querySelector<HTMLElement>('#i3-cartao-identificar'); if (!card) return;
   card.querySelectorAll<HTMLInputElement>('input').forEach((i) => { i.value = ''; });
@@ -589,6 +592,8 @@ function repor(g: HTMLElement): void {
 let atual: HTMLElement | null = null;
 function armar(): void {
   const ini = vivo();
+  /* (21 out.) veio da garagem com «Usar na pesquisa» */
+  if (ini?.querySelector('#i3-cartao-identificar')) { let m: string | null = null; try { m = sessionStorage.getItem('goparts:garagem-usar'); sessionStorage.removeItem('goparts:garagem-usar'); } catch { /* nada */ } if (m) { const ii = ini; window.setTimeout(() => usarNaPesquisa(ii, m!), 60); } }
   if (!ini || ini === atual) { if (!ini) atual = null; return; }
   atual = ini;
   if (real(ini) && !editando()) desenhar(ini);
