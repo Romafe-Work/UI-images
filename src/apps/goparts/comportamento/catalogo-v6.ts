@@ -516,6 +516,9 @@ function armar(): void {
   requestAnimationFrame(() => riscas(portal));
 }
 
+/** (20 out., V6) Abrir já o que ficou pedido (a ficha de uma referência), sem esperar pelo quadro seguinte: durante
+    uma View Transition o navegador não corre requestAnimationFrame. */
+export const prepararJa = () => armar();
 export function iniciar(): void {
   ligarGanchos();
   inclinar();

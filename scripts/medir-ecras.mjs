@@ -35,13 +35,13 @@ function medir() {
   const pecas = [...ecra.querySelectorAll(SEL)].filter((e) => visivel(e) && !decorativo(e));
   for (const e of pecas) {
     const r = e.getBoundingClientRect();
-    /* dentro de uma caixa que rola de lado (uma tabela larga), sair da janela é o normal: rola-se */
-    const rola = (() => { for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll') return true; } return false; })();
+    /* dentro de uma caixa que rola de lado (uma tabela larga), ou de uma faixa que desliza com o scroll (data-faixa), sair da janela é o normal */
+    const rola = (() => { for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll' || a.hasAttribute('data-faixa')) return true; } return false; })();
     if (!rola && (r.right > W + 2 || r.left < -2)) { problemas.push(`fora da janela: ${nome(e)}`); continue; }
     for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) {
       const s = getComputedStyle(a);
       if (s.overflowX === 'visible' && s.overflowY === 'visible') continue;
-      if (s.overflowX === 'auto' || s.overflowY === 'auto' || s.overflowX === 'scroll' || s.overflowY === 'scroll') break;
+      if (s.overflowX === 'auto' || s.overflowY === 'auto' || s.overflowX === 'scroll' || s.overflowY === 'scroll' || a.hasAttribute('data-faixa')) break;
       const q = a.getBoundingClientRect();
       if (r.bottom > q.bottom + 2 || r.right > q.right + 2 || r.top < q.top - 2 || r.left < q.left - 2) {
         problemas.push(`cortado por ${nome(a).split(' ')[0]}: ${nome(e)}`); break;

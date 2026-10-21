@@ -217,6 +217,13 @@ export function ir(main: HTMLElement, vista: Vista): void {
   /* v6: a troca é uma View Transition — só o conteúdo do catálogo desliza (para a frente ou para trás), a barra,
      as abas e os passos ficam; o logótipo e a referência voam para o sítio novo */
   const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
+  /* (20 out., V6) a chegar de outro ecrã do portal (navegar.ts), a transição já está a decorrer: muda logo, com os
+     nomes partilhados postos, para a peça vir do ecrã anterior para a ficha */
+  if (main.classList.contains('cat6') && document.documentElement.classList.contains('gp-vt')) {
+    if (v5.eV5(main)) v5.fluxo(main, vista);
+    mostrar(main, vista); partilhado.depois?.(main, antes, vista);
+    return;
+  }
   if (main.classList.contains('cat6') && doc.startViewTransition && !quieto() && main.isConnected) {
     document.documentElement.dataset.catSentido = frente ? 'frente' : 'tras';
     partilhado.antes?.(main, antes, vista);

@@ -11,7 +11,8 @@
      carrinho» depois de o carrinho aceitar) e a ficha no catálogo.
    Com «reduzir movimento», muda logo.
    ========================================================= */
-import { mostrar } from '../../../comum/ecras';
+import { irComFoto } from './navegar';
+import { prepararJa } from './catalogo-v6';
 import * as carrinho from './carrinho';
 import { MODELOS, veiculosDe } from '../portal/catalogo-dados';
 import { MARCAS_CAT } from '../portal/inicio-v3';
@@ -188,7 +189,8 @@ export function iniciar(): void {
     if (t.closest('[data-pr-parcial]')) { const c = ini.querySelector<HTMLElement>('#i3-cartao-referencia')!; const x = c.querySelector<HTMLInputElement>('[data-pq-parcial]'); if (x) x.checked = true; pesquisarReferencia(c); return; }
     if (t.closest('[data-pr-tentar]')) { pesquisarReferencia(ini.querySelector<HTMLElement>('#i3-cartao-referencia')!); return; }
     if ((b = t.closest('[data-pr-pedir]'))) { void pedir(b); return; }
-    if ((b = t.closest('[data-pr-ficha]'))) { try { sessionStorage.setItem('goparts:catalogo-abrir', JSON.stringify({ tipo: 'ref', fab: b.dataset.prFab, ref: b.dataset.prFicha })); } catch { /* abre o catálogo */ } mostrar('catalogo'); return; }
+    /* a ficha: a imagem da peça passa do resultado para a ficha (navegar.ts) */
+    if ((b = t.closest('[data-pr-ficha]'))) { try { sessionStorage.setItem('goparts:catalogo-abrir', JSON.stringify({ tipo: 'ref', fab: b.dataset.prFab, ref: b.dataset.prFicha })); } catch { /* abre o catálogo */ } irComFoto('catalogo', b.closest('.pr__peca')?.querySelector<HTMLElement>('.pr__img') ?? null, prepararJa); return; }
     if ((b = t.closest('[data-copiar]'))) {
       const v = b.dataset.copiar!, fim = (ok: boolean) => { b!.classList.add(ok ? 'is-copiado' : 'is-erro'); b!.setAttribute('aria-label', ok ? `Copiada: ${v}` : 'Não foi possível copiar'); avisar(ini, ok ? `Referência ${v} copiada.` : 'Não foi possível copiar.'); window.setTimeout(() => { b!.classList.remove('is-copiado', 'is-erro'); }, 1400); };
       navigator.clipboard?.writeText(v).then(() => fim(true), () => fim(false)) ?? fim(false);

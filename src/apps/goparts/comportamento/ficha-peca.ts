@@ -39,7 +39,8 @@ let nr = 0;
 /* ---------- a imagem ---------- */
 function imagem(main: HTMLElement): void {
   const im = main.querySelector<HTMLElement>('.cat6__ficha .cat5__peca-imagem');
-  if (!im || im.querySelector('.cat6__sem-foto')) return;
+  /* (20 out., V6) com o desenho do tipo de peça (ou o «sem imagem» de um estado), fica como está */
+  if (!im || im.querySelector('.cat6__sem-foto, .cat5__peca-azulejo') || im.classList.contains('is-sem-imagem')) return;
   im.innerHTML = `<span class="cat6__sem-foto">${L(imageOff)}<span>Sem fotografia</span></span>`;
 }
 

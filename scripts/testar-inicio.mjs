@@ -277,6 +277,19 @@ await caso('por matrícula: pela descrição, os veículos possíveis e confirma
   await p.click(`${I} [data-confirmar-veiculo]`); await p.waitForTimeout(400);
   certo((await p.textContent(`${I} .ini4__veiculo`)).includes('a partir da descrição'), 'não mostrou o veículo confirmado');
 }, 'pesquisa');
+await caso('resultado → ficha no catálogo (com a compatibilidade por confirmar) → voltar aos mesmos resultados', 1440, async (p) => {
+  await p.click(`${I} .pq__modo[data-modo="2"]`);
+  await p.fill(`${I} #i3-referencia`, 'VKBA 6556'); await p.keyboard.press('Escape');
+  await p.click(`${I} #i3-cartao-referencia [data-pesquisar]`); await p.waitForTimeout(900);
+  await p.click(`${I} [data-pr-ficha="VKBA 6556"]`); await p.waitForTimeout(900);
+  certo(await ecra(p) === 'catalogo', 'não foi ao catálogo');
+  certo((await p.textContent('.ecra:not([hidden]) .cat6__ficha:not([hidden]) .cat5__peca-ref')).trim() === 'VKBA 6556', 'a ficha não é a da peça');
+  certo(await p.$('.ecra:not([hidden]) .cat6__ficha .cat5__compat--duvida'), 'sem veículo, a compatibilidade devia estar por confirmar');
+  certo(await p.$('.ecra:not([hidden]) .cat6__ficha .cat5__peca-azulejo'), 'a ficha não tem o desenho da peça');
+  await p.goBack(); await p.waitForTimeout(800);
+  certo(await ecra(p) === 'pesquisa', 'o voltar não voltou à pesquisa');
+  certo(await p.isVisible(`${I} .pr__item[data-ref="VKBA 6556"]`), 'os resultados não ficaram');
+}, 'pesquisa');
 await caso('pesquisa no telemóvel: sem deslocação horizontal', 390, async (p) => {
   const w = await p.evaluate(() => document.documentElement.scrollWidth);
   certo(w <= 390, `a página tem ${w} px de largura`);

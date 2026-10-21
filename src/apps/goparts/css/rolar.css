@@ -1,0 +1,49 @@
+/* =========================================================
+   GOPARTS — o movimento com o scroll (20 out. 2026, V6): ver comportamento/rolar.ts
+   Ligado ao scroll em CSS (animation-timeline) quando o navegador o tem; o comportamento faz o resto.
+   Só transform e opacity; com «reduzir movimento», tudo parado e à vista.
+   ========================================================= */
+/* ---------- ao entrar no ecrã: à espera, invisível (o comportamento anima a entrada) ---------- */
+.rl-espera { opacity: 0; }
+
+/* ---------- a barra de progresso no cimo da janela ---------- */
+.rl-progresso { position: fixed; z-index: 40; top: 0; left: 0; right: 0; height: 3px; background: var(--c-acao); transform: scaleX(0); transform-origin: left; pointer-events: none; }
+@supports (animation-timeline: scroll()) {
+  .rl-progresso { animation: rl-progresso linear both; animation-timeline: scroll(root block); }
+  @keyframes rl-progresso { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  /* a saudação do Início esbate-se e encolhe enquanto sai de vista */
+  .pn__ola { animation: rl-sair linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; transform-origin: left top; }
+  @keyframes rl-sair { to { opacity: .2; transform: scale(.94) translateY(-6px); } }
+  /* parallax: os carros desenhados andam mais devagar do que a página */
+  .ini4__veiculo-img svg, .ini4__carro-img svg { animation: rl-paralaxe linear both; animation-timeline: view(); animation-range: cover; }
+  @keyframes rl-paralaxe { from { transform: translateY(14px); } to { transform: translateY(-14px); } }
+}
+
+/* ---------- presos em cima ---------- */
+.pn__procura { position: sticky; top: 8px; z-index: 6; transition: box-shadow 200ms ease, border-color 200ms ease; }
+.pn__procura.is-preso { border-color: var(--c-acao); box-shadow: 0 8px 20px rgba(0, 0, 0, .12); }
+.pq.is-com-resultados .pq__modos { position: sticky; top: 0; z-index: 6; margin: 0 -8px; padding: 8px !important; background: var(--c-portal-fundo, var(--i3-fundo)) !important; transition: box-shadow 200ms ease; }
+.pq.is-com-resultados .pq__modos.is-preso { box-shadow: 0 1px 0 var(--i3-borda), 0 10px 18px -12px rgba(0, 0, 0, .25); }
+
+/* ---------- as categorias: presas, deslizam para o lado ---------- */
+.ini4__bloco--categorias.rl-horizontal { display: block; padding: 0; border: 0; background: none; overflow: visible; }
+.rl-horizontal > .rl-janela { position: sticky; top: max(16px, calc(50vh - 130px)); display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: var(--i4-pad, 16px 18px); border: 1px solid var(--i3-borda); border-radius: var(--i4-r, 10px); background: var(--i3-sup); overflow: hidden; }
+.rl-horizontal .ini4__categorias { display: flex; width: max-content; flex-wrap: nowrap; gap: 12px; overflow: visible; will-change: transform; }
+.rl-horizontal .ini4__categorias > li { flex: none; width: 200px; }
+.rl-horizontal .ini4__categoria { width: 100%; min-height: 150px; }
+.rl-horizontal .ini4__categoria svg:first-child { width: 64px; height: 64px; }
+/* a régua do caminho: quanto já se andou */
+.rl-horizontal > .rl-janela::after { content: ""; display: block; height: 3px; border-radius: 2px; background: linear-gradient(var(--c-acao), var(--c-acao)) left / calc(var(--rl-p, 0) * 100%) 100% no-repeat, var(--i3-sup-2); }
+/* no telemóvel: uma faixa que se arrasta, com encaixe */
+@media (max-width: 767.98px) {
+  .pq .ini4__blocos > *, .pq .rl-janela { min-width: 0; }
+  .pq .ini4__categorias { max-width: 100%; display: flex !important; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding-bottom: 6px; scrollbar-width: none; }
+  .pq .ini4__categorias::-webkit-scrollbar { display: none; }
+  .pq .ini4__categorias > li { flex: none; width: 42%; scroll-snap-align: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rl-espera { opacity: 1 !important; }
+  .rl-progresso, .pn__ola, .ini4__veiculo-img svg, .ini4__carro-img svg { animation: none !important; }
+  .rl-progresso { display: none; }
+}

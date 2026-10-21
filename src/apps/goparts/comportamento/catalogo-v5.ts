@@ -15,6 +15,7 @@
      página (e ela não quer), por isso o painel desvanece e desce 6 px;
    - ordenar por Ano, kW, cv ou cc: as linhas deslizam para o sítio (220 ms).
    ========================================================= */
+import { azulejoPeca } from '../portal/pecas-img';
 import { linhasVeiculos5, veiculosDe, REFERENCIAS, linhaReferencia, fabricantesDe, euros, fichaDe, equivalentes, type Referencia } from '../portal/catalogo-dados';
 import cart from 'lucide-static/icons/shopping-cart.svg?raw';
 import copy from 'lucide-static/icons/copy.svg?raw';
@@ -445,6 +446,13 @@ const quantidade = (q = 1) => `<span class="cat5__qtd" role="group" aria-label="
 const pastilha = (n: number) => `<span class="cat5__stock cat5__stock--${n === 0 ? 'sem' : n < 5 ? 'pouco' : 'ok'}">${L(boxes)}${n === 0 ? 'Sem stock' : `${n} un.`}</span>`;
 const prazo = (n: number, porto: boolean) => (n === 0 ? 'Por encomenda · 3 a 5 dias úteis' : porto ? 'Hoje, se pedir até às 16h' : 'Amanhã de manhã');
 
+/* (20 out., V6) a compatibilidade dita na ficha: vinda de um veículo, é a ligação do catálogo a esse veículo;
+   vinda do Universal (ou de uma pesquisa sem veículo), fica por confirmar — e diz-se como confirmar. */
+function compatHtml(main: HTMLElement): string {
+  const { marca, modelo, versao, refs } = main.dataset;
+  if (refs === 'veiculo' && marca && versao) return `<p class="cat5__compat cat5__compat--ok">${L(badgeCheck)}<span><b>Compatível com o ${marca} ${(modelo || '').replace(/\s*\([^)]*\)\s*$/, '')} ${versao}</b> — o catálogo do fabricante liga esta peça a esta versão.</span></p>`;
+  return `<p class="cat5__compat cat5__compat--duvida">${L(badgeCheck)}<span><b>Compatibilidade por confirmar.</b> Sem veículo escolhido: confirma nos «Veículos aplicáveis» ou pelos números OE.</span></p>`;
+}
 export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void {
   const r = REFERENCIAS.find((q) => q[1] === fab && q[2] === ref);
   if (!r) return;
@@ -454,12 +462,13 @@ export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void
   main.dataset.ref = ref;
   main.querySelector('.cat5__t-modelo')!.textContent = `${main.dataset.barra || ''} / ${ref}`;
   main.querySelector('.cat5__peca')!.innerHTML = `
-    <div class="cat5__peca-lado"><div class="cat5__peca-imagem" aria-hidden="true">${L(pkg)}</div>
+    <div class="cat5__peca-lado"><div class="cat5__peca-imagem" aria-hidden="true">${azulejoPeca(desc, 'cat5__peca-azulejo', ref)}<span class="cat5__peca-legenda">Desenho do tipo de peça</span></div>
       <label class="cat5__peca-comparar"><input type="checkbox" data-comparar="${fab}|${ref}">Comparar</label></div>
     <div class="cat5__peca-info">
       <p class="cat5__peca-fab">${fab}<span>${grupo}</span></p>
       <h1 class="cat5__peca-ref">${ref}</h1>
       <p class="cat5__peca-desc">${desc}</p>
+      ${compatHtml(main)}
       <dl class="cat5__peca-dados">
         <div><dt>Ref. do fornecedor</dt><dd>${fab}${ref.replace(/\s/g, '')}<button type="button" class="cat5__copiar" data-copiar="${fab}${ref.replace(/\s/g, '')}" aria-label="Copiar a referência">${L(copy)}</button></dd></div>
         <div><dt>Substituída por</dt><dd>${f.substituida ? `${L(replace)}${f.substituida}` : '—'}</dd></div>

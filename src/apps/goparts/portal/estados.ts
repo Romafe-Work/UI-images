@@ -9,6 +9,7 @@
    o esqueleto tem a forma do que vem; cada erro diz o que aconteceu, o que
    fazer, e dá uma saída com ícone e texto.
    ========================================================= */
+import { REFERENCIAS, fichaDe } from './catalogo-dados';
 import type { EcraGoParts, IdGoParts } from '../ids';
 import { portal } from './base';
 import { inicioV3, type EstadoInicio } from './inicio-v3';
@@ -34,7 +35,7 @@ export type IdEstadoPedidos = 'pedidos-tabela' | 'pedidos-inicio' | 'pedidos-sel
 export type IdEstadoFaturas = 'faturas-inicio' | 'faturas-carga' | 'faturas-pesquisa' | 'faturas-primeira' | 'faturas-vazio' | 'faturas-filtros' | 'faturas-selecionada' | 'faturas-aberta' | 'faturas-iva-aberto' | 'faturas-painel-carga' | 'faturas-sem-linhas' | 'faturas-longa' | 'faturas-paga' | 'faturas-credito' | 'faturas-vencida' | 'faturas-pdf-carga' | 'faturas-pdf' | 'faturas-pdf-erro' | 'faturas-descarga' | 'faturas-descarga-erro' | 'faturas-parcial' | 'faturas-sem-relacionados' | 'faturas-falha' | 'faturas-rede' | 'faturas-sessao' | 'faturas-sem-permissao' | 'faturas-tabela';
 export type IdEstadoDevolucoes = 'devolucoes-inicio' | 'devolucoes-carga' | 'devolucoes-pesquisa' | 'devolucoes-primeira' | 'devolucoes-vazio' | 'devolucoes-filtros' | 'devolucoes-selecionada' | 'devolucoes-aberta' | 'devolucoes-creditada' | 'devolucoes-por-enviar' | 'devolucoes-a-enviar-rascunho' | 'devolucoes-criar-fatura' | 'devolucoes-criar-artigos' | 'devolucoes-criar-qtd' | 'devolucoes-criar-sem-artigos' | 'devolucoes-criar-rever' | 'devolucoes-a-enviar' | 'devolucoes-enviada' | 'devolucoes-falhou' | 'devolucoes-rede' | 'devolucoes-falha' | 'devolucoes-sessao' | 'devolucoes-sem-permissao' | 'devolucoes-tabela';
 export type IdEstadoGuias = 'guias-inicio' | 'guias-carga' | 'guias-pesquisa' | 'guias-primeira' | 'guias-vazio' | 'guias-filtros' | 'guias-selecionada' | 'guias-aberta' | 'guias-credito' | 'guias-relacionada' | 'guias-pedido-indisponivel' | 'guias-pdf-carga' | 'guias-pdf' | 'guias-pdf-erro' | 'guias-descarga' | 'guias-descarga-erro' | 'guias-rede' | 'guias-falha' | 'guias-sessao' | 'guias-sem-permissao' | 'guias-tabela';
-export type IdEstadoCatalogo = 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
+export type IdEstadoCatalogo = 'catalogo-ficha-sem-imagem' | 'catalogo-ficha-varias-refs' | 'catalogo-ficha-compativel' | 'catalogo-ficha-por-confirmar' | 'catalogo-ficha-sem-tecnicos' | 'catalogo-ficha-sem-preco' | 'catalogo-carga' | 'catalogo-identificar' | 'catalogo-nao-encontrada' | 'catalogo-formulario' | 'catalogo-modelos' | 'catalogo-procura' | 'catalogo-sem-favoritas' | 'catalogo-falha' | 'catalogo-lista-modelos' | 'catalogo-veiculos' | 'catalogo-referencias' | 'catalogo-universal' | 'catalogo-detalhes' | 'catalogo-sem-veiculos' | 'catalogo-sem-referencias'
   | 'catalogo-identificado' | 'catalogo-a-pedir' | 'catalogo-carrinho-falhou' | 'catalogo-precos' | 'catalogo-offline' | 'catalogo-grupos-carga'
   | 'catalogo-ficha-carga' | 'catalogo-ficha-indisponivel' | 'catalogo-ficha-sem-stock' | 'catalogo-ficha-stock-carga' | 'catalogo-ficha-stock-erro' | 'catalogo-ficha-qtd' | 'catalogo-ficha-a-adicionar' | 'catalogo-ficha-adicionada' | 'catalogo-ficha-nao-adicionada' | 'catalogo-ficha-sem-equivalencias' | 'catalogo-ficha-sem-oe' | 'catalogo-ficha-sem-veiculos' | 'catalogo-ficha-sem-caracteristicas' | 'catalogo-ficha-sem-documentos' | 'catalogo-ficha-documento-carga' | 'catalogo-ficha-documento-erro' | 'catalogo-ficha-sessao' | 'catalogo-ficha-sem-permissao' | 'catalogo-ficha-offline';
 
@@ -432,6 +433,36 @@ const fichaSemOe = () => fichaBase('e1135', (r) => vazioAba(r, 'oe', IC.lupa, 'E
 const fichaSemVeiculos = () => fichaBase('e1136', (r) => vazioAba(r, 'veiculos', IC.carro, 'Não há veículos confirmados para esta referência.', 'Sem confirmação do fabricante, não a damos como compatível com nenhum veículo.', BOTAO('Falar com a Romafe', IC.telefone, 'btn--ghost btn--sm')));
 const fichaSemCaracteristicas = () => fichaBase('e1137', (r) => vazioAba(r, 'caracteristicas', IC_DOC, 'O fabricante ainda não enviou as características.', 'As medidas aparecem aqui quando chegarem; a ficha técnica pode tê-las.', BOTAO('Ver documentos', IC_DOC, 'btn--ghost btn--sm')));
 const fichaSemDocumentos = () => fichaBase('e1138', (r) => vazioAba(r, 'documentos', IC_DOC, 'Sem documentos para esta referência.', 'O fabricante não publicou instruções nem ficha técnica.'));
+/* ================= (20 out., V6) 11.44–11.49 · os estados da peça que o briefing pede e faltavam ================= */
+/* 11.44 · sem imagem: nem fotografia do fabricante nem desenho do tipo — diz-se, sem pôr outra coisa no lugar */
+const fichaSemImagem = () => fichaBase('e1144', (r) => {
+  const im = $(r, '.cat5__peca-imagem'); im.classList.add('is-sem-imagem');
+  im.innerHTML = `${I(IC.caixa)}<span class="cat5__peca-legenda">Sem imagem do fabricante</span>`;
+});
+/* 11.45 · a mesma peça com várias referências: a do fornecedor, os números OE e o EAN (os dados da ficha) */
+const fichaVariasRefs = () => fichaBase('e1145', (r) => {
+  const ref = REFERENCIAS.find((q) => q[2] === 'VKMC 01250-2')!, f = fichaDe(ref);
+  $(r, '.cat5__peca-desc').insertAdjacentHTML('afterend', `<div class="cat5__mesma"><b>A mesma peça tem ${2 + f.oe.length} referências.</b> Qualquer uma encontra esta ficha.<ul>${[['Fornecedor', `SKF${ref[2].replace(/\s/g, '')}`], ...f.oe.map((o) => ['OE BMW', o]), ['EAN', f.ean]].map(([k, v]) => `<li><small>${k}</small>${v}</li>`).join('')}</ul></div>`);
+});
+/* 11.46 · compatibilidade confirmada: vinda do veículo, os «Veículos aplicáveis» abertos com o do cliente marcado */
+const fichaCompativel = () => fichaBase('e1146', (r) => { abaEstado(r, 'veiculos'); });
+/* 11.47 · compatibilidade por confirmar: vinda do Universal (sem veículo) — não se dá como certa */
+const fichaPorConfirmar = () => fichaBase('e1147', (r) => {
+  $(r, '.cat5__compat').outerHTML = `<p class="cat5__compat cat5__compat--duvida">${I('<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>')}<span><b>Compatibilidade por confirmar.</b> Sem veículo escolhido: confirma nos «Veículos aplicáveis» ou pelos números OE.</span></p>`;
+});
+/* 11.48 · sem dados técnicos: as características e os documentos não chegaram; comprar continua */
+const fichaSemTecnicos = () => fichaBase('e1148', (r) => {
+  vazioAba(r, 'documentos', IC_DOC, 'Sem documentos para esta referência.', 'O fabricante não publicou instruções nem ficha técnica.');
+  vazioAba(r, 'caracteristicas', IC_DOC, 'O fabricante ainda não enviou as características.', 'As medidas aparecem aqui quando chegarem.');
+  $(r, '.cat5__peca-info').insertAdjacentHTML('afterbegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_DOC)}</span>`, 'Os dados técnicos desta peça ainda não chegaram.', 'O preço, o stock e a compra estão certos; as medidas e os documentos aparecem quando o fabricante os enviar.'));
+});
+/* 11.49 · sem preço: «Preço indisponível», nunca 0,00 €; pedir espera pelo preço */
+const fichaSemPreco = () => fichaBase('e1149', (r) => {
+  $(r, '.cat5__peca-preco').innerHTML = '<span>PVP —</span>';
+  $(r, '.cat5__peca-liq').innerHTML = 'Preço indisponível<span>o servidor não devolveu o preço desta referência</span>';
+  compra(r).querySelector('.cat5__adicionar')!.setAttribute('disabled', '');
+  compra(r).insertAdjacentHTML('beforeend', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC.aviso)}</span>`, 'Sem preço, não se pode pedir.', 'O stock está certo; liga para o +351 226 158 300 ou tenta mais tarde.', BOTAO('Tentar novamente', IC.denovo, 'btn--claro btn--sm')));
+});
 /* 11.39 · um documento a preparar: só o seu botão espera */
 const fichaDocumentoCarga = () => fichaBase('e1139', (r) => {
   abaEstado(r, 'documentos');
@@ -1168,6 +1199,12 @@ export const estadosCatalogo = (): EcraGoParts[] => [
   e('catalogo-ficha-sessao', '11.41 · Sessão terminada', 'A ficha fica onde está; pedir pede para entrar outra vez.', fichaSessao),
   e('catalogo-ficha-sem-permissao', '11.42 · Sem permissão para preços', 'Esta conta não vê preços nem compra; a ficha técnica continua aberta.', fichaSemPermissao),
   e('catalogo-ficha-offline', '11.43 · Sem ligação na ficha', 'A ficha de há pouco, esbatida; pedir volta com a ligação.', fichaOffline),
+  e('catalogo-ficha-sem-imagem', '11.44 · Peça sem imagem', 'Nem fotografia do fabricante nem desenho do tipo: a caixa tracejada di-lo; nada no lugar.', fichaSemImagem),
+  e('catalogo-ficha-varias-refs', '11.45 · Várias referências', 'A mesma peça com a referência do fornecedor, os números OE e o EAN: qualquer uma encontra esta ficha.', fichaVariasRefs),
+  e('catalogo-ficha-compativel', '11.46 · Compatibilidade confirmada', 'Vinda do BMW 1 (E81) 116i: «Compatível», com a ligação do catálogo dita; os veículos aplicáveis abertos.', fichaCompativel),
+  e('catalogo-ficha-por-confirmar', '11.47 · Compatibilidade por confirmar', 'Vinda do Universal, sem veículo: não se dá como certa; diz como confirmar.', fichaPorConfirmar),
+  e('catalogo-ficha-sem-tecnicos', '11.48 · Sem dados técnicos', 'Características e documentos por chegar; a compra continua certa.', fichaSemTecnicos),
+  e('catalogo-ficha-sem-preco', '11.49 · Sem preço', '«Preço indisponível», nunca 0,00 €; «Adicionar» espera pelo preço.', fichaSemPreco),
 ];
 
 export const estadosPedidos = (): EcraGoParts[] => [

@@ -377,6 +377,27 @@ seguir, um ecrã de cada vez.
 - **Sem servidor:** a compatibilidade peça–veículo não está nos dados de exemplo e cada resultado diz isso. Não há
   filtro por preço nem por compatibilidade.
 
+### Catálogo e movimento com o scroll (20 out. 2026, V6)
+
+- **Ficha da peça:**
+  - Usa o mesmo desenho do tipo de peça dos resultados, com a legenda «Desenho do tipo de peça». Não é uma
+    fotografia.
+  - Diz a compatibilidade: confirmada quando se veio de um veículo, por confirmar quando se veio do Universal ou da
+    pesquisa.
+  - Estados novos 11.44–11.49: sem imagem, várias referências, compatibilidade confirmada, compatibilidade por
+    confirmar, sem dados técnicos, sem preço.
+- **Resultado → ficha:** a imagem passa do resultado para a ficha (View Transitions, `irComFoto` em `navegar.ts`).
+  O «voltar» do navegador regressa aos mesmos resultados, no mesmo sítio da página.
+- **Scroll** (`comportamento/rolar.ts`, `css/rolar.css`), no Início e na Pesquisar peças:
+  - os blocos de baixo aparecem ao chegar à vista;
+  - uma barra de progresso no cimo da janela;
+  - a saudação esbate-se ao sair;
+  - parallax nos carros;
+  - o atalho da pesquisa e os cartões (com resultados) ficam presos em cima;
+  - as Categorias ficam presas ao meio e deslizam para o lado ao descer; no telemóvel são uma faixa com encaixe.
+
+  Com «reduzir movimento», nada disto corre.
+
 ## GoParts V5: o Início é o painel e a pesquisa tem o seu ecrã (20 out. 2026)
 
 Do briefing «New Command Dashboard & Separate Parts Search Workspace». Os dois objetivos ficam separados:

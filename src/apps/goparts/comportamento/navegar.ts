@@ -19,7 +19,7 @@ const ecraVisivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden
 const doPortal = (e: HTMLElement | null) => !!e && !e.dataset.estadoDe && !!e.querySelector(':scope > .versao:not([hidden]) .portal--lateral');
 const CHAVE_MODO = 'goparts:pesquisa-modo';
 
-type Doc = Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
+type Doc = Document & { startViewTransition?: (f: () => void | Promise<void>) => { finished: Promise<void> } };
 let comDemo = false;
 /** Muda de ecrã com a transição do portal (ou sem ela). */
 function transitar(mudar: () => void): void {
@@ -33,6 +33,25 @@ function transitar(mudar: () => void): void {
 export function irPara(id: string, modo?: number): void {
   if (modo !== undefined) try { sessionStorage.setItem(CHAVE_MODO, String(modo)); } catch { /* abre no último */ }
   transitar(() => { mostrar(id); });
+}
+
+/** (20 out., V6) Ir para a ficha de uma peça no Catálogo com a imagem dela a passar do sítio de onde se veio
+    (um resultado da Pesquisar peças) para a ficha: o mesmo nome de transição (cat-foto) nos dois lados. */
+export function irComFoto(id: string, origem: HTMLElement | null, preparar?: () => void): void {
+  const doc = document as Doc;
+  if (comDemo || !doc.startViewTransition || quieto() || editando() || !origem) { mostrar(id); return; }
+  const raiz = document.documentElement;
+  raiz.classList.add('gp-vt');
+  origem.style.viewTransitionName = 'cat-foto';
+  const t = doc.startViewTransition(() => {
+    origem.style.viewTransitionName = '';
+    mostrar(id);
+    /* o ecrã de chegada abre já o que ficou pedido (durante a transição não há quadros: requestAnimationFrame espera) */
+    preparar?.();
+    const foto = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .cat6__ficha:not([hidden]) .cat5__peca-imagem');
+    if (foto) foto.style.viewTransitionName = 'cat-foto';
+  });
+  t.finished.finally(() => { raiz.classList.remove('gp-vt'); origem.style.viewTransitionName = ''; document.querySelectorAll<HTMLElement>('.cat5__peca-imagem').forEach((f) => { if (f.style.viewTransitionName === 'cat-foto') f.style.viewTransitionName = ''; }); });
 }
 
 /* ---------- ao chegar à Pesquisar peças: o modo pedido e o foco ---------- */
@@ -64,7 +83,12 @@ function registar(): void {
   anterior = agora;
 }
 
+/* (V6) voltar ao sítio: cada ecrã guarda onde estava a página; o «voltar» do navegador repõe-no (os filtros e os
+   resultados ficam porque o ecrã não se refaz ao sair) */
+const posicoes = new Map<string, number>();
 export function iniciar(): void {
+  let raf = 0;
+  window.addEventListener('scroll', () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; const e = ecraVisivel()?.dataset.ecra; if (e) posicoes.set(e, window.scrollY); }); }, { passive: true });
   comDemo = /(?:^|[#&])demo=1(?:&|$)/.test(location.hash) || document.body.classList.contains('demo');
   /* as ligações do protótipo (data-ir) passam pela mesma transição; a demonstração, quando liga, troca-a pela dela */
   if (!comDemo) definirTransicao((mudar) => transitar(mudar));
@@ -76,6 +100,7 @@ export function iniciar(): void {
     const atual = ecraVisivel()?.dataset.ecra;
     if (m[1] === atual) return;
     aVoltar = true;
-    transitar(() => { mostrar(decodeURIComponent(m[1])); });
+    const id = decodeURIComponent(m[1]), y = posicoes.get(id) ?? 0;
+    transitar(() => { mostrar(id); window.scrollTo(0, y); });
   });
 }
