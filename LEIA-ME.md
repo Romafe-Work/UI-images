@@ -71,10 +71,9 @@ experimentar: a palavra-passe «errada» dá o erro de credenciais. Sem segundo 
 - **Topo** (briefing «Premium header»): grelha com a barra lateral (marca na largura dela, pesquisa ao centro,
   ações à direita), 64 px, sem slogan; mensagens e ajuda, carrinho, conta (inicial e nome; Definições no menu da
   conta). **Cabeçalho do Início**: saudação, «Resumo da tua atividade», conta e armazém; uma ação e dois ícones.
-- **Rolamento 3D com o scroll** (`comportamento/rolamento-scroll.ts`, no fim do Início): o SKF 6206 de
-  `rolamento-3d.ts` desmonta-se ao descer e monta-se ao subir; um só progresso (posição da secção) manda nas peças,
-  na câmara, nas etiquetas e no texto; sem relógio; desenha só quando muda e com a secção à vista; parado com
-  «reduzir movimento». Ligações: pesquisar rolamentos, catálogo, informação técnica. Medidas reais do 6206.
+- **Rolamento 3D no cabeçalho** (`comportamento/rolamento-cabeca.ts`): o SKF 6206 de `rolamento-3d.ts`, pequeno, ao
+  lado da saudação; entra a rolar e continua a andar devagar (anel interior, gaiola e esferas giram). A secção grande
+  controlada pelo scroll saiu (ela: «não quero isto assim»). O «Pesquisar peças» do cabeçalho saiu (redundante).
 
 ## Ecrãs ajustáveis (12 out. 2026)
 

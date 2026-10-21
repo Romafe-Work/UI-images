@@ -508,43 +508,10 @@
 @media (prefers-reduced-motion: reduce) { .pn__modo, .pn__cartao, .pn__cartao-seta, .pn__modo-ir svg { transition: none; } }
 
 /* =========================================================
-   (21 out.) o rolamento 3D que se desmonta com o scroll (comportamento/rolamento-scroll.ts)
-   A secção tem 300 % da janela de altura; a parte fixa fica presa enquanto se desce, e o progresso do scroll
-   nessa distância é o da montagem. À esquerda o rolamento num fundo de estúdio liso; à direita o texto da etapa.
+   (21 out., tarde) o rolamento 3D no cabeçalho, a andar (comportamento/rolamento-cabeca.ts)
+   Ela: «não quero isto assim» (a secção grande do scroll) e «quero o rolamento a andar aqui» — ao lado da
+   saudação. Sem caixa nem fundo: só o rolamento, sobre o fundo da página. Esconde-se nos ecrãs estreitos.
    ========================================================= */
-.rol3 { position: relative; height: 300vh; margin: 8px 0 0; }
-.rol3__fixo { position: sticky; top: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: 32px; height: 100vh; max-height: 900px; padding: 24px 0; box-sizing: border-box; }
-.rol3__cena { position: relative; min-height: 0; overflow: hidden; border: 1px solid var(--i3-borda); border-radius: 16px; background: radial-gradient(80% 70% at 50% 45%, color-mix(in srgb, var(--i3-sup) 92%, #fff), var(--i3-sup-2)); }
-.rol3__tela { display: block; width: 100%; height: 100%; }
-.rol3__etiquetas { position: absolute; inset: 0; pointer-events: none; }
-.rol3__etiquetas span { position: absolute; left: 0; top: 0; margin: -14px 0 0 12px; padding: 3px 8px; border: 1px solid var(--i3-borda-forte); border-radius: 6px; background: var(--i3-sup); color: var(--i3-tinta); font-size: 12px; font-weight: 700; white-space: nowrap; opacity: 0; transition: opacity 160ms ease; }
-.rol3__etiquetas span::before { content: ""; position: absolute; left: -12px; top: 50%; width: 10px; height: 1px; background: var(--i3-tinta-3); }
-.rol3__etiquetas span.is-visivel { opacity: 1; }
-.rol3__sem3d { position: absolute; inset: auto 16px 16px; margin: 0; font-size: 13px; color: var(--i3-tinta-3); }
-.rol3__texto { display: grid; grid-template-rows: auto 1fr auto auto; gap: 18px; min-height: 0; padding: 8px 0; }
-.rol3__modelo { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--gp-azul-vivo, var(--i3-azul)); }
-.rol3__passos { list-style: none; display: grid; align-content: center; gap: 14px; margin: 0; padding: 0; }
-.rol3__passo { padding-left: 14px; border-left: 2px solid var(--i3-borda); opacity: .45; transition: opacity 200ms ease, border-color 200ms ease; }
-.rol3__passo.is-atual { opacity: 1; border-left-color: var(--c-acao); }
-.rol3__titulo { margin: 0 0 4px; font-size: 17px; font-weight: 700; color: var(--i3-tinta); }
-.rol3__passo:first-child .rol3__titulo { font-size: 26px; letter-spacing: -.01em; }
-.rol3__passo p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--i3-tinta-2); }
-.rol3__medidas { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 6px 18px; margin: 10px 0 0; }
-.rol3__medidas div { display: grid; } .rol3__medidas dt { font-size: 11px; font-weight: 700; color: var(--i3-tinta-3); } .rol3__medidas dd { margin: 0; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.rol3__accoes { display: flex; flex-wrap: wrap; gap: 8px; }
-.rol3__progresso { height: 3px; border-radius: 3px; background: var(--i3-borda); overflow: hidden; }
-.rol3__progresso i { display: block; height: 100%; background: var(--c-acao); transform: scaleX(var(--p, 0)); transform-origin: left; }
-/* parado (reduzir movimento): a vista explodida e todo o texto, sem secção comprida */
-.rol3.is-estatico { height: auto; } .rol3.is-estatico .rol3__fixo { position: static; height: 560px; }
-.rol3.is-estatico .rol3__passo { opacity: 1; } .rol3.is-estatico .rol3__progresso { display: none; }
-.rol3.is-sem-3d .rol3__tela { display: none; }
-@media (max-width: 899.98px) {
-  .rol3 { height: 240vh; }
-  .rol3__fixo { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 12px; height: 100svh; padding: 12px 0; }
-  .rol3__texto { grid-template-rows: auto auto auto auto; gap: 10px; }
-  .rol3__passo:not(.is-atual) { display: none; }
-  .rol3.is-estatico .rol3__passo { display: block; }
-  .rol3__passo:first-child .rol3__titulo { font-size: 21px; }
-  .rol3__medidas { grid-template-columns: repeat(2, auto); }
-}
-@media (prefers-reduced-motion: reduce) { .rol3__passo, .rol3__etiquetas span { transition: none; } }
+.pn__rolamento { flex: none; width: 240px; height: 120px; margin: -12px 0 -12px 16px; pointer-events: none; }
+.pn__rolamento-tela { display: block; width: 100%; height: 100%; }
+@media (max-width: 899.98px) { .pn__rolamento { display: none; } }

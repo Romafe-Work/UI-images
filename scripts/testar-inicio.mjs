@@ -120,9 +120,10 @@ await caso('atalhos e alertas levam aos ecrãs; o voltar do navegador', 1440, as
   await p.click(`${N} .pn__grupo--urgente .pn__alerta-det .btn`); await p.waitForTimeout(700);
   certo(await ecra(p) === 'faturas', 'o alerta da fatura vencida não abriu as Faturas');
 });
-await caso('cabeçalho: «Pesquisar peças» abre o ecrã da pesquisa com o foco num campo', 1440, async (p) => {
+await caso('cabeçalho sem «Pesquisar peças» (redundante); o menu abre a pesquisa com o foco num campo', 1440, async (p) => {
+  certo(!(await p.$(`${N} .pn__pesquisar`)), 'o cabeçalho ainda repete «Pesquisar peças»');
   certo(!(await p.$(`${N} .ini3__cartao, ${N} #i3-matricula, ${N} .pq__modo`)), 'o Início tem formulários da pesquisa');
-  await p.click(`${N} .pn__pesquisar`); await p.waitForTimeout(800);
+  await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="pesquisa"]'); await p.waitForTimeout(800);
   certo(await ecra(p) === 'pesquisa', 'não foi à Pesquisar peças');
   certo(await p.evaluate(() => document.activeElement?.tagName) === 'INPUT', 'o foco não ficou num campo');
 });
