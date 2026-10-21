@@ -60,7 +60,7 @@ function alternar(): void {
   } else {
     document.documentElement.classList.remove(RAIZ);
     marcarBotoes(); posicionar(false);
-    lado.classList.add('is-a-abrir');
+    lado.classList.add('is-a-abrir'); entrada();
     const a = lado.animate([{ clipPath: FECHADO }, { clipPath: 'inset(0 0 0 0)' }], { duration: DURA, easing: CURVA });
     a.onfinish = a.oncancel = () => { lado.classList.remove('is-a-abrir'); aAnimar = false; };
   }
@@ -86,14 +86,14 @@ function posicionar(deslizar: boolean): void {
   ultimoY = y;
 }
 
-/** (21 out.) a primeira vez na sessão, os grupos e os itens entram um a um (o CSS anima; aqui só se marca). */
+/** (21 out.) os grupos e os itens entram um a um sempre que a página abre, se muda de ecrã ou se abre a barra
+    (ela: «quero isto com animação sempre que abro o menu ou a página»). O CSS anima; aqui só se marca. */
 function entrada(): void {
-  const lado = visivel(); if (!lado || editando()) return;
-  try { if (sessionStorage.getItem('goparts:lado-entrou')) return; sessionStorage.setItem('goparts:lado-entrou', '1'); } catch { return; }
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lado = visivel(); if (!lado || editando() || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   lado.querySelectorAll<HTMLElement>('.lado__lista > li').forEach((li, i) => li.style.setProperty('--i', String(i)));
-  lado.classList.add('is-a-entrar');
-  window.setTimeout(() => lado.classList.remove('is-a-entrar'), 900);
+  lado.classList.remove('is-a-entrar'); void lado.offsetWidth; lado.classList.add('is-a-entrar');
+  window.clearTimeout(Number(lado.dataset.entradaT ?? 0));
+  lado.dataset.entradaT = String(window.setTimeout(() => lado.classList.remove('is-a-entrar'), 900));
 }
 export function iniciar(): void {
   marcarBotoes();

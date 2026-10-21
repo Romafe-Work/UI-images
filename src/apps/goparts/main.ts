@@ -79,6 +79,7 @@ import { iniciar as abertura } from './comportamento/abertura';
 import { iniciar as painel } from './comportamento/painel';
 import { iniciar as navegar } from './comportamento/navegar';
 import { iniciar as pesquisa } from './comportamento/pesquisa';
+import { iniciar as rodaModos } from './comportamento/roda-modos';
 import { iniciar as rolar } from './comportamento/rolar';
 
-montar(goparts, [barra, lado, navegar, filtroChegada, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, inicioV3, inicioEspaco, catalogoV6, lista, painel, pesquisa, rolar]);
+montar(goparts, [barra, lado, navegar, filtroChegada, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, inicioV3, inicioEspaco, catalogoV6, lista, painel, pesquisa, rodaModos, rolar]);

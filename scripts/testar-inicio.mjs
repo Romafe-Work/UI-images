@@ -12,8 +12,8 @@ const BASE = process.argv[2] || 'http://localhost:5173';
 const browser = await chromium.launch();
 const falhas = [];
 const erros = [];
-async function caso(nome, largura, f, inicial = 'inicio') {
-  const ctx = await browser.newContext({ viewport: { width: largura, height: 900 }, reducedMotion: 'reduce' });
+async function caso(nome, largura, f, inicial = 'inicio', reduzir = true) {
+  const ctx = await browser.newContext({ viewport: { width: largura, height: 900 }, reducedMotion: reduzir ? 'reduce' : 'no-preference' });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => erros.push(`${nome}: ${e.message}`));
   await p.goto(`${BASE}/peca-a-peca/#so=ecra&ecra=lista`);
@@ -91,9 +91,9 @@ await caso('peças: adicionar ao carrinho, favoritas e ver o stock', 1440, async
   certo(await p.$eval(`${I} [data-disp-ref]`, (s) => s.value) === 'VKBA 6556', 'o stock não mudou de referência');
   certo((await p.textContent(`${I} .ini4__armazem [data-qtd]`)).trim() === '12', 'o Porto devia ter 12');
 }, 'pesquisa');
-await caso('painel (V9): sem os formulários da pesquisa; três cartões de modo e sete atalhos com o seu número', 1440, async (p) => {
+await caso('painel (V9): sem os formulários nem os cartões da pesquisa; sete atalhos com o seu número', 1440, async (p) => {
   certo(!(await p.$(`${N} .ini3__cartao`)), 'o Início ainda tem os formulários da pesquisa');
-  certo((await p.$$(`${N} .pn__modo`)).length === 3, 'não há os três cartões da pesquisa');
+  certo(!(await p.$(`${N} .pn__modo`)), 'os cartões da pesquisa ainda estão no Início');
   const a = await p.$$eval(`${N} .pn__cartao`, (l) => l.map((b) => [b.dataset.pnAtalho, b.querySelector('.pn__cartao-meta').textContent.trim()]));
   certo(a.length === 7, `há ${a.length} atalhos`);
   certo(JSON.stringify(a.find((x) => x[0] === 'pedidos')) === JSON.stringify(['pedidos', '3 em curso']), `os pedidos dizem ${JSON.stringify(a.find((x) => x[0] === 'pedidos'))}`);
@@ -101,12 +101,15 @@ await caso('painel (V9): sem os formulários da pesquisa; três cartões de modo
   certo(!(await p.$(`${N} [data-graf]`)) && !(await p.$(`${N} [data-periodo]`)), 'o gráfico ou o período ainda estão no Início');
   certo((await p.$$(`${N} .pn__mini`)).length === 5, 'o resumo não tem os cinco cartões');
 });
-await caso('cartões da pesquisa: «Por referência» abre a pesquisa nesse modo, com o foco no campo', 1440, async (p) => {
-  await p.click(`${N} .pn__modo[data-pn-modo="2"]`); await p.waitForTimeout(900);
-  certo(await ecra(p) === 'pesquisa', 'não foi à pesquisa');
-  certo(await p.getAttribute(`${I} .ini3__separador[data-modo="2"]`, 'aria-selected') === 'true', 'o modo Referência não ficou escolhido');
-  certo(await p.evaluate(() => document.activeElement?.id) === 'i3-referencia', `o foco ficou em ${await p.evaluate(() => document.activeElement?.id || document.activeElement?.tagName)}`);
-});
+await caso('pesquisa: os três cartões rodam sozinhos e param quando se escolhe um', 1440, async (p) => {
+  const modo = () => p.$eval(I, (i) => i.dataset.modo);
+  const m0 = await modo(); await p.waitForTimeout(4600);
+  certo(await modo() !== m0, 'os cartões não rodaram ao fim de 4 s');
+  certo(await p.$eval(`${I}`, (i) => i.classList.contains('is-a-rodar')), 'o escolhido não ficou ao meio');
+  await p.click(`${I} .ini3__separador[data-modo="2"]`); await p.mouse.move(5, 5); const m1 = await modo();
+  await p.waitForTimeout(4600);
+  certo(await modo() === m1 && m1 === '2', 'continuou a rodar depois de se escolher um cartão');
+}, 'pesquisa', false);
 await caso('atalhos e alertas levam aos ecrãs; o voltar do navegador', 1440, async (p) => {
   await p.click(`${N} .pn__cartao[data-pn-atalho="devolucoes"]`); await p.waitForTimeout(700);
   certo(await ecra(p) === 'devolucoes', 'o atalho não foi às Devoluções');

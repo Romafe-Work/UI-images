@@ -314,3 +314,23 @@
 .pr__pag:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
 @media (max-width: 767.98px) { .pr__pag--seta span { display: none; } .pr__gaveta-caixa { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .pr__g-op i svg, .pr__g-op i, .pr__pag, .pr__ativo { transition: none; } }
+
+/* =========================================================
+   (21 out., tarde) os três cartões coloridos, aqui e a rodar
+   Ela: «isto deve estar no pesquisar peças e com movimento circular, menos quando seleciono um para escrever; se
+   demorar mais de 1 minuto a escrever, começa a rodar». Cor lisa (sem degradê: «parece muito IA»): azul ROMAFE,
+   azul ROMAFE e laranja. Rodam em círculo: o escolhido vai para o meio e a seta do formulário fica ao meio
+   (comportamento/roda-modos.ts). Só transform e opacity; com «reduzir movimento» ou no telemóvel, ficam quietos.
+   ========================================================= */
+.pq .ini3__separador.pq__modo { --m: #0063aa; border: 0; background: var(--m); color: #fff; box-shadow: none; transition: transform 160ms cubic-bezier(.22, 1, .36, 1), opacity 160ms ease; }
+.pq .ini3__separador.pq__modo[data-modo="2"] { --m: #d4700f; }
+.pq .pq__modo .pq__modo-icone, .pq .pq__modo[data-modo="2"] .pq__modo-icone { background: rgba(255, 255, 255, .16); }
+.pq .pq__modo .pq__modo-texto b { color: #fff; }
+.pq .pq__modo .pq__modo-texto span { color: rgba(255, 255, 255, .88); }
+.pq .pq__modo .pq__modo-acao, .pq .pq__modo[aria-selected="true"] .pq__modo-acao { color: #fff; }
+.pq .pq__modo:not([aria-selected="true"]) { opacity: .78; }
+.pq .pq__modo[aria-selected="true"], .pq .pq__modo[data-modo="2"][aria-selected="true"] { background: var(--m); box-shadow: 0 0 0 3px var(--i3-fundo, var(--c-portal-fundo)), 0 0 0 5px var(--m); }
+@media (hover: hover) and (pointer: fine) { .pq .pq__modo:not([aria-selected="true"]):hover { opacity: 1; border: 0; } }
+.pq .pq__modo:focus-visible { outline: 2px solid #fff; outline-offset: -5px; }
+.pq.is-a-rodar .pq__painel::before { left: calc(50% - 8px); }
+@media (prefers-reduced-motion: reduce) { .pq .ini3__separador.pq__modo { transition: none; } }

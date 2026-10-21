@@ -92,7 +92,8 @@ function rodape(): string {
    do nome o que têm (só com a barra aberta). A Pesquisar peças é um ecrã à parte do Catálogo (a pesquisa saiu do
    Início); o Catálogo continua com as marcas, os modelos e a pesquisa universal. */
 const PESQUISA: typeof ABAS[number] = ['pesquisa', 'Pesquisar peças', '<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', 'search'];
-const SUB: Partial<Record<IdPortal, string>> = { inicio: 'Painel e atividade', pesquisa: 'Matrícula, veículo e referência' };
+/* (21 out.) ela: «só título mesmo» — saíram os subtítulos do Início e da Pesquisa */
+const SUB: Partial<Record<IdPortal, string>> = {};
 const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
 const NOME_LADO: Partial<Record<IdPortal, string>> = { tecnica: 'Informação técnica' };
 function lado(ativa: IdPortal | null, p: Produto): string {

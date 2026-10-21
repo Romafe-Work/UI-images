@@ -4,8 +4,8 @@
    limpo, com vida e cor, sem o cinzento pesado). Por esta ordem:
    - Cabeçalho: a saudação, a data, a conta e o armazém; à direita «Atualizado», as definições, a ação do momento
      (continuar a lista em rascunho) e «Pesquisar peças». O rolamento das cotas anda.
-   - «O que procuras hoje?»: os três cartões grandes da pesquisa, nas cores que tinham (azul, azul, laranja);
-     cada um abre a Pesquisar peças já no seu modo.
+   - (21 out., tarde) os três cartões grandes da pesquisa saíram do Início (ela: «isto deve estar no pesquisar
+     peças… e não quero no início»): estão na Pesquisar peças, a rodar.
    - Os atalhos: sete cartões (Catálogo, Pedidos, Guias, Faturas, Devoluções, Informação técnica, Minha lista),
      cada um com o que interessa dele contado dos documentos (em curso, vencidas, em aberto…).
    - O centro: «Últimos pedidos» | «Requer a tua atenção» (destacado, por importância).
@@ -361,7 +361,7 @@ export function gavetaHtml(p: PrefsPn, aberta = false): string {
     <div class="pn__gaveta-caixa">
       <header class="pn__gaveta-cabeca"><h2 id="pn-g-t">${L(settings2)}Definições do Início</h2>${btn('Fechar', x, ' data-pn-fechar')}</header>
       <div class="pn__gaveta-corpo">
-        <section aria-labelledby="pn-g-blocos"><h3 id="pn-g-blocos">Blocos à vista</h3><p class="pn__ajuda">«O que procuras hoje?» fica sempre.</p>
+        <section aria-labelledby="pn-g-blocos"><h3 id="pn-g-blocos">Blocos à vista</h3><p class="pn__ajuda">O cabeçalho fica sempre.</p>
           <ul class="pn__ordem" role="list">${ORDEM_W.map((id) => `<li class="pn__ordem-li"><span class="pn__ordem-texto">${L(WIDGETS[id][2])}<b>${WIDGETS[id][0]}</b><small>${WIDGETS[id][1]}</small></span>
             <label class="pn__interruptor"><input type="checkbox" data-pn-mostrar="${id}"${p.escondidos.includes(id) ? '' : ' checked'}><span class="sr-only">Mostrar ${WIDGETS[id][0]}</span><i aria-hidden="true"></i></label></li>`).join('')}</ul></section>
       </div>
@@ -374,7 +374,7 @@ const sessaoHtml = () => `<div class="pn__gaveta pn__sessao" data-por-cima role=
   <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, onde estavas.</p>${acao('Iniciar sessão', logIn, ' data-ir="entrada"')}</div></div>`;
 export function blocosPn(p: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
   void p; void metrica;
-  return `${procuraHtml()}${atalhosHtml(prefs)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div>${resumoHtml(prefs, e)}`;
+  return `${atalhosHtml(prefs)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div>${resumoHtml(prefs, e)}`;
 }
 /** O Início (ou um estado dele). */
 export function painelV5(e: EstadoPn = ''): string {
