@@ -81,7 +81,7 @@ import layers from 'lucide-static/icons/layers.svg?raw';
 import expand from 'lucide-static/icons/expand.svg?raw';
 import shrink from 'lucide-static/icons/shrink.svg?raw';
 import move3d from 'lucide-static/icons/move-3d.svg?raw';
-import history from 'lucide-static/icons/history.svg?raw';
+import listaIcone from 'lucide-static/icons/list.svg?raw';
 
 const ICONES: Record<string, string> = {
   'car-front': carFront, 'clipboard-list': clipboardList, droplet, ruler, timer, 'book-open': bookOpen, megaphone, 'sticky-note': stickyNote,
@@ -513,7 +513,7 @@ function seccaoDocs(v: VeiculoTec, docs: Doc[], s: IdSeccao, o: Opcoes): string 
   else corpo = `${s === 'diagnosticos' ? avaria(px) : ''}
       ${sistemas.length > 1 ? `<div class="tec__filtro" role="group" aria-label="Sistema"><button type="button" class="tec__pilula" data-filtro="" aria-pressed="${!o.sistema}">Todos <small>${todos.length}</small></button>${sistemas.map((x) => `<button type="button" class="tec__pilula" data-filtro="${x.id}" aria-pressed="${o.sistema === x.id}">${ic(x.icone)}${x.nome} <small>${todos.filter((d) => d.sistema === x.id).length}</small></button>`).join('')}</div>` : ''}
       ${GALERIA.includes(s) ? `<ul class="tec__galeria">${lista.map((d, i) => `<li style="--i:${i}"><button type="button" class="tec__cartaz" data-doc="${d.id}">${folhaMini()}<span class="tec__cartaz-t"><b>${esc(d.titulo)}</b><small>${d.sistema ? sistemaDe(d.sistema).nome : 'Geral'} · ${d.tipo} · ${plural(d.figuras, 'figura', 'figuras')}</small></span><span class="tec__cartaz-abrir">${L(zoomIn)}Abrir</span></button></li>`).join('')}</ul>`
-      : `<div class="tec__docs-vistas"><p class="tec__conta">${plural(lista.length, 'documento', 'documentos')} · do mais recente para o mais antigo</p><div class="ped4__vistas tec__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista-docs="cronologia" aria-pressed="${(o.vistaDocs || 'cronologia') === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista-docs="tabela" aria-pressed="${o.vistaDocs === 'tabela'}">${L(table)}Tabela</button></div></div>
+      : `<div class="tec__docs-vistas"><p class="tec__conta">${plural(lista.length, 'documento', 'documentos')} · do mais recente para o mais antigo</p><div class="ped4__vistas tec__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista-docs="cronologia" aria-pressed="${(o.vistaDocs || 'cronologia') === 'cronologia'}">${L(listaIcone)}Lista</button><button type="button" class="ped4__vista" data-vista-docs="tabela" aria-pressed="${o.vistaDocs === 'tabela'}">${L(table)}Tabela</button></div></div>
       ${(o.vistaDocs || 'cronologia') === 'cronologia' ? cronologiaDocs(lista) : `<div class="tec__docs-cabeca" aria-hidden="true"><span></span><span>Documento</span><span>Sistema</span><span>Tipo</span><span>Figuras</span><span></span></div>
       <ul class="tec__docs">${[...lista].sort((a, b) => quando(b).localeCompare(quando(a))).map((d, i) => linhaDoc(d, i)).join('')}</ul>`}`}`;
   return `<div class="tec__pagina" data-pagina="${s}">${cabeca}${corpo}</div>`;

@@ -88,8 +88,8 @@ const resultados = `
           <p class="cat3__conta"><strong>0</strong> veículos encontrados</p>
           <label class="cat5__por-pagina">Resultados por página:<span class="campo__caixa"><select class="input" id="cat5-por-pagina" data-por-pagina><option>10</option><option selected>25</option><option>50</option></select></span></label>
           <div class="cat5__modos" role="group" aria-label="Ver como">
-            <button type="button" class="cat5__modo" data-modo="tabela" aria-pressed="false">${L(table)}Tabela</button>
             <button type="button" class="cat5__modo" data-modo="lista" aria-pressed="true">${L(list)}Lista</button>
+            <button type="button" class="cat5__modo" data-modo="tabela" aria-pressed="false">${L(table)}Tabela</button>
           </div>
         </div>
         <div class="cg-tabela erp-tabela cat3__tabela cat5__tabela"><div class="erp-tabela__rolo"><table>

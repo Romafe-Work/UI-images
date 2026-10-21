@@ -35,7 +35,7 @@ import download from 'lucide-static/icons/download.svg?raw';
 import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import info from 'lucide-static/icons/info.svg?raw';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
-import history from 'lucide-static/icons/history.svg?raw';
+import listaIcone from 'lucide-static/icons/list.svg?raw';
 import table from 'lucide-static/icons/table.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
@@ -303,7 +303,7 @@ export function faturasV2(vista: 'cronologia' | 'tabela' = 'cronologia'): string
     <div class="fat2__corpo">
     <section class="ped4__lista" aria-label="Faturas" data-vista="${vista}">
       <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${FATURAS.length}</b> de ${FATURAS.length} documentos</p><p class="ped4__a-atualizar" role="status" hidden></p><p class="gui3__mes-atual" aria-hidden="true"></p>
-        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
+        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(listaIcone)}Lista</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
       ${cronologiaFaturas()}
       ${tabelaFaturas()}
       <div class="ped4__vazio" hidden></div>

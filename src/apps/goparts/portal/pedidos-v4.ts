@@ -32,7 +32,7 @@ import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
 import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import layoutList from 'lucide-static/icons/list.svg?raw';
 import table from 'lucide-static/icons/table.svg?raw';
-import history from 'lucide-static/icons/history.svg?raw';
+import listaIcone from 'lucide-static/icons/list.svg?raw';
 import shoppingCart from 'lucide-static/icons/shopping-cart.svg?raw';
 import creditCard from 'lucide-static/icons/credit-card.svg?raw';
 
@@ -235,7 +235,7 @@ export function pedidosV4(op: OpcoesPedidos = {}): string {
 
     <section class="ped4__lista" aria-label="Pedidos" data-vista="${op.vista ?? 'cronologia'}">
       <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${op.conta ?? LINHAS.length}</b> de ${LINHAS.length} pedidos</p><p class="ped4__a-atualizar" role="status" hidden></p>
-        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${(op.vista ?? 'cronologia') === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${op.vista === 'tabela'}">${L(table)}Tabela</button></div></div>
+        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${(op.vista ?? 'cronologia') === 'cronologia'}">${L(listaIcone)}Lista</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${op.vista === 'tabela'}">${L(table)}Tabela</button></div></div>
       ${cronologia()}
       <div class="ped4__tabela"><table>
         <thead><tr><th class="ped4__c-abrir"><span class="sr-only">Abrir</span></th>${ord('num', 'Pedido')}${ord('data', 'Data')}<th class="ped4__c-arm">Armazém</th><th class="ped4__c-ent">Entrega</th><th class="ped4__num ped4__c-art">Artigos</th><th class="ped4__c-obs">Observações</th>${ord('valor', 'Valor', 'ped4__num')}<th class="ped4__c-est">Estado</th><th class="ped4__c-rec">Recolha</th></tr></thead>

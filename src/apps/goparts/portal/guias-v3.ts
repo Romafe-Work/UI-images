@@ -37,7 +37,7 @@ import download from 'lucide-static/icons/download.svg?raw';
 import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import info from 'lucide-static/icons/info.svg?raw';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
-import history from 'lucide-static/icons/history.svg?raw';
+import listaIcone from 'lucide-static/icons/list.svg?raw';
 import table from 'lucide-static/icons/table.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
@@ -249,7 +249,7 @@ export function guiasV3(vista: 'cronologia' | 'tabela' = 'cronologia'): string {
 
     <section class="ped4__lista" aria-label="Guias de remessa" data-vista="${vista}">
       <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${GUIAS.length}</b> de ${GUIAS.length} documentos</p><p class="ped4__a-atualizar" role="status" hidden></p><p class="gui3__mes-atual" aria-hidden="true"></p>
-        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
+        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(listaIcone)}Lista</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
       ${cronologiaGuias()}
       ${tabelaGuias()}
       <div class="ped4__vazio" hidden></div>

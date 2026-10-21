@@ -37,7 +37,7 @@ import barcode from 'lucide-static/icons/barcode.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import eraser from 'lucide-static/icons/eraser.svg?raw';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
-import history from 'lucide-static/icons/history.svg?raw';
+import listaIcone from 'lucide-static/icons/list.svg?raw';
 import table from 'lucide-static/icons/table.svg?raw';
 import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
@@ -329,7 +329,7 @@ export function devolucoesV1(vista: 'cronologia' | 'tabela' = 'cronologia', list
 
     <section class="ped4__lista" aria-label="Devoluções" data-vista="${vista}">
       <div class="ped4__lista-cabeca"><p class="ped4__conta" aria-live="polite">A mostrar <b>${lista.length}</b> de ${lista.length} devoluções</p><p class="ped4__a-atualizar" role="status" hidden></p><p class="gui3__mes-atual" aria-hidden="true"></p>
-        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(history)}Cronologia</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
+        <div class="ped4__vistas" role="group" aria-label="Ver como"><button type="button" class="ped4__vista" data-vista="cronologia" aria-pressed="${vista === 'cronologia'}">${L(listaIcone)}Lista</button><button type="button" class="ped4__vista" data-vista="tabela" aria-pressed="${vista === 'tabela'}">${L(table)}Tabela</button></div></div>
       ${cronologiaDev(lista)}
       ${tabelaDev(lista)}
       <div class="ped4__vazio" hidden></div>
