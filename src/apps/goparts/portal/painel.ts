@@ -245,7 +245,7 @@ export function atalhosHtml(prefs: PrefsPn): string {
 /* (V8) o motivo técnico do cabeçalho: um rolamento visto de frente e as linhas de cota, finas e azuis (decorativo) */
 const MOTIVO = `<svg class="pn__motivo" viewBox="0 0 170 80" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true" focusable="false">
   <path class="pn__motivo-l" d="M0 20H92M0 40H86M0 60H92"/><path d="M98 6v68M96 6h4M96 74h4" opacity=".6"/>
-  <g transform="translate(134 40)"><circle r="34"/><circle r="27"/><circle r="12"/><circle r="7"/>${Array.from({ length: 9 }, (_, k) => { const a = (k / 9) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 19.5).toFixed(1)}" cy="${(Math.sin(a) * 19.5).toFixed(1)}" r="3.5"/>`; }).join('')}</g>
+  <g transform="translate(134 40)"><g class="pn__rol"><circle r="34"/><circle r="27"/><circle r="12"/><circle r="7"/><g class="pn__gaiola">${Array.from({ length: 9 }, (_, k) => { const a = (k / 9) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 19.5).toFixed(1)}" cy="${(Math.sin(a) * 19.5).toFixed(1)}" r="3.5"/>`; }).join('')}</g></g></g>
 </svg>`;
 export function cabecaHtml(p: Periodo, e: EstadoPn = '', agora = Date.now()): string {
   const d = new Date(agora), hora = d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
