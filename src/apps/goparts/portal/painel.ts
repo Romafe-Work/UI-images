@@ -295,6 +295,39 @@ export function atalhosHtml(prefs: PrefsPn): string {
   </section>`;
 }
 
+/* ---------- (21 out.) o rolamento 3D que se desmonta com o scroll ----------
+   Do briefing «Scroll-controlled bearing assembly»: um SKF 6206 (o mesmo de rolamento-3d.ts, à escala) numa secção
+   própria, no fim do Início. Descer desmonta-o; subir monta-o; parar deixa-o onde está. O comportamento está em
+   comportamento/rolamento-scroll.ts. As medidas são as do 6206 (d 30, D 62, B 16 mm, 9 esferas de 9,525 mm); as
+   ligações levam à pesquisa, ao catálogo e à informação técnica — sem compatibilidades inventadas. */
+export function rolamento3dHtml(): string {
+  const passo = (i: number, titulo: string, texto: string, mais = '') => `<li class="rol3__passo" data-passo="${i}">${i === 0 ? `<h2 class="rol3__titulo" id="rol3-t">${titulo}</h2>` : `<h3 class="rol3__titulo">${titulo}</h3>`}<p>${texto}</p>${mais}</li>`;
+  return `<section class="rol3" data-rol3 aria-labelledby="rol3-t">
+    <div class="rol3__fixo">
+      <div class="rol3__cena"><canvas class="rol3__tela" aria-hidden="true"></canvas>
+        <div class="rol3__etiquetas" aria-hidden="true"><span data-etq="ext">Anel exterior</span><span data-etq="gaiola">Gaiola</span><span data-etq="esferas">9 esferas</span><span data-etq="int">Anel interior</span></div>
+        <p class="rol3__sem3d" hidden>Este navegador não mostra o modelo 3D; as peças estão descritas ao lado.</p>
+      </div>
+      <div class="rol3__texto">
+        <p class="rol3__modelo">SKF 6206 · rolamento rígido de esferas</p>
+        <ol class="rol3__passos" role="list">
+          ${passo(0, 'Precisão em cada peça.', 'Um rolamento montado: dois anéis, nove esferas e a gaiola que as mantém à mesma distância. Desce para o desmontar.')}
+          ${passo(1, 'O anel exterior sai', 'Fica à vista a pista onde as esferas rolam, cavada na face de dentro do anel.')}
+          ${passo(2, 'A gaiola e as esferas', 'A gaiola, em duas metades, guarda as nove esferas no diâmetro primitivo de 46 mm.')}
+          ${passo(3, 'Vista explodida', 'Cada peça no mesmo eixo, pela ordem em que se monta: anel exterior, gaiola, esferas, gaiola, anel interior.')}
+          ${passo(4, 'As medidas', 'O 6206 aberto, sem vedantes.', `<dl class="rol3__medidas"><div><dt>d</dt><dd>30 mm</dd></div><div><dt>D</dt><dd>62 mm</dd></div><div><dt>B</dt><dd>16 mm</dd></div><div><dt>Esferas</dt><dd>9 × 9,525 mm</dd></div></dl>`)}
+        </ol>
+        <div class="rol3__accoes">
+          ${acao('Pesquisar rolamentos', search, ' data-pn-modo="2"')}
+          ${btn('Explorar referências', layoutGrid, ' data-pn-ir="catalogo"')}
+          ${btn('Informação técnica', wrench, ' data-pn-ir="tecnica"')}
+        </div>
+        <div class="rol3__progresso" aria-hidden="true"><i data-rol3-barra></i></div>
+      </div>
+    </div>
+  </section>`;
+}
+
 /* ---------- (V9) o resumo: cartões compactos ---------- */
 const lerAtividade = (): Atividade[] => { try { const x = localStorage.getItem(CHAVE_ATIVIDADE); return x ? (JSON.parse(x) as Atividade[]) : atividadeInicial(); } catch { return atividadeInicial(); } };
 function mini(id: string, titulo: string, ic: string, corpo: string, mais: string): string {
@@ -328,26 +361,21 @@ export function resumoHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
 /* =========================================================
    O cabeçalho, os avisos de cima, a gaveta e o ecrã
    ========================================================= */
-/* (V8) o motivo técnico do cabeçalho: um rolamento visto de frente e as linhas de cota, finas e azuis (decorativo) */
-const MOTIVO = `<svg class="pn__motivo" viewBox="0 0 170 80" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true" focusable="false">
-  <path class="pn__motivo-l" d="M0 20H92M0 40H86M0 60H92"/><path d="M98 6v68M96 6h4M96 74h4" opacity=".6"/>
-  <g transform="translate(134 40)"><g class="pn__rol"><circle r="34"/><circle r="27"/><circle r="12"/><circle r="7"/><g class="pn__gaiola">${Array.from({ length: 9 }, (_, k) => { const a = (k / 9) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 19.5).toFixed(1)}" cy="${(Math.sin(a) * 19.5).toFixed(1)}" r="3.5"/>`; }).join('')}</g></g></g>
-</svg>`;
+/* (21 out., briefing do cabeçalho) a saudação, uma linha a dizer o que é, o contexto (conta e armazém) numa linha
+   curta; à direita uma só ação principal e, só em ícone, atualizar e as definições. Saíram a data, o «Continuar…»
+   comprido e o rolamento decorativo (o rolamento vive agora na secção 3D, mais abaixo). */
 export function cabecaHtml(_p: Periodo, e: EstadoPn = '', agora = Date.now()): string {
   const d = new Date(agora), hora = d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-  const data = d.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
-  const rascunho = e === 'sem-pedidos' ? undefined : LISTAS.find((l) => l.estado === 'rascunho');
   return `<header class="pn__cabeca">
     <div class="pn__ola-caixa"><div class="pn__ola">
-      <p class="pn__data">${data.charAt(0).toUpperCase()}${data.slice(1)}</p>
       <h1 class="pn__titulo"><span data-saudacao>${saudacao(d.getHours())}</span>, Fernando</h1>
-      <p class="pn__contexto"><span>${L(store)}Fernando F. França · Porto</span><span class="pn__armazem" title="Armazém de saída">${L(mapPin)}Armazém Porto (1)</span></p>
-    </div>${MOTIVO}</div>
+      <p class="pn__sub">Resumo da tua atividade</p>
+      <p class="pn__contexto"><span>${L(store)}Conta Porto</span><span class="pn__contexto-sep" aria-hidden="true">·</span><span class="pn__armazem" title="Armazém de saída">${L(mapPin)}Armazém Porto (1)</span></p>
+    </div></div>
     <div class="pn__controlos">
-      <span class="pn__atualizado" data-atualizado role="status">${e === 'atualizar' ? `${L(refreshCw, 'pn__roda')}A atualizar…` : `Atualizado às ${hora}`}</span>
-      <button type="button" class="pn__icone" data-pn-atualizar aria-label="Atualizar os dados"${e === 'atualizar' || e === 'offline' ? ' disabled' : ''}>${L(refreshCw)}</button>
-      <button type="button" class="pn__icone" data-pn-personalizar aria-haspopup="dialog" aria-label="Definições do Início">${L(settings2)}</button>
-      ${rascunho ? btn(`Continuar «${esc(rascunho.nome)}»`, listChecks, ' data-pn-atalho="lista"', 'pn__continuar') : ''}
+      <span class="pn__atualizado sr-only" data-atualizado role="status">${e === 'atualizar' ? `${L(refreshCw, 'pn__roda')}A atualizar…` : `Atualizado às ${hora}`}</span>
+      <button type="button" class="pn__icone" data-pn-atualizar aria-label="Atualizar os dados (atualizado às ${hora})" title="Atualizado às ${hora}"${e === 'atualizar' || e === 'offline' ? ' disabled' : ''}>${L(refreshCw)}</button>
+      <button type="button" class="pn__icone" data-pn-personalizar aria-haspopup="dialog" aria-label="Definições do Início" title="Definições do Início">${L(settings2)}</button>
       ${acao('Pesquisar peças', search, ' data-pn-ir="pesquisa"', 'pn__pesquisar')}
     </div>
   </header>
@@ -374,7 +402,7 @@ const sessaoHtml = () => `<div class="pn__gaveta pn__sessao" data-por-cima role=
   <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, onde estavas.</p>${acao('Iniciar sessão', logIn, ' data-ir="entrada"')}</div></div>`;
 export function blocosPn(p: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
   void p; void metrica;
-  return `${atalhosHtml(prefs)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div>${resumoHtml(prefs, e)}`;
+  return `${atalhosHtml(prefs)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div>${resumoHtml(prefs, e)}${rolamento3dHtml()}`;
 }
 /** O Início (ou um estado dele). */
 export function painelV5(e: EstadoPn = ''): string {

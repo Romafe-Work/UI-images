@@ -65,6 +65,16 @@ experimentar: a palavra-passe «errada» dá o erro de credenciais. Sem segundo 
 - Filtros num só botão: nos documentos (Pedidos, Guias, Faturas, Devoluções) e nos resultados da pesquisa
   («Filtros (n)», gaveta com «Mostrar N resultados», etiquetas com ×, seis por página).
 - Menu lateral animado (fundo que entra da esquerda, o escolhido cresce do ícone, entrada na primeira vez).
+- (tarde) Os três cartões coloridos passaram do Início para a **Pesquisar peças**, a rodar em círculo de 4 em 4 s
+  (`comportamento/roda-modos.ts`): param quando se escolhe ou escreve e voltam ao fim de 1 minuto; cor lisa.
+  O menu lateral só com títulos e a animar sempre que a página ou a barra abrem. O escuro voltou ao do V8.
+- **Topo** (briefing «Premium header»): grelha com a barra lateral (marca na largura dela, pesquisa ao centro,
+  ações à direita), 64 px, sem slogan; mensagens e ajuda, carrinho, conta (inicial e nome; Definições no menu da
+  conta). **Cabeçalho do Início**: saudação, «Resumo da tua atividade», conta e armazém; uma ação e dois ícones.
+- **Rolamento 3D com o scroll** (`comportamento/rolamento-scroll.ts`, no fim do Início): o SKF 6206 de
+  `rolamento-3d.ts` desmonta-se ao descer e monta-se ao subir; um só progresso (posição da secção) manda nas peças,
+  na câmara, nas etiquetas e no texto; sem relógio; desenha só quando muda e com a secção à vista; parado com
+  «reduzir movimento». Ligações: pesquisar rolamentos, catálogo, informação técnica. Medidas reais do 6206.
 
 ## Ecrãs ajustáveis (12 out. 2026)
 

@@ -95,3 +95,46 @@
 .ped4__kpi > div::after, .ped4__kpi > div::before, .ped4__kpi dd::after, .ped4__kpi dd::before { display: none; }
 .ped4__kpi dt { font-size: 12px; letter-spacing: 0; text-transform: none; }
 .ped4__kpi dt svg { color: var(--c-texto-3); }
+
+/* =========================================================
+   (21 out., briefing «Premium header redesign») o topo como uma peça só com a barra lateral
+   Três colunas: a marca na largura da barra lateral (248 px, ou 68 px recolhida), a pesquisa ao centro e as
+   ações à direita; 64 px de altura. A marca da empresa (ROMAFE, azul, Motor) e a da aplicação (Peça A Peça) com
+   um traço curto entre elas; sem slogan. À direita: mensagens e ajuda, o carrinho, e a conta (inicial e nome; o
+   resto está no menu dela). Ícones de 20 px em alvos de 40 px.
+   ========================================================= */
+.portal--lateral > .portal__topo { display: grid; grid-template-columns: var(--lado-l, 248px) minmax(0, 1fr) auto; align-items: center; gap: 0; min-height: 64px; height: 64px; padding: 0 20px 0 0; }
+.portal--lateral .portal__topo .portal__marca { gap: 12px; height: 100%; padding: 0 20px 0 24px; min-width: 0; }
+.portal--lateral .portal__topo .portal__romafe { font-size: 26px; }
+.portal--lateral .portal__topo .portal__risco { width: 1px; height: 22px; margin: 0; background: var(--c-borda-forte); }
+.portal--lateral .portal__topo .portal__produto { display: block; font-family: var(--f-base); font-size: 17px; font-weight: 700; letter-spacing: -.005em; white-space: nowrap; color: var(--c-texto); }
+.portal--lateral .portal__topo .procura { justify-self: center; width: 100%; max-width: 560px; margin: 0 24px; }
+.portal--lateral .portal__topo .portal__accoes { gap: 4px; }
+.portal--lateral .portal__topo .portal__icone { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; color: var(--c-texto-2); }
+.portal--lateral .portal__topo .portal__icone svg { width: 20px; height: 20px; }
+.portal--lateral .portal__topo [data-barra="carrinho"] { margin-left: 8px; }
+.portal--lateral .portal__topo .conta { display: inline-flex; align-items: center; gap: 10px; height: 40px; margin-left: 12px; padding: 0 8px 0 4px; border: 0; border-radius: 10px; background: none; }
+@media (hover: hover) and (pointer: fine) { .portal--lateral .portal__topo .conta:hover { background: var(--gp-lado-ativo, var(--c-superficie-2)); } }
+.portal--lateral .portal__topo .conta__inicial { width: 32px; height: 32px; font-size: 13px; }
+.portal--lateral .portal__topo .conta__nome { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.portal--lateral .portal__topo .conta__seta { width: 16px; height: 16px; color: var(--c-texto-3); transition: transform 160ms ease; }
+.portal--lateral .portal__topo .conta[aria-expanded="true"] .conta__seta { transform: rotate(180deg); }
+.portal--lateral .portal__topo .conta[aria-expanded="true"] { box-shadow: none; background: var(--gp-lado-ativo, var(--c-superficie-2)); }
+/* o atalho só onde há teclado e rato */
+@media not ((hover: hover) and (pointer: fine)) { .portal .portal__topo .procura__atalho { display: none; } }
+/* a pesquisa abre-se um pouco ao ganhar o foco */
+.portal--lateral .portal__topo .procura { transition: max-width 200ms cubic-bezier(.22, 1, .36, 1), background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease; }
+.portal--lateral .portal__topo .procura:focus-within { max-width: 600px; }
+@media (max-width: 1199.98px) {
+  .portal--lateral > .portal__topo { grid-template-columns: auto minmax(0, 1fr) auto; padding-left: 0; }
+  .portal--lateral .portal__topo .conta__nome { display: none; }
+}
+@media (max-width: 767.98px) {
+  .portal--lateral > .portal__topo { grid-template-columns: minmax(0, 1fr) auto; height: 56px; min-height: 56px; padding: 0 8px 0 4px; }
+  .portal--lateral .portal__topo .portal__marca { padding: 0 8px; gap: 8px; }
+  .portal--lateral .portal__topo .portal__romafe { font-size: 20px; }
+  .portal--lateral .portal__topo .portal__produto { font-size: 15px; }
+  .portal--lateral .portal__topo [data-barra="avisos"], .portal--lateral .portal__topo [data-barra="ajuda"] { display: none; }
+  .portal--lateral .portal__topo [data-barra="carrinho"] { margin-left: 0; }
+  .portal--lateral .portal__topo .conta { margin-left: 4px; padding: 0 4px; }
+}

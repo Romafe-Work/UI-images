@@ -128,8 +128,9 @@ await caso('carrinho: sem rede a mudança desfaz-se e diz porquê', 1440, async 
   certo((await p.textContent('.bc-aviso-global.is-erro') || '').includes('carrinho não mudou'), 'sem o aviso do erro');
   await p.context().setOffline(false);
 });
-await caso('definições: o tema escuro aplica-se e fica', 1440, async (p) => {
-  await p.click(`${T} [data-barra="definicoes"]`); await p.waitForSelector('.bc-def');
+await caso('definições (no menu da conta): o tema escuro aplica-se e fica', 1440, async (p) => {
+  await p.click(`${T} [data-barra="conta"]`); await p.waitForSelector('.bc-conta');
+  await p.click('.bc-conta [data-conta="definicoes"]'); await p.waitForSelector('.bc-def');
   await p.click('[data-tema="dark"]');
   certo(await p.evaluate(() => document.documentElement.dataset.theme) === 'dark', 'o tema não mudou');
   await p.click('[data-tema="auto"]');
@@ -154,7 +155,7 @@ await caso('conta: abre com setas e «Terminar sessão» volta ao Entrar e limpa
 });
 await caso('só uma camada de cada vez; clicar fora fecha', 1440, async (p) => {
   await p.click(`${T} [data-barra="ajuda"]`); await p.waitForSelector('.bc-ajuda');
-  await p.click(`${T} [data-barra="definicoes"]`); await p.waitForTimeout(300);
+  await p.click(`${T} [data-barra="conta"]`); await p.waitForTimeout(300);
   certo(await p.$$eval('.bc', (x) => x.filter((e) => !e.classList.contains('is-a-sair')).length) === 1, 'ficaram duas abertas');
   await p.mouse.click(700, 600); await p.waitForTimeout(300);
   certo(!(await p.$('.bc:not(.is-a-sair)')), 'clicar fora não fechou');
