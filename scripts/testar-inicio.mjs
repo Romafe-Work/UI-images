@@ -9,7 +9,7 @@ const pw = await import(process.env.PLAYWRIGHT || 'playwright');
 const { chromium } = pw.default ?? pw;
 const BASE = process.argv[2] || 'http://localhost:5173';
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] }); // o Início tem 3D (WebGL): sem placa gráfica, o WebGL por software
 const falhas = [];
 const erros = [];
 async function caso(nome, largura, f, inicial = 'inicio', reduzir = true) {
@@ -43,7 +43,6 @@ async function identificar(p, mat) {
 await caso('identificar: AA-12-BC mostra o veículo e fica em «Continuar»', 1440, async (p) => {
   await identificar(p, 'aa12bc');
   certo((await p.textContent(`${I} .ini4__veiculo-nome`)).includes('Renault Clio IV'), 'o veículo não apareceu');
-  certo(await p.$(`${I} .ini4__carro.is-escolhido[data-matricula="AA-12-BC"]`), 'o cartão da garagem não ficou marcado');
   const at = await p.evaluate(() => JSON.parse(localStorage.getItem('goparts:atividade:v1') || '[]')[0]?.titulo);
   certo(at?.startsWith('Renault Clio IV'), 'não ficou registado');
   await p.click(`${I} .ini4__veiculo [data-pecas-matricula]`); await p.waitForTimeout(400);
@@ -59,8 +58,11 @@ await caso('identificar: matrícula incompleta e matrícula desconhecida', 1440,
 await caso('garagem: guardar o veículo identificado, favorito passa para a frente', 1440, async (p) => {
   await identificar(p, '78-QL-22');
   await p.click(`${I} [data-guardar-matricula]`); await p.waitForTimeout(300);
-  certo(await p.$(`${I} .ini4__carro[data-matricula="78-QL-22"]`), 'não entrou na garagem');
+  certo(await p.evaluate(() => (localStorage.getItem('goparts:garagem:v1') || '').includes('78-QL-22')), 'não entrou na garagem');
   certo(await p.$(`${I} .ini4__veiculo .ini4__na-garagem`), 'o botão não mudou para «Está na garagem»');
+  certo(!(await p.$(`${I} [data-bloco="garagem"]`)), 'a garagem ainda aparece na Pesquisar peças');
+  await p.evaluate(() => { location.hash = '#so=ecra&ecra=garagem'; }); await p.waitForTimeout(900);
+  certo(await p.$(`${I} .ini4__carro[data-matricula="78-QL-22"]`), 'não aparece no ecrã A minha garagem');
   await p.click(`${I} .ini4__carro[data-matricula="12-RT-08"] [data-favorito]`);
   const ordem = await p.$$eval(`${I} .ini4__carro[data-carro]`, (l) => l.map((x) => x.dataset.matricula));
   certo(ordem.indexOf('12-RT-08') < ordem.indexOf('45-XZ-91'), `os favoritos não vieram para a frente: ${ordem}`);
@@ -78,7 +80,7 @@ await caso('garagem: mudar o nome, tirar e desfazer, adicionar pela matrícula',
   certo((await p.textContent(`${I} .ini4__novo-erro`)).includes('formato'), 'não validou');
   await p.fill(`${I} #i4-nova-mat`, '78ql22'); await p.click(`${I} [data-garagem-nova] button[type="submit"]`); await p.waitForTimeout(400);
   certo(await p.$(`${I} .ini4__carro[data-matricula="78-QL-22"]`), 'não adicionou');
-}, 'pesquisa');
+}, 'garagem');
 await caso('peças: adicionar ao carrinho, favoritas e ver o stock', 1440, async (p) => {
   const antes = await unidades(p);
   await p.click(`${I} [data-pedir="VKM 38236"]`); await p.waitForTimeout(600);
@@ -103,23 +105,29 @@ await caso('montra (V10): a abertura, «Encontrar peças» e os atalhos levam à
   await p.click(`${M} .mt__heroi [data-pn-ir="pesquisa"]`); await p.waitForTimeout(800);
   certo(await ecra(p) === 'pesquisa', '«Encontrar peças» não foi à pesquisa');
 });
-await caso('montra: categoria, peça em destaque, «Continuar» e a conta levam aos ecrãs verdadeiros', 1440, async (p) => {
-  const M = '.ecra:not([hidden]) > .versao:not([hidden]) .mt', V = '.ecra:not([hidden]) > .versao:not([hidden])';
-  await p.click(`${M} .mt__cat[data-mt-grupo="Bomba de água"]`, { force: true }); await p.waitForTimeout(900);
-  certo(await ecra(p) === 'catalogo', 'a categoria não abriu o catálogo');
+await caso('montra: os mais pesquisados e as mais compradas levam à pesquisa; «Continuar» e a conta aos ecrãs', 1440, async (p) => {
+  const M = '.ecra:not([hidden]) > .versao:not([hidden]) .mt';
+  await p.click(`${M} .mt__top-item[data-mt-pesquisar="SKF VKBA 6556"]`, { force: true }); await p.waitForTimeout(1300);
+  certo(await ecra(p) === 'pesquisa', 'o mais pesquisado não foi à pesquisa');
+  certo(await p.inputValue(`${I} #i3-referencia`) === 'SKF VKBA 6556', 'a pesquisa não veio escrita');
   await p.goBack(); await p.waitForTimeout(700);
-  const u0 = await unidades(p);
-  await p.click(`${M} [data-mt-pedir]`, { force: true }); await p.waitForTimeout(900);
-  certo(await unidades(p) === u0 + 1, `o carrinho não somou (${u0} → ${await unidades(p)})`);
-  await p.click(`${M} [data-mt-ficha]`, { force: true }); await p.waitForTimeout(900);
-  certo(await ecra(p) === 'catalogo', '«Ver ficha» não abriu o catálogo');
+  certo((await p.$$(`${M} .mt__comp-card`)).length >= 4, 'sem as mais compradas');
+  await p.click(`${M} .mt__comp:not([aria-hidden]) .mt__comp-card >> nth=0`, { force: true }); await p.waitForTimeout(1200);
+  certo(['pesquisa', 'catalogo'].includes(await ecra(p)), `a mais comprada foi a ${await ecra(p)}`);
   await p.goBack(); await p.waitForTimeout(700);
   await p.click(`${M} .mt__cont-item[data-abrir-pedido]`, { force: true }); await p.waitForTimeout(900);
   certo(await ecra(p) === 'pedidos', 'o pedido em curso não abriu os Pedidos');
   await p.goBack(); await p.waitForTimeout(700);
   await p.click(`${M} .mt__conta-item--urgente`, { force: true }); await p.waitForTimeout(900);
   certo(await ecra(p) === 'faturas', 'a fatura vencida não abriu as Faturas');
-  void V;
+});
+await caso('montra: cada regresso ao Início mostra a peça seguinte (rolamento → travão → bomba)', 1440, async (p) => {
+  const ex = () => p.evaluate(() => document.querySelector('.ecra:not([hidden]) > .versao:not([hidden]) .mt')?.dataset.ex);
+  const a = await ex();
+  await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="pedidos"]'); await p.waitForTimeout(700);
+  await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="inicio"]'); await p.waitForTimeout(900);
+  const b = await ex();
+  certo(a && b && a !== b, `a peça não mudou (${a} → ${b})`);
 });
 await caso('montra: o rolamento segue o scroll nos dois sentidos (sem relógio)', 1440, async (p) => {
   const M = '.ecra:not([hidden]) > .versao:not([hidden]) .mt';

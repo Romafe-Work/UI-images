@@ -97,7 +97,7 @@ const GARAGEM: typeof ABAS[number] = ['garagem', 'A minha garagem', '<path d="M1
 const PESQUISA: typeof ABAS[number] = ['pesquisa', 'Pesquisar peças', '<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', 'search'];
 /* (21 out.) ela: «só título mesmo» — saíram os subtítulos do Início e da Pesquisa */
 const SUB: Partial<Record<IdPortal, string>> = {};
-const GRUPOS: [string, IdPortal[]][] = [['Principal', ['garagem', 'inicio', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
+const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'garagem', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
 const NOME_LADO: Partial<Record<IdPortal, string>> = { tecnica: 'Informação técnica' };
 function lado(ativa: IdPortal | null, p: Produto): string {
   const todas = [...ABAS, PESQUISA, GARAGEM];

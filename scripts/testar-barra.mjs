@@ -7,7 +7,7 @@ const pw = await import(process.env.PLAYWRIGHT || 'playwright');
 const { chromium } = pw.default ?? pw;
 const BASE = process.argv[2] || 'http://localhost:5173';
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] }); // o Início tem 3D (WebGL): sem placa gráfica, o WebGL por software
 const falhas = [];
 const erros = [];
 async function caso(nome, largura, f) {

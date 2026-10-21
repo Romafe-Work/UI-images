@@ -168,8 +168,9 @@
 .portal--lateral .portal__topo .conta__inicial { width: 38px; height: 38px; font-size: 14px; }
 .portal--lateral .portal__topo .conta__nome { font-size: 14.5px; }
 @media (max-width: 1279.98px) { .portal--lateral .portal__topo .conta__nome { display: none; } }
-/* o menu lateral também fica à vista ao rolar, por baixo do topo */
-.portal--lateral .portal__lado .lado__rolo { position: sticky; top: 70px; max-height: calc(100vh - 70px); }
+/* (21 out.) o menu lateral não anda com o scroll (ela: «isto não é suposto andar com o scroll»): fica preso ao ecrã,
+   por baixo do topo, com a altura toda — «Recolher o menu» sempre em baixo */
+.portal--lateral > .portal__lado { position: fixed; z-index: 30; top: 70px; bottom: 0; left: 0; width: var(--lado-l, 248px); }
 .portal--lateral .lado__item > svg { width: 21px; height: 21px; }
 @media (max-width: 767.98px) {
   .portal--lateral > .portal__topo { height: 60px; min-height: 60px; padding: 0 6px 0 2px; padding-top: env(safe-area-inset-top); }

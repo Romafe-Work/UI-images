@@ -261,3 +261,30 @@ html.barra-presa { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .bc *, .bc, .portal__menu path, .conta__seta { animation: none !important; transition: none !important; }
 }
+
+/* (21 out.) encomendar no carrinho: como recebe, o armazém, a referência da oficina, observações, confirmar */
+.bc-carr__encomendar { justify-content: center; min-height: 46px; font-size: 15px; }
+.bc-enc { display: flex; flex: 1; flex-direction: column; gap: 14px; min-height: 0; margin: 0; padding: 16px 18px 0; overflow-y: auto; }
+.bc-enc > .bc-carr__pe { margin: auto -18px 0; }
+.bc-enc__grupo { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+.bc-enc__grupo legend { margin-bottom: 8px; padding: 0; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--c-texto-3); }
+.bc-enc__op { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 10px; padding: 12px; border: 1px solid var(--c-borda); border-radius: var(--r-md); cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease; }
+.bc-enc__op:has(input:checked) { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 7%, transparent); }
+.bc-enc__op input { margin: 2px 0 0; accent-color: var(--c-acao); }
+.bc-enc__op span { display: grid; gap: 2px; } .bc-enc__op small { font-size: 13px; color: var(--c-texto-3); }
+.bc-enc__linha { display: flex; justify-content: space-between; margin: 0; font-size: 14px; color: var(--c-texto-2); }
+.bc-enc__campo { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--c-texto-2); }
+.bc-enc__campo small { font-weight: 400; color: var(--c-texto-3); }
+.bc-enc__campo :is(input, textarea) { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--c-borda-forte); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto); font: inherit; font-size: 14px; resize: vertical; }
+.bc-enc__campo :is(input, textarea):focus { outline: none; border-color: var(--gp-azul, #147dc0); box-shadow: 0 0 0 3px var(--c-marca-suave); }
+.bc-enc__erro { margin: 0; padding: 10px 12px; border-left: 3px solid var(--c-erro); border-radius: var(--r-md); background: color-mix(in srgb, var(--c-erro) 8%, transparent); font-size: 13px; }
+.bc-enc__feito { display: grid; justify-items: center; align-content: center; gap: 8px; flex: 1; padding: 24px; text-align: center; }
+.bc-enc__selo { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: color-mix(in srgb, var(--c-ok) 15%, transparent); color: var(--c-ok); animation: bc-enc-selo 360ms cubic-bezier(.3, 1.4, .5, 1); }
+.bc-enc__selo svg { width: 28px; height: 28px; }
+@keyframes bc-enc-selo { from { transform: scale(.6); opacity: 0; } }
+.bc-enc__feito h3 { margin: 4px 0 0; font-family: var(--f-mono, monospace); font-size: 22px; }
+.bc-enc__feito p { margin: 0; color: var(--c-texto-2); }
+.bc-enc__nota { max-width: 32em; font-size: 13px; color: var(--c-texto-3) !important; }
+/* as linhas do carrinho não passam da largura do painel */
+.bc-carr__linha { min-width: 0; } .bc-carr__id { min-width: 0; } .bc-carr__preco { min-width: 0; text-align: right; }
+@media (prefers-reduced-motion: reduce) { .bc-enc__selo { animation: none; } .bc-enc__op { transition: none; } }

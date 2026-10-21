@@ -467,3 +467,39 @@
 }
 /* os estados (15.x) são fotografias paradas: a gaveta e a pré-visualização já estão abertas, sem entrar */
 .portal--estado :is(.lst__gaveta-caixa, .lst__previa-caixa, .lst__veu, .lst__dialogo, .lst__dialogo-caixa) { animation: none; }
+
+/* =========================================================
+   (21 out.) «← Minhas listas / Editar lista» mais destacado, e a pré-visualização das listas ao passar o rato
+   ========================================================= */
+.lst__migalhas { gap: 10px; font-size: 14px; }
+.lst__migalhas button { gap: 8px; height: 36px; margin-left: 0; padding: 0 14px 0 10px; border: 1px solid var(--i3-borda-forte); border-radius: var(--r-md); background: var(--i3-sup); color: var(--i3-tinta); font-weight: 700; transition: border-color 140ms ease, background-color 140ms ease; }
+.lst__migalhas button svg { width: 17px; height: 17px; color: var(--c-acao); transition: transform 140ms ease; }
+@media (hover: hover) and (pointer: fine) { .lst__migalhas button:hover { border-color: var(--c-acao); } .lst__migalhas button:hover svg { transform: translateX(-3px); } }
+.lst__migalhas button:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+.lst__migalhas [aria-current] { font-size: 15px; font-weight: 800; color: var(--i3-tinta); }
+.lst__migalhas > span[aria-hidden] { color: var(--i3-tinta-3); }
+/* a pré-visualização: um cartão por cima, à direita da linha (não empurra nada) */
+.lst__l { position: relative; }
+.lst__l-previa { position: absolute; z-index: 20; top: calc(100% - 6px); right: 64px; width: min(380px, 70%); padding: 12px 14px; border: 1px solid var(--i3-borda-forte); border-radius: var(--r-md); background: var(--i3-sup); box-shadow: 0 18px 40px -20px rgba(0, 0, 0, .5); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms; pointer-events: none; }
+@media (hover: hover) and (pointer: fine) { .lst__l:hover .lst__l-previa { opacity: 1; visibility: visible; transform: none; transition-delay: 250ms, 250ms, 0s; } }
+.lst__l:focus-within .lst__l-previa { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.lst__l-previa-t { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--i3-tinta-3); }
+.lst__l-previa-janela { max-height: 176px; overflow: hidden; }
+.lst__l-previa-pista { list-style: none; display: grid; margin: 0; padding: 0; }
+.lst__l-previa-pista li { display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 8px; height: 44px; align-content: center; border-top: 1px solid var(--i3-borda); }
+.lst__l-previa-pista li:first-child { border-top: 0; }
+.lst__l-previa-pista b { grid-row: span 2; align-self: center; font-size: 13px; color: var(--c-acao); }
+.lst__l-previa-pista b svg { width: 15px; height: 15px; }
+.lst__l-previa-pista span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 700; }
+.lst__l-previa-pista small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--i3-tinta-3); }
+/* com mais de 4 artigos, a lista anda sozinha (para com o rato em cima da pré-visualização) */
+.lst__l-previa.is-a-rolar .lst__l-previa-pista { animation: lst-previa calc(var(--n) * 1.6s) linear infinite; }
+@keyframes lst-previa { to { transform: translateY(calc(var(--n) * -44px)); } }
+.lst__l-previa--vazia p { margin: 0; font-size: 13px; color: var(--i3-tinta-3); }
+.lst__l-resumo { display: none; }
+/* no telemóvel: sem cartão por cima; uma linha curta por baixo do nome */
+@media (hover: none), (max-width: 767.98px) {
+  .lst__l-previa { display: none; }
+  .lst__l-resumo { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--i3-tinta-3); }
+}
+@media (prefers-reduced-motion: reduce) { .lst__l-previa.is-a-rolar .lst__l-previa-pista { animation: none; } .lst__l-previa-janela { overflow-y: auto; } .lst__l-previa, .lst__migalhas button svg { transition: none; } }

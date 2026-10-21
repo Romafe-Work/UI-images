@@ -380,13 +380,54 @@ function pintarAvisos(el: HTMLElement): void {
    4 · O mini-carrinho
    ========================================================= */
 let desfazerCarrinho: { linha: carrinho.LinhaCarrinho; indice: number } | null = null;
+/* (21 out.) ela: «falta a opção de comprar» — o carrinho tem agora o passo de encomendar (entrega ou levantamento,
+   armazém, referência da oficina, observações) e a confirmação. Sem o serviço de encomendas, o número é de exemplo. */
+let passoCarr: 'linhas' | 'encomendar' | 'feito' = 'linhas';
+let feitoCarr = { num: '', total: '', entrega: '' };
 function abrirCarrinho(de: HTMLElement | null): void {
   const el = abrir('carrinho', de, `<section class="bc__caixa bc-carr" role="dialog" aria-modal="true" aria-labelledby="bc-carr-t"></section>`); if (!el) return;
-  desfazerCarrinho = null;
+  desfazerCarrinho = null; passoCarr = 'linhas';
   pintarCarrinho(el);
   focarPrimeiro(el, '.bc-carr__fechar');
 }
+function pintarEncomenda(el: HTMLElement): void {
+  const c = carrinho.contas(), caixa = el.querySelector('.bc-carr')!;
+  if (passoCarr === 'feito') {
+    caixa.innerHTML = `<header class="bc-carr__topo"><h2 id="bc-carr-t">${IC.visto}Encomenda enviada</h2><button type="button" class="bc__fechar bc-carr__fechar" data-fechar aria-label="Fechar">${IC.x}</button></header>
+      <div class="bc-enc__feito" role="status"><span class="bc-enc__selo">${IC.visto}</span><h3>${feitoCarr.num}</h3><p>${feitoCarr.total} com IVA · ${feitoCarr.entrega}</p><p class="bc-enc__nota">Fica em Pedidos como «Sem processamento» até a Romafe a confirmar. Número de exemplo: o protótipo não tem o serviço de encomendas.</p></div>
+      <footer class="bc-carr__pe"><button type="button" class="btn btn--acao" data-ver-pedidos>${IC.caixa}<span class="btn__rotulo">Ver os pedidos</span></button><button type="button" class="btn btn--ghost" data-ir-catalogo>${IC.caixa}<span class="btn__rotulo">Continuar a comprar</span></button></footer>`;
+    return;
+  }
+  caixa.innerHTML = `<header class="bc-carr__topo"><h2 id="bc-carr-t">${IC.carrinho}Encomendar <span class="bc__conta">${c.unidades} ${c.unidades === 1 ? 'artigo' : 'artigos'}</span></h2><button type="button" class="bc__fechar bc-carr__fechar" data-fechar aria-label="Fechar o carrinho">${IC.x}</button></header>
+    <form class="bc-enc" data-encomenda novalidate data-enter="seguinte">
+      <fieldset class="bc-enc__grupo"><legend>Como recebe</legend>
+        <label class="bc-enc__op"><input type="radio" name="entrega" value="Entrega na morada da conta" checked><span><b>Entrega na morada da conta</b><small>Rua da Indústria, 123 · 4100-168 Porto</small></span></label>
+        <label class="bc-enc__op"><input type="radio" name="entrega" value="Levanta no balcão do Porto (1)"><span><b>Levanta no balcão</b><small>Armazém Porto (1)</small></span></label>
+      </fieldset>
+      <p class="bc-enc__linha"><span>Armazém de saída</span><b>Porto (1)</b></p>
+      <label class="bc-enc__campo"><span>A sua referência <small>(opcional)</small></span><input name="ref" maxlength="30" placeholder="Ex.: OR-2024-118" autocomplete="off"></label>
+      <label class="bc-enc__campo"><span>Observações <small>(opcional)</small></span><textarea name="obs" rows="2" maxlength="300" placeholder="Ex.: entregar de manhã"></textarea></label>
+      <p class="bc-enc__erro" data-enc-erro role="alert" hidden></p>
+      <footer class="bc-carr__pe">
+        <dl><div><dt>Total sem IVA</dt><dd>${euros(c.base)}</dd></div><div><dt>IVA 23 %</dt><dd>${euros(c.iva)}</dd></div><div class="bc-carr__total"><dt>Total com IVA</dt><dd>${euros(c.total)}</dd></div></dl>
+        <button type="submit" class="btn btn--acao" data-enter-acao>${IC.visto}<span class="btn__rotulo">Confirmar encomenda</span></button>
+        <button type="button" class="btn btn--ghost" data-voltar-carrinho>${IC.seta}<span class="btn__rotulo">Voltar ao carrinho</span></button>
+      </footer>
+    </form>`;
+}
+async function confirmarEncomenda(el: HTMLElement, f: HTMLFormElement): Promise<void> {
+  const b = f.querySelector<HTMLButtonElement>('button[type="submit"]')!; if (b.getAttribute('aria-busy')) return;
+  const erro = f.querySelector<HTMLElement>('[data-enc-erro]')!; erro.hidden = true;
+  const antes = b.innerHTML; b.setAttribute('aria-busy', 'true'); b.disabled = true; b.querySelector('.btn__rotulo')!.textContent = 'A enviar…';
+  await new Promise((r) => window.setTimeout(r, quieto() ? 150 : 900));
+  b.removeAttribute('aria-busy'); b.disabled = false; b.innerHTML = antes;
+  if (!navigator.onLine) { erro.textContent = 'Sem ligação: a encomenda não foi enviada. O carrinho fica como está; tente quando a ligação voltar.'; erro.hidden = false; return; }
+  const c = carrinho.contas(), entrega = String(new FormData(f).get('entrega') ?? '');
+  feitoCarr = { num: 'P2024/001257', total: euros(c.total), entrega };
+  passoCarr = 'feito'; carrinho.esquecer(); pintarEncomenda(el); el.querySelector<HTMLElement>('[data-ver-pedidos]')?.focus();
+}
 function pintarCarrinho(el: HTMLElement, foco?: string): void {
+  if (passoCarr !== 'linhas') { pintarEncomenda(el); return; }
   const linhas = carrinho.todas(), c = carrinho.contas();
   el.querySelector('.bc-carr')!.innerHTML = `
     <header class="bc-carr__topo"><h2 id="bc-carr-t">${IC.carrinho}Carrinho <span class="bc__conta">${c.unidades} ${c.unidades === 1 ? 'artigo' : 'artigos'}</span></h2><button type="button" class="bc__fechar bc-carr__fechar" data-fechar aria-label="Fechar o carrinho">${IC.x}</button></header>
@@ -406,8 +447,9 @@ function pintarCarrinho(el: HTMLElement, foco?: string): void {
       </li>`; }).join('')}</ul>` : `<div class="bc-vazio bc-carr__vazio">${IC.carrinho}<b>O carrinho está vazio.</b><span>No Catálogo, abra uma referência e carregue em «Pedir».</span><button type="button" class="btn btn--acao" data-ir-catalogo>${IC.caixa}<span class="btn__rotulo">Ir ao Catálogo</span></button></div>`}
     ${linhas.length ? `<footer class="bc-carr__pe">
       <dl><div><dt>Total sem IVA</dt><dd>${euros(c.base)}</dd></div><div><dt>IVA 23 %</dt><dd>${euros(c.iva)}</dd></div><div class="bc-carr__total"><dt>Total com IVA</dt><dd>${euros(c.total)}</dd></div></dl>
+      <button type="button" class="btn btn--acao bc-carr__encomendar" data-encomendar>${IC.visto}<span class="btn__rotulo">Encomendar</span></button>
       <button type="button" class="btn btn--ghost" data-ir-catalogo>${IC.caixa}<span class="btn__rotulo">Continuar a comprar</span></button>
-      <p class="bc-carr__nota">${IC.info}<span>Encomendar ainda não tem ecrã: falta o carrinho completo e o serviço de encomendas do Peça A Peça. Preços líquidos de exemplo.</span></p>
+      <p class="bc-carr__nota">${IC.info}<span>Preços líquidos da tua conta, de exemplo.</span></p>
     </footer>` : ''}`;
   if (foco) el.querySelector<HTMLElement>(foco)?.focus();
 }
@@ -520,6 +562,7 @@ function qualBotao(t: Element): [string, HTMLElement] | null {
 }
 
 export function iniciar(): void {
+  document.addEventListener('submit', (ev) => { const f = (ev.target as Element).closest?.<HTMLFormElement>('.bc-carr [data-encomenda]'); if (!f || !aberta) return; ev.preventDefault(); void confirmarEncomenda(aberta.el, f); });
   carrinho.ouvir((m) => {
     pintarSelos(m.tipo === 'mudou');
     if (m.tipo === 'falhou') avisoGlobal(m.texto || 'O carrinho não mudou.', true);
@@ -567,6 +610,9 @@ export function iniciar(): void {
       if (quieto()) feito(); else li.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(16px)' }], { duration: 180, easing: 'ease-in', fill: 'forwards' }).onfinish = feito;
       return;
     }
+    if (t.closest('[data-encomendar]')) { passoCarr = 'encomendar'; pintarEncomenda(el); el.querySelector<HTMLInputElement>('input[name="entrega"]:checked')?.focus(); return; }
+    if (t.closest('[data-voltar-carrinho]')) { passoCarr = 'linhas'; pintarCarrinho(el); el.querySelector<HTMLElement>('[data-encomendar]')?.focus(); return; }
+    if (t.closest('[data-ver-pedidos]')) { passoCarr = 'linhas'; ir('pedidos'); return; }
     if (t.closest('[data-desfazer-carrinho]') && desfazerCarrinho) { const d = desfazerCarrinho; desfazerCarrinho = null; void carrinho.repor(d.linha, d.indice); return; }
     /* definições */
     const tema = t.closest<HTMLElement>('[data-tema]');

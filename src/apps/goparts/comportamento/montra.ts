@@ -1,28 +1,36 @@
 /* =========================================================
    PEÇA A PEÇA — 10 · Início V10, a montra: o que mexe (21 out. 2026)
-   - O rolamento vivo: um só progresso p = clamp((topo da cena já passado) / (altura da secção − altura da parte
-     presa)), sem relógio. p manda nas peças (anel exterior → gaiola e esferas → anel interior), na câmara, nas
-     etiquetas e no texto (abertura → 01 → 02 → 03 → «Da engenharia à peça certa.»). Parar o scroll para-o; subir
-     monta-o; recarregar a meio põe-no no sítio certo.
-   - Antes de se descer, o rolamento entra (≈600 ms) e inclina-se um pouco para o rato (só com rato).
-   - Desenha só quando algo muda e com a cena à vista; sem WebGL, a imagem de reserva; com «reduzir movimento»,
-     montado e parado, sem a secção comprida.
-   - Os botões levam aos ecrãs verdadeiros: a pesquisa no modo certo, o catálogo num grupo ou numa referência,
-     o pedido, o veículo no catálogo, a lista; «Adicionar ao carrinho» usa o carrinho a sério.
+   - Três peças (comportamento/modelos-3d.ts): rolamento, travão e bomba de água — cada regresso ao Início mostra a
+     seguinte (ela: «voltei ao Início e pode mudar para um travão… quero 3 exemplos»). O texto, os insights e os
+     botões da exploração trocam com ela (data-ex no <main>).
+   - Um só progresso p = clamp((topo da cena já passado) / (altura da secção − parte presa)), sem relógio: p manda
+     nas peças, na câmara, nos insights e no texto. Parar o scroll para-a; subir monta-a; recarregar a meio põe-na
+     no sítio certo.
+   - Os insights: junto de cada peça quando ela sai, e somem quando volta ao sítio (no estreito, só o da etapa).
+   - «Explorar componente»: a peça abre-se (vista explodida, 400 ms), arrasta-se para rodar, tocar numa peça (ou
+     escolhê-la no painel) acende-a e o painel diz o que é e leva ao catálogo; Escape sai.
+   - Antes de se descer, a peça entra (≈650 ms) e inclina-se um pouco para o rato. Desenha só quando algo muda e
+     com a cena à vista; sem WebGL, a imagem de reserva; com «reduzir movimento», montada e parada.
+   - Os botões levam aos ecrãs verdadeiros (pesquisa no modo certo e já escrita, catálogo num grupo ou numa
+     referência, pedido, veículo, lista); «Adicionar ao carrinho» usa o carrinho a sério.
    ========================================================= */
-import { Scene, PerspectiveCamera, WebGLRenderer, Object3D, Vector3, ACESFilmicToneMapping, SRGBColorSpace } from 'three';
-import { criarRolamento, ambiente, R, N_ESFERAS, type Rolamento } from './rolamento-3d';
+import { Scene, PerspectiveCamera, WebGLRenderer, Object3D, Vector3, Vector2, Raycaster, Color, ACESFilmicToneMapping, SRGBColorSpace, type Mesh, type MeshPhysicalMaterial } from 'three';
+import { ambiente } from './rolamento-3d';
+import { criarModelo, EXEMPLOS, type IdExemplo, type Modelo } from './modelos-3d';
 import { irPara } from './navegar';
 import * as carrinho from './carrinho';
 import { GARAGEM, CHAVE_GARAGEM, type Carro } from '../portal/inicio-espaco';
+import { EXEMPLOS_TEXTO } from '../portal/montra';
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const limitar = (x: number) => Math.min(1, Math.max(0, x));
 const suave = (a: number, b: number, p: number) => { const k = limitar((p - a) / (b - a)); return k * k * (3 - 2 * k); };
 const mix = (a: number, b: number, k: number) => a + (b - a) * k;
-const tmp = new Object3D(), v = new Vector3();
+const v = new Vector3();
+const CHAVE_EX = 'goparts:montra-exemplo';
 
-type Vivo = { sec: HTMLElement; r: WebGLRenderer; cena: Scene; cam: PerspectiveCamera; rol: Rolamento; p: number; visivel: boolean; pedido: number; w: number; h: number; rato: [number, number]; t0: number; obs: IntersectionObserver; ro: ResizeObserver };
+type Vivo = { sec: HTMLElement; main: HTMLElement; r: WebGLRenderer; cena: Scene; cam: PerspectiveCamera; ex: IdExemplo; m: Modelo; p: number; visivel: boolean; pedido: number; w: number; h: number;
+  rato: [number, number]; t0: number; obs: IntersectionObserver; ro: ResizeObserver; explorar: boolean; giro: [number, number]; abre: number; escolhida: string | null };
 let vivo: Vivo | null = null;
 
 function progresso(sec: HTMLElement): number {
@@ -31,44 +39,35 @@ function progresso(sec: HTMLElement): number {
   const dist = sec.offsetHeight - fixo.offsetHeight;
   return dist > 0 ? limitar((topo - sec.getBoundingClientRect().top) / dist) : 0;
 }
-/** A pose para (p, entrada, rato) — o scroll manda; o tempo só na entrada. */
-function pose(x: Vivo, p: number, entrada: number): void {
-  const { rol, cam } = x, estreito = x.w < 600 || x.w < x.h;
-  const exp = suave(.66, .84, p), abre = suave(.4, .62, p);
-  rol.ext.position.z = -(1.05 * suave(.16, .4, p) + .55 * exp);
-  rol.gaiola.children[0].position.z = -.1 - .42 * abre - .2 * exp;
-  rol.gaiola.children[1].position.z = .1 + .42 * abre + .2 * exp;
-  rol.int.position.z = 1.05 * suave(.55, .8, p) + .55 * exp;
-  const raio = R.primitivo + .3 * suave(.45, .75, p), giro = p * 2.2;
-  for (let i = 0; i < N_ESFERAS; i++) { const a = giro + (i / N_ESFERAS) * Math.PI * 2; tmp.position.set(Math.cos(a) * raio, Math.sin(a) * raio, 0); tmp.updateMatrix(); rol.esferas.setMatrixAt(i, tmp.matrix); }
-  rol.esferas.instanceMatrix.needsUpdate = true;
-  /* no início, inclina-se um pouco para o rato; ao descer, passa à vista isométrica */
+/** A pose para (p, entrada, rato, exploração) — o scroll manda; o tempo só na entrada e ao abrir a exploração. */
+function pose(x: Vivo, p0: number, entrada: number): number {
+  const estreito = x.w < 600 || x.w < x.h, p = mix(p0, .8, x.abre), g = x.m.grupo;
+  x.m.pose(p);
   const iso = suave(.35, .7, p), solto = 1 - suave(0, .12, p);
-  rol.grupo.rotation.set(mix(-.3, -.5, iso) + x.rato[1] * .12 * solto, mix(.45 + p * .9, 1.05, iso) + x.rato[0] * .18 * solto, 0);
-  /* a entrada: chega da direita, a rodar o que o caminho pede */
   const k = 1 - (1 - entrada) ** 3;
-  rol.grupo.position.x = (1 - k) * 2.2;
-  rol.ext.rotation.z = rol.int.rotation.z = -(1 - k) * 2.2 / R.ext;
-  cam.position.set(0, 0, mix(estreito ? 5.6 : 3.9, estreito ? 9.6 : 7.6, suave(.3, .84, p)));
-  cam.lookAt(0, 0, 0);
+  g.rotation.set(mix(-.3, -.5, iso) + x.rato[1] * .12 * solto + x.giro[1], mix(.45 + p * .9, 1.05, iso) + x.rato[0] * .18 * solto + x.giro[0], -(1 - k) * 2.2);
+  g.position.x = (1 - k) * 2.2;
+  /* (21 out.) «coloca o rolamento mais pequeno»: a câmara de cada peça, mais afastada no estreito */
+  const [perto, longe] = x.m.dist;
+  x.cam.position.set(0, 0, mix(perto + (estreito ? 1.2 : 0), longe + (estreito ? 1.6 : 0), suave(.3, .84, p)));
+  x.cam.lookAt(0, 0, 0);
+  return p;
 }
-function etiquetas(x: Vivo, p: number): void {
-  const { rol, cam, sec } = x, estreito = x.w < 560;
-  const alvo: Record<string, [Object3D, Vector3, number]> = {
-    ext: [rol.ext, new Vector3(0, R.ext, 0), .22], gaiola: [rol.gaiola.children[1], new Vector3(0, -R.primitivo, 0), .42],
-    esferas: [rol.gaiola, new Vector3(R.primitivo + .3 * suave(.45, .75, p), 0, 0), .48], int: [rol.int, new Vector3(0, R.furo, 0), .6],
-  };
-  const atual = p < .4 ? 'ext' : p < .5 ? 'gaiola' : p < .6 ? 'esferas' : 'int';
-  sec.querySelectorAll<HTMLElement>('[data-etq]').forEach((el) => {
-    const [obj, local, desde] = alvo[el.dataset.etq!];
-    v.copy(local); obj.localToWorld(v); v.project(cam);
-    const vis = p >= desde && p < .9 && (!estreito || el.dataset.etq === atual);
-    const lx = Math.min(Math.max(((v.x + 1) / 2) * x.w, 0), x.w - el.offsetWidth - 24), ly = Math.min(Math.max(((1 - v.y) / 2) * x.h, 20), x.h - 12);
+function insights(x: Vivo, p: number): void {
+  const estreito = x.w < 560, atual = x.m.atual(p);
+  x.sec.querySelectorAll<HTMLElement>(`[data-etq][data-ex="${x.ex}"]`).forEach((el) => {
+    const a = x.m.etiqueta[el.dataset.etq!]; if (!a) return;
+    const [obj, local, desde] = a;
+    v.copy(local); obj.localToWorld(v); v.project(x.cam);
+    /* só o insight da peça que está a sair (ou a voltar): nunca uns por cima dos outros */
+    const vis = !x.explorar && p >= desde && p < .9 && el.dataset.etq === atual; void estreito;
+    const lx = Math.min(Math.max(((v.x + 1) / 2) * x.w, 0), x.w - el.offsetWidth - 24), ly = Math.min(Math.max(((1 - v.y) / 2) * x.h, 20), x.h - el.offsetHeight - 8);
     el.style.transform = `translate(${lx}px, ${ly}px)`; el.classList.toggle('is-visivel', vis);
   });
 }
-/** O texto da etapa: cada camada aparece no seu intervalo (sem saltos: cruzam-se). */
-function texto(sec: HTMLElement, p: number): void {
+/** O texto da etapa da peça em uso: cada camada aparece no seu intervalo (cruzam-se, sem saltos). */
+function texto(x: { sec: HTMLElement; ex: IdExemplo }, p: number): void {
+  const { sec, ex } = x;
   const camada = (el: HTMLElement | null, de: number, ate: number) => {
     if (!el) return; const a = suave(de - .05, de, p) * (1 - suave(ate, ate + .05, p));
     el.style.opacity = String(a); el.style.transform = `translateY(${(1 - a) * 12}px)`;
@@ -76,57 +75,119 @@ function texto(sec: HTMLElement, p: number): void {
   };
   const heroi = sec.querySelector<HTMLElement>('[data-mt-heroi]');
   if (heroi) { const a = 1 - suave(.06, .14, p); heroi.style.opacity = String(a); heroi.style.transform = `translateY(${-(1 - a) * 16}px)`; heroi.toggleAttribute('inert', a < .5); }
-  camada(sec.querySelector('[data-mt-passo="1"]'), .19, .38); camada(sec.querySelector('[data-mt-passo="2"]'), .43, .6); camada(sec.querySelector('[data-mt-passo="3"]'), .65, .82);
-  camada(sec.querySelector('[data-mt-fim]'), .88, 2);
-  sec.querySelector<HTMLElement>('[data-mt-fim] button')?.setAttribute('tabindex', p > .88 ? '0' : '-1');
+  /* (21 out.) sem sobreposições: cada texto sai antes de o seguinte entrar */
+  camada(sec.querySelector(`[data-mt-passo="1"][data-ex="${ex}"]`), .2, .34); camada(sec.querySelector(`[data-mt-passo="2"][data-ex="${ex}"]`), .45, .57); camada(sec.querySelector(`[data-mt-passo="3"][data-ex="${ex}"]`), .69, .8);
+  const fim = sec.querySelector<HTMLElement>(`[data-mt-fim][data-ex="${ex}"]`); camada(fim, .88, 2);
+  fim?.querySelector('button')?.setAttribute('tabindex', p > .88 ? '0' : '-1');
   sec.querySelector<HTMLElement>('[data-mt-barra]')?.style.setProperty('--p', String(p));
 }
 function desenhar(x: Vivo, forcar = false): void {
   x.pedido = 0;
   if (!x.sec.isConnected) { largar(); return; }
   const p = progresso(x.sec), entrada = quieto() ? 1 : limitar((performance.now() - x.t0) / 650);
-  const mudou = forcar || Math.abs(p - x.p) > 1e-4 || entrada < 1;
-  if (!mudou) return;
-  x.p = p; texto(x.sec, p);
+  const alvo = x.explorar ? 1 : 0; if (x.abre !== alvo) x.abre = quieto() ? alvo : limitar(x.abre + (alvo ? 1 : -1) * .045);
+  if (!(forcar || Math.abs(p - x.p) > 1e-4 || entrada < 1 || x.abre !== alvo || x.explorar)) return;
+  x.p = p; texto(x, p);
   if (!x.visivel && !forcar) return;
-  pose(x, p, entrada); x.r.render(x.cena, x.cam); etiquetas(x, p);
-  if (entrada < 1) pedir();
+  const pp = pose(x, p, entrada); x.r.render(x.cena, x.cam); insights(x, pp);
+  if (entrada < 1 || x.abre !== alvo) pedir();
 }
 function pedir(): void { if (vivo && !vivo.pedido) vivo.pedido = requestAnimationFrame(() => vivo && desenhar(vivo)); }
 function medir(x: Vivo): void {
   const c = x.sec.querySelector<HTMLElement>('.mt__cena')!; x.w = c.clientWidth; x.h = c.clientHeight; if (!x.w || !x.h) return;
   x.r.setSize(x.w, x.h, false); x.cam.aspect = x.w / x.h; x.cam.updateProjectionMatrix(); desenhar(x, true);
 }
+const libertar = (o: Object3D) => o.traverse((n) => { const m = n as { geometry?: { dispose(): void }; material?: { dispose(): void } }; m.geometry?.dispose(); m.material?.dispose(); });
 function largar(): void {
   if (!vivo) return;
   vivo.obs.disconnect(); vivo.ro.disconnect(); if (vivo.pedido) cancelAnimationFrame(vivo.pedido);
-  vivo.cena.traverse((o) => { const m = o as { geometry?: { dispose(): void }; material?: { dispose(): void } }; m.geometry?.dispose(); m.material?.dispose(); });
-  vivo.cena.environment?.dispose(); vivo.r.dispose(); vivo = null;
+  libertar(vivo.cena); vivo.cena.environment?.dispose(); vivo.r.dispose(); vivo = null;
 }
-function ligar(sec: HTMLElement): void {
-  if (vivo?.sec === sec) return;
+
+/* ---------- qual das três peças: a seguinte a cada regresso ao Início ---------- */
+function proximo(): IdExemplo {
+  let i = -1; try { i = Number(sessionStorage.getItem(CHAVE_EX) ?? -1); } catch { /* começa no rolamento */ }
+  const n = (Number.isFinite(i) ? i + 1 : 0) % EXEMPLOS.length;
+  try { sessionStorage.setItem(CHAVE_EX, String(n)); } catch { /* fica nesta */ }
+  return EXEMPLOS[n];
+}
+function trocarPeca(x: Vivo, ex: IdExemplo): void {
+  if (x.explorar) explorar(false);
+  x.cena.remove(x.m.grupo); libertar(x.m.grupo);
+  x.ex = ex; x.m = criarModelo(ex); x.cena.add(x.m.grupo); x.main.dataset.ex = ex;
+  x.t0 = performance.now(); x.giro = [0, 0]; x.p = -1;
+  x.sec.querySelectorAll('.mt__insight.is-visivel').forEach((e) => e.classList.remove('is-visivel'));
+  desenhar(x, true);
+}
+function ligar(sec: HTMLElement, ex: IdExemplo): void {
   largar();
+  const main = sec.closest<HTMLElement>('.mt')!; main.dataset.ex = ex;
   if (quieto()) sec.classList.add('is-estatico');
-  const main = sec.closest<HTMLElement>('.mt')!;
-  if (main.classList.contains('is-sem-3d')) { texto(sec, 0); return; }
+  if (main.classList.contains('is-sem-3d')) { texto({ sec, ex }, 0); return; }
   let r: WebGLRenderer;
   try { r = new WebGLRenderer({ canvas: sec.querySelector<HTMLCanvasElement>('.mt__tela')!, antialias: true, alpha: true, powerPreference: 'low-power' }); }
-  catch { main.classList.add('is-sem-3d'); sec.querySelector<HTMLElement>('.mt__reserva')!.hidden = false; texto(sec, progresso(sec)); return; }
+  catch { main.classList.add('is-sem-3d'); sec.querySelector<HTMLElement>('.mt__reserva')!.hidden = false; texto({ sec, ex }, progresso(sec)); return; }
   r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75)); r.outputColorSpace = SRGBColorSpace; r.toneMapping = ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
-  const cena = new Scene(), cam = new PerspectiveCamera(30, 1, .1, 50), rol = criarRolamento();
-  ambiente(r, cena); cena.add(rol.grupo);
-  const x: Vivo = { sec, r, cena, cam, rol, p: -1, visivel: true, pedido: 0, w: 0, h: 0, rato: [0, 0], t0: performance.now(), obs: null as unknown as IntersectionObserver, ro: null as unknown as ResizeObserver };
+  const cena = new Scene(), cam = new PerspectiveCamera(30, 1, .1, 50), m = criarModelo(ex);
+  ambiente(r, cena); cena.add(m.grupo);
+  const x: Vivo = { sec, main, r, cena, cam, ex, m, p: -1, visivel: true, pedido: 0, w: 0, h: 0, rato: [0, 0], t0: performance.now(), obs: null as unknown as IntersectionObserver, ro: null as unknown as ResizeObserver, explorar: false, giro: [0, 0], abre: 0, escolhida: null };
   x.obs = new IntersectionObserver(([e]) => { x.visivel = e.isIntersecting; if (x.visivel) desenhar(x, true); }, { rootMargin: '100px' }); x.obs.observe(sec);
   x.ro = new ResizeObserver(() => medir(x)); x.ro.observe(sec.querySelector('.mt__cena')!);
   vivo = x; medir(x);
 }
+let noInicio = false;
 function armar(): void {
   const sec = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .mt [data-mt-palco]');
-  if (sec) ligar(sec); else if (vivo && !vivo.sec.isConnected) largar();
+  if (!sec) { noInicio = false; if (vivo && !vivo.sec.isConnected) largar(); return; }
+  const chegou = !noInicio; noInicio = true;
+  if (vivo?.sec === sec) { if (chegou) trocarPeca(vivo, proximo()); return; }
+  ligar(sec, proximo());
+}
+
+/* ---------- «Explorar componente» ---------- */
+function pecaDe(x: Vivo, o: Object3D | null): string | null {
+  for (let n = o; n; n = n.parent) for (const [k, l] of Object.entries(x.m.pecas)) if (l.includes(n as Mesh)) return k;
+  return null;
+}
+function acender(x: Vivo, id: string | null): void {
+  x.escolhida = id;
+  Object.entries(x.m.pecas).forEach(([k, l]) => l.forEach((m) => { const mt = m.material as MeshPhysicalMaterial; mt.emissive = new Color(k === id ? '#f58214' : '#000000'); mt.emissiveIntensity = k === id ? .45 : 0; mt.transparent = !!id && k !== id; mt.opacity = id && k !== id ? .3 : 1; mt.needsUpdate = true; }));
+  const painel = x.sec.querySelector<HTMLElement>('[data-mt-painel3d]')!, t = EXEMPLOS_TEXTO[x.ex];
+  painel.querySelectorAll<HTMLElement>(`[data-ex="${x.ex}"] [data-mt-peca]`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mtPeca === id)));
+  const pc = id ? t.pecas[id] : null, [, , rotulo, attr] = t.fim;
+  painel.querySelector<HTMLElement>('[data-mt-info]')!.innerHTML = pc
+    ? `<h3>${pc.nome}</h3><p>${pc.texto}</p><p class="mt__painel3d-medida">${pc.medida} · ${t.modelo}</p><div class="mt__painel3d-accoes"><button type="button" class="btn btn--acao mt__btn"${attr}><span class="btn__rotulo">${rotulo}</span></button><button type="button" class="btn mt__btn" data-pn-ir="tecnica"><span class="btn__rotulo">Informação técnica</span></button></div>`
+    : '<p class="mt__painel3d-dica">Toca numa peça, ou escolhe-a acima.</p>';
+  x.p = -1; pedir();
+}
+function explorar(sim: boolean): void {
+  const x = vivo; if (!x) return;
+  x.explorar = sim; if (!sim) { x.giro = [0, 0]; acender(x, null); }
+  const b = x.sec.querySelector<HTMLElement>('[data-mt-explorar]')!, p = x.sec.querySelector<HTMLElement>('[data-mt-painel3d]')!;
+  b.setAttribute('aria-pressed', String(sim)); b.hidden = sim; p.hidden = !sim; x.sec.classList.toggle('is-a-explorar', sim);
+  if (sim) p.querySelector<HTMLElement>(`[data-ex="${x.ex}"] [data-mt-peca]`)?.focus(); else b.focus();
+  x.p = -1; pedir();
+}
+function escolherNoEcra(x: Vivo, cx: number, cy: number): void {
+  const r = x.r.domElement.getBoundingClientRect(), ray = new Raycaster();
+  ray.setFromCamera(new Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1), x.cam);
+  const h = ray.intersectObjects(Object.values(x.m.pecas).flat(), false)[0];
+  acender(x, h ? pecaDe(x, h.object) : null);
 }
 
 /* ---------- os botões ---------- */
 function abrirCatalogo(o: Record<string, string>): void { try { sessionStorage.setItem('goparts:catalogo-abrir', JSON.stringify(o)); } catch { /* abre o catálogo */ } irPara('catalogo'); }
+/** «Os mais pesquisados» e o que não tem ficha: a pesquisa no modo certo, já escrita (a referência pesquisa logo). */
+function pesquisarTermo(termo: string, modo: number): void {
+  irPara('pesquisa', modo);
+  let n = 0; const t = window.setInterval(() => {
+    const ini = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ini3');
+    const inp = ini?.querySelector<HTMLInputElement>(modo === 0 ? '#i3-matricula' : '#i3-referencia');
+    if (!inp && ++n < 20) return; window.clearInterval(t); if (!inp) return;
+    inp.value = termo; inp.dispatchEvent(new Event('input', { bubbles: true }));
+    inp.closest('.ini3__cartao')?.querySelector<HTMLElement>('[data-pesquisar]')?.click();
+  }, 80);
+}
 async function pedir1(b: HTMLButtonElement): Promise<void> {
   if (b.getAttribute('aria-busy')) return;
   const antes = b.innerHTML; b.setAttribute('aria-busy', 'true'); b.disabled = true; b.querySelector('.btn__rotulo')!.textContent = 'A adicionar…';
@@ -144,13 +205,23 @@ export function iniciar(): void {
   document.addEventListener('scroll', pedir, { capture: true, passive: true });
   window.addEventListener('resize', pedir, { passive: true });
   document.addEventListener('pointermove', (ev) => {
-    if (!vivo || ev.pointerType !== 'mouse' || quieto() || vivo.p > .12) return;
+    if (!vivo || vivo.explorar || ev.pointerType !== 'mouse' || quieto() || vivo.p > .12) return;
     const r = vivo.sec.querySelector('.mt__cena')!.getBoundingClientRect();
     vivo.rato = [limitar((ev.clientX - r.left) / r.width) * 2 - 1, limitar((ev.clientY - r.top) / r.height) * 2 - 1]; vivo.p = -1; pedir();
   }, { passive: true });
+  /* a explorar: arrastar roda; tocar sem arrastar escolhe a peça */
+  let arr: { x: number; y: number; g: [number, number]; mexeu: boolean } | null = null;
+  document.addEventListener('pointerdown', (ev) => { if (!vivo?.explorar || !(ev.target as Element).closest?.('.mt__tela')) return; arr = { x: ev.clientX, y: ev.clientY, g: [...vivo.giro] as [number, number], mexeu: false }; });
+  document.addEventListener('pointermove', (ev) => { if (!arr || !vivo) return; const dx = ev.clientX - arr.x, dy = ev.clientY - arr.y; if (Math.abs(dx) + Math.abs(dy) > 4) arr.mexeu = true; vivo.giro = [arr.g[0] + dx * .01, Math.max(-1.2, Math.min(1.2, arr.g[1] + dy * .01))]; vivo.p = -1; pedir(); });
+  document.addEventListener('pointerup', (ev) => { if (!arr || !vivo) return; if (!arr.mexeu) escolherNoEcra(vivo, ev.clientX, ev.clientY); arr = null; });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && vivo?.explorar) { ev.preventDefault(); explorar(false); } });
   document.addEventListener('click', (ev) => {
     const t = ev.target as Element, main = t.closest?.('.portal--mt'); if (!main || document.body.classList.contains('editando')) return;
     let b: HTMLElement | null;
+    if (t.closest('[data-mt-explorar]')) { explorar(true); return; }
+    if (t.closest('[data-mt-explorar-fechar]')) { explorar(false); return; }
+    if ((b = t.closest('[data-mt-peca]')) && vivo) { acender(vivo, b.dataset.mtPeca!); return; }
+    if ((b = t.closest('[data-mt-pesquisar]'))) { pesquisarTermo(b.dataset.mtPesquisar!, Number(b.dataset.mtModo ?? 2)); return; }
     if ((b = t.closest('[data-pn-modo]'))) { irPara('pesquisa', Number(b.dataset.pnModo)); return; }
     if ((b = t.closest('[data-pn-ir]'))) { irPara(b.dataset.pnIr!); return; }
     if ((b = t.closest('[data-pn-atalho]'))) { irPara(b.dataset.pnAtalho!); return; }

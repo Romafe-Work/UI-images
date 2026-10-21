@@ -13,16 +13,10 @@ import { L } from '../portal/catalogo-v3';
 import { MODELOS } from '../portal/catalogo-dados';
 import { silhueta } from '../portal/carros';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
-import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
-import table from 'lucide-static/icons/table.svg?raw';
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const lido = (k: string) => { try { return localStorage.getItem(`goparts-ver-${k}`); } catch { return null; } };
 const guardar = (k: string, v: string) => { try { localStorage.setItem(`goparts-ver-${k}`, v); } catch { /* sem armazenamento: fica só nesta visita */ } };
 
-const botoesVer = (k: string) => `<div class="cat5__modos cat6__ver" role="group" aria-label="Ver como" data-ver-de="${k}">`
-  + `<button type="button" class="cat5__modo" data-ver="cartoes" aria-pressed="true">${L(layoutGrid)}Cartões</button>`
-  + `<button type="button" class="cat5__modo" data-ver="tabela" aria-pressed="false">${L(table)}Tabela</button></div>`;
 const ordenador = (k: string, t: string) => `<button type="button" class="cat5__ordenar" data-ordenar6="${k}">${t}${L(arrowUpDown)}</button>`;
 
 function aplicarVer(alvo: HTMLElement, botoes: HTMLElement, modo: string): void {
@@ -35,10 +29,8 @@ function marcas(main: HTMLElement): void {
   const sec = main.querySelector<HTMLElement>('.cat2__marcas'); if (!sec) return;
   const cab = sec.querySelector<HTMLElement>('.cat2__marcas-cabeca'), grelha = sec.querySelector<HTMLElement>('.cat2__grelha');
   if (!cab || !grelha) return;
-  if (!cab.querySelector('.cat6__ver')) {
-    cab.insertAdjacentHTML('beforeend', botoesVer('marcas'));
-    aplicarVer(sec, cab.querySelector<HTMLElement>('.cat6__ver')!, lido('marcas') || 'tabela');
-  }
+  /* (21 out.) ela: «só quero opção de cartões» e «a tabela no catálogo nunca é default» — sem o «Cartões | Tabela» */
+  sec.dataset.ver = 'cartoes';
   if (!sec.querySelector('.cat6__t-cabeca')) grelha.insertAdjacentHTML('beforebegin', `<div class="cat6__t-cabeca" data-so="marcas"${main.dataset.vista && main.dataset.vista !== 'marcas' ? ' hidden' : ''}><span data-ordem="none">${ordenador('nome', 'Marca')}</span><span data-ordem="none">${ordenador('modelos', 'Modelos')}</span><span>Favorita</span></div>`);
   grelha.querySelectorAll<HTMLElement>('li.cat2__marca').forEach((li) => {
     if (li.querySelector('.cat6__m-n')) return;
@@ -52,10 +44,7 @@ function marcas(main: HTMLElement): void {
 function modelos(main: HTMLElement): void {
   const v = main.querySelector<HTMLElement>('.cat3__vista[data-so="modelos"]'); if (!v) return;
   const cab = v.querySelector<HTMLElement>('.cat4__cabeca');
-  if (cab && !cab.querySelector('.cat6__ver')) {
-    cab.insertAdjacentHTML('beforeend', botoesVer('modelos'));
-    aplicarVer(v, cab.querySelector<HTMLElement>('.cat6__ver')!, lido('modelos') || 'tabela');
-  }
+  if (cab) v.dataset.ver = 'cartoes';
   const tr = v.querySelector<HTMLElement>('thead tr');
   if (tr && !tr.querySelector('.cat6__th-foto')) {
     tr.insertAdjacentHTML('afterbegin', '<th class="cat6__th-foto">Imagem</th>');

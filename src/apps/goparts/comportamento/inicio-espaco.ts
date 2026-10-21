@@ -343,7 +343,8 @@ function abrirCategoria(nome: string): void {
    ========================================================= */
 function redesenharGaragem(ini: HTMLElement, mudar: (g: Carro[]) => void, depois?: (bloco: HTMLElement) => void): void {
   const g = garagem(); mudar(g); if (real(ini)) gravar(CHAVE_GARAGEM, g);
-  const bloco = ini.querySelector<HTMLElement>('[data-bloco="garagem"]')!;
+  /* (21 out.) na Pesquisar peças já não há o bloco (está no ecrã A minha garagem): grava e não redesenha */
+  const bloco = ini.querySelector<HTMLElement>('[data-bloco="garagem"]'); if (!bloco) return;
   const escolhida = ini.querySelector<HTMLElement>('.ini4__carro.is-escolhido')?.dataset.matricula ?? '';
   const antes = new Map(Array.from(bloco.querySelectorAll<HTMLElement>('.ini4__carro[data-carro]')).map((c) => [c.dataset.carro!, c.getBoundingClientRect()]));
   const d = { ...dados(), garagem: real(ini) ? garagem() : g };

@@ -297,17 +297,27 @@ export function editorHtml(l: Lista, e: EstadoLista = ''): string {
 
 /* ---------- Minhas listas ---------- */
 export function listasHtml(): string {
+  /* (21 out.) ela: «quando passo o rato por cima de uma lista, mostra no hover os itens, em scroll se forem vários»:
+     um cartão com as peças, a mão-de-obra e os custos; com mais de 4, a lista anda sozinha (para com o rato em cima).
+     No telemóvel (sem rato) fica uma linha curta por baixo do nome. */
+  const previa = (l: Lista) => {
+    const itens = [...l.pecas.map((pc) => `<li><b>${pc.qtd}×</b><span>${pc.marca} ${pc.ref}</span><small>${pc.desc}</small></li>`), ...l.mao.map((m) => `<li><b>${L(wrench)}</b><span>${m.desc}</span><small>Mão-de-obra</small></li>`), ...l.custos.map((c) => `<li><b>+</b><span>${c.desc}</span><small>Custo</small></li>`)];
+    if (!itens.length) return '<div class="lst__l-previa lst__l-previa--vazia" aria-hidden="true"><p>Ainda sem artigos.</p></div>';
+    const muitos = itens.length > 4;
+    return `<div class="lst__l-previa${muitos ? ' is-a-rolar' : ''}" aria-hidden="true" style="--n:${itens.length}"><p class="lst__l-previa-t">${itens.length} ${itens.length === 1 ? 'artigo' : 'artigos'}</p><div class="lst__l-previa-janela"><ul class="lst__l-previa-pista">${itens.join('')}${muitos ? itens.join('') : ''}</ul></div></div>`;
+  };
+  const resumo = (l: Lista) => { const n = l.pecas.length + l.mao.length + l.custos.length; return n ? `<small class="lst__l-resumo">${l.pecas.slice(0, 2).map((pc) => `${pc.qtd}× ${pc.ref}`).join(' · ')}${n > 2 ? ` · +${n - 2}` : ''}</small>` : ''; };
   const linha = (l: Lista) => {
     const c = contas(l), artigos = c.nPecas + c.nMao + c.nCustos;
     return `<li class="lst__l" data-flip data-estado-lista="${l.estado}"><button type="button" class="lst__l-abrir" data-abrir-lista="${l.id}">
-        <span class="lst__l-nome">${l.carro ? `<span class="lst__l-carro" aria-hidden="true">${silhueta(l.carro)}</span>` : `<span class="lst__l-carro" aria-hidden="true">${L(pkg)}</span>`}<span><b>${l.nome}</b><small>${l.id}</small></span></span>
+        <span class="lst__l-nome">${l.carro ? `<span class="lst__l-carro" aria-hidden="true">${silhueta(l.carro)}</span>` : `<span class="lst__l-carro" aria-hidden="true">${L(pkg)}</span>`}<span><b>${l.nome}</b><small>${l.id}</small>${resumo(l)}</span></span>
         <span class="lst__l-c"><span class="lst__rot">Estado</span><span class="lst__estado lst__estado--${l.estado}">${ESTADO_NOME[l.estado]}</span></span>
         <span class="lst__l-c"><span class="lst__rot">Criada</span>${l.criada}</span>
         <span class="lst__l-c"><span class="lst__rot">Atualizada</span>${l.atualizada}</span>
         <span class="lst__l-c lst__l-n"><span class="lst__rot">Artigos</span>${artigos}</span>
         <span class="lst__l-c lst__l-n"><span class="lst__rot">Total <small>com IVA</small></span><b>${artigos ? euros(c.total) : '—'}</b>${c.semPreco.length ? '<small class="lst__l-parcial">parcial</small>' : ''}</span>
         ${L(chevronRight, 'lst__l-seta')}
-      </button><button type="button" class="lst__icone" data-duplicar-lista="${l.id}" aria-label="Duplicar «${l.nome}»" data-dica="Duplicar">${L(copy)}</button></li>`;
+      </button><button type="button" class="lst__icone" data-duplicar-lista="${l.id}" aria-label="Duplicar «${l.nome}»" data-dica="Duplicar">${L(copy)}</button>${previa(l)}</li>`;
   };
   const n = (k: EstadoDaLista) => LISTAS.filter((l) => l.estado === k).length;
   return `<section class="lst__vista-listas" aria-labelledby="lst-t-listas">

@@ -533,11 +533,12 @@ export function repetirHtml(num: string, aberto = false): string {
 
 /** (20 out., V5) Os blocos do ecrã «Pesquisar peças»: só os que ajudam a pesquisar, pela ordem de origem (o painel
     da atividade — atenção, resumo, pedidos, atalhos — passou ao Início, painel.ts). */
-export const ORDEM_PESQUISA: IdBloco[] = ['continuar', 'garagem', 'frequentes', 'disponibilidade', 'categorias'];
+/* (21 out.) a garagem saiu da Pesquisar peças (ela: «isto desaparece do ecrã de pesquisar peças»): tem o seu ecrã */
+export const ORDEM_PESQUISA: IdBloco[] = ['continuar', 'frequentes', 'disponibilidade', 'categorias'];
 export function blocosPesquisa(d: Dados, e: EstadoEspaco = ''): string {
   const dd: Dados = { ...d, prefs: { ...d.prefs, ordem: [...ORDEM_PESQUISA, ...ORDEM.filter((b) => !ORDEM_PESQUISA.includes(b))], escondidos: [] } };
   return `<div class="ini4__blocos" data-blocos data-densidade="${d.prefs.densidade}">
-    ${continuarHtml(dd, e)}${garagemHtml(dd, e, e === 'veiculo' ? 'AA-12-BC' : '')}${frequentesHtml(dd, e)}${disponibilidadeHtml(dd, e)}${categoriasHtml(dd, e)}
+    ${continuarHtml(dd, e)}${frequentesHtml(dd, e)}${disponibilidadeHtml(dd, e)}${categoriasHtml(dd, e)}
   </div>`;
 }
 /** Os blocos todos, pela ordem das preferências (o CSS põe-nos no sítio com `order`). */
