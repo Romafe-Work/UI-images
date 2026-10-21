@@ -11,6 +11,7 @@ export default defineConfig({
         entrada: resolve(import.meta.dirname, 'index.html'),
         erp: resolve(import.meta.dirname, 'erp/index.html'),
         goshop: resolve(import.meta.dirname, 'goshop/index.html'),
+        pecaapeca: resolve(import.meta.dirname, 'peca-a-peca/index.html'),
         goparts: resolve(import.meta.dirname, 'goparts/index.html'),
         mobile: resolve(import.meta.dirname, 'mobile/index.html'),
       },

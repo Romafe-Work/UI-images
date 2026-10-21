@@ -14,9 +14,9 @@ async function caso(nome, largura, f) {
   const ctx = await browser.newContext({ viewport: { width: largura, height: 860 } });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => erros.push(`${nome}: ${e.message}`));
-  await p.goto(`${BASE}/goparts/#so=ecra&ecra=lista`);
+  await p.goto(`${BASE}/peca-a-peca/#so=ecra&ecra=lista`);
   await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
-  await p.goto(`${BASE}/goparts/#so=ecra&ecra=inicio`); await p.reload();
+  await p.goto(`${BASE}/peca-a-peca/#so=ecra&ecra=inicio`); await p.reload();
   /* as barras de versões e de estados do protótipo ficam por cima do ecrã: fora, para os cliques chegarem à barra */
   await p.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '.versoes { display: none !important; }'; document.head.appendChild(s); }); });
   await p.reload();

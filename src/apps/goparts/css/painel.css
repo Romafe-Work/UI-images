@@ -275,7 +275,8 @@
   /* a atenção primeiro (quando há), depois os números, os pedidos, o acesso rápido e o gráfico */
   .pn__centro, .pn__baixo { display: contents; }
   .pn > .pn__cabeca { order: 0; } .pn > .pn__avisos { order: 1; margin-top: 0; }
-  .pn [data-w="atencao"] { order: 2; } .pn > .pn__resumo { order: 3; } .pn [data-w="pedidos"] { order: 4; } .pn [data-w="atalhos"] { order: 5; } .pn [data-w="evolucao"] { order: 6; }
+  /* (V9) a pesquisa, o que pede atenção, os atalhos, os pedidos e o resumo */
+  .pn > .pn__procura { order: 2; } .pn [data-w="atencao"] { order: 3; } .pn [data-w="atalhos"] { order: 4; } .pn [data-w="pedidos"] { order: 5; } .pn [data-w="resumo"] { order: 6; }
   .pn__kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .pn__kpi { min-height: 88px; padding: 12px; }
   .pn__kpi-valor { font-size: 26px; }
@@ -405,3 +406,103 @@
   .pn__linha-det > td { display: block; border-radius: 0 0 10px 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .pn__motivo-l { stroke-dasharray: none; } }
+
+/* =========================================================
+   (21 out., V9 — Peça A Peça) o Início em cartões
+   Do briefing «Redesign clean»: os três cartões grandes da pesquisa com cor (azul, azul, laranja), sete atalhos
+   brancos com o seu número, o centro (pedidos | atenção destacada) e o resumo em cartões compactos.
+   Movimento: ao passar 150 ms (sobe 2 px, a seta avança); ao carregar, 120 ms; entrada 260 ms (comportamento).
+   ========================================================= */
+.portal--pn9 .pn { gap: 28px; }
+.pn__data { margin: 0 0 2px; font-size: 13px; font-weight: 500; color: var(--i3-tinta-3); }
+.pn__contexto { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 0; font-size: 13px; color: var(--i3-tinta-2); }
+.pn__contexto > span { display: inline-flex; align-items: center; gap: 6px; }
+.pn__contexto svg { width: 15px; height: 15px; color: var(--gp-azul-vivo, var(--i3-azul)); }
+.portal--pn9 .pn__contexto .pn__armazem { padding: 0; border: 0; background: none; }
+.pn .pn__sec { padding: 0; border: 0; border-radius: 0; background: none; }
+.pn__sec-t { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--i3-tinta); }
+
+/* ---------- os três cartões da pesquisa ---------- */
+.pn__modos { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; }
+.pn__modo { --m: var(--gp-azul, #0876bd); --m2: color-mix(in srgb, var(--m) 78%, #000); position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; gap: 6px 14px; width: 100%; min-height: 140px; padding: 20px 22px; border: 0; border-radius: 14px; background: linear-gradient(135deg, var(--m), var(--m2)); color: #fff; font: inherit; text-align: left; cursor: pointer; overflow: hidden; transition: transform 150ms cubic-bezier(.22, 1, .36, 1), filter 150ms ease; }
+.pn__modo--laranja { --m: #e8740c; --m2: #c75e05; }
+.pn__modo-icone { grid-row: span 2; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: rgba(255, 255, 255, .16); }
+.pn__modo-icone svg { width: 24px; height: 24px; }
+.pn__modo-texto { display: grid; gap: 4px; }
+.pn__modo-texto b { font-size: 18px; font-weight: 700; line-height: 1.25; }
+.pn__modo-texto span { font-size: 14px; line-height: 1.45; color: rgba(255, 255, 255, .9); }
+.pn__modo-ir { grid-column: 2; align-self: end; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 14px; font-weight: 700; }
+.pn__modo-ir svg { width: 16px; height: 16px; transition: transform 150ms cubic-bezier(.22, 1, .36, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .pn__modo:hover { transform: translateY(-2px); filter: brightness(1.06); }
+  .pn__modo:hover .pn__modo-ir svg { transform: translateX(4px); }
+}
+.pn__modo:active { transform: scale(.99); transition-duration: 120ms; }
+.pn__modo:focus-visible { outline: 3px solid var(--c-acao); outline-offset: 3px; }
+.pn__modo--laranja:focus-visible { outline-color: var(--gp-azul-vivo, var(--i3-azul)); }
+
+/* ---------- os atalhos ---------- */
+/* sete cartões: quatro em cima e três mais largos em baixo (sem buraco); numa linha só nos ecrãs largos */
+.pn__cartoes { list-style: none; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; }
+.pn__cartoes > li { grid-column: span 3; }
+.pn__cartoes > li:nth-child(n+5) { grid-column: span 4; }
+@media (min-width: 1800px) { .pn__cartoes { grid-template-columns: repeat(7, minmax(0, 1fr)); } .pn__cartoes > li, .pn__cartoes > li:nth-child(n+5) { grid-column: auto; } }
+@media (max-width: 1099.98px) { .pn__cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pn__cartoes > li, .pn__cartoes > li:nth-child(n+5) { grid-column: auto; } }
+.pn__cartao { position: relative; display: grid; align-content: start; gap: 4px; width: 100%; height: 100%; min-height: 148px; padding: 16px; border: 1px solid var(--i3-borda); border-radius: 12px; background: var(--i3-sup); color: var(--i3-tinta); font: inherit; text-align: left; cursor: pointer; transition: transform 150ms cubic-bezier(.22, 1, .36, 1), border-color 150ms ease, background-color 150ms ease; }
+.pn__cartao-icone { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 8px; border-radius: 10px; background: var(--i3-azul-suave); color: var(--gp-azul-vivo, var(--i3-azul)); transition: background-color 150ms ease, color 150ms ease; }
+.pn__cartao-icone svg { width: 20px; height: 20px; }
+.pn__cartao-nome { font-size: 15px; font-weight: 700; }
+.pn__cartao-desc { font-size: 13px; line-height: 1.4; color: var(--i3-tinta-3); }
+.pn__cartao-meta { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 10px; font-size: 12px; font-weight: 600; color: var(--i3-tinta-2); }
+.pn__cartao-meta::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--i3-borda-forte); }
+.pn__cartao-meta--erro { color: var(--c-erro); } .pn__cartao-meta--erro::before { background: var(--c-erro); }
+.pn__cartao-meta--aviso { color: var(--c-aviso); } .pn__cartao-meta--aviso::before { background: var(--c-aviso); }
+.pn__cartao-meta--ok { color: var(--c-ok); } .pn__cartao-meta--ok::before { background: var(--c-ok); }
+.pn__cartao-seta { position: absolute; top: 18px; right: 16px; width: 18px; height: 18px; color: var(--c-acao); opacity: 0; transform: translateX(-4px); transition: opacity 150ms ease, transform 150ms cubic-bezier(.22, 1, .36, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .pn__cartao:hover { transform: translateY(-2px); border-color: var(--gp-azul-vivo, var(--i3-azul)); }
+  .pn__cartao:hover .pn__cartao-icone { background: var(--gp-azul, var(--i3-azul)); color: #fff; }
+  .pn__cartao:hover .pn__cartao-seta { opacity: 1; transform: none; }
+}
+.pn__cartao:active { transform: scale(.985); transition-duration: 120ms; }
+.pn__cartao:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+.pn__cartao:focus-visible .pn__cartao-seta { opacity: 1; transform: none; }
+
+/* ---------- o centro: a atenção destacada, mas limpa ---------- */
+.portal--pn9 .pn__w--atencao { border-color: color-mix(in srgb, var(--c-acao) 35%, var(--i3-borda)); background: color-mix(in srgb, var(--c-acao) 5%, var(--i3-sup)); }
+.portal--pn9 .pn__w-cabeca h2 { font-size: 16px; }
+.pn__continuar { max-width: 280px; }
+.pn__continuar .btn__rotulo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- o resumo: cartões compactos ---------- */
+/* cinco cartões: três em cima e dois mais largos em baixo; numa linha só nos ecrãs largos */
+.pn__minis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.pn__minis > .pn__mini { grid-column: span 2; }
+.pn__minis > .pn__mini:nth-child(n+4) { grid-column: span 3; }
+@media (min-width: 1800px) { .pn__minis { grid-template-columns: repeat(5, minmax(0, 1fr)); } .pn__minis > .pn__mini, .pn__minis > .pn__mini:nth-child(n+4) { grid-column: auto; } }
+@media (max-width: 1099.98px) { .pn__minis { grid-template-columns: minmax(0, 1fr); } .pn__minis > .pn__mini, .pn__minis > .pn__mini:nth-child(n+4) { grid-column: auto; } }
+.pn__mini { display: grid; grid-template-rows: auto 1fr auto; gap: 10px; min-width: 0; padding: 16px; border: 1px solid var(--i3-borda); border-radius: 12px; background: var(--i3-sup); }
+.pn__mini-cabeca { display: flex; align-items: center; gap: 10px; }
+.pn__mini-cabeca h3 { margin: 0; font-size: 14px; font-weight: 700; }
+.pn__mini-icone { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--i3-azul-suave); color: var(--gp-azul-vivo, var(--i3-azul)); }
+.pn__mini-icone svg { width: 16px; height: 16px; }
+.pn__mini-lista { list-style: none; display: grid; margin: 0; padding: 0; }
+.pn__mini-lista > li + li { border-top: 1px solid var(--i3-borda); }
+.pn__mini-linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 8px 4px; border: 0; border-radius: 6px; background: none; color: var(--i3-tinta); font: inherit; text-align: left; cursor: pointer; transition: background-color 150ms ease; }
+.pn__mini-linha > span { display: grid; min-width: 0; }
+.pn__mini-linha b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; }
+.pn__mini-linha small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--i3-tinta-3); }
+.pn__mini-linha em { font-size: 12px; font-style: normal; font-weight: 600; color: var(--i3-tinta-2); white-space: nowrap; }
+@media (hover: hover) and (pointer: fine) { .pn__mini-linha:hover { background: var(--i3-sup-2); } }
+.pn__mini-linha:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 0; }
+.pn__mini-vazio { margin: 0; padding: 10px 0; font-size: 13px; color: var(--i3-tinta-3); }
+.pn__mini-pe { display: flex; }
+.pn__mini-esq { height: 40px; }
+
+@media (max-width: 1099.98px) { .pn__modos { grid-template-columns: minmax(0, 1fr); } .pn__modo { min-height: 0; } }
+@media (max-width: 767.98px) {
+  .pn__cartao { min-height: 0; }
+  .pn__cartao-desc { display: none; }
+  .pn__continuar { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .pn__modo, .pn__cartao, .pn__cartao-seta, .pn__modo-ir svg { transition: none; } }

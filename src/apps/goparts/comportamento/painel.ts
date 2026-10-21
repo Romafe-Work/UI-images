@@ -1,5 +1,5 @@
 /* =========================================================
-   GOPARTS — 10 · Início V7: o que mexe (21 out. 2026)
+   PEÇA A PEÇA — 10 · Início V9: o que mexe (21 out. 2026)
    O desenho está em portal/painel.ts; os números em portal/painel-dados.ts.
    - Ao abrir (uma vez por sessão): o cabeçalho, os números, os pedidos, a atenção e o gráfico entram em sequência
      curta (opacidade e 8 px, 300 ms, 60 ms entre cada). Tudo se pode usar logo. Os números não contam do zero: só
@@ -14,7 +14,7 @@
 import { irFiltrado } from './filtro-chegada';
 import { irPara } from './navegar';
 import {
-  PREFS_PN, CHAVE_PN, ORDEM_W, ATALHOS_PN, IC_PN, desenharGrafico, totalGrafico, atalhosHtml, gavetaHtml, cabecaHtml, blocosPn,
+  PREFS_PN, CHAVE_PN, ORDEM_W, ATALHOS_PN, IC_PN, desenharGrafico, totalGrafico, gavetaHtml, cabecaHtml, blocosPn,
   evolucaoHtml, pedidosHtml, atencaoHtml, avisoOffline, avisoNav, type PrefsPn, type IdW, type IdAtalhoPn, type Metrica,
 } from '../portal/painel';
 import { HOJE, INICIO_PEDIDOS, kpis, serie, periodo, textoPeriodo, curta, longa, euros, deIso, numerica, type IdPeriodo, type Periodo } from '../portal/painel-dados';
@@ -284,11 +284,6 @@ function aplicar(g: HTMLElement): void {
   const aparecem = Array.from(pn.querySelectorAll<HTMLElement>('[data-w]')).filter((w) => w.hidden && !p.escondidos.includes(w.dataset.w as IdW));
   aplicarPrefs(pn, p);
   aparecem.forEach((w) => entrar(w, 260, 'scale(.98)'));
-  const at = pn.querySelector<HTMLElement>('[data-w="atalhos"]');
-  if (at && Array.from(at.querySelectorAll<HTMLElement>('[data-pn-atalho]')).map((x) => x.dataset.pnAtalho).join() !== p.atalhos.join()) {
-    const t = document.createElement('template'); t.innerHTML = atalhosHtml(p).trim();
-    const novo = t.content.firstElementChild as HTMLElement; novo.hidden = at.hidden; at.replaceWith(novo);
-  }
   requestAnimationFrame(() => redesenharGrafico(pn));
 }
 function repor(g: HTMLElement): void {
@@ -331,8 +326,9 @@ function redesenharGrafico(pn: HTMLElement): void {
 function entrada(pn: HTMLElement): void {
   if (quieto() || pn.dataset.estado || editando()) return;
   try { if (sessionStorage.getItem('goparts:pn-entrou')) return; sessionStorage.setItem('goparts:pn-entrou', '1'); } catch { return; }
-  const partes = [pn.querySelector('.pn__cabeca'), ...Array.from(pn.querySelectorAll('.pn__kpis > li')), pn.querySelector('[data-w="pedidos"]'), pn.querySelector('[data-w="atencao"]'), pn.querySelector('[data-w="evolucao"]'), pn.querySelector('[data-w="atalhos"]')];
-  partes.forEach((el, i) => { if (el && !(el as HTMLElement).hidden && el.getBoundingClientRect().top < window.innerHeight) entrar(el, 300, 'translateY(8px)', i * 60); });
+  /* (V9) o cabeçalho, os três cartões da pesquisa, os atalhos um a um, o centro e o resumo — 260 ms, 40 ms entre cada */
+  const partes = [pn.querySelector('.pn__cabeca'), ...Array.from(pn.querySelectorAll('.pn__modos > li, .pn__cartoes > li')), pn.querySelector('[data-w="pedidos"]'), pn.querySelector('[data-w="atencao"]'), ...Array.from(pn.querySelectorAll('.pn__mini'))];
+  partes.forEach((el, i) => { if (el && !(el as HTMLElement).hidden && !(el as HTMLElement).closest('[hidden]') && el.getBoundingClientRect().top < window.innerHeight) entrar(el, 260, 'translateY(8px)', i * 40); });
 }
 let atual: HTMLElement | null = null;
 function armar(): void {
@@ -381,6 +377,8 @@ export function iniciar(): void {
     }
     if ((b = q('[role="radio"][data-metrica]'))) { const gg = pn.querySelector<HTMLElement>('[data-graf]'); if (gg) { const st = G.get(gg)!; grafico(pn, { id: 'pers', de: st.de, ate: st.ate }, b.dataset.metrica as Metrica, true); } return; }
     if ((b = q('.pn__alerta-cab'))) { abrirAlerta(b); return; }
+    /* (V9) um cartão da pesquisa: a Pesquisar peças abre já nesse modo */
+    if ((b = q('[data-pn-modo]'))) { irPara('pesquisa', Number(b.dataset.pnModo)); return; }
     if ((b = q('[data-pn-ir]'))) { const e = b.dataset.etapa; if (e) irFiltrado(b.dataset.pnIr!, e); else irPara(b.dataset.pnIr!); return; }
     if ((b = q('[data-ir-doc]'))) { ir(pn, b.dataset.irDoc!, b.dataset.chave, b.dataset.valor); return; }
     if ((b = q('[data-ir-filtro]'))) { irFiltrado(b.dataset.irFiltro!, b.dataset.etapaAlvo!); return; }

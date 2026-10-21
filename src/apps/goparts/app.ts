@@ -69,6 +69,7 @@ function distribuir(): EcraGoParts[] {
 
 export const goparts: App<IdGoParts> = {
   id: 'goparts',
+  pasta: 'peca-a-peca',
   nome: 'Peça A Peça',
   sub: 'O marketplace de peças auto',
   grupo: 'MarketPlace',

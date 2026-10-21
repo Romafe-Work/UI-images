@@ -86,10 +86,20 @@ function posicionar(deslizar: boolean): void {
   ultimoY = y;
 }
 
+/** (21 out.) a primeira vez na sessão, os grupos e os itens entram um a um (o CSS anima; aqui só se marca). */
+function entrada(): void {
+  const lado = visivel(); if (!lado || editando()) return;
+  try { if (sessionStorage.getItem('goparts:lado-entrou')) return; sessionStorage.setItem('goparts:lado-entrou', '1'); } catch { return; }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  lado.querySelectorAll<HTMLElement>('.lado__lista > li').forEach((li, i) => li.style.setProperty('--i', String(i)));
+  lado.classList.add('is-a-entrar');
+  window.setTimeout(() => lado.classList.remove('is-a-entrar'), 900);
+}
 export function iniciar(): void {
   marcarBotoes();
+  requestAnimationFrame(entrada);
   requestAnimationFrame(() => posicionar(false));
-  ['romafe:ecra', 'romafe:versao'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(() => { marcarBotoes(); posicionar(true); })));
+  ['romafe:ecra', 'romafe:versao'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(() => { marcarBotoes(); posicionar(true); entrada(); })));
   window.addEventListener('resize', () => posicionar(false), { passive: true });
   /* sem escolha guardada, a barra segue a largura da janela */
   window.matchMedia(ESTREITA).addEventListener('change', () => { if (!escolhida()) { porOmissao(); marcarBotoes(); requestAnimationFrame(() => posicionar(false)); } });

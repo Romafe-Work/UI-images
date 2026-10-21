@@ -38,6 +38,8 @@ export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile';
 
 export interface App<Id extends string = string> {
   id: IdApp;
+  /** a pasta da página, quando não é o id (21 out.: o Peça A Peça vive em peca-a-peca/, o id fica goparts) */
+  pasta?: string;
   nome: string;
   sub: string;
   /** o tipo de aplicação na porta de entrada: o GoShop é a WebShop e o Peça A Peça o MarketPlace */

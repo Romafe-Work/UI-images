@@ -34,7 +34,7 @@ iniciarTema();
 const apps = document.getElementById('apps') as HTMLElement;
 APPS.forEach((a) => {
   const n = a.ecras.length;
-  const card = n ? ligacao(a.id + '/', '') : el('div');
+  const card = n ? ligacao((a.pasta ?? a.id) + '/', '') : el('div');
   card.className = 'app' + (n ? '' : ' app--vazia');
   /* a família só se escreve quando diz alguma coisa («Web» por cima do
      GoShop); nas outras fica a linha em branco, para os nomes alinharem */
@@ -73,8 +73,8 @@ function mostrar(): void {
       nome.appendChild(el('span', 'lista__fluxo', e.fluxo + ' · ' + e.versoes.map((v) => v.id).join(', ')));
       txt.appendChild(nome);
       if (e.objetivo) txt.appendChild(el('p', 'lista__obj', e.objetivo));
-      acc.appendChild(ligacao(a.id + '/#so=ecra&ecra=' + encodeURIComponent(e.id), 'Ver'));
-      acc.appendChild(ligacao(a.id + '/#ecra=' + encodeURIComponent(e.id), 'Editar'));
+      acc.appendChild(ligacao((a.pasta ?? a.id) + '/#so=ecra&ecra=' + encodeURIComponent(e.id), 'Ver'));
+      acc.appendChild(ligacao((a.pasta ?? a.id) + '/#ecra=' + encodeURIComponent(e.id), 'Editar'));
       li.append(txt, acc);
       ul.appendChild(li);
     });

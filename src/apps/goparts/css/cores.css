@@ -13,9 +13,11 @@
    igualmente, para não haver duas tonalidades do mesmo estado.
    ========================================================= */
 :root {
-  --g-fundo: #0d1218; --g-barra: #151d27; --g-sup: #1a242f; --g-sup-2: #223040; --g-borda: #354354; --g-borda-forte: #4a5b70;
-  --g-tinta: #f7fafc; --g-tinta-2: #a9b8c9; --g-tinta-3: #8394a8;
-  --g-azul: #0876bd; --g-azul-tinta: #2495db; --g-azul-suave: rgba(36, 149, 219, .16); --g-laranja: #f57c12;
+  /* (21 out., V9 — Peça A Peça) o escuro do briefing: fundo #0F1115, superfícies #171A20 / #1D2128, bordas #2A303A,
+     texto #F5F7FA / #A8B0BC, azul de apoio #1F6FBF (em texto, #4C95DD para ler bem no escuro) */
+  --g-fundo: #0f1115; --g-barra: #13161b; --g-sup: #171a20; --g-sup-2: #1d2128; --g-borda: #2a303a; --g-borda-forte: #3b4350;
+  --g-tinta: #f5f7fa; --g-tinta-2: #a8b0bc; --g-tinta-3: #858e9b;
+  --g-azul: #1f6fbf; --g-azul-tinta: #4c95dd; --g-azul-suave: rgba(31, 111, 191, .18); --g-laranja: #f58a1f;
 }
 .portal--noite, .portal--ini3 {
   --gp-azul: #0876bd; --gp-azul-fundo: #075a94; --gp-azul-vivo: #2495db; --gp-laranja: #f57c12; --gp-laranja-mais: #ff922b;
@@ -31,14 +33,14 @@
   --azul-fundo: #0876bd;
 }
 [data-theme="dark"] .portal--noite, [data-theme="dark"] .portal--ini3 {
-  --gp-lado: var(--g-barra); --gp-lado-ativo: #223040; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
+  --gp-lado: var(--g-barra); --gp-lado-ativo: #1d2128; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
   --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
   --c-acao: #f57c12; --c-acao-premido: #ff922b;
   --i3-azul: var(--g-azul-tinta);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .portal--noite, :root:not([data-theme="light"]) .portal--ini3 {
-    --gp-lado: var(--g-barra); --gp-lado-ativo: #223040; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
+    --gp-lado: var(--g-barra); --gp-lado-ativo: #1d2128; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
     --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
     --c-acao: #f57c12; --c-acao-premido: #ff922b;
     --i3-azul: var(--g-azul-tinta);

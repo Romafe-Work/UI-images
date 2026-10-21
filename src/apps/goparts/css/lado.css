@@ -98,3 +98,29 @@
 }
 /* com o visor da Inf. técnica aberto (uma janela por cima de tudo), a barra fica atrás dele, fora do foco e dos leitores */
 .portal--lateral:has(.tec__visor:not([hidden])) .portal__lado { visibility: hidden; }
+
+/* =========================================================
+   (21 out., Peça A Peça) animações no menu (ela: «quero animações no menu»)
+   Só transform e opacity: nada empurra a página. Tempos do briefing: passar 150 ms, carregar 120 ms, entrada 260 ms.
+   - Passar: o fundo entra da esquerda (cresce a partir do ícone) e o nome avança 3 px; o ícone faz o seu gesto
+     (icones.css). Sair: o fundo recolhe para a esquerda.
+   - O escolhido: ao chegar ao ecrã, o fundo cresce a partir do ícone, o ícone faz o gesto e o traço laranja desliza (lado.ts).
+   - A primeira vez na sessão: os grupos e os itens entram um a um (lado.ts põe .is-a-entrar e o --i de cada um).
+   - Recolher/abrir: os nomes saem e entram a deslizar (já existia).
+   ========================================================= */
+.lado__item { isolation: isolate; }
+.lado__item::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--gp-lado-ativo, var(--c-superficie-2)); transform: scaleX(0); transform-origin: left center; opacity: 0; transition: transform 180ms cubic-bezier(.22, 1, .36, 1), opacity 150ms ease; }
+.portal--lateral .lado__item:hover:not(:disabled) { background: transparent; }
+.lado__item:hover:not(:disabled)::before, .lado__item:focus-visible::before { transform: none; opacity: 1; }
+.lado__item[aria-current="page"]::before { transform: none; opacity: 1; }
+.portal--lateral .lado__item[aria-current="page"] { background: transparent; }
+.lado__rotulo { transition: opacity 160ms ease, transform 150ms cubic-bezier(.22, 1, .36, 1); }
+@media (hover: hover) and (pointer: fine) { .lado__item:hover:not(:disabled):not([aria-current="page"]) .lado__rotulo { transform: translateX(3px); } }
+.lado__item:active:not(:disabled) { transform: scale(.98); transition: transform 120ms ease; }
+@media (prefers-reduced-motion: no-preference) {
+  .lado__item[aria-current="page"]::before { animation: lado-fundo 280ms cubic-bezier(.22, 1, .36, 1) 60ms both; }
+  .portal__lado.is-a-entrar .lado__lista > li { animation: lado-entra 260ms cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i, 0) * 30ms + 80ms); }
+}
+@keyframes lado-fundo { from { transform: scaleX(.15); opacity: 0; } }
+@keyframes lado-entra { from { opacity: 0; transform: translateX(-10px); } }
+@media (prefers-reduced-motion: reduce) { .lado__item::before { transition: none; } }

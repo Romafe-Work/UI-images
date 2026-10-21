@@ -28,7 +28,7 @@ export const ecrasPortal: EcraGoParts[] = [
      atividade e a pesquisa de peças vai para o seu ecrã (18 · Pesquisar peças, logo a seguir). Uma só versão por
      ecrã: a v3 (o espaço de trabalho com a pesquisa) saiu daqui — o código dela é o da Pesquisar peças. */
   { id: 'inicio', nome: '10 · Início', fluxo: FLUXO, versoes: [
-    { id: 'v7', nota: 'O ponto de controlo (21 out., V7): quatro números; os últimos pedidos e o que requer atenção ao centro; a atividade de compras e o acesso rápido por baixo; «Pesquisar peças» no cabeçalho. Antes (V5): saudação, conta, armazém e o período (Hoje, 7 dias, 30 dias, Personalizado); o resumo em seis números; a evolução das compras (valor ou n.º de pedidos, 7/30/90 dias); o estado das encomendas; o que requer atenção; os últimos pedidos; a atividade por dia; o acesso rápido. Cada bloco leva ao ecrã certo, já filtrado; «Personalizar» ordena, esconde e escolhe os atalhos', html: portal('inicio', painelV5(), undefined, { menu: true, rodape: false }) }],
+    { id: 'v7', nota: 'O painel em cartões (21 out., V9, do briefing «Redesign clean»): saudação, data, conta e armazém; «O que procuras hoje?» com os três cartões da pesquisa (azul, azul, laranja), cada um abre a pesquisa no seu modo; sete atalhos com o seu número (em curso, vencidas, em aberto); últimos pedidos e o que requer atenção; o resumo em cartões compactos (guias, devoluções, pesquisas, listas, peças frequentes). Saíram os quatro números, o gráfico e o período', html: portal('inicio', painelV5(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'Perceber de relance a atividade da conta e agir: quanto se comprou e quando, onde está cada encomenda, o que pede uma ação (faturas vencidas, recolhas, devoluções), os últimos pedidos e documentos, e os atalhos para o resto do portal. Pesquisar peças é no ecrã seguinte.' },
   ...estadosPainel(),
   { id: 'pesquisa', nome: '18 · Pesquisar peças', fluxo: FLUXO, versoes: [
@@ -88,26 +88,21 @@ export const ecrasPortal: EcraGoParts[] = [
 function estadosPainel(): EcraGoParts[] {
   /* (21 out., V7) os estados do briefing do Início: cada bloco carrega, falha e fica vazio sozinho */
   const E: [EstadoPn, EcraGoParts['id'], string, string][] = [
-    ['carga', 'painel-carga', '10.1 · A carregar o Início', 'Os números em «–», os pedidos, os alertas e o gráfico em esqueleto, com a forma do que vão mostrar.'],
-    ['atualizar', 'painel-atualizar', '10.2 · A atualizar', 'Os dados ficam à vista; só a hora no cabeçalho diz «A atualizar…». Os números só mexem se mudarem.'],
-    ['sem-pedidos', 'painel-vazio', '10.3 · Conta sem pedidos', 'Os números a zero (com o que querem dizer), os pedidos vazios com «Pesquisar peças», o gráfico sem histórico.'],
+    ['carga', 'painel-carga', '10.1 · A carregar o Início', 'Os pedidos, os alertas e o resumo em esqueleto, com a forma do que vão mostrar; os cartões da pesquisa e os atalhos já se podem usar.'],
+    ['atualizar', 'painel-atualizar', '10.2 · A atualizar', 'Os dados ficam à vista; só a hora no cabeçalho diz «A atualizar…».'],
+    ['sem-pedidos', 'painel-vazio', '10.3 · Primeira utilização', 'Conta sem pedidos: os pedidos vazios com «Pesquisar peças», a atenção em dia, o resumo com o que vai aparecer em cada cartão.'],
     ['sem-alertas', 'painel-sem-alertas', '10.4 · Sem nada pendente', '«Está tudo em dia.» — compacto, sem ilustração.'],
-    ['sem-historico', 'painel-sem-historico', '10.5 · Sem histórico de compras', 'O gráfico diz que começa com o primeiro pedido; não desenha zeros.'],
-    ['parcial', 'painel-parcial', '10.6 · Dados parciais', 'Os alertas não responderam: o bloco di-lo e tenta de novo sozinho; os pedidos e os números continuam.'],
-    ['graf-erro', 'painel-graf-erro', '10.7 · O gráfico não carregou', 'Só o gráfico falha, com «Tentar novamente»; o resto do Início funciona.'],
-    ['offline', 'painel-offline', '10.8 · Sem ligação', 'A faixa diz de quando são os dados; «Atualizar» desligado até a ligação voltar.'],
-    ['sessao', 'painel-sessao', '10.9 · Sessão expirada', 'O Início fica atrás, inerte; o diálogo pede para entrar outra vez e diz que se volta ao mesmo sítio.'],
-    ['sem-permissao', 'painel-sem-permissao', '10.10 · Sem acesso aos pedidos', 'A conta não vê os pedidos: o bloco diz a quem pedir o acesso.'],
-    ['periodo-vazio', 'painel-periodo-vazio', '10.11 · Período sem dados', 'Um período antes do histórico: «Sem histórico neste período», sem zeros inventados.'],
-    ['graf-carga', 'painel-graf-carga', '10.12 · O gráfico a carregar', 'Só o gráfico espera, em esqueleto; os números e os pedidos já estão.'],
-    ['nav-erro', 'painel-nav-erro', '10.13 · O pedido não abriu', 'A faixa diz que não foi possível abrir o pedido, com «Tentar de novo»; fica-se no Início.'],
-    ['pedidos-n', 'painel-pedidos', '10.14 · Gráfico em n.º de pedidos', 'A mesma atividade contada em pedidos: um degrau por pedido; a escala começa no zero.'],
-    ['personalizar', 'painel-personalizar', '10.15 · Definições do Início', 'A gaveta: os blocos à vista, o período ao abrir, o acesso rápido e repor.'],
+    ['parcial', 'painel-parcial', '10.5 · Dados parciais', 'Os alertas não responderam: o bloco di-lo e tenta de novo; o resto do Início continua.'],
+    ['offline', 'painel-offline', '10.6 · Sem ligação', 'A faixa diz de quando são os dados; «Atualizar» desligado até a ligação voltar.'],
+    ['sessao', 'painel-sessao', '10.7 · Sessão expirada', 'O Início fica atrás, inerte; o diálogo pede para entrar outra vez e diz que se volta ao mesmo sítio.'],
+    ['sem-permissao', 'painel-sem-permissao', '10.8 · Sem acesso aos pedidos', 'A conta não vê os pedidos: o bloco diz a quem pedir o acesso.'],
+    ['nav-erro', 'painel-nav-erro', '10.9 · O pedido não abriu', 'A faixa diz que não foi possível abrir o pedido, com «Tentar de novo»; fica-se no Início.'],
+    ['personalizar', 'painel-personalizar', '10.10 · Definições do Início', 'A gaveta: os blocos à vista (atalhos, pedidos, atenção, resumo) e repor.'],
   ];
   return E.map(([est, id, nome, objetivo]) => {
     let html = portal('inicio', painelV5(est).replace('class="portal ', 'class="portal portal--estado '), undefined, { menu: true, rodape: false });
     if (est === 'personalizar' || est === 'sessao') html = html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__lado"', '<nav class="portal__lado" inert aria-hidden="true"').replace('<main class="pn"', '<main inert aria-hidden="true" class="pn"');
-    return { id, nome, fluxo: FLUXO, estadoDe: 'inicio' as EcraGoParts['id'], objetivo, versoes: [{ id: 'v1', nota: 'Do briefing do painel (20 out., V5)', html }] };
+    return { id, nome, fluxo: FLUXO, estadoDe: 'inicio' as EcraGoParts['id'], objetivo, versoes: [{ id: 'v1', nota: 'Do briefing «Redesign clean» (21 out., V9)', html }] };
   });
 }
 

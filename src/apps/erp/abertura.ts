@@ -55,6 +55,6 @@ export function ecraAbertura(): EcraErp {
   return {
     id: 'abertura', nome: '00 · Abertura', fluxo: 'Entrar',
     objetivo: 'A entrada no ERP, na primeira visita: um rolamento 3D monta-se, recebe uma gota de óleo, abre em vista explodida com os dados do artigo no ERP, desfaz-se em partículas que formam o ROMAFE, e passa ao 01 · Entrar da v10 com a rede já formada. Salta-se com «Saltar» ou Esc.',
-    versoes: [{ id: 'v1', nota: 'A abertura «wow» (19 out., ela: «como temos no goparts»): o rolamento SKF 6206 monta-se e é lubrificado, abre com os dados do artigo, desfaz-se no ROMAFE; à volta forma-se a rede das peças e dos óleos, que passa ao 01 · Entrar v10', html }],
+    versoes: [{ id: 'v1', nota: 'A abertura «wow» (19 out., ela: «como temos no Peça A Peça»): o rolamento SKF 6206 monta-se e é lubrificado, abre com os dados do artigo, desfaz-se no ROMAFE; à volta forma-se a rede das peças e dos óleos, que passa ao 01 · Entrar v10', html }],
   };
 }

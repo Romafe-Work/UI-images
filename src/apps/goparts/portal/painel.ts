@@ -1,22 +1,27 @@
 /* =========================================================
-   GOPARTS — 10 · Início V7 (21 out. 2026): o painel de controlo, mais simples
-   Do briefing «Complete Home Dashboard Redesign» e da estrutura que ela recomendou («o Início deve ser o ponto de
-   controlo, não uma repetição de todas essas páginas»). Responde a quatro perguntas, por esta ordem de peso:
-   o que se passa com os meus pedidos, o que pede a minha atenção, o que comprei, para onde vou a seguir.
-   - Cabeçalho compacto: a saudação, «Resumo da tua atividade», e à direita o período, o armazém, «Pesquisar
-     peças» (o único atalho da pesquisa: a pesquisa vive no seu ecrã) e as definições.
-   - Quatro números: em curso, em transporte, prontos para recolha, devoluções em aberto (o «agora»).
-   - O centro: «Últimos pedidos» (65 %) | «Requer a tua atenção» (35 %, por importância, cada um abre o pormenor).
-   - Por baixo: «Atividade de compras» (70 %, valor ou n.º de pedidos; o período do cabeçalho) | «Acesso rápido».
-   - Saíram (V5/V6): a atividade recente, as referências frequentes, o atalho grande da pesquisa, a ordem dos
-     blocos. As definições escolhem os blocos à vista, o período ao abrir e os atalhos.
-   Os números contam-se em painel-dados.ts. Comportamento: comportamento/painel.ts. CSS: css/painel.css.
+   PEÇA A PEÇA — 10 · Início V9 (21 out. 2026): o painel em cartões
+   Do briefing «Redesign clean para o marketplace Peça A Peça» («quero os cards como tinha antes»: um dashboard
+   limpo, com vida e cor, sem o cinzento pesado). Por esta ordem:
+   - Cabeçalho: a saudação, a data, a conta e o armazém; à direita «Atualizado», as definições, a ação do momento
+     (continuar a lista em rascunho) e «Pesquisar peças». O rolamento das cotas anda.
+   - «O que procuras hoje?»: os três cartões grandes da pesquisa, nas cores que tinham (azul, azul, laranja);
+     cada um abre a Pesquisar peças já no seu modo.
+   - Os atalhos: sete cartões (Catálogo, Pedidos, Guias, Faturas, Devoluções, Informação técnica, Minha lista),
+     cada um com o que interessa dele contado dos documentos (em curso, vencidas, em aberto…).
+   - O centro: «Últimos pedidos» | «Requer a tua atenção» (destacado, por importância).
+   - O resumo: cartões compactos — últimas guias, devoluções em curso, últimas pesquisas, listas, peças frequentes.
+   - Saíram (V7/V8): os quatro números (passaram para os atalhos), o gráfico e o período.
+   Os números contam-se em painel-dados.ts. Comportamento: comportamento/painel.ts. CSS: css/painel.css + limpo.css.
    ========================================================= */
 import {
-  HOJE, INICIO_PEDIDOS, LINHAS_TODAS, NOME_PERIODO, kpis, serie, alertasPn, NOME_GRUPO, periodo, textoPeriodo,
-  curta, numerica, iso, euros, type Periodo, type Kpi, type Ponto, type GrupoAlerta,
+  HOJE, INICIO_PEDIDOS, LINHAS_TODAS, kpis, serie, alertasPn, NOME_GRUPO, periodo, textoPeriodo,
+  curta, numerica, euros, type Periodo, type Kpi, type Ponto, type GrupoAlerta,
 } from './painel-dados';
-import { saudacao, L } from './inicio-espaco';
+import { saudacao, L, atividadeInicial, quandoTexto, frequentes, liquido, CHAVE_ATIVIDADE, type Atividade } from './inicio-espaco';
+import { GUIAS } from './guias-dados';
+import { FATURAS } from './faturas-dados';
+import { DEVOLUCOES, estadoDev } from './devolucoes-dados';
+import { LISTAS } from './lista';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import store from 'lucide-static/icons/store.svg?raw';
 import undo2 from 'lucide-static/icons/undo-2.svg?raw';
@@ -49,6 +54,13 @@ import logIn from 'lucide-static/icons/log-in.svg?raw';
 import shieldAlert from 'lucide-static/icons/shield-alert.svg?raw';
 import circleAlert from 'lucide-static/icons/circle-alert.svg?raw';
 import chartNoAxes from 'lucide-static/icons/chart-no-axes-column.svg?raw';
+import carFront from 'lucide-static/icons/car-front.svg?raw';
+import car from 'lucide-static/icons/car.svg?raw';
+import hash from 'lucide-static/icons/hash.svg?raw';
+import history from 'lucide-static/icons/history.svg?raw';
+import listChecks from 'lucide-static/icons/list-checks.svg?raw';
+import sparkles from 'lucide-static/icons/sparkles.svg?raw';
+import fileText from 'lucide-static/icons/file-text.svg?raw';
 
 export const IC_PN = { clock, store, undo2, chartSpline, triangleAlert, packageIcon, zap, search, receipt, star, wrench, layoutGrid, truck, cart, arrowRight, chevronRight, chevronDown, settings2, calendarRange, mapPin, info, check, circleCheck, rotateCcw, refreshCw, x, wifiOff, lock, logIn, shieldAlert, circleAlert };
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -58,14 +70,16 @@ const acao = (texto: string, icone: string, extra = '', cls = '') => btn(texto, 
 /* =========================================================
    Os blocos, os atalhos e as definições
    ========================================================= */
-export type IdW = 'pedidos' | 'atencao' | 'evolucao' | 'atalhos';
+export type IdW = 'atalhos' | 'pedidos' | 'atencao' | 'resumo' | 'evolucao';
 export const WIDGETS: Record<IdW, [string, string, string]> = {
+  atalhos: ['Atalhos', 'Catálogo, documentos, informação técnica e listas', zap],
   pedidos: ['Últimos pedidos', 'Os cinco mais recentes e o estado de cada um', packageIcon],
   atencao: ['Requer a tua atenção', 'Faturas vencidas, recolhas, devoluções e entregas', triangleAlert],
+  resumo: ['Resumo', 'Guias, devoluções, pesquisas, listas e peças frequentes', sparkles],
   evolucao: ['Atividade de compras', 'O valor e o número de pedidos no período', chartSpline],
-  atalhos: ['Acesso rápido', 'Os caminhos que usas mais', zap],
 };
-export const ORDEM_W: IdW[] = ['pedidos', 'atencao', 'evolucao', 'atalhos'];
+/** (V9) os blocos que as definições ligam e desligam (o gráfico saiu do Início) */
+export const ORDEM_W: IdW[] = ['atalhos', 'pedidos', 'atencao', 'resumo'];
 export type IdAtalhoPn = 'pesquisa' | 'lista' | 'faturas' | 'guias' | 'tecnica' | 'pedidos' | 'devolucoes' | 'catalogo' | 'carrinho';
 export const ATALHOS_PN: Record<IdAtalhoPn, [string, string]> = {
   pesquisa: ['Pesquisar peças', search], lista: ['Minha lista', star], faturas: ['Faturas', receipt], guias: ['Guias de remessa', truck], tecnica: ['Informação técnica', wrench],
@@ -74,7 +88,7 @@ export const ATALHOS_PN: Record<IdAtalhoPn, [string, string]> = {
 export type PrefsPn = { escondidos: IdW[]; periodo: '7' | '30' | '90'; atalhos: IdAtalhoPn[] };
 export const PREFS_PN: PrefsPn = { escondidos: [], periodo: '30', atalhos: ['pesquisa', 'lista', 'faturas', 'guias', 'tecnica'] };
 /** Por pessoa e por conta. Num servidor, no perfil; aqui, no navegador. */
-export const CHAVE_PN = 'goparts:painel:ff-porto:v3'; // v3 a 21 out. (V7): sem ordem nem blocos que saíram
+export const CHAVE_PN = 'goparts:painel:ff-porto:v4'; // v4 a 21 out. (V9): atalhos e resumo; sem gráfico nem período
 
 /** Os estados do Início (10.x). */
 export type EstadoPn = '' | 'carga' | 'atualizar' | 'sem-pedidos' | 'sem-alertas' | 'sem-historico' | 'parcial' | 'graf-erro' | 'offline' | 'sessao' | 'sem-permissao' | 'periodo-vazio' | 'graf-carga' | 'nav-erro' | 'personalizar' | 'pedidos-n';
@@ -234,9 +248,81 @@ export function evolucaoHtml(pg: Periodo, prefs: PrefsPn, e: EstadoPn = '', metr
   return bloco('evolucao', corpo, prefs, accoes);
 }
 
-/* ---------- acesso rápido ---------- */
+/* ---------- (V9) «O que procuras hoje?»: os três cartões grandes da pesquisa ---------- */
+const MODOS: [string, string, string, string, 'azul' | 'laranja'][] = [
+  ['Por matrícula', 'Identifica o veículo pela matrícula ou pelo n.º de chassis (VIN).', 'Identificar veículo', carFront, 'azul'],
+  ['Por veículo', 'Escolhe a marca, o modelo e a motorização.', 'Selecionar veículo', car, 'azul'],
+  ['Por referência', 'Encontra a peça pela referência, pela marca ou pela descrição.', 'Pesquisar referência', hash, 'laranja'],
+];
+export function procuraHtml(): string {
+  return `<section class="pn__procura" aria-labelledby="pn-procura-t">
+    <h2 class="pn__sec-t" id="pn-procura-t">O que procuras hoje?</h2>
+    <ul class="pn__modos" role="list">${MODOS.map(([t, d, ir, ic, cor], i) => `<li style="--i:${i}"><button type="button" class="pn__modo pn__modo--${cor}" data-pn-modo="${i}">
+      <span class="pn__modo-icone">${L(ic)}</span>
+      <span class="pn__modo-texto"><b>${t}</b><span>${d}</span></span>
+      <span class="pn__modo-ir">${ir}${L(arrowRight)}</span>
+    </button></li>`).join('')}</ul>
+  </section>`;
+}
+
+/* ---------- (V9) os atalhos: sete cartões, cada um com o que interessa dele ---------- */
+type Atalho = { id: IdAtalhoPn; nome: string; desc: string; ic: string; meta: string; tom?: 'erro' | 'aviso' | 'ok' };
+function atalhosV9(): Atalho[] {
+  const emCurso = LINHAS_TODAS.filter((x) => x.etapa.k !== 'concluido').length;
+  const vencidas = FATURAS.filter((f) => f.pagamento === 'vencida').length;
+  const devAbertas = DEVOLUCOES.filter((d) => estadoDev(d) !== 'creditada').length;
+  const rascunho = LISTAS.filter((l) => l.estado === 'rascunho').length;
+  return [
+    { id: 'catalogo', nome: 'Catálogo', desc: 'Marcas, modelos e grupos de montagem', ic: layoutGrid, meta: 'Por veículo ou universal' },
+    { id: 'pedidos', nome: 'Pedidos', desc: 'Acompanhar e repetir encomendas', ic: packageIcon, meta: emCurso ? `${emCurso} em curso` : 'Nenhum em curso', tom: emCurso ? 'aviso' : undefined },
+    { id: 'guias', nome: 'Guias de remessa', desc: 'O que saiu do armazém, guia a guia', ic: truck, meta: `Última a ${GUIAS[0]?.data ?? '—'}` },
+    { id: 'faturas', nome: 'Faturas', desc: 'Faturas, notas de crédito e pagamentos', ic: receipt, meta: vencidas ? `${vencidas} ${vencidas === 1 ? 'vencida' : 'vencidas'}` : 'Tudo pago', tom: vencidas ? 'erro' : 'ok' },
+    { id: 'devolucoes', nome: 'Devoluções', desc: 'Criar e seguir devoluções', ic: undo2, meta: devAbertas ? `${devAbertas} em aberto` : 'Nenhuma em aberto', tom: devAbertas ? 'aviso' : undefined },
+    { id: 'tecnica', nome: 'Informação técnica', desc: 'Esquemas, fusíveis e manuais', ic: wrench, meta: 'Por veículo do catálogo' },
+    { id: 'lista', nome: 'Minha lista', desc: 'Orçamentos com peças e mão-de-obra', ic: star, meta: rascunho ? `${rascunho} em rascunho` : `${LISTAS.length} listas` },
+  ];
+}
 export function atalhosHtml(prefs: PrefsPn): string {
-  return bloco('atalhos', `<ul class="pn__atalhos" role="list">${prefs.atalhos.map((a, i) => `<li style="--i:${i}"><button type="button" class="pn__atalho" data-pn-atalho="${a}">${L(ATALHOS_PN[a][1], 'pn__atalho-icone')}<span>${ATALHOS_PN[a][0]}</span>${L(chevronRight, 'pn__atalho-seta')}</button></li>`).join('')}</ul>`, prefs);
+  return `<section class="pn__w pn__w--atalhos pn__sec" data-w="atalhos" aria-labelledby="pn-atalhos-t"${prefs.escondidos.includes('atalhos') ? ' hidden' : ''}>
+    <h2 class="pn__sec-t" id="pn-atalhos-t">Atalhos</h2>
+    <ul class="pn__cartoes" role="list">${atalhosV9().map((a, i) => `<li style="--i:${i}"><button type="button" class="pn__cartao" data-pn-atalho="${a.id}">
+      <span class="pn__cartao-icone">${L(a.ic)}</span>
+      <b class="pn__cartao-nome">${a.nome}</b>
+      <span class="pn__cartao-desc">${a.desc}</span>
+      <span class="pn__cartao-meta${a.tom ? ` pn__cartao-meta--${a.tom}` : ''}">${a.meta}</span>
+      ${L(arrowRight, 'pn__cartao-seta')}
+    </button></li>`).join('')}</ul>
+  </section>`;
+}
+
+/* ---------- (V9) o resumo: cartões compactos ---------- */
+const lerAtividade = (): Atividade[] => { try { const x = localStorage.getItem(CHAVE_ATIVIDADE); return x ? (JSON.parse(x) as Atividade[]) : atividadeInicial(); } catch { return atividadeInicial(); } };
+function mini(id: string, titulo: string, ic: string, corpo: string, mais: string): string {
+  return `<article class="pn__mini" aria-labelledby="pn-mini-${id}"><header class="pn__mini-cabeca"><span class="pn__mini-icone">${L(ic)}</span><h3 id="pn-mini-${id}">${titulo}</h3></header>${corpo}<footer class="pn__mini-pe">${mais}</footer></article>`;
+}
+const miniLinha = (attr: string, a: string, b: string, c = '') => `<li><button type="button" class="pn__mini-linha"${attr}><span><b>${esc(a)}</b><small>${esc(b)}</small></span>${c ? `<em>${esc(c)}</em>` : ''}</button></li>`;
+const miniVazio = (t: string) => `<p class="pn__mini-vazio">${t}</p>`;
+export function resumoHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
+  const sem = e === 'sem-pedidos';
+  const carga = e === 'carga';
+  const lista = (itens: string[], vazio: string) => carga ? `<ul class="pn__mini-lista">${esq(3, 'pn__mini-esq')}</ul>` : itens.length ? `<ul class="pn__mini-lista" role="list">${itens.join('')}</ul>` : miniVazio(vazio);
+  const guias = sem ? [] : GUIAS.slice(0, 3).map((g) => miniLinha(` data-ir-doc="guias" data-chave="goparts:abrir-guia" data-valor="${g.num}"`, g.num, `${g.data} · ${g.pedido}`, g.tipo === 'credito' ? 'Crédito' : g.armazem));
+  const NOME_DEV: Record<string, string> = { rascunho: 'Por enviar', enviada: 'Enviada', creditada: 'Creditada' };
+  const devs = sem ? [] : DEVOLUCOES.filter((d) => estadoDev(d) !== 'creditada').map((d) => miniLinha(' data-pn-atalho="devolucoes"', d.num, d.obs, NOME_DEV[estadoDev(d)]));
+  const agora = Date.now();
+  const pesq = (e === 'sem-pedidos' ? [] : lerAtividade()).slice(0, 3).map((a) => miniLinha(' data-pn-atalho="pesquisa"', a.titulo, a.sub, quandoTexto(a.quando, agora)));
+  const listas = (sem ? [] : LISTAS.filter((l) => l.estado !== 'enviada')).slice(0, 3).map((l) => miniLinha(' data-pn-atalho="lista"', l.nome, `${l.pecas.length} ${l.pecas.length === 1 ? 'peça' : 'peças'} · ${l.atualizada}`, l.estado === 'rascunho' ? 'Rascunho' : 'Guardada'));
+  const freq = (sem ? [] : frequentes()).slice(0, 3).map((f) => miniLinha(' data-pn-atalho="pesquisa"', `${f.r[1]} ${f.r[2]}`, f.r[3], euros(liquido(f.r))));
+  return `<section class="pn__w pn__w--resumo pn__sec" data-w="resumo" aria-labelledby="pn-resumo-t"${prefs.escondidos.includes('resumo') ? ' hidden' : ''}>
+    <h2 class="pn__sec-t" id="pn-resumo-t">Resumo</h2>
+    <div class="pn__minis">
+      ${mini('guias', 'Últimas guias', truck, lista(guias, 'Ainda não há guias de remessa.'), `<button type="button" class="pn__mais" data-pn-atalho="guias">Ver guias${L(arrowRight)}</button>`)}
+      ${mini('devolucoes', 'Devoluções em curso', undo2, lista(devs, 'Nenhuma devolução em curso.'), `<button type="button" class="pn__mais" data-pn-atalho="devolucoes">Ver devoluções${L(arrowRight)}</button>`)}
+      ${mini('pesquisas', 'Últimas pesquisas', history, lista(pesq, 'As pesquisas que fizeres aparecem aqui.'), `<button type="button" class="pn__mais" data-pn-atalho="pesquisa">Pesquisar${L(arrowRight)}</button>`)}
+      ${mini('listas', 'Listas guardadas', listChecks, lista(listas, 'Ainda não guardaste listas.'), `<button type="button" class="pn__mais" data-pn-atalho="lista">Abrir a Minha lista${L(arrowRight)}</button>`)}
+      ${mini('frequentes', 'Peças frequentes', fileText, lista(freq, 'As peças que pedes mais aparecem aqui.'), `<button type="button" class="pn__mais" data-pn-atalho="catalogo">Abrir o catálogo${L(arrowRight)}</button>`)}
+    </div>
+  </section>`;
 }
 
 /* =========================================================
@@ -247,24 +333,23 @@ const MOTIVO = `<svg class="pn__motivo" viewBox="0 0 170 80" fill="none" stroke=
   <path class="pn__motivo-l" d="M0 20H92M0 40H86M0 60H92"/><path d="M98 6v68M96 6h4M96 74h4" opacity=".6"/>
   <g transform="translate(134 40)"><g class="pn__rol"><circle r="34"/><circle r="27"/><circle r="12"/><circle r="7"/><g class="pn__gaiola">${Array.from({ length: 9 }, (_, k) => { const a = (k / 9) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 19.5).toFixed(1)}" cy="${(Math.sin(a) * 19.5).toFixed(1)}" r="3.5"/>`; }).join('')}</g></g></g>
 </svg>`;
-export function cabecaHtml(p: Periodo, e: EstadoPn = '', agora = Date.now()): string {
+export function cabecaHtml(_p: Periodo, e: EstadoPn = '', agora = Date.now()): string {
   const d = new Date(agora), hora = d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+  const data = d.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+  const rascunho = e === 'sem-pedidos' ? undefined : LISTAS.find((l) => l.estado === 'rascunho');
   return `<header class="pn__cabeca">
-    <div class="pn__ola-caixa"><div class="pn__ola"><h1 class="pn__titulo"><span data-saudacao>${saudacao(d.getHours())}</span>, Fernando</h1><p class="pn__sub">Vamos ver como está a tua atividade.</p></div>${MOTIVO}</div>
+    <div class="pn__ola-caixa"><div class="pn__ola">
+      <p class="pn__data">${data.charAt(0).toUpperCase()}${data.slice(1)}</p>
+      <h1 class="pn__titulo"><span data-saudacao>${saudacao(d.getHours())}</span>, Fernando</h1>
+      <p class="pn__contexto"><span>${L(store)}Fernando F. França · Porto</span><span class="pn__armazem" title="Armazém de saída">${L(mapPin)}Armazém Porto (1)</span></p>
+    </div>${MOTIVO}</div>
     <div class="pn__controlos">
-      <div class="pn__periodo">${SEG('Período', 'data-periodo', [['7', '7 dias'], ['30', '30 dias'], ['90', '90 dias'], ['pers', 'Personalizado']], p.id)}</div>
-      <span class="pn__armazem" title="Armazém de saída">${L(mapPin)}Porto (1)</span>
       <span class="pn__atualizado" data-atualizado role="status">${e === 'atualizar' ? `${L(refreshCw, 'pn__roda')}A atualizar…` : `Atualizado às ${hora}`}</span>
       <button type="button" class="pn__icone" data-pn-atualizar aria-label="Atualizar os dados"${e === 'atualizar' || e === 'offline' ? ' disabled' : ''}>${L(refreshCw)}</button>
       <button type="button" class="pn__icone" data-pn-personalizar aria-haspopup="dialog" aria-label="Definições do Início">${L(settings2)}</button>
+      ${rascunho ? btn(`Continuar «${esc(rascunho.nome)}»`, listChecks, ' data-pn-atalho="lista"', 'pn__continuar') : ''}
       ${acao('Pesquisar peças', search, ' data-pn-ir="pesquisa"', 'pn__pesquisar')}
     </div>
-    <form class="pn__pers" data-pers${p.id === 'pers' ? '' : ' hidden'} novalidate>
-      <label><span>De</span><input type="date" name="de" value="${iso(p.de)}" max="${iso(HOJE)}" required></label>
-      <label><span>Até</span><input type="date" name="ate" value="${iso(p.ate)}" max="${iso(HOJE)}" required></label>
-      <button type="submit" class="btn pn__btn">${L(check, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
-      <p class="pn__pers-erro" role="alert"></p>
-    </form>
   </header>
   <div class="pn__avisos" data-avisos aria-live="polite">${e === 'offline' ? avisoOffline(hora) : e === 'nav-erro' ? avisoNav('P2024/001233') : ''}</div>`;
 }
@@ -276,12 +361,9 @@ export function gavetaHtml(p: PrefsPn, aberta = false): string {
     <div class="pn__gaveta-caixa">
       <header class="pn__gaveta-cabeca"><h2 id="pn-g-t">${L(settings2)}Definições do Início</h2>${btn('Fechar', x, ' data-pn-fechar')}</header>
       <div class="pn__gaveta-corpo">
-        <section aria-labelledby="pn-g-blocos"><h3 id="pn-g-blocos">Blocos à vista</h3><p class="pn__ajuda">Os números do topo ficam sempre.</p>
+        <section aria-labelledby="pn-g-blocos"><h3 id="pn-g-blocos">Blocos à vista</h3><p class="pn__ajuda">«O que procuras hoje?» fica sempre.</p>
           <ul class="pn__ordem" role="list">${ORDEM_W.map((id) => `<li class="pn__ordem-li"><span class="pn__ordem-texto">${L(WIDGETS[id][2])}<b>${WIDGETS[id][0]}</b><small>${WIDGETS[id][1]}</small></span>
             <label class="pn__interruptor"><input type="checkbox" data-pn-mostrar="${id}"${p.escondidos.includes(id) ? '' : ' checked'}><span class="sr-only">Mostrar ${WIDGETS[id][0]}</span><i aria-hidden="true"></i></label></li>`).join('')}</ul></section>
-        <section><h3>Período ao abrir</h3><div class="pn__escolha" role="radiogroup" aria-label="Período ao abrir">${(['7', '30', '90'] as const).map((v) => `<label class="pn__escolha-op"><input type="radio" name="pn-periodo-omissao" data-pn-periodo-omissao value="${v}"${v === p.periodo ? ' checked' : ''}><span>${NOME_PERIODO[v]}</span></label>`).join('')}</div></section>
-        <section id="pn-g-atalhos" aria-labelledby="pn-g-atalhos-t"><h3 id="pn-g-atalhos-t">Acesso rápido</h3><p class="pn__ajuda">Até 6.</p>
-          <ul class="pn__atalhos-escolha" role="list">${(Object.keys(ATALHOS_PN) as IdAtalhoPn[]).map((a) => `<li><label class="pn__marcar"><input type="checkbox" data-pn-atalho-escolha="${a}"${p.atalhos.includes(a) ? ' checked' : ''}>${L(ATALHOS_PN[a][1])}<span>${ATALHOS_PN[a][0]}</span></label></li>`).join('')}</ul></section>
       </div>
       <footer class="pn__gaveta-pe">${btn('Repor as definições', rotateCcw, ' data-pn-repor')}${acao('Concluído', check, ' data-pn-fechar')}</footer>
     </div>
@@ -289,15 +371,16 @@ export function gavetaHtml(p: PrefsPn, aberta = false): string {
 }
 /** A sessão expirou: o Início fica atrás, inerte, e o diálogo pede para entrar outra vez. */
 const sessaoHtml = () => `<div class="pn__gaveta pn__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="pn-s-t" aria-describedby="pn-s-d"><div class="pn__veu"></div>
-  <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, com o mesmo período.</p>${acao('Iniciar sessão', logIn, ' data-ir="entrada"')}</div></div>`;
+  <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, onde estavas.</p>${acao('Iniciar sessão', logIn, ' data-ir="entrada"')}</div></div>`;
 export function blocosPn(p: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
-  return `${kpisHtml(e)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div><div class="pn__baixo">${evolucaoHtml(p, prefs, e, metrica)}${atalhosHtml(prefs)}</div>`;
+  void p; void metrica;
+  return `${procuraHtml()}${atalhosHtml(prefs)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div>${resumoHtml(prefs, e)}`;
 }
 /** O Início (ou um estado dele). */
 export function painelV5(e: EstadoPn = ''): string {
   const prefs = structuredClone(PREFS_PN);
   const p = e === 'periodo-vazio' ? periodo('pers', INICIO_PEDIDOS - 40, INICIO_PEDIDOS - 10) : e === 'sem-historico' ? periodo('90') : periodo(prefs.periodo);
-  return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--pn">
+  return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--pn portal--pn9">
   <main class="pn"${e ? ` data-estado="${e}"` : ''}${e === 'sessao' ? ' inert aria-hidden="true"' : ''}>
     ${cabecaHtml(p, e)}
     ${blocosPn(p, prefs, e, e === 'pedidos-n' ? 'pedidos' : 'valor')}

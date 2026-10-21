@@ -43,7 +43,7 @@ export const EMPRESAS: Empresa[] = [
 /* as aplicações da plataforma: as que abrem daqui levam a página delas (pagina); as outras dizem porquê não abrem */
 const APPS: { id: string; nome: string; desc: string; icone: string; pagina?: string; estado?: string }[] = [
   { id: 'erp', nome: 'ROMAFE ERP', desc: 'Compras, stocks, vendas e a gestão da empresa.', icone: layoutDashboard },
-  { id: 'goparts', nome: 'Peça A Peça', desc: 'O marketplace de peças auto.', icone: store, pagina: 'goparts' },
+  { id: 'goparts', nome: 'Peça A Peça', desc: 'O marketplace de peças auto.', icone: store, pagina: 'peca-a-peca' },
   { id: 'goshop', nome: 'GoShop', desc: 'A loja online de peças.', icone: shoppingCart, estado: 'Ainda sem ecrãs no protótipo' },
   { id: 'pick', nome: 'Pick', desc: 'A aplicação do armazém.', icone: scanBarcode, estado: 'Entra-se no PDA' },
 ];
