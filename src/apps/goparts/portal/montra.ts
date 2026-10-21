@@ -15,9 +15,10 @@
    Comportamento: comportamento/montra.ts. CSS: css/montra.css.
    ========================================================= */
 import { REFERENCIAS, saida } from './catalogo-dados';
-import { LINHAS_TODAS, alertasPn, euros } from './painel-dados';
+import { LINHAS_TODAS, ETAPAS, alertasPn, euros } from './painel-dados';
 import { PEDIDOS } from './pedidos-dados';
-import { GARAGEM, nomeCarro, saudacao, liquido, L } from './inicio-espaco';
+import { GARAGEM, nomeCarro, saudacao, liquido, L, carrocariaDe } from './inicio-espaco';
+import { imagemModelo } from './carros';
 import { LISTAS } from './lista';
 import { azulejoPeca } from './pecas-img';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
@@ -92,7 +93,7 @@ function abertura(e: EstadoMontra): string {
    Uma por visita ao Início (ela: «pode mudar para um travão… quero 3 exemplos»). Os insights aparecem junto da peça
    quando ela sai (e somem quando volta ao sítio); são também o painel do modo «Explorar componente». Só o que se
    sabe do tipo de peça; as medidas só do 6206, que é o modelo à escala. */
-export type IdExemplo = 'rolamento' | 'travao' | 'bomba';
+export type IdExemplo = 'rolamento' | 'travao' | 'bomba' | 'amortecedor' | 'embraiagem';
 type Peca = { nome: string; texto: string; medida: string };
 type Exemplo = { modelo: string; nota: string; pecas: Record<string, Peca>; passos: [string, string][]; fim: [string, string, string, string] };
 export const EXEMPLOS_TEXTO: Record<IdExemplo, Exemplo> = {
@@ -120,6 +121,22 @@ export const EXEMPLOS_TEXTO: Record<IdExemplo, Exemplo> = {
       corpo: { nome: 'Corpo', texto: 'Aparafusa ao bloco do motor; a junta veda contra o líquido de refrigeração.', medida: 'Com a flange e os furos' } },
     passos: [['A polia sai.', 'É ela que a correia faz rodar.'], ['O rotor e o veio.', 'O rotor empurra o líquido; o veio, num rolamento, liga-o à polia.'], ['A bomba aberta.', 'Polia, veio, corpo e rotor, pela ordem em que se montam.']],
     fim: ['O motor fresco, peça a peça.', 'As bombas de água do catálogo, com o preço da tua conta e o stock de agora.', 'Explorar bombas de água', ' data-mt-grupo="Bomba de água"'] },
+  amortecedor: { modelo: 'Amortecedor · suspensão McPherson', nota: 'Amortecedor · ilustrativo',
+    pecas: {
+      copela: { nome: 'Copela', texto: 'Liga o conjunto à carroçaria; o rolamento deixa a mola rodar com a direção.', medida: 'Em cima, com o rolamento' },
+      mola: { nome: 'Mola', texto: 'Segura o peso do carro. O amortecedor não segura nada: trava as oscilações dela.', medida: 'Helicoidal, à volta do amortecedor' },
+      guarda: { nome: 'Batente e guarda-pó', texto: 'O batente amortece o fim de curso; o guarda-pó protege a haste da sujidade.', medida: 'Trocam-se com o amortecedor' },
+      corpo: { nome: 'Amortecedor', texto: 'O êmbolo passa o óleo por válvulas pequenas e trava o sobe e desce da roda.', medida: 'O corpo e a haste cromada' } },
+    passos: [['A copela sai.', 'Em cima, liga tudo à carroçaria.'], ['A mola e o batente.', 'A mola segura o peso; o batente e o guarda-pó protegem a haste.'], ['O amortecedor à vista.', 'A haste sai do corpo: é lá dentro que o óleo trava a roda.']],
+    fim: ['A estrada sem saltos, peça a peça.', 'Amortecedores e kits de montagem, com o preço da tua conta e o stock de agora.', 'Explorar amortecedores', ' data-mt-grupo="Amortecedor"'] },
+  embraiagem: { modelo: 'Kit de embraiagem · com volante', nota: 'Embraiagem · ilustrativo',
+    pecas: {
+      rolamento: { nome: 'Rolamento de embraiagem', texto: 'Empurra os dedos do diafragma quando se carrega no pedal.', medida: 'No veio da caixa' },
+      prato: { nome: 'Prato de pressão', texto: 'O diafragma aperta o disco contra o volante; carregar no pedal alivia-o.', medida: 'Com o diafragma' },
+      disco: { nome: 'Disco', texto: 'O material de atrito dos dois lados; as molas do cubo suavizam o arranque.', medida: 'Estriado no veio da caixa' },
+      volante: { nome: 'Volante', texto: 'Aparafusado à cambota, roda com o motor; a coroa dentada é a do motor de arranque.', medida: 'Com a coroa dentada' } },
+    passos: [['O rolamento sai.', 'É ele que o pedal empurra.'], ['O prato e o disco.', 'O prato aperta o disco contra o volante; o pedal alivia-o.'], ['O kit aberto.', 'Rolamento, prato, disco e volante, pela ordem em que se montam.']],
+    fim: ['Arrancar suave, peça a peça.', 'Kits de embraiagem e volantes, com o preço da tua conta e o stock de agora.', 'Explorar embraiagens', ' data-mt-grupo="Kit de embraiagem"'] },
 };
 /** (compatibilidade) as peças do rolamento */
 export const PECAS = EXEMPLOS_TEXTO.rolamento.pecas;
@@ -187,13 +204,28 @@ function continuar(e: EstadoMontra): string {
   const pedido = LINHAS_TODAS.find((x) => x.etapa.k !== 'concluido');
   const carro = GARAGEM.find((c) => c.favorito) ?? GARAGEM[0];
   const lista = LISTAS.find((l) => l.estado === 'rascunho');
+  /* (21 out.) ela: «isto também quero melhor». Três cartões a sério em vez de três linhas: cada um mostra a coisa
+     (as etapas do pedido, o carro com a matrícula, as primeiras peças da lista) e acaba numa ação laranja. */
+  const passos = ETAPAS.filter(([k]) => k !== 'recolher');
+  const aqui = pedido ? Math.max(0, passos.findIndex(([k]) => k === pedido.etapa.k)) : 0;
+  const cartao = (attr: string, icone: string, rotulo: string, visual: string, titulo: string, meta: string, acao: string) => `<li><button type="button" class="mt__cc"${attr}>
+      <span class="mt__cc-topo">${L(icone)}${rotulo}</span>
+      <span class="mt__cc-visual" aria-hidden="true">${visual}</span>
+      <b class="mt__cc-t">${titulo}</b><span class="mt__cc-meta">${meta}</span>
+      <span class="mt__cc-acao">${acao}${L(arrowRight, 'mt__seta')}</span></button></li>`;
   const itens = [
-    pedido ? `<li><button type="button" class="mt__cont-item" data-abrir-pedido="${pedido.l.num}">${L(packageIcon)}<span><small>Pedido em curso</small><b>${pedido.l.num}</b><em>${esc(pedido.etapa.nome)}</em></span>${L(arrowRight, 'mt__seta')}</button></li>` : '',
-    carro ? `<li><button type="button" class="mt__cont-item" data-pecas-matricula="${carro.matricula}">${L(carFront)}<span><small>Veículo favorito</small><b>${esc(nomeCarro(carro))}</b><em>${carro.matricula} · peças compatíveis</em></span>${L(arrowRight, 'mt__seta')}</button></li>` : '',
-    lista ? `<li><button type="button" class="mt__cont-item" data-pn-atalho="lista">${L(listChecks)}<span><small>Lista em rascunho</small><b>${esc(lista.nome)}</b><em>${lista.pecas.length} peças · ${esc(lista.atualizada)}</em></span>${L(arrowRight, 'mt__seta')}</button></li>` : '',
+    pedido ? cartao(` data-abrir-pedido="${pedido.l.num}"`, packageIcon, 'Pedido em curso',
+      `<span class="mt__cc-etapas" style="--n:${passos.length};--k:${aqui}">${passos.map(([, nome], i) => `<span class="${i < aqui ? 'is-feita' : i === aqui ? 'is-atual' : ''}"><i></i><small>${esc(nome)}</small></span>`).join('')}</span>`,
+      pedido.l.num, `${esc(pedido.etapa.nome)} · ${pedido.artigos} ${pedido.artigos === 1 ? 'artigo' : 'artigos'} · ${euros(pedido.valor)}`, 'Ver o pedido') : '',
+    carro ? cartao(` data-pecas-matricula="${carro.matricula}"`, carFront, carro.favorito ? 'Veículo favorito' : 'Na tua garagem',
+      `<span class="mt__cc-carro">${imagemModelo(carro.modelo, carrocariaDe(carro))}</span><span class="ini4__matricula">${carro.matricula}</span>`,
+      esc(nomeCarro(carro)), `${esc(carro.marca)} ${esc(carro.modelo)}`, 'Ver peças compatíveis') : '',
+    lista ? cartao(' data-pn-atalho="lista"', listChecks, 'Lista em rascunho',
+      `<span class="mt__cc-pecas">${lista.pecas.slice(0, 3).map((pc) => azulejoPeca(pc.desc, 'mt__cc-peca', pc.ref)).join('')}${lista.pecas.length > 3 ? `<span class="mt__cc-mais">+${lista.pecas.length - 3}</span>` : ''}</span>`,
+      esc(lista.nome), `${lista.pecas.length} peças · ${esc(lista.atualizada)}`, 'Continuar a lista') : '',
   ].filter(Boolean);
   if (!itens.length) return '';
-  return `<section class="mt__sec mt__cont" aria-labelledby="mt-cont-t"><h2 class="mt__sec-t mt__sec-t--pequeno" id="mt-cont-t">Continuar de onde ficaste</h2><ul class="mt__cont-lista" role="list">${itens.join('')}</ul></section>`;
+  return `<section class="mt__sec mt__cont" aria-labelledby="mt-cont-t"><h2 class="mt__sec-t mt__sec-t--pequeno" id="mt-cont-t">Continuar de onde ficaste</h2><ul class="mt__cc-lista" role="list">${itens.join('')}</ul></section>`;
 }
 
 /* ---------- 6. No fim, a pesquisa ---------- */

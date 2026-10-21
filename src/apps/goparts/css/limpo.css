@@ -239,3 +239,13 @@
 /* no telemóvel, o nome da aplicação encolhe antes de tocar nos ícones */
 @media (max-width: 767.98px) { .portal--lateral .portal__topo .portal__marca { overflow: hidden; } .portal--lateral .portal__topo .portal__produto { overflow: hidden; text-overflow: ellipsis; min-width: 0; } }
 @media (max-width: 400px) { .portal--lateral .portal__topo .portal__risco, .portal--lateral .portal__topo .portal__produto { display: none; } }
+
+/* (21 out.) ela: «quero os textos todos alinhados o máximo possível… de todos os cartões». Os cartões das
+   cronologias (Pedidos, Guias, Faturas, Devoluções) tinham colunas «auto»: «Nota de crédito» é mais largo do que
+   «Fatura» e empurrava a morada. Agora as cinco colunas têm a mesma largura em todos os cartões: o número, a
+   morada (ou a observação), o selo (encostado à esquerda), o valor (à direita) e a seta. */
+@media (min-width: 1101px) {
+  .ped4__c-cabeca, .ped4__c-cabeca.gui3__cabeca, .ped4__c-cabeca.dev__cabeca { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 124px 112px 24px; }
+  .ped4__c-cabeca > .ped4__c-selos { justify-content: flex-start; flex-wrap: nowrap; white-space: nowrap; }
+  .ped4__c-cabeca > .ped4__c-valor { justify-self: end; }
+}

@@ -30,7 +30,7 @@ export const formaDe = (carrocaria: string) => FORMAS[carrocaria] || FORMAS.Hatc
 export function silhueta(carrocaria: string): string {
   const [corpo, janelas, y] = FORMAS[carrocaria] || FORMAS.Hatchback;
   const r = y === 80 ? 17 : 15;
-  const roda = (x: number) => `<circle class="cat6__roda" cx="${x}" cy="${y}" r="${r}"/><circle class="cat6__jante" cx="${x}" cy="${y}" r="${r * 0.45}"/>`;
+  const roda = (x: number) => `<circle class="cat6__roda" cx="${x}" cy="${y}" r="${r}"/><circle class="cat6__jante" cx="${x}" cy="${y}" r="${r * 0.45}"/><path class="cat6__raios" d="M${x - r * 0.7} ${y}h${r * 1.4}M${x} ${y - r * 0.7}v${r * 1.4}"/>`;
   return `<svg class="cat6__silhueta" viewBox="0 0 240 100" aria-hidden="true"><path class="cat6__chao" d="M8 ${y + r + 1}h224"/><path class="cat6__corpo" d="${corpo}"/><path class="cat6__janelas" d="${janelas}"/>${roda(58)}${roda(182)}</svg>`;
 }
 

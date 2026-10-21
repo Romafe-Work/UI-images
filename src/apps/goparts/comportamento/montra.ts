@@ -1,6 +1,6 @@
 /* =========================================================
    PEÇA A PEÇA — 10 · Início V10, a montra: o que mexe (21 out. 2026)
-   - Três peças (comportamento/modelos-3d.ts): rolamento, travão e bomba de água — cada regresso ao Início mostra a
+   - Cinco peças (comportamento/modelos-3d.ts): rolamento, travão, bomba de água, amortecedor e embraiagem — cada regresso ao Início mostra a
      seguinte (ela: «voltei ao Início e pode mudar para um travão… quero 3 exemplos»). O texto, os insights e os
      botões da exploração trocam com ela (data-ex no <main>).
    - Um só progresso p = clamp((topo da cena já passado) / (altura da secção − parte presa)), sem relógio: p manda

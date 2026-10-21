@@ -4,8 +4,8 @@
    entanto, se eu selecionar e demorar mais de 1 minuto a escrever em algum campo, ele começa a rodar».
    - De 4 em 4 s o modo seguinte passa para o meio (Matrícula → Veículo → Referência → …); os cartões deslizam
      e o que sai por um lado volta pelo outro (esbate-se a meio). O formulário de baixo segue o do meio.
-   - Para quando se escolhe um cartão, se toca, se escreve ou se usa o teclado na pesquisa; volta a rodar ao fim
-     de 1 minuto sem nada disso. Parado com o rato por cima dos cartões.
+   - Para quando se escolhe um cartão ou se escreve num campo; volta a rodar ao fim de 1 minuto sem nada disso.
+     (21 out.) ela: «isto tem de andar sozinho» — o rato por cima e os cliques fora dos campos já não o param.
    - Não roda: com resultados à vista, nos estados do mapa, no telemóvel (cartões empilhados), com «reduzir
      movimento» ou com a página escondida.
    ========================================================= */
@@ -14,7 +14,7 @@ const editando = () => document.body.classList.contains('editando');
 const vivo = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .pq');
 const CURVA = 'cubic-bezier(.22, 1, .36, 1)';
 const PASSO = 4000, PAUSA = 60000;
-let ultimo = 0, porCima = false, automatico = false;
+let ultimo = 0, automatico = false;
 
 function pode(ini: HTMLElement): boolean {
   return !quieto() && !editando() && !ini.dataset.estado && !ini.classList.contains('is-com-resultados') && !ini.querySelector('[data-veiculo]:not([hidden])')
@@ -43,7 +43,7 @@ function repor(ini: HTMLElement): void {
 function rodar(): void {
   const ini = vivo(); if (!ini) return;
   if (!pode(ini)) { if (ini.classList.contains('is-com-resultados') || !window.matchMedia('(min-width: 768px)').matches) repor(ini); return; }
-  if (porCima || Date.now() - ultimo < PAUSA) return;
+  if (Date.now() - ultimo < PAUSA) return;
   const m = (Number(ini.dataset.modo ?? 0) + 1) % 3;
   /* a rodar, o campo que tinha o cursor (sem se escrever há 1 minuto) larga-o: o cartão dele sai do meio */
   const f = document.activeElement as HTMLElement | null; if (f && ini.contains(f) && f.matches('input, select, textarea')) f.blur();
@@ -58,15 +58,15 @@ export function iniciar(): void {
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(armar)));
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
   /* quem escolhe, toca, escreve ou usa o teclado na pesquisa para a rotação durante 1 minuto */
-  const mexeu = (ev: Event) => { if (ev.isTrusted && (ev.target as Element).closest?.('.pq .pq__pesquisa')) ultimo = Date.now(); };
-  ['pointerdown', 'keydown', 'input'].forEach((t) => document.addEventListener(t, mexeu, true));
+  const mexeu = (ev: Event) => { const t = ev.target as Element; if (ev.isTrusted && t.closest?.('.pq .pq__pesquisa') && t.matches?.('input, select, textarea')) ultimo = Date.now(); };
+  ['keydown', 'input'].forEach((t) => document.addEventListener(t, mexeu, true));
   /* escolher um cartão também o traz para o meio */
   document.addEventListener('click', (ev) => {
     if (automatico) return;
     const sep = (ev.target as Element).closest?.<HTMLElement>('.pq .ini3__separador'); if (!sep) return;
+    if (ev.isTrusted) ultimo = Date.now();
     const ini = sep.closest<HTMLElement>('.pq')!;
     requestAnimationFrame(() => { if (pode(ini)) aoMeio(ini, Number(sep.dataset.modo), true); });
   });
-  document.addEventListener('pointerover', (ev) => { porCima = !!(ev.target as Element).closest?.('.pq .pq__modos'); });
   window.addEventListener('resize', () => { const ini = vivo(); if (ini && !pode(ini)) repor(ini); else armar(); });
 }

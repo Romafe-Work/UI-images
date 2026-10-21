@@ -90,10 +90,32 @@
 .tec__sel { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
 .tec__sel > * { min-width: 0; }
 .tec__sel-topo { display: grid; gap: 10px; }
-.tec__marcas { display: flex; flex-wrap: wrap; gap: 6px; }
-.tec__marca { height: 32px; padding: 0 12px; border: 1px solid var(--c-borda); border-radius: 999px; background: none; color: var(--c-texto-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color var(--t-rapido) ease, border-color var(--t-rapido) ease, color var(--t-rapido) ease; }
-.tec__marca:hover { border-color: var(--c-texto-3); color: var(--c-texto); }
-.tec__marca[aria-checked="true"] { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 10%, transparent); color: var(--c-texto); }
+/* (21 out.) os passos: Marcas › BMW › 1 (E81); os cartões das marcas (os do Catálogo) e dos modelos */
+.tec__passos { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 14px; color: var(--c-texto-2); }
+.tec__passos svg { width: 16px; height: 16px; }
+.tec__passos > span[aria-current] { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--c-texto); }
+.tec__passo { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto-2); font: inherit; font-weight: 600; cursor: pointer; transition: border-color .18s ease, color .18s ease; }
+.tec__passo:hover { border-color: var(--c-acao); color: var(--c-texto); }
+.tec__passo:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+.tec__passos-sep { color: var(--c-texto-3); }
+.tec__marcas-g { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.tec__marca-c { --cor: var(--cor-claro, var(--c-marca)); }
+:root[data-theme="dark"] .tec__marca-c { --cor: var(--cor-escuro, var(--c-marca)); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tec__marca-c { --cor: var(--cor-escuro, var(--c-marca)); } }
+.tec__marca-n { font-size: 12px; color: var(--c-texto-3); }
+.tec__mods { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.tec__mod { display: grid; gap: 4px; width: 100%; height: 100%; padding: 14px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto); font: inherit; text-align: left; cursor: pointer; transition: transform .18s ease-out, border-color .18s ease, background-color .18s ease; }
+.tec__mod:hover { transform: translateY(-3px); border-color: var(--c-acao); background: var(--c-superficie-2); }
+.tec__mod:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
+.tec__mod-img { display: block; width: 100%; max-width: 180px; margin: 0 auto 6px; color: var(--c-texto-2); }
+.tec__mod-img img { display: block; width: 100%; height: auto; }
+.tec__mod-nome { font-size: 15px; }
+.tec__mod-meta { font-size: 13px; color: var(--c-texto-2); }
+.tec__mod-n { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--c-borda); font-size: 13px; font-weight: 600; color: var(--c-acao); }
+.tec__mod-n svg { width: 16px; height: 16px; transition: transform .18s ease; }
+.tec__mod:hover .tec__mod-n svg { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .tec__mod, .tec__mod-n svg { transition: none; } .tec__mod:hover { transform: none; } }
+@media (max-width: 600px) { .tec__mods { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .tec__mod { padding: 10px; } .tec__marcas-g { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tec__conta { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--c-texto-2); }
 .tec__conta b { color: var(--c-texto); }
 .tec__lista { min-width: 0; }

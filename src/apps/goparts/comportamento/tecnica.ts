@@ -12,8 +12,8 @@
    - PESQUISA TÉCNICA: secções, sistemas e documentos do veículo ao escrever, com as setas e Enter.
    Só transform e opacity nas animações; com «reduzir movimento» as trocas são imediatas.
    ========================================================= */
-import { contexto, escolher, trabalho, conteudo, lado, explorador, nomeSeccao, docsSistema, type PecaRol, sugestoes, visorCorpo, linhasVeiculos, contaVeiculos, semVeiculos, faixa, GIRA, type Opcoes } from '../portal/tecnica';
-import { veiculoDe, docsDe, procurarVeiculos, veiculosDaMarca, type IdSeccao, type IdSistema } from '../portal/tecnica-dados';
+import { contexto, escolher, trabalho, conteudo, lado, explorador, nomeSeccao, docsSistema, type PecaRol, sugestoes, visorCorpo, listaEscolha, migalhasEscolha, faixa, GIRA, type Opcoes } from '../portal/tecnica';
+import { veiculoDe, docsDe, type IdSeccao, type IdSistema } from '../portal/tecnica-dados';
 
 const editando = () => document.body.classList.contains('editando');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,13 +23,13 @@ const $ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => r.query
 const $$ = <T extends Element = HTMLElement>(r: ParentNode, s: string) => Array.from(r.querySelectorAll<T>(s));
 
 /** O que está aberto em cada ecrã vivo. */
-interface Estado { veiculo?: string; seccao: IdSeccao | 'geral'; doc?: string; sistema?: IdSistema; q: string; marca: string; fig?: number
+interface Estado { veiculo?: string; seccao: IdSeccao | 'geral'; doc?: string; sistema?: IdSistema; q: string; marca: string; modelo?: string; passo?: 'marcas' | 'modelos' | 'veiculos'; fig?: number
   ver?: 'veiculo' | 'explodida'; peca?: PecaRol; vistaDocs?: 'cronologia' | 'tabela';
   /* o que a pessoa escolheu para o painel de contexto e a navegação, a navegar e a ler (ao ler, por omissão, dão espaço ao documento) */
   lado?: boolean; ladoLer?: boolean; nav?: boolean; navLer?: boolean }
 const estados = new WeakMap<HTMLElement, Estado>();
 const est = (m: HTMLElement) => { let e = estados.get(m); if (!e) { e = { veiculo: m.dataset.veiculo, seccao: 'geral', q: '', marca: 'BMW' }; estados.set(m, e); } return e; };
-const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, vistaDocs: e.vistaDocs, ver: e.ver, peca: e.peca,
+const ops = (m: HTMLElement, extra: Partial<Opcoes> = {}): Opcoes => { const e = est(m); return { px: m.dataset.px, veiculo: e.veiculo, seccao: e.seccao, doc: e.doc, sistema: e.sistema, q: e.q, marca: e.marca, modelo: e.modelo, passo: e.passo, vistaDocs: e.vistaDocs, ver: e.ver, peca: e.peca,
   lado: e.doc ? e.ladoLer ?? false : e.lado ?? true, compacta: e.doc ? e.navLer ?? true : e.nav ?? false, ...extra }; };
 
 /* ---------- as três áreas: a navegação (recolhível), o conteúdo e o contexto (recolhível) ---------- */
@@ -99,25 +99,33 @@ function mudarVer(m: HTMLElement, ver: 'veiculo' | 'explodida'): void {
 /* ---------- escolher ---------- */
 let tPesquisa = 0;
 function listar(m: HTMLElement, espera = true): void {
-  const e = est(m);
-  const lista = e.q ? procurarVeiculos(e.q) : veiculosDaMarca(e.marca);
   const conta = $(m, '.tec__conta')!, caixa = $(m, '.tec__lista')!;
-  $$(m, '.tec__marca').forEach((b) => b.setAttribute('aria-checked', String(!e.q && b.dataset.marca === e.marca)));
   const pintar = () => {
-    conta.innerHTML = contaVeiculos(lista, e.q, e.marca);
-    caixa.innerHTML = lista.length ? `<table class="tec__tabela">${CABECA()}${linhasVeiculos(lista)}</table>` : semVeiculos(e.q);
-    if (!lista.length) caixa.dataset.vazio = '1'; else delete caixa.dataset.vazio;
-    if (!quieto()) $$(caixa, 'tr.tec__v, .tec__m, .tec__c-item, .tec__vazio, .gui3__ano, .ped4__mes-t').slice(0, 24).forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: i * 18, easing: SAIDA, fill: 'backwards' }));
+    const o = ops(m), r = listaEscolha(o);
+    conta.innerHTML = r.conta;
+    caixa.innerHTML = r.corpo;
+    const mg = $(m, '.tec__passos-caixa'); if (mg) mg.innerHTML = migalhasEscolha(o);
+    $(m, '.tec__escolher')?.setAttribute('data-passo', o.q ? 'veiculos' : o.passo ?? 'marcas');
+    if (caixa.querySelector('.tec__vazio')) caixa.dataset.vazio = '1'; else delete caixa.dataset.vazio;
+    if (!quieto()) $$(caixa, 'tr.tec__v, .tec__m, .tec__vazio, .tec__marca-c, .tec__mods > li').slice(0, 30).forEach((r, i) => r.animate([{ opacity: 0, transform: 'translateY(8px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: i * 22, easing: SAIDA, fill: 'backwards' }));
   };
   window.clearTimeout(tPesquisa);
   if (!espera || quieto()) { pintar(); return; }
   /* a pesquisa pendente: o que já lá estava fica esbatido e a contagem diz que está a pesquisar */
-  conta.innerHTML = `${GIRA()} A pesquisar${e.q ? ` «${e.q.replace(/</g, '&lt;')}»` : ''}…`;
+  const q = est(m).q;
+  conta.innerHTML = `${GIRA()} A pesquisar${q ? ` «${q.replace(/</g, '&lt;')}»` : ''}…`;
   $(caixa, '.tec__tabela, .tec__crono-caixa')?.classList.add('is-a-pesquisar');
   tPesquisa = window.setTimeout(pintar, 260);
 }
-/* a tabela das motorizações guarda o cabeçalho: se a lista ficou vazia, vem do HTML do ecrã */
-const CABECA = () => `<thead><tr><th scope="col">Modelo</th><th scope="col">Código do motor</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
+/** Muda o passo da escolha (marcas → modelos → motorizações) e põe o foco no primeiro cartão. */
+function irPasso(m: HTMLElement, mudar: Partial<Estado>): void {
+  const e = est(m); Object.assign(e, { q: '' }, mudar);
+  if (e.passo === 'marcas') e.modelo = undefined;
+  const q = $<HTMLInputElement>(m, '.tec__q'); if (q) q.value = '';
+  listar(m, false);
+  $<HTMLElement>(m, '.tec__lista button, .tec__lista tr.tec__v')?.focus({ preventScroll: true });
+  const topo = $(m, '.tec__sel'); if (topo && topo.getBoundingClientRect().top < 70) topo.scrollIntoView({ block: 'start', behavior: quieto() ? 'auto' : 'smooth' });
+}
 
 function escolherVeiculo(m: HTMLElement, chave: string, linha?: HTMLElement | null): void {
   const v = veiculoDe(chave); if (!v) return;
@@ -151,7 +159,7 @@ function escolherVeiculo(m: HTMLElement, chave: string, linha?: HTMLElement | nu
 
 function mudarVeiculo(m: HTMLElement): void {
   const e = est(m), v = e.veiculo ? veiculoDe(e.veiculo) : undefined;
-  if (v) { e.marca = v.marca; e.q = ''; }
+  if (v) { e.marca = v.marca; e.modelo = v.modelo; e.passo = 'veiculos'; e.q = ''; }
   const antes = e.veiculo;
   desmontar3D(m);
   Object.assign(e, { veiculo: undefined, seccao: 'geral', doc: undefined, sistema: undefined });
@@ -362,7 +370,9 @@ export function iniciar(): void {
     if (t.closest('[data-inteiro]')) { const vz = $(m, '.tec__visor')!; if (document.fullscreenElement) document.exitFullscreen().catch(() => undefined); else vz.requestFullscreen?.().catch(() => undefined); return; }
     if (t.closest('.tec__visor')) return;
     /* escolher */
-    const mc = t.closest<HTMLElement>('.tec__marca'); if (mc) { const e = est(m); e.marca = mc.dataset.marca!; e.q = ''; const q = $<HTMLInputElement>(m, '.tec__q'); if (q) q.value = ''; listar(m); return; }
+    const mc = t.closest<HTMLElement>('[data-tec-marca]'); if (mc) { irPasso(m, { marca: mc.dataset.tecMarca!, modelo: undefined, passo: 'modelos' }); return; }
+    const mo = t.closest<HTMLElement>('[data-tec-modelo]'); if (mo) { irPasso(m, { modelo: mo.dataset.tecModelo!, passo: 'veiculos' }); return; }
+    const pa = t.closest<HTMLElement>('[data-tec-passo]'); if (pa) { irPasso(m, { passo: pa.dataset.tecPasso as Estado['passo'] }); return; }
     if (t.closest('[data-limpar]')) { const e = est(m); e.q = ''; const q = $<HTMLInputElement>(m, '.tec__q'); if (q) { q.value = ''; q.focus(); } listar(m, false); return; }
     const vd = t.closest<HTMLElement>('[data-vista-docs]'); if (vd) { const e = est(m); e.vistaDocs = vd.dataset.vistaDocs as 'cronologia' | 'tabela'; try { localStorage.setItem('goparts-tecnica-vista-docs', e.vistaDocs); } catch { /* nada */ } pintarConteudo(m); return; }
     const linha = t.closest<HTMLElement>('.tec__v'); if (linha) { escolherVeiculo(m, linha.dataset.chave!, linha.closest<HTMLElement>('.tec__c-item, tr') ?? linha); return; }

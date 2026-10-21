@@ -115,13 +115,13 @@ await caso('montra: os mais pesquisados e as mais compradas levam à pesquisa; �
   await p.click(`${M} .mt__comp:not([aria-hidden]) .mt__comp-card >> nth=0`, { force: true }); await p.waitForTimeout(1200);
   certo(['pesquisa', 'catalogo'].includes(await ecra(p)), `a mais comprada foi a ${await ecra(p)}`);
   await p.goBack(); await p.waitForTimeout(700);
-  await p.click(`${M} .mt__cont-item[data-abrir-pedido]`, { force: true }); await p.waitForTimeout(900);
+  await p.click(`${M} .mt__cc[data-abrir-pedido]`, { force: true }); await p.waitForTimeout(900);
   certo(await ecra(p) === 'pedidos', 'o pedido em curso não abriu os Pedidos');
   await p.goBack(); await p.waitForTimeout(700);
   await p.click(`${M} .mt__conta-item--urgente`, { force: true }); await p.waitForTimeout(900);
   certo(await ecra(p) === 'faturas', 'a fatura vencida não abriu as Faturas');
 });
-await caso('montra: cada regresso ao Início mostra a peça seguinte (rolamento → travão → bomba)', 1440, async (p) => {
+await caso('montra: cada regresso ao Início mostra a peça seguinte (rolamento → travão → bomba → amortecedor → embraiagem)', 1440, async (p) => {
   const ex = () => p.evaluate(() => document.querySelector('.ecra:not([hidden]) > .versao:not([hidden]) .mt')?.dataset.ex);
   const a = await ex();
   await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="pedidos"]'); await p.waitForTimeout(700);

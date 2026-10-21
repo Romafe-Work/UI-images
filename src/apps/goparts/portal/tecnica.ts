@@ -20,9 +20,10 @@
    Feito em TypeScript e CSS, sem React. Comportamento: comportamento/tecnica.ts. CSS: css/tecnica.css.
    ========================================================= */
 import { L } from './devolucoes';
-import { formaDe, silhueta } from './carros';
+import { formaDe, silhueta, imagemModelo } from './carros';
+import catalogoV2 from './catalogo-v2.html?raw';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
-import { veiculosDe } from './catalogo-dados';
+import { veiculosDe, MODELOS } from './catalogo-dados';
 import {
   SECCOES, GRUPOS, SISTEMAS, MARCAS, seccaoDe, grupoDe, sistemaDe, veiculoDe, veiculosDaMarca, procurarVeiculos, docsDe, docsDaSeccao,
   docsDoSistema, procurarTec, quando, EXEMPLO, type IdSeccao, type IdSistema, type Doc, type VeiculoTec, type TipoDoc,
@@ -103,6 +104,8 @@ export interface Opcoes {
   doc?: string;                        // o documento aberto no leitor
   sistema?: IdSistema;                 // o sistema escolhido (explorador) ou o filtro da secção
   q?: string; marca?: string;          // a pesquisa e a marca da escolha
+  modelo?: string;                     // o modelo da escolha (21 out.: marca → modelo → motorização)
+  passo?: 'marcas' | 'modelos' | 'veiculos';
   vistaDocs?: 'cronologia' | 'tabela'; // as listas de documentos: cronologia (por omissão) ou tabela  // a escolha em cronologia (por omissão, como os Pedidos) ou em tabela
   procura?: string;                    // a pesquisa técnica aberta com este texto
   fig?: number;                        // o visor aberto nesta figura
@@ -200,34 +203,78 @@ export function linhasVeiculos(lista: VeiculoTec[]): string {
 }
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
+const ERRO_VEICULOS = () => `<div class="tec__vazio tec__vazio--erro" role="alert">${L(triangleAlert)}<p><strong>Não foi possível carregar os veículos.</strong>O serviço do catálogo não respondeu (erro 503 · ref. VT-2611). A pesquisa que escreveu fica; tente de novo ou ligue para o apoio: +351 226 158 300.</p>${BOTAO('Tentar novamente', refreshCw, 'btn--acao btn--sm')}</div>`;
 const CABECA_TABELA = `<thead><tr><th scope="col">Modelo</th><th scope="col">Código do motor</th><th scope="col" class="tec__num">Fabricado desde</th><th scope="col" class="tec__num">Fabricado até</th><th scope="col"><span class="tec__sr">Escolher</span></th></tr></thead>`;
 
-export function contaVeiculos(lista: VeiculoTec[], q: string, marca: string): string {
+export function contaVeiculos(lista: VeiculoTec[], q: string, marca: string, modelo = ''): string {
   if (q) return `<b>${plural(lista.length, 'veículo', 'veículos')}</b> com «${esc(q)}», em todas as marcas`;
-  return `<b>${plural(lista.length, 'veículo', 'veículos')}</b> ${esc(marca)} · clique numa linha para o escolher`;
+  return `<b>${plural(lista.length, 'motorização', 'motorizações')}</b> ${esc(marca)} ${esc(modelo)} · clique numa linha para a escolher`;
 }
 export function semVeiculos(q: string): string {
   return `<div class="tec__vazio" role="status">${L(search)}<p><strong>Nenhum veículo corresponde à pesquisa.</strong>Não há marca, modelo nem código do motor com «${esc(q)}». Experimente só o código do motor (por exemplo, N47) ou escolha a marca.</p>${BOTAO('Limpar a pesquisa', x, 'btn--ghost btn--sm', ' data-limpar')}</div>`;
 }
 
+/* (21 out.) ela: «quero cards: selecionar a marca e depois mostrar o modelo como temos no Catálogo, mas para as
+   informações técnicas». A escolha passa a ter três passos, como no Catálogo: os cartões das marcas (os mesmos
+   logótipos e cores), os cartões dos modelos da marca (a silhueta, os anos, as motorizações) e, no modelo, a
+   tabela das motorizações (as quatro colunas do ecrã antigo). A pesquisa por marca, modelo ou motor continua por
+   cima e salta os passos. As migalhas voltam a qualquer passo. */
+const LOGOS: Record<string, [string, string]> = Object.fromEntries(MARCAS.map((m) => {
+  const li = catalogoV2.match(new RegExp(`<li class="cat2__marca" style="([^"]*)"[^>]*data-nome="${m}">\\s*<button type="button" class="cat2__marca-botao">([\\s\\S]*?)</button>`));
+  return [m, li ? [li[1], li[2]] : ['', `<span class="cat2__logo cat2__logo--palavra" aria-hidden="true">${esc(m)}</span><span class="cat2__marca-nome">${esc(m.toUpperCase())}</span>`]];
+}));
+export const passoDe = (o: Opcoes): 'marcas' | 'modelos' | 'veiculos' => o.q ? 'veiculos' : o.passo ?? (o.modelo ? 'veiculos' : 'marcas');
+
+function cartoesMarcas(): string {
+  return `<ul class="cat2__grelha tec__marcas-g" aria-label="Marcas">${MARCAS.map((m, i) => {
+    const [cor, dentro] = LOGOS[m];
+    const n = (MODELOS[m] || []).length;
+    return `<li class="cat2__marca tec__marca-c" style="${cor};--i:${i}" data-nome="${esc(m)}"><button type="button" class="cat2__marca-botao" data-tec-marca="${esc(m)}" aria-label="${esc(m)}, ${plural(n, 'modelo', 'modelos')}">${dentro}<small class="tec__marca-n">${plural(n, 'modelo', 'modelos')}</small></button></li>`;
+  }).join('')}</ul>`;
+}
+function cartoesModelos(marca: string): string {
+  return `<ul class="tec__mods" aria-label="Modelos ${esc(marca)}">${(MODELOS[marca] || []).map(([nome, desde, ate, carro], i) => {
+    const n = veiculosDe(marca, nome).length;
+    return `<li style="--i:${i}"><button type="button" class="tec__mod" data-tec-modelo="${esc(nome)}">
+        <span class="tec__mod-img" aria-hidden="true">${imagemModelo(nome, carro)}</span>
+        <b class="tec__mod-nome">${esc(marca)} ${esc(nome)}</b>
+        <span class="tec__mod-meta">${esc(carro)} · ${esc(desde)} – ${ate ? esc(ate) : 'hoje'}</span>
+        <span class="tec__mod-n">${plural(n, 'motorização', 'motorizações')}${L(chevronRight)}</span>
+      </button></li>`;
+  }).join('')}</ul>`;
+}
+/** As migalhas da escolha: Marcas › BMW › 1 (E81). */
+export function migalhasEscolha(o: Opcoes): string {
+  const p = passoDe(o), marca = o.marca || '', modelo = o.modelo || '';
+  if (o.q) return `<nav class="tec__passos" aria-label="Passos"><button type="button" class="tec__passo" data-tec-passo="marcas">${L(layoutGrid)}Marcas</button><span aria-current="page">Pesquisa «${esc(o.q)}»</span></nav>`;
+  const itens: string[] = [p === 'marcas' ? `<span aria-current="page">${L(layoutGrid)}Marcas</span>` : `<button type="button" class="tec__passo" data-tec-passo="marcas">${L(layoutGrid)}Marcas</button>`];
+  if (p !== 'marcas') itens.push(p === 'modelos' ? `<span aria-current="page">${esc(marca)}</span>` : `<button type="button" class="tec__passo" data-tec-passo="modelos">${esc(marca)}</button>`);
+  if (p === 'veiculos') itens.push(`<span aria-current="page">${esc(modelo)}</span>`);
+  return `<nav class="tec__passos" aria-label="Passos">${itens.join(`<span class="tec__passos-sep" aria-hidden="true">›</span>`)}</nav>`;
+}
+/** A contagem e o corpo da lista, conforme o passo (o comportamento pinta só isto ao trocar). */
+export function listaEscolha(o: Opcoes): { conta: string; corpo: string } {
+  const q = o.q || '', marca = o.marca || 'BMW', p = passoDe(o);
+  if (o.carga === 'veiculos') return { conta: 'A carregar os veículos…', corpo: `<table class="tec__tabela is-esq" aria-busy="true">${CABECA_TABELA}<tbody>${Array.from({ length: 7 }, (_, i) => `<tr class="tec__v-esq" style="--i:${i}"><td colspan="5"><span class="tec__esq" style="width:28%"></span><span class="tec__esq" style="width:14%"></span><span class="tec__esq" style="width:10%"></span><span class="tec__esq" style="width:16%"></span></td></tr>`).join('')}</tbody></table>` };
+  if (o.erro === 'veiculos') return { conta: 'Sem veículos', corpo: ERRO_VEICULOS() };
+  if (p === 'marcas') return { conta: `<b>${plural(MARCAS.length, 'marca', 'marcas')}</b> · escolha a marca do veículo`, corpo: cartoesMarcas() };
+  if (p === 'modelos') return { conta: `<b>${plural((MODELOS[marca] || []).length, 'modelo', 'modelos')}</b> ${esc(marca)} · escolha o modelo`, corpo: cartoesModelos(marca) };
+  const lista = q ? procurarVeiculos(q) : veiculosDaMarca(marca).filter((v) => !o.modelo || v.modelo === o.modelo);
+  if (!lista.length) return { conta: contaVeiculos(lista, q, marca, o.modelo), corpo: semVeiculos(q) };
+  return { conta: o.carga === 'pesquisa' ? `${GIRA()} A pesquisar «${esc(q)}»…` : contaVeiculos(lista, q, marca, o.modelo), corpo: `<table class="tec__tabela${o.carga === 'pesquisa' ? ' is-a-pesquisar' : ''}">${CABECA_TABELA}${linhasVeiculos(lista)}</table>` };
+}
+
 export function escolher(o: Opcoes): string {
-  const px = o.px || 'tec', q = o.q || '', marca = o.marca || 'BMW';
-  const lista = q ? procurarVeiculos(q) : veiculosDaMarca(marca);
-  let corpo: string;
-  if (o.carga === 'veiculos') corpo = `<table class="tec__tabela is-esq" aria-busy="true">${CABECA_TABELA}<tbody>${Array.from({ length: 7 }, (_, i) => `<tr class="tec__v-esq" style="--i:${i}"><td colspan="5"><span class="tec__esq" style="width:28%"></span><span class="tec__esq" style="width:14%"></span><span class="tec__esq" style="width:10%"></span><span class="tec__esq" style="width:16%"></span></td></tr>`).join('')}</tbody></table>`;
-  else if (o.erro === 'veiculos') corpo = `<div class="tec__vazio tec__vazio--erro" role="alert">${L(triangleAlert)}<p><strong>Não foi possível carregar os veículos.</strong>O serviço do catálogo não respondeu (erro 503 · ref. VT-2611). A pesquisa que escreveu fica; tente de novo ou ligue para o apoio: +351 226 158 300.</p>${BOTAO('Tentar novamente', refreshCw, 'btn--acao btn--sm')}</div>`;
-  else if (!lista.length) corpo = semVeiculos(q);
-  /* (15 out.) ela: «aqui não quero ordem cronológica» — a escolha fica na tabela por modelo */
-  else corpo = `<table class="tec__tabela${o.carga === 'pesquisa' ? ' is-a-pesquisar' : ''}">${CABECA_TABELA}${linhasVeiculos(lista)}</table>`;
-  const conta = o.carga === 'veiculos' ? 'A carregar os veículos…' : o.erro === 'veiculos' ? 'Sem veículos' : o.carga === 'pesquisa' ? `${GIRA()} A pesquisar «${esc(q)}»…` : contaVeiculos(lista, q, marca);
-  return `<section class="tec__escolher" aria-label="Escolher o veículo">
+  const px = o.px || 'tec', q = o.q || '';
+  const { conta, corpo } = listaEscolha(o);
+  return `<section class="tec__escolher" aria-label="Escolher o veículo" data-passo="${passoDe(o)}">
       <div class="tec__sel">
         ${o.aviso || ''}
         <div class="tec__sel-topo">
           <label class="tec__caixa tec__caixa--grande" for="${px}-q">${L(search)}<span class="tec__sr">Pesquisar veículo</span>
             <input class="tec__q" id="${px}-q" type="search" placeholder="Marca, modelo ou código do motor (por exemplo, N47)" autocomplete="off" value="${esc(q)}">
           </label>
-          <div class="tec__marcas" role="radiogroup" aria-label="Marca">${MARCAS.map((m) => `<button type="button" role="radio" class="tec__marca" data-marca="${esc(m)}" aria-checked="${!q && m === marca}">${esc(m)}</button>`).join('')}</div>
+          <div class="tec__passos-caixa">${migalhasEscolha(o)}</div>
         </div>
         <p class="tec__conta" aria-live="polite">${conta}</p>
         <div class="tec__lista">${corpo}</div>

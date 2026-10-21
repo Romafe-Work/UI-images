@@ -160,6 +160,13 @@ svg[data-i], svg[data-lucide] { transition: color 200ms ease, fill 200ms ease; }
 :is(button, a, label, summary, [role="tab"], [role="option"], [role="menuitem"], h2, .ini3__caixa, .campo__caixa, .lst__procura-campo, .lst__caixa-d, .procura, .ent3__vantagens li, .ped4__kpi > div):is(:hover, :focus-visible, :focus-within) :is([data-i="info"], [data-lucide="info"]) { color: #0063aa !important; }
 :is(button, a, label, summary, [role="tab"], [role="option"], [role="menuitem"], h2, .ini3__caixa, .campo__caixa, .lst__procura-campo, .lst__caixa-d, .procura, .ent3__vantagens li, .ped4__kpi > div):is(:hover, :focus-visible, :focus-within) :is([data-i="heart"], [data-lucide="heart"]) { color: #d64545 !important; fill: #d64545; }
 :is(.ini3__categoria) svg.ca { animation: none; }
+/* (21 out.) ela: «as imagens dos carros e qualquer ferramenta andam em rotação» — as rodas das silhuetas rodam
+   sempre (os raios, à volta do centro da roda) e os ícones de ferramenta (chave, roda dentada, disco) giram
+   devagar e sem parar; ao passar o rato acelera. Com o movimento reduzido, tudo quieto. */
+.cat6__raios { fill: none; stroke: currentColor; stroke-width: 1.2; opacity: .55; transform-box: fill-box; transform-origin: center; animation: gp-roda 1.6s linear infinite; }
+:is([data-i="wrench"], [data-i="cog"], [data-i="settings"], [data-i="settings-2"], [data-i="disc"], [data-i="disc-3"]) { transform-box: fill-box; transform-origin: center; animation: gp-roda 6s linear infinite; }
+@keyframes gp-roda { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cat6__raios { animation: none !important; } }
 @media (prefers-reduced-motion: reduce) { [data-i], [data-lucide] { animation: none !important; } }
 
 /* (20 out., V5) os ícones novos do painel do Início: os números e os documentos dão um salto; os gráficos sobem */
