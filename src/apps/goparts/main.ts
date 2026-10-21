@@ -41,6 +41,7 @@ import './css/lado.css';
 import './css/painel.css';
 import './css/pesquisa.css';
 import './css/rolar.css';
+import './css/cores.css';
 import './css/placa.css';
 import './css/categorias.css';
 import './css/icones.css';

@@ -12,7 +12,8 @@
      lista inteira; aqui, os dados são poucos e contam-se no navegador.
    ========================================================= */
 import { PEDIDOS, LINHAS, euros, type Pedido, type LinhaPedido } from './pedidos-dados';
-import { GUIAS } from './guias-dados';
+import { GUIAS, total as totalGuia } from './guias-dados';
+import { FATURAS } from './faturas-dados';
 import { DEVOLUCOES, estadoDev } from './devolucoes-dados';
 import { etapa } from './pedidos-v4';
 
@@ -99,8 +100,8 @@ export function kpis(): Kpi[] {
   return [
     { id: 'curso', nome: 'Pedidos em curso', valor: emCurso.length, texto: String(emCurso.length), sub: emCurso.length ? `${prep} em preparação` : 'Nenhum por entregar', def: 'Pedidos ainda não entregues nem levantados.', ir: ['pedidos', prep ? 'preparacao' : undefined] },
     { id: 'transporte', nome: 'Em transporte', valor: transporte.length, texto: String(transporte.length), sub: transporte.length ? transporte.map((x) => x.l.num).join(', ') : 'Nenhum a caminho', def: 'Pedidos expedidos e ainda não entregues.', ir: ['pedidos', 'expedido'] },
-    { id: 'recolha', nome: 'Para recolha', valor: recolha.length, texto: String(recolha.length), sub: recolha.length ? 'Prontos no balcão' : 'Nenhum pronto no balcão', def: 'Pedidos prontos a levantar no balcão.', ir: ['pedidos', 'recolher'] },
-    { id: 'devolucoes', nome: 'Devoluções abertas', valor: devAbertas.length, texto: String(devAbertas.length), sub: devAbertas.length ? `${devAbertas.filter((d) => estadoDev(d) === 'rascunho').length} por enviar · ${devAbertas.filter((d) => estadoDev(d) === 'enviada').length} à espera do crédito` : 'Nenhuma por tratar', def: 'Devoluções por enviar ou enviadas e ainda sem nota de crédito.', ir: ['devolucoes'] },
+    { id: 'recolha', nome: 'Prontos para recolha', valor: recolha.length, texto: String(recolha.length), sub: recolha.length ? 'Prontos no balcão' : 'Nenhum pronto no balcão', def: 'Pedidos prontos a levantar no balcão.', ir: ['pedidos', 'recolher'] },
+    { id: 'devolucoes', nome: 'Devoluções em aberto', valor: devAbertas.length, texto: String(devAbertas.length), sub: devAbertas.length ? `${devAbertas.filter((d) => estadoDev(d) === 'rascunho').length} por enviar · ${devAbertas.filter((d) => estadoDev(d) === 'enviada').length} à espera do crédito` : 'Nenhuma por tratar', def: 'Devoluções por enviar ou enviadas e ainda sem nota de crédito.', ir: ['devolucoes'] },
   ];
 }
 
@@ -139,3 +140,27 @@ export function eventosDocs(): Evento[] {
   return ev;
 }
 export const ordenar = (ev: Evento[]) => ev.slice().sort((a, b) => b.n - a.n || b.min - a.min);
+
+/* ---------- (21 out., V7) o que requer atenção, por importância ----------
+   Só o que os documentos confirmam. «Urgente» só quando um prazo já passou (a fatura vencida); «Por tratar» quando a
+   ação é do cliente (levantar, enviar a devolução); «Informação» quando se espera pela Romafe (o crédito, a parte de
+   uma entrega que ainda vem). Cada um tem o pormenor que se abre e a ação que leva ao sítio certo. */
+export type GrupoAlerta = 'urgente' | 'tratar' | 'info';
+export type AlertaPn = { grupo: GrupoAlerta; titulo: string; info: string; data: string; acao: string; attr: string; detalhe: [string, string][] };
+export const NOME_GRUPO: Record<GrupoAlerta, string> = { urgente: 'Urgente', tratar: 'Por tratar', info: 'Informação' };
+export function alertasPn(): AlertaPn[] {
+  const a: AlertaPn[] = [];
+  FATURAS.filter((f) => f.pagamento === 'vencida').forEach((f) => a.push({ grupo: 'urgente', titulo: 'Fatura vencida', info: f.num, data: `Venceu a ${f.vencimento}`, acao: 'Ver fatura', attr: ` data-ir-doc="faturas" data-chave="goparts:abrir-fatura" data-valor="${f.num}"`,
+    detalhe: [['Valor com IVA', euros(totalGuia(f.guia))], ['Guia', f.guia.num], ['Pedido', f.guia.pedido]] }));
+  LINHAS_TODAS.filter((x) => x.etapa.k === 'recolher').forEach((x) => a.push({ grupo: 'tratar', titulo: 'Pedido disponível para recolha', info: `${x.l.num} · ${x.l.armazem}`, data: x.l.data, acao: 'Ver pedido', attr: ` data-ir-doc="pedidos" data-chave="goparts:abrir-pedido" data-valor="${x.l.num}"`,
+    detalhe: [['Artigos', String(x.artigos)], ['Valor', `${euros(x.valor)} sem IVA`]] }));
+  DEVOLUCOES.filter((d) => estadoDev(d) === 'rascunho').forEach((d) => a.push({ grupo: 'tratar', titulo: 'Devolução por enviar', info: d.num, data: `Criada a ${d.criada}`, acao: 'Abrir devoluções', attr: ' data-ir-filtro="devolucoes" data-etapa-alvo="rascunho"',
+    detalhe: [['Artigos', d.linhas.map(([q, t]) => `${q} × ${t}`).join('; ')], ['Motivo', d.obs]] }));
+  DEVOLUCOES.filter((d) => estadoDev(d) === 'enviada').forEach((d) => a.push({ grupo: 'info', titulo: 'Devolução a aguardar resposta', info: d.num, data: `Enviada a ${d.enviada}`, acao: 'Abrir devoluções', attr: ' data-ir-filtro="devolucoes" data-etapa-alvo="enviada"',
+    detalhe: [['Artigos', d.linhas.map(([q, t]) => `${q} × ${t}`).join('; ')], ['À espera de', 'nota de crédito da Romafe']] }));
+  /* a previsão de entrega mudou: só quando o percurso do pedido o diz (a parte que falta e quando chega) */
+  LINHAS_TODAS.forEach((x) => { const passo = x.p.percurso.find((s) => !s[1] && s[2] && /chega/i.test(s[2])); if (passo) a.push({ grupo: 'info', titulo: 'Alteração na previsão de entrega', info: x.l.num, data: passo[2]!, acao: 'Ver pedido', attr: ` data-ir-doc="pedidos" data-chave="goparts:abrir-pedido" data-valor="${x.l.num}"`,
+    detalhe: x.p.artigos.filter((ar) => ar[1] < ar[0]).map((ar) => [`${ar[0] - ar[1]} em falta`, ar[2]] as [string, string]) }); });
+  const ordem: Record<GrupoAlerta, number> = { urgente: 0, tratar: 1, info: 2 };
+  return a.sort((x, y) => ordem[x.grupo] - ordem[y.grupo]);
+}

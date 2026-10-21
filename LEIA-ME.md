@@ -377,6 +377,29 @@ seguir, um ecrã de cada vez.
 - **Sem servidor:** a compatibilidade peça–veículo não está nos dados de exemplo e cada resultado diz isso. Não há
   filtro por preço nem por compatibilidade.
 
+## GoParts V7 e V8: o Início como ponto de controlo, e as cores da marca no portal todo (21 out. 2026)
+
+- **V7 (Início):**
+  - Cabeçalho compacto: o período, o armazém, «Atualizar», as definições e «Pesquisar peças». É o único atalho da
+    pesquisa no Início.
+  - Quatro números.
+  - «Últimos pedidos» (65 %) ao lado de «Requer a tua atenção» (35 %). A atenção está agrupada por importância e
+    cada alerta abre o pormenor.
+  - «Atividade de compras» (70 %) ao lado do «Acesso rápido».
+  - Saíram a atividade recente, as referências frequentes e a ordem dos blocos.
+  - Estados 10.1–10.15.
+- **V8 (cores, `css/cores.css`):**
+  - Escuro em camadas azul-carvão (fundo #0D1218, navegação #151D27, painéis #1A242F, elevado #223040).
+  - Claro com fundo #F4F7FA e superfícies secundárias #EAF1F7.
+  - O azul é a identidade e a informação, o laranja é a ação e o que está escolhido, e o verde, o âmbar e o
+    vermelho são só para estados.
+  - Topo e barra lateral formam a moldura da marca; o item ativo tem o traço laranja.
+  - Início: cada número com a sua cor, os estados em pílula e o percurso de cada pedido a abrir na linha. O
+    último valor do gráfico aparece a laranja; o motivo técnico no cabeçalho só aparece em ecrãs a partir de
+    1600 px.
+  - Cartões da pesquisa: os desenhos de linhas voltaram e o cartão escolhido fica a laranja.
+  - Os outros ecrãs recebem as cores pelos tokens. Os retoques próprios de cada um ficam para a seguir.
+
 ### Catálogo e movimento com o scroll (20 out. 2026, V6)
 
 - **Ficha da peça:**

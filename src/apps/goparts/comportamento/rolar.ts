@@ -7,8 +7,7 @@
    - Ligado ao scroll (scroll-linked): a barra fina de progresso no cimo da janela; a saudação do Início esbate-se
      e encolhe enquanto sai de vista. Em CSS (animation-timeline) quando o navegador o tem; senão, aqui.
    - Parallax: os desenhos dos carros (veículo identificado, garagem) andam um pouco mais devagar do que a página.
-   - Sticky: o atalho da pesquisa do Início e os três cartões da Pesquisar peças (com resultados) ficam presos em
-     cima; quando estão presos ganham a linha de baixo (is-preso), vista por uma sentinela.
+   - Sticky: os três cartões da Pesquisar peças (com resultados) ficam presos em cima (o atalho do Início saiu na V7); quando estão presos ganham a linha de baixo (is-preso), vista por uma sentinela.
    - Horizontal: as Categorias da Pesquisar peças ficam presas e deslizam para o lado à medida que se desce (a
      altura da secção é a do caminho a percorrer). No telemóvel, é uma faixa que se arrasta, com encaixe.
    Só transform e opacity. Com «reduzir movimento», no editor e nos estados do protótipo, nada disto corre.
@@ -19,7 +18,7 @@ const visivel = (): HTMLElement | null => document.querySelector<HTMLElement>('.
 const CSS_LIGADO = typeof CSS !== 'undefined' && CSS.supports?.('animation-timeline: scroll()');
 const CURVA = 'cubic-bezier(.22, 1, .36, 1)';
 /** O que aparece ao entrar no ecrã. */
-const BLOCOS = '.pn__w, .pn__procura, .ini4__bloco, .pq__avancada';
+const BLOCOS = '.pn__w, .ini4__bloco, .pq__avancada';
 
 /* ---------- ao entrar no ecrã ---------- */
 let obs: IntersectionObserver | null = null;
@@ -45,7 +44,7 @@ function aparecer(portal: HTMLElement): void {
 const presosObs: IntersectionObserver[] = [];
 function presos(portal: HTMLElement): void {
   presosObs.splice(0).forEach((o) => o.disconnect());
-  portal.querySelectorAll<HTMLElement>('.pn__procura, .pq__modos').forEach((alvo) => {
+  portal.querySelectorAll<HTMLElement>('.pq__modos').forEach((alvo) => {
     const top = parseFloat(getComputedStyle(alvo).top) || 0;
     const o = new IntersectionObserver(([e]) => { alvo.classList.toggle('is-preso', e.intersectionRatio < 1 && e.boundingClientRect.top <= top + 1.5); }, { rootMargin: `${-(top + 1)}px 0px 0px 0px`, threshold: [1] });
     o.observe(alvo); presosObs.push(o);

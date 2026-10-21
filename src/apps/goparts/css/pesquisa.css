@@ -237,3 +237,35 @@
   .pq .ini3__cartao, .pq details[open] > :not(summary), .pq__painel::before, .pr__copiar svg { animation: none !important; transition: none !important; }
 }
 .pq .ini4__bloco--disponibilidade { grid-column: 1 / -1; }
+
+/* =========================================================
+   (21 out., V8) Cada cartão com a sua identidade: o desenho de linhas (o carro, as engrenagens, o rolamento) no canto,
+   em azul, que se mexe um pouco ao passar; o escolhido fica LARANJA (a borda, a ação e o desenho), os outros neutros.
+   ========================================================= */
+.pq .ini3__separador.pq__modo { position: relative; overflow: hidden; }
+.pq__modo-desenho { position: absolute; right: -6px; bottom: -10px; width: 130px; height: 82px; color: var(--gp-azul-vivo, var(--i3-azul)); opacity: .22; pointer-events: none; transition: transform 220ms cubic-bezier(.22, 1, .36, 1), opacity 160ms ease, color 160ms ease; }
+.pq .pq__modo .pq__modo-desenho, .pq .pq__modo svg.pq__modo-desenho { width: 130px; height: 82px; color: var(--gp-azul-vivo, var(--i3-azul)); }
+.pq .pq__modo-texto, .pq .pq__modo-acao, .pq .pq__modo-icone { position: relative; z-index: 1; }
+.pq .pq__modo[aria-selected="true"], .pq .pq__modo[data-modo="2"][aria-selected="true"] { border-color: var(--c-acao); background: color-mix(in srgb, var(--c-acao) 6%, var(--i3-sup)); box-shadow: inset 0 0 0 1px var(--c-acao), 0 6px 18px -10px color-mix(in srgb, var(--c-acao) 60%, transparent); }
+.pq .pq__modo[aria-selected="true"] .pq__modo-desenho { color: var(--c-acao); opacity: .3; }
+.pq__painel { border-color: color-mix(in srgb, var(--c-acao) 45%, var(--i3-borda-forte)); }
+.pq__painel::before { border-color: color-mix(in srgb, var(--c-acao) 45%, var(--i3-borda-forte)); }
+.pq__modo-icone { background: var(--gp-azul, var(--c-logotipo)); }
+@media (hover: hover) and (pointer: fine) {
+  .pq .pq__modo:not([aria-selected="true"]):hover { border-color: var(--gp-azul-vivo, var(--i3-azul)); background: color-mix(in srgb, var(--gp-azul-vivo, #2495db) 5%, var(--i3-sup)); }
+  .pq .pq__modo:hover .pq__modo-desenho { transform: translateX(-6px); opacity: .32; }
+}
+.pq.is-com-resultados .pq__modo-desenho { display: none; }
+@media (max-width: 767.98px) { .pq__modo-desenho { width: 96px; height: 60px; opacity: .16; } }
+/* os resultados: a imagem cresce um pouco ao passar; o preço e «Adicionar» ganham ênfase */
+.pr__img > * { transition: transform 220ms cubic-bezier(.22, 1, .36, 1); }
+.pr__preco b { color: var(--i3-tinta); transition: color 150ms ease; }
+@media (hover: hover) and (pointer: fine) {
+  .pr__peca:hover { border-color: color-mix(in srgb, var(--gp-azul-vivo, #2495db) 50%, var(--i3-borda)); }
+  .pr__peca:hover .pr__img > * { transform: scale(1.06); }
+  .pr__peca:hover .pr__preco b { color: var(--gp-azul-vivo, var(--i3-azul)); }
+}
+.pr__btn.is-feito { animation: pr-feito 420ms cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pr-feito { 40% { transform: scale(1.05); } }
+.pr__fab { color: var(--gp-azul-vivo, var(--i3-azul)); }
+@media (prefers-reduced-motion: reduce) { .pq__modo-desenho, .pr__img > *, .pr__btn.is-feito { transition: none !important; animation: none !important; } }

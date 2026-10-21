@@ -11,10 +11,11 @@
    chega ao contraste de 4,5:1, por isso as ligações usam o mesmo azul aclarado (--g-azul-tinta). O ROMAFE do
    logótipo não muda: --c-logotipo em todos os temas. */
 :root {
-  /* (16 out.) os valores do briefing do Início: fundo #101113, superfície #191B1E, elevada #23262A, borda #34383D,
+  /* (21 out., V7) superfície #1B1D20, elevada #24272B e texto secundário #A7ADB5, do briefing do Início V7.
+     (16 out.) os valores do briefing do Início: fundo #101113, superfície #191B1E, elevada #23262A, borda #34383D,
      texto #F5F5F5 e #A7ACB4 — os mesmos para o portal todo */
-  --g-fundo: #101113; --g-barra: #17191c; --g-sup: #191b1e; --g-sup-2: #23262a; --g-borda: #34383d; --g-borda-forte: #4a4f56;
-  --g-tinta: #f5f5f5; --g-tinta-2: #a7acb4; --g-tinta-3: #858b94;
+  --g-fundo: #101113; --g-barra: #17191c; --g-sup: #1b1d20; --g-sup-2: #24272b; --g-borda: #34383d; --g-borda-forte: #4a4f56;
+  --g-tinta: #f5f5f5; --g-tinta-2: #a7adb5; --g-tinta-3: #858b94;
   --g-azul: #0873bc; --g-azul-tinta: #5aa9e6; --g-azul-suave: rgba(8, 115, 188, .16); --g-laranja: #f58214;
 }
 [data-theme="dark"] .portal--noite, [data-theme="dark"] .portal--ini3 {

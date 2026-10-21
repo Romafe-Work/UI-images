@@ -1,0 +1,68 @@
+/* =========================================================
+   GOPARTS — as cores do V8 (21 out. 2026): o portal inteiro
+   Do briefing «Bring the entire application to life» e da nota dela: «o azul ROMAFE como identidade, o laranja como
+   ação e as cores de estado só quando têm significado» — nada de arco-íris. Carregado depois de tudo: os tokens do
+   portal (--c-*), do Início e da pesquisa (--i3-*) e o grafite (--g-*, noite.css) passam a ser estes, em todos os
+   ecrãs (todos têm .portal--noite ou .portal--ini3).
+   Escuro: camadas azul-carvão, para distinguir a navegação (#151D27), o fundo (#0D1218), os painéis (#1A242F) e o
+   elevado (#223040). Claro: fundo #F4F7FA, superfícies brancas e secundárias #EAF1F7, texto #172534.
+   Azul: navegação, informação, dados técnicos, gráficos. Laranja: ações e o escolhido. Verde: concluído, stock,
+   sucesso. Âmbar: pendente, atenção. Vermelho: erro e só o que é mesmo urgente. O ROMAFE do logótipo não muda
+   (--c-logotipo, RGB 0, 99, 170).
+   No claro, as cores de estado em texto são as versões escuras (contraste ≥ 4,5:1); os pontos e as barras usam-nas
+   igualmente, para não haver duas tonalidades do mesmo estado.
+   ========================================================= */
+:root {
+  --g-fundo: #0d1218; --g-barra: #151d27; --g-sup: #1a242f; --g-sup-2: #223040; --g-borda: #354354; --g-borda-forte: #4a5b70;
+  --g-tinta: #f7fafc; --g-tinta-2: #a9b8c9; --g-tinta-3: #8394a8;
+  --g-azul: #0876bd; --g-azul-tinta: #2495db; --g-azul-suave: rgba(36, 149, 219, .16); --g-laranja: #f57c12;
+}
+.portal--noite, .portal--ini3 {
+  --gp-azul: #0876bd; --gp-azul-fundo: #075a94; --gp-azul-vivo: #2495db; --gp-laranja: #f57c12; --gp-laranja-mais: #ff922b;
+  --gp-lado: #ffffff; --gp-lado-ativo: #eaf1f7; --gp-lado-tinta: #172534; --gp-lado-tinta-2: #4a5b6d;
+  --c-portal-fundo: #f4f7fa; --c-superficie: #ffffff; --c-superficie-2: #eaf1f7; --c-superficie-3: #eaf1f7;
+  --c-borda: #d7e1e9; --c-borda-forte: #b8c7d4; --c-texto: #172534; --c-texto-2: #46576a; --c-texto-3: #66788c;
+  --c-marca: #0876bd; --c-marca-suave: rgba(8, 118, 189, .1);
+  --c-acao: #f57c12; --c-acao-premido: #e06d08; --c-acao-suave: rgba(245, 124, 18, .12); --c-acao-marcador: #f57c12;
+  --c-ok: #12875c; --c-ok-suave: #e3f5ee; --c-aviso: #b7791f; --c-aviso-suave: #fdf1dc; --c-erro: #d23f45; --c-erro-suave: #fbe7e8;
+  --i3-fundo: #f4f7fa; --i3-sup: #ffffff; --i3-sup-2: #eaf1f7; --i3-borda: #d7e1e9; --i3-borda-forte: #b8c7d4;
+  --i3-tinta: #172534; --i3-tinta-2: rgba(23, 37, 52, .74); --i3-tinta-3: rgba(23, 37, 52, .56);
+  --i3-azul: #0876bd; --i3-azul-suave: rgba(8, 118, 189, .1);
+  --azul-fundo: #0876bd;
+}
+[data-theme="dark"] .portal--noite, [data-theme="dark"] .portal--ini3 {
+  --gp-lado: var(--g-barra); --gp-lado-ativo: #223040; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
+  --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
+  --c-acao: #f57c12; --c-acao-premido: #ff922b;
+  --i3-azul: var(--g-azul-tinta);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .portal--noite, :root:not([data-theme="light"]) .portal--ini3 {
+    --gp-lado: var(--g-barra); --gp-lado-ativo: #223040; --gp-lado-tinta: #f7fafc; --gp-lado-tinta-2: #a9b8c9;
+    --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
+    --c-acao: #f57c12; --c-acao-premido: #ff922b;
+    --i3-azul: var(--g-azul-tinta);
+  }
+}
+
+/* ---------- o topo e a barra lateral: a moldura da marca ----------
+   No escuro, o topo e a barra são do mesmo azul-carvão (um «L» que emoldura o conteúdo); no claro, brancos com a
+   linha de cima azul. O item ativo: fundo mais claro, texto forte e o traço LARANJA à esquerda, que desliza. */
+.portal--noite .portal__topo, .portal--ini3 .portal__topo { background: var(--gp-lado); border-bottom: 1px solid var(--c-borda); box-shadow: inset 0 3px 0 var(--gp-azul); }
+.portal--lateral .portal__lado { background: var(--gp-lado); }
+.portal--lateral .lado__item { color: var(--gp-lado-tinta-2); }
+.portal--lateral .lado__item:hover:not(:disabled) { background: var(--gp-lado-ativo); color: var(--gp-lado-tinta); }
+.portal--lateral .lado__item:hover:not(:disabled) > svg { transform: translateX(2px); }
+.portal--lateral .lado__item > svg { transition: transform 150ms cubic-bezier(.22, 1, .36, 1), color 150ms ease; }
+.portal--lateral .lado__item[aria-current="page"] { background: var(--gp-lado-ativo); color: var(--gp-lado-tinta); }
+.portal--lateral .lado__item[aria-current="page"] > svg { color: var(--gp-azul-vivo); }
+.portal--lateral .lado__ativo { background: var(--gp-laranja); width: 3px; }
+.portal--lateral .lado__grupo { padding-top: 10px; border-top: 1px solid var(--c-borda); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--gp-lado-tinta-2); }
+.portal--lateral .lado__grupo--primeiro { padding-top: 0; border-top: 0; }
+.portal--lateral .lado__sub { color: var(--gp-lado-tinta-2); opacity: .8; }
+/* os botões redondos do topo: o fundo acende ao passar, o ícone mexe-se um pouco */
+.portal--noite .portal__icone, .portal--ini3 .portal__icone { transition: background-color 140ms ease, color 140ms ease, transform 120ms ease; }
+@media (hover: hover) and (pointer: fine) { .portal--noite .portal__icone:hover, .portal--ini3 .portal__icone:hover { background: var(--gp-lado-ativo); color: var(--gp-azul-vivo); } }
+.portal--noite .portal__icone:active, .portal--ini3 .portal__icone:active { transform: scale(.94); }
+.portal--noite .procura, .portal--ini3 .procura { transition: border-color 150ms ease, box-shadow 150ms ease; }
+@media (hover: hover) and (pointer: fine) { .portal--noite .procura:hover, .portal--ini3 .procura:hover { border-color: var(--gp-azul-vivo); } }

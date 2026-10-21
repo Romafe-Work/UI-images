@@ -94,11 +94,11 @@ await caso('peças: adicionar ao carrinho, favoritas e ver o stock', 1440, async
 await caso('painel: sem os formulários da pesquisa; os quatro números do agora', 1440, async (p) => {
   certo(!(await p.$(`${N} .ini3__cartao`)), 'o Início ainda tem os formulários da pesquisa');
   const v = await p.$$eval(`${N} .pn__kpi`, (l) => l.map((b) => [b.dataset.kpi, b.querySelector('.pn__kpi-valor').textContent.trim()]));
-  certo(JSON.stringify(v) === JSON.stringify([['curso', '3'], ['transporte', '1'], ['recolha', '0'], ['devolucoes', '2']]), `os números são ${JSON.stringify(v)}`);
+  certo(JSON.stringify(v) === JSON.stringify([['curso', '03'], ['transporte', '01'], ['recolha', '00'], ['devolucoes', '02']]), `os números são ${JSON.stringify(v)}`);
   certo(await p.$eval(`${N} [data-kpi="recolha"]`, (b) => b.disabled), 'o zero da recolha devia estar desligado');
 });
 await caso('gráfico: personalizado — datas trocadas dão erro, as certas aplicam-se', 1440, async (p) => {
-  await p.click(`${N} [data-graf-periodo="pers"]`);
+  await p.click(`${N} [data-periodo="pers"]`);
   await p.fill(`${N} [data-pers] [name="de"]`, '2024-04-10'); await p.fill(`${N} [data-pers] [name="ate"]`, '2024-04-01');
   await p.click(`${N} [data-pers] [type="submit"]`);
   certo((await p.textContent(`${N} .pn__pers-erro`)).includes('antes'), 'não disse que as datas estão trocadas');
@@ -109,8 +109,8 @@ await caso('gráfico: personalizado — datas trocadas dão erro, as certas apli
 await caso('gráfico: número de pedidos, 90 dias com os dias sem dados, a dica pelo teclado', 1440, async (p) => {
   await p.evaluate((s) => document.querySelector(s).scrollIntoView(), `${N} [data-graf]`); await p.waitForTimeout(1200);
   await p.click(`${N} [data-metrica="pedidos"]`); await p.waitForTimeout(600);
-  certo((await p.textContent(`${N} [data-graf-total]`)).trim() === '2 pedidos', `o total em pedidos ficou «${await p.textContent(`${N} [data-graf-total]`)}»`);
-  await p.click(`${N} [data-graf-periodo="90"]`); await p.waitForTimeout(700);
+  certo((await p.textContent(`${N} [data-graf-total]`)).trim() === '5 pedidos', `o total em pedidos (30 dias) ficou «${await p.textContent(`${N} [data-graf-total]`)}»`);
+  await p.click(`${N} [data-periodo="90"]`); await p.waitForTimeout(700);
   certo(await p.$(`${N} .pn__g-sem`), 'os dias antes do histórico não aparecem tracejados');
   certo((await p.textContent(`${N} [data-graf-total]`)).trim() === '6 pedidos', 'os 90 dias deviam ter os 6 pedidos');
   await p.focus(`${N} [data-graf]`); await p.keyboard.press('End');
@@ -125,25 +125,24 @@ await caso('números e alertas levam às listas filtradas; o voltar do navegador
   certo(await p.$eval('.ecra:not([hidden]) > .versao:not([hidden]) .ped4__etapa-f[aria-pressed="true"]', (b) => b.dataset.etapa) === 'expedido', 'os Pedidos não vieram filtrados');
   await p.goBack(); await p.waitForTimeout(700);
   certo(await ecra(p) === 'inicio', `o «voltar» do navegador foi a ${await ecra(p)}`);
-  await p.click(`${N} .pn__alerta-li:first-child .pn__alerta-acao`); await p.waitForTimeout(700);
+  await p.click(`${N} .pn__grupo--urgente .pn__alerta-cab`);
+  certo(await p.isVisible(`${N} .pn__grupo--urgente .pn__alerta-det`), 'o alerta não abriu o pormenor');
+  await p.click(`${N} .pn__grupo--urgente .pn__alerta-det .btn`); await p.waitForTimeout(700);
   certo(await ecra(p) === 'faturas', 'o alerta da fatura vencida não abriu as Faturas');
 });
-await caso('atalho da pesquisa: «Referência» abre a Pesquisar peças nesse cartão, com o foco no campo', 1440, async (p) => {
-  await p.click(`${N} .pn__procura-modo[data-pn-pesquisa="2"]`); await p.waitForTimeout(800);
+await caso('cabeçalho: «Pesquisar peças» abre o ecrã da pesquisa com o foco num campo', 1440, async (p) => {
+  certo(!(await p.$(`${N} .ini3__cartao, ${N} #i3-matricula, ${N} .pq__modo`)), 'o Início tem formulários da pesquisa');
+  await p.click(`${N} .pn__pesquisar`); await p.waitForTimeout(800);
   certo(await ecra(p) === 'pesquisa', 'não foi à Pesquisar peças');
-  certo(await p.evaluate(() => document.activeElement?.id) === 'i3-referencia', `o foco ficou em ${await p.evaluate(() => document.activeElement?.id || document.activeElement?.tagName)}`);
+  certo(await p.evaluate(() => document.activeElement?.tagName) === 'INPUT', 'o foco não ficou num campo');
 });
-await caso('frequentes: adicionar ao carrinho e abrir uma lista', 1440, async (p) => {
-  const antes = await unidades(p);
-  await p.click(`${N} [data-pn-pedir="VKMV 6PK1873"]`); await p.waitForTimeout(600);
-  certo(await unidades(p) === antes + 1, 'não entrou no carrinho');
-  await p.click(`${N} [data-pn-lista]`); await p.waitForTimeout(600);
-  certo(await ecra(p) === 'lista', 'a lista não abriu');
-});
-await caso('últimos pedidos: a linha abre o pedido; ver todos', 1440, async (p) => {
+await caso('últimos pedidos: a linha abre o percurso; «Ver» abre o pedido', 1440, async (p) => {
   const n = await p.$$eval(`${N} .pn__linha`, (l) => l.length); certo(n === 5, `há ${n} linhas`);
-  await p.click(`${N} .pn__linha:first-child td[data-r="Total"]`); await p.waitForTimeout(700);
-  certo(await ecra(p) === 'pedidos', 'a linha não abriu os Pedidos');
+  await p.click(`${N} .pn__linha:nth-child(3) td[data-r="Valor"]`); await p.waitForTimeout(300);
+  certo(await p.isVisible(`${N} .pn__linha-det:not([hidden]) .pn__percurso`), 'o percurso não abriu');
+  certo(await p.$(`${N} .pn__percurso [aria-current="step"]`), 'o passo atual não está marcado');
+  await p.click(`${N} .pn__linha:first-child .pn__ver`); await p.waitForTimeout(700);
+  certo(await ecra(p) === 'pedidos', '«Ver» não abriu os Pedidos');
 });
 await caso('acesso rápido: Pesquisar peças abre o ecrã da pesquisa com o foco no campo; voltar', 1440, async (p) => {
   await p.click(`${N} [data-pn-atalho="pesquisa"]`); await p.waitForTimeout(800);
@@ -154,42 +153,34 @@ await caso('acesso rápido: Pesquisar peças abre o ecrã da pesquisa com o foco
   certo(vis === 1, `vêem-se ${vis} formulários`);
   await p.goBack(); await p.waitForTimeout(700);
   certo(await ecra(p) === 'inicio', 'o «voltar» não voltou ao Início');
-  for (const [a, e] of [['pedidos', 'pedidos'], ['faturas', 'faturas'], ['devolucoes', 'devolucoes'], ['tecnica', 'tecnica'], ['lista', 'lista']]) {
+  for (const [a, e] of [['faturas', 'faturas'], ['guias', 'guias'], ['tecnica', 'tecnica'], ['lista', 'lista']]) {
     await p.click(`.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="inicio"]`); await p.waitForTimeout(500);
     await p.click(`${N} [data-pn-atalho="${a}"]`); await p.waitForTimeout(600);
     certo(await ecra(p) === e, `o atalho ${a} foi a ${await ecra(p)}`);
   }
 });
-await caso('personalizar: esconder, mover com o teclado, atalhos e período ao abrir; guarda e repõe', 1440, async (p) => {
-  await p.click(`${N} [data-pn-personalizar]:not([data-pn-personalizar="atalhos"])`);
+await caso('definições: esconder o gráfico, período ao abrir e atalhos; guarda e repõe', 1440, async (p) => {
+  await p.click(`${N} [data-pn-personalizar]`);
   await p.waitForSelector(`${NP} .pn__gaveta:not([hidden])`);
-  await p.click(`${NP} [data-pn-mostrar="atividade"] + .sr-only + i`);
-  certo(await p.$(`${N} [data-w="atividade"][hidden]`), 'a atividade não se escondeu');
-  await p.focus(`${NP} [data-w-ordem="atencao"] [data-pn-pega]`); await p.keyboard.press('ArrowUp'); await p.keyboard.press('ArrowUp'); await p.keyboard.press('ArrowUp');
-  await p.click(`${NP} [data-pn-periodo-omissao][value="30"] + span`);
-  await p.click(`${NP} [data-pn-atalho-escolha="guias"]`);
+  await p.click(`${NP} [data-pn-mostrar="evolucao"] + .sr-only + i`);
+  certo(await p.$(`${N} [data-w="evolucao"][hidden]`), 'o gráfico não se escondeu');
+  await p.click(`${NP} [data-pn-periodo-omissao][value="90"] + span`);
+  await p.click(`${NP} [data-pn-atalho-escolha="pedidos"]`);
   await p.keyboard.press('Escape');
   await p.reload(); await p.waitForTimeout(900);
-  certo(await p.$(`${N} [data-w="atividade"][hidden]`), 'não guardou o escondido');
-  certo(await p.$(`${N} [data-graf-periodo="30"][aria-checked="true"]`), 'não guardou o período do gráfico');
-  certo(await p.$(`${N} [data-pn-atalho="guias"]`), 'não guardou o atalho');
-  const o = await p.$$eval(`${N} [data-w]`, (l) => Object.fromEntries(l.map((x) => [x.dataset.w, Number(x.style.order)])));
-  certo(o.atencao === 0, `a ordem não mudou: ${JSON.stringify(o)}`);
-  await p.click(`${N} [data-pn-personalizar]:not([data-pn-personalizar="atalhos"])`); await p.click(`${NP} [data-pn-repor]`); await p.click(`${NP} .pn__gaveta-pe [data-pn-fechar]`);
+  certo(await p.$(`${N} [data-w="evolucao"][hidden]`), 'não guardou o escondido');
+  certo(await p.$(`${N} [data-periodo="90"][aria-checked="true"]`), 'não guardou o período ao abrir');
+  certo(await p.$(`${N} [data-pn-atalho="pedidos"]`), 'não guardou o atalho');
+  await p.click(`${N} [data-pn-personalizar]`); await p.click(`${NP} [data-pn-repor]`); await p.click(`${NP} .pn__gaveta-pe [data-pn-fechar]`);
   await p.waitForTimeout(300);
-  certo(!(await p.$(`${N} [data-w="atividade"][hidden]`)), 'repor não mostrou a atividade');
+  certo(!(await p.$(`${N} [data-w="evolucao"][hidden]`)), 'repor não mostrou o gráfico');
 });
-await caso('personalizar: arrastar os pedidos para o topo pela pega', 1440, async (p) => {
-  await p.click(`${N} [data-pn-personalizar]:not([data-pn-personalizar="atalhos"])`); await p.waitForSelector(`${NP} .pn__gaveta:not([hidden])`);
-  const de = await p.$(`${NP} [data-w-ordem="pedidos"] [data-pn-pega]`), para = await p.$(`${NP} [data-w-ordem]`);
-  const a = await de.boundingBox(), b = await para.boundingBox();
-  await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await p.mouse.down();
-  for (let k = 1; k <= 8; k++) await p.mouse.move(a.x + a.width / 2, a.y + (b.y + 4 - a.y) * k / 8);
-  certo(await p.$(`${NP} .pn__ordem-lugar`), 'o lugar onde cai não aparece');
-  await p.mouse.up(); await p.waitForTimeout(200);
-  const ordem = await p.$$eval(`${NP} [data-w-ordem]`, (l) => l.map((x) => x.dataset.wOrdem));
-  certo(ordem[0] === 'pedidos', `a ordem ficou ${ordem}`);
-  certo(await p.$eval(`${N} [data-w="pedidos"]`, (x) => x.style.order) === '0', 'o Início atrás não mudou');
+await caso('atualizar: os dados ficam e a hora muda', 1440, async (p) => {
+  await p.click(`${N} [data-pn-atualizar]`);
+  certo((await p.textContent(`${N} [data-atualizado]`)).includes('A atualizar'), 'não disse que estava a atualizar');
+  certo((await p.$$(`${N} .pn__linha`)).length === 5, 'os pedidos saíram durante a atualização');
+  await p.waitForTimeout(1200);
+  certo((await p.textContent(`${N} [data-atualizado]`)).startsWith('Atualizado às'), 'a hora não voltou');
 });
 await caso('barra lateral: os três grupos, recolhe e fica guardada', 1440, async (p) => {
   const L = '.ecra:not([hidden]) > .versao:not([hidden]) .portal__lado';

@@ -1,38 +1,28 @@
 /* =========================================================
-   GOPARTS — 10 · Início V5 (20 out. 2026): o painel de controlo
-   Do briefing «New Command Dashboard & Separate Parts Search Workspace»: o Início deixa de ser a pesquisa de
-   peças (passou ao 18 · Pesquisar peças, inicio-v3.ts) e passa a ser o painel da atividade da conta —
-   acompanhar, perceber e agir.
-   - Cabeçalho compacto: saudação, conta, armazém, a data e o período (Hoje, 7 dias, 30 dias, Personalizado).
-     O período muda só o que depende dele (pedidos efetuados, valor, documentos, o gráfico); o que é «agora»
-     (em curso, para recolha, devoluções em aberto, alertas, estado das encomendas) di-lo e não muda.
-   - Resumo (6 indicadores), Evolução das compras (gráfico), Estado das encomendas, Requer a tua atenção,
-     Últimos pedidos, Atividade recente e Acesso rápido — cada um carrega, falha e fica vazio sozinho.
-   - Personalizar: ordem (arrastar ou ↑ ↓), mostrar e esconder, atalhos, período por omissão e repor.
+   GOPARTS — 10 · Início V7 (21 out. 2026): o painel de controlo, mais simples
+   Do briefing «Complete Home Dashboard Redesign» e da estrutura que ela recomendou («o Início deve ser o ponto de
+   controlo, não uma repetição de todas essas páginas»). Responde a quatro perguntas, por esta ordem de peso:
+   o que se passa com os meus pedidos, o que pede a minha atenção, o que comprei, para onde vou a seguir.
+   - Cabeçalho compacto: a saudação, «Resumo da tua atividade», e à direita o período, o armazém, «Pesquisar
+     peças» (o único atalho da pesquisa: a pesquisa vive no seu ecrã) e as definições.
+   - Quatro números: em curso, em transporte, prontos para recolha, devoluções em aberto (o «agora»).
+   - O centro: «Últimos pedidos» (65 %) | «Requer a tua atenção» (35 %, por importância, cada um abre o pormenor).
+   - Por baixo: «Atividade de compras» (70 %, valor ou n.º de pedidos; o período do cabeçalho) | «Acesso rápido».
+   - Saíram (V5/V6): a atividade recente, as referências frequentes, o atalho grande da pesquisa, a ordem dos
+     blocos. As definições escolhem os blocos à vista, o período ao abrir e os atalhos.
    Os números contam-se em painel-dados.ts. Comportamento: comportamento/painel.ts. CSS: css/painel.css.
    ========================================================= */
 import {
-  HOJE, INICIO_PEDIDOS, LINHAS_TODAS, NOME_PERIODO, kpis, serie, eventosDocs, ordenar, periodo, textoPeriodo,
-  curta, numerica, iso, euros, dias, type IdPeriodo, type Periodo, type Kpi, type Ponto, type Evento,
+  HOJE, INICIO_PEDIDOS, LINHAS_TODAS, NOME_PERIODO, kpis, serie, alertasPn, NOME_GRUPO, periodo, textoPeriodo,
+  curta, numerica, iso, euros, type Periodo, type Kpi, type Ponto, type GrupoAlerta,
 } from './painel-dados';
-import { alertas, saudacao, frequentes, L } from './inicio-espaco';
-import { LISTAS } from './lista';
-import { saida, type Referencia } from './catalogo-dados';
-import carFront from 'lucide-static/icons/car-front.svg?raw';
-import car from 'lucide-static/icons/car.svg?raw';
-import hash from 'lucide-static/icons/hash.svg?raw';
-const liquidoRef = (r: Referencia) => Math.round(r[4] * (1 - r[5] / 100) * 100) / 100;
-import shoppingBag from 'lucide-static/icons/shopping-bag.svg?raw';
+import { saudacao, L } from './inicio-espaco';
 import clock from 'lucide-static/icons/clock.svg?raw';
-import euro from 'lucide-static/icons/euro.svg?raw';
 import store from 'lucide-static/icons/store.svg?raw';
 import undo2 from 'lucide-static/icons/undo-2.svg?raw';
-import files from 'lucide-static/icons/files.svg?raw';
 import chartSpline from 'lucide-static/icons/chart-spline.svg?raw';
-import chartBar from 'lucide-static/icons/chart-bar-big.svg?raw';
 import triangleAlert from 'lucide-static/icons/triangle-alert.svg?raw';
 import packageIcon from 'lucide-static/icons/package.svg?raw';
-import activity from 'lucide-static/icons/activity.svg?raw';
 import zap from 'lucide-static/icons/zap.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import receipt from 'lucide-static/icons/receipt.svg?raw';
@@ -42,65 +32,52 @@ import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
 import truck from 'lucide-static/icons/truck.svg?raw';
 import cart from 'lucide-static/icons/shopping-cart.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
-import arrowUpRight from 'lucide-static/icons/arrow-up-right.svg?raw';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
+import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
 import settings2 from 'lucide-static/icons/settings-2.svg?raw';
 import calendarRange from 'lucide-static/icons/calendar-range.svg?raw';
 import mapPin from 'lucide-static/icons/map-pin.svg?raw';
-import building from 'lucide-static/icons/building-2.svg?raw';
 import info from 'lucide-static/icons/info.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
+import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
-import gripVertical from 'lucide-static/icons/grip-vertical.svg?raw';
+import refreshCw from 'lucide-static/icons/refresh-cw.svg?raw';
 import x from 'lucide-static/icons/x.svg?raw';
-import fileText from 'lucide-static/icons/file-text.svg?raw';
-import history from 'lucide-static/icons/history.svg?raw';
-import send from 'lucide-static/icons/send.svg?raw';
-import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
+import wifiOff from 'lucide-static/icons/wifi-off.svg?raw';
+import lock from 'lucide-static/icons/lock.svg?raw';
+import logIn from 'lucide-static/icons/log-in.svg?raw';
+import shieldAlert from 'lucide-static/icons/shield-alert.svg?raw';
+import circleAlert from 'lucide-static/icons/circle-alert.svg?raw';
+import chartNoAxes from 'lucide-static/icons/chart-no-axes-column.svg?raw';
 
-export const IC_PN = { shoppingBag, clock, euro, store, undo2, files, chartSpline, chartBar, triangleAlert, packageIcon, activity, zap, search, receipt, star, wrench, layoutGrid, truck, cart, arrowRight, arrowUpRight, chevronRight, settings2, calendarRange, mapPin, building, info, check, rotateCcw, gripVertical, x, fileText, history, send, chevronDown };
+export const IC_PN = { clock, store, undo2, chartSpline, triangleAlert, packageIcon, zap, search, receipt, star, wrench, layoutGrid, truck, cart, arrowRight, chevronRight, chevronDown, settings2, calendarRange, mapPin, info, check, circleCheck, rotateCcw, refreshCw, x, wifiOff, lock, logIn, shieldAlert, circleAlert };
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const btn = (texto: string, icone: string, extra = '', cls = '') => `<button type="button" class="btn pn__btn${cls ? ` ${cls}` : ''}"${extra}>${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
 const acao = (texto: string, icone: string, extra = '', cls = '') => btn(texto, icone, extra, `btn--acao ${cls}`.trim());
 
 /* =========================================================
-   Os blocos, os atalhos e as preferências
+   Os blocos, os atalhos e as definições
    ========================================================= */
-export type IdW = 'resumo' | 'evolucao' | 'atencao' | 'pedidos' | 'atividade' | 'atalhos' | 'frequentes';
-/** nome · o que mostra · ícone */
+export type IdW = 'pedidos' | 'atencao' | 'evolucao' | 'atalhos';
 export const WIDGETS: Record<IdW, [string, string, string]> = {
-  resumo: ['Resumo', 'Pedidos em curso, em transporte, para recolha e devoluções abertas', layoutGrid],
-  evolucao: ['Evolução das compras', 'O valor e o número de pedidos, dia a dia', chartSpline],
-  atencao: ['Requer a tua atenção', 'Faturas vencidas, recolhas e devoluções por tratar', triangleAlert],
-  pedidos: ['Últimos pedidos', 'Os pedidos mais recentes e a entrega de cada um', packageIcon],
-  atividade: ['Atividade recente', 'Pedidos, documentos, devoluções e pesquisas', activity],
+  pedidos: ['Últimos pedidos', 'Os cinco mais recentes e o estado de cada um', packageIcon],
+  atencao: ['Requer a tua atenção', 'Faturas vencidas, recolhas, devoluções e entregas', triangleAlert],
+  evolucao: ['Atividade de compras', 'O valor e o número de pedidos no período', chartSpline],
   atalhos: ['Acesso rápido', 'Os caminhos que usas mais', zap],
-  frequentes: ['Referências frequentes e listas', 'O que pedes mais vezes e as listas guardadas', star],
 };
-/** (20 out., V6) A ordem do computador: resumo; gráfico; pedidos | atenção; atividade | atalhos; frequentes e listas. */
-export const ORDEM_W: IdW[] = ['resumo', 'evolucao', 'pedidos', 'atencao', 'atividade', 'atalhos', 'frequentes'];
-/** No telemóvel, sem ordem escolhida: atenção, resumo, gráfico, pedidos, atalhos, frequentes, atividade (css). */
-
-export type IdAtalhoPn = 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'devolucoes' | 'lista' | 'tecnica' | 'carrinho';
-/** nome · o que faz · ícone */
-export const ATALHOS_PN: Record<IdAtalhoPn, [string, string, string]> = {
-  pesquisa: ['Pesquisar peças', 'Matrícula, veículo ou referência', search],
-  pedidos: ['Consultar pedidos', 'Estado, percurso e documentos', packageIcon],
-  faturas: ['Ver faturas', 'Pagamentos e notas de crédito', receipt],
-  lista: ['Abrir minha lista', 'Orçamentos e listas guardadas', star],
-  devolucoes: ['Ver devoluções', 'Criar e acompanhar', undo2],
-  tecnica: ['Informação técnica', 'Manutenção, reparação e esquemas', wrench],
-  catalogo: ['Catálogo', 'Marcas, modelos e grupos', layoutGrid],
-  guias: ['Guias de remessa', 'O que foi expedido', truck],
-  carrinho: ['Ver carrinho', 'A encomenda por concluir', cart],
+export const ORDEM_W: IdW[] = ['pedidos', 'atencao', 'evolucao', 'atalhos'];
+export type IdAtalhoPn = 'pesquisa' | 'lista' | 'faturas' | 'guias' | 'tecnica' | 'pedidos' | 'devolucoes' | 'catalogo' | 'carrinho';
+export const ATALHOS_PN: Record<IdAtalhoPn, [string, string]> = {
+  pesquisa: ['Pesquisar peças', search], lista: ['Minha lista', star], faturas: ['Faturas', receipt], guias: ['Guias de remessa', truck], tecnica: ['Informação técnica', wrench],
+  pedidos: ['Pedidos', packageIcon], devolucoes: ['Devoluções', undo2], catalogo: ['Catálogo', layoutGrid], carrinho: ['Carrinho', cart],
 };
-export type PrefsPn = { ordem: IdW[]; escondidos: IdW[]; periodo: Exclude<IdPeriodo, 'pers' | 'hoje'>; atalhos: IdAtalhoPn[] };
-export const PREFS_PN: PrefsPn = { ordem: [...ORDEM_W], escondidos: [], periodo: '7', atalhos: ['pesquisa', 'pedidos', 'faturas', 'lista', 'devolucoes', 'tecnica'] };
+export type PrefsPn = { escondidos: IdW[]; periodo: '7' | '30' | '90'; atalhos: IdAtalhoPn[] };
+export const PREFS_PN: PrefsPn = { escondidos: [], periodo: '30', atalhos: ['pesquisa', 'lista', 'faturas', 'guias', 'tecnica'] };
 /** Por pessoa e por conta. Num servidor, no perfil; aqui, no navegador. */
-export const CHAVE_PN = 'goparts:painel:ff-porto:v2'; // v2 a 20 out. (V6): sem o estado das encomendas, com as referências frequentes
+export const CHAVE_PN = 'goparts:painel:ff-porto:v3'; // v3 a 21 out. (V7): sem ordem nem blocos que saíram
 
-/** Os estados do painel (10.x). */
-export type EstadoPn = '' | 'carga' | 'vazio' | 'falha' | 'pers' | 'personalizar' | 'pedidos-n';
+/** Os estados do Início (10.x). */
+export type EstadoPn = '' | 'carga' | 'atualizar' | 'sem-pedidos' | 'sem-alertas' | 'sem-historico' | 'parcial' | 'graf-erro' | 'offline' | 'sessao' | 'sem-permissao' | 'periodo-vazio' | 'graf-carga' | 'nav-erro' | 'personalizar' | 'pedidos-n';
 
 /* =========================================================
    O gráfico (desenhado aqui; o comportamento volta a desenhá-lo à largura certa e anima-o)
@@ -144,7 +121,9 @@ export function desenharGrafico(pontos: Ponto[], metrica: Metrica, w: number, h:
   const datas = pontos.map((p, i) => (i % passoX === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < passoX * .6) ? `<text x="${xs[i].toFixed(1)}" y="${h - 8}" text-anchor="${i === 0 && n > 1 ? 'start' : i === n - 1 && n > 1 ? 'end' : 'middle'}">${curta(p.n)}</text>` : '').join('');
   const grelha = marcas.map((m) => { const y = T + alt - (m / topoV) * alt; return `<line x1="${E}" x2="${w - D}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text x="${E - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end">${eixo(m, metrica)}</text>`; }).join('');
   const bolas = pontos.map((p, i) => (p.pedidos ? `<circle class="pn__g-ponto" cx="${xs[i].toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4" style="--i:${i}"/>` : '')).join('');
-  const fim = d ? `<g class="pn__g-fim" transform="translate(${xs[n - 1].toFixed(1)} ${ys[n - 1].toFixed(1)})"><circle r="5"/></g>` : '';
+  /* (V8) o último valor destacado a laranja, com o número ao lado */
+  const vFim = acumulado[n - 1] ?? 0, tFim = metrica === 'valor' ? eixo(Math.round(vFim), 'valor').replace(/^(\d+) €$/, (_m, v) => `${Number(v).toLocaleString('pt-PT')} €`) : String(vFim);
+  const fim = d ? `<g class="pn__g-fim" transform="translate(${xs[n - 1].toFixed(1)} ${ys[n - 1].toFixed(1)})"><circle class="pn__g-fim-halo" r="10"/><circle r="5"/><text class="pn__g-fim-t" x="-10" y="-14" text-anchor="end">${tFim}</text></g>` : '';
   const svg = `<svg class="pn__g" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true" focusable="false">
     <defs><pattern id="${tracos}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="pn__g-traco"/></pattern></defs>
     <g class="pn__g-eixos">${grelha}${datas}<line class="pn__g-base" x1="${E}" x2="${w - D}" y1="${base}" y2="${base}"/></g>
@@ -163,198 +142,168 @@ export const totalGrafico = (pontos: Ponto[], m: Metrica) => { const t = pontos.
    Cada bloco
    ========================================================= */
 const esq = (n: number, cls: string) => Array.from({ length: n }, () => `<li class="${cls} pn__esq" aria-hidden="true"><i></i><i></i><i></i></li>`).join('');
-function falha(o: string, w: IdW): string {
-  return `<div class="pn__falha" role="alert"><span class="pn__falha-icone">${L(triangleAlert)}</span><div><b>Não foi possível carregar ${o}.</b><span>O resto do Início continua a funcionar.</span></div>${btn('Tentar novamente', rotateCcw, ` data-pn-tentar="${w}"`)}</div>`;
+function falha(o: string, w: string, texto = 'O resto do Início continua a funcionar.'): string {
+  return `<div class="pn__falha" role="alert"><span class="pn__falha-icone">${L(circleAlert)}</span><div><b>Não foi possível carregar ${o}.</b><span>${texto}</span></div>${btn('Tentar novamente', rotateCcw, ` data-pn-tentar="${w}"`, 'pn__btn--leve')}</div>`;
 }
 const vazio = (ic: string, texto: string, accoes = '') => `<div class="pn__vazio">${L(ic)}<p>${texto}</p>${accoes}</div>`;
-function bloco(id: IdW, corpo: string, p: PrefsPn, o: { ambito?: string; accoes?: string; cls?: string; semCabeca?: boolean } = {}): string {
+function bloco(id: IdW, corpo: string, p: PrefsPn, accoes = ''): string {
   const [nome, , ic] = WIDGETS[id];
-  if (o.semCabeca) return `<section class="pn__w pn__w--${id}" data-w="${id}" aria-label="${nome}" style="order:${p.ordem.indexOf(id)}"${p.escondidos.includes(id) ? ' hidden' : ''}><div class="pn__w-corpo" data-corpo>${corpo}</div></section>`;
-  return `<section class="pn__w pn__w--${id}${o.cls ? ` ${o.cls}` : ''}" data-w="${id}" aria-labelledby="pn-${id}-t" style="order:${p.ordem.indexOf(id)}"${p.escondidos.includes(id) ? ' hidden' : ''}>
-    <header class="pn__w-cabeca"><h2 id="pn-${id}-t">${L(ic)}${nome}</h2>${o.ambito ? `<span class="pn__ambito" data-ambito>${o.ambito}</span>` : ''}${o.accoes ? `<div class="pn__w-accoes">${o.accoes}</div>` : ''}</header>
+  return `<section class="pn__w pn__w--${id}" data-w="${id}" aria-labelledby="pn-${id}-t"${p.escondidos.includes(id) ? ' hidden' : ''}>
+    <header class="pn__w-cabeca"><h2 id="pn-${id}-t">${L(ic)}${nome}</h2>${accoes ? `<div class="pn__w-accoes">${accoes}</div>` : ''}</header>
     <div class="pn__w-corpo" data-corpo>${corpo}</div>
   </section>`;
 }
-const ambitoAgora = `${L(clock)}Agora`;
 
-/* ---------- Resumo ---------- */
-const KPI_IC: Record<Kpi['id'], string> = { curso: clock, transporte: truck, recolha: store, devolucoes: undo2 };
+/* ---------- os quatro números ---------- */
+/* (V8) cada número com a sua cor: azul (em curso), azul vivo (transporte), verde (recolha), âmbar (devoluções) */
+const KPI_IC: Record<Kpi['id'], string> = { curso: packageIcon, transporte: truck, recolha: store, devolucoes: undo2 };
 export function kpiHtml(k: Kpi, i: number, carga = false): string {
   const zero = !carga && !k.valor;
   return `<li style="--i:${i}"><button type="button" class="pn__kpi pn__kpi--${k.id}" data-kpi="${k.id}" data-pn-ir="${k.ir[0]}"${k.ir[1] ? ` data-etapa="${k.ir[1]}"` : ''}${carga || zero ? ' disabled' : ''} aria-describedby="pn-kpi-${k.id}-def">
-    <span class="pn__kpi-topo"><span class="pn__kpi-icone">${L(KPI_IC[k.id])}</span><span class="pn__kpi-nome">${k.nome}</span></span>
-    <b class="pn__kpi-valor" data-valor="${k.valor}">${carga ? '–' : k.texto}</b>
+    <span class="pn__kpi-linha"><b class="pn__kpi-valor" data-valor="${k.valor}">${carga ? '–' : String(k.valor).padStart(2, '0')}</b><span class="pn__kpi-icone">${L(KPI_IC[k.id])}</span></span>
+    <span class="pn__kpi-nome">${k.nome}</span>
     <span class="pn__kpi-sub" data-sub>${carga ? '' : k.sub ?? ''}</span>
     <span class="sr-only" id="pn-kpi-${k.id}-def">${k.def}</span>
-    ${zero ? '' : L(arrowRight, 'pn__kpi-seta')}
+    ${zero || carga ? '' : L(arrowRight, 'pn__kpi-seta')}
   </button></li>`;
 }
-/** (V6) o resumo operacional: quatro números do «agora», sem título por cima (o cabeçalho já diz onde se está). */
-export function resumoHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
-  const ks = kpis().map((k) => (e === 'vazio' ? { ...k, valor: 0, texto: '0', sub: undefined } : k));
-  return bloco('resumo', `<ul class="pn__kpis" role="list">${ks.map((k, i) => kpiHtml(k, i, e === 'carga')).join('')}</ul>`, prefs, { semCabeca: true });
+export function kpisHtml(e: EstadoPn = ''): string {
+  const ks = kpis().map((k) => (e === 'sem-pedidos' ? { ...k, valor: 0, texto: '0', sub: k.id === 'devolucoes' ? 'Nenhuma por tratar' : 'Ainda sem pedidos' } : k));
+  return `<section class="pn__resumo" aria-label="Resumo dos pedidos e devoluções"><ul class="pn__kpis" role="list">${ks.map((k, i) => kpiHtml(k, i, e === 'carga')).join('')}</ul></section>`;
 }
 
-/* ---------- Evolução das compras ---------- */
-const SEG = (nome: string, attr: string, opcoes: [string, string][], valor: string) => `<div class="pn__seg" role="radiogroup" aria-label="${nome}">${opcoes.map(([v, t]) => `<button type="button" role="radio" class="pn__seg-op" ${attr}="${v}" aria-checked="${v === valor}" tabindex="${v === valor ? 0 : -1}">${t}</button>`).join('')}<i class="pn__seg-marca" aria-hidden="true"></i></div>`;
-/** (V6) o período é só do gráfico: 7, 30, 90 dias ou personalizado (as datas abrem-se dentro do bloco). */
-export function persHtml(p: Periodo): string {
-  return `<form class="pn__pers" data-pers${p.id === 'pers' ? '' : ' hidden'} novalidate>
-        <label><span>De</span><input type="date" name="de" value="${iso(p.de)}" max="${iso(HOJE)}" required></label>
-        <label><span>Até</span><input type="date" name="ate" value="${iso(p.ate)}" max="${iso(HOJE)}" required></label>
-        <button type="submit" class="btn pn__btn">${L(check, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
-        <p class="pn__pers-erro" role="alert"></p>
-      </form>`;
+/* ---------- os últimos pedidos (o centro do Início) ----------
+   (V8) o estado em pílula com a cor do passo; a linha abre-se e mostra o percurso (só os passos que os dados têm, o
+   atual em destaque). «Ver» leva ao pedido. */
+const ESTADO_NOME: Record<string, string> = { preparacao: 'Em preparação', preparado: 'Preparado', expedido: 'Em transporte', recolher: 'Disponível para recolha' };
+const nomeEstado = (x: (typeof LINHAS_TODAS)[number]) => x.etapa.k === 'concluido' ? (x.p.percurso[x.p.percurso.length - 1][0] || 'Entregue') : x.etapa.k === 'expedido' && /parte/i.test(x.etapa.nome) ? 'Em transporte (parte)' : ESTADO_NOME[x.etapa.k] ?? x.etapa.nome;
+const PASSO_NOME: Record<string, string> = { Recebido: 'Recebido', Separado: 'Em preparação', 'Em separação': 'Em preparação', 'Pronto a levantar': 'Disponível para recolha' };
+function percursoHtml(x: (typeof LINHAS_TODAS)[number]): string {
+  const atual = x.p.percurso.reduce((k, s, i) => (s[1] ? i : k), 0);
+  return `<ol class="pn__percurso" aria-label="Percurso do pedido ${x.l.num}">${x.p.percurso.map(([nome, quando, nota], i) => `<li class="${i < atual ? 'is-feito' : i === atual ? 'is-atual' : 'is-por'}" style="--i:${i}"${i === atual ? ' aria-current="step"' : ''}>
+    <span class="pn__passo-ponto" aria-hidden="true">${i <= atual ? L(check) : ''}</span><b>${esc(PASSO_NOME[nome] ?? nome)}</b><time>${quando || 'Ainda não'}</time>${nota ? `<small>${esc(nota)}</small>` : ''}</li>`).join('')}</ol>`;
 }
-export function evolucaoHtml(pg: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
-  const pts = serie(pg).map((x) => (e === 'vazio' ? { ...x, valor: 0, pedidos: 0, nums: [] } : x));
-  const accoes = SEG('O que mostra o gráfico', 'data-metrica', [['valor', 'Valor das compras'], ['pedidos', 'Número de pedidos']], metrica)
-    + SEG('Período do gráfico', 'data-graf-periodo', [['7', '7 dias'], ['30', '30 dias'], ['90', '90 dias'], ['pers', 'Personalizado']], pg.id);
-  const corpo = e === 'carga' ? `<div class="pn__graf pn__graf--carga" aria-busy="true"><i class="pn__esq-graf"></i></div>`
-    : e === 'falha' ? falha('a evolução das compras', 'evolucao')
-    : `${persHtml(pg)}<div class="pn__graf" data-graf data-metrica="${metrica}" data-de="${pg.de}" data-ate="${pg.ate}" tabindex="0" role="group" aria-roledescription="gráfico" aria-label="Evolução das compras, ${NOME_PERIODO[pg.id]}: ${totalGrafico(pts, metrica)} acumulado. Use as setas para percorrer os dias." aria-describedby="pn-graf-nota">
-        <p class="pn__graf-total"><span>${metrica === 'valor' ? 'Valor das compras' : 'Pedidos'} · ${textoPeriodo(pg)}</span><b data-graf-total>${totalGrafico(pts, metrica)}</b></p>
-        <div class="pn__graf-tela" data-graf-tela>${desenharGrafico(pts, metrica, 760, 248).svg}</div>
-        <div class="pn__dica" data-dica role="status" aria-live="polite" hidden></div>
-        ${pts.some((x) => x.pedidos) || e === 'vazio' ? '' : `<p class="pn__graf-nada">Nenhum pedido neste período.</p>`}
-        ${e === 'vazio' ? `<p class="pn__graf-nada">Ainda não fizeste compras. O gráfico começa com o primeiro pedido.</p>` : ''}
-      </div>
-      <p class="pn__nota" id="pn-graf-nota">${L(info)}<span>Acumulado, sem IVA, pela data de cada pedido. Dados de exemplo até ${numerica(HOJE)}; antes de ${numerica(INICIO_PEDIDOS)} não há histórico (tracejado).</span></p>`;
-  return bloco('evolucao', corpo, prefs, { accoes, cls: 'pn__w--largo' });
-}
-
-/* ---------- (V6) Referências frequentes e listas ----------
-   As referências contam-se nos pedidos e nas listas (as mesmas da Pesquisar peças); as listas são as guardadas. */
-export function frequentesHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
-  const fs = e === 'vazio' ? [] : frequentes().slice(0, 5), ls = e === 'vazio' ? [] : LISTAS.slice(0, 4);
-  const refs = e === 'carga' ? `<ul class="pn__esq-linhas">${esq(4, 'pn__esq-linha')}</ul>`
-    : !fs.length ? vazio(star, 'Quando encomendares, as referências que pedes mais vezes aparecem aqui.')
-    : `<ul class="pn__refs" role="list">${fs.map((f, i) => { const [, fab, ref, desc, , , porto, sacavem] = f.r; return `<li style="--i:${i}"><div class="pn__ref-li">
-        <span class="pn__ref-txt"><span class="pn__ref-fab">${esc(fab)}</span><b>${esc(ref)}</b><span>${esc(desc)}</span></span>
-        <span class="pn__ref-vezes">${f.pedidos ? `${f.pedidos} ${f.pedidos === 1 ? 'pedido' : 'pedidos'}` : ''}${f.pedidos && f.listas ? ' · ' : ''}${f.listas ? `${f.listas} ${f.listas === 1 ? 'lista' : 'listas'}` : ''}</span>
-        <span class="pn__ref-preco"><b>${euros(liquidoRef(f.r))}</b><small>${saida(porto, sacavem)}</small></span>
-        <button type="button" class="btn pn__btn pn__btn--leve" data-pn-ficha="${esc(ref)}" data-pn-fab="${esc(fab)}">${L(fileText, 'btn__icone')}<span class="btn__rotulo">Ficha</span></button>
-        <button type="button" class="btn pn__btn pn__btn--leve btn--acao" data-pn-pedir="${esc(ref)}">${L(cart, 'btn__icone')}<span class="btn__rotulo">Adicionar</span></button>
-      </div></li>`; }).join('')}</ul>`;
-  const listas = e === 'carga' ? '' : !ls.length ? vazio(star, 'Ainda não guardaste listas.') : `<ul class="pn__listas" role="list">${ls.map((l) => `<li><button type="button" class="pn__lista" data-pn-lista="${l.id}">${L(star)}<span><b>${esc(l.nome)}</b><small>${l.pecas.length} ${l.pecas.length === 1 ? 'peça' : 'peças'} · ${esc(l.atualizada)}</small></span>${L(chevronRight, 'pn__evento-seta')}</button></li>`).join('')}</ul>`;
-  return bloco('frequentes', `<div class="pn__freq"><div><h3 class="pn__sub-t">Referências que pedes mais</h3>${refs}</div><div><h3 class="pn__sub-t">Listas guardadas</h3>${listas}</div></div>`, prefs,
-    { accoes: `<button type="button" class="pn__mais" data-pn-ir="lista" data-pn-chave="goparts:lista-vista" data-pn-valor="listas">Ver as listas${L(chevronRight)}</button>`, cls: 'pn__w--largo' });
-}
-
-/* ---------- Requer a tua atenção ---------- */
-const ESTADO_ALERTA: Record<string, string> = { erro: 'Urgente', aviso: 'Por tratar', info: 'A aguardar' };
-export function atencaoHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
-  const lista = e === 'vazio' ? [] : alertas();
-  const corpo = e === 'carga' ? `<ul class="pn__alertas">${esq(3, 'pn__alerta-li')}</ul>`
-    : !lista.length ? `<p class="pn__tudo-bem">${L(check)}Não tens ações pendentes.</p>`
-    : `<ul class="pn__alertas" role="list">${lista.map((a, i) => `<li class="pn__alerta-li" style="--i:${i}"><div class="pn__alerta pn__alerta--${a.k}">
-        <span class="pn__alerta-icone">${L(a.ic)}</span>
-        <span class="pn__alerta-texto"><b>${esc(a.titulo)}</b><span><span class="pn__ref">${esc(a.ref)}</span> · ${esc(a.quando)}</span></span>
-        <span class="pn__chip pn__chip--${a.k}">${ESTADO_ALERTA[a.k]}</span>
-        <button type="button" class="btn pn__btn pn__alerta-acao"${a.attr}>${L(arrowRight, 'btn__icone')}<span class="btn__rotulo">${a.acao}</span></button>
-      </div></li>`).join('')}</ul><p class="pn__nota">${L(info)}<span>Urgente só quando o prazo já passou (uma fatura vencida). O resto fica «por tratar» ou «a aguardar» a Romafe.</span></p>`;
-  return bloco('atencao', corpo, prefs, { ambito: ambitoAgora, accoes: lista.length && e !== 'carga' ? `<span class="pn__conta">${lista.length}</span>` : '', cls: 'pn__w--atencao' });
-}
-
-/* ---------- Últimos pedidos ---------- */
 export function pedidosHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
-  const linhas = e === 'vazio' ? [] : LINHAS_TODAS.slice(0, 5);
+  const linhas = e === 'sem-pedidos' ? [] : LINHAS_TODAS.slice(0, 5);
   const corpo = e === 'carga' ? `<ul class="pn__esq-linhas">${esq(5, 'pn__esq-linha')}</ul>`
-    : e === 'falha' ? falha('os últimos pedidos', 'pedidos')
-    : !linhas.length ? vazio(packageIcon, 'Ainda não fizeste pedidos.', btn('Pesquisar peças', search, ' data-pn-ir="pesquisa"'))
-    : `<div class="pn__tabela-rolo"><table class="pn__tabela"><caption class="sr-only">Os ${linhas.length} pedidos mais recentes</caption>
-      <thead><tr><th scope="col">Pedido</th><th scope="col">Data</th><th scope="col" class="pn__num">Artigos</th><th scope="col" class="pn__num">Total</th><th scope="col">Estado</th><th scope="col">Entrega</th></tr></thead>
-      <tbody>${linhas.map((x, i) => `<tr class="pn__linha" data-abrir-pedido="${x.l.num}" style="--i:${i}">
-        <th scope="row"><button type="button" class="pn__linha-btn" data-abrir-pedido="${x.l.num}">${x.l.num}</button></th>
-        <td data-r="Data">${x.l.data}</td><td class="pn__num" data-r="Artigos">${x.artigos}</td><td class="pn__num" data-r="Total"><b>${euros(x.valor)}</b></td>
-        <td data-r="Estado"><span class="pn__etapa pn__etapa--${x.etapa.k}">${x.etapa.icone}${x.etapa.nome}</span></td>
-        <td data-r="Entrega" class="pn__entrega">${L(x.l.recolher ? store : truck)}${x.l.recolher ? `Levantar · ${esc(x.l.armazem.replace(/ \(\d\)$/, ''))}` : esc(x.l.morada[1].replace(/^\d{4}-\d{3} /, ''))}</td>
-      </tr>`).join('')}</tbody></table></div>`;
-  return bloco('pedidos', corpo, prefs, { accoes: `<button type="button" class="pn__mais" data-pn-ir="pedidos">Ver todos os pedidos${L(chevronRight)}</button>`, cls: 'pn__w--largo' });
+    : e === 'sem-permissao' ? `<div class="pn__falha pn__falha--neutra" role="note"><span class="pn__falha-icone">${L(shieldAlert)}</span><div><b>A tua conta não tem acesso aos pedidos.</b><span>Os pedidos são da conta da oficina: pede o acesso ao administrador da conta.</span></div></div>`
+    : !linhas.length ? vazio(packageIcon, 'Ainda não fizeste pedidos. O primeiro começa na pesquisa.', acao('Pesquisar peças', search, ' data-pn-ir="pesquisa"'))
+    : `<table class="pn__tabela"><caption class="sr-only">Os ${linhas.length} pedidos mais recentes. Cada linha abre o pedido.</caption>
+      <thead><tr><th scope="col">Pedido</th><th scope="col">Data</th><th scope="col" class="pn__num">Artigos</th><th scope="col" class="pn__num">Valor</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Ação</span></th></tr></thead>
+      <tbody>${linhas.map((x, i) => `<tr class="pn__linha" data-linha="${i}" style="--i:${i}">
+        <th scope="row" class="pn__pedido"><button type="button" class="pn__abrir" aria-expanded="false" aria-controls="pn-det-${i}" aria-label="Percurso do pedido ${x.l.num}">${L(chevronDown, 'pn__abrir-seta')}<span>${x.l.num}</span></button></th>
+        <td data-r="Data">${x.l.data}</td><td class="pn__num" data-r="Artigos">${x.artigos}</td><td class="pn__num pn__valor" data-r="Valor">${euros(x.valor)}</td>
+        <td data-r="Estado"><span class="pn__etapa pn__etapa--${x.etapa.k}"><i aria-hidden="true"></i>${nomeEstado(x)}</span></td>
+        <td class="pn__acao-c"><button type="button" class="pn__ver" data-abrir-pedido="${x.l.num}" aria-label="Ver o pedido ${x.l.num}"><span>Ver</span>${L(chevronRight)}</button></td>
+      </tr>
+      <tr class="pn__linha-det" id="pn-det-${i}" hidden><td colspan="6">${percursoHtml(x)}</td></tr>`).join('')}</tbody></table>`;
+  return bloco('pedidos', corpo, prefs, `<button type="button" class="pn__mais" data-pn-ir="pedidos">Ver todos os pedidos${L(arrowRight)}</button>`);
 }
 
-/* ---------- Atividade recente ---------- */
-const EV_IC: Record<Evento['tipo'], string> = { pedido: shoppingBag, guia: truck, fatura: receipt, credito: fileText, 'dev-criada': undo2, 'dev-enviada': send, pesquisa: search };
-export function atividadeLista(ev: Evento[], max = 8): string {
-  const vistos = ordenar(ev).slice(0, max);
-  const grupos = new Map<number, Evento[]>();
-  vistos.forEach((x) => { const g = grupos.get(x.n) ?? []; g.push(x); grupos.set(x.n, g); });
-  return `<ol class="pn__dias" role="list">${[...grupos].map(([n, xs]) => `<li class="pn__dia"><h3 class="pn__dia-t">${n === HOJE ? `${curta(n, true)} · último dia com movimento` : curta(n, true)}</h3>
-    <ul class="pn__eventos" role="list">${xs.map((x) => `<li><button type="button" class="pn__evento pn__evento--${x.tipo}" data-evento="${x.ir.join('|')}">
-      <span class="pn__evento-icone">${L(EV_IC[x.tipo])}</span><span class="pn__evento-texto"><b>${esc(x.titulo)}</b><span>${esc(x.sub)}</span></span>${L(chevronRight, 'pn__evento-seta')}</button></li>`).join('')}</ul></li>`).join('')}</ol>`;
-}
-export function atividadeHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
-  const ev = e === 'vazio' ? [] : eventosDocs();
-  const corpo = e === 'carga' ? `<ul class="pn__esq-linhas">${esq(5, 'pn__esq-linha')}</ul>`
-    : !ev.length ? vazio(history, 'Ainda não há atividade. Os pedidos, os documentos, as devoluções e as pesquisas aparecem aqui, por dia.')
-    : `<div data-atividade>${atividadeLista(ev)}</div>${ev.length > 8 ? `<button type="button" class="pn__mais pn__mais--baixo" data-mais-atividade aria-expanded="false">Mostrar mais${L(chevronDown)}</button>` : ''}`;
-  return bloco('atividade', corpo, prefs);
+/* ---------- requer a tua atenção (por importância; cada um abre o pormenor) ---------- */
+export function atencaoHtml(prefs: PrefsPn, e: EstadoPn = ''): string {
+  const lista = e === 'sem-alertas' || e === 'sem-pedidos' ? [] : alertasPn();
+  const grupos = (['urgente', 'tratar', 'info'] as GrupoAlerta[]).map((g) => [g, lista.filter((a) => a.grupo === g)] as const).filter(([, l]) => l.length);
+  let n = 0;
+  const corpo = e === 'carga' ? `<ul class="pn__alertas">${esq(3, 'pn__alerta-li')}</ul>`
+    : e === 'parcial' ? falha('os alertas', 'atencao', 'As faturas e as devoluções não responderam; não dá para dizer se há algo pendente.')
+    : !lista.length ? `<p class="pn__tudo-bem">${L(circleCheck)}<span><b>Está tudo em dia.</b> Não há nada à espera de ti.</span></p>`
+    : grupos.map(([g, l]) => `<div class="pn__grupo pn__grupo--${g}"><h3 class="pn__grupo-t">${NOME_GRUPO[g]}</h3><ul class="pn__alertas" role="list">${l.map((a) => { const id = `pn-al-${++n}`; return `<li class="pn__alerta pn__alerta--${g}">
+        <button type="button" class="pn__alerta-cab" aria-expanded="false" aria-controls="${id}"><span class="pn__alerta-ponto" aria-hidden="true"></span><span class="pn__alerta-texto"><b>${esc(a.titulo)}</b><span>${esc(a.info)} · ${esc(a.data)}</span></span>${L(chevronDown, 'pn__alerta-seta')}</button>
+        <div class="pn__alerta-det" id="${id}" hidden><dl>${a.detalhe.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><button type="button" class="btn pn__btn pn__btn--leve${g === 'urgente' ? ' btn--acao' : ''}"${a.attr}>${L(arrowRight, 'btn__icone')}<span class="btn__rotulo">${a.acao}</span></button></div>
+      </li>`; }).join('')}</ul></div>`).join('');
+  return bloco('atencao', corpo, prefs, lista.length && e !== 'carga' && e !== 'parcial' ? `<span class="pn__conta">${lista.length}</span>` : '');
 }
 
-/* ---------- Acesso rápido ---------- */
+/* ---------- atividade de compras (o período é o do cabeçalho) ---------- */
+const SEG = (nome: string, attr: string, opcoes: [string, string][], valor: string) => `<div class="pn__seg" role="radiogroup" aria-label="${nome}">${opcoes.map(([v, t]) => `<button type="button" role="radio" class="pn__seg-op" ${attr}="${v}" aria-checked="${v === valor}" tabindex="${v === valor ? 0 : -1}">${t}</button>`).join('')}<i class="pn__seg-marca" aria-hidden="true"></i></div>`;
+export function evolucaoHtml(pg: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
+  const pts = serie(pg);
+  const accoes = SEG('O que mostra o gráfico', 'data-metrica', [['valor', 'Valor'], ['pedidos', 'N.º de pedidos']], metrica);
+  const nada = !pts.some((x) => x.pedidos), semHist = pts.every((x) => x.semDados);
+  const corpo = e === 'carga' || e === 'graf-carga' ? `<div class="pn__graf pn__graf--carga" aria-busy="true" role="status"><span class="sr-only">A carregar o gráfico…</span><i class="pn__esq-graf"></i></div>`
+    : e === 'graf-erro' ? falha('a atividade de compras', 'evolucao')
+    : e === 'sem-historico' || e === 'sem-pedidos' ? vazio(chartNoAxes, 'Ainda não há histórico de compras. O gráfico começa com o primeiro pedido.')
+    : `<div class="pn__graf" data-graf data-metrica="${metrica}" data-de="${pg.de}" data-ate="${pg.ate}" tabindex="0" role="group" aria-roledescription="gráfico" aria-label="Atividade de compras, ${textoPeriodo(pg)}: ${totalGrafico(pts, metrica)}. Usa as setas para percorrer os dias." aria-describedby="pn-graf-nota">
+        <p class="pn__graf-total"><b data-graf-total>${totalGrafico(pts, metrica)}</b><span>${metrica === 'valor' ? 'sem IVA' : ''} · ${textoPeriodo(pg)}</span></p>
+        <div class="pn__graf-tela" data-graf-tela>${desenharGrafico(pts, metrica, 760, 220).svg}</div>
+        <div class="pn__dica" data-dica hidden></div>
+        ${semHist ? `<p class="pn__graf-nada">Sem histórico neste período: os pedidos começam a ${numerica(INICIO_PEDIDOS)}.</p>` : nada ? '<p class="pn__graf-nada">Nenhum pedido neste período.</p>' : ''}
+      </div>
+      <p class="pn__nota" id="pn-graf-nota">${L(info)}<span>Acumulado pela data de cada pedido. Dados de exemplo até ${numerica(HOJE)}.</span></p>`;
+  return bloco('evolucao', corpo, prefs, accoes);
+}
+
+/* ---------- acesso rápido ---------- */
 export function atalhosHtml(prefs: PrefsPn): string {
-  return bloco('atalhos', `<ul class="pn__atalhos" role="list">${prefs.atalhos.map((a, i) => `<li style="--i:${i}"><button type="button" class="pn__atalho" data-pn-atalho="${a}">
-      <span class="pn__atalho-icone">${L(ATALHOS_PN[a][2])}</span><span class="pn__atalho-texto"><b>${ATALHOS_PN[a][0]}</b><span>${ATALHOS_PN[a][1]}</span></span>${L(arrowUpRight, 'pn__atalho-seta')}</button></li>`).join('')}</ul>`, prefs,
-    { accoes: btn('Escolher', settings2, ' data-pn-personalizar="atalhos" aria-haspopup="dialog"', 'pn__btn--leve') });
+  return bloco('atalhos', `<ul class="pn__atalhos" role="list">${prefs.atalhos.map((a, i) => `<li style="--i:${i}"><button type="button" class="pn__atalho" data-pn-atalho="${a}">${L(ATALHOS_PN[a][1], 'pn__atalho-icone')}<span>${ATALHOS_PN[a][0]}</span>${L(chevronRight, 'pn__atalho-seta')}</button></li>`).join('')}</ul>`, prefs);
 }
 
 /* =========================================================
-   O cabeçalho, a gaveta e o ecrã
+   O cabeçalho, os avisos de cima, a gaveta e o ecrã
    ========================================================= */
-const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-export function cabecaHtml(agora = Date.now()): string {
-  const d = new Date(agora), data = `${DIAS[d.getDay()]}, ${d.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+/* (V8) o motivo técnico do cabeçalho: um rolamento visto de frente e as linhas de cota, finas e azuis (decorativo) */
+const MOTIVO = `<svg class="pn__motivo" viewBox="0 0 170 80" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true" focusable="false">
+  <path class="pn__motivo-l" d="M0 20H92M0 40H86M0 60H92"/><path d="M98 6v68M96 6h4M96 74h4" opacity=".6"/>
+  <g transform="translate(134 40)"><circle r="34"/><circle r="27"/><circle r="12"/><circle r="7"/>${Array.from({ length: 9 }, (_, k) => { const a = (k / 9) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 19.5).toFixed(1)}" cy="${(Math.sin(a) * 19.5).toFixed(1)}" r="3.5"/>`; }).join('')}</g>
+</svg>`;
+export function cabecaHtml(p: Periodo, e: EstadoPn = '', agora = Date.now()): string {
+  const d = new Date(agora), hora = d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
   return `<header class="pn__cabeca">
-    <div class="pn__ola"><p class="pn__data" data-hoje>${data}</p><h1 class="pn__titulo"><span data-saudacao>${saudacao(d.getHours())}</span>, Fernando</h1></div>
-    <dl class="pn__contexto">
-      <div><dt>Conta</dt><dd>${L(building)}Fernando F. França · Porto</dd></div>
-      <div><dt>Armazém de saída</dt><dd>${L(mapPin)}Porto (1)</dd></div>
-    </dl>
-    <div class="pn__controlos">${btn('Personalizar', settings2, ' data-pn-personalizar aria-haspopup="dialog"', 'pn__personalizar')}</div>
+    <div class="pn__ola-caixa"><div class="pn__ola"><h1 class="pn__titulo"><span data-saudacao>${saudacao(d.getHours())}</span>, Fernando</h1><p class="pn__sub">Vamos ver como está a tua atividade.</p></div>${MOTIVO}</div>
+    <div class="pn__controlos">
+      <div class="pn__periodo">${SEG('Período', 'data-periodo', [['7', '7 dias'], ['30', '30 dias'], ['90', '90 dias'], ['pers', 'Personalizado']], p.id)}</div>
+      <span class="pn__armazem" title="Armazém de saída">${L(mapPin)}Porto (1)</span>
+      <span class="pn__atualizado" data-atualizado role="status">${e === 'atualizar' ? `${L(refreshCw, 'pn__roda')}A atualizar…` : `Atualizado às ${hora}`}</span>
+      <button type="button" class="pn__icone" data-pn-atualizar aria-label="Atualizar os dados"${e === 'atualizar' || e === 'offline' ? ' disabled' : ''}>${L(refreshCw)}</button>
+      <button type="button" class="pn__icone" data-pn-personalizar aria-haspopup="dialog" aria-label="Definições do Início">${L(settings2)}</button>
+      ${acao('Pesquisar peças', search, ' data-pn-ir="pesquisa"', 'pn__pesquisar')}
+    </div>
+    <form class="pn__pers" data-pers${p.id === 'pers' ? '' : ' hidden'} novalidate>
+      <label><span>De</span><input type="date" name="de" value="${iso(p.de)}" max="${iso(HOJE)}" required></label>
+      <label><span>Até</span><input type="date" name="ate" value="${iso(p.ate)}" max="${iso(HOJE)}" required></label>
+      <button type="submit" class="btn pn__btn">${L(check, 'btn__icone')}<span class="btn__rotulo">Aplicar</span></button>
+      <p class="pn__pers-erro" role="alert"></p>
+    </form>
   </header>
-  <nav class="pn__procura" aria-label="Pesquisar peças">
-    <button type="button" class="pn__procura-campo" data-pn-pesquisa="0">${L(search)}<span>Pesquisar peças por matrícula, veículo ou referência</span></button>
-    <div class="pn__procura-modos">${([['0', 'Matrícula', carFront], ['1', 'Veículo', car], ['2', 'Referência', hash]] as const).map(([m, t, ic]) => `<button type="button" class="pn__procura-modo" data-pn-pesquisa="${m}">${L(ic)}<span>${t}</span></button>`).join('')}</div>
-  </nav>`;
+  <div class="pn__avisos" data-avisos aria-live="polite">${e === 'offline' ? avisoOffline(hora) : e === 'nav-erro' ? avisoNav('P2024/001233') : ''}</div>`;
 }
+export const avisoOffline = (hora: string) => `<p class="pn__aviso-linha pn__aviso-linha--offline" role="status">${L(wifiOff)}<span><b>Sem ligação.</b> Estás a ver os dados das ${hora}; atualizam-se quando a ligação voltar.</span></p>`;
+export const avisoNav = (num: string) => `<p class="pn__aviso-linha pn__aviso-linha--erro" role="alert">${L(circleAlert)}<span><b>Não foi possível abrir o pedido ${num}.</b> Continuas no Início; tenta de novo.</span><button type="button" class="pn__mais" data-abrir-pedido="${num}">Tentar de novo${L(rotateCcw)}</button><button type="button" class="pn__icone" data-pn-fechar-aviso aria-label="Fechar o aviso">${L(x)}</button></p>`;
 export function gavetaHtml(p: PrefsPn, aberta = false): string {
   return `<div class="pn__gaveta" data-por-cima role="dialog" aria-modal="true" aria-labelledby="pn-g-t"${aberta ? '' : ' hidden'}>
     <div class="pn__veu" data-pn-fechar></div>
     <div class="pn__gaveta-caixa">
-      <header class="pn__gaveta-cabeca"><h2 id="pn-g-t">${L(settings2)}Personalizar o Início</h2>${btn('Fechar', x, ' data-pn-fechar')}</header>
+      <header class="pn__gaveta-cabeca"><h2 id="pn-g-t">${L(settings2)}Definições do Início</h2>${btn('Fechar', x, ' data-pn-fechar')}</header>
       <div class="pn__gaveta-corpo">
-        <section aria-labelledby="pn-g-blocos"><h3 id="pn-g-blocos">Blocos</h3><p class="pn__ajuda">Arrasta pela pega para mudar a ordem (ou usa a pega com ↑ ↓). Desliga os que não usas.</p>
-          <ol class="pn__ordem" data-pn-ordem>${p.ordem.map((id) => `<li class="pn__ordem-li" data-w-ordem="${id}">
-            <button type="button" class="pn__pega" data-pn-pega aria-label="Mover ${WIDGETS[id][0]}" aria-describedby="pn-g-blocos">${L(gripVertical)}</button>
-            <span class="pn__ordem-texto">${L(WIDGETS[id][2])}<b>${WIDGETS[id][0]}</b><small>${WIDGETS[id][1]}</small></span>
-            <label class="pn__interruptor"><input type="checkbox" data-pn-mostrar="${id}"${p.escondidos.includes(id) ? '' : ' checked'}><span class="sr-only">Mostrar ${WIDGETS[id][0]}</span><i aria-hidden="true"></i></label>
-          </li>`).join('')}</ol><p class="sr-only" role="status" aria-live="polite" data-pn-ordem-aviso></p></section>
-        <section><h3>Período do gráfico ao abrir</h3><div class="pn__escolha" role="radiogroup" aria-label="Período do gráfico ao abrir">${(['7', '30', '90'] as const).map((v) => `<label class="pn__escolha-op"><input type="radio" name="pn-periodo-omissao" data-pn-periodo-omissao value="${v}"${v === p.periodo ? ' checked' : ''}><span>${NOME_PERIODO[v]}</span></label>`).join('')}</div></section>
-        <section id="pn-g-atalhos" aria-labelledby="pn-g-atalhos-t"><h3 id="pn-g-atalhos-t">Acesso rápido</h3><p class="pn__ajuda">Até 8. Os que ficam de fora continuam no menu.</p>
-          <ul class="pn__atalhos-escolha" role="list">${(Object.keys(ATALHOS_PN) as IdAtalhoPn[]).map((a) => `<li><label class="pn__marcar"><input type="checkbox" data-pn-atalho-escolha="${a}"${p.atalhos.includes(a) ? ' checked' : ''}>${L(ATALHOS_PN[a][2])}<span>${ATALHOS_PN[a][0]}</span></label></li>`).join('')}</ul></section>
+        <section aria-labelledby="pn-g-blocos"><h3 id="pn-g-blocos">Blocos à vista</h3><p class="pn__ajuda">Os números do topo ficam sempre.</p>
+          <ul class="pn__ordem" role="list">${ORDEM_W.map((id) => `<li class="pn__ordem-li"><span class="pn__ordem-texto">${L(WIDGETS[id][2])}<b>${WIDGETS[id][0]}</b><small>${WIDGETS[id][1]}</small></span>
+            <label class="pn__interruptor"><input type="checkbox" data-pn-mostrar="${id}"${p.escondidos.includes(id) ? '' : ' checked'}><span class="sr-only">Mostrar ${WIDGETS[id][0]}</span><i aria-hidden="true"></i></label></li>`).join('')}</ul></section>
+        <section><h3>Período ao abrir</h3><div class="pn__escolha" role="radiogroup" aria-label="Período ao abrir">${(['7', '30', '90'] as const).map((v) => `<label class="pn__escolha-op"><input type="radio" name="pn-periodo-omissao" data-pn-periodo-omissao value="${v}"${v === p.periodo ? ' checked' : ''}><span>${NOME_PERIODO[v]}</span></label>`).join('')}</div></section>
+        <section id="pn-g-atalhos" aria-labelledby="pn-g-atalhos-t"><h3 id="pn-g-atalhos-t">Acesso rápido</h3><p class="pn__ajuda">Até 6.</p>
+          <ul class="pn__atalhos-escolha" role="list">${(Object.keys(ATALHOS_PN) as IdAtalhoPn[]).map((a) => `<li><label class="pn__marcar"><input type="checkbox" data-pn-atalho-escolha="${a}"${p.atalhos.includes(a) ? ' checked' : ''}>${L(ATALHOS_PN[a][1])}<span>${ATALHOS_PN[a][0]}</span></label></li>`).join('')}</ul></section>
       </div>
-      <footer class="pn__gaveta-pe">${btn('Repor o Início de origem', rotateCcw, ' data-pn-repor')}${acao('Concluído', check, ' data-pn-fechar')}</footer>
+      <footer class="pn__gaveta-pe">${btn('Repor as definições', rotateCcw, ' data-pn-repor')}${acao('Concluído', check, ' data-pn-fechar')}</footer>
     </div>
   </div>`;
 }
+/** A sessão expirou: o Início fica atrás, inerte, e o diálogo pede para entrar outra vez. */
+const sessaoHtml = () => `<div class="pn__gaveta pn__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="pn-s-t" aria-describedby="pn-s-d"><div class="pn__veu"></div>
+  <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, com o mesmo período.</p>${acao('Iniciar sessão', logIn, ' data-ir="entrada"')}</div></div>`;
 export function blocosPn(p: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
-  const origem = prefs.ordem.join() === ORDEM_W.join();
-  return `<div class="pn__grelha" data-pn-grelha${origem ? ' data-ordem="origem"' : ''}>
-    ${resumoHtml(prefs, e)}${evolucaoHtml(p, prefs, e, metrica)}${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}${atividadeHtml(prefs, e)}${atalhosHtml(prefs)}${frequentesHtml(prefs, e)}
-  </div>`;
+  return `${kpisHtml(e)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div><div class="pn__baixo">${evolucaoHtml(p, prefs, e, metrica)}${atalhosHtml(prefs)}</div>`;
 }
 /** O Início (ou um estado dele). */
 export function painelV5(e: EstadoPn = ''): string {
   const prefs = structuredClone(PREFS_PN);
-  const p = e === 'pers' ? periodo('pers', INICIO_PEDIDOS, HOJE) : periodo(prefs.periodo);
+  const p = e === 'periodo-vazio' ? periodo('pers', INICIO_PEDIDOS - 40, INICIO_PEDIDOS - 10) : e === 'sem-historico' ? periodo('90') : periodo(prefs.periodo);
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--pn">
-  <main class="pn"${e ? ` data-estado="${e}"` : ''}>
-    ${cabecaHtml()}
-    ${blocosPn(p, prefs, e === 'pedidos-n' ? '' : e, e === 'pedidos-n' ? 'pedidos' : 'valor')}
+  <main class="pn"${e ? ` data-estado="${e}"` : ''}${e === 'sessao' ? ' inert aria-hidden="true"' : ''}>
+    ${cabecaHtml(p, e)}
+    ${blocosPn(p, prefs, e, e === 'pedidos-n' ? 'pedidos' : 'valor')}
   </main>
-  ${gavetaHtml(prefs, e === 'personalizar')}
+  ${gavetaHtml(prefs, e === 'personalizar')}${e === 'sessao' ? sessaoHtml() : ''}
   <p class="pn__aviso sr-only" role="status" aria-live="polite" data-pn-aviso></p>
-  <div class="pn__brinde" data-por-cima role="status" aria-live="polite" hidden></div>
 </div>`;
 }
-export { dias };
+export { curta };
