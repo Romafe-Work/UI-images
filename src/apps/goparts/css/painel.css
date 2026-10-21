@@ -2,15 +2,15 @@
    GOPARTS — 10 · Início V7 (21 out. 2026): o ponto de controlo
    Do briefing «Complete Home Dashboard Redesign»: menos caixas, hierarquia clara. O centro são os pedidos e o
    que requer atenção; os números e o gráfico ajudam; o acesso rápido fecha. Densidade de espaço de trabalho:
-   secções a 24 px, blocos com 16–20 px por dentro, números com ~96 px de altura, raio 10–12 px, largura máxima
-   1440 px. Tokens --i3-* (no escuro, o grafite do briefing em noite.css). Azul da Romafe para informar e navegar;
+   secções a 24 px, blocos com 16–20 px por dentro, números com ~96 px de altura, raio 10–12 px; (21 out., ela) sem largura máxima:
+   o Início ocupa a largura toda. Tokens --i3-* (no escuro, o grafite do briefing em noite.css). Azul da Romafe para informar e navegar;
    laranja só para as ações importantes (Pesquisar peças, o que é urgente) e o escolhido.
    Tempos: botões 120–160 ms; abrir um alerta 220 ms; entrada 300 ms (60 ms entre partes); gráfico 400–650 ms.
    Telemóvel (< 768 px): cabeçalho, atenção (se houver), números 2 × 2, pedidos em cartões, acesso rápido,
    gráfico; alvos de 44 px; margens seguras.
    ========================================================= */
 .pn { --pn-r: 12px; --pn-curva: cubic-bezier(.22, 1, .36, 1); --pn-mola: cubic-bezier(.2, .9, .25, 1.05);
-  display: grid; gap: 24px; align-content: start; width: 100%; max-width: 1440px; min-width: 0; margin: 0 auto; padding: 22px 28px 40px; color: var(--i3-tinta); }
+  display: grid; gap: 24px; align-content: start; width: 100%; max-width: none; min-width: 0; margin: 0; padding: 22px 28px 40px; color: var(--i3-tinta); }
 .pn :focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
 .pn [hidden], .pn__gaveta[hidden] { display: none !important; }
 .pn svg { flex: none; }

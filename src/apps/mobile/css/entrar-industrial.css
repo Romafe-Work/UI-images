@@ -1,0 +1,113 @@
+/* =========================================================
+   PICK — 01 · Entrar v5, a entrada industrial (21 out. 2026). Ver entrar-industrial.ts.
+   Para 320 × 533 dp: a linha de estado, a marca, o desenho e o formulário cabem sem rolar; com o teclado aberto, o
+   desenho sai e «Entrar» fica à vista. Cores do briefing (escuro #101820 / #172332 / #202E3D, borda #385064; claro
+   #F3F6F9 / #FFFFFF / #CCD7E1), azul ROMAFE na estrutura, laranja só em «Entrar». O ROMAFE é o de sempre: Motor,
+   RGB(0, 99, 170), sem placa por trás.
+   Abertura (uma vez por sessão, ≈ 1,3 s): as barras aparecem, a linha lê-as, as barras dão lugar à estante, a caixa
+   laranja assenta, o formulário acende. Foco 150 ms; premir 100 ms. Nada em ciclo; «reduzir movimento» desliga tudo.
+   ========================================================= */
+.pki {
+  --k-fundo: #f3f6f9; --k-fundo-2: #e8eef4; --k-sup: #ffffff; --k-borda: #ccd7e1; --k-tinta: #172534; --k-tinta-2: #627487;
+  --k-azul: #0876bd; --k-laranja: #f58214; --k-ok: #12875c; --k-erro: #d23f45; --k-aviso: #b7791f;
+  min-height: 100%; display: grid; grid-template-rows: auto auto minmax(64px, 1fr) auto; background: var(--k-fundo); color: var(--k-tinta); font-size: 15px;
+}
+[data-theme="dark"] .pki { --k-fundo: #101820; --k-fundo-2: #172332; --k-sup: #202e3d; --k-borda: #385064; --k-tinta: #f5f7fa; --k-tinta-2: #a7b7c7; --k-ok: #16a873; --k-erro: #e65358; --k-aviso: #e9a23b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pki { --k-fundo: #101820; --k-fundo-2: #172332; --k-sup: #202e3d; --k-borda: #385064; --k-tinta: #f5f7fa; --k-tinta-2: #a7b7c7; --k-ok: #16a873; --k-erro: #e65358; --k-aviso: #e9a23b; } }
+@media (max-width: 600px) { .pki { min-height: 100vh; } }
+.pki svg { flex: none; }
+
+/* a linha de estado: a rede e o servidor em separado */
+.pki-estado { display: flex; align-items: center; gap: 10px; min-height: 30px; padding: 0 12px; background: var(--k-fundo-2); border-bottom: 1px solid var(--k-borda); font-size: 11.5px; font-weight: 700; color: var(--k-tinta-2); }
+.pki-estado__item { display: inline-flex; align-items: center; gap: 4px; }
+.pki-estado__item svg { width: 14px; height: 14px; color: var(--k-ok); }
+.pki-estado__item.is-mal, .pki-estado__item.is-mal svg { color: var(--k-erro); }
+.pki-estado__pda { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* a marca */
+.pki-marca { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 0; }
+.pki-romafe { font-size: 26px; line-height: 1; color: var(--c-logotipo); }
+.pki-produto { display: grid; margin: 0; }
+.pki-produto b { font-family: var(--f-titulo); font-size: 20px; line-height: 1; color: var(--k-tinta); }
+.pki-produto span { font-size: 12px; color: var(--k-tinta-2); }
+
+/* o desenho */
+.pki-desenho { display: grid; place-items: center; min-height: 0; padding: 4px 16px; }
+.pki-sinal { width: 100%; max-width: 200px; height: auto; max-height: 100%; }
+.pki-barras rect { fill: var(--k-tinta-2); opacity: 0; }
+.pki-linha { stroke: var(--k-laranja); stroke-width: 2; opacity: 0; }
+.pki-estante path { stroke: var(--k-azul); }
+.pki-caixa rect { fill: var(--k-laranja); }
+.pki-caixa path { stroke: var(--k-sup); stroke-width: 1.5; }
+.pki-caixa { transform-box: fill-box; transform-origin: center bottom; }
+
+/* a abertura, uma vez por sessão (o comportamento põe .is-abrir) */
+.pki.is-abrir .pki-barras rect { animation: pki-barra 1.3s ease both; animation-delay: calc(var(--i) * 12ms); }
+@keyframes pki-barra { 0% { opacity: 0; transform: scaleY(.3); } 15% { opacity: 1; transform: none; } 50% { opacity: 1; } 68% { opacity: 0; } 100% { opacity: 0; } }
+.pki.is-abrir .pki-barras { transform-origin: center; transform-box: fill-box; }
+.pki.is-abrir .pki-linha { animation: pki-linha 600ms cubic-bezier(.4, 0, .2, 1) 200ms both; }
+@keyframes pki-linha { 0% { opacity: 1; transform: translateX(0); } 90% { opacity: 1; } 100% { opacity: 0; transform: translateX(140px); } }
+.pki.is-abrir .pki-estante path { stroke-dasharray: 120; stroke-dashoffset: 120; animation: pki-desenhar 380ms cubic-bezier(.22, 1, .36, 1) 720ms forwards; }
+@keyframes pki-desenhar { to { stroke-dashoffset: 0; } }
+.pki.is-abrir .pki-caixa { animation: pki-caixa 320ms cubic-bezier(.3, 1.4, .5, 1) 1000ms both; }
+@keyframes pki-caixa { from { opacity: 0; transform: translateY(-14px); } }
+.pki.is-abrir .pki-marca { animation: pki-entra 300ms ease 0ms both; }
+.pki.is-abrir .pki-form > * { animation: pki-entra 280ms cubic-bezier(.22, 1, .36, 1) both; }
+.pki.is-abrir .pki-form > :nth-child(2) { animation-delay: 300ms; } .pki.is-abrir .pki-form > :nth-child(3) { animation-delay: 360ms; } .pki.is-abrir .pki-form > :nth-child(4) { animation-delay: 420ms; } .pki.is-abrir .pki-form > :nth-child(n+5) { animation-delay: 480ms; }
+@keyframes pki-entra { from { opacity: 0; transform: translateY(6px); } }
+
+/* o formulário */
+.pki-form { display: grid; gap: 10px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); background: var(--k-sup); border-top: 1px solid var(--k-borda); border-radius: 16px 16px 0 0; }
+.pki-ola h1 { margin: 0; font-family: var(--f-titulo); font-size: 19px; line-height: 1.2; }
+.pki-ola p { margin: 2px 0 0; font-size: 13px; color: var(--k-tinta-2); }
+.pki-campo { display: grid; gap: 4px; }
+.pki-campo label { font-size: 13px; font-weight: 700; color: var(--k-tinta); }
+.pki-caixa { position: relative; display: flex; }
+.pki-caixa input { width: 100%; min-height: 48px; padding: 0 12px; border: 2px solid var(--k-borda); border-radius: 10px; background: var(--k-fundo); color: var(--k-tinta); font: inherit; font-size: 16px; transition: border-color 150ms ease, box-shadow 150ms ease; }
+.pki-caixa input::placeholder { color: var(--k-tinta-2); }
+.pki-caixa input:focus { outline: 0; border-color: var(--k-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k-azul) 25%, transparent); }
+.pki-caixa input[aria-invalid="true"] { border-color: var(--k-erro); }
+.pki-caixa input.is-valido:not(:focus) { border-color: color-mix(in srgb, var(--k-ok) 60%, var(--k-borda)); }
+.pki-caixa input[type="password"], .pki-caixa input[name="p"] { padding-right: 52px; }
+.pki-ver { position: absolute; right: 2px; top: 2px; bottom: 2px; display: grid; place-items: center; width: 48px; border: 0; border-radius: 8px; background: none; color: var(--k-tinta-2); cursor: pointer; }
+.pki-ver svg { width: 20px; height: 20px; }
+.pki-ver[aria-pressed="true"] { color: var(--k-azul); }
+.pki-erro-campo { margin: 0; font-size: 13px; color: var(--k-erro); }
+.pki-entrar { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border: 0; border-radius: 10px; background: var(--k-laranja); color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 100ms ease, background-color 120ms ease; }
+.pki-entrar svg { width: 20px; height: 20px; }
+.pki-entrar:active:not(:disabled) { transform: scale(.98); }
+.pki-entrar:disabled { opacity: .55; cursor: default; }
+.pki-entrar.is-a-entrar { opacity: 1; }
+.pki-entrar.is-feito { background: var(--k-ok); }
+.pki-entrar:focus-visible, .pki-ligacoes button:focus-visible, .pki-ver:focus-visible { outline: 3px solid var(--k-azul); outline-offset: 2px; }
+.pki-ligacoes { display: flex; justify-content: space-between; gap: 4px; }
+.pki-ligacoes button { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--k-azul); font: inherit; font-size: 12.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.pki-ligacoes svg { width: 15px; height: 15px; }
+
+/* os avisos */
+.pki-aviso { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 8px 10px; border: 1px solid var(--k-borda); border-left: 4px solid var(--k-azul); border-radius: 8px; background: var(--k-fundo); animation: pki-entra 160ms ease both; }
+.pki-aviso > span svg { width: 20px; height: 20px; color: var(--k-azul); }
+.pki-aviso b { font-size: 14px; } .pki-aviso p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--k-tinta-2); }
+.pki-aviso--erro { border-left-color: var(--k-erro); } .pki-aviso--erro > span svg { color: var(--k-erro); }
+.pki-aviso--aviso { border-left-color: var(--k-aviso); } .pki-aviso--aviso > span svg { color: var(--k-aviso); }
+.pki-aviso--ok { border-left-color: var(--k-ok); } .pki-aviso--ok > span svg { color: var(--k-ok); }
+
+/* com um aviso, o desenho encolhe; com o teclado aberto (um campo com o foco num ecrã baixo), sai */
+.pki:has(.pki-aviso) .pki-sinal { max-width: 120px; }
+@media (max-height: 600px) { .pki:has(.pki-aviso) .pki-desenho { display: none; } .pki:has(.pki-aviso) { grid-template-rows: auto auto 1fr; } .pki:has(.pki-aviso) .pki-form { align-self: end; } }
+@media (max-height: 460px) { .pki-desenho { display: none; } .pki { grid-template-rows: auto auto 1fr; } .pki-form { align-self: end; } }
+.pki:has(.pki-form input:focus) .pki-desenho { display: none; }
+.pki:has(.pki-form input:focus) { grid-template-rows: auto auto 1fr; }
+.pki:has(.pki-form input:focus) .pki-form { align-self: end; }
+
+/* sessão iniciada: a marca sobe e o formulário dá lugar ao Inventário */
+.pki.is-a-sair .pki-desenho, .pki.is-a-sair .pki-form { animation: pki-sai 300ms cubic-bezier(.4, 0, 1, 1) forwards; }
+.pki.is-a-sair .pki-marca { animation: pki-sobe 300ms cubic-bezier(.4, 0, 1, 1) forwards; }
+@keyframes pki-sai { to { opacity: 0; transform: translateY(12px); } }
+@keyframes pki-sobe { to { transform: translateY(-8px); } }
+
+@media (min-width: 420px) { .pki-form, .pki-marca { width: 100%; max-width: 480px; margin-inline: auto; } }
+@media (prefers-reduced-motion: reduce) {
+  .pki *, .pki { animation: none !important; transition: none !important; }
+  .pki-estante path { stroke-dashoffset: 0 !important; }
+}

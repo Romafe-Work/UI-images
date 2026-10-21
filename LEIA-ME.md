@@ -377,6 +377,40 @@ seguir, um ecrã de cada vez.
 - **Sem servidor:** a compatibilidade peça–veículo não está nos dados de exemplo e cada resultado diz isso. Não há
   filtro por preço nem por compatibilidade.
 
+## Pick: o Inventário e a entrada industrial (21 out. 2026)
+
+Dos briefings «Module 01: Inventory» e «Ultimate industrial PDA entry screen», com as decisões dela desse dia:
+- o nome continua **Pick**, e não «StockFlow»;
+- o Inventário são **três operações**: contagem física, correção de posição e consulta de stock;
+- **sem offline**;
+- primeiro os ecrãs aqui.
+
+O terminal é o Honeywell EDA61K (Android 11, 320 × 533 dp). A leitura chega pela Data Collection Intent API; no
+protótipo, tocar na área do leitor faz de tecla física (com o apito e a vibração).
+
+- **Inventário** (fluxo próprio, ecrãs 40–56, `inventario.ts`, `css/inventario.css`, `comportamento/inventario.ts`):
+  - o início do módulo e as contagens atribuídas;
+  - na contagem: ler a posição, ler o artigo, a quantidade (número grande, − e +, teclado, Enter), registada;
+  - a contagem à unidade e a posição contada;
+  - o que já contei, corrigir com motivo (a anterior fica), pausar e retomar, submeter;
+  - as divergências (gestor) e a recontagem às cegas;
+  - as operações corrigir posição e consultar stock, esta fechada durante uma contagem às cegas da mesma zona.
+
+  A contagem é **às cegas**: o operador nunca vê o stock do sistema, e o progresso conta posições, não unidades.
+  Contar não é ajustar. Sem rede, a Pick para e nada fica guardado à espera; por isso não há «por sincronizar».
+  Os estados estão em cada ecrã (40.1–56.1).
+- **01 · Entrar v5** (`entrar-industrial.ts`, `css/entrar-industrial.css`):
+  - a linha de estado com a rede e o servidor em separado, e o número do PDA;
+  - o ROMAFE em Motor e «Pick · Operações de armazém»;
+  - o código de barras que uma linha lê e que se arruma numa estante com uma caixa laranja. Acontece uma vez por
+    sessão, em cerca de 1,3 s;
+  - o utilizador e a palavra-passe no mesmo ecrã;
+  - estados 01.1–01.12 (credenciais, sem rede, servidor, tempo, conta bloqueada, PDA não autorizado, sessão,
+    retomar…).
+
+  Depois de entrar, abre o Inventário. As v1–v4 ficam como estavam. Não há leitura de cartão para entrar: isso fica
+  à espera de uma política aprovada.
+
 ## GoParts V7 e V8: o Início como ponto de controlo, e as cores da marca no portal todo (21 out. 2026)
 
 - **V7 (Início):**

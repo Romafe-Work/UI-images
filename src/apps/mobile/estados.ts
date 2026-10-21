@@ -16,12 +16,12 @@ import type { Ecra } from '../../comum/tipos';
 export type IdCarregarPick = 'carga-pagina' | 'carga-tarefa' | 'carga-leitura' | 'carga-fechar';
 export type IdErroPick = 'erro-rede' | 'erro-codigo' | 'erro-posicao' | 'erro-quantidade' | 'erro-sessao' | 'erro-servidor' | 'erro-sem-tarefa';
 
-const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-const GIRADOR = (cls = '') => `<span class="girador${cls ? ' ' + cls : ''}" aria-hidden="true"></span>`;
-const E = (largura: number | string, cls = '') => `<span class="esq${cls ? ' ' + cls : ''}" style="width:${typeof largura === 'number' ? largura + '%' : largura}"></span>`;
-const BOTAO = (texto: string, icone: string, tipo = 'btn--acao', extra = '') => `<button type="button" class="btn ${tipo} pk-botao"${extra}>${I(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
+export const I = (d: string, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+export const GIRADOR = (cls = '') => `<span class="girador${cls ? ' ' + cls : ''}" aria-hidden="true"></span>`;
+export const E = (largura: number | string, cls = '') => `<span class="esq${cls ? ' ' + cls : ''}" style="width:${typeof largura === 'number' ? largura + '%' : largura}"></span>`;
+export const BOTAO = (texto: string, icone: string, tipo = 'btn--acao', extra = '') => `<button type="button" class="btn ${tipo} pk-botao"${extra}>${I(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
 
-const IC = {
+export const IC = {
   denovo: '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>',
   semrede: '<path d="m2 2 20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.8a15 15 0 0 1 4.2-2.7M10.7 5.1A15 15 0 0 1 22 8.8M5 12.9a10 10 0 0 1 5.2-2.7M16.8 11.2a10 10 0 0 1 2.2 1.7"/><path d="M12 20h.01"/>',
   rede: '<path d="M5 12.6a10 10 0 0 1 14 0M8.5 16.1a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><path d="M12 20h.01"/>',
@@ -44,11 +44,11 @@ const IC = {
 const GUIA = 'S 2026/1832';
 
 /** O ecrã da Pick: a barra de cima (Pick, a função, a rede e quem está), o corpo e o pé com os botões. */
-function pick(corpo: string, o: { pe?: string; rede?: boolean; classe?: string } = {}): string {
+export function pick(corpo: string, o: { pe?: string; rede?: boolean; classe?: string; funcao?: string } = {}): string {
   return `<div class="pk${o.classe ? ' ' + o.classe : ''}">
   <header class="pk__topo">
     <span class="pk__nome">Pick</span>
-    <span class="pk__funcao">Separação</span>
+    <span class="pk__funcao">${o.funcao ?? 'Separação'}</span>
     <span class="pk__rede${o.rede === false ? ' pk__rede--sem' : ''}" aria-label="${o.rede === false ? 'Sem rede' : 'Com rede'}">${I(o.rede === false ? IC.semrede : IC.rede)}</span>
     <span class="pk__quem" aria-label="Joana Silva">JS</span>
   </header>
@@ -57,7 +57,7 @@ function pick(corpo: string, o: { pe?: string; rede?: boolean; classe?: string }
 </div>`;
 }
 const guiaTopo = (linha = 7) => `<p class="pk-guia"><span>Guia ${GUIA}</span><span>Linha ${linha} de 12</span></p>`;
-const aviso = (cor: 'erro' | 'aviso' | 'azul', icone: string, titulo: string, texto: string) => `<section class="pk-aviso pk-aviso--${cor}" role="alert">
+export const aviso = (cor: 'erro' | 'aviso' | 'azul', icone: string, titulo: string, texto: string) => `<section class="pk-aviso pk-aviso--${cor}" role="alert">
       <span class="pk-aviso__icone">${I(icone)}</span>
       <h1 class="pk-aviso__titulo">${titulo}</h1>
       <p class="pk-aviso__texto">${texto}</p>
