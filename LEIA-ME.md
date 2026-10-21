@@ -399,17 +399,19 @@ protótipo, tocar na área do leitor faz de tecla física (com o apito e a vibra
   A contagem é **às cegas**: o operador nunca vê o stock do sistema, e o progresso conta posições, não unidades.
   Contar não é ajustar. Sem rede, a Pick para e nada fica guardado à espera; por isso não há «por sincronizar».
   Os estados estão em cada ecrã (40.1–56.1).
-- **01 · Entrar v5** (`entrar-industrial.ts`, `css/entrar-industrial.css`):
-  - a linha de estado com a rede e o servidor em separado, e o número do PDA;
-  - o ROMAFE em Motor e «Pick · Operações de armazém»;
-  - o código de barras que uma linha lê e que se arruma numa estante com uma caixa laranja. Acontece uma vez por
-    sessão, em cerca de 1,3 s;
-  - o utilizador e a palavra-passe no mesmo ecrã;
-  - estados 01.1–01.12 (credenciais, sem rede, servidor, tempo, conta bloqueada, PDA não autorizado, sessão,
-    retomar…).
+- **Entrar** (`entrar-industrial.ts`, `css/entrar-industrial.css`), uma versão por ecrã. Ela pediu «só quero uma
+  versão: a v5, mas mais bonita e mais profissional» e «falta uma abertura». Saíram as v1–v4, o 02 · Palavra-passe e
+  o 03 · Cliente federado.
+  - **00 · Abertura:** a estante desenhada em ecrã inteiro. As barras de um código são lidas por uma linha e
+    arrumam-se nas prateleiras, que têm as posições escritas; as caixas assentam. Depois o leitor, a rede e o servidor
+    confirmam-se um a um, e aparece «Entrar». Estados 00.1–00.2.
+  - **01 · Entrar:** pílulas de estado (rede e servidor em separado) e o número do PDA; a marca da família (ROMAFE ·
+    risco laranja · Pick); a estante; a folha com utilizador e palavra-passe com ícones; «Entrar»; «Acesso reservado
+    a colaboradores». Estados 01.1–01.12.
+  - **02 · Ajuda:** recuperar o acesso, conta bloqueada, leitor e rede, e o apoio da Romafe.
 
-  Depois de entrar, abre o Inventário. As v1–v4 ficam como estavam. Não há leitura de cartão para entrar: isso fica
-  à espera de uma política aprovada.
+  Depois de entrar, abre o Inventário. Não há leitura de cartão para entrar: isso fica à espera de uma política
+  aprovada.
 
 ## GoParts V7 e V8: o Início como ponto de controlo, e as cores da marca no portal todo (21 out. 2026)
 

@@ -1,6 +1,8 @@
 /* =========================================================
    PICK — 01 · Entrar v5: o que mexe (21 out. 2026)
-   - A abertura: uma vez por sessão (as barras, a linha que as lê, a estante, a caixa). O formulário funciona logo.
+   - 00 · Abertura: toca quando aparece (as barras, a linha que as lê, a estante, a caixa, as verificações) e
+     «Entrar» leva à entrada; não avança sozinha, para se poder ver. 01 · Entrar: o formulário acende uma vez por
+     sessão e funciona logo.
    - Mostrar/esconder a palavra-passe; um campo preenchido fica com a borda verde-clara (só diz que está escrito,
      não que está certo).
    - «Entrar» (ou Enter): campos vazios dizem qual falta; sem rede, diz-se e não se tenta; senão, «A entrar…»
@@ -15,11 +17,15 @@ const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').match
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-pki]');
 const real = (pki: HTMLElement) => !/pki--/.test(pki.className);
 
+/** A abertura toca sempre que aparece (≈ 1,9 s até «Entrar»); a entrada só acende o formulário, uma vez por sessão. */
 function abrir(): void {
-  const pki = visivel(); if (!pki || !real(pki) || quieto() || editando()) return;
+  if (quieto() || editando()) return;
+  const pka = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-pka]');
+  if (pka && !/pka--/.test(pka.className)) { pka.classList.remove('is-abrir'); void pka.offsetWidth; pka.classList.add('is-abrir'); window.setTimeout(() => pka.classList.remove('is-abrir'), 2000); return; }
+  const pki = visivel(); if (!pki || !real(pki)) return;
   try { if (sessionStorage.getItem('pick:entrou')) return; sessionStorage.setItem('pick:entrou', '1'); } catch { return; }
   pki.classList.add('is-abrir');
-  window.setTimeout(() => pki.classList.remove('is-abrir'), 1500);
+  window.setTimeout(() => pki.classList.remove('is-abrir'), 600);
 }
 function aviso(pki: HTMLElement, k: 'erro' | 'aviso' | 'ok' | 'info', titulo: string, texto: string): void {
   pki.querySelector('.pki-aviso')?.remove();

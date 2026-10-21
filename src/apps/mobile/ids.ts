@@ -5,7 +5,8 @@ import type { IdInventario, IdEstadoInventario } from './inventario';
 
 /** Os ecrãs da app Mobile: os do início de sessão (comuns) e os seus. */
 export type IdEstadoEntrarPk = 'entrar-pk-preenchido' | 'entrar-pk-a-entrar' | 'entrar-pk-sucesso' | 'entrar-pk-credenciais' | 'entrar-pk-sem-rede' | 'entrar-pk-servidor' | 'entrar-pk-tempo' | 'entrar-pk-auth' | 'entrar-pk-bloqueada' | 'entrar-pk-pda' | 'entrar-pk-sessao' | 'entrar-pk-restaurar';
-export type IdMobile = IdEntrar | IdEstadoEntrarPk | IdCarregarPick | IdErroPick | IdInventario | IdEstadoInventario;
+export type IdEstadoAberturaPk = 'abertura-pk-sem-rede' | 'abertura-pk-leitor';
+export type IdMobile = IdEntrar | 'abertura' | IdEstadoAberturaPk | IdEstadoEntrarPk | IdCarregarPick | IdErroPick | IdInventario | IdEstadoInventario;
 
 export type EcraMobile = Ecra<IdMobile>;
 
