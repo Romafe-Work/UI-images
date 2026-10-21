@@ -211,8 +211,16 @@ await caso('pesquisa por referência: escrita de qualquer forma, exata primeiro,
   certo(await p.$(`${I} .pr__tipo--equivalente`), 'não juntou as equivalentes');
   await p.click(`${I} [data-pr-vista="grelha"]`);
   certo(await p.$(`${I} .pr__lista[data-vista="grelha"]`), 'a grelha não mudou');
-  await p.click(`${I} [data-pr-marca="FAG"]`);
+  /* (21 out.) os filtros num só botão: a gaveta conta ao vivo e só aplica no fim; o aplicado fica em etiqueta */
+  await p.click(`${I} [data-pr-filtros]`); await p.waitForSelector('.pr__gaveta');
+  await p.click('.pr__gaveta .pr__g-op:has(input[value="FAG"])');
+  certo((await p.textContent('.pr__gaveta [data-pr-g-n]')).trim() !== '', 'o «Mostrar» não contou');
+  await p.click('.pr__gaveta [data-pr-g-aplicar]'); await p.waitForTimeout(500);
+  certo(!(await p.$('.pr__gaveta')), 'a gaveta não fechou');
   certo((await p.$$eval(`${I} .pr__item`, (l) => l.map((x) => x.querySelector('.pr__fab').textContent))).every((m) => m === 'FAG'), 'o filtro da marca não filtrou');
+  certo((await p.textContent(`${I} .pr__filtros-n`)).trim() === '1', 'o botão não diz 1 filtro');
+  await p.click(`${I} [data-pr-tirar-marca="FAG"]`); await p.waitForTimeout(300);
+  certo(!(await p.$(`${I} .pr__filtros-n`)), 'tirar a etiqueta não tirou o filtro');
   await p.click(`${I} [data-pr-limpar]`); await p.waitForTimeout(400);
   certo(await p.isHidden(`${I} [data-pr]`), 'os resultados não saíram');
   certo(await p.evaluate(() => document.activeElement?.id) === 'i3-referencia', 'o foco não voltou ao campo');

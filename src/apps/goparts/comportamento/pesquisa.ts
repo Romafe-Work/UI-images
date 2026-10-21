@@ -16,7 +16,7 @@ import { prepararJa } from './catalogo-v6';
 import * as carrinho from './carrinho';
 import { MODELOS, veiculosDe } from '../portal/catalogo-dados';
 import { MARCAS_CAT } from '../portal/inicio-v3';
-import { resultadosHtml, procurar, FILTROS, type Filtros, type Ordem, type Vista } from '../portal/pesquisa-resultados';
+import { resultadosHtml, procurar, filtrar, gavetaFiltrosHtml, lerGaveta, FILTROS, type Filtros, type Ordem, type Vista } from '../portal/pesquisa-resultados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { L, IC } from '../portal/inicio-espaco';
 
@@ -126,6 +126,8 @@ export function pesquisarReferencia(card: HTMLElement): void {
   const q = inp.value.trim();
   if (!q) { inp.focus(); inp.closest('.ini3__campo')?.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'none' }], { duration: quieto() ? 0 : 220 }); avisar(ini, 'Escreve a referência, a marca ou a descrição da peça.'); return; }
   const b = card.querySelector<HTMLButtonElement>('[data-pesquisar]'); if (!b || b.getAttribute('aria-busy')) return;
+  /* as sugestões fecham ao pesquisar (não ficam por cima dos resultados) */
+  const lista = card.querySelector<HTMLElement>('#i3-ref-lista'); if (lista) { lista.hidden = true; inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); }
   const f: Filtros = { ...FILTROS, ...opcoesRef(card), q, vista: filtros(pr).vista };
   const antes = b.innerHTML; b.disabled = true; b.setAttribute('aria-busy', 'true');
   b.innerHTML = `${rolamentoSvg('pq-b-' + Date.now(), 'pesquisar', 'btn__icone')}<span class="btn__rotulo">A pesquisar…</span>`;
@@ -160,13 +162,69 @@ async function pedir(b: HTMLElement): Promise<void> {
   window.setTimeout(() => { b.classList.remove('is-feito'); b.innerHTML = antes; (b as HTMLButtonElement).disabled = false; }, 1600);
 }
 
+/* =========================================================
+   (21 out.) A gaveta dos filtros: entra da direita (260 ms); o número do «Mostrar» conta ao vivo; só aplica no fim
+   ========================================================= */
+let gPr: HTMLElement | null = null, gDe: HTMLElement | null = null;
+function abrirFiltros(pr: HTMLElement, de: HTMLElement): void {
+  const portal = pr.closest<HTMLElement>('.portal--pq')!;
+  portal.querySelector('.pr__gaveta')?.remove();
+  const t = document.createElement('template'); t.innerHTML = gavetaFiltrosHtml(filtros(pr)).trim();
+  const g = t.content.firstElementChild as HTMLElement; portal.appendChild(g);
+  gPr = pr; gDe = de; document.documentElement.classList.add('barra-presa');
+  portal.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__lado, :scope > .pq').forEach((el) => { el.inert = true; });
+  if (!quieto()) { g.querySelector('.pr__veu')?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 }); g.querySelector('.pr__gaveta-caixa')?.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 260, easing: CURVA }); }
+  g.querySelector<HTMLElement>('input')?.focus();
+}
+function fecharFiltros(g: HTMLElement): void {
+  const portal = g.closest<HTMLElement>('.portal--pq');
+  const fim = () => { g.remove(); portal?.querySelectorAll<HTMLElement>(':scope > .portal__topo, :scope > .portal__lado, :scope > .pq').forEach((el) => { el.inert = false; }); document.documentElement.classList.remove('barra-presa'); gDe?.focus({ preventScroll: true }); };
+  if (quieto()) { fim(); return; }
+  g.querySelector('.pr__veu')?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
+  g.querySelector('.pr__gaveta-caixa')!.animate([{ transform: 'none' }, { transform: 'translateX(100%)' }], { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }).onfinish = fim;
+}
+function contarGaveta(form: HTMLFormElement): void {
+  if (!gPr) return;
+  const f = lerGaveta(form, filtros(gPr)), err = form.querySelector<HTMLElement>('[data-pr-g-erro]')!, b = form.querySelector<HTMLButtonElement>('[data-pr-g-aplicar]')!;
+  if (typeof f === 'string') { err.textContent = f; err.hidden = false; b.disabled = true; return; }
+  err.hidden = true; b.disabled = false;
+  const n = filtrar(procurar(f), f).length, el = form.querySelector<HTMLElement>('[data-pr-g-n]')!;
+  if (el.textContent !== String(n)) { el.textContent = String(n); el.nextSibling!.textContent = ` ${n === 1 ? 'resultado' : 'resultados'}`; if (!quieto()) el.animate([{ transform: 'translateY(-3px)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: 180, easing: CURVA }); }
+}
+
 export function iniciar(): void {
+  /* a gaveta dos filtros */
+  document.addEventListener('input', (ev) => { const form = (ev.target as Element).closest?.<HTMLFormElement>('.pr__gaveta [data-pr-form]'); if (form) contarGaveta(form); });
+  document.addEventListener('submit', (ev) => {
+    const form = (ev.target as Element).closest?.<HTMLFormElement>('.pr__gaveta [data-pr-form]'); if (!form || !gPr) return;
+    ev.preventDefault();
+    const f = lerGaveta(form, filtros(gPr)); if (typeof f === 'string') { contarGaveta(form); return; }
+    const pr = gPr; fecharFiltros(form.closest<HTMLElement>('.pr__gaveta')!); desenhar(pr, f, { entrar: true });
+    const n = filtrar(procurar(f), f).length; avisar(pr, `${n} ${n === 1 ? 'resultado' : 'resultados'} com os filtros.`);
+  });
+  document.addEventListener('keydown', (ev) => {
+    const g = (ev.target as Element).closest?.<HTMLElement>('.pr__gaveta'); if (!g) return;
+    if (ev.key === 'Escape') { ev.preventDefault(); fecharFiltros(g); return; }
+    if (ev.key === 'Tab') { const f = Array.from(g.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled)')).filter((x) => x.offsetParent); const t = ev.target as HTMLElement; if (ev.shiftKey && t === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); } else if (!ev.shiftKey && t === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); } }
+  });
+  document.addEventListener('click', (ev) => {
+    const t = ev.target as Element, g = t.closest?.<HTMLElement>('.pr__gaveta'); if (!g) return;
+    if (t.closest('[data-pr-fechar]')) { fecharFiltros(g); return; }
+    if (t.closest('[data-pr-g-limpar]')) {
+      const form = g.querySelector<HTMLFormElement>('[data-pr-form]')!;
+      form.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((i) => { i.checked = false; });
+      form.querySelectorAll<HTMLInputElement>('input[type="radio"][value=""]').forEach((i) => { i.checked = true; });
+      form.querySelectorAll<HTMLInputElement>('input[type="number"]').forEach((i) => { i.value = ''; });
+      contarGaveta(form);
+    }
+  });
+
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLElement, card = t.closest?.<HTMLElement>('.pq #i3-cartao-selecionar');
     if (card) { if (t.id === 'i3-modelo') escolherModelo(card); else if (t.id === 'i3-variante') escolherMotorizacao(card); return; }
     const pr = t.closest?.<HTMLElement>('.pq [data-pr]'); if (!pr) return;
     const f = filtros(pr);
-    if (t.matches('[data-pr-ordem]')) desenhar(pr, { ...f, ordem: (t as HTMLSelectElement).value as Ordem });
+    if (t.matches('[data-pr-ordem]')) desenhar(pr, { ...f, ordem: (t as HTMLSelectElement).value as Ordem, pagina: 1 });
     else if (t.matches('[data-pr-grupo]')) desenhar(pr, { ...f, grupo: (t as HTMLSelectElement).value });
     else if (t.matches('[data-pr-stock]')) desenhar(pr, { ...f, stock: (t as HTMLInputElement).checked });
   });
@@ -181,10 +239,14 @@ export function iniciar(): void {
     const f = filtros(pr);
     if ((b = t.closest('[data-pr-vista]'))) { desenhar(pr, { ...f, vista: b.dataset.prVista as Vista }); pr.querySelector<HTMLElement>(`[data-pr-vista="${b.dataset.prVista}"]`)?.focus(); return; }
     if ((b = t.closest('[data-pr-marca]'))) { const m = b.dataset.prMarca!; desenhar(pr, { ...f, marcas: f.marcas.includes(m) ? f.marcas.filter((x) => x !== m) : [...f.marcas, m] }); pr.querySelector<HTMLElement>(`[data-pr-marca="${m}"]`)?.focus(); return; }
-    if ((b = t.closest('[data-pr-tirar-marca]'))) { desenhar(pr, { ...f, marcas: f.marcas.filter((x) => x !== b!.dataset.prTirarMarca) }); return; }
-    if (t.closest('[data-pr-tirar-grupo]')) { desenhar(pr, { ...f, grupo: '' }); return; }
-    if (t.closest('[data-pr-tirar-stock]')) { desenhar(pr, { ...f, stock: false }); return; }
-    if (t.closest('[data-pr-sem-filtros]')) { desenhar(pr, { ...f, marcas: [], grupo: '', stock: false }); return; }
+    if ((b = t.closest('[data-pr-tirar-marca]'))) { desenhar(pr, { ...f, marcas: f.marcas.filter((x) => x !== b!.dataset.prTirarMarca), pagina: 1 }); return; }
+    if (t.closest('[data-pr-tirar-grupo]')) { desenhar(pr, { ...f, grupo: '', pagina: 1 }); return; }
+    if (t.closest('[data-pr-tirar-stock]')) { desenhar(pr, { ...f, stock: false, pagina: 1 }); return; }
+    if (t.closest('[data-pr-sem-filtros]')) { desenhar(pr, { ...f, marcas: [], grupo: '', stock: false, armazem: '', min: null, max: null, pagina: 1 }); return; }
+    if (t.closest('[data-pr-tirar-armazem]')) { desenhar(pr, { ...f, armazem: '', pagina: 1 }); return; }
+    if (t.closest('[data-pr-tirar-preco]')) { desenhar(pr, { ...f, min: null, max: null, pagina: 1 }); return; }
+    if ((b = t.closest('[data-pr-filtros]'))) { abrirFiltros(pr, b); return; }
+    if ((b = t.closest('[data-pr-pagina]'))) { desenhar(pr, { ...f, pagina: Number(b.dataset.prPagina) }, { entrar: true, foco: true }); pr.scrollIntoView({ block: 'start', behavior: quieto() ? 'auto' : 'smooth' }); return; }
     if (t.closest('[data-pr-limpar]')) { limpar(ini); return; }
     if (t.closest('[data-pr-parcial]')) { const c = ini.querySelector<HTMLElement>('#i3-cartao-referencia')!; const x = c.querySelector<HTMLInputElement>('[data-pq-parcial]'); if (x) x.checked = true; pesquisarReferencia(c); return; }
     if (t.closest('[data-pr-tentar]')) { pesquisarReferencia(ini.querySelector<HTMLElement>('#i3-cartao-referencia')!); return; }
