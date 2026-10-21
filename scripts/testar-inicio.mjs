@@ -91,15 +91,46 @@ await caso('peças: adicionar ao carrinho, favoritas e ver o stock', 1440, async
   certo(await p.$eval(`${I} [data-disp-ref]`, (s) => s.value) === 'VKBA 6556', 'o stock não mudou de referência');
   certo((await p.textContent(`${I} .ini4__armazem [data-qtd]`)).trim() === '12', 'o Porto devia ter 12');
 }, 'pesquisa');
-await caso('painel (V9): sem os formulários nem os cartões da pesquisa; sete atalhos com o seu número', 1440, async (p) => {
-  certo(!(await p.$(`${N} .ini3__cartao`)), 'o Início ainda tem os formulários da pesquisa');
-  certo(!(await p.$(`${N} .pn__modo`)), 'os cartões da pesquisa ainda estão no Início');
-  const a = await p.$$eval(`${N} .pn__cartao`, (l) => l.map((b) => [b.dataset.pnAtalho, b.querySelector('.pn__cartao-meta').textContent.trim()]));
-  certo(a.length === 7, `há ${a.length} atalhos`);
-  certo(JSON.stringify(a.find((x) => x[0] === 'pedidos')) === JSON.stringify(['pedidos', '3 em curso']), `os pedidos dizem ${JSON.stringify(a.find((x) => x[0] === 'pedidos'))}`);
-  certo(a.find((x) => x[0] === 'faturas')[1] === '1 vencida', 'as faturas não dizem a vencida');
-  certo(!(await p.$(`${N} [data-graf]`)) && !(await p.$(`${N} [data-periodo]`)), 'o gráfico ou o período ainda estão no Início');
-  certo((await p.$$(`${N} .pn__mini`)).length === 5, 'o resumo não tem os cinco cartões');
+await caso('montra (V10): a abertura, «Encontrar peças» e os atalhos levam à pesquisa no modo certo', 1440, async (p) => {
+  const M = '.ecra:not([hidden]) > .versao:not([hidden]) .mt';
+  certo((await p.textContent(`${M} .mt__titulo`)).includes('A peça certa'), 'sem o título da montra');
+  certo(!(await p.$(`${M} .pn__kpi, ${M} .pn__tabela`)), 'o Início ainda tem o painel');
+  await p.click(`${M} .mt__atalho[data-pn-modo="2"]`); await p.waitForTimeout(900);
+  certo(await ecra(p) === 'pesquisa', 'o atalho Referência não foi à pesquisa');
+  certo(await p.getAttribute(`${I} .ini3__separador[data-modo="2"]`, 'aria-selected') === 'true', 'não abriu no modo Referência');
+  await p.goBack(); await p.waitForTimeout(700);
+  certo(await ecra(p) === 'inicio', 'o voltar não voltou ao Início');
+  await p.click(`${M} .mt__heroi [data-pn-ir="pesquisa"]`); await p.waitForTimeout(800);
+  certo(await ecra(p) === 'pesquisa', '«Encontrar peças» não foi à pesquisa');
+});
+await caso('montra: categoria, peça em destaque, «Continuar» e a conta levam aos ecrãs verdadeiros', 1440, async (p) => {
+  const M = '.ecra:not([hidden]) > .versao:not([hidden]) .mt', V = '.ecra:not([hidden]) > .versao:not([hidden])';
+  await p.click(`${M} .mt__cat[data-mt-grupo="Bomba de água"]`, { force: true }); await p.waitForTimeout(900);
+  certo(await ecra(p) === 'catalogo', 'a categoria não abriu o catálogo');
+  await p.goBack(); await p.waitForTimeout(700);
+  const u0 = await unidades(p);
+  await p.click(`${M} [data-mt-pedir]`, { force: true }); await p.waitForTimeout(900);
+  certo(await unidades(p) === u0 + 1, `o carrinho não somou (${u0} → ${await unidades(p)})`);
+  await p.click(`${M} [data-mt-ficha]`, { force: true }); await p.waitForTimeout(900);
+  certo(await ecra(p) === 'catalogo', '«Ver ficha» não abriu o catálogo');
+  await p.goBack(); await p.waitForTimeout(700);
+  await p.click(`${M} .mt__cont-item[data-abrir-pedido]`, { force: true }); await p.waitForTimeout(900);
+  certo(await ecra(p) === 'pedidos', 'o pedido em curso não abriu os Pedidos');
+  await p.goBack(); await p.waitForTimeout(700);
+  await p.click(`${M} .mt__conta-item--urgente`, { force: true }); await p.waitForTimeout(900);
+  certo(await ecra(p) === 'faturas', 'a fatura vencida não abriu as Faturas');
+  void V;
+});
+await caso('montra: o rolamento segue o scroll nos dois sentidos (sem relógio)', 1440, async (p) => {
+  const M = '.ecra:not([hidden]) > .versao:not([hidden]) .mt';
+  const sec = await p.evaluate((m) => { const s = document.querySelector(`${m} [data-mt-palco]`); const f = s.querySelector('.mt__fixo'); return { y0: s.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(f).top), dist: s.offsetHeight - f.offsetHeight }; }, M);
+  const barra = () => p.evaluate((m) => Number(getComputedStyle(document.querySelector(`${m} [data-mt-barra]`)).getPropertyValue('--p')), M);
+  for (const k of [.3, .9, .5, 0]) { await p.evaluate((y) => scrollTo(0, y), sec.y0 + sec.dist * k); await p.waitForTimeout(250); const b = await barra(); certo(Math.abs(b - k) < .03, `em ${k} a montagem está em ${b}`); }
+}, 'inicio', false);
+await caso('montra no telemóvel: sem deslocação horizontal, a abertura cabe', 390, async (p) => {
+  const w = await p.evaluate(() => document.documentElement.scrollWidth);
+  certo(w <= 390, `a página tem ${w} px de largura`);
+  certo(await p.isVisible('.ecra:not([hidden]) > .versao:not([hidden]) .mt .mt__heroi [data-pn-ir="pesquisa"]'), '«Encontrar peças» não está à vista');
 });
 await caso('pesquisa: os três cartões rodam sozinhos e param quando se escolhe um', 1440, async (p) => {
   const modo = () => p.$eval(I, (i) => i.dataset.modo);
@@ -110,66 +141,6 @@ await caso('pesquisa: os três cartões rodam sozinhos e param quando se escolhe
   await p.waitForTimeout(4600);
   certo(await modo() === m1 && m1 === '2', 'continuou a rodar depois de se escolher um cartão');
 }, 'pesquisa', false);
-await caso('atalhos e alertas levam aos ecrãs; o voltar do navegador', 1440, async (p) => {
-  await p.click(`${N} .pn__cartao[data-pn-atalho="devolucoes"]`); await p.waitForTimeout(700);
-  certo(await ecra(p) === 'devolucoes', 'o atalho não foi às Devoluções');
-  await p.goBack(); await p.waitForTimeout(700);
-  certo(await ecra(p) === 'inicio', `o «voltar» do navegador foi a ${await ecra(p)}`);
-  await p.click(`${N} .pn__grupo--urgente .pn__alerta-cab`);
-  certo(await p.isVisible(`${N} .pn__grupo--urgente .pn__alerta-det`), 'o alerta não abriu o pormenor');
-  await p.click(`${N} .pn__grupo--urgente .pn__alerta-det .btn`); await p.waitForTimeout(700);
-  certo(await ecra(p) === 'faturas', 'o alerta da fatura vencida não abriu as Faturas');
-});
-await caso('cabeçalho sem «Pesquisar peças» (redundante); o menu abre a pesquisa com o foco num campo', 1440, async (p) => {
-  certo(!(await p.$(`${N} .pn__pesquisar`)), 'o cabeçalho ainda repete «Pesquisar peças»');
-  certo(!(await p.$(`${N} .ini3__cartao, ${N} #i3-matricula, ${N} .pq__modo`)), 'o Início tem formulários da pesquisa');
-  await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="pesquisa"]'); await p.waitForTimeout(800);
-  certo(await ecra(p) === 'pesquisa', 'não foi à Pesquisar peças');
-  certo(await p.evaluate(() => document.activeElement?.tagName) === 'INPUT', 'o foco não ficou num campo');
-});
-await caso('últimos pedidos: a linha abre o percurso; «Ver» abre o pedido', 1440, async (p) => {
-  const n = await p.$$eval(`${N} .pn__linha`, (l) => l.length); certo(n === 5, `há ${n} linhas`);
-  await p.click(`${N} .pn__linha:nth-child(3) td[data-r="Valor"]`); await p.waitForTimeout(300);
-  certo(await p.isVisible(`${N} .pn__linha-det:not([hidden]) .pn__percurso`), 'o percurso não abriu');
-  certo(await p.$(`${N} .pn__percurso [aria-current="step"]`), 'o passo atual não está marcado');
-  await p.click(`${N} .pn__linha:first-child .pn__ver`); await p.waitForTimeout(700);
-  certo(await ecra(p) === 'pedidos', '«Ver» não abriu os Pedidos');
-});
-await caso('resumo e atalhos: «Pesquisar» abre o ecrã da pesquisa com o foco no campo; voltar', 1440, async (p) => {
-  await p.click(`${N} .pn__mais[data-pn-atalho="pesquisa"]`); await p.waitForTimeout(800);
-  certo(await ecra(p) === 'pesquisa', 'não foi à Pesquisar peças');
-  certo(await p.evaluate(() => document.activeElement?.closest('.ini3__cartao') !== null && document.activeElement?.tagName === 'INPUT'), 'o foco não ficou no campo');
-  certo(await p.$eval('.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[aria-current="page"]', (b) => b.dataset.ladoItem) === 'pesquisa', 'a barra não marca a pesquisa');
-  const vis = await p.$$eval('.ecra:not([hidden]) > .versao:not([hidden]) .ini3__cartao', (l) => l.filter((c) => getComputedStyle(c).display !== 'none').length);
-  certo(vis === 1, `vêem-se ${vis} formulários`);
-  await p.goBack(); await p.waitForTimeout(700);
-  certo(await ecra(p) === 'inicio', 'o «voltar» não voltou ao Início');
-  for (const [a, e] of [['faturas', 'faturas'], ['guias', 'guias'], ['tecnica', 'tecnica'], ['lista', 'lista']]) {
-    await p.click(`.ecra:not([hidden]) > .versao:not([hidden]) .lado__item[data-lado-item="inicio"]`); await p.waitForTimeout(500);
-    await p.click(`${N} .pn__cartao[data-pn-atalho="${a}"]`); await p.waitForTimeout(600);
-    certo(await ecra(p) === e, `o atalho ${a} foi a ${await ecra(p)}`);
-  }
-});
-await caso('definições: esconder o resumo e os atalhos; guarda e repõe', 1440, async (p) => {
-  await p.click(`${N} [data-pn-personalizar]`);
-  await p.waitForSelector(`${NP} .pn__gaveta:not([hidden])`);
-  await p.click(`${NP} [data-pn-mostrar="resumo"] + .sr-only + i`);
-  certo(await p.$(`${N} [data-w="resumo"][hidden]`), 'o resumo não se escondeu');
-  await p.click(`${NP} [data-pn-mostrar="atalhos"] + .sr-only + i`);
-  await p.keyboard.press('Escape');
-  await p.reload(); await p.waitForTimeout(900);
-  certo(await p.$(`${N} [data-w="resumo"][hidden]`) && await p.$(`${N} [data-w="atalhos"][hidden]`), 'não guardou os escondidos');
-  await p.click(`${N} [data-pn-personalizar]`); await p.click(`${NP} [data-pn-repor]`); await p.click(`${NP} .pn__gaveta-pe [data-pn-fechar]`);
-  await p.waitForTimeout(300);
-  certo(!(await p.$(`${N} [data-w="resumo"][hidden]`)), 'repor não mostrou o resumo');
-});
-await caso('atualizar: os dados ficam e a hora muda', 1440, async (p) => {
-  await p.click(`${N} [data-pn-atualizar]`);
-  certo((await p.textContent(`${N} [data-atualizado]`)).includes('A atualizar'), 'não disse que estava a atualizar');
-  certo((await p.$$(`${N} .pn__linha`)).length === 5, 'os pedidos saíram durante a atualização');
-  await p.waitForTimeout(1200);
-  certo((await p.textContent(`${N} [data-atualizado]`)).startsWith('Atualizado às'), 'a hora não voltou');
-});
 await caso('barra lateral: os três grupos, recolhe e fica guardada', 1440, async (p) => {
   const L = '.ecra:not([hidden]) > .versao:not([hidden]) .portal__lado';
   const g = await p.$$eval(`${L} .lado__grupo`, (l) => l.map((x) => x.textContent.trim()));
@@ -188,13 +159,6 @@ await caso('telemóvel: sem barra lateral, o ☰ abre a gaveta com a Pesquisar p
   await p.click('.ecra:not([hidden]) > .versao:not([hidden]) .portal__menu');
   certo(await p.waitForSelector('.bc-menu', { state: 'visible', timeout: 2000 }), 'a gaveta não abriu');
   certo((await p.textContent('.bc-menu')).includes('Pesquisar peças'), 'a gaveta não tem a Pesquisar peças');
-});
-await caso('telemóvel: atenção primeiro, sem deslocação horizontal, a tabela em cartões', 390, async (p) => {
-  const w = await p.evaluate(() => document.documentElement.scrollWidth);
-  certo(w <= 390, `a página tem ${w} px de largura`);
-  const topo = await p.$$eval(`${N} [data-w]`, (l) => l.map((x) => [x.dataset.w, x.getBoundingClientRect().top]).sort((a, b) => a[1] - b[1])[0][0]);
-  certo(topo === 'atencao', `o primeiro bloco é ${topo}`);
-  certo(await p.$eval(`${N} .pn__tabela thead`, (t) => getComputedStyle(t).display === 'none'), 'a tabela não passou a cartões');
 });
 await caso('pesquisa: três cartões e um só formulário; mudar de cartão guarda o que se escreveu', 1440, async (p) => {
   certo((await p.$$(`${I} .pq__modo`)).length === 3, 'não há três cartões');

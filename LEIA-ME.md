@@ -55,6 +55,18 @@ ROMAFE, ≈1,2 s, uma vez); à direita e-mail primeiro, palavra-passe, «Onde qu
 registo. Estados 01.1–01.9, 02.1–02.4, 03.1–03.5, recuperar e o PDA (navegador seguro do Android). Para
 experimentar: a palavra-passe «errada» dá o erro de credenciais. Sem segundo fator nem SSO inventados.
 
+## Peça A Peça: o Início é a montra (21 out. 2026, V10)
+
+Dos briefings «The Living Machine» e «Beyond the Dashboard» (ela: «o Início passa a ser a montra»): `portal/montra.ts`,
+`comportamento/montra.ts`, `css/montra.css`. A abertura («A peça certa. À primeira.», «Encontrar peças», «Explorar
+catálogo», os atalhos Matrícula/Veículo/Referência, o que está em curso e o urgente) com o SKF 6206 em 3D à direita;
+a mesma cena fica presa e o scroll desmonta-o e monta-o (um só progresso, sem relógio) até «Da engenharia à peça
+certa.» → «Explorar rolamentos»; as categorias reais do catálogo; uma peça em destaque com dados reais; «Continuar
+de onde ficaste» (só o que existe); a pesquisa no fim. O painel de números, gráfico e atalhos saiu do Início.
+Também: 09 · A minha garagem (primeira opção do menu), a barra de filtros compacta dos documentos
+(`portal/filtro-barra.ts`), Enter que passa ao campo seguinte (`comum/enter-seguinte.ts`), cantos `var(--r-md)` e o
+fundo/topo do briefing «Premium background».
+
 ## Peça A Peça: o novo nome, o UI limpo e o Início V9 (21 out. 2026)
 
 - O GoParts chama-se **Peça A Peça** em tudo o que se vê; no código ficam `goparts`, `IdGoParts`, `EcraGoParts`.
