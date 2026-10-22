@@ -244,7 +244,7 @@ export const DIAGRAMAS: Diagrama[] = [
     id: 'pecaapeca', grupo: 'Web', titulo: 'Peça A Peça · o portal', direcao: 'TD',
     descricao: 'Os ecrãs do portal: o Início, a pesquisa (com os resultados e os filtros no próprio ecrã), o catálogo, os documentos e as ferramentas. O carrinho é um painel da barra do topo; a encomenda ainda não tem ecrã.',
     nos: [
-      e('abertura', '00 · Abertura', 'goparts', 'abertura'), e('entrada', 'ROMAFE Identity · Entrar', 'identidade', 'entrada'), e('passe', 'ROMAFE Identity · Palavra-passe', 'identidade', 'palavra-passe'),
+      e('entrada', 'ROMAFE Identity · Entrar', 'identidade', 'entrada'), e('passe', 'ROMAFE Identity · Palavra-passe', 'identidade', 'palavra-passe'), e('abertura', '00 · Abertura', 'goparts', 'abertura'),
       e('inicio', '10 · Início', 'goparts', 'inicio'), e('pesquisa', '18 · Pesquisar peças', 'goparts', 'pesquisa'),
       n('acao', 'modo', 'Matrícula, veículo ou referência'), n('decisao', 'encontrou', 'Há resultados?'),
       e('resultados', 'Resultados e «Filtros (n)»', 'goparts', 'inicio-resultados'), e('semres', 'Sem resultados', 'goparts', 'inicio-sem-resultados'),
