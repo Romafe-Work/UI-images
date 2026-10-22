@@ -1,6 +1,7 @@
 /* =========================================================
    ERP — 00 · Abertura v5: o comportamento (22 out. 2026)
-   - «Sistema a ativar»: classes em .ab5 (is-a 0 ms, is-b 250, is-c 600, is-ativo 1200). Uma vez por sessão do
+   - «Sistema a ativar»: classes em .ab5 (is-a 0 ms, is-b 250, is-c 600, is-ativo 1200) e, aos 2,6 s, segue sozinho
+     para o Início, como a abertura do Peça A Peça (no protótipo e com sessão). Uma vez por sessão do
      navegador; depois, ou com «reduzir movimento», ou no editor, tudo no sítio logo. Interativo desde o início.
    - «Entrar no ERP»: com sessão (a da ROMAFE Identity ou a do ERP), o botão passa a «A abrir…» e o Início (ou o
      destino pedido) abre com a marca a passar à da barra; sem sessão, o login comum. «Abrir» no painel dos
@@ -85,11 +86,20 @@ function correr(): void {
   if (cen && cen !== 'normal') { raiz.classList.add('is-ja'); return; }
   raiz.classList.remove(...FASES, 'is-ja');
   void raiz.offsetWidth;
-  if (editando() || quieto() || vista()) { raiz.classList.add(...FASES, 'is-ja'); return; }
+  if (editando()) { raiz.classList.add(...FASES, 'is-ja'); return; }
+  if (quieto() || vista()) { raiz.classList.add(...FASES, 'is-ja'); depois(700, seguir); return; }
   depois(0, () => raiz?.classList.add('is-a'));
   depois(250, () => raiz?.classList.add('is-b'));
   depois(600, () => raiz?.classList.add('is-c'));
   depois(1200, () => { raiz?.classList.add('is-ativo'); marcarVista(); });
+  depois(2600, seguir);
+}
+/** (22 out.) ela: «como no Peça A Peça: depois do login aparece a abertura e depois a página principal do ERP» —
+    depois de ativo, segue sozinho para o Início (só no protótipo, #so=ecra; no editor fica). Sem sessão, fica
+    («Entrar no ERP» leva ao login comum). */
+function seguir(): void {
+  if (!raiz || editando() || !document.body.classList.contains('so-ecra') || !comSessao() || aberto) return;
+  const b = raiz.querySelector<HTMLElement>('.ab5__cta[data-ab5-entrar]'); if (b) entrar(b);
 }
 
 function armar(): void {
