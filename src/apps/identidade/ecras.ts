@@ -241,7 +241,7 @@ export function pda(): string {
    escura partida ao meio — à esquerda o título grande, a frase, o que a conta abre e o rolamento 3D de sempre
    (o canvas do Peça A Peça, comportamento/entrar-3d.ts); à direita o ROMAFE com o risco laranja, o título, campos
    sublinhados e o botão laranja. Sem o «Bem-vindo» (decisão de 20 out.): o título continua «Entrar na ROMAFE».
-   A v1 fica como estava; o PDA não muda (é outra composição). */
+   O PDA não muda (é outra composição). */
 const NOTA_V2 = 'Como o login escuro do Peça A Peça (22 out., da imagem dela): título grande, rolamento 3D, campos sublinhados';
 const ONDAS = `<svg class="ent3__ondas" aria-hidden="true" viewBox="0 0 1000 1000" preserveAspectRatio="none">
   <path pathLength="1" d="M-20 210 C 220 160, 420 260, 640 200 S 900 120, 1020 150"/>
@@ -255,11 +255,6 @@ const PALCO = `<section class="ent3__palco" aria-label="ROMAFE">
     <div class="ent3__texto">
       <p class="ent3__lema" role="presentation"><span>A peça certa.</span> <span>À primeira.</span> <span>Sem voltas.</span></p>
       <p class="ent3__frase">A Romafe num só sítio: o ERP, o Peça A Peça, o GoShop e a Pick, com a mesma conta.</p>
-      <ul class="ent3__vantagens">
-        <li>${L(layoutDashboard)}Compras, stocks e vendas no ERP</li>
-        <li>${L(store)}As peças das oficinas no Peça A Peça</li>
-        <li>${L(scanBarcode)}O armazém na Pick</li>
-      </ul>
     </div>
     <div class="ent3__peca" aria-hidden="true">
       <div class="ent3__lugar"></div>
@@ -276,7 +271,8 @@ function paraV2(html: string): string {
     .replace('<main class="id__painel">', '<main class="id__painel ent3__lado">')
     .replace(/<header class="id__marca">[\s\S]*?<\/header>/, '<header class="id__marca ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__produto">Conta ROMAFE</span></header>');
 }
-const um = (html: string, nota: string): Ecra<IdIdentidade>['versoes'] => (html.includes('class="id-cena"') ? [{ id: 'v1', nota, html }, { id: 'v2', nota: NOTA_V2, html: paraV2(html) }] : [{ id: 'v1', nota, html }]);
+/* (22 out.) ela, depois de ver a v2: tirar as três linhas do que a conta abre e a v1 — uma só versão por ecrã */
+const um = (html: string, nota: string): Ecra<IdIdentidade>['versoes'] => (html.includes('class="id-cena"') ? [{ id: 'v2', nota: NOTA_V2, html: paraV2(html) }] : [{ id: 'v1', nota, html }]);
 const NOTA = 'ROMAFE Identity (21 out., do briefing «One login, three applications»)';
 export function ecrasIdentidade(): Ecra<IdIdentidade>[] {
   const est = <E extends string>(de: IdIdentidade, l: [E, IdIdentidade, string, string][], f: (e: E) => string) => l.map(([e, id, nome, objetivo]) => ({ id, nome, fluxo: FLUXO, objetivo, estadoDe: de, versoes: um(f(e), NOTA) }));
