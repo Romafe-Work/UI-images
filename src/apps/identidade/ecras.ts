@@ -46,7 +46,7 @@ const FLUXO = 'Entrar';
 export type App = { id: string; nome: string; desc: string; icone: string; pagina?: string; so?: string };
 export const APPS: App[] = [
   { id: 'erp', nome: 'ERP', desc: 'Compras, stocks, vendas e a gestão da empresa.', icone: layoutDashboard, pagina: 'erp/#ecra=inicio' },
-  { id: 'pecaapeca', nome: 'Peça A Peça', desc: 'O marketplace de peças auto para as oficinas.', icone: store, pagina: 'peca-a-peca/#ecra=inicio' },
+  { id: 'pecaapeca', nome: 'Peça A Peça', desc: 'O marketplace de peças auto para as oficinas.', icone: store, pagina: 'peca-a-peca/#ecra=abertura' },
   { id: 'goshop', nome: 'GoShop', desc: 'A loja online de peças.', icone: shoppingCart, so: 'Ainda sem ecrãs depois de entrar' },
   { id: 'pick', nome: 'Pick', desc: 'A aplicação do armazém.', icone: scanBarcode, so: 'Abre-se no PDA' },
 ];
@@ -266,7 +266,7 @@ const PALCO = `<section class="ent3__palco" aria-label="ROMAFE">
 const fase = (k: string) => (k.startsWith('passe') || k.startsWith('aplicacoes') ? 'palavra' : k.startsWith('recuperar') ? 'ajuda' : 'entrada');
 function paraV2(html: string): string {
   return html
-    .replace(/^<div class="id( id--abrir)?" data-id="([^"]+)">/, (_, ab: string | undefined, k: string) => `<div class="ent3 id id--v2${ab || ''}" data-id="${k}" data-fase="${fase(k)}">`)
+    .replace(/^<div class="id( id--abrir)?" data-id="([^"]+)">/, (_, ab: string | undefined, k: string) => `<div class="ent3 id id--v2${ab || ''}" data-id="${k}" data-fase="${fase(k)}" data-ciclo>`)
     .replace(/<aside class="id-cena"[\s\S]*?<\/aside>/, PALCO)
     .replace('<main class="id__painel">', '<main class="id__painel ent3__lado">')
     .replace(/<header class="id__marca">[\s\S]*?<\/header>/, '<header class="id__marca ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__produto">Conta ROMAFE</span></header>');

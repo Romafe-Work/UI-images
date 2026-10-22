@@ -13,7 +13,7 @@
    - No editor não passa sozinha à login. Com #…&pausa=3.3 no endereço, a sequência fica
      parada nesse instante (para rever um momento).
    ========================================================= */
-import { irLogin } from './navegar';
+import { mostrar } from '../../../comum/ecras';
 import type { Cena } from './abertura-cena';
 
 const editando = () => document.body.classList.contains('editando');
@@ -46,17 +46,16 @@ function largar(): void {
   raiz = null;
 }
 
-/** Passa à login: a marca do centro voa para a da barra. */
+/** Passa ao Início (22 out.: o login vem antes da abertura, na ROMAFE Identity): a marca do centro voa para a da barra. */
 function seguir(): void {
   const ab = raiz;
-  if (!ab) { irLogin(); return; }
+  if (!ab) { mostrar('inicio'); return; }
   const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
   const daqui = ab.querySelector<HTMLElement>('.ab5__marca');
   const ir = () => {
     if (daqui) daqui.style.viewTransitionName = '';
     largar();
-    /* (22 out.) o login é o comum (ROMAFE Identity), noutra página */
-    irLogin();
+    mostrar('inicio');
   };
   if (!doc.startViewTransition || quieto() || !daqui) { ir(); return; }
   /* só a marca voa; o resto troca com um desvanecer */

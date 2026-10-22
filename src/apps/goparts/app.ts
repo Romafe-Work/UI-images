@@ -74,7 +74,7 @@ export const goparts: App<IdGoParts> = {
   marca: 'PEÇA A PEÇA',
   tela: { l: 1440, a: 900 },
   fluxos: {
-    'Entrar': 'A abertura animada. O login é o comum a todas as apps (ROMAFE Identity, em identidade/): «Saltar», o fim da abertura, «Iniciar sessão» e «Terminar sessão» levam lá.',
+    'Entrar': 'O login é o comum a todas as apps (ROMAFE Identity, em identidade/); ao escolher o Peça A Peça, passa a abertura animada e depois o Início. «Iniciar sessão» e «Terminar sessão» voltam ao login.',
     'Portal': 'Depois de entrar: o Início (o painel da atividade), a pesquisa de peças, o catálogo, os pedidos, as guias de remessa, as faturas, a Minha lista, as devoluções e as informações técnicas.',
   },
   /* 14 out. 2026: os quatro ecrãs de entrar à volta do rolamento 3D (entrar-3d.ts), do briefing dela; saíram a v1 e a v2 */

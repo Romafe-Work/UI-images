@@ -40,10 +40,26 @@ function obterCena(): Promise<CenaEntrar | null> {
   return carregar;
 }
 
+/* o ciclo do login comum: só o anel exterior → montado → completo (a marca laranja) → vista explodida → peças
+   suspensas → outra vez; cada fase segue a anterior com a mola da cena, por isso nada salta */
+const CICLO: [Estado, number][] = [['entrada', 2200], ['palavra', 2000], ['completo', 1600], ['empresa', 2600], ['ajuda', 2600]];
+let ciclo = 0;
+function cicloPara(c: CenaEntrar | null): void {
+  window.clearTimeout(ciclo); ciclo = 0;
+  if (!c) return;
+  let i = 0;
+  const passo = () => {
+    if (!raiz?.hasAttribute('data-ciclo') || !raiz.isConnected) { ciclo = 0; return; }
+    const [e, t] = CICLO[i % CICLO.length]; c.irPara(e); i++;
+    ciclo = window.setTimeout(passo, t);
+  };
+  passo();
+}
+
 /** O ecrã de entrar à vista mudou: o canvas vai para o palco dele, e a cena para a fase dele. */
 async function armar(): Promise<void> {
   const ent = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ent3');
-  if (!ent) { raiz = null; cena?.parar(); return; }
+  if (!ent) { raiz = null; cena?.parar(); cicloPara(null); return; }
   const mudou = ent !== raiz;
   raiz = ent;
   ent.classList.remove('is-voo');
@@ -57,6 +73,8 @@ async function armar(): Promise<void> {
   ent.querySelectorAll<SVGGElement>('.ent3__cota').forEach((g) => cotas.set(g.dataset.cota!, { linha: g.querySelector('line')!, ponto: g.querySelector('circle')!, rotulo: ent.querySelector<HTMLElement>(`.ent3__rotulo[data-cota="${g.dataset.cota}"]`)! }));
   c.ligarCotas(cotas);
   if (mudou) c.irPara(ent.dataset.fase as Estado);
+  /* (22 out.) no login comum (data-ciclo): o rolamento monta-se e desmonta-se sozinho, sem parar */
+  if (mudou) cicloPara(ent.hasAttribute('data-ciclo') ? c : null);
   if (ent.closest('[data-ecra="palavra-passe-erro"]') && mudou) window.setTimeout(() => c.resistir(), 500);
   c.ligar();
   ent.classList.add('is-cena');

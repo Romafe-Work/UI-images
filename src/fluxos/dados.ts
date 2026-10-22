@@ -253,7 +253,7 @@ export const DIAGRAMAS: Diagrama[] = [
       e('lista', '15 · Minha lista', 'goparts', 'lista'), e('tecnica', '17 · Informações técnicas', 'goparts', 'tecnica'),
     ],
     arestas: [
-      a('abertura', 'entrada', 'o login é o comum'), a('entrada', 'passe'), a('passe', 'inicio', 'escolhe o Peça A Peça'),
+      a('entrada', 'passe'), a('passe', 'abertura', 'escolhe o Peça A Peça'), a('abertura', 'inicio', 'Saltar ou fim'),
       a('inicio', 'pesquisa', 'cartões da pesquisa', 'deslize, 250 ms'), a('pesquisa', 'modo'), a('modo', 'encontrou'), a('encontrou', 'resultados', 'sim'), a('encontrou', 'semres', 'não'), a('semres', 'modo', 'pesquisa parcial ou outra forma'),
       a('resultados', 'catalogo', 'ver ficha', 'a imagem passa para a ficha'), a('resultados', 'adicionar'), a('catalogo', 'adicionar'), a('adicionar', 'encomendar'),
       a('inicio', 'catalogo'), a('inicio', 'pedidos', 'atalho'), a('pedidos', 'guias', 'ver guia'), a('guias', 'faturas', 'ver fatura'), a('faturas', 'devolucoes', 'criar devolução'),
