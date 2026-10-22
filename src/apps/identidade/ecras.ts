@@ -237,7 +237,46 @@ export function pda(): string {
 }
 
 /* ---------- os ecrãs e os estados ---------- */
-const um = (html: string, nota: string): Ecra<IdIdentidade>['versoes'] => [{ id: 'v1', nota, html }];
+/* (22 out.) ela: «quero o login assim» (a imagem do login escuro do Peça A Peça). A v2 de cada ecrã: a página
+   escura partida ao meio — à esquerda o título grande, a frase, o que a conta abre e o rolamento 3D de sempre
+   (o canvas do Peça A Peça, comportamento/entrar-3d.ts); à direita o ROMAFE com o risco laranja, o título, campos
+   sublinhados e o botão laranja. Sem o «Bem-vindo» (decisão de 20 out.): o título continua «Entrar na ROMAFE».
+   A v1 fica como estava; o PDA não muda (é outra composição). */
+const NOTA_V2 = 'Como o login escuro do Peça A Peça (22 out., da imagem dela): título grande, rolamento 3D, campos sublinhados';
+const ONDAS = `<svg class="ent3__ondas" aria-hidden="true" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+  <path pathLength="1" d="M-20 210 C 220 160, 420 260, 640 200 S 900 120, 1020 150"/>
+  <path pathLength="1" class="is-laranja" d="M-20 470 C 180 420, 380 520, 600 470 S 860 400, 1020 430"/>
+  <path pathLength="1" d="M-20 760 C 240 720, 420 820, 660 760 S 900 700, 1020 720"/>
+</svg>`;
+const PONTOS: [number, number][] = [[8, 14], [34, 9], [62, 6], [88, 11], [21, 38], [71, 31], [93, 47], [12, 62], [48, 58], [80, 69], [28, 84], [58, 91], [90, 88]];
+const PALCO = `<section class="ent3__palco" aria-label="ROMAFE">
+    ${ONDAS}
+    <div class="ent3__pontos" aria-hidden="true">${PONTOS.map(([x, y]) => `<i style="left:${x}%;top:${y}%"></i>`).join('')}</div>
+    <div class="ent3__texto">
+      <p class="ent3__lema" role="presentation"><span>A peça certa.</span> <span>À primeira.</span> <span>Sem voltas.</span></p>
+      <p class="ent3__frase">A Romafe num só sítio: o ERP, o Peça A Peça, o GoShop e a Pick, com a mesma conta.</p>
+      <ul class="ent3__vantagens">
+        <li>${L(layoutDashboard)}Compras, stocks e vendas no ERP</li>
+        <li>${L(store)}As peças das oficinas no Peça A Peça</li>
+        <li>${L(scanBarcode)}O armazém na Pick</li>
+      </ul>
+    </div>
+    <div class="ent3__peca" aria-hidden="true">
+      <div class="ent3__lugar"></div>
+      <svg class="ent3__grafismo" viewBox="-100 -100 200 200" preserveAspectRatio="xMidYMid meet"><ellipse class="ent3__orbita" rx="96" ry="34"/><circle class="ent3__orbita ent3__orbita--fina" r="92"/></svg>
+    </div>
+    <p class="ent3__ficha" aria-hidden="true">SKF 6206 · D 62 · d 30 · B 16 mm</p>
+  </section>`;
+/** a fase do rolamento de cada ecrã: montar-se no e-mail, completar-se na palavra-passe, desmontado na ajuda */
+const fase = (k: string) => (k.startsWith('passe') || k.startsWith('aplicacoes') ? 'palavra' : k.startsWith('recuperar') ? 'ajuda' : 'entrada');
+function paraV2(html: string): string {
+  return html
+    .replace(/^<div class="id( id--abrir)?" data-id="([^"]+)">/, (_, ab: string | undefined, k: string) => `<div class="ent3 id id--v2${ab || ''}" data-id="${k}" data-fase="${fase(k)}">`)
+    .replace(/<aside class="id-cena"[\s\S]*?<\/aside>/, PALCO)
+    .replace('<main class="id__painel">', '<main class="id__painel ent3__lado">')
+    .replace(/<header class="id__marca">[\s\S]*?<\/header>/, '<header class="id__marca ent3__marca"><span class="romafe">ROMAFE</span><span class="ent3__produto">Conta ROMAFE</span></header>');
+}
+const um = (html: string, nota: string): Ecra<IdIdentidade>['versoes'] => (html.includes('class="id-cena"') ? [{ id: 'v1', nota, html }, { id: 'v2', nota: NOTA_V2, html: paraV2(html) }] : [{ id: 'v1', nota, html }]);
 const NOTA = 'ROMAFE Identity (21 out., do briefing «One login, three applications»)';
 export function ecrasIdentidade(): Ecra<IdIdentidade>[] {
   const est = <E extends string>(de: IdIdentidade, l: [E, IdIdentidade, string, string][], f: (e: E) => string) => l.map(([e, id, nome, objetivo]) => ({ id, nome, fluxo: FLUXO, objetivo, estadoDe: de, versoes: um(f(e), NOTA) }));
