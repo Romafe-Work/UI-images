@@ -2,7 +2,8 @@ import type { App } from '../../comum/tipos';
 import type { IdMobile } from './ids';
 import { ecrasCarregarPick, ecrasErroPick, DESCRICAO_CARREGAR_PICK, DESCRICAO_ERROS_PICK } from './estados';
 import { ecrasInventario, DESCRICAO_INVENTARIO } from './inventario';
-import { entrarIndustrial, aberturaPick, ajudaPick, ESTADOS_ENTRAR_PK, ESTADOS_ABERTURA_PK } from './entrar-industrial';
+import { entrarIndustrial, ajudaPick, ESTADOS_ENTRAR_PK, ESTADOS_ABERTURA_PK } from './entrar-industrial';
+import { aberturaPick } from './abertura-pick';
 import type { Ecra } from '../../comum/tipos';
 
 const DESCRICAO_ENTRAR_PK = 'Abrir a Pick e entrar: a abertura (o leitor, a rede e o servidor), o utilizador e a palavra-passe no mesmo ecrã, e a ajuda.';
@@ -27,8 +28,8 @@ function ecrasEntrarPick(): Ecra<IdMobile>[] {
   const FLUXO = 'Entrar';
   const um = (html: string, nota: string): Ecra['versoes'] => [{ id: 'v1', nota, html }];
   return [
-    { id: 'abertura', nome: '00 · Abertura', fluxo: FLUXO, objetivo: 'Ao ligar a Pick: as barras de um código lidas por uma linha arrumam-se numa estante; o leitor, a rede e o servidor confirmam-se um a um; «Entrar».', versoes: um(aberturaPick(), 'A abertura (21 out.)') },
-    ...ESTADOS_ABERTURA_PK.map(([est, id, nome, objetivo]) => ({ id: id as IdMobile, nome, fluxo: FLUXO, objetivo, estadoDe: 'abertura' as IdMobile, versoes: um(aberturaPick(est), 'A abertura (21 out.)') })),
+    { id: 'abertura', nome: '00 · Abertura', fluxo: FLUXO, objetivo: 'Ao ligar a Pick (≈1,5 s): o porta-paletes entra com a caixa e o código é lido; o leitor, a rede e o servidor confirmam-se; sobe a entrada do Inventário — o armazém e o PDA, quem entrou da última vez, os atalhos das três tarefas e «Entrar».', versoes: um(aberturaPick(), 'A abertura (22 out., briefing do PDA Honeywell: o porta-paletes e a entrada do Inventário; substitui a de 21 out.)') },
+    ...ESTADOS_ABERTURA_PK.map(([est, id, nome, objetivo]) => ({ id: id as IdMobile, nome, fluxo: FLUXO, objetivo, estadoDe: 'abertura' as IdMobile, versoes: um(aberturaPick(est), 'A abertura (22 out.)') })),
     { id: 'entrada', nome: '01 · Entrar', fluxo: FLUXO, objetivo: 'Entrar com o utilizador e a palavra-passe, no mesmo ecrã; a rede e o servidor à vista; depois, o Inventário.', versoes: um(entrarIndustrial(), 'A entrada industrial (21 out.): a marca da família, a linha de estado, a estante com as posições, a folha do formulário') },
     ...ESTADOS_ENTRAR_PK.map(([est, id, nome, objetivo]) => ({ id: id as IdMobile, nome, fluxo: FLUXO, objetivo, estadoDe: 'entrada' as IdMobile, versoes: um(entrarIndustrial(est), 'A entrada industrial (21 out.)') })),
     { id: 'ajuda', nome: '02 · Ajuda', fluxo: FLUXO, objetivo: 'Recuperar o acesso e o que fazer quando o leitor ou a rede falham; o apoio da Romafe.', versoes: um(ajudaPick(), 'A ajuda (21 out.)') },
