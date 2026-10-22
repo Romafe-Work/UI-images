@@ -1,0 +1,86 @@
+/* =========================================================
+   ERP — 00 · Abertura v4 (22 out. 2026): o ROMAFE, o ERP e um rolamento que se monta
+   Paleta do briefing: fundo #0D141C, azul profundo #152638, azul ROMAFE #0876BD, laranja #F58214. Sempre escuro.
+   O ROMAFE do logótipo fica RGB(0, 99, 170), em Motor, sem placa. O laranja aparece duas vezes: a marca de
+   alinhamento do anel, no fim da montagem, e o botão — este só sem sessão.
+   Fases (classes em .ab4): is-a fundo, is-b montagem, is-c ROMAFE, is-d ERP, is-fim parado, is-e passagem;
+   is-ja = sem sequência. Só transform, opacidade e filtro; nada mexe a altura da página.
+   ========================================================= */
+.ab4 {
+  --a4-fundo: #0d141c; --a4-azul-fundo: #152638; --a4-azul: #0876bd; --a4-laranja: #f58214; --a4-tinta: #f5f8fa; --a4-tinta-2: #a8b7c5;
+  --mec: min(92vh, 980px, 104vw);
+  --curva: cubic-bezier(.22, 1, .36, 1); --encaixe: cubic-bezier(.2, .9, .12, 1);
+  position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden; isolation: isolate; color-scheme: dark;
+  background: var(--a4-fundo); color: var(--a4-tinta); font-family: var(--f-base);
+}
+.ab4 *, .ab4 *::before, .ab4 *::after { box-sizing: border-box; }
+
+/* o fundo: profundidade sem objetos — a luz por trás do mecanismo e o chão a escurecer */
+.ab4__fundo { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .2s linear;
+  background:
+    radial-gradient(closest-side at 50% 50%, rgba(21, 38, 56, .95), rgba(21, 38, 56, .35) 55%, transparent 100%) 50% 50% / calc(var(--mec) * 1.25) calc(var(--mec) * 1.25) no-repeat,
+    linear-gradient(to bottom, transparent 55%, rgba(0, 0, 0, .35)); }
+.ab4.is-a .ab4__fundo { opacity: 1; }
+
+/* ---------- o mecanismo ---------- */
+.ab4__palco { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; pointer-events: none; transition: filter .3s ease, opacity .3s ease, transform .35s var(--curva); }
+.ab4__mecanismo { position: absolute; left: 50%; top: 50%; width: var(--mec); height: var(--mec); margin: calc(var(--mec) / -2) 0 0 calc(var(--mec) / -2); overflow: visible; }
+.ab4__mecanismo * { transform-box: view-box; transform-origin: 0 0; }
+.ab4__seg { stroke: #2c4560; stroke-width: 1.2; }
+.ab4__chanfro { fill: none; stroke: rgba(120, 165, 205, .14); stroke-width: 1; }
+.ab4__rolo { stroke: #2c4560; stroke-width: 1; }
+.ab4__riscas line { stroke: rgba(120, 165, 205, .16); stroke-width: 1; }
+.ab4__marcador { fill: var(--a4-laranja); opacity: 0; transform: scaleY(0); transition: opacity .12s ease, transform .18s var(--curva); }
+
+/* antes de montar: os segmentos fora, ao longo da sua bissetriz, rodados; a coroa recuada; as riscas apagadas */
+.ab4__seg { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); transition: transform .5s var(--encaixe) calc(var(--i) * 30ms), opacity .2s ease calc(var(--i) * 30ms); }
+.ab4__coroa { opacity: 0; transform: rotate(-38deg) scale(1.06); transition: transform .55s var(--encaixe) .05s, opacity .25s ease .05s; }
+.ab4__riscas, .ab4__chanfro { opacity: 0; transition: opacity .3s ease .35s; }
+.ab4.is-b .ab4__seg { opacity: 1; transform: none; }
+.ab4.is-b .ab4__coroa { opacity: 1; transform: none; }
+.ab4.is-b .ab4__riscas, .ab4.is-b .ab4__chanfro { opacity: 1; }
+.ab4.is-d .ab4__marcador { opacity: 1; transform: none; }
+
+/* ---------- a marca: o ROMAFE e o ERP, e mais nada ---------- */
+.ab4__centro { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; justify-items: center; width: min(420px, calc(100% - 32px)); transform: translate(-50%, -50%); text-align: center; }
+.ab4__marca { display: grid; justify-items: center; gap: 6px; margin: 0; font-weight: 400; }
+.ab4__romafe { font-size: clamp(52px, 6.2vw, 84px); line-height: 1; color: rgb(0, 99, 170); opacity: 0; transform: scale(1.03); filter: blur(3px); transition: opacity .2s ease, transform .22s var(--curva), filter .2s ease; }
+.ab4__erp { font-family: var(--f-titulo); font-size: clamp(18px, 1.8vw, 24px); font-weight: 700; letter-spacing: .14em; padding-left: .14em; color: var(--a4-tinta); opacity: 0; transform: translateY(6px); transition: opacity .18s ease, transform .18s var(--curva); }
+.ab4.is-c .ab4__romafe { opacity: 1; transform: none; filter: none; }
+.ab4.is-d .ab4__erp { opacity: 1; transform: none; }
+
+/* a ação: o sítio dela existe sempre (a marca não salta quando o botão aparece) */
+.ab4__acao { display: grid; justify-items: center; gap: 12px; min-height: 46px; margin-top: 32px; opacity: 0; transition: opacity .18s ease; }
+.ab4.is-fim .ab4__acao { opacity: 1; }
+.ab4__btn.btn { display: inline-flex; align-items: center; gap: 10px; height: 46px; min-width: 172px; padding: 0 20px; border-radius: 8px; font-size: 15px; font-weight: 600; transition: transform .12s ease, background-color .12s ease, border-color .12s ease; }
+.ab4__btn.btn--acao { border: 1px solid var(--a4-laranja); background: var(--a4-laranja); color: #fff; }
+.ab4__btn.btn--acao:hover { background: #e47410; border-color: #e47410; }
+.ab4__btn.btn--secundario { border: 1px solid rgba(168, 183, 197, .35); background: transparent; color: var(--a4-tinta); }
+.ab4__btn.btn--secundario:hover { border-color: rgba(168, 183, 197, .6); }
+.ab4__btn.btn:active { transform: scale(.97); }
+.ab4__btn .btn__icone { width: 16px; height: 16px; transition: transform .14s var(--curva); }
+.ab4__btn:hover .btn__icone { transform: translateX(2px); }
+.ab4__btn:focus-visible { outline: 2px solid var(--a4-tinta); outline-offset: 3px; }
+.ab4__msg { margin: 0; font-size: 15px; color: var(--a4-tinta-2); }
+/* a espera: um traço fino que corre, só enquanto há mesmo alguma coisa a esperar */
+.ab4__espera { position: relative; display: block; width: 72px; height: 2px; margin-top: 22px; overflow: hidden; border-radius: 2px; background: rgba(168, 183, 197, .18); }
+.ab4__espera::after { content: ""; position: absolute; inset: 0; width: 40%; background: var(--a4-azul); animation: ab4-espera 1s ease-in-out infinite; }
+@keyframes ab4-espera { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+/* E — a passagem: o mecanismo recua e desfoca; a marca segue (view transition) para a barra do Início */
+.ab4.is-e .ab4__palco { opacity: .25; filter: blur(5px); transform: scale(1.05); }
+
+/* sem sequência: tudo no sítio, quase sem transição */
+.ab4.is-ja *, .ab4.is-ja *::before, .ab4.is-ja *::after { transition-duration: .1s !important; transition-delay: 0s !important; }
+
+/* ---------- no telemóvel: o mecanismo maior que o ecrã (cortado nos lados), a marca e o botão no furo ---------- */
+@media (max-width: 700px) {
+  .ab4 { --mec: max(118vw, 420px); }
+  .ab4__riscas { display: none; }
+  .ab4__romafe { font-size: clamp(48px, 15vw, 64px); }
+  .ab4__acao { margin-top: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab4 *, .ab4 *::before, .ab4 *::after { transition-duration: .01s !important; transition-delay: 0s !important; }
+  .ab4__espera::after { animation-duration: 2.4s; }
+}

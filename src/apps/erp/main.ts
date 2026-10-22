@@ -9,7 +9,7 @@ import './css/abertura.css';
 import './css/inicio.css';
 import './css/compras-v2.css';
 import './css/abertura-v2.css';
-import './css/abertura-v3.css';
+import './css/abertura-v4.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -21,6 +21,6 @@ import { iniciar as inicio } from './comportamento/inicio';
 import { iniciar as compras } from './compras/comportamento';
 import { iniciar as compras2 } from './compras/comportamento2';
 import { iniciar as abertura2 } from './comportamento/abertura-v2';
-import { iniciar as abertura3 } from './comportamento/abertura-v3';
+import { iniciar as abertura4 } from './comportamento/abertura-v4';
 
-montar(erp, [entrar, rede, abertura, abertura2, abertura3, inicio, compras, compras2]);
+montar(erp, [entrar, rede, abertura, abertura2, abertura4, inicio, compras, compras2]);

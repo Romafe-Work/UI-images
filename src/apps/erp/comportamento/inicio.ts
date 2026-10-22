@@ -14,7 +14,7 @@
    - Teclado: Ctrl+K (ou Cmd+K) abre a procura; ↑ ↓ Enter Esc lá dentro; setas na barra lateral;
      Alt+N «Nova encomenda a fornecedor»; Esc fecha a camada aberta e devolve o foco a quem a abriu.
    ========================================================= */
-import { irIdentidade } from './abertura-v3';
+import { irIdentidade } from './abertura-v4';
 import { mostrar, mostrarVersao } from '../../../comum/ecras';
 import * as cp from '../compras/dominio';
 import * as cp2 from '../compras/dominio2';
