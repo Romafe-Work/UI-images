@@ -443,3 +443,14 @@
 :is(.dk-palco, .dk6-grade):has(.dk-cartoes) { grid-template-columns: minmax(0, 1fr); }
 .dk-cartoes { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
 .dk-palco:has(.dk-cartoes) .dk-atalhos { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+/* (22 out., ela: «quero mesmo assim os cards») iguais ao mockup do ERP antigo: 238 × 148, não esticam, ícone azul #244A72 */
+.dk-cartoes { grid-template-columns: repeat(auto-fill, 238px); gap: 17px; justify-content: start; }
+.dk-cartao { width: 238px; min-height: 148px; gap: 0; padding: 20px; border: 1px solid #c9d3dd; border-radius: 4px; box-shadow: none; animation: none; }
+.dk-cartao:hover { border-color: #244a72; box-shadow: 0 2px 8px rgba(36, 74, 114, .12); }
+.dk-cartao .dk-cartao-ic { width: 24px !important; height: 24px !important; margin: 0 0 8px; stroke-width: 2.4; }
+.dk-cartao b { font-size: 17px; font-weight: 500; line-height: 1.35; color: var(--k-tinta); }
+.dk-cartao small { margin-top: 2px; font-size: 12px; letter-spacing: 0; color: #6c7a89; }
+.dk-cartao kbd { margin-top: 10px; padding: 0 6px; border: 1px solid #c9d3dd; border-radius: 3px; background: #f4f6f8; font-size: 11px; font-weight: 500; line-height: 16px; color: #1b2938; }
+[data-theme="dark"] .dk-cartao { border-color: var(--k-borda-forte); } [data-theme="dark"] .dk-cartao kbd { border-color: var(--k-borda-forte); background: var(--k-sup-2); color: var(--k-tinta); } [data-theme="dark"] .dk-cartao small { color: var(--k-tinta-3); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dk-cartao { border-color: var(--k-borda-forte); } :root:not([data-theme="light"]) .dk-cartao kbd { border-color: var(--k-borda-forte); background: var(--k-sup-2); color: var(--k-tinta); } :root:not([data-theme="light"]) .dk-cartao small { color: var(--k-tinta-3); } }
+@media (max-width: 560px) { .dk-cartoes { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } .dk-cartao { width: auto; } }
