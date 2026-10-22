@@ -9,13 +9,13 @@
    posição, com o indicador, e o porta-paletes de lado.
    ========================================================= */
 /* ---------- as cores (claro e escuro) do porta-paletes, da caixa e da posição ---------- */
-.pka, .pki, .pk, .pkb {
+.pka, .pki, .pk, .pkb, .gp {
   --pkc-laranja: #f58214; --pkc-laranja-topo: #ffa04a; --pkc-laranja-lado: #c9650a; --pkc-fita: rgba(255, 255, 255, .45);
   --pkp-azul: #0876bd; --pkp-azul-topo: #2495db; --pkp-azul-lado: #075a94; --pkp-metal: #3c4b5c; --pkp-metal-2: #5b6b7d; --pkp-borracha: #1a222c; --pkp-sombra: rgba(15, 25, 35, .18);
   --pkq-traco: #0876bd; --pkq-traco-2: rgba(8, 118, 189, .35); --pka-traco: rgba(8, 118, 189, .22); --pka-chao: rgba(8, 118, 189, .06);
 }
-[data-theme="dark"] :is(.pka, .pki, .pk, .pkb) { --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.pka, .pki, .pk, .pkb) { --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05); } }
+[data-theme="dark"] :is(.pka, .pki, .pk, .pkb, .gp) { --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.pka, .pki, .pk, .pkb, .gp) { --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05); } }
 /* o fundo do briefing V2 */
 .pka, .pki { --k-fundo: #f3f7fa; --k-sup: #ffffff; }
 [data-theme="dark"] :is(.pka, .pki) { --k-fundo: #0e1620; --k-fundo-2: #142130; --k-sup: #1b2a39; --k-borda: #33475c; }

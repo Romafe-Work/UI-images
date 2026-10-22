@@ -2,11 +2,11 @@ import type { App } from '../../comum/tipos';
 import type { IdMobile } from './ids';
 import { ecrasCarregarPick, ecrasErroPick, DESCRICAO_CARREGAR_PICK, DESCRICAO_ERROS_PICK } from './estados';
 import { ecrasInventario, DESCRICAO_INVENTARIO } from './inventario';
-import { entrarIndustrial, ajudaPick, ESTADOS_ENTRAR_PK, ESTADOS_ABERTURA_PK } from './entrar-industrial';
-import { aberturaPick } from './abertura-pick';
+import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import type { Ecra } from '../../comum/tipos';
 
-const DESCRICAO_ENTRAR_PK = 'Abrir a Pick e entrar: a abertura (o leitor, a rede e o servidor), o utilizador e a palavra-passe no mesmo ecrã, e a ajuda.';
+const DESCRICAO_ENTRAR_PK = 'Como o ERP e o Peça A Peça: o início de sessão comum (ROMAFE Identity, no PDA) → a abertura → a página do papel (o Gestor, ou o Inventário do operador).';
+const DESCRICAO_GESTOR = 'O Gestor de Armazém: o Inventário como ação dominante, o que pede atenção, os inventários em curso, a equipa, o acesso rápido e os módulos.';
 
 export const mobile: App<IdMobile> = {
   id: 'mobile',
@@ -17,21 +17,45 @@ export const mobile: App<IdMobile> = {
   /* o ecrã do Honeywell EDA61K: 4", 480 × 800 píxeis físicos a densidade
      1,5 (hdpi), o que dá 320 × 533 píxeis CSS (dp) */
   tela: { l: 320, a: 533 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR_PK, 'Inventário': DESCRICAO_INVENTARIO, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
+  fluxos: { 'Entrar': DESCRICAO_ENTRAR_PK, 'Gestor': DESCRICAO_GESTOR, 'Inventário': DESCRICAO_INVENTARIO, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
   /* 21 out. 2026: ela, «só quero uma versão: a v5, mas mais bonita e mais profissional» e «falta uma abertura» —
      a abertura, a entrada industrial e a ajuda, uma versão cada; saíram as v1–v4, a palavra-passe à parte e o
      cliente federado (o código fica em entrar.ts e no comum) */
-  ecras: [...ecrasEntrarPick(), ...ecrasInventario(), ...ecrasCarregarPick(), ...ecrasErroPick()],
+  ecras: [...ecrasEntrarPick(), ...ecrasGestor(), ...ecrasInventario(), ...ecrasCarregarPick(), ...ecrasErroPick()],
 };
 
+/* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →
+   página inicial» — saem o 01 · Entrar e o 02 · Ajuda da Pick (o código fica em entrar-industrial.ts); entra-se pela
+   ROMAFE Identity no PDA; a abertura nova acaba na página do Gestor de Armazém (o primeiro perfil). */
 function ecrasEntrarPick(): Ecra<IdMobile>[] {
   const FLUXO = 'Entrar';
   const um = (html: string, nota: string): Ecra['versoes'] => [{ id: 'v1', nota, html }];
+  const NOTA = 'A abertura (22 out., briefing do Gestor de Armazém): o porta-paletes traz a palete, o feixe marca a posição, pousa-a; ROMAFE | Pick; a caixa voa para o Inventário e a marca para o cabeçalho';
   return [
-    { id: 'abertura', nome: '00 · Abertura', fluxo: FLUXO, objetivo: 'Ao ligar a Pick (≈1,5 s): o porta-paletes entra com a caixa e o código é lido; o leitor, a rede e o servidor confirmam-se; sobe a entrada do Inventário — o armazém e o PDA, quem entrou da última vez, os atalhos das três tarefas e «Entrar».', versoes: um(aberturaPick(), 'A abertura (22 out., briefing do PDA Honeywell: o porta-paletes e a entrada do Inventário; substitui a de 21 out.)') },
-    ...ESTADOS_ABERTURA_PK.map(([est, id, nome, objetivo]) => ({ id: id as IdMobile, nome, fluxo: FLUXO, objetivo, estadoDe: 'abertura' as IdMobile, versoes: um(aberturaPick(est), 'A abertura (22 out.)') })),
-    { id: 'entrada', nome: '01 · Entrar', fluxo: FLUXO, objetivo: 'Entrar com o utilizador e a palavra-passe, no mesmo ecrã; a rede e o servidor à vista; depois, o Inventário.', versoes: um(entrarIndustrial(), 'A entrada industrial (21 out.): a marca da família, a linha de estado, a estante com as posições, a folha do formulário') },
-    ...ESTADOS_ENTRAR_PK.map(([est, id, nome, objetivo]) => ({ id: id as IdMobile, nome, fluxo: FLUXO, objetivo, estadoDe: 'entrada' as IdMobile, versoes: um(entrarIndustrial(est), 'A entrada industrial (21 out.)') })),
-    { id: 'ajuda', nome: '02 · Ajuda', fluxo: FLUXO, objetivo: 'Recuperar o acesso e o que fazer quando o leitor ou a rede falham; o apoio da Romafe.', versoes: um(ajudaPick(), 'A ajuda (21 out.)') },
+    { id: 'abertura', nome: '00 · Abertura', fluxo: FLUXO, objetivo: 'Depois do início de sessão comum: num armazém em 2,5D, o porta-paletes traz a palete, o feixe laranja marca a posição, pousa-a e confirma; ROMAFE | Pick; na passagem a caixa voa para o ícone do Inventário e a marca para o cabeçalho, e abre a página do papel (≈1,6 s).', versoes: um(aberturaGestor(), NOTA) },
+    { id: 'abertura-pk-sem-rede' as IdMobile, nome: '00.1 · Sem rede', fluxo: FLUXO, estadoDe: 'abertura' as IdMobile, objetivo: 'A Pick precisa de rede: a marca fica, diz-se porquê e continua sozinha quando houver sinal.', versoes: um(aberturaGestor('sem-rede'), NOTA) },
+    { id: 'abertura-pk-sem-acesso' as IdMobile, nome: '00.2 · Sem acesso à Pick', fluxo: FLUXO, estadoDe: 'abertura' as IdMobile, objetivo: 'A conta entrou, mas não tem a Pick: diz-se, e a quem pedir.', versoes: um(aberturaGestor('sem-acesso'), NOTA) },
+  ];
+}
+function ecrasGestor(): Ecra<IdMobile>[] {
+  const FLUXO = 'Gestor';
+  const NOTA = 'O Gestor de Armazém (22 out., briefing «Warehouse manager experience»)';
+  const v = (html: string): Ecra['versoes'] => [{ id: 'v1', nota: NOTA, html }];
+  const e = (id: string, de: string, nome: string, objetivo: string, html: string): Ecra<IdMobile> => ({ id: id as IdMobile, nome, fluxo: FLUXO, estadoDe: de as IdMobile, objetivo, versoes: v(html) });
+  return [
+    { id: 'gestor-inicio' as IdMobile, nome: '60 · Início do Gestor', fluxo: FLUXO, objetivo: 'O centro de operações do armazém 60: o Inventário como ação dominante (em curso, por validar, recontagens e o progresso em posições), o que pede atenção com a ação direta, os inventários em curso, a equipa (só o atribuído), o acesso rápido e os módulos (só os ativos).', versoes: v(gestorInicio()) },
+    e('gestor-carregar', 'gestor-inicio', '60.1 · A carregar', 'O cabeçalho e o Inventário já estão; as listas em esqueleto.', gestorInicio('carregar')),
+    e('gestor-sem-inventarios', 'gestor-inicio', '60.2 · Sem inventários', 'Nada em curso: diz-se e oferece «Criar inventário».', gestorInicio('sem-inventarios')),
+    e('gestor-sem-tarefas', 'gestor-inicio', '60.3 · Nada pede atenção', '«Requer a tua atenção» vazio, com o motivo.', gestorInicio('sem-tarefas')),
+    e('gestor-erro', 'gestor-inicio', '60.4 · Os inventários não carregaram', 'O servidor não respondeu: «Tentar outra vez» no painel do Inventário.', gestorInicio('erro')),
+    e('gestor-sem-rede', 'gestor-inicio', '60.5 · Sem rede', 'A Pick não trabalha sem rede (nada em cache): a faixa diz porquê e as ações esperam.', gestorInicio('sem-rede')),
+    e('gestor-menus', 'gestor-inicio', '60.6 · Os módulos não carregaram', 'O serviço dos módulos não respondeu: «Tentar outra vez».', gestorInicio('menus')),
+    e('gestor-permissao', 'gestor-inicio', '60.7 · Permissões mudaram', 'O papel mudou a meio: diz-se e pede-se para entrar outra vez.', gestorInicio('permissao')),
+    e('gestor-sessao', 'gestor-inicio', '60.8 · Sessão terminada', 'A sessão terminou: «Entrar outra vez» leva ao início de sessão comum.', gestorInicio('sessao')),
+    e('gestor-sem-acesso', 'gestor-inicio', '60.9 · Sem acesso', 'A conta não tem a Pick.', gestorInicio('sem-acesso')),
+    e('gestor-sem-armazem', 'gestor-inicio', '60.10 · Sem armazém atribuído', 'A conta não tem armazém: o administrador atribui o 60.', gestorInicio('sem-armazem')),
+    { id: 'gestor-inventario' as IdMobile, nome: '61 · Inventário (Gestor)', fluxo: FLUXO, objetivo: 'Os inventários por estado (em curso, por iniciar, por validar, concluídos), com a ação de cada um (validar, atribuir, ver); divergências e recontagens; «Criar».', versoes: v(gestorInventario()) },
+    e('gestor-inv-novo', 'gestor-inventario', '61.1 · Criar inventário', 'Tipo, zona, colunas, às cegas e operador (ou deixar o motor sugerir).', gestorInventario('novo')),
+    e('gestor-atribuir', 'gestor-inventario', '61.2 · Atribuir contagem', 'A INV-2026-015 a um operador; o motor sugere quem está sem contagem.', gestorInventario('atribuir')),
   ];
 }

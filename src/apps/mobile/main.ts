@@ -8,6 +8,7 @@ import './css/inventario.css';
 import './css/entrar-industrial.css';
 import './css/cena.css';
 import './css/abertura-pick.css';
+import './css/gestor.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -17,5 +18,6 @@ import { iniciar as inventario } from './comportamento/inventario';
 import { iniciar as entrarIndustrial } from './comportamento/entrar-industrial';
 import { iniciar as navegar } from './comportamento/navegar';
 import { iniciar as aberturaPick } from './comportamento/abertura-pick';
+import { iniciar as gestor } from './comportamento/gestor';
 
-montar(mobile, [navegar, entrar, inventario, entrarIndustrial, aberturaPick]);
+montar(mobile, [navegar, entrar, inventario, entrarIndustrial, aberturaPick, gestor]);
