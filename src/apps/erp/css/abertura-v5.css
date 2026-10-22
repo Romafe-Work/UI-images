@@ -1,0 +1,169 @@
+/* =========================================================
+   ERP — 00 · Abertura v5 (22 out. 2026): a mensagem e o mapa da operação
+   Escuro por omissão (navy e cinzas de grafite), o laranja só na ação e no módulo em foco; o claro existe. O ROMAFE
+   continua RGB(0, 99, 170), em Motor, sem placa. Sem gradientes fortes, sem brilhos, sem vidro.
+   Fases (classes em .ab5): is-a fundo e grelha, is-b áreas e fluxos, is-c título e números, is-ativo «Sistema
+   ativo» e o movimento contínuo, discreto (os pacotes nos fluxos, as peças a respirar). Só transform e opacidade.
+   ========================================================= */
+.ab5 {
+  --a5-fundo: #0b1520; --a5-fundo-2: #0f1c2a; --a5-sup: #14212f; --a5-sup-2: #1a2a3b; --a5-borda: #253649; --a5-borda-forte: #34495f;
+  --a5-tinta: #f5f8fa; --a5-tinta-2: #a8b7c5; --a5-tinta-3: #7f90a1; --a5-azul: #0876bd; --a5-azul-claro: #4fa3dc; --a5-laranja: #f58214;
+  --a5-grelha: rgba(120, 165, 205, .09); --a5-linha: rgba(120, 165, 205, .3); --a5-ok: #2fbf7f;
+  --curva: cubic-bezier(.22, 1, .36, 1);
+  position: relative; display: grid; grid-template-columns: minmax(420px, 44fr) minmax(0, 56fr); min-height: 100vh; min-height: 100svh; overflow: hidden; isolation: isolate;
+  background: var(--a5-fundo); color: var(--a5-tinta); font-family: var(--f-base); color-scheme: dark;
+}
+.ab5 *, .ab5 *::before, .ab5 *::after { box-sizing: border-box; }
+/* o claro (preparado: segue o tema escolhido no editor, ou o estado 00.8) */
+[data-theme="light"] .ab5, .ab5.ab5--claro {
+  --a5-fundo: #eef2f6; --a5-fundo-2: #e6ecf2; --a5-sup: #ffffff; --a5-sup-2: #f4f7fa; --a5-borda: #d6dee6; --a5-borda-forte: #bccad6;
+  --a5-tinta: #14212f; --a5-tinta-2: #4f6173; --a5-tinta-3: #6f8090; --a5-azul-claro: #0876bd; --a5-grelha: rgba(8, 118, 189, .08); --a5-linha: rgba(8, 118, 189, .35); color-scheme: light;
+}
+
+/* ---------- à esquerda: a mensagem ---------- */
+.ab5__lado { position: relative; z-index: 2; display: grid; grid-template-rows: auto 1fr auto auto; gap: 28px; padding: clamp(28px, 5vh, 56px) clamp(28px, 4.5vw, 72px); background: var(--a5-fundo); border-right: 1px solid var(--a5-borda); }
+.ab5__marca { display: flex; align-items: center; gap: 14px; opacity: 0; transform: translateY(-6px); transition: opacity .3s ease, transform .4s var(--curva); }
+.ab5__romafe { font-size: 34px; line-height: 1; color: rgb(0, 99, 170); }
+.ab5__barra { width: 2px; height: 30px; background: var(--a5-laranja); }
+.ab5__erp { display: grid; font-family: var(--f-titulo); font-size: 22px; font-weight: 800; letter-spacing: .06em; line-height: 1; color: var(--a5-tinta); }
+.ab5__erp small { margin-top: 4px; font-family: var(--f-base); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--a5-tinta-3); }
+.ab5.is-a .ab5__marca { opacity: 1; transform: none; }
+
+.ab5__mensagem { align-self: center; display: grid; gap: 18px; max-width: 560px; }
+.ab5__titulo { margin: 0; font-family: var(--f-titulo); font-size: clamp(40px, 4.4vw, 66px); font-weight: 800; line-height: 1.04; letter-spacing: -.025em; color: var(--a5-tinta); }
+/* o reveal: cada linha sobe por trás de uma máscara */
+.ab5__titulo > span { display: block; overflow: hidden; padding-bottom: .06em; }
+.ab5__titulo > span > span { display: block; transform: translateY(105%); transition: transform .55s var(--curva); }
+.ab5__titulo > span:nth-child(2) > span { transition-delay: .08s; color: var(--a5-tinta-2); }
+.ab5.is-c .ab5__titulo > span > span { transform: none; }
+.ab5__sub { margin: 0; font-size: clamp(16px, 1.2vw, 19px); line-height: 1.5; color: var(--a5-tinta-2); opacity: 0; transition: opacity .4s ease .15s; }
+.ab5.is-c .ab5__sub { opacity: 1; }
+.ab5__accoes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 10px; opacity: 0; transform: translateY(8px); transition: opacity .35s ease .2s, transform .45s var(--curva) .2s; }
+.ab5.is-c .ab5__accoes { opacity: 1; transform: none; }
+.ab5__cta.btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 24px; border: 0; border-radius: 10px; background: var(--a5-laranja); color: #fff; font-size: 16px; font-weight: 700; transition: transform .12s ease, background-color .15s ease, box-shadow .2s ease; }
+.ab5__cta.btn:hover:not(:disabled) { background: #e57610; box-shadow: 0 8px 22px rgba(245, 130, 20, .22); }
+.ab5__cta.btn:active:not(:disabled) { transform: scale(.97); }
+.ab5__cta .btn__icone { width: 18px; height: 18px; transition: transform .16s var(--curva); }
+.ab5__cta:hover .btn__icone { transform: translateX(3px); }
+.ab5__cta:focus-visible { outline: 2px solid var(--a5-tinta); outline-offset: 3px; }
+/* o foco no CTA: um anel acende uma vez quando o sistema fica ativo (sem brilho permanente) */
+.ab5__cta::after { content: ""; position: absolute; inset: -6px; border: 2px solid var(--a5-laranja); border-radius: 14px; opacity: 0; transform: scale(.92); pointer-events: none; }
+.ab5.is-ativo:not(.is-ja) .ab5__cta::after { animation: ab5-foco .9s var(--curva) .1s 1 both; }
+@keyframes ab5-foco { 0% { opacity: 0; transform: scale(.92); } 40% { opacity: .55; } 100% { opacity: 0; transform: scale(1.06); } }
+.ab5__cta:disabled { opacity: .6; cursor: default; }
+.ab5__cta.is-a-entrar { opacity: 1; }
+.ab5__girador { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: ab5-roda .7s linear infinite; }
+@keyframes ab5-roda { to { transform: rotate(1turn); } }
+.ab5__sec.btn { display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 18px; border: 1px solid var(--a5-borda-forte); border-radius: 10px; background: transparent; color: var(--a5-tinta); font-size: 15px; font-weight: 600; transition: border-color .15s ease, background-color .15s ease, transform .12s ease; }
+.ab5__sec.btn:hover { border-color: var(--a5-tinta-3); background: var(--a5-sup); }
+.ab5__sec.btn:active { transform: scale(.97); }
+.ab5__sec .btn__icone { width: 17px; height: 17px; }
+.ab5__ligacao { display: inline-flex; align-items: center; gap: 6px; padding: 6px 2px; border: 0; background: none; color: var(--a5-tinta-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ab5__ligacao:hover { color: var(--a5-tinta); text-decoration: underline; }
+.ab5__ligacao svg { width: 16px; height: 16px; }
+.ab5__ligacao:focus-visible, .ab5__sec:focus-visible { outline: 2px solid var(--a5-azul-claro); outline-offset: 2px; }
+.ab5__nota { margin: 0; font-size: 14px; color: var(--a5-tinta-2); }
+.ab5__nota--erro { color: #f0676c; } .ab5__nota--erro .ab5__ligacao { color: var(--a5-tinta); }
+
+/* o módulo em foco: um cartão baixo, com três números (não é um dashboard) */
+.ab5__foco-card { display: grid; gap: 14px; padding: 16px 18px; border: 1px solid var(--a5-borda); border-left: 3px solid var(--a5-laranja); border-radius: 10px; background: var(--a5-sup); opacity: 0; transform: translateY(10px); transition: opacity .35s ease .3s, transform .45s var(--curva) .3s; }
+.ab5.is-c .ab5__foco-card { opacity: 1; transform: none; }
+.ab5__foco-titulo { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--a5-tinta-3); }
+.ab5__foco-titulo svg { width: 16px; height: 16px; color: var(--a5-laranja); }
+.ab5__foco-titulo b { margin-left: auto; font-size: 13px; letter-spacing: .04em; color: var(--a5-tinta); }
+.ab5__numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.ab5__numeros div { display: grid; gap: 2px; }
+.ab5__numeros dt { order: 2; font-size: 12.5px; color: var(--a5-tinta-2); }
+.ab5__numeros dd { order: 1; margin: 0; font-family: var(--f-titulo); font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--a5-tinta); }
+
+.ab5__modulos { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; font-weight: 600; color: var(--a5-tinta-3); }
+.ab5__mod { display: inline-flex; align-items: center; gap: 6px; opacity: 0; transition: opacity .3s ease calc(.4s + var(--i) * 40ms); }
+.ab5__mod svg { width: 15px; height: 15px; }
+.ab5__mod small { font-size: 11px; font-weight: 500; opacity: .75; }
+.ab5__mod.is-ok { color: var(--a5-tinta); } .ab5__mod.is-ok svg { color: var(--a5-laranja); }
+.ab5.is-c .ab5__mod { opacity: 1; }
+
+/* ---------- à direita: o mapa da operação ---------- */
+.ab5__visual { position: relative; z-index: 1; display: grid; place-items: center; overflow: hidden; background: radial-gradient(70% 60% at 50% 48%, var(--a5-fundo-2), var(--a5-fundo) 75%); }
+.ab5__mapa { width: min(100%, 860px); height: auto; max-height: 92vh; overflow: visible; }
+.ab5__grelha line { stroke: var(--a5-grelha); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ab5__grelha { opacity: 0; transition: opacity .5s ease; }
+.ab5.is-a .ab5__grelha { opacity: 1; }
+.ab5__fluxo { fill: none; stroke: var(--a5-linha); stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s var(--curva) calc(.25s + var(--i) * 70ms); }
+.ab5__fluxo.is-foco { stroke: color-mix(in srgb, var(--a5-laranja) 70%, transparent); stroke-width: 1.8; }
+.ab5.is-b .ab5__fluxo { stroke-dashoffset: 0; }
+.ab5__area, .ab5__nucleo { opacity: 0; transition: opacity .35s ease calc(var(--i, 0) * 80ms); }
+.ab5__no-in { transform: translateY(14px) scale(.9); transform-box: fill-box; transform-origin: center; transition: transform .5s var(--curva) calc(var(--i, 0) * 80ms); }
+.ab5.is-b .ab5__area, .ab5.is-a .ab5__nucleo { opacity: 1; }
+.ab5.is-b .ab5__no-in, .ab5.is-a .ab5__nucleo .ab5__no-in { transform: none; }
+.ab5__area-t { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; fill: var(--a5-tinta-2); }
+.ab5__area.is-foco .ab5__area-t { fill: var(--a5-laranja); }
+.ab5__foco { fill: none; stroke: color-mix(in srgb, var(--a5-laranja) 55%, transparent); stroke-width: 1.4; stroke-dasharray: 4 5; vector-effect: non-scaling-stroke; }
+.ab5__nucleo-t { font-family: var(--f-titulo); font-size: 15px; font-weight: 800; letter-spacing: .2em; fill: var(--a5-tinta); }
+/* as peças: as mesmas faces da v3 (três tons e a aresta azul) */
+.ab5 .ab3-f1, .ab5 .ab3-f2, .ab5 .ab3-f3, .ab5 .ab3-porta, .ab5 .ab3-dobra, .ab5 .ab3-etq, .ab5 .ab3-vidro, .ab5 .ab3-roda { stroke: var(--a5-azul-claro); stroke-width: 1.1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.ab5 .ab3-f1 { fill: #18283a; } .ab5 .ab3-f2 { fill: #122030; } .ab5 .ab3-f3 { fill: #22394f; }
+.ab5 .ab3-porta { fill: #0d1822; } .ab5 .ab3-dobra, .ab5 .ab3-etq { fill: #2c4862; } .ab5 .ab3-vidro { fill: rgba(79, 163, 220, .28); } .ab5 .ab3-roda { fill: #0b1520; }
+.ab5 .ab3-tr { fill: none; stroke: var(--a5-azul-claro); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; opacity: .75; }
+.ab5 .ab3-tr--forte { stroke-width: 1.8; opacity: 1; } .ab5 .ab3-tr--fita { stroke: #6fb4e6; stroke-width: 2.2; }
+.ab5 .ab5-nucleo.ab3-f1 { fill: #1c3148; } .ab5 .ab5-nucleo.ab3-f2 { fill: #15263a; } .ab5 .ab5-nucleo.ab3-f3 { fill: #27445f; }
+.ab5 .ab5-nucleo--topo.ab3-f3 { fill: var(--a5-azul); }
+[data-theme="light"] .ab5 .ab5-nucleo.ab3-f1, .ab5--claro .ab5-nucleo.ab3-f1 { fill: #cfdfec; } [data-theme="light"] .ab5 .ab5-nucleo.ab3-f2, .ab5--claro .ab5-nucleo.ab3-f2 { fill: #bcd1e2; } [data-theme="light"] .ab5 .ab5-nucleo.ab3-f3, .ab5--claro .ab5-nucleo.ab3-f3 { fill: #e6eff6; }
+[data-theme="light"] .ab5 .ab5-nucleo--topo.ab3-f3, .ab5--claro .ab5-nucleo--topo.ab3-f3 { fill: var(--a5-azul); }
+[data-theme="light"] .ab5 .ab3-f1, .ab5--claro .ab3-f1 { fill: #e3ecf4; } [data-theme="light"] .ab5 .ab3-f2, .ab5--claro .ab3-f2 { fill: #d3e0eb; } [data-theme="light"] .ab5 .ab3-f3, .ab5--claro .ab3-f3 { fill: #f4f8fb; }
+[data-theme="light"] .ab5 .ab3-roda, .ab5--claro .ab3-roda, [data-theme="light"] .ab5 .ab3-porta, .ab5--claro .ab3-porta { fill: #c8d6e2; }
+/* o movimento contínuo, discreto: os pacotes nos fluxos e as peças a respirar (só depois de ativo) */
+.ab5__pacote { fill: var(--a5-azul-claro); opacity: 0; offset-distance: 0%; offset-rotate: 0deg; }
+.ab5__pacote.is-foco { fill: var(--a5-laranja); }
+.ab5.is-ativo .ab5__pacote { animation: ab5-pacote 4.2s linear calc(var(--i) * -.85s) infinite; }
+@keyframes ab5-pacote { 0% { offset-distance: 0%; opacity: 0; } 8% { opacity: .9; } 88% { opacity: .9; } 100% { offset-distance: 100%; opacity: 0; } }
+.ab5.is-ativo .ab5__area .ab5__no-in { animation: ab5-respirar 5s ease-in-out calc(var(--i) * -1s) infinite; }
+@keyframes ab5-respirar { 50% { transform: translateY(-3px); } }
+.ab5__estado { position: absolute; top: clamp(20px, 4vh, 40px); right: clamp(20px, 3vw, 40px); display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 7px 12px; border: 1px solid var(--a5-borda); border-radius: 999px; background: color-mix(in srgb, var(--a5-sup) 85%, transparent); font-size: 12.5px; font-weight: 600; color: var(--a5-tinta-2); }
+.ab5__estado i { width: 8px; height: 8px; border-radius: 50%; background: var(--a5-tinta-3); transition: background-color .3s ease; }
+.ab5__estado-b { display: none; }
+.ab5.is-ativo .ab5__estado i { background: var(--a5-ok); }
+.ab5.is-ativo .ab5__estado-a { display: none; } .ab5.is-ativo .ab5__estado-b { display: inline; }
+
+/* ---------- os painéis: módulos e ajuda ---------- */
+/* o painel abre na metade do mapa: não tapa os botões nem os números */
+.ab5__painel { position: absolute; z-index: 5; right: clamp(24px, 3vw, 48px); bottom: clamp(24px, 5vh, 56px); width: min(380px, calc(100% - 32px)); padding: 16px 18px 18px; border: 1px solid var(--a5-borda-forte); border-radius: 12px; background: var(--a5-sup); box-shadow: 0 24px 48px rgba(0, 0, 0, .35); animation: ab5-painel .2s var(--curva) both; }
+@keyframes ab5-painel { from { opacity: 0; transform: translateY(8px); } }
+.ab5__painel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ab5__painel h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.ab5__fechar { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: var(--a5-tinta-2); cursor: pointer; }
+.ab5__fechar:hover { background: var(--a5-sup-2); color: var(--a5-tinta); } .ab5__fechar svg { width: 18px; height: 18px; }
+.ab5__painel ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ab5__painel li { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 8px; border-radius: 8px; font-size: 14px; color: var(--a5-tinta-3); }
+.ab5__painel li svg { width: 17px; height: 17px; }
+.ab5__painel li.is-ok { color: var(--a5-tinta); background: var(--a5-sup-2); } .ab5__painel li.is-ok svg { color: var(--a5-laranja); }
+.ab5__painel li small, .ab5__painel li .ab5__abrir { margin-left: auto; }
+.ab5__abrir .btn__icone { width: 15px; height: 15px; }
+.ab5__abrir.btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--a5-laranja); color: #fff; font-size: 13px; font-weight: 700; }
+.ab5__painel p { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: var(--a5-tinta-2); }
+.ab5__tel { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--a5-tinta); text-decoration: none; }
+.ab5__tel svg { width: 17px; height: 17px; color: var(--a5-laranja); }
+.ab5__painel--ajuda small { display: block; margin-top: 4px; font-size: 12.5px; color: var(--a5-tinta-3); }
+
+/* sem sequência (já vista, ou um estado do ecrã): tudo no sítio */
+.ab5.is-ja *, .ab5.is-ja *::before, .ab5.is-ja *::after { transition-duration: .1s !important; transition-delay: 0s !important; }
+
+/* ---------- portátil, tablet e estreito ---------- */
+@media (max-width: 1100px) {
+  .ab5 { grid-template-columns: minmax(380px, 1fr) minmax(0, 1fr); }
+  .ab5__titulo { font-size: clamp(36px, 4.6vw, 52px); }
+}
+@media (max-width: 820px) {
+  .ab5 { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
+  .ab5__lado { grid-template-rows: auto auto auto auto; border-right: 0; padding: 24px 16px 28px; gap: 22px; }
+  .ab5__visual { grid-row: 1; height: 42vh; min-height: 260px; border-bottom: 1px solid var(--a5-borda); }
+  .ab5__mapa { width: 120%; max-height: none; }
+  .ab5__lado { grid-row: 2; }
+  .ab5__estado { top: 12px; right: 12px; }
+  .ab5__accoes { gap: 10px; } .ab5__cta.btn { flex: 1 1 100%; justify-content: center; }
+  .ab5__painel { left: 16px; right: 16px; width: auto; position: fixed; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab5 *, .ab5 *::before, .ab5 *::after { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
+  .ab5__pacote { display: none; }
+}

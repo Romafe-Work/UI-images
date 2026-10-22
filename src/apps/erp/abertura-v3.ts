@@ -36,7 +36,7 @@ const pts = (l: P3[]) => l.map((p) => iso(p).map((v) => v.toFixed(1)).join(','))
 const poli = (l: P3[], cls: string) => `<polygon class="${cls}" points="${pts(l)}"/>`;
 const linha = (l: P3[], cls = 'ab3-tr') => `<polyline class="${cls}" points="${pts(l)}"/>`;
 /** uma caixa: as três faces que se veem (a da frente, a da direita e o topo) */
-function caixa(x: number, y: number, z: number, w: number, d: number, h: number, extra = ''): string {
+export function caixa(x: number, y: number, z: number, w: number, d: number, h: number, extra = ''): string {
   return poli([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]], `ab3-f1${extra}`)
     + poli([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]], `ab3-f2${extra}`)
     + poli([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]], `ab3-f3${extra}`);
@@ -45,7 +45,7 @@ function caixa(x: number, y: number, z: number, w: number, d: number, h: number,
 const roda = (cx: number, y: number, cz: number, r: number) => poli(Array.from({ length: 18 }, (_, i) => { const a = (i / 18) * Math.PI * 2; return [cx + Math.cos(a) * r, y, cz + Math.sin(a) * r] as P3; }), 'ab3-roda');
 
 /* as cinco peças (cada uma à volta da origem, para rodar e escalar no sítio) */
-const PECAS: { id: string; nome: string; svg: string }[] = [
+export const PECAS: { id: string; nome: string; svg: string }[] = [
   { id: 'compras', nome: 'Compras', svg: caixa(-15, -9, 0, 30, 18, 30) + linha([[-7, 9, 30], [-7, 9, 40], [-3, 9, 45], [3, 9, 45], [7, 9, 40], [7, 9, 30]], 'ab3-tr ab3-tr--forte') + linha([[-9, 9, 18], [9, 9, 18]]) },
   { id: 'documento', nome: 'Documento', svg: caixa(-17, -23, 0, 34, 46, 2) + linha([[-11, -15, 2], [11, -15, 2]]) + linha([[-11, -7, 2], [11, -7, 2]]) + linha([[-11, 1, 2], [11, 1, 2]]) + linha([[-11, 9, 2], [3, 9, 2]]) + poli([[9, -23, 2], [17, -23, 2], [17, -15, 2]], 'ab3-dobra') },
   { id: 'armazem', nome: 'Armazém', svg: caixa(-30, -18, 0, 60, 36, 22) + poli([[-30, -18, 22], [-30, 18, 22], [-30, 0, 34], [-30, -18, 22]], 'ab3-f1') + poli([[-30, 0, 34], [30, 0, 34], [30, 18, 22], [-30, 18, 22]], 'ab3-f3') + poli([[30, -18, 22], [30, 18, 22], [30, 0, 34]], 'ab3-f2') + poli([[30, -6, 0], [30, 8, 0], [30, 8, 14], [30, -6, 14]], 'ab3-porta') + linha([[30, 1, 0], [30, 1, 14]]) },
