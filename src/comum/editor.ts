@@ -42,6 +42,8 @@ type Passo =
 
 /* cada app guarda as suas alterações à parte: as do ERP não pintam o Mobile */
 let APP = 'app';
+/** os guiões de uso em Word, por app (os ficheiros vivem em public/documentos) */
+const GUIOES: Record<string, string> = { goparts: 'PecaAPeca-Guiao-de-uso.docx' };
 let MARCA = 'ROMAFE';
 let CHAVE = 'romafe:app:editor:v1';
 const CHAVE_PAINEIS = 'romafe:editor:paineis';
@@ -1190,6 +1192,19 @@ function montar(): void {
   demo.appendChild(selAnim);
   demo.appendChild(bDemo);
   peE.appendChild(demo);
+
+  /* (22 out.) o guião de uso da app, em Word: os ecrãs, os fluxos e todos os estados (public/documentos) */
+  const guiao = GUIOES[APP];
+  if (guiao) {
+    const bGuiao = botaoIcone('Guião de uso (.docx)', I_EXPORTAR, function () {
+      const a = document.createElement('a');
+      a.href = '../documentos/' + guiao;
+      a.download = guiao;
+      a.click();
+    }, 'Descarrega o guião desta app: como se usa cada página, os diagramas do fluxo e todos os estados');
+    bGuiao.classList.add('ed-guiao');
+    peE.appendChild(bGuiao);
+  }
 
   const partilha = el('div', 'ed-degraus ed-partilha');
   partilha.appendChild(botaoIcone('Exportar', I_EXPORTAR, exportar, 'Um ficheiro .json com as versões, os ecrãs e as mudanças feitas aqui'));

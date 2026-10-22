@@ -248,4 +248,7 @@
   .ped4__c-cabeca, .ped4__c-cabeca.gui3__cabeca, .ped4__c-cabeca.dev__cabeca { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 124px 112px 24px; }
   .ped4__c-cabeca > .ped4__c-selos { justify-content: flex-start; flex-wrap: nowrap; white-space: nowrap; }
   .ped4__c-cabeca > .ped4__c-valor { justify-self: end; }
+  /* (22 out.) nos Pedidos o selo da recolha junta-se ao do estado («Sem processamento» + «Por recolher»):
+     em 124px passavam por cima do valor. A coluna alarga em todos os cartões dos Pedidos, para ficarem alinhados. */
+  .ped4__c-cabeca:not(.gui3__cabeca):not(.dev__cabeca) { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 256px 112px 24px; }
 }
