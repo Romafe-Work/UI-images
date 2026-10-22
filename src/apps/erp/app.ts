@@ -5,6 +5,7 @@ import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
 import { versaoAberturaV5, estadosAberturaV5 } from './abertura-v5';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
+import { versaoInicioV2, estadosInicioV2 } from './inicio-v2';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
 import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS_ERP } from './estados';
@@ -23,6 +24,9 @@ const soAberturaV3 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, objetivo: 'A entr
 /* 19 out. 2026: a fase 1 de Compras (compras/ecras.ts) — o 10 · Compras ganha a v2, na casca do Início */
 const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
 
+/* 22 out. 2026: o 05 · Início ganha a v2 (briefing do ecrã inicial, «simples e wow»), que passa a abrir; a v1 fica */
+const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2()] as Ecra<IdErp>['versoes'] } : e);
+
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 export const erp: App<IdErp> = {
   id: 'erp',
@@ -36,5 +40,5 @@ export const erp: App<IdErp> = {
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV5(), ...ecrasInicio(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV5(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

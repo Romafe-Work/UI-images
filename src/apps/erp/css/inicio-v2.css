@@ -1,0 +1,130 @@
+/* =========================================================
+   ERP — 05 · Início v2 (22 out. 2026): simples e com presença
+   Claro por omissão no corpo (é um ecrã de trabalho, lê-se horas a fio) com a faixa de boas-vindas em navy; o
+   escuro existe. O laranja só no que se faz (Compras, o urgente); o azul é a estrutura. Sem vidro, sem brilhos.
+   Entrada: a faixa, os números (com contadores), os módulos e os blocos aparecem em cascata curta (≈500 ms).
+   ========================================================= */
+.hm {
+  --h-fundo: #f2f5f8; --h-sup: #ffffff; --h-sup-2: #f6f8fb; --h-borda: #dde4eb; --h-borda-forte: #c6d1dc; --h-tinta: #14212f; --h-tinta-2: #4f6173; --h-tinta-3: #6f8090;
+  --h-navy: #0b1622; --h-navy-2: #12233a; --h-azul: #0876bd; --h-laranja: #f58214; --h-erro: #d23f45; --h-aviso: #b7791f; --h-ok: #12875c;
+  --curva: cubic-bezier(.22, 1, .36, 1);
+  min-height: 100vh; background: var(--h-fundo); color: var(--h-tinta); font-family: var(--f-base);
+}
+[data-theme="dark"] .hm { --h-fundo: #0d151e; --h-sup: #141f2b; --h-sup-2: #182534; --h-borda: #26364a; --h-borda-forte: #34495f; --h-tinta: #f5f8fa; --h-tinta-2: #a8b7c5; --h-tinta-3: #8798a9; --h-erro: #f0676c; --h-aviso: #e9a23b; --h-ok: #2fbf7f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hm { --h-fundo: #0d151e; --h-sup: #141f2b; --h-sup-2: #182534; --h-borda: #26364a; --h-borda-forte: #34495f; --h-tinta: #f5f8fa; --h-tinta-2: #a8b7c5; --h-tinta-3: #8798a9; --h-erro: #f0676c; --h-aviso: #e9a23b; --h-ok: #2fbf7f; } }
+.hm *, .hm *::before, .hm *::after { box-sizing: border-box; }
+.hm svg { width: 18px; height: 18px; flex: none; }
+
+/* ---------- 1. o cabeçalho ---------- */
+.hm-topo { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 18px; height: 60px; padding: 0 clamp(16px, 2.5vw, 32px); background: var(--h-navy); color: #f5f8fa; }
+.hm-marca { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.hm-romafe { font-size: 24px; line-height: 1; color: rgb(0, 99, 170); }
+.hm-marca i { width: 2px; height: 18px; background: var(--h-laranja); }
+.hm-erp { font-family: var(--f-titulo); font-size: 16px; font-weight: 800; letter-spacing: .06em; color: #f5f8fa; }
+.hm-caminho { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a8b7c5; white-space: nowrap; }
+.hm-caminho span { display: inline-flex; align-items: center; gap: 6px; } .hm-caminho svg { width: 15px; height: 15px; }
+.hm-caminho b::before { content: "/"; margin-right: 8px; color: #5d7086; font-weight: 400; } .hm-caminho b { color: #f5f8fa; font-weight: 600; }
+.hm-procura { position: relative; display: flex; align-items: center; flex: 1; max-width: 520px; margin-left: auto; }
+.hm-procura svg { position: absolute; left: 12px; color: #8798a9; }
+.hm-procura input { width: 100%; height: 38px; padding: 0 70px 0 38px; border: 1px solid #26364a; border-radius: 10px; background: #12202f; color: #f5f8fa; font: inherit; font-size: 14px; transition: border-color .15s ease, background-color .15s ease; }
+.hm-procura input::placeholder { color: #8798a9; }
+.hm-procura input:focus { outline: none; border-color: var(--h-azul); background: #0f1c2a; }
+.hm-procura kbd { position: absolute; right: 8px; padding: 2px 6px; border: 1px solid #34495f; border-radius: 6px; font-family: var(--f-mono); font-size: 11px; color: #a8b7c5; }
+.hm-icones { display: flex; align-items: center; gap: 4px; }
+.hm-icone { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 10px; background: none; color: #c3cfda; cursor: pointer; transition: background-color .15s ease, color .15s ease; }
+.hm-icone:hover { background: #17283a; color: #fff; }
+.hm-badge { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--h-laranja); color: #fff; font-size: 10.5px; font-weight: 800; line-height: 16px; }
+.hm-pessoa { display: flex; align-items: center; gap: 10px; margin-left: 6px; padding: 4px 10px 4px 4px; border: 0; border-radius: 999px; background: none; color: #f5f8fa; font: inherit; cursor: pointer; }
+.hm-pessoa:hover { background: #17283a; }
+.hm-inicial { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--h-azul); color: #fff; font-size: 12px; font-weight: 800; }
+.hm-inicial--peq { width: 28px; height: 28px; font-size: 11px; }
+.hm-pessoa-t { display: grid; text-align: left; line-height: 1.2; } .hm-pessoa-t b { font-size: 13px; } .hm-pessoa-t small { font-size: 11.5px; color: #a8b7c5; }
+.hm-icone:focus-visible, .hm-pessoa:focus-visible, .hm-num:focus-visible, .hm-mod:focus-visible, .hm-lista button:focus-visible { outline: 2px solid var(--h-laranja); outline-offset: 2px; }
+.hm-avisos { position: absolute; top: 56px; right: clamp(16px, 2.5vw, 32px); width: 340px; padding: 14px 16px; border: 1px solid var(--h-borda); border-radius: 12px; background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 18px 40px rgba(10, 20, 30, .18); animation: hm-subir .18s var(--curva) both; }
+.hm-avisos h2 { margin: 0 0 8px; font-size: 14px; }
+.hm-avisos ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.hm-avisos li { display: grid; gap: 2px; font-size: 13px; } .hm-avisos li span { color: var(--h-tinta-2); } .hm-avisos li small { color: var(--h-tinta-3); }
+
+/* ---------- 2. as boas-vindas ---------- */
+.hm-ola { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; overflow: hidden; padding: 30px clamp(16px, 2.5vw, 32px) 74px; background: linear-gradient(180deg, var(--h-navy), var(--h-navy-2)); color: #f5f8fa; }
+.hm-ola-texto { position: relative; z-index: 1; display: grid; gap: 8px; }
+.hm-data { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #8fa3b8; }
+.hm-titulo { margin: 0; font-family: var(--f-titulo); font-size: clamp(32px, 3.4vw, 46px); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
+.hm-resumo { margin: 0; font-size: 16px; color: #c3cfda; } .hm-resumo b { color: #fff; }
+.hm-onde { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; }
+.hm-onde span { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid #26364a; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #c3cfda; }
+.hm-onde span svg { width: 14px; height: 14px; } .hm-onde .is-area { border-color: rgba(245, 130, 20, .5); color: #fff; } .hm-onde .is-area svg { color: var(--h-laranja); }
+.hm-ola-desenho { position: absolute; right: 0; top: 0; width: min(46%, 560px); height: 100%; opacity: .55; }
+.hm-ola-desenho path { fill: none; stroke: rgba(120, 165, 205, .14); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.hm-ola-desenho .is-no { fill: #4fa3dc; } .hm-ola-desenho .is-laranja { fill: var(--h-laranja); }
+
+/* ---------- 3. os números (sobem para cima da faixa) ---------- */
+.hm-numeros { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: -50px clamp(16px, 2.5vw, 32px) 0; }
+.hm-num { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "ic t" "v v" "s s"; align-items: center; gap: 6px 10px; padding: 16px 18px 14px; border: 1px solid var(--h-borda); border-radius: 14px; background: var(--h-sup); color: inherit; font: inherit; text-align: left; cursor: pointer;
+  box-shadow: 0 10px 26px rgba(10, 22, 34, .08); transition: transform .18s var(--curva), box-shadow .18s ease, border-color .18s ease; animation: hm-subir .45s var(--curva) calc(.1s + var(--i) * 60ms) both; }
+.hm-num:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(10, 22, 34, .12); border-color: var(--h-borda-forte); }
+.hm-num-ic { grid-area: ic; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; }
+.hm-num-t { grid-area: t; font-size: 13.5px; font-weight: 600; color: var(--h-tinta-2); }
+.hm-num-v { grid-area: v; font-family: var(--f-titulo); font-size: 36px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.hm-num small { grid-area: s; font-size: 12.5px; color: var(--h-tinta-3); }
+.hm-num-seta { position: absolute; top: 18px; right: 16px; width: 16px !important; height: 16px !important; color: var(--h-tinta-3); opacity: 0; transform: translateX(-4px); transition: opacity .15s ease, transform .18s var(--curva); }
+.hm-num:hover .hm-num-seta { opacity: 1; transform: none; }
+.hm-num--aviso .hm-num-ic { background: color-mix(in srgb, var(--h-aviso) 14%, transparent); color: var(--h-aviso); }
+.hm-num--azul .hm-num-ic { background: color-mix(in srgb, var(--h-azul) 12%, transparent); color: var(--h-azul); }
+.hm-num--erro .hm-num-ic { background: color-mix(in srgb, var(--h-erro) 12%, transparent); color: var(--h-erro); }
+.hm-num--erro .hm-num-v { color: var(--h-erro); }
+
+/* ---------- 4. os módulos ---------- */
+.hm-h { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--h-tinta-3); }
+.hm-h svg { width: 16px; height: 16px; }
+.hm-conta { min-width: 22px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--h-laranja); color: #fff; font-size: 11.5px; line-height: 20px; text-align: center; letter-spacing: 0; }
+.hm-modulos { padding: 28px clamp(16px, 2.5vw, 32px) 0; }
+.hm-grelha { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+@media (min-width: 1360px) { .hm-grelha { grid-template-columns: repeat(11, minmax(0, 1fr)); } }
+.hm-mod { display: grid; justify-items: start; gap: 8px; min-height: 92px; padding: 14px; border: 1px solid var(--h-borda); border-radius: 12px; background: var(--h-sup); color: var(--h-tinta-2); font: inherit; text-align: left; cursor: pointer;
+  transition: border-color .15s ease, transform .15s var(--curva), background-color .15s ease; animation: hm-subir .4s var(--curva) calc(.25s + var(--i) * 25ms) both; }
+.hm-mod svg { width: 22px; height: 22px; color: var(--h-tinta-3); }
+.hm-mod span { font-size: 14px; font-weight: 700; color: var(--h-tinta); }
+.hm-mod small { margin-top: auto; font-size: 11.5px; color: var(--h-tinta-3); }
+.hm-mod:hover { transform: translateY(-2px); border-color: var(--h-borda-forte); }
+.hm-mod.is-ok { border-color: color-mix(in srgb, var(--h-laranja) 55%, var(--h-borda)); background: color-mix(in srgb, var(--h-laranja) 6%, var(--h-sup)); }
+.hm-mod.is-ok svg { color: var(--h-laranja); } .hm-mod.is-ok small { color: var(--h-laranja); font-weight: 700; }
+
+/* ---------- 5. requer atenção, atividade e sugestões ---------- */
+.hm-baixo { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; padding: 28px clamp(16px, 2.5vw, 32px) 32px; }
+.hm-bloco { padding: 18px 20px; border: 1px solid var(--h-borda); border-radius: 14px; background: var(--h-sup); animation: hm-subir .45s var(--curva) .35s both; }
+.hm-lista { display: grid; margin: 0; padding: 0; list-style: none; }
+.hm-lista li + li { border-top: 1px solid var(--h-borda); }
+.hm-lista button { display: grid; grid-template-columns: 118px minmax(0, 1fr) auto 16px; align-items: center; gap: 12px; width: 100%; padding: 12px 6px; border: 0; border-radius: 8px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background-color .12s ease; }
+.hm-lista button:hover { background: var(--h-sup-2); }
+.hm-doc { font-family: var(--f-mono); font-size: 13px; font-weight: 700; color: var(--h-azul); }
+.hm-lista-t { display: grid; font-size: 14px; font-weight: 600; } .hm-lista-t small { font-size: 12.5px; font-weight: 400; color: var(--h-tinta-3); }
+.hm-prazo { padding: 3px 8px; border-radius: 6px; background: var(--h-sup-2); font-size: 12px; font-weight: 700; color: var(--h-tinta-2); }
+.hm-prazo.is-urgente { background: color-mix(in srgb, var(--h-erro) 12%, transparent); color: var(--h-erro); }
+.hm-lista-seta { width: 16px !important; height: 16px !important; color: var(--h-tinta-3); }
+.hm-esq { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 16px 6px; }
+.hm-esq i { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--h-sup-2), var(--h-borda), var(--h-sup-2)); background-size: 200% 100%; animation: hm-esq 1.2s linear infinite; }
+@keyframes hm-esq { to { background-position: -200% 0; } }
+.hm-vazio { display: flex; align-items: center; gap: 10px; margin: 0; padding: 18px 6px; font-size: 14px; color: var(--h-tinta-2); } .hm-vazio svg { color: var(--h-ok); }
+.hm-sugestoes { display: grid; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+.hm-sugestoes li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--h-azul) 7%, var(--h-sup)); font-size: 14px; font-weight: 600; animation: hm-subir .4s var(--curva) calc(.45s + var(--i) * 70ms) both; }
+.hm-sugestoes svg { width: 16px; height: 16px; color: var(--h-laranja); }
+.hm-atividade { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.hm-atividade li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 13.5px; color: var(--h-tinta-2); }
+.hm-atividade b { color: var(--h-tinta); } .hm-atividade small { font-size: 12px; color: var(--h-tinta-3); }
+
+.hm-aviso { position: fixed; left: 50%; bottom: 24px; z-index: 20; margin: 0; padding: 10px 16px; border-radius: 10px; background: var(--h-navy); color: #fff; font-size: 14px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .25s var(--curva); }
+.hm-aviso.is-visivel { opacity: 1; transform: translate(-50%, 0); }
+@keyframes hm-subir { from { opacity: 0; transform: translateY(12px); } }
+
+/* ---------- portátil e ecrãs médios ---------- */
+@media (max-width: 1180px) { .hm-numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hm-pessoa-t, .hm-caminho span { display: none; } }
+@media (max-width: 900px) { .hm-baixo { grid-template-columns: minmax(0, 1fr); } .hm-caminho { display: none; } .hm-ola-desenho { display: none; } }
+@media (max-width: 640px) {
+  .hm-topo { gap: 8px; } .hm-procura kbd { display: none; } .hm-procura input { padding-right: 12px; }
+  .hm-icones .hm-icone:not([data-hm-avisos]) { display: none; }
+  .hm-numeros { gap: 10px; } .hm-num { padding: 14px; } .hm-num-v { font-size: 30px; }
+  .hm-lista button { grid-template-columns: minmax(0, 1fr) auto; } .hm-doc, .hm-lista-seta { display: none; }
+  .hm-avisos { left: 12px; right: 12px; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .hm *, .hm *::before, .hm *::after { animation: none !important; transition-duration: .01s !important; } }
