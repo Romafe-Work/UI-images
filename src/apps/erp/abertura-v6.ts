@@ -17,7 +17,7 @@
    ========================================================= */
 import type { EcraErp } from './ids';
 import { PECAS, caixa } from './abertura-v3';
-import { paginaPrincipal } from './inicio-v3';
+import { paginaEspaco } from './espaco';
 import skipForward from 'lucide-static/icons/skip-forward.svg?raw';
 import rotateCw from 'lucide-static/icons/rotate-cw.svg?raw';
 import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
@@ -67,7 +67,7 @@ const FASES: Record<CenarioV6, string> = {
   normal: '', iniciar: 'is-a is-b is-c is-d', 'sem-acesso': 'is-a is-b is-c is-d', offline: 'is-a is-b is-c is-d', menus: 'is-a is-b is-c is-d', navegacao: 'is-a is-b is-c is-d', saltada: 'is-a is-b is-c is-d is-ja',
 };
 function html(cen: CenarioV6): string {
-  const camada = `<div class="ab6 ${FASES[cen]}" data-ab6 data-ab6-cenario="${cen}" role="status" aria-label="ROMAFE ERP a abrir">
+  const camada = `<div class="ab6 ${FASES[cen]}" data-por-cima data-ab6 data-ab6-cenario="${cen}" role="status" aria-label="ROMAFE ERP a abrir">
     <div class="ab6__fundo"></div>
     ${motor()}
     <div class="ab6__centro">
@@ -77,7 +77,7 @@ function html(cen: CenarioV6): string {
     <button type="button" class="ab6__saltar" data-ab6-saltar>${L(skipForward)}<span>Saltar</span></button>
   </div>`;
   /* enquanto a abertura tapa a página, a página por baixo não se lê nem se alcança com o teclado */
-  return paginaPrincipal('compras', camada).replace('<div class="hm sh" data-hm data-sh>', `<div class="hm sh is-abertura" data-hm data-sh data-sh-abertura>`).replace('<div class="sh-corpo">', '<div class="sh-corpo" aria-hidden="true" inert>');
+  return paginaEspaco(undefined, camada).replace(/^<div class="hm sh([^"]*)" data-hm data-sh>/, '<div class="hm sh$1 is-abertura" data-hm data-sh data-sh-abertura>').replace('<div class="sh-corpo', '<div aria-hidden="true" inert class="sh-corpo');
 }
 
 const NOTA = 'A abertura v6 «The Enterprise Engine» (22 out., briefing «ERP V3»): os anéis de precisão, o documento e o pacote juntam-se numa estrutura, aparece ROMAFE ERP e a marca desliza para o cabeçalho enquanto o menu e a área de trabalho surgem — sozinha, depois do login comum';
