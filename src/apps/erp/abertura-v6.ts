@@ -48,7 +48,7 @@ function motor(): string {
   </svg>`;
 }
 
-export type CenarioV6 = 'normal' | 'iniciar' | 'autenticar' | 'sem-acesso' | 'offline' | 'menus' | 'navegacao' | 'saltada';
+export type CenarioV6 = 'normal' | 'iniciar' | 'sem-acesso' | 'offline' | 'menus' | 'navegacao' | 'saltada';
 export type IdAberturaV6 = `ab6-${Exclude<CenarioV6, 'normal'>}`;
 
 /** O estado, por baixo da marca: só quando há alguma coisa a dizer. */
@@ -56,7 +56,6 @@ export function estadoV6(cen: CenarioV6): string {
   const btn = (t: string, i: string, extra: string) => `<button type="button" class="ab6__btn"${extra}>${L(i)}<span>${t}</span></button>`;
   switch (cen) {
     case 'iniciar': return '<p class="ab6__msg"><span class="ab6__traco" aria-hidden="true"></span>A preparar o ERP…</p>';
-    case 'autenticar': return '<p class="ab6__msg"><span class="ab6__traco" aria-hidden="true"></span>A sessão terminou. A abrir o início de sessão ROMAFE…</p>';
     case 'sem-acesso': return `<p class="ab6__msg">Esta conta não tem acesso ao ERP.</p>${btn('Escolher outra aplicação', layoutGrid, ' data-ab6-aplicacoes')}`;
     case 'offline': return `<p class="ab6__msg">Sem ligação.</p>${btn('Tentar de novo', rotateCw, ' data-ab6-repetir')}`;
     case 'menus': return `<p class="ab6__msg">Os módulos não carregaram.</p>${btn('Tentar de novo', rotateCw, ' data-ab6-repetir')}`;
@@ -65,7 +64,7 @@ export function estadoV6(cen: CenarioV6): string {
   }
 }
 const FASES: Record<CenarioV6, string> = {
-  normal: '', iniciar: 'is-a is-b is-c is-d', autenticar: 'is-a is-b is-c is-d', 'sem-acesso': 'is-a is-b is-c is-d', offline: 'is-a is-b is-c is-d', menus: 'is-a is-b is-c is-d', navegacao: 'is-a is-b is-c is-d', saltada: 'is-a is-b is-c is-d is-ja',
+  normal: '', iniciar: 'is-a is-b is-c is-d', 'sem-acesso': 'is-a is-b is-c is-d', offline: 'is-a is-b is-c is-d', menus: 'is-a is-b is-c is-d', navegacao: 'is-a is-b is-c is-d', saltada: 'is-a is-b is-c is-d is-ja',
 };
 function html(cen: CenarioV6): string {
   const camada = `<div class="ab6 ${FASES[cen]}" data-ab6 data-ab6-cenario="${cen}" role="status" aria-label="ROMAFE ERP a abrir">
@@ -87,11 +86,10 @@ export function estadosAberturaV6(): EcraErp[] {
   const e = (cen: Exclude<CenarioV6, 'normal'>, nome: string, objetivo: string): EcraErp => ({ id: `ab6-${cen}` as IdAberturaV6, nome, fluxo: 'Entrar', estadoDe: 'abertura', objetivo, versoes: [{ id: VERSAO_ABERTURA_V6, nota: NOTA, html: html(cen) }] });
   return [
     e('iniciar', '00.1 · A preparar o ERP', 'A marca já está e o ERP ainda a carregar (os módulos do perfil, o contexto): um traço fino a correr, sem fingir que está pronto.'),
-    e('autenticar', '00.2 · Sessão terminada', 'A sessão da ROMAFE já não é válida: diz-se e segue sozinho para o início de sessão comum (sem botão de login aqui).'),
-    e('sem-acesso', '00.3 · Sem acesso ao ERP', 'A conta entrou, mas não tem o ERP: uma frase e «Escolher outra aplicação»; não se entra no ERP.'),
-    e('offline', '00.4 · Sem ligação', 'Sem rede: «Sem ligação.» e «Tentar de novo».'),
-    e('menus', '00.5 · Os módulos não carregaram', 'O serviço dos módulos não respondeu: «Tentar de novo».'),
-    e('navegacao', '00.6 · Página não encontrada', 'O endereço pedido não é de uma página do ERP: «Ir para o Início».'),
-    e('saltada', '00.7 · Introdução saltada', '«Saltar», Esc, ou já vista nesta sessão: a marca aparece e passa logo para o cabeçalho.'),
+    e('sem-acesso', '00.2 · Sem acesso ao ERP', 'A conta entrou, mas não tem o ERP: uma frase e «Escolher outra aplicação»; não se entra no ERP.'),
+    e('offline', '00.3 · Sem ligação', 'Sem rede: «Sem ligação.» e «Tentar de novo».'),
+    e('menus', '00.4 · Os módulos não carregaram', 'O serviço dos módulos não respondeu: «Tentar de novo».'),
+    e('navegacao', '00.5 · Página não encontrada', 'O endereço pedido não é de uma página do ERP: «Ir para o Início».'),
+    e('saltada', '00.6 · Introdução saltada', '«Saltar», Esc, ou já vista nesta sessão: a marca aparece e passa logo para o cabeçalho.'),
   ];
 }

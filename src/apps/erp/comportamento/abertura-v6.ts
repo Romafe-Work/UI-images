@@ -5,8 +5,8 @@
      (o menu desliza, a área em cascata) e a marca da abertura desliza (FLIP, Web Animations) até à marca do
      cabeçalho, que só aparece quando ela lá chega. Aos ≈1,6 s mostra-se o 05 · Início (o mesmo desenho; marca-se
      erp:sem-entrada para a página não voltar a entrar). Com deep link (#…&para=compras), segue para lá.
-   - Antes de passar: sem rede → «Sem ligação»; sem sessão (romafe:sessao ou erp:sessao) → «A sessão terminou» e o
-     login comum; nada de botões de login. Uma vez por sessão do navegador; depois, só a passagem (≈0,5 s).
+   - Antes de passar: sem rede → «Sem ligação». Não há «sessão terminada» aqui: chega-se depois do login (22 out., ela).
+     Uma vez por sessão do navegador; depois, só a passagem (≈0,5 s).
    - «Saltar» e Esc passam logo. No editor fica na marca, parada.
    ========================================================= */
 import { mostrar } from '../../../comum/ecras';
