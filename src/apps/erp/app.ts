@@ -3,9 +3,10 @@ import type { IdErp } from './ids';
 import { ecrasCompras, DESCRICAO_COMPRAS } from './compras';
 import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
-import { versaoAberturaV5, estadosAberturaV5 } from './abertura-v5';
+import { versaoAberturaV6, estadosAberturaV6 } from './abertura-v6';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
 import { versaoInicioV2, estadosInicioV2 } from './inicio-v2';
+import { versaoInicioV3 } from './inicio-v3';
 import { ecrasFaltas } from './compras/faltas';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
@@ -16,17 +17,18 @@ import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS
    da ROMAFE Identity e passa ao Início); a v1 e a v2 ficam como estavam */
 /* 22 out. 2026: ela, «só quero uma versão» — a 00 · Abertura fica só com a v3; saem a v1, a v2 e os estados da v2
    (o código delas fica em abertura.ts e abertura-v2.ts) */
-/* 22 out. 2026 (noite): a v5 (briefing «mais wow, premium e industrial»: a mensagem e o mapa da operação) substitui a
+/* 22 out. 2026 (fim da noite): a v6 «The Enterprise Engine» (briefing «ERP V3») substitui a v5 — uma só versão.
+   22 out. 2026 (noite): a v5 (briefing «mais wow, premium e industrial»: a mensagem e o mapa da operação) substitui a
    v4 — uma só versão; o código da v4 fica em abertura-v4.ts.
    22 out. 2026 (tarde): a v4 (briefing «Minimal Cinematic Opening»: menos texto, um só gesto) substitui a v3 — uma
    só versão; o código da v3 fica em abertura-v3.ts */
-const soAberturaV3 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, objetivo: 'A entrada no ERP depois de o escolher na ROMAFE Identity: à esquerda a marca, «Operação ligada. Decisão rápida.», «Entrar no ERP», «Ver módulos» e «Ajuda», e Compras em foco com três números; à direita o mapa da operação em isométrico, que se ativa em ≈1,2 s.', versoes: [versaoAberturaV5()] as Ecra<IdErp>['versoes'] });
+const soAberturaV3 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, objetivo: 'Depois do login comum (ROMAFE Identity), como no Peça A Peça: «The Enterprise Engine» — os anéis de precisão, o documento e o pacote juntam-se numa estrutura, aparece ROMAFE ERP e a marca desliza para o cabeçalho enquanto o menu e a área de trabalho surgem; segue sozinha para o Início.', versoes: [versaoAberturaV6()] as Ecra<IdErp>['versoes'] });
 
 /* 19 out. 2026: a fase 1 de Compras (compras/ecras.ts) — o 10 · Compras ganha a v2, na casca do Início */
 const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
 
 /* 22 out. 2026: o 05 · Início ganha a v2 (briefing do ecrã inicial, «simples e wow»), que passa a abrir; a v1 fica */
-const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2()] as Ecra<IdErp>['versoes'] } : e);
+const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2(), versaoInicioV3()] as Ecra<IdErp>['versoes'] } : e);
 
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 export const erp: App<IdErp> = {
@@ -41,5 +43,5 @@ export const erp: App<IdErp> = {
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV5(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

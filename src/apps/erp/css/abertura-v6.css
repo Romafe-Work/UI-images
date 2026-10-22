@@ -1,0 +1,68 @@
+/* =========================================================
+   ERP — 00 · Abertura v6 «The Enterprise Engine» (22 out. 2026). Ver abertura-v6.ts.
+   A camada por cima da página principal (.sh): navy industrial, as linhas de arquitetura, os anéis de precisão, o
+   documento e o pacote, a estrutura; o laranja só no sinal. Fases: is-a (0) fundo e linhas, is-b (200) anéis a
+   alinhar e peças a chegar, is-c (500) ligações e convergência, is-d (850) ROMAFE ERP, is-e (1100) a passagem —
+   o fundo e o motor somem e a marca (a mesma do cabeçalho, em grande) desliza para o sítio dela (FLIP, em JS).
+   ========================================================= */
+.ab6 { position: absolute; inset: 0; z-index: 50; display: grid; place-items: center; overflow: hidden; color: #f5f8fa; --curva: cubic-bezier(.22, 1, .36, 1); }
+.ab6__fundo { position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 45%, #12233a, #0a1420 70%); transition: opacity .45s ease; }
+.ab6__cena { position: absolute; left: 50%; top: 46%; width: min(1000px, 112vw); height: auto; transform: translate(-50%, -50%) scale(1); transition: transform .5s var(--curva), opacity .4s ease; overflow: visible; }
+.ab6__arq line, .ab6__arq path { fill: none; stroke: rgba(120, 165, 205, .1); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ab6__arq { opacity: 0; transition: opacity .2s linear; }
+.ab6.is-a .ab6__arq { opacity: 1; }
+/* os anéis de precisão: entram desalinhados e rodam até encaixar */
+.ab6__anel circle { fill: none; stroke: #2d5378; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.ab6__anel line { stroke: rgba(120, 165, 205, .4); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ab6__anel--int circle { stroke: #3a6a96; stroke-width: 6; }
+.ab6__anel { transform-box: view-box; transform-origin: 0 0; opacity: 0; transition: transform .55s cubic-bezier(.2, .9, .12, 1), opacity .25s ease; }
+.ab6__anel--ext { transform: rotate(-70deg) scale(1.25); } .ab6__anel--int { transform: rotate(90deg) scale(.7); }
+.ab6.is-b .ab6__anel { opacity: 1; transform: none; }
+.ab6__furo { fill: #0b1724; stroke: #0876bd; stroke-width: 1.5; vector-effect: non-scaling-stroke; opacity: 0; transition: opacity .3s ease .25s; }
+.ab6.is-b .ab6__furo { opacity: 1; }
+.ab6__sinal { fill: #f58214; opacity: 0; }
+.ab6.is-a:not(.is-ja) .ab6__sinal { animation: ab6-sinal .5s ease 1 both; }
+.ab6.is-c .ab6__sinal { opacity: 1; }
+@keyframes ab6-sinal { 0% { opacity: 0; } 40% { opacity: 1; } 60% { opacity: .4; } 100% { opacity: 1; } }
+/* o documento e o pacote: chegam pelos seus caminhos (de fora, com aceleração controlada) */
+.ab6__doc, .ab6__pac { opacity: 0; transition: transform .45s cubic-bezier(.3, .7, .2, 1) .05s, opacity .25s ease .05s; }
+.ab6__doc { transform: translate(-260px, -40px) rotate(-8deg); } .ab6__pac { transform: translate(260px, 50px) rotate(8deg); }
+.ab6.is-b .ab6__doc, .ab6.is-b .ab6__pac { opacity: 1; transform: none; }
+.ab6__estrutura { opacity: 0; transform: translateY(30px); transition: transform .4s var(--curva) .15s, opacity .3s ease .15s; }
+.ab6.is-b .ab6__estrutura { opacity: 1; transform: translateY(0); }
+.ab6__ligacoes path { fill: none; stroke: rgba(245, 130, 20, .7); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .35s var(--curva); }
+.ab6.is-c .ab6__ligacoes path { stroke-dashoffset: 0; }
+/* convergência: o documento e o pacote encostam à estrutura, a câmara recua */
+.ab6.is-c .ab6__doc { transform: translate(60px, 0); } .ab6.is-c .ab6__pac { transform: translate(-60px, 0); }
+.ab6.is-d .ab6__cena { transform: translate(-50%, -50%) scale(.82); opacity: .3; }
+.ab6 .ab3-f1, .ab6 .ab3-f2, .ab6 .ab3-f3, .ab6 .ab3-dobra, .ab6 .ab3-etq { stroke: #4fa3dc; stroke-width: 1.1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.ab6 .ab3-f1 { fill: #18283a; } .ab6 .ab3-f2 { fill: #122030; } .ab6 .ab3-f3 { fill: #22394f; } .ab6 .ab3-dobra, .ab6 .ab3-etq { fill: #2c4862; }
+.ab6 .ab3-tr { fill: none; stroke: #4fa3dc; stroke-width: 1.1; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .75; } .ab6 .ab3-tr--fita { stroke: #6fb4e6; stroke-width: 2.2; }
+.ab6 .ab6-base.ab3-f3 { fill: #1c3148; } .ab6 .ab6-base.ab3-f1 { fill: #15263a; } .ab6 .ab6-base.ab3-f2 { fill: #102033; }
+
+/* a marca: é a do cabeçalho (os mesmos tamanhos), em grande; no fim desliza para lá */
+.ab6__centro { position: absolute; left: 50%; top: 46%; display: grid; justify-items: center; gap: 22px; transform: translate(-50%, -50%); }
+.ab6__marca { display: flex; align-items: center; gap: 10px; margin: 0; transform: scale(2.6); transform-origin: center; opacity: 0; filter: blur(4px); transition: opacity .25s ease, filter .25s ease; }
+.ab6__romafe { font-size: 24px; line-height: 1; color: rgb(0, 99, 170); }
+.ab6__marca i { width: 2px; height: 18px; background: #f58214; }
+.ab6__erp { font-family: var(--f-titulo); font-size: 16px; font-weight: 800; letter-spacing: .06em; color: #f5f8fa; }
+.ab6.is-d .ab6__marca { opacity: 1; filter: none; }
+.ab6__estado { min-height: 44px; margin-top: 48px; display: grid; justify-items: center; gap: 10px; }
+.ab6__msg { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-size: 15px; color: #c3cfda; }
+.ab6__traco { position: relative; width: 48px; height: 2px; overflow: hidden; border-radius: 2px; background: rgba(168, 183, 197, .2); }
+.ab6__traco::after { content: ""; position: absolute; inset: 0; width: 40%; background: #4fa3dc; animation: ab6-traco 1s ease-in-out infinite; }
+@keyframes ab6-traco { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+.ab6__btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid rgba(168, 183, 197, .35); border-radius: 10px; background: transparent; color: #f5f8fa; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ab6__btn svg { width: 16px; height: 16px; } .ab6__btn:hover { border-color: rgba(168, 183, 197, .6); }
+.ab6__saltar { position: absolute; right: 18px; bottom: 18px; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #8fa3b8; font: inherit; font-size: 13px; cursor: pointer; }
+.ab6__saltar svg { width: 15px; height: 15px; } .ab6__saltar:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+/* E — a passagem: o fundo e o motor somem por cima da página que já está a entrar */
+.ab6.is-e .ab6__fundo, .ab6.is-e .ab6__cena, .ab6.is-e .ab6__estado, .ab6.is-e .ab6__saltar { opacity: 0; }
+.ab6.is-e { pointer-events: none; }
+.ab6.is-ja *, .ab6.is-ja *::before, .ab6.is-ja *::after { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
+.ab6.is-ja .ab6__marca { opacity: 1; filter: none; }
+@media (max-width: 760px) { .ab6__cena { width: 150vw; } .ab6__marca { transform: scale(1.9); } .ab6__arq path { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ab6 *, .ab6 *::before, .ab6 *::after { transition-duration: .01s !important; animation: none !important; } }
+/* a regra dos ícones do .hm (18 px) não se aplica aos desenhos grandes */
+.hm .ab6__cena { width: min(1000px, 112vw); height: auto; }
+@media (max-width: 760px) { .hm .ab6__cena { width: 150vw; } }
