@@ -167,7 +167,7 @@
    (21 out., noite) as três peças, os insights, «Explorar componente», os mais pesquisados e as mais compradas
    ========================================================= */
 /* só os textos da peça em uso */
-.mt[data-ex="rolamento"] [data-ex]:not([data-ex="rolamento"]), .mt[data-ex="travao"] [data-ex]:not([data-ex="travao"]), .mt[data-ex="bomba"] [data-ex]:not([data-ex="bomba"]), .mt[data-ex="amortecedor"] [data-ex]:not([data-ex="amortecedor"]), .mt[data-ex="embraiagem"] [data-ex]:not([data-ex="embraiagem"]) { display: none !important; }
+.mt[data-ex="rolos"] [data-ex]:not([data-ex="rolos"]), .mt[data-ex="rolamento"] [data-ex]:not([data-ex="rolamento"]), .mt[data-ex="travao"] [data-ex]:not([data-ex="travao"]), .mt[data-ex="bomba"] [data-ex]:not([data-ex="bomba"]), .mt[data-ex="amortecedor"] [data-ex]:not([data-ex="amortecedor"]), .mt[data-ex="embraiagem"] [data-ex]:not([data-ex="embraiagem"]) { display: none !important; }
 /* os insights: um cartão curto junto da peça que sai (substituem as etiquetas) */
 .mt__insight { position: absolute; left: 0; top: 0; display: grid; gap: 3px; width: 220px; margin: 0 0 0 14px; padding: 10px 12px; border: 1px solid var(--i3-borda-forte); border-left: 3px solid var(--c-acao); border-radius: var(--r-md); background: color-mix(in srgb, var(--i3-sup) 94%, transparent); color: var(--i3-tinta); opacity: 0; transform-origin: left center; transition: opacity 180ms ease; pointer-events: none; }
 .mt__insight::before { content: ""; position: absolute; left: -14px; top: 16px; width: 12px; height: 1px; background: var(--c-acao); }

@@ -13,11 +13,12 @@
    - Definições (o ícone redondo; já se chamava assim): o tema Claro · Escuro · Sistema e os atalhos.
    - Ajuda: as perguntas do ecrã em que se está primeiro, e o contacto do apoio.
    - Conta (avatar, nome, seta): o utilizador, a conta (só uma: não há troca), Definições, Minhas listas e
-     «Terminar sessão» (limpa o que é da conta neste navegador e volta ao Entrar).
+     «Terminar sessão» (limpa o que é da conta neste navegador e volta ao login comum, a ROMAFE Identity).
    Esc fecha; clicar fora fecha; o foco volta ao botão; nas camadas modais o Tab fica dentro e a página não rola.
    Sem servidor: o que precisa dele está em LEIA-ME («A barra de topo»).
    ========================================================= */
 import { mostrar } from '../../../comum/ecras';
+import { irLogin } from './navegar';
 import { aplicar as aplicarTema, actual as temaActual, type Tema } from '../../../comum/tema';
 import { REFERENCIAS, GRUPOS, MODELOS } from '../portal/catalogo-dados';
 import { LINHAS, PEDIDOS } from '../portal/pedidos-dados';
@@ -512,7 +513,7 @@ function terminarSessao(): void {
   try { [LIDOS, RECENTES].forEach((k) => localStorage.removeItem(k)); Object.keys(sessionStorage).filter((k) => k.startsWith('goparts:')).forEach((k) => sessionStorage.removeItem(k)); } catch { /* nada */ }
   cache.clear();
   fechar(false);
-  mostrar('entrada');
+  irLogin();
 }
 
 /* =========================================================

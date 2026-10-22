@@ -7,11 +7,12 @@
    referência. Todos com o eixo em z e o mesmo contrato: as peças (para escolher e acender), a pose para um
    progresso p (0 montado → 1 explodido), o ponto de cada etiqueta e a distância da câmara.
    ========================================================= */
-import { Group, Mesh, Object3D, Vector3, CylinderGeometry, BoxGeometry, LatheGeometry, TorusGeometry, Vector2, MeshPhysicalMaterial, DoubleSide, Shape, ExtrudeGeometry, InstancedMesh, CanvasTexture, RepeatWrapping, Curve, TubeGeometry } from 'three';
+import { Group, Mesh, Object3D, Vector3, Quaternion, CylinderGeometry, BoxGeometry, LatheGeometry, TorusGeometry, Vector2, MeshPhysicalMaterial, DoubleSide, Shape, ExtrudeGeometry, InstancedMesh, CanvasTexture, RepeatWrapping, Curve, TubeGeometry } from 'three';
 import { criarRolamento, R, N_ESFERAS } from './rolamento-3d';
 
-export type IdExemplo = 'rolamento' | 'travao' | 'bomba' | 'amortecedor' | 'embraiagem';
-export const EXEMPLOS: IdExemplo[] = ['rolamento', 'travao', 'bomba', 'amortecedor', 'embraiagem'];
+export type IdExemplo = 'rolos' | 'rolamento' | 'travao' | 'bomba' | 'amortecedor' | 'embraiagem';
+/** (22 out.) o rolamento de rolos esféricos SKF, das fotografias dela no armazém, é a primeira peça da montra */
+export const EXEMPLOS: IdExemplo[] = ['rolos', 'rolamento', 'travao', 'bomba', 'amortecedor', 'embraiagem'];
 export interface Modelo {
   grupo: Group;
   /** as malhas de cada peça (cada uma com o seu material, para acender sozinha) */
@@ -52,6 +53,88 @@ function rolamento(): Modelo {
     etiqueta: { ext: [rol.ext, new Vector3(0, R.ext, 0), .22], gaiola: [rol.gaiola.children[1], new Vector3(0, -R.primitivo, 0), .42], esferas: [rol.gaiola, new Vector3(R.primitivo + .25, 0, 0), .48], int: [rol.int, new Vector3(0, R.furo, 0), .6] },
     atual: (p) => (p < .4 ? 'ext' : p < .5 ? 'gaiola' : p < .6 ? 'esferas' : 'int'),
     dist: [5.2, 8.8],
+  };
+}
+
+/* ---------- 0. o rolamento de rolos esféricos SKF (22 out.), das fotografias dela no armazém ----------
+   Ela: «eis um rolamento real da SKF, coloca este animado». Um autocompensador de rolos: o anel exterior com a
+   pista esférica por dentro (e o sulco de lubrificação a meio, por fora), duas filas de rolos em barril, inclinados
+   um contra o outro, a gaiola de aço escura com uma janela por rolo, e o anel interior com as duas pistas e o
+   anel-guia ao meio. As proporções são as da fotografia (furo ≈ metade do diâmetro, largura ≈ um quarto); a
+   referência não se via na caixa, por isso não há cotas. A animação mostra primeiro o que o distingue: o interior
+   inclina-se dentro do anel exterior e volta ao sítio (a autocompensação); depois desmonta-se pela ordem do 6206. */
+const RS = .885, ROLO_R = .09, ROLO_L = .24, N_ROLOS = 17, PITCH = .785, FILA_Z = .14;
+const BETA = Math.atan2(FILA_Z, PITCH);
+function rolos(): Modelo {
+  const ri = riscas();
+  const aneis = new MeshPhysicalMaterial({ color: '#c9ced3', metalness: 1, roughness: .26, map: ri, roughnessMap: ri, side: DoubleSide });
+  const rolosM = mat('#dfe3e7', 1, .16), gaiolaM = mat('#3b4148', .7, .4), sulcoM = mat('#7c838a', .9, .4);
+  const pista = (z: number) => Math.sqrt(RS * RS - z * z);
+  /* o anel exterior: o cilindro de fora (com chanfros e o sulco), e a pista esférica por dentro */
+  const perfilExt: Vector2[] = [new Vector2(pista(-.28), -.28), new Vector2(1.08, -.28), new Vector2(1.1, -.26), new Vector2(1.1, -.035), new Vector2(1.082, -.03), new Vector2(1.082, .03), new Vector2(1.1, .035), new Vector2(1.1, .26), new Vector2(1.08, .28)];
+  for (let i = 0; i <= 24; i++) { const z = .28 - (i / 24) * .56; perfilExt.push(new Vector2(pista(z), z)); }
+  const ext = new Mesh(eixoZ(new LatheGeometry(perfilExt, 160)), aneis.clone());
+  const furosLub = Array.from({ length: 3 }, (_, i) => { const a = (i / 3) * Math.PI * 2 + .4, m = new Mesh(new CylinderGeometry(.022, .022, .04, 12), sulcoM.clone()); m.position.set(Math.cos(a) * 1.085, Math.sin(a) * 1.085, 0); m.rotation.z = a - Math.PI / 2; return m; });
+  const exterior = new Group(); exterior.add(ext, ...furosLub);
+  /* o anel interior: o furo, os ombros, as duas pistas (côncavas, uma por fila) e o anel-guia ao meio */
+  const perfilInt: Vector2[] = [new Vector2(.57, .28), new Vector2(.57, -.28), new Vector2(.7, -.28), new Vector2(.715, -.265)];
+  for (let i = 0; i <= 12; i++) { const z = -.25 + (i / 12) * .22; perfilInt.push(new Vector2(.69 - .02 * Math.sin(((z + .25) / .22) * Math.PI), z)); }
+  perfilInt.push(new Vector2(.705, -.02), new Vector2(.705, .02));
+  for (let i = 0; i <= 12; i++) { const z = .03 + (i / 12) * .22; perfilInt.push(new Vector2(.69 - .02 * Math.sin(((z - .03) / .22) * Math.PI), z)); }
+  perfilInt.push(new Vector2(.715, .265), new Vector2(.7, .28), new Vector2(.57, .28));
+  const int = new Mesh(eixoZ(new LatheGeometry(perfilInt, 128)), aneis.clone());
+  /* os rolos: um barril (mais largo ao meio), em duas filas desencontradas meio passo */
+  const perfilRolo: Vector2[] = [new Vector2(0, -ROLO_L / 2), new Vector2(ROLO_R - .012, -ROLO_L / 2)];
+  for (let i = 0; i <= 10; i++) { const y = -ROLO_L / 2 + (i / 10) * ROLO_L; perfilRolo.push(new Vector2(ROLO_R - .35 * y * y, y)); }
+  perfilRolo.push(new Vector2(ROLO_R - .012, ROLO_L / 2), new Vector2(0, ROLO_L / 2));
+  const rolosI = new InstancedMesh(new LatheGeometry(perfilRolo, 40), rolosM.clone(), N_ROLOS * 2);
+  /* a gaiola: os dois aros dos lados, as barras entre os rolos e o anel-guia */
+  /* os aros ficam por baixo dos rolos (como na fotografia: de frente veem-se os rolos, não a gaiola) */
+  const aro = (z: number) => { const m = new Mesh(eixoZ(new LatheGeometry([new Vector2(.705, z - .012), new Vector2(.735, z - .012), new Vector2(.735, z + .012), new Vector2(.705, z + .012), new Vector2(.705, z - .012)], 128)), gaiolaM.clone()); return m; };
+  const barras = new InstancedMesh(new BoxGeometry(.03, .06, .2), gaiolaM.clone(), N_ROLOS * 2);
+  for (let k = 0; k < N_ROLOS * 2; k++) {
+    const fila = k < N_ROLOS ? 1 : -1, a = ((k % N_ROLOS) + .5 + (fila < 0 ? .5 : 0)) / N_ROLOS * Math.PI * 2;
+    tmp.position.set(Math.cos(a) * .76, Math.sin(a) * .76, fila * FILA_Z); tmp.rotation.set(0, 0, a); tmp.updateMatrix(); barras.setMatrixAt(k, tmp.matrix);
+  }
+  tmp.rotation.set(0, 0, 0);
+  const guia = new Mesh(eixoZ(new LatheGeometry([new Vector2(.71, -.018), new Vector2(.75, -.018), new Vector2(.75, .018), new Vector2(.71, .018), new Vector2(.71, -.018)], 128)), gaiolaM.clone());
+  const aros = [aro(-.272), aro(.272)];
+  const gaiola = new Group(); gaiola.add(...aros, barras, guia);
+  /* o «miolo» (anel interior, rolos e gaiola) é o que se inclina na autocompensação */
+  const miolo = new Group(); miolo.add(int, rolosI, gaiola);
+  const grupo = new Group(); grupo.add(exterior, miolo);
+  const Y = new Vector3(0, 1, 0), eixo = new Vector3(), qa = new Quaternion(), qg = new Quaternion();
+  return {
+    grupo,
+    pecas: { ext: [ext, ...furosLub], rolos: [rolosI as unknown as Mesh], gaiola: [...aros, barras as unknown as Mesh, guia], int: [int] },
+    pose(p) {
+      /* 1. a autocompensação: o miolo inclina-se ~9° e volta, com o anel exterior no sítio */
+      const inclina = suave(.12, .22, p) * (1 - suave(.28, .36, p));
+      miolo.rotation.x = .16 * inclina;
+      /* 2. o anel exterior sai; 3. os rolos afastam-se e as filas separam-se; 4. a gaiola sai; 5. tudo explodido */
+      const exp = suave(.66, .84, p);
+      exterior.position.z = -(1.15 * suave(.36, .5, p) + .5 * exp);
+      const raio = PITCH + .34 * suave(.44, .58, p), separa = .3 * suave(.5, .66, p) + .2 * exp;
+      gaiola.position.z = 1.05 * suave(.58, .76, p) + .45 * exp;
+      int.position.z = -.25 * exp;
+      const giro = p * 2.2, rodar = -giro * (PITCH / ROLO_R);
+      for (let k = 0; k < N_ROLOS * 2; k++) {
+        const fila = k < N_ROLOS ? 1 : -1, a = giro + ((k % N_ROLOS) + (fila < 0 ? .5 : 0)) / N_ROLOS * Math.PI * 2;
+        const c = Math.cos(a), s = Math.sin(a);
+        /* o eixo do rolo, no plano (radial, z), perpendicular à linha do centro: as filas inclinam-se uma contra a outra */
+        eixo.set(-fila * Math.sin(BETA) * c, -fila * Math.sin(BETA) * s, Math.cos(BETA)).normalize();
+        qa.setFromUnitVectors(Y, eixo); qg.setFromAxisAngle(Y, rodar);
+        tmp.quaternion.copy(qa).multiply(qg);
+        tmp.position.set(c * raio, s * raio, fila * (FILA_Z + separa));
+        tmp.updateMatrix(); rolosI.setMatrixAt(k, tmp.matrix);
+      }
+      tmp.quaternion.identity();
+      rolosI.instanceMatrix.needsUpdate = true;
+      gaiola.rotation.z = giro;
+    },
+    etiqueta: { ext: [ext, new Vector3(0, 1.1, 0), .28], rolos: [miolo, new Vector3(PITCH + .45, 0, .2), .46], gaiola: [gaiola, new Vector3(0, -.8, .27), .6], int: [int, new Vector3(0, .7, .28), .72] },
+    atual: (p) => (p < .44 ? 'ext' : p < .6 ? 'rolos' : p < .74 ? 'gaiola' : 'int'),
+    dist: [5.3, 8.6],
   };
 }
 
@@ -268,4 +351,4 @@ function embraiagem(): Modelo {
   };
 }
 
-export const criarModelo = (id: IdExemplo): Modelo => (id === 'travao' ? travao() : id === 'bomba' ? bomba() : id === 'amortecedor' ? amortecedor() : id === 'embraiagem' ? embraiagem() : rolamento());
+export const criarModelo = (id: IdExemplo): Modelo => (id === 'travao' ? travao() : id === 'bomba' ? bomba() : id === 'amortecedor' ? amortecedor() : id === 'embraiagem' ? embraiagem() : id === 'rolos' ? rolos() : rolamento());

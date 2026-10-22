@@ -18,6 +18,21 @@ const ecraVisivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden
 /** Um ecrã do portal (com a barra lateral) e não um estado. */
 const doPortal = (e: HTMLElement | null) => !!e && !e.dataset.estadoDe && !!e.querySelector(':scope > .versao:not([hidden]) .portal--lateral');
 const CHAVE_MODO = 'goparts:pesquisa-modo';
+/** (22 out.) O login é o comum a todas as apps: a ROMAFE Identity (identidade/), que depois abre o Peça A Peça
+ *  no Início. Leva o modo em que se está (só o ecrã, a demonstração) para lá. */
+export function irLogin(): void {
+  const h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams();
+  ['so', 'demo', 'anim'].forEach((k) => { const v = h.get(k); if (v) q.set(k, v); });
+  q.set('ecra', 'entrada');
+  location.href = '../identidade/#' + q.toString().replace(/%3D/g, '=');
+}
+/** Os botões que levavam ao Entrar (Saltar, Iniciar sessão…) têm data-login; no editor e no mapa, não saem da página. */
+window.addEventListener('click', (ev) => {
+  if (editando()) return;
+  const b = (ev.target as Element).closest?.('[data-login]');
+  if (!b) return;
+  ev.preventDefault(); ev.stopImmediatePropagation(); irLogin();
+}, true);
 
 type Doc = Document & { startViewTransition?: (f: () => void | Promise<void>) => { finished: Promise<void> } };
 let comDemo = false;

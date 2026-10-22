@@ -71,7 +71,10 @@ async function abrir(b: HTMLButtonElement): Promise<void> {
   b.disabled = true; b.setAttribute('aria-busy', 'true');
   const ab = b.querySelector<HTMLElement>('.id-app__abrir'); if (ab) ab.innerHTML = `${roda}A abrir…`;
   await espera(600);
-  location.href = `../${b.dataset.idAbrir}`;
+  /* (22 out.) leva o modo em que se está (só o ecrã, a demonstração) para a app que se abre */
+  const [pagina, hash = ''] = (b.dataset.idAbrir || '').split('#'), h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams(hash);
+  ['so', 'demo', 'anim'].forEach((k) => { const v = h.get(k); if (v) q.set(k, v); });
+  location.href = `../${pagina}#${q.toString()}`;
 }
 
 export function iniciar(): void {

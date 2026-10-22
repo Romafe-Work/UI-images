@@ -13,7 +13,7 @@
    - No editor não passa sozinha à login. Com #…&pausa=3.3 no endereço, a sequência fica
      parada nesse instante (para rever um momento).
    ========================================================= */
-import { mostrar } from '../../../comum/ecras';
+import { irLogin } from './navegar';
 import type { Cena } from './abertura-cena';
 
 const editando = () => document.body.classList.contains('editando');
@@ -49,15 +49,14 @@ function largar(): void {
 /** Passa à login: a marca do centro voa para a da barra. */
 function seguir(): void {
   const ab = raiz;
-  if (!ab) { mostrar('entrada'); return; }
+  if (!ab) { irLogin(); return; }
   const doc = document as Document & { startViewTransition?: (f: () => void) => { finished: Promise<void> } };
   const daqui = ab.querySelector<HTMLElement>('.ab5__marca');
   const ir = () => {
     if (daqui) daqui.style.viewTransitionName = '';
     largar();
-    mostrar('entrada');
-    const ali = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ent3__marca');
-    if (ali) { ali.style.viewTransitionName = 'goparts-marca'; window.setTimeout(() => { ali.style.viewTransitionName = ''; }, 1200); }
+    /* (22 out.) o login é o comum (ROMAFE Identity), noutra página */
+    irLogin();
   };
   if (!doc.startViewTransition || quieto() || !daqui) { ir(); return; }
   /* só a marca voa; o resto troca com um desvanecer */
@@ -70,7 +69,8 @@ function mostrarFinal(depois: number): void {
   if (!raiz) return;
   raiz.classList.add('is-marca', 'is-goparts', 'is-linha', 'is-final');
   raiz.querySelector<HTMLElement>('[data-repetir]')!.hidden = false;
-  if (!editando()) saida = window.setTimeout(seguir, depois);
+  /* sozinha só sai no protótipo (#so=ecra): no editor, a abertura fica no último quadro */
+  if (!editando() && document.body.classList.contains('so-ecra')) saida = window.setTimeout(seguir, depois);
 }
 
 /** A linha do tempo do que é HTML (o logótipo, o Peça A Peça, a linha), ao mesmo relógio da cena. */

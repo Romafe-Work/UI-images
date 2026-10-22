@@ -477,7 +477,7 @@ const fichaDocumentoErro = () => fichaBase('e1140', (r) => {
 /* 11.41 · a sessão terminou: a ficha fica onde está, comprar pede para entrar outra vez */
 const fichaSessao = () => fichaBase('e1141', (r) => {
   compra(r).querySelectorAll('button').forEach((b) => b.setAttribute('disabled', ''));
-  $(r, '.cat5__peca').insertAdjacentHTML('beforebegin', `<div class="cat6__faixa-largo">${faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para pedir; a ficha e a quantidade ficam como estão.', BOTAO('Entrar', IC_CADEADO, 'btn--acao btn--sm', ' data-ir="entrada"'))}</div>`);
+  $(r, '.cat5__peca').insertAdjacentHTML('beforebegin', `<div class="cat6__faixa-largo">${faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para pedir; a ficha e a quantidade ficam como estão.', BOTAO('Entrar', IC_CADEADO, 'btn--acao btn--sm', ' data-login'))}</div>`);
 });
 /* 11.42 · sem permissão: esta conta não vê preços nem compra */
 const fichaSemPermissao = () => fichaBase('e1142', (r) => {
@@ -604,7 +604,7 @@ const ped4Gaveta = () => ped4Inerte(ped4('e1213', (r) => {
 /* 12.14 · sessão terminada: a página fica; pesquisar pede para entrar outra vez */
 const ped4Sessao = () => ped4('e1214', (r) => {
   $(r, '.ped4__pesquisar').setAttribute('disabled', '');
-  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar os pedidos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar os pedidos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-login')));
 });
 /* 12.15 · sem permissão: esta conta não vê os pedidos da oficina */
 const ped4SemPermissao = () => ped4('e1215', (r) => {
@@ -807,7 +807,7 @@ const guiasFalha = () => g3('e1318', (r) => {
 /* 13.19 · sessão terminada: a página fica; pesquisar pede para entrar outra vez */
 const guiasSessao = () => g3('e1319', (r) => {
   $(r, '.ped4__pesquisar').setAttribute('disabled', '');
-  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as guias e descarregar documentos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as guias e descarregar documentos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-login')));
 });
 /* 13.20 · sem permissão: esta conta não vê os documentos de entrega */
 const guiasSemPermissao = () => g3('e1320', (r) => {
@@ -958,7 +958,7 @@ const faturasRede = () => f2('e1420', (r) => {
 /* 14.21 · sessão terminada */
 const faturasSessao = () => f2('e1421', (r) => {
   $(r, '.ped4__pesquisar').setAttribute('disabled', '');
-  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as faturas e descarregar documentos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as faturas e descarregar documentos; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-login')));
 });
 /* 14.22 · sem permissão: esta conta não vê a faturação */
 const faturasSemPermissao = () => f2('e1422', (r) => {
@@ -1101,7 +1101,7 @@ const devFalha = () => d16('e1621', (r) => {
 /* 16.22 · sessão terminada */
 const devSessao = () => d16('e1622', (r) => {
   $(r, '.ped4__pesquisar').setAttribute('disabled', ''); $(r, '.dev__criar').setAttribute('disabled', '');
-  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as devoluções e criar novas; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-ir="entrada"')));
+  $(r, '.ped4__filtros').insertAdjacentHTML('beforebegin', faixa('aviso', `<span class="cat6__faixa-icone">${I(IC_CADEADO_P)}</span>`, 'A sua sessão terminou.', 'Entre outra vez para atualizar as devoluções e criar novas; os filtros ficam como estão.', BOTAO('Entrar', IC_CADEADO_P, 'btn--acao btn--sm', ' data-login')));
 });
 /* 16.23 · sem permissão */
 const devSemPermissao = () => d16('e1623', (r) => {

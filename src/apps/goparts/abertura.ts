@@ -53,7 +53,7 @@ const html = `<main class="abertura abertura--v5" aria-label="Peça A Peça, da 
   <p class="ab5__espera" role="status">A preparar a cena…</p>
   <div class="ab5__accoes">
     <button type="button" class="btn ab5__botao ab5__repetir" data-repetir hidden>${L(rotateCcw, 'btn__icone')}<span class="btn__rotulo">Ver outra vez</span></button>
-    <button type="button" class="btn ab5__botao abertura__saltar" data-ir="entrada"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
+    <button type="button" class="btn ab5__botao abertura__saltar" data-login><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
   </div>
 </main>`;
 

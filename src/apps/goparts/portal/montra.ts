@@ -93,10 +93,18 @@ function abertura(e: EstadoMontra): string {
    Uma por visita ao Início (ela: «pode mudar para um travão… quero 3 exemplos»). Os insights aparecem junto da peça
    quando ela sai (e somem quando volta ao sítio); são também o painel do modo «Explorar componente». Só o que se
    sabe do tipo de peça; as medidas só do 6206, que é o modelo à escala. */
-export type IdExemplo = 'rolamento' | 'travao' | 'bomba' | 'amortecedor' | 'embraiagem';
+export type IdExemplo = 'rolos' | 'rolamento' | 'travao' | 'bomba' | 'amortecedor' | 'embraiagem';
 type Peca = { nome: string; texto: string; medida: string };
 type Exemplo = { modelo: string; nota: string; pecas: Record<string, Peca>; passos: [string, string][]; fim: [string, string, string, string] };
 export const EXEMPLOS_TEXTO: Record<IdExemplo, Exemplo> = {
+  rolos: { modelo: 'SKF · rolamento de rolos esféricos', nota: 'SKF · rolamento de rolos esféricos · do armazém da Romafe',
+    pecas: {
+      ext: { nome: 'Anel exterior', texto: 'Por dentro, a pista é uma esfera: o interior pode inclinar-se nela sem forçar nada. É por isso que se chama autocompensador.', medida: 'Pista esférica · sulco de lubrificação' },
+      rolos: { nome: 'Rolos', texto: 'Duas filas de rolos em barril, inclinadas uma contra a outra. Aguentam cargas grandes, de lado e ao longo do eixo.', medida: 'Duas filas, desencontradas' },
+      gaiola: { nome: 'Gaiola', texto: 'Guarda cada rolo na sua janela, à mesma distância dos outros, e leva-os à volta todos juntos.', medida: 'Em aço, uma janela por rolo' },
+      int: { nome: 'Anel interior', texto: 'Monta no veio e roda com ele. Tem uma pista para cada fila e o anel-guia ao meio.', medida: 'Furo cilíndrico' } },
+    passos: [['Autocompensação.', 'O interior inclina-se dentro do anel exterior e volta ao sítio: o rolamento aguenta o veio desalinhado.'], ['As duas filas de rolos.', 'Sai o anel exterior e os rolos em barril afastam-se da pista.'], ['Cada peça no seu eixo.', 'Anel exterior, rolos, gaiola e anel interior, pela ordem em que se monta.']],
+    fim: ['Rolamentos que aguentam o trabalho.', 'Os rolamentos SKF do catálogo, com o preço da tua conta e o stock de agora.', 'Pesquisar rolamentos SKF', ' data-mt-pesquisar="SKF" data-mt-modo="2"'] },
   rolamento: { modelo: 'SKF 6206 · rolamento rígido de esferas', nota: 'SKF 6206 · ilustrativo',
     pecas: {
       ext: { nome: 'Anel exterior', texto: 'Fica fixo no cubo da roda. A pista cavada na face de dentro guia as esferas.', medida: 'D 62 mm · B 16 mm' },
@@ -240,7 +248,7 @@ const final = () => `<section class="mt__sec mt__final" aria-labelledby="mt-fim-
 
 export function montraHtml(e: EstadoMontra = ''): string {
   const aviso = e === 'offline' ? `<p class="mt__aviso" role="status">${L(wifiOff)}<span><b>Sem ligação.</b> Os preços e o stock são os da última vez que a página carregou.</span></p>` : '';
-  const sessao = e === 'sessao' ? `<div class="mt__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="mt-s-t"><div class="mt__veu"></div><div class="mt__dialogo"><span class="mt__dialogo-icone">${L(lock)}</span><h2 id="mt-s-t">A tua sessão expirou.</h2><p>Por segurança, entra outra vez. Voltas a esta página.</p><button type="button" class="btn btn--acao mt__btn" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Iniciar sessão</span></button></div></div>` : '';
+  const sessao = e === 'sessao' ? `<div class="mt__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="mt-s-t"><div class="mt__veu"></div><div class="mt__dialogo"><span class="mt__dialogo-icone">${L(lock)}</span><h2 id="mt-s-t">A tua sessão expirou.</h2><p>Por segurança, entra outra vez. Voltas a esta página.</p><button type="button" class="btn btn--acao mt__btn" data-login>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Iniciar sessão</span></button></div></div>` : '';
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--mt">
   <main class="mt${e === 'sem-3d' ? ' is-sem-3d' : ''}" data-ex="rolamento"${e ? ` data-estado="${e}"` : ''}${e === 'sessao' ? ' inert aria-hidden="true"' : ''}>
     ${aviso}${abertura(e)}${maisPesquisados(e)}${compradas(e)}${continuar(e)}${final()}

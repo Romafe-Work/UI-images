@@ -242,7 +242,7 @@ const sessao = () => `<div class="ini3__comando ini3__sessao" role="alertdialog"
     <span class="ini3__sessao-icone">${L(lock)}</span>
     <h2 id="i3-sessao-t">A tua sessão expirou.</h2>
     <p id="i3-sessao-d">Por segurança, precisas de iniciar sessão novamente. Depois voltas a esta página.</p>
-    <button type="button" class="btn btn--acao ini3__botao-pagina" data-ir="entrada">${L(logIn, 'btn__icone')}<span class="btn__rotulo">Iniciar sessão</span></button>
+    <button type="button" class="btn btn--acao ini3__botao-pagina" data-login>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Iniciar sessão</span></button>
   </div>
 </div>`;
 

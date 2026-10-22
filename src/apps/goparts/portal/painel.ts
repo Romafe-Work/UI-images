@@ -367,7 +367,7 @@ export function gavetaHtml(p: PrefsPn, aberta = false): string {
 }
 /** A sessão expirou: o Início fica atrás, inerte, e o diálogo pede para entrar outra vez. */
 const sessaoHtml = () => `<div class="pn__gaveta pn__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="pn-s-t" aria-describedby="pn-s-d"><div class="pn__veu"></div>
-  <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, onde estavas.</p>${acao('Iniciar sessão', logIn, ' data-ir="entrada"')}</div></div>`;
+  <div class="pn__dialogo"><span class="pn__dialogo-icone">${L(lock)}</span><h2 id="pn-s-t">A tua sessão expirou.</h2><p id="pn-s-d">Por segurança, entra outra vez. Voltas ao Início, onde estavas.</p>${acao('Iniciar sessão', logIn, ' data-login')}</div></div>`;
 export function blocosPn(p: Periodo, prefs: PrefsPn, e: EstadoPn = '', metrica: Metrica = 'valor'): string {
   void p; void metrica;
   return `${atalhosHtml(prefs)}<div class="pn__centro" data-pn-grelha>${pedidosHtml(prefs, e)}${atencaoHtml(prefs, e)}</div>${resumoHtml(prefs, e)}`;

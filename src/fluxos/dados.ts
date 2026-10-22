@@ -244,7 +244,7 @@ export const DIAGRAMAS: Diagrama[] = [
     id: 'pecaapeca', grupo: 'Web', titulo: 'Peça A Peça · o portal', direcao: 'TD',
     descricao: 'Os ecrãs do portal: o Início, a pesquisa (com os resultados e os filtros no próprio ecrã), o catálogo, os documentos e as ferramentas. O carrinho é um painel da barra do topo; a encomenda ainda não tem ecrã.',
     nos: [
-      e('abertura', '00 · Abertura', 'goparts', 'abertura'), e('entrada', '01 · Entrar', 'goparts', 'entrada'), e('passe', '02 · Palavra-passe', 'goparts', 'palavra-passe'),
+      e('abertura', '00 · Abertura', 'goparts', 'abertura'), e('entrada', 'ROMAFE Identity · Entrar', 'identidade', 'entrada'), e('passe', 'ROMAFE Identity · Palavra-passe', 'identidade', 'palavra-passe'),
       e('inicio', '10 · Início', 'goparts', 'inicio'), e('pesquisa', '18 · Pesquisar peças', 'goparts', 'pesquisa'),
       n('acao', 'modo', 'Matrícula, veículo ou referência'), n('decisao', 'encontrou', 'Há resultados?'),
       e('resultados', 'Resultados e «Filtros (n)»', 'goparts', 'inicio-resultados'), e('semres', 'Sem resultados', 'goparts', 'inicio-sem-resultados'),
@@ -253,7 +253,7 @@ export const DIAGRAMAS: Diagrama[] = [
       e('lista', '15 · Minha lista', 'goparts', 'lista'), e('tecnica', '17 · Informações técnicas', 'goparts', 'tecnica'),
     ],
     arestas: [
-      a('abertura', 'entrada'), a('entrada', 'passe'), a('passe', 'inicio', 'entrou', 'transição da marca'),
+      a('abertura', 'entrada', 'o login é o comum'), a('entrada', 'passe'), a('passe', 'inicio', 'escolhe o Peça A Peça'),
       a('inicio', 'pesquisa', 'cartões da pesquisa', 'deslize, 250 ms'), a('pesquisa', 'modo'), a('modo', 'encontrou'), a('encontrou', 'resultados', 'sim'), a('encontrou', 'semres', 'não'), a('semres', 'modo', 'pesquisa parcial ou outra forma'),
       a('resultados', 'catalogo', 'ver ficha', 'a imagem passa para a ficha'), a('resultados', 'adicionar'), a('catalogo', 'adicionar'), a('adicionar', 'encomendar'),
       a('inicio', 'catalogo'), a('inicio', 'pedidos', 'atalho'), a('pedidos', 'guias', 'ver guia'), a('guias', 'faturas', 'ver fatura'), a('faturas', 'devolucoes', 'criar devolução'),

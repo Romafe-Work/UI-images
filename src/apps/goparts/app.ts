@@ -1,9 +1,7 @@
 import type { App } from '../../comum/tipos';
 import { ecrasCarregar } from '../../comum/carregar/carregar';
 import { GOPARTS } from './portal/base';
-import { DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdGoParts, EcraGoParts } from './ids';
-import { ecrasEntrar } from './entrar-3d';
 import { ecraAbertura } from './abertura';
 import { ecrasPortal } from './portal/ecras';
 import { ecrasErro } from './erros/erros';
@@ -76,7 +74,7 @@ export const goparts: App<IdGoParts> = {
   marca: 'PEÇA A PEÇA',
   tela: { l: 1440, a: 900 },
   fluxos: {
-    'Entrar': DESCRICAO_ENTRAR,
+    'Entrar': 'A abertura animada. O login é o comum a todas as apps (ROMAFE Identity, em identidade/): «Saltar», o fim da abertura, «Iniciar sessão» e «Terminar sessão» levam lá.',
     'Portal': 'Depois de entrar: o Início (o painel da atividade), a pesquisa de peças, o catálogo, os pedidos, as guias de remessa, as faturas, a Minha lista, as devoluções e as informações técnicas.',
   },
   /* 14 out. 2026: os quatro ecrãs de entrar à volta do rolamento 3D (entrar-3d.ts), do briefing dela; saíram a v1 e a v2 */
@@ -88,5 +86,8 @@ export const goparts: App<IdGoParts> = {
      Entregas, Marcas, Contactos); a abertura volta a levar ao login */
   /* 13 out. 2026: ela, «tudo o que seja carregamentos e erros deve estar distribuído pelas páginas» —
      os grupos Carregamento e Erros saíram; cada ecrã passa a estado da página que mostra (distribuir()) */
-  ecras: [ecraAbertura(), ...ecrasEntrar(), ...distribuir()],
+  /* 22 out. 2026: ela, «remove o 1 2 3 4 do Peça A Peça, não faz sentido — o login é igual a todos»: os ecrãs
+     01–04 (Entrar, palavra-passe, empresa, ajuda) saíram; entra-se pelo login comum da ROMAFE Identity
+     (identidade/), que abre o Peça A Peça no Início. O código deles fica em entrar-3d.ts. */
+  ecras: [ecraAbertura(), ...distribuir()],
 };
