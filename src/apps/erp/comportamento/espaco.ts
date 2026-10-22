@@ -52,7 +52,7 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-banner]', banner(e));
   if (o.exp !== false) { const x = $('[data-dk-exp]'); if (x) { x.innerHTML = e.semCasa ? semSeparadores() : exp(e); if (o.entrar) { x.classList.remove('is-entrar'); void x.offsetWidth; x.classList.add('is-entrar'); } } }
   if (o.exp !== false) pg.querySelectorAll<HTMLElement>('[data-dk-exp-pasta]').forEach((p) => { p.innerHTML = exp({ ...e, pasta: p.dataset.dkExpPasta! }); });
-  if (e.v6) put('[data-dk6-menu]', menuV6({ ...e, menu: '' }));
+  if (e.v6) put('[data-dk6-menu]', menuV6(e));
   const top = Math.max(0, ...e.janelas.map((j) => j.z));
   put('[data-dk-janelas]', e.janelas.map((j) => janela(j, j.z === top)).join(''));
   put('[data-dk-doca]', doca(e));
@@ -268,12 +268,25 @@ function abrirMenu6(id: string, item: 'primeiro' | 'ultimo' | '' = ''): void {
   fecharMenu6();
   const m = $(`[data-dk6-m="${id}"]`); if (!m) return;
   m.querySelector('.dk6-drop')?.removeAttribute('hidden'); m.querySelector('.dk6-m-b')?.setAttribute('aria-expanded', 'true'); menu6 = id;
-  const its = [...m.querySelectorAll<HTMLElement>('.dk6-i:not([aria-disabled="true"])')];
+  const its = [...(m.querySelector('.dk6-drop')?.children ?? [])].filter((c): c is HTMLElement => c.matches('.dk6-i:not([aria-disabled="true"])') || c.matches('.dk6-sub')).map((c) => c.matches('.dk6-sub') ? c.querySelector<HTMLElement>(':scope > .dk6-i')! : c);
   if (item) (item === 'primeiro' ? its[0] : its[its.length - 1])?.focus(); else m.querySelector<HTMLElement>('.dk6-m-b')?.focus();
+}
+/** Um submenu que passava do fundo da janela sobe o que for preciso. */
+function ajustarSub(s: HTMLElement): void {
+  const d = s.querySelector<HTMLElement>(':scope > .dk6-drop--sub'); if (!d) return;
+  d.style.top = ''; d.style.left = ''; d.style.right = ''; d.style.marginLeft = '';
+  const r = d.getBoundingClientRect(); if (!r.height) return;
+  if (r.bottom > window.innerHeight - 8) d.style.top = `${-5 - (r.bottom - window.innerHeight + 8)}px`;
+  /* sem espaço à direita, abre para a esquerda (por cima do menu de onde sai) */
+  if (r.right > window.innerWidth - 8) { d.style.left = 'auto'; d.style.right = '100%'; d.style.marginLeft = '0'; }
 }
 function teclasMenu6(ev: KeyboardEvent, alvo: HTMLElement): boolean {
   const m = alvo.closest<HTMLElement>('[data-dk6-m]'); if (!m) return false;
   const bs = [...($('[data-dk6-menu]')?.querySelectorAll<HTMLElement>('.dk6-m-b') ?? [])], b = m.querySelector<HTMLElement>('.dk6-m-b')!, i = bs.indexOf(b);
+  /* os submenus: → entra, ← sai */
+  const sub = alvo.closest<HTMLElement>('[data-dk6-sub]'), dentro = alvo.closest<HTMLElement>('.dk6-drop--sub');
+  if (sub && (ev.key === 'ArrowRight' || ev.key === 'Enter' || ev.key === ' ')) { ajustarSub(sub.parentElement!); sub.parentElement!.querySelector<HTMLElement>(':scope > .dk6-drop--sub .dk6-i:not([aria-disabled="true"])')?.focus(); return true; }
+  if (dentro && ev.key === 'ArrowLeft') { dentro.parentElement!.querySelector<HTMLElement>(':scope > .dk6-i')?.focus(); return true; }
   const lado = (d: number) => { const n = bs[(i + d + bs.length) % bs.length]; bs.forEach((x) => x.tabIndex = x === n ? 0 : -1); if (menu6) abrirMenu6(n.closest<HTMLElement>('[data-dk6-m]')!.dataset.dk6M!, 'primeiro'); else n.focus(); };
   if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { lado(ev.key === 'ArrowRight' ? 1 : -1); return true; }
   if (ev.key === 'Escape') { fecharMenu6(true); return true; }
@@ -282,7 +295,8 @@ function teclasMenu6(ev: KeyboardEvent, alvo: HTMLElement): boolean {
     if (ev.key === 'ArrowUp') { abrirMenu6(m.dataset.dk6M!, 'ultimo'); return true; }
     return false;
   }
-  const its = [...m.querySelectorAll<HTMLElement>('.dk6-i:not([aria-disabled="true"])')], j = its.indexOf(alvo);
+  const drop = alvo.closest<HTMLElement>('.dk6-drop')!;
+  const its = [...drop.children].map((c) => c.matches('.dk6-sub') ? c.querySelector<HTMLElement>(':scope > .dk6-i') : c as HTMLElement).filter((c): c is HTMLElement => !!c && c.matches('.dk6-i:not([aria-disabled="true"])')), j = its.indexOf(alvo);
   if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { its[(j + (ev.key === 'ArrowDown' ? 1 : -1) + its.length) % its.length]?.focus(); return true; }
   if (ev.key === 'Home' || ev.key === 'End') { (ev.key === 'Home' ? its[0] : its[its.length - 1])?.focus(); return true; }
   if (ev.key === 'Tab') { fecharMenu6(); return false; }
@@ -394,7 +408,7 @@ function armar(): void {
   if (normal && h.get('pasta')) { const id = h.get('pasta')!; if (MENU_ERP.some((l) => l.id === id && !l.pai && l.ativo)) { e.pasta = id; e.arvore[id] = true; } else { e.banner = 'desconhecido'; e.bannerTexto = `O módulo «${id}» não existe no ERP. Abrimos a área de trabalho.`; } }
   if (normal && !navigator.onLine) e.banner = 'offline';
   p.querySelector<HTMLElement>('.dk-corpo')?.classList.toggle('is-rail', !!e.rail); lado();
-  requestAnimationFrame(contar);
+  requestAnimationFrame(() => { contar(); p.querySelectorAll<HTMLElement>('.dk6-sub.is-aberto').forEach(ajustarSub); });
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
   p.querySelectorAll<HTMLElement>('[data-dk-tema]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dkTema === t)));
   desenhar();
@@ -448,6 +462,11 @@ export function iniciar(): void {
   }, true);
 
   /* com um menu aberto, passar o rato por outro abre-o (como no Windows) */
+  window.addEventListener('pointerover', (ev) => { const s = (ev.target as HTMLElement).closest?.<HTMLElement>('.dk6-sub'); if (s && pg?.contains(s)) ajustarSub(s); }, true);
+  const reajustar = () => pg?.querySelectorAll<HTMLElement>('.dk6-sub.is-aberto').forEach(ajustarSub);
+  window.addEventListener('resize', () => { reajustar(); requestAnimationFrame(reajustar); });
+  document.fonts?.ready.then(reajustar);
+  window.addEventListener('focusin', (ev) => { const s = (ev.target as HTMLElement).closest?.<HTMLElement>('.dk6-sub'); if (s && pg?.contains(s)) ajustarSub(s); });
   window.addEventListener('pointerover', (ev) => { if (!menu6 || !pg) return; const b = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk6-abrir]'); if (b && pg.contains(b) && b.dataset.dk6Abrir !== menu6) abrirMenu6(b.dataset.dk6Abrir!); });
   /* a marca leva à área de trabalho, mesmo fechada */
   window.addEventListener('click', (ev) => { const t = ev.target as HTMLElement; if (!pg || editando() || !pg.contains(t) || !t.closest('.dk-topo .hm-marca')) return; ev.preventDefault(); ev.stopImmediatePropagation(); abrirCasa(); }, true);
@@ -460,6 +479,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dk-tema]'))) { tema(b.dataset.dkTema!); return; }
     if (t.closest('[data-dk-sair]')) { sair(); return; }
     if ((b = t.closest('[data-dk6-abrir]'))) { const id = b.dataset.dk6Abrir!; if (menu6 === id) fecharMenu6(); else abrirMenu6(id); return; }
+    if ((b = t.closest('[data-dk6-sub]'))) { ajustarSub(b.parentElement!); return; }
     if ((b = t.closest('.dk6-i'))) { if (b.getAttribute('aria-disabled') === 'true') { dizer(`${b.querySelector('span')?.textContent}: ${b.querySelector('small')?.textContent?.toLowerCase()}.`); return; } fecharMenu6(); }
     if (t.closest('[data-dk-fechar-ativo]')) { fechar(e.ativo); return; }
     if (t.closest('[data-dk-ajuda-atalhos]')) { e.dialogo = 'atalhos'; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }

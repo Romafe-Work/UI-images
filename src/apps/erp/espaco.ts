@@ -76,6 +76,15 @@ import moon from 'lucide-static/icons/moon.svg?raw';
 import monitor from 'lucide-static/icons/monitor.svg?raw';
 import logOut from 'lucide-static/icons/log-out.svg?raw';
 import command from 'lucide-static/icons/command.svg?raw';
+import chartBar from 'lucide-static/icons/chart-bar.svg?raw';
+import fileCheck from 'lucide-static/icons/file-check.svg?raw';
+import hourglass from 'lucide-static/icons/hourglass.svg?raw';
+import fileMinus from 'lucide-static/icons/file-minus.svg?raw';
+import receipt from 'lucide-static/icons/receipt.svg?raw';
+import truck from 'lucide-static/icons/truck.svg?raw';
+import fileInput from 'lucide-static/icons/file-input.svg?raw';
+import userStar from 'lucide-static/icons/user-star.svg?raw';
+import calendarClock from 'lucide-static/icons/calendar-clock.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
@@ -85,8 +94,10 @@ export const IC = { x, minus, maximize2, minimize2, pin, pinOff, rotateCw, print
 /* =========================================================
    O menu, como viria da base de dados — e o registo das rotas que existem
    ========================================================= */
-export interface LinhaMenu { id: string; app: 'erp'; modulo: string; pai: string | null; rotulo: string; icone: string; rota: string | null; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean }
+/** so: 'menu' — só no menu horizontal (o ERP antigo, ainda sem ecrã novo); om: a ordem no menu; sep: um separador antes. */
+export interface LinhaMenu { id: string; app: 'erp'; modulo: string; pai: string | null; rotulo: string; icone: string; rota: string | null; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean; so?: 'menu'; om?: number; sep?: boolean }
 const M = (id: string, rotulo: string, icone: string, ordem: number, ativo = false): LinhaMenu => ({ id, app: 'erp', modulo: id, pai: null, rotulo, icone, rota: null, ordem, permissoes: '*', ativo });
+const A = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai, rotulo, icone, rota: null, ordem: om, permissoes: '*', ativo: true, so: 'menu', om, sep });
 const S = (id: string, rotulo: string, icone: string, rota: string, ordem: number, permissoes: IdPerfil[] | '*' = '*'): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai: 'compras', rotulo, icone, rota, ordem, permissoes, ativo: true });
 /** Os módulos do ERP antigo (a referência da migração) e, em Compras, o que já existe. */
 export const MENU_ERP: LinhaMenu[] = [
@@ -102,8 +113,28 @@ export const MENU_ERP: LinhaMenu[] = [
   S('compras-cotacoes', 'Cotações', 'scale', 'compras.cotacoes', 50),
   S('compras-rececoes', 'Receções', 'package-check', 'compras.rececoes', 60, ['compras', 'armazem', 'admin']),
   S('compras-devolucoes', 'Devoluções a fornecedor', 'undo-2', 'compras.devolucoes', 70),
+  /* o menu Compras do ERP antigo (22 out., ela mostrou-o): a mesma ordem, os separadores e os mapas em submenus; o que ainda não tem ecrã novo fica desligado */
+  A('compras-agendamento', 'compras', 'Agendamento de encomendas', 'calendar-clock', 30, true), A('compras-especiais', 'compras', 'Clientes — encomendas especiais', 'user-star', 35),
+  A('compras-guias-entrada', 'compras', 'Guias de entrada', 'file-input', 50, true), A('compras-guias-transporte', 'compras', 'Guias de transporte a fornecedor', 'truck', 60, true),
+  A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true), A('compras-notas-credito', 'compras', 'Notas de crédito', 'file-minus', 90, true),
+  A('compras-pendentes', 'compras', 'Pendentes de crédito de fornecedor', 'hourglass', 100, true), A('compras-verificacao', 'compras', 'Verificação de faturas', 'file-check', 110, true),
+  A('compras-mapas', 'compras', 'Mapas', 'chart-bar', 200, true),
+  A('mapas-tot-enc', 'compras-mapas', 'Totais de documentos de encomenda', '', 10), A('mapas-det-enc', 'compras-mapas', 'Detalhes por documentos de encomenda', '', 20),
+  A('mapas-tot-ge', 'compras-mapas', 'Totais de documentos de guia de entrada', '', 30, true), A('mapas-det-ge', 'compras-mapas', 'Detalhes por documentos de guia de entrada', '', 40),
+  A('mapas-recap', 'compras-mapas', 'Mapa recapitulativo de fornecedores', '', 50, true),
+  A('mapas-analise', 'compras-mapas', 'Análise de compras', '', 60, true), A('mapas-comparativos', 'compras-mapas', 'Comparativos de compras', '', 70),
+  A('mapas-analise-forn', 'compras-mapas', 'Análise de fornecedores', '', 80, true), A('mapas-automatico', 'compras-mapas', 'Artigos/compras automático', '', 90, true),
+  A('analise-artigo', 'mapas-analise', 'Mapa de compras por artigo', '', 10), A('analise-artigo-forn', 'mapas-analise', 'Mapa de compras por artigo/fornecedor', '', 20),
+  A('analise-familia', 'mapas-analise', 'Mapa de compras por família', '', 30, true), A('analise-familia-forn', 'mapas-analise', 'Mapa de compras por família/fornecedor', '', 40),
+  A('comp-geral', 'mapas-comparativos', 'Geral', '', 10), A('comp-geral-var', 'mapas-comparativos', 'Geral (variação anual)', '', 20),
+  A('comp-artigo', 'mapas-comparativos', 'Por artigo', '', 30, true), A('comp-artigo-var', 'mapas-comparativos', 'Por artigo (variação anual)', '', 40),
+  A('comp-familia', 'mapas-comparativos', 'Por família/subfamília', '', 50, true), A('comp-familia-var', 'mapas-comparativos', 'Por família/subfamília (variação anual)', '', 60),
+  A('comp-forn', 'mapas-comparativos', 'Por fornecedor', '', 70, true), A('comp-forn-var', 'mapas-comparativos', 'Por fornecedor (variação anual)', '', 80),
 ];
-const ICONES: Record<string, string> = { 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen };
+/* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
+const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, true], 'compras-fornecedores': [120, true], 'compras-requisicoes': [130, false] };
+MENU_ERP.forEach((l) => { const o = OM[l.id]; if (o) { l.om = o[0]; l.sep = o[1]; } });
+const ICONES: Record<string, string> = { 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar };
 export const icone = (n: string, cls = '') => L(ICONES[n] ?? file, cls);
 
 /** As teclas do ERP antigo, numa barra que muda com o separador. */
@@ -129,7 +160,9 @@ export const rotaDoEcra = (ecra: string) => Object.keys(ROTAS).find((k) => ROTAS
 const pode = (l: LinhaMenu, p: IdPerfil) => l.permissoes === '*' || l.permissoes.includes(p);
 /** Os módulos do perfil, pela ordem da base; os inativos vêm marcados (referência), não como se funcionassem. */
 export const modulos = (p: IdPerfil) => MENU_ERP.filter((l) => !l.pai && pode(l, p)).sort((a, b) => a.ordem - b.ordem);
-export const filhos = (pai: string, p: IdPerfil) => MENU_ERP.filter((l) => l.pai === pai && l.ativo).sort((a, b) => a.ordem - b.ordem).map((l) => ({ ...l, permitido: pode(l, p), registada: !!(l.rota && ROTAS[l.rota]) }));
+export const filhos = (pai: string, p: IdPerfil) => MENU_ERP.filter((l) => l.pai === pai && l.ativo && !l.so).sort((a, b) => a.ordem - b.ordem).map((l) => ({ ...l, permitido: pode(l, p), registada: !!(l.rota && ROTAS[l.rota]) }));
+/** As linhas do menu horizontal: tudo, pela ordem do menu (om), com os submenus. */
+export const linhasMenu = (pai: string, p: IdPerfil) => MENU_ERP.filter((l) => l.pai === pai && l.ativo).sort((a, b) => (a.om ?? a.ordem) - (b.om ?? b.ordem)).map((l) => ({ ...l, permitido: pode(l, p), registada: !!(l.rota && ROTAS[l.rota]), temFilhos: MENU_ERP.some((x) => x.pai === l.id) }));
 
 /* =========================================================
    O estado da área de trabalho

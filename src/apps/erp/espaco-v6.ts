@@ -17,7 +17,7 @@ import type { IdErp } from './ids';
 import { topoErp } from './inicio-v2';
 import { FORNECEDORES, encomendas } from './compras/dominio';
 import {
-  L, esc, icone, MENU_ERP, ROTAS, modulos, filhos, novoEstado, ecrasCasa, cartoesEcras, paraHoje, separadores, corpoEspaco, menuConta, dialogo, explorador,
+  L, esc, icone, MENU_ERP, ROTAS, modulos, linhasMenu, novoEstado, ecrasCasa, cartoesEcras, paraHoje, separadores, corpoEspaco, menuConta, dialogo, explorador,
   ESTADOS, estadosEspaco, type Estado, type LinhaMenu, type Hist,
 } from './espaco';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
@@ -54,17 +54,19 @@ export function quando(ts: number, agora = Date.now()): string {
 }
 
 /* ---------- o menu horizontal ---------- */
-type Item = { t: string; ic: string; attr: string; k?: string; off?: string } | '-';
+type Item = { t: string; ic: string; attr: string; k?: string; off?: string; sub?: Item[]; id?: string } | '-';
 export function menuV6(e: Estado): string {
   const mods = e.semModulos ? [] : modulos(e.perfil).filter((m) => m.ativo);
   const fix = ecrasCasa(e);
-  const doModulo = (m: LinhaMenu): Item[] => [
-    { t: `Abrir a pasta ${m.rotulo}`, ic: L(folderOpen), attr: `data-dk-pasta-abrir="${m.id}"`, k: 'Enter' }, '-',
-    ...filhos(m.id, e.perfil).map((f): Item => {
-      const i = fix.indexOf(f.rota!);
-      return { t: f.rotulo, ic: icone(f.icone), attr: f.registada && f.permitido ? `data-dk-atalho="${f.rota}"` : '', off: !f.registada ? 'No ERP antigo' : !f.permitido ? 'Sem permissão' : undefined, k: i >= 0 && i < 9 ? `Alt ${i + 1}` : undefined };
-    }),
-  ];
+  const aberto = (e.menu ?? '').split('>');
+  /* as linhas da configuração, em árvore: o que tem filhos é submenu; o que não tem ecrã novo fica desligado */
+  const ramo = (pai: string): Item[] => linhasMenu(pai, e.perfil).flatMap((f, n): Item[] => {
+    const antes: Item[] = f.sep && n ? ['-'] : [];
+    if (f.temFilhos) return [...antes, { t: f.rotulo, ic: f.icone ? icone(f.icone) : '<i></i>', attr: '', sub: ramo(f.id), id: f.id }];
+    const i = f.rota ? fix.indexOf(f.rota) : -1;
+    return [...antes, { t: `${f.rotulo}…`, ic: f.icone ? icone(f.icone) : '<i></i>', attr: f.registada && f.permitido ? `data-dk-atalho="${f.rota}"` : '', off: !f.registada ? 'No ERP antigo' : !f.permitido ? 'Sem permissão' : undefined, k: i >= 0 && i < 9 ? `Alt ${i + 1}` : undefined }];
+  });
+  const doModulo = (m: LinhaMenu): Item[] => [{ t: `Abrir a pasta ${m.rotulo}`, ic: L(folderOpen), attr: `data-dk-pasta-abrir="${m.id}"`, k: 'Enter' }, '-', ...ramo(m.id)];
   const menus: [string, string, Item[]][] = [
     ['ficheiro', 'Ficheiro', [
       { t: 'Área de trabalho', ic: L(layoutGrid), attr: 'data-dk-casa' },
@@ -79,10 +81,12 @@ export function menuV6(e: Estado): string {
       { t: 'Manual do ERP', ic: L(bookOpen), attr: '', off: 'Em preparação' },
     ]],
   ];
+  const itens = (its: Item[]): string => its.map((it) => it === '-' ? '<i class="dk6-sep" role="separator"></i>'
+    : it.sub ? `<div class="dk6-sub${aberto.includes(it.id!) ? ' is-aberto' : ''}"><button type="button" role="menuitem" class="dk6-i dk6-i--sub" tabindex="-1" aria-haspopup="menu" aria-expanded="${aberto.includes(it.id!)}" data-dk6-sub="${it.id}">${it.ic}<span>${esc(it.t)}</span>${L(chevronRight, 'dk6-i-seta')}</button><div class="dk6-drop dk6-drop--sub" role="menu" aria-label="${esc(it.t)}" data-por-cima>${itens(it.sub)}</div></div>`
+    : `<button type="button" role="menuitem" class="dk6-i" tabindex="-1" ${it.attr}${it.off ? ' aria-disabled="true"' : ''}>${it.ic}<span>${esc(it.t)}</span>${it.off ? `<small>${esc(it.off)}</small>` : it.k ? `<kbd>${esc(it.k)}</kbd>` : ''}</button>`).join('');
   return menus.map(([id, rot, its]) => `<div class="dk6-m" data-dk6-m="${id}">
-    <button type="button" role="menuitem" class="dk6-m-b" aria-haspopup="menu" aria-expanded="${e.menu === id}" data-dk6-abrir="${id}" tabindex="${id === 'ficheiro' ? 0 : -1}">${esc(rot)}</button>
-    <div class="dk6-drop" role="menu" data-por-cima aria-label="${esc(rot)}"${e.menu === id ? '' : ' hidden'}>${its.map((it) => it === '-' ? '<i class="dk6-sep" role="separator"></i>'
-      : `<button type="button" role="menuitem" class="dk6-i" tabindex="-1" ${it.attr}${it.off ? ' aria-disabled="true"' : ''}>${it.ic}<span>${esc(it.t)}</span>${it.off ? `<small>${esc(it.off)}</small>` : it.k ? `<kbd>${esc(it.k)}</kbd>` : ''}</button>`).join('')}</div>
+    <button type="button" role="menuitem" class="dk6-m-b" aria-haspopup="menu" aria-expanded="${aberto[0] === id}" data-dk6-abrir="${id}" tabindex="${id === 'ficheiro' ? 0 : -1}">${esc(rot)}</button>
+    <div class="dk6-drop" role="menu" data-por-cima aria-label="${esc(rot)}"${aberto[0] === id ? '' : ' hidden'}>${itens(its)}</div>
   </div>`).join('');
 }
 
@@ -171,7 +175,7 @@ const NOVOS: [string, string, string, Partial<Estado>][] = [
   ['dk-sem-atalhos', '05.34 · Acesso rápido vazio', 'Nada fixado: diz como se fixa (Ctrl D num ecrã escolhido).', { fixados: [] }],
   ['dk-sem-curso', '05.35 · Nada em curso', '«Em curso» vazio: diz o que lá vai aparecer.', { trabalho: 'curso', semCurso: true }],
   ['dk-recentes', '05.36 · Recentes', 'Os ecrãs e documentos abertos nesta área de trabalho, com a hora e o estado do documento.', { historico: [H('compras.encomenda', 'EF 2026/0413', 6), H('compras.faltas', 'Lista de faltas', 25), H('compras.fornecedor', 'Fornecedor · SKF', 70), H('compras.encomendas', 'Encomendas de compra', 60 * 20)] }],
-  ['dk-menu', '05.37 · Menu Compras aberto', 'O menu horizontal: a pasta, os ecrãs com as teclas do acesso rápido e o que ainda está no ERP antigo, desligado.', { menu: 'compras' }],
+  ['dk-menu', '05.37 · Menu Compras aberto', 'O menu Compras como no ERP antigo (a mesma ordem e os separadores), com Mapas aberto (Análise e Comparativos de compras abrem ao passar o rato ou com →); o que ainda não tem ecrã novo fica desligado («No ERP antigo»).', { menu: 'compras>compras-mapas' }],
   ['dk-atalhos', '05.38 · Atalhos de teclado', 'F1 (ou Ajuda → Atalhos de teclado): todas as teclas do ERP numa folha.', { dialogo: 'atalhos' }],
 ];
 export function estadosEspacoV6(): Ecra<IdErp>[] {

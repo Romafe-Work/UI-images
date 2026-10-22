@@ -35,7 +35,7 @@
 .dk6-i span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dk6-i small { font-size: 11.5px; white-space: nowrap; color: var(--k-tinta-3); }
 .dk6-i[aria-disabled="true"] { color: var(--k-tinta-3); } .dk6-i[aria-disabled="true"]:hover { background: none; } .dk6-i[aria-disabled="true"] svg { opacity: .55; }
-.dk6-sep { display: block; height: 1px; margin: 4px 8px; background: var(--k-borda); }
+.dk6-sep { display: block; height: 1px; margin: 3px 8px; background: var(--k-borda); }
 
 /* os separadores: secretária, não Chrome */
 .dk6-seps { min-width: 0; border-bottom: 1px solid var(--k-borda); background: var(--k-sup-2); }
@@ -141,3 +141,21 @@
   .dk-teclas { grid-template-columns: minmax(0, 1fr); }
   .dk6-pasta { grid-template-columns: 76px minmax(0, 1fr); } .dk6-pasta .dk-arte { width: 76px; } .dk6-pasta-seta { display: none; }
 }
+
+/* ---------- os submenus (22 out., o menu Compras do ERP antigo: Mapas ▸ Análise de compras ▸ …) ---------- */
+.dk6-i { height: 28px; }
+.dk6-i > i { display: block; width: 18px; }
+.dk6-sub { position: relative; }
+.dk6-i--sub { grid-template-columns: 18px minmax(0, 1fr) 16px; }
+.dk6-i-seta { width: 15px !important; height: 15px !important; justify-self: end; }
+.dk6-drop--sub { display: none; left: 100%; top: -5px; margin-left: 2px; min-width: 320px; }
+.dk6-sub:hover > .dk6-drop--sub, .dk6-sub:focus-within > .dk6-drop--sub, .dk6-sub.is-aberto > .dk6-drop--sub { display: block; }
+.dk6-sub:hover > .dk6-i, .dk6-sub:focus-within > .dk6-i, .dk6-sub.is-aberto > .dk6-i { background: color-mix(in srgb, var(--k-azul) 11%, var(--k-sup)); }
+.dk6-sub:hover > .dk6-i svg, .dk6-sub:focus-within > .dk6-i svg, .dk6-sub.is-aberto > .dk6-i svg { color: var(--k-azul); }
+@media (max-width: 640px) { .dk6-drop--sub { position: static; margin: 2px 0 2px 18px; min-width: 0; box-shadow: none; } }
+/* os nomes inteiros, como no ERP antigo: o menu cresce com o texto */
+.dk6-drop { width: max-content; min-width: 300px; max-width: min(480px, calc(100vw - 24px)); }
+.dk6-i { grid-template-columns: 18px minmax(0, 1fr) auto; column-gap: 12px; }
+.dk6-i small { margin-left: 18px; }
+/* os submenus abertos de propósito (o estado 05.37) sobem a partir do item, para caberem em qualquer altura; os de passar o rato acertam-se em JS */
+.dk6-sub.is-aberto > .dk6-drop--sub { top: auto; bottom: -5px; }
