@@ -28,6 +28,7 @@ import type { EcraGoParts } from './ids';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
 import move3d from 'lucide-static/icons/move-3d.svg?raw';
+import { aberturaMovel } from './abertura-movel';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-i="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 
@@ -55,6 +56,7 @@ const html = `<main class="abertura abertura--v5" aria-label="Peça A Peça, da 
     <button type="button" class="btn ab5__botao ab5__repetir" data-repetir hidden>${L(rotateCcw, 'btn__icone')}<span class="btn__rotulo">Ver outra vez</span></button>
     <button type="button" class="btn ab5__botao abertura__saltar" data-ir="inicio"><span class="btn__rotulo">Saltar</span>${L(arrowRight, 'btn__icone')}</button>
   </div>
+  ${aberturaMovel()}
 </main>`;
 
 export function ecraAbertura(): EcraGoParts {

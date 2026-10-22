@@ -13,6 +13,7 @@
    - No editor não passa sozinha à login. Com #…&pausa=3.3 no endereço, a sequência fica
      parada nesse instante (para rever um momento).
    ========================================================= */
+import { movel } from './abertura-movel';
 import { mostrar } from '../../../comum/ecras';
 import type { Cena } from './abertura-cena';
 
@@ -110,7 +111,8 @@ async function correr(ab: HTMLElement, forcar = false): Promise<void> {
 }
 
 function armar(): void {
-  const ab = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .abertura--v5');
+  /* (22 out.) no telemóvel a abertura é a composição própria (abertura-movel.ts): a cena 3D não corre nem sai sozinha */
+  const ab = movel() ? null : document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .abertura--v5');
   if (ab === raiz) return;
   if (!ab) { largar(); return; }
   correr(ab);

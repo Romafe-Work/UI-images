@@ -1,0 +1,79 @@
+/* =========================================================
+   PEÇA A PEÇA — 00 · Abertura no telemóvel (22 out. 2026). Ver abertura-movel.ts.
+   Só até 700 px: aí a composição de telemóvel substitui a cena 3D. Navy e grafite, o laranja só em «Começar» e no
+   «Adicionar», o branco para o texto. Fases (classes em .pam): is-a marca, is-b título, is-c cartões, is-d
+   «Começar»; is-ja = tudo no sítio. Só transform e opacidade.
+   ========================================================= */
+.pam { display: none; }
+@media (max-width: 700px) {
+  .abertura--v5 > :not(.pam) { display: none !important; }
+  .abertura--v5 { background: #0b131c; }
+  .pam {
+    --pm-fundo: #0b131c; --pm-sup: #152230; --pm-sup-2: #1c2c3d; --pm-borda: #2a3d51; --pm-tinta: #f5f8fa; --pm-tinta-2: #b4c2cf; --pm-tinta-3: #8798a9;
+    --pm-azul: #0876bd; --pm-azul-claro: #4fa3dc; --pm-laranja: #f58214; --pm-ok: #2fbf7f; --curva: cubic-bezier(.22, 1, .36, 1);
+    position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; min-height: 100vh; min-height: 100svh;
+    padding: max(16px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+    background: radial-gradient(120% 60% at 50% 48%, #11202f, var(--pm-fundo) 70%); color: var(--pm-tinta); font-family: var(--f-base); color-scheme: dark;
+  }
+  .pam *, .pam *::before, .pam *::after { box-sizing: border-box; }
+  .pam svg { width: 18px; height: 18px; flex: none; }
+
+  .pam-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; opacity: 0; transform: translateY(-6px); transition: opacity .3s ease, transform .4s var(--curva); }
+  .pam-marca { display: flex; align-items: center; gap: 8px; margin: 0; }
+  .pam-romafe { font-size: 22px; line-height: 1; color: rgb(0, 99, 170); }
+  .pam-marca i { width: 2px; height: 16px; background: var(--pm-laranja); }
+  .pam-marca b { font-family: var(--f-titulo); font-size: 15px; font-weight: 800; }
+  .pam-conta { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--pm-borda); border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--pm-tinta-2); white-space: nowrap; }
+  .pam-conta svg { width: 14px; height: 14px; }
+  .pam.is-a .pam-topo { opacity: 1; transform: none; }
+
+  .pam-meio { display: grid; align-content: center; gap: 12px; }
+  .pam-titulo { margin: 0; font-family: var(--f-titulo); font-size: clamp(34px, 10vw, 44px); font-weight: 800; line-height: 1.04; letter-spacing: -.025em; }
+  .pam-titulo > span { display: block; overflow: hidden; padding-bottom: .05em; }
+  .pam-titulo > span > span { display: block; transform: translateY(105%); transition: transform .5s var(--curva); }
+  .pam-titulo > span:nth-child(2) > span { transition-delay: .07s; color: var(--pm-tinta-2); }
+  .pam.is-b .pam-titulo > span > span { transform: none; }
+  .pam-sub { margin: 0; font-size: 15px; line-height: 1.5; color: var(--pm-tinta-2); opacity: 0; transition: opacity .35s ease .12s; }
+  .pam.is-b .pam-sub { opacity: 1; }
+
+  /* os cartões do trabalho: entram com ritmo, ligados por um fio, e ficam a respirar */
+  .pam-cartoes { position: relative; display: grid; gap: 10px; margin-top: 14px; }
+  .pam-fio { position: absolute; left: 30px; top: 22px; bottom: 22px; width: 1.5px; background: linear-gradient(var(--pm-borda), var(--pm-borda)) no-repeat; transform: scaleY(0); transform-origin: top; transition: transform .6s var(--curva) .15s; }
+  .pam.is-c .pam-fio { transform: none; }
+  .pam-cartao { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 64px; padding: 10px 12px; border: 1px solid var(--pm-borda); border-radius: 14px; background: var(--pm-sup);
+    opacity: 0; transform: translateY(16px) scale(.97); transition: opacity .3s ease calc(var(--i) * 90ms), transform .45s var(--curva) calc(var(--i) * 90ms); }
+  .pam-cartao:nth-child(3) { margin-left: 18px; } .pam-cartao:nth-child(4) { margin-left: 8px; }
+  .pam.is-c .pam-cartao { opacity: 1; transform: none; }
+  .pam.is-d .pam-cartao { animation: pam-respirar 6s ease-in-out calc(var(--i) * -2s) infinite; }
+  @keyframes pam-respirar { 50% { transform: translateY(-3px); } }
+  .pam-ic { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: color-mix(in srgb, var(--pm-laranja) 16%, transparent); color: var(--pm-laranja); }
+  .pam-ic--azul { background: color-mix(in srgb, var(--pm-azul-claro) 16%, transparent); color: var(--pm-azul-claro); }
+  .pam-ic--verde { background: color-mix(in srgb, var(--pm-ok) 16%, transparent); color: var(--pm-ok); }
+  .pam-cartao b { display: block; font-family: var(--f-mono); font-size: 14px; font-weight: 700; letter-spacing: .01em; }
+  .pam-cartao small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--pm-tinta-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pam-chip { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px; border: 1px solid var(--pm-borda); border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--pm-tinta-2); white-space: nowrap; }
+  .pam-chip svg { width: 13px; height: 13px; }
+  .pam-chip--acao { border-color: var(--pm-laranja); background: var(--pm-laranja); color: #fff; }
+  .pam-barra { position: relative; width: 52px; height: 4px; border-radius: 4px; background: var(--pm-sup-2); overflow: hidden; }
+  .pam-barra i { position: absolute; inset: 0; width: 0; border-radius: 4px; background: var(--pm-azul-claro); transition: width .8s var(--curva) .3s; }
+  .pam.is-c .pam-barra i { width: 75%; }
+
+  /* em baixo: «Começar» e as opções discretas */
+  .pam-baixo { display: grid; gap: 10px; opacity: 0; transform: translateY(14px); transition: opacity .3s ease, transform .4s var(--curva); }
+  .pam.is-d .pam-baixo { opacity: 1; transform: none; }
+  .pam-comecar { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; border: 0; border-radius: 14px; background: var(--pm-laranja); color: #fff; font: inherit; font-size: 18px; font-weight: 800; cursor: pointer; transition: transform .1s ease, background-color .12s ease; }
+  .pam-comecar svg { width: 20px; height: 20px; stroke-width: 2.5; transition: transform .16s var(--curva); }
+  .pam-comecar:active { transform: scale(.97); background: #e07610; }
+  .pam-comecar:active svg { transform: translateX(4px); }
+  .pam-comecar:focus-visible, .pam-ligacao:focus-visible { outline: 3px solid var(--pm-azul-claro); outline-offset: 2px; }
+  .pam-sec { display: flex; justify-content: center; gap: 22px; }
+  .pam-ligacao { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 4px; border: 0; background: none; color: var(--pm-tinta-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .pam-ligacao svg { width: 16px; height: 16px; }
+  .pam-ajuda { margin: 0; text-align: center; font-size: 13px; color: var(--pm-tinta-2); }
+  .pam-ajuda a { color: var(--pm-tinta); font-weight: 700; }
+  .pam-estado { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font-size: 12px; color: var(--pm-tinta-3); }
+  .pam-estado i { width: 7px; height: 7px; border-radius: 50%; background: var(--pm-ok); }
+
+  .pam.is-ja *, .pam.is-ja *::before, .pam.is-ja *::after { transition-duration: .01s !important; transition-delay: 0s !important; }
+}
+@media (max-width: 700px) and (prefers-reduced-motion: reduce) { .pam *, .pam *::before, .pam *::after { transition-duration: .01s !important; animation: none !important; } }
