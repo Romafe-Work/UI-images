@@ -51,6 +51,12 @@ function fluxo([nx, ny]: [number, number]): string {
   const mx = nx + a * C, my = ny + a * S;
   return `M${nx.toFixed(1)} ${ny.toFixed(1)} L${mx.toFixed(1)} ${my.toFixed(1)} L${H[0]} ${H[1]}`;
 }
+/** (22 out.) ela: «em vez de pontos, mete rolamentos» — o que corre nos fluxos é um rolamento pequeno, de frente
+    (anel exterior, sete esferas e anel interior), que gira enquanto anda */
+function rolamentoMini(r: number): string {
+  const esferas = Array.from({ length: 7 }, (_, k) => { const t = (k / 7) * Math.PI * 2; return `<circle class="ab5__rol-esf" cx="${(Math.cos(t) * r * .62).toFixed(2)}" cy="${(Math.sin(t) * r * .62).toFixed(2)}" r="${(r * .17).toFixed(2)}"/>`; }).join('');
+  return `<g class="ab5__rol"><circle class="ab5__rol-ext" r="${r}"/>${esferas}<circle class="ab5__rol-int" r="${(r * .36).toFixed(2)}"/></g>`;
+}
 function mapa(): string {
   const grelha: string[] = [];
   for (let k = -14; k <= 14; k++) {
@@ -62,7 +68,7 @@ function mapa(): string {
   return `<svg class="ab5__mapa" viewBox="0 0 720 620" aria-hidden="true" focusable="false">
     <g class="ab5__grelha">${grelha.join('')}</g>
     <g class="ab5__fluxos">${AREAS.map((a, i) => `<path class="ab5__fluxo${a.foco ? ' is-foco' : ''}" d="${fluxo(a.p)}" pathLength="1" style="--i:${i}"/>`).join('')}</g>
-    ${AREAS.map((a, i) => `<circle class="ab5__pacote${a.foco ? ' is-foco' : ''}" r="${a.foco ? 4.5 : 3.5}" style="offset-path:path('${fluxo(a.p)}');--i:${i}"/>`).join('')}
+    ${AREAS.map((a, i) => `<g class="ab5__pacote${a.foco ? ' is-foco' : ''}" style="offset-path:path('${fluxo(a.p)}');--i:${i}">${rolamentoMini(a.foco ? 9 : 7.5)}</g>`).join('')}
     <g class="ab5__nucleo" transform="translate(${H[0]} ${H[1]})"><g class="ab5__no-in">${nucleo}<text class="ab5__nucleo-t" y="-78" text-anchor="middle">ERP</text></g></g>
     ${AREAS.map((a, i) => `<g class="ab5__area${a.foco ? ' is-foco' : ''}" transform="translate(${a.p[0]} ${a.p[1]})" style="--i:${i}"><g class="ab5__no-in">
       ${a.foco ? '<ellipse class="ab5__foco" rx="64" ry="34" cy="4"/>' : ''}

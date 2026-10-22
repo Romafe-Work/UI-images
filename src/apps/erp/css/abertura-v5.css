@@ -115,8 +115,16 @@
 [data-theme="light"] .ab5 .ab3-f1, .ab5--claro .ab3-f1 { fill: #e3ecf4; } [data-theme="light"] .ab5 .ab3-f2, .ab5--claro .ab3-f2 { fill: #d3e0eb; } [data-theme="light"] .ab5 .ab3-f3, .ab5--claro .ab3-f3 { fill: #f4f8fb; }
 [data-theme="light"] .ab5 .ab3-roda, .ab5--claro .ab3-roda, [data-theme="light"] .ab5 .ab3-porta, .ab5--claro .ab3-porta { fill: #c8d6e2; }
 /* o movimento contínuo, discreto: os pacotes nos fluxos e as peças a respirar (só depois de ativo) */
-.ab5__pacote { fill: var(--a5-azul-claro); opacity: 0; offset-distance: 0%; offset-rotate: 0deg; }
-.ab5__pacote.is-foco { fill: var(--a5-laranja); }
+.ab5__pacote { opacity: 0; offset-distance: 0%; offset-rotate: 0deg; }
+/* o rolamento que corre: o anel a traço, as esferas cheias, o furo; gira enquanto anda */
+.ab5__rol-ext { fill: var(--a5-fundo); stroke: var(--a5-azul-claro); stroke-width: 1.4; }
+.ab5__rol-int { fill: none; stroke: var(--a5-azul-claro); stroke-width: 1.2; }
+.ab5__rol-esf { fill: var(--a5-azul-claro); }
+.ab5__pacote.is-foco .ab5__rol-ext, .ab5__pacote.is-foco .ab5__rol-int { stroke: var(--a5-laranja); }
+.ab5__pacote.is-foco .ab5__rol-esf { fill: var(--a5-laranja); }
+.ab5__rol { transform-box: fill-box; transform-origin: center; }
+.ab5.is-ativo .ab5__rol { animation: ab5-girar 1.6s linear infinite; }
+@keyframes ab5-girar { to { transform: rotate(1turn); } }
 .ab5.is-ativo .ab5__pacote { animation: ab5-pacote 4.2s linear calc(var(--i) * -.85s) infinite; }
 @keyframes ab5-pacote { 0% { offset-distance: 0%; opacity: 0; } 8% { opacity: .9; } 88% { opacity: .9; } 100% { offset-distance: 100%; opacity: 0; } }
 .ab5.is-ativo .ab5__area .ab5__no-in { animation: ab5-respirar 5s ease-in-out calc(var(--i) * -1s) infinite; }
