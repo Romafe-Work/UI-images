@@ -61,6 +61,8 @@ async function submeter(form: HTMLFormElement): Promise<void> {
     if (!inp.value) { abanar(inp.closest('.id__campo')); inp.focus(); return; }
     const repor = await ocupar(b, 'A entrar…', 700); repor();
     if (inp.value.toLowerCase() === 'errada') { avisoCredenciais(form); inp.value = ''; inp.closest('.id__campo')?.classList.add('is-erro'); inp.focus(); return; }
+    /* (22 out.) a sessão comum do protótipo: as aplicações (a abertura do ERP) leem-na para saber se já se entrou */
+    try { sessionStorage.setItem('romafe:sessao', sessionStorage.getItem(CHAVE) || 'rui.matos@romafe.pt'); } catch { /* */ }
     ir('aplicacoes');
     return;
   }

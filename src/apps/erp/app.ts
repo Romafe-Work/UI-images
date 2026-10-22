@@ -8,6 +8,7 @@ import { CENTRAL_ENTRAR, VERSAO_CENTRAL, NOTA_CENTRAL, ecrasCentral } from './en
 import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
 import { versaoAberturaV2, estadosAberturaV2 } from './abertura-v2';
+import { versaoAberturaV3, estadosAberturaV3 } from './abertura-v3';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
@@ -28,7 +29,9 @@ function comRede(ecras: Ecra<IdErp>[]): Ecra<IdErp>[] {
 }
 
 /* 19 out. 2026: a 00 · Abertura ganha a v2 (briefing «V2 Cinematic Opening»); a v1 fica como estava */
-const comAberturaV2 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, versoes: [...e.versoes, versaoAberturaV2()] as Ecra<IdErp>['versoes'] });
+/* 22 out. 2026: e a v3 (briefing «Cinematic Opening Experience»: uma empresa, tudo ligado; sem login próprio — vem
+   da ROMAFE Identity e passa ao Início); a v1 e a v2 ficam como estavam */
+const comAberturaV2 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, versoes: [...e.versoes, versaoAberturaV2(), versaoAberturaV3()] as Ecra<IdErp>['versoes'] });
 
 /* 19 out. 2026: a fase 1 de Compras (compras/ecras.ts) — o 10 · Compras ganha a v2, na casca do Início */
 const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
@@ -43,5 +46,5 @@ export const erp: App<IdErp> = {
   tela: { l: 1440, a: 900 },
   fluxos: { 'Entrar': DESCRICAO_ENTRAR, 'Início': DESCRICAO_INICIO, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
   /* 19 out. 2026: a 00 · Abertura («um ecrã wow como temos no goparts») antes do 01 · Entrar */
-  ecras: [comAberturaV2(ecraAbertura()), ...estadosAberturaV2(), ...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasCentral(), ...ecrasInicio(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [comAberturaV2(ecraAbertura()), ...estadosAberturaV2(), ...estadosAberturaV3(), ...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasCentral(), ...ecrasInicio(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

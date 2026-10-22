@@ -45,7 +45,7 @@ const FLUXO = 'Entrar';
 /* ---------- o registo das aplicações (o que o servidor devolve depois de entrar; aqui, as do protótipo) ---------- */
 export type App = { id: string; nome: string; desc: string; icone: string; pagina?: string; so?: string };
 export const APPS: App[] = [
-  { id: 'erp', nome: 'ERP', desc: 'Compras, stocks, vendas e a gestão da empresa.', icone: layoutDashboard, pagina: 'erp/#ecra=inicio' },
+  { id: 'erp', nome: 'ERP', desc: 'Compras, stocks, vendas e a gestão da empresa.', icone: layoutDashboard, pagina: 'erp/#ecra=abertura' },
   { id: 'pecaapeca', nome: 'Peça A Peça', desc: 'O marketplace de peças auto para as oficinas.', icone: store, pagina: 'peca-a-peca/#ecra=abertura' },
   { id: 'goshop', nome: 'GoShop', desc: 'A loja online de peças.', icone: shoppingCart, so: 'Ainda sem ecrãs depois de entrar' },
   { id: 'pick', nome: 'Pick', desc: 'A aplicação do armazém.', icone: scanBarcode, so: 'Abre-se no PDA' },

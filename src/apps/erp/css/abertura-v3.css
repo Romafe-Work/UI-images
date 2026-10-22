@@ -1,0 +1,123 @@
+/* =========================================================
+   ERP — 00 · Abertura v3 (22 out. 2026): «Uma empresa. Tudo ligado.»
+   A paleta do briefing: fundo #0D141C, superfície #172330, azul #0876BD, laranja #F58214, texto #F5F8FA e
+   #A8B7C5. Sempre escuro. O ROMAFE continua RGB(0, 99, 170), em Motor, sem placa.
+   O palco é um plano de 1000 × 600 (o centro da marca é o centro do plano); comportamento/abertura-v3.ts põe a
+   escala --k e o rato --px/--py. Fases (classes em .ab3): is-a entram, is-b cadeia e sinal, is-c convergem,
+   is-d marca, is-e passagem; is-ja = sem sequência (saltada, já vista, movimento reduzido). Só transform,
+   opacidade e filtro; nada mexe a altura da página.
+   ========================================================= */
+.ab3 {
+  --a3-fundo: #0d141c; --a3-sup: #172330; --a3-azul: #0876bd; --a3-azul-claro: #4fa3dc; --a3-laranja: #f58214;
+  --a3-tinta: #f5f8fa; --a3-tinta-2: #a8b7c5; --a3-linha: rgba(120, 170, 220, .16); --a3-linha-forte: rgba(120, 170, 220, .34);
+  --k: .9; --px: 0; --py: 0; --curva: cubic-bezier(.22, 1, .36, 1); --mola: cubic-bezier(.34, 1.2, .64, 1);
+  position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden; isolation: isolate; color-scheme: dark;
+  background: radial-gradient(900px 600px at 28% 18%, rgba(8, 118, 189, .14), transparent 62%), radial-gradient(800px 500px at 80% 90%, rgba(8, 118, 189, .07), transparent 60%), var(--a3-fundo);
+  color: var(--a3-tinta); font-family: var(--f-base);
+}
+.ab3 *, .ab3 *::before, .ab3 *::after { box-sizing: border-box; }
+/* a vinheta: a luz vem de cima, à esquerda */
+.ab3::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(0, 0, 0, .45)); }
+
+/* ---------- o fundo: o chão técnico em perspetiva e algumas linhas de arquitetura ---------- */
+.ab3__fundo { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .15s linear, filter .3s ease, transform .3s var(--curva); }
+.ab3.is-a .ab3__fundo, .ab3.is-ja .ab3__fundo { opacity: 1; }
+.ab3__chao { position: absolute; left: -10%; right: -10%; bottom: 0; width: 120%; height: 46%; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 70%); mask-image: linear-gradient(to bottom, transparent, #000 70%); }
+.ab3__chao line { stroke: var(--a3-linha); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ab3__arquitetura { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ab3__arquitetura path { fill: none; stroke: var(--a3-linha); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 6; }
+
+/* ---------- o palco ---------- */
+.ab3__palco { position: absolute; inset: 0; z-index: 1; pointer-events: none; perspective: 1400px; transition: filter .3s ease, opacity .3s ease; }
+.ab3__plano { position: absolute; left: 50%; top: 50%; width: 1000px; height: 600px; margin: -300px 0 0 -500px;
+  transform: scale(var(--k)) rotateX(calc(var(--py) * -2.5deg)) rotateY(calc(var(--px) * 3.5deg)); transform-style: preserve-3d; transition: transform .6s var(--curva); }
+.ab3__cadeia { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ab3__cadeia path { fill: none; stroke: var(--a3-linha-forte); stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .35s var(--curva), opacity .25s ease; }
+.ab3.is-b .ab3__cadeia path { stroke-dashoffset: 0; }
+.ab3.is-c .ab3__cadeia path { opacity: 0; }
+/* o sinal laranja: um ponto com rasto curto que percorre a cadeia uma vez */
+.ab3__sinal { position: absolute; left: 0; top: 0; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--a3-laranja); box-shadow: 0 0 0 4px rgba(245, 130, 20, .18); offset-distance: 0%; offset-rotate: 0deg; opacity: 0; }
+.ab3.is-b:not(.is-ja) .ab3__sinal { animation: ab3-sinal .42s cubic-bezier(.45, 0, .25, 1) .08s both; }
+@keyframes ab3-sinal { 0% { offset-distance: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+
+/* as peças: entram de fora até perto do sítio (A), alinham-se na cadeia (B) e convergem para o centro (C) */
+.ab3__peca { position: absolute; left: 0; top: 0; width: 160px; margin: -66px 0 0 -80px; display: grid; justify-items: center; gap: 4px; opacity: 0;
+  transform: translate(var(--ex), var(--ey)) scale(.82) rotate(calc((var(--i) - 2) * 6deg));
+  transition: transform .26s var(--curva) calc(var(--i) * 22ms), opacity .2s ease calc(var(--i) * 22ms); }
+.ab3__peca svg { width: 160px; height: 122px; overflow: visible; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .45)); }
+.ab3__peca-nome { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--a3-tinta-2); opacity: 0; transition: opacity .2s ease; }
+.ab3.is-a .ab3__peca { opacity: 1; transform: translate(calc(var(--ex) + (var(--ax) - var(--ex)) * .78), calc(var(--ey) + (var(--ay) - var(--ey)) * .78)) scale(.94) rotate(calc((var(--i) - 2) * 2deg)); }
+.ab3.is-b .ab3__peca { transform: translate(var(--ax), var(--ay)) scale(1); transition-duration: .3s; transition-timing-function: var(--mola); }
+.ab3.is-b .ab3__peca-nome { opacity: 1; }
+.ab3.is-c .ab3__peca { opacity: 0; transform: translate(500px, 300px) scale(.32); transition: transform .3s cubic-bezier(.55, 0, .3, 1) calc((4 - var(--i)) * 14ms), opacity .26s ease .06s; }
+.ab3.is-c .ab3__peca-nome { opacity: 0; }
+
+/* as faces das peças: três tons de azul-carvão, arestas finas em azul; o laranja não entra aqui */
+.ab3-f1, .ab3-f2, .ab3-f3, .ab3-porta, .ab3-dobra, .ab3-etq, .ab3-vidro, .ab3-roda { stroke: var(--a3-azul-claro); stroke-width: 1.1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.ab3-f1 { fill: #18283a; } .ab3-f2 { fill: #122030; } .ab3-f3 { fill: #22394f; }
+.ab3-porta { fill: #0d1822; } .ab3-dobra { fill: #2c4862; } .ab3-etq { fill: #2c4862; } .ab3-vidro { fill: rgba(79, 163, 220, .28); } .ab3-roda { fill: #0d141c; }
+.ab3-tr { fill: none; stroke: var(--a3-azul-claro); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; opacity: .75; }
+.ab3-tr--forte { stroke-width: 1.8; opacity: 1; }
+.ab3-tr--fita { stroke: #6fb4e6; stroke-width: 2.2; opacity: .9; }
+
+/* o núcleo: as ligações resolvem-se numa só estrutura (dois aros) que dá lugar à marca */
+.ab3__nucleo { position: absolute; left: 500px; top: 300px; width: 0; height: 0; }
+.ab3__nucleo i { position: absolute; left: 0; top: 0; width: 220px; height: 220px; margin: -110px 0 0 -110px; border: 1.5px solid var(--a3-azul); border-radius: 50%; opacity: 0; transform: scale(.4); transition: transform .3s var(--curva), opacity .25s ease; }
+.ab3__nucleo i:nth-child(2) { width: 300px; height: 300px; margin: -150px 0 0 -150px; border-color: var(--a3-linha-forte); border-style: dashed; }
+.ab3.is-c .ab3__nucleo i { opacity: 1; transform: scale(1); }
+.ab3.is-d .ab3__nucleo i { opacity: 0; transform: scale(1.5); transition-duration: .4s, .35s; }
+
+/* ---------- a marca e o estado (HTML normal: é o que conta) ---------- */
+.ab3__centro { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; justify-items: center; gap: 10px; width: min(560px, calc(100% - 32px)); transform: translate(-50%, -50%); text-align: center; }
+.ab3__marca { display: grid; justify-items: center; gap: 2px; margin: 0; font-weight: 400; opacity: 0; transform: translateY(10px) scale(.94); transition: opacity .22s ease, transform .26s var(--mola); }
+.ab3__romafe { font-size: clamp(56px, 7vw, 92px); line-height: 1; color: rgb(0, 99, 170); }
+.ab3__erp { font-family: var(--f-titulo); font-size: clamp(22px, 2.4vw, 30px); font-weight: 800; letter-spacing: .42em; padding-left: .42em; color: var(--a3-tinta); }
+.ab3__risco { width: 120px; height: 3px; border-radius: 2px; background: var(--a3-laranja); transform: scaleX(0); transition: transform .26s var(--curva) .06s; }
+.ab3__sub { margin: 4px 0 0; font-size: clamp(15px, 1.25vw, 18px); font-weight: 500; color: var(--a3-tinta); opacity: 0; transition: opacity .22s ease .08s; }
+.ab3__lema { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--a3-tinta-2); opacity: 0; transition: opacity .22s ease .14s; }
+.ab3.is-d .ab3__marca { opacity: 1; transform: none; }
+.ab3.is-d .ab3__risco { transform: scaleX(1); }
+.ab3.is-d .ab3__sub, .ab3.is-d .ab3__lema { opacity: 1; }
+
+/* o estado: por baixo da marca, sempre no mesmo sítio (a marca não salta quando aparece) */
+.ab3__estado { display: grid; justify-items: center; gap: 8px; min-height: 92px; margin-top: 14px; }
+.ab3__estado:empty { visibility: hidden; }
+.ab3__msg { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 600; color: var(--a3-tinta); }
+.ab3__msg svg { width: 18px; height: 18px; color: var(--a3-azul-claro); }
+.ab3__msg--ok svg { color: #2fbf7f; } .ab3__msg--erro svg { color: #f0676c; }
+.ab3__nota { margin: 0; max-width: 40ch; font-size: 13px; line-height: 1.5; color: var(--a3-tinta-2); }
+.ab3__accoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
+.ab3__btn.btn { min-height: 42px; color: var(--a3-tinta); border-color: rgba(168, 183, 197, .35); background: transparent; }
+.ab3__btn.btn.btn--acao { border-color: var(--a3-laranja); background: var(--a3-laranja); color: #fff; }
+.ab3__girador { width: 16px; height: 16px; border: 2px solid var(--a3-azul-claro); border-right-color: transparent; border-radius: 50%; animation: ab3-roda .8s linear infinite; }
+@keyframes ab3-roda { to { transform: rotate(1turn); } }
+.ab3__progresso { position: relative; width: 180px; height: 2px; overflow: hidden; border-radius: 2px; background: var(--a3-linha); }
+.ab3__progresso i { position: absolute; inset: 0; width: 40%; background: var(--a3-azul-claro); animation: ab3-progresso 1.1s ease-in-out infinite; }
+@keyframes ab3-progresso { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+/* «Saltar introdução»: discreto, em cima à direita; some quando já não serve */
+.ab3__saltar.btn { position: absolute; z-index: 3; top: max(16px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); color: var(--a3-tinta-2); border-color: rgba(168, 183, 197, .25); background: rgba(13, 20, 28, .4); }
+.ab3__saltar.btn:hover { color: var(--a3-tinta); border-color: rgba(168, 183, 197, .5); }
+.ab3.is-d .ab3__saltar, .ab3:not([data-ab3-cenario="normal"]):not([data-ab3-cenario="intro"]) .ab3__saltar { opacity: 0; pointer-events: none; }
+.ab3__saltar { transition: opacity .2s ease; }
+
+/* E — a passagem: a estrutura recua e desfoca-se; a marca segue (view transition) para a barra do Início */
+.ab3.is-e .ab3__palco, .ab3.is-e .ab3__fundo { filter: blur(6px); opacity: .35; transform: scale(1.04); }
+.ab3.is-e .ab3__sub, .ab3.is-e .ab3__lema, .ab3.is-e .ab3__risco { opacity: 0; }
+
+/* sem sequência: tudo no fim, quase sem transição */
+.ab3.is-ja *, .ab3.is-ja *::before, .ab3.is-ja *::after { transition-duration: .12s !important; transition-delay: 0s !important; }
+.ab3.is-ja .ab3__peca, .ab3.is-ja .ab3__cadeia, .ab3.is-ja .ab3__sinal, .ab3.is-ja .ab3__nucleo { display: none; }
+
+/* ---------- no telemóvel: menos peças, a marca maior, nada a sair do ecrã ---------- */
+@media (max-width: 700px) {
+  .ab3__peca[data-peca="documento"], .ab3__peca[data-peca="pacote"], .ab3__cadeia, .ab3__sinal { display: none; }
+  .ab3__peca { width: 150px; margin-left: -75px; } .ab3__peca svg { width: 150px; height: 115px; }
+  .ab3__peca-nome { font-size: 16px; }
+  .ab3__romafe { font-size: clamp(64px, 18vw, 84px); }
+  .ab3__arquitetura { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab3 *, .ab3 *::before, .ab3 *::after { transition-duration: .01s !important; animation-duration: .01s !important; animation-iteration-count: 1 !important; }
+  .ab3__plano { transform: scale(var(--k)); }
+}

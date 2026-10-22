@@ -53,6 +53,9 @@ function largar(): void {
 /** Passa ao 01 · Entrar da v10: a marca do centro voa para a do cartão. */
 function seguir(): void {
   const ab = raiz;
+  /* (22 out.) só segue se esta abertura (a v1) ainda estiver à vista: um temporizador antigo não pode levar ao
+     Entrar quando se está noutra versão (a v3 passa ao Início) ou noutro ecrã */
+  if (!ab || !ab.isConnected || ab.closest('.versao[hidden], .ecra[hidden]')) return;
   const ir = () => {
     if (daqui) daqui.style.viewTransitionName = '';
     largar();
