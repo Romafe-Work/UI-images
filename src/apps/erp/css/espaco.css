@@ -466,3 +466,23 @@
 .dk-hoje-i b { font-size: 16px; } .dk-hoje-i svg { width: 15px; height: 15px; color: var(--k-tinta-3); }
 .dk-hoje-i.is-aviso b { color: #c25e00; } .dk-hoje-i.is-erro b { color: var(--k-erro); } .dk-hoje-i.is-zero { color: var(--k-tinta-3); }
 [data-theme="dark"] .dk-hoje-i.is-aviso b { color: #ffb066; }
+
+/* ---------- animações da página inicial (22 out., ela: «coloca animações») ----------
+   Suaves, só transform e opacity (nada mexe a página), sem brilhos; sem movimento, nada anda. */
+.dk-cartao { animation: dk-ent .42s var(--curva) calc(.05s + var(--i) * 55ms) both; transition: border-color .16s ease, box-shadow .16s ease, transform .2s var(--curva); }
+.dk-cartao:hover { transform: translateY(-3px); }
+.dk-cartao:active { transform: translateY(-1px) scale(.985); }
+.dk-cartao .dk-cartao-ic { transform-origin: 50% 80%; transition: transform .3s var(--curva); }
+.dk-cartao:hover .dk-cartao-ic { animation: dk-ic-gesto .5s var(--curva); }
+@keyframes dk-ic-gesto { 30% { transform: translateY(-3px) rotate(-8deg); } 60% { transform: translateY(0) rotate(4deg); } }
+.dk-cartao kbd { transition: border-color .16s ease, color .16s ease; } .dk-cartao:hover kbd { border-color: #244a72; color: #244a72; }
+[data-theme="dark"] .dk-cartao:hover kbd { border-color: #6fb4e6; color: #6fb4e6; }
+.dk-hoje { animation: dk-ent .4s var(--curva) .3s both; }
+.dk-hoje-i { animation: dk-ent .35s var(--curva) calc(.38s + var(--i, 0) * 70ms) both; transition: border-color .12s ease, transform .18s var(--curva); }
+.dk-hoje-i:nth-of-type(2) { --i: 1; } .dk-hoje-i:nth-of-type(3) { --i: 2; }
+.dk-hoje-i:hover { transform: translateY(-1px); } .dk-hoje-i svg { transition: transform .18s var(--curva); } .dk-hoje-i:hover svg { transform: translateX(3px); }
+.dk-hoje-i b { font-variant-numeric: tabular-nums; }
+:is(.dk-rapido, .dk6-sec--rapido) { animation: dk-ent .4s var(--curva) .42s both; }
+:is(.dk-trab, .dk6-sec--trab) { animation: dk-ent .4s var(--curva) .5s both; }
+:is(.dk-titulo--raiz, .dk6-cab) { animation: dk-ent .4s var(--curva) both; }
+@media (prefers-reduced-motion: reduce) { :is(.dk-cartao, .dk-cartao-ic, .dk-hoje, .dk-hoje-i, .dk-rapido, .dk6-sec--rapido, .dk-trab, .dk6-sec--trab, .dk-titulo--raiz, .dk6-cab) { animation: none !important; transition: none !important; } }

@@ -58,6 +58,17 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-doca]', doca(e));
   put('[data-dk-dialogo]', dialogo(e));
   paineis(); indicador(); guardar();
+  if (o.exp !== false) contar();
+}
+/** Os números do «Para hoje» contam de 0 até ao valor (≈0,6 s, a abrandar); sem movimento, aparecem logo. */
+function contar(): void {
+  if (quieto()) return;
+  pg?.querySelectorAll<HTMLElement>('.dk-hoje-i b').forEach((b, i) => {
+    const fim = Number(b.textContent) || 0; if (!fim) return;
+    const t0 = performance.now() + 200 + i * 90;
+    const passo = (t: number) => { const k = Math.min(1, Math.max(0, (t - t0) / 600)); b.textContent = String(Math.round(fim * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(passo); };
+    b.textContent = '0'; requestAnimationFrame(passo);
+  });
 }
 /** A largura do menu lateral (v4): o corpo e o cabeçalho, para os separadores começarem onde começa a área (22 out.). */
 function lado(): void { const w = `${e.rail ? 72 : e.largura}px`; $('.dk-corpo')?.style.setProperty('--sh-lado', w); $('.dk-topo')?.style.setProperty('--dk-lado', w); }
@@ -383,6 +394,7 @@ function armar(): void {
   if (normal && h.get('pasta')) { const id = h.get('pasta')!; if (MENU_ERP.some((l) => l.id === id && !l.pai && l.ativo)) { e.pasta = id; e.arvore[id] = true; } else { e.banner = 'desconhecido'; e.bannerTexto = `O módulo «${id}» não existe no ERP. Abrimos a área de trabalho.`; } }
   if (normal && !navigator.onLine) e.banner = 'offline';
   p.querySelector<HTMLElement>('.dk-corpo')?.classList.toggle('is-rail', !!e.rail); lado();
+  requestAnimationFrame(contar);
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
   p.querySelectorAll<HTMLElement>('[data-dk-tema]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dkTema === t)));
   desenhar();
