@@ -57,7 +57,7 @@ export const DIAGRAMAS: Diagrama[] = [
       n('decisao', 'quantas', 'Quantas aplicações?'),
       e('escolha', 'Onde queres trabalhar?', 'identidade', 'aplicacoes'),
       e('nenhuma', 'Ainda sem aplicações', 'identidade', 'apps-nenhuma'),
-      e('erp', 'ERP · Início', 'erp', 'inicio'), e('pap', 'Peça A Peça · Início', 'goparts', 'inicio'),
+      e('erp', 'ERP · Abertura', 'erp', 'abertura'), e('pap', 'Peça A Peça · Abertura', 'goparts', 'abertura'),
       n('definir', 'goshop', 'GoShop · depois de entrar', 'Só a entrada tem ecrãs no protótipo.'),
       e('pick', 'Pick · Abertura', 'mobile', 'abertura'), e('pdaid', 'Identity no PDA', 'identidade', 'pda'),
       e('inv', 'Pick · Inventário', 'mobile', 'inv-inicio'),
@@ -217,10 +217,10 @@ export const DIAGRAMAS: Diagrama[] = [
      ========================================================= */
   {
     id: 'erp', grupo: 'Web', titulo: 'ERP · do entrar às Compras', direcao: 'TD',
-    descricao: 'Os ecrãs que o ERP tem no protótipo: entrar (v11, geral), a empresa, a aplicação, o Início e o módulo Compras (fases 1 e 2). O resto dos módulos está por definir.',
+    descricao: 'Os ecrãs que o ERP tem no protótipo: o login comum (ROMAFE Identity), a abertura, o Início e o módulo Compras (fases 1 e 2). O resto dos módulos está por definir.',
     nos: [
-      e('abertura', '00 · Abertura', 'erp', 'abertura'), e('entrada', '01 · Entrar', 'erp', 'entrada'), e('passe', '02 · Palavra-passe', 'erp', 'palavra-passe'), e('fator', 'Segundo fator', 'erp', 'rede-fator'),
-      e('empresa', '06 · Escolher a empresa', 'erp', 'escolher-empresa'), e('semempresa', 'Sem empresa', 'erp', 'central-sem-empresa'), e('app', '07 · Escolher a aplicação', 'erp', 'escolher-app'),
+      e('entrada', 'ROMAFE Identity · Entrar', 'identidade', 'entrada'), e('passe', 'ROMAFE Identity · Palavra-passe', 'identidade', 'palavra-passe'),
+      e('app', 'ROMAFE Identity · Onde queres trabalhar?', 'identidade', 'aplicacoes'), e('abertura', '00 · Abertura', 'erp', 'abertura'),
       e('inicio', '05 · Início', 'erp', 'inicio'), e('compras', '10 · Compras', 'erp', 'compras'),
       e('enc', '11 · Encomenda a fornecedor', 'erp', 'compras-encomenda'), e('aprovar', 'Aprovar', 'erp', 'cp-enc-aprovar'), e('encerros', 'Submeter com erros', 'erp', 'cp-enc-erros'),
       e('rececoes', '12 · Receções', 'erp', 'compras-rececoes'), e('rececao', '13 · Receção', 'erp', 'compras-rececao'),
@@ -231,8 +231,7 @@ export const DIAGRAMAS: Diagrama[] = [
       e('e403', '32 · Sem permissão', 'erp', 'erro-403'), e('esessao', '34 · Sessão expirada', 'erp', 'erro-sessao'), e('econflito', '38 · Alterado por outra pessoa', 'erp', 'erro-conflito'),
     ],
     arestas: [
-      a('abertura', 'entrada'), a('entrada', 'passe'), a('passe', 'fator', 'se a conta o tiver'), a('fator', 'empresa'), a('passe', 'empresa'),
-      a('empresa', 'semempresa', 'sem empresa'), a('semempresa', 'entrada', 'sair'), a('empresa', 'app'), a('app', 'inicio', 'ERP'),
+      a('entrada', 'passe'), a('passe', 'app'), a('app', 'abertura', 'ERP'), a('abertura', 'inicio', 'Saltar ou fim'),
       a('inicio', 'compras'), a('inicio', 'outros'),
       a('compras', 'enc'), a('enc', 'aprovar', 'Administração'), a('enc', 'encerros', 'submeter'), a('encerros', 'enc', 'corrigir'),
       a('compras', 'rececoes'), a('rececoes', 'rececao'), a('compras', 'fornecedores'), a('fornecedores', 'fornecedor'),

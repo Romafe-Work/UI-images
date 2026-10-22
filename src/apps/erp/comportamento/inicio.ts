@@ -14,8 +14,8 @@
    - Teclado: Ctrl+K (ou Cmd+K) abre a procura; ↑ ↓ Enter Esc lá dentro; setas na barra lateral;
      Alt+N «Nova encomenda a fornecedor»; Esc fecha a camada aberta e devolve o foco a quem a abriu.
    ========================================================= */
+import { irIdentidade } from './abertura-v3';
 import { mostrar, mostrarVersao } from '../../../comum/ecras';
-import { VERSAO_REDE } from '../entrar-rede';
 import * as cp from '../compras/dominio';
 import * as cp2 from '../compras/dominio2';
 import { terminarSessao } from '../sessao';
@@ -462,7 +462,7 @@ function aoClicar(ev: MouseEvent): void {
   if (q('[data-ws-criar-ok]')) { criarRascunho(q<HTMLButtonElement>('[data-ws-criar-ok]')!); return; }
   if (q('[data-ws-fechar]')) { fechar(); return; }
   if ((b = q('[data-ws-repetir]'))) { repetir(b as HTMLButtonElement); return; }
-  if (q('[data-ws-sair]')) { fechar(false); terminarSessao(); mostrar('entrada'); mostrarVersao(VERSAO_REDE); return; }
+  if (q('[data-ws-sair]')) { fechar(false); terminarSessao(); try { sessionStorage.removeItem('romafe:sessao'); } catch { /* */ } irIdentidade(); return; }
 }
 
 async function repetir(b: HTMLButtonElement): Promise<void> {

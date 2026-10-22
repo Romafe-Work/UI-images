@@ -1,10 +1,6 @@
 import type { App } from '../../comum/tipos';
-import { ecrasEntrar, versoesRomafe, DESCRICAO_ENTRAR } from '../../comum/entrar/entrar';
 import type { IdErp } from './ids';
-import { entrarErp } from './entrar';
 import { ecrasCompras, DESCRICAO_COMPRAS } from './compras';
-import { REDE_ENTRAR, VERSAO_REDE, NOTA_REDE, estadosRede } from './entrar-rede';
-import { CENTRAL_ENTRAR, VERSAO_CENTRAL, NOTA_CENTRAL, ecrasCentral } from './entrar-central';
 import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
 import { versaoAberturaV3, estadosAberturaV3 } from './abertura-v3';
@@ -12,20 +8,6 @@ import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
 import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS_ERP } from './estados';
-
-/* 19 out. 2026: a v10 (a rede da empresa, do briefing dela) junta-se às versões dos quatro ecrãs de entrar;
-   as outras ficam como estavam. Na ajuda, que tem versões a menos, leva o número seguinte ao da última. */
-function comRede(ecras: Ecra<IdErp>[]): Ecra<IdErp>[] {
-  return ecras.map((e) => {
-    const html = REDE_ENTRAR[e.id as keyof typeof REDE_ENTRAR];
-    if (!html) return e;
-    const id = e.id === 'ajuda' ? 'v' + (e.versoes.length + 1) : VERSAO_REDE;
-    /* 20 out. 2026: a v11, o início de sessão geral (entrar-central.ts), logo a seguir */
-    const id11 = e.id === 'ajuda' ? 'v' + (e.versoes.length + 2) : VERSAO_CENTRAL;
-    const html11 = CENTRAL_ENTRAR[e.id as keyof typeof CENTRAL_ENTRAR];
-    return { ...e, versoes: [...e.versoes, { id, nota: NOTA_REDE, html }, { id: id11, nota: NOTA_CENTRAL, html: html11 }] as Ecra<IdErp>['versoes'] };
-  });
-}
 
 /* 19 out. 2026: a 00 · Abertura ganha a v2 (briefing «V2 Cinematic Opening»); a v1 fica como estava */
 /* 22 out. 2026: e a v3 (briefing «Cinematic Opening Experience»: uma empresa, tudo ligado; sem login próprio — vem
@@ -45,7 +27,10 @@ export const erp: App<IdErp> = {
   grupo: 'ERP',
   marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR, 'Início': DESCRICAO_INICIO, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
+  fluxos: { 'Entrar': 'O login é o comum a todas as apps (ROMAFE Identity, em identidade/); ao escolher o ERP, passa a abertura e depois o Início. «Terminar sessão» e a sessão expirada voltam ao login comum.', 'Início': DESCRICAO_INICIO, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
   /* 19 out. 2026: a 00 · Abertura («um ecrã wow como temos no goparts») antes do 01 · Entrar */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV3(), ...comRede(ecrasEntrar(versoesRomafe(entrarErp, 'Enterprise Resource Planning'))), ...estadosRede(), ...ecrasCentral(), ...ecrasInicio(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
+     versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
+     Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV3(), ...ecrasInicio(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

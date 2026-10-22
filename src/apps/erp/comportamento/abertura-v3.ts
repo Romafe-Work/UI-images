@@ -38,7 +38,7 @@ function destino(): string {
   return p && document.querySelector(`.ecra[data-ecra="${CSS.escape(p)}"]`) ? p : 'inicio';
 }
 /** Leva ao login comum, com o modo em que se está (só o ecrã, a demonstração). */
-function irIdentidade(ecra = 'entrada'): void {
+export function irIdentidade(ecra = 'entrada'): void {
   const h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams();
   ['so', 'demo', 'anim'].forEach((k) => { const v = h.get(k); if (v) q.set(k, v); });
   q.set('ecra', ecra);
@@ -131,6 +131,12 @@ export function iniciar(): void {
     else { estado('repetir'); depois(900, () => { estado(navigator.onLine ? 'pronto' : 'offline'); if (navigator.onLine && raiz?.dataset.ab3Cenario === 'normal') seguir(); }); }
   }, true);
   document.addEventListener('keydown', (ev) => { if (raiz && !editando() && ev.key === 'Escape') saltar(); });
+  /* (22 out.) os botões que levavam ao Entrar do ERP (a sessão que terminou) têm data-login: o login é o comum */
+  window.addEventListener('click', (ev) => {
+    if (editando()) return;
+    if (!(ev.target as Element).closest?.('[data-login]')) return;
+    ev.preventDefault(); ev.stopImmediatePropagation(); irIdentidade();
+  }, true);
   /* o rato inclina o plano um pouco; no toque, nada */
   window.addEventListener('pointermove', (ev) => {
     if (!raiz || ev.pointerType !== 'mouse') return;

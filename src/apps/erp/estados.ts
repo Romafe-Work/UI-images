@@ -199,7 +199,7 @@ const sessao = () => erp(`<div class="erp-pagina" aria-hidden="true">
     <span class="er-icone er-icone--aviso">${I(IC2.relogio)}</span>
     <h2 class="er-titulo er-titulo--dialogo" id="erp-sessao-titulo">A sua sessão terminou</h2>
     <p class="er-texto">Esteve 30 minutos sem atividade. O rascunho da encomenda ficou guardado com as 18 linhas; volte a entrar para continuar.</p>
-    <div class="er-botoes er-botoes--coluna">${BOTAO('Voltar a entrar', IC2.entrar, 'btn--acao btn--bloco')}</div>
+    <div class="er-botoes er-botoes--coluna">${BOTAO('Voltar a entrar', IC2.entrar, 'btn--acao btn--bloco', ' data-login')}</div>
   </section>` });
 
 const rede = () => erp(`<div class="er-faixa erp-faixa" role="alert">${I(IC2.semrede)}<span><strong>Sem ligação ao servidor.</strong> Está a ver as encomendas de há 3 minutos. Guardar e enviar voltam quando a ligação voltar.</span>${BOTAO('Tentar de novo', IC2.denovo, 'btn--ghost btn--sm')}</div>

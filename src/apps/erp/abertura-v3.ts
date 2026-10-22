@@ -128,16 +128,16 @@ export function estadosAberturaV3(): EcraErp[] {
   const e = (cen: Exclude<CenarioV3, 'normal'>, nome: string, objetivo: string): EcraErp =>
     ({ id: `ab3-${cen}` as IdAberturaV3, nome, fluxo: 'Entrar', estadoDe: 'abertura', objetivo, versoes: [{ id: VERSAO_ABERTURA_V3, nota: NOTA, html: html(cen) }] });
   return [
-    e('iniciar', '00.8 · A preparar o ERP', 'A introdução acabou e o ERP ainda não respondeu: «A preparar o ERP…» com uma barra fina, em vez de fingir que está pronto.'),
-    e('intro', '00.9 · Introdução a correr', 'A meio da sequência: as cinco peças alinhadas na cadeia, ligadas pelas linhas, com o sinal laranja a percorrê-la.'),
-    e('pronto', '00.10 · Pronto', 'A marca resolvida e o ERP pronto: daqui passa logo ao Início.'),
-    e('passagem', '00.11 · A passar ao Início', 'A estrutura desfoca-se e a marca segue para a da barra do Início (a mesma peça, não um corte).'),
-    e('autenticar', '00.12 · Sessão necessária', 'Sem sessão: não há login do ERP — leva ao início de sessão comum da ROMAFE e volta aqui depois.'),
-    e('sem-acesso', '00.13 · Sem acesso ao ERP', 'A sessão existe, mas a conta não tem o ERP: diz isso, e oferece outra aplicação ou terminar a sessão.'),
-    e('offline', '00.14 · Sem ligação', 'Sem rede: a marca fica, a razão por baixo e «Tentar outra vez»; não passa a lado nenhum.'),
-    e('falhou', '00.15 · Não iniciou', 'O servidor não respondeu ao iniciar: a referência do erro e «Tentar outra vez».'),
-    e('repetir', '00.16 · A tentar outra vez', 'Depois de «Tentar outra vez»: a mesma espera do 00.8, com a frase certa.'),
-    e('saltada', '00.17 · Introdução saltada', '«Saltar introdução», Esc, ou já vista nesta sessão: a marca aparece logo, sem a sequência, e segue.'),
-    e('quieto', '00.18 · Movimento reduzido', 'Com «reduzir movimento»: a composição final, parada; a passagem é imediata.'),
+    e('iniciar', '00.1 · A preparar o ERP', 'A introdução acabou e o ERP ainda não respondeu: «A preparar o ERP…» com uma barra fina, em vez de fingir que está pronto.'),
+    e('intro', '00.2 · Introdução a correr', 'A meio da sequência: as cinco peças alinhadas na cadeia, ligadas pelas linhas, com o sinal laranja a percorrê-la.'),
+    e('pronto', '00.3 · Pronto', 'A marca resolvida e o ERP pronto: daqui passa logo ao Início.'),
+    e('passagem', '00.4 · A passar ao Início', 'A estrutura desfoca-se e a marca segue para a da barra do Início (a mesma peça, não um corte).'),
+    e('autenticar', '00.5 · Sessão necessária', 'Sem sessão: não há login do ERP — leva ao início de sessão comum da ROMAFE e volta aqui depois.'),
+    e('sem-acesso', '00.6 · Sem acesso ao ERP', 'A sessão existe, mas a conta não tem o ERP: diz isso, e oferece outra aplicação ou terminar a sessão.'),
+    e('offline', '00.7 · Sem ligação', 'Sem rede: a marca fica, a razão por baixo e «Tentar outra vez»; não passa a lado nenhum.'),
+    e('falhou', '00.8 · Não iniciou', 'O servidor não respondeu ao iniciar: a referência do erro e «Tentar outra vez».'),
+    e('repetir', '00.9 · A tentar outra vez', 'Depois de «Tentar outra vez»: a mesma espera do 00.8, com a frase certa.'),
+    e('saltada', '00.10 · Introdução saltada', '«Saltar introdução», Esc, ou já vista nesta sessão: a marca aparece logo, sem a sequência, e segue.'),
+    e('quieto', '00.11 · Movimento reduzido', 'Com «reduzir movimento»: a composição final, parada; a passagem é imediata.'),
   ];
 }
