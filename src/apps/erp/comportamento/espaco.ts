@@ -14,7 +14,7 @@
      moldura é a da área de trabalho.
    ========================================================= */
 import {
-  novoEstado, arvore, separadores, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
+  novoEstado, arvore, separadores, ordemSeps, semSeparadores, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
   type Estado, type Acao, type Janela,
 } from '../espaco';
 import { FORNECEDORES, ARTIGOS, encomendas } from '../compras/dominio';
@@ -36,7 +36,7 @@ function dizer(t: string): void {
 }
 function guardar(): void {
   if (!normal) return;
-  try { localStorage.setItem(CHAVE, JSON.stringify({ seps: e.seps.map(({ id, rota, titulo }) => ({ id, rota, titulo })), ativo: e.ativo, fixados: e.fixados, arvore: e.arvore, vista: e.vista, largura: e.largura })); } catch { /* */ }
+  try { localStorage.setItem(CHAVE, JSON.stringify({ seps: e.seps.map(({ id, rota, titulo }) => ({ id, rota, titulo })), ativo: e.ativo, fixados: e.fixados, arvore: e.arvore, vista: e.vista, largura: e.largura, rail: !!e.rail, trabalho: e.trabalho, casa: e.casa ?? 0, semCasa: !!e.semCasa, presos: e.presos ?? [] })); } catch { /* */ }
 }
 
 /* ---------- desenhar ---------- */
@@ -47,7 +47,7 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-seps]', separadores(e));
   put('[data-dk-acoes]', acoes(e));
   put('[data-dk-banner]', banner(e));
-  if (o.exp !== false) { const x = $('[data-dk-exp]'); if (x) { x.innerHTML = explorador(e); if (o.entrar) { x.classList.remove('is-entrar'); void x.offsetWidth; x.classList.add('is-entrar'); } } }
+  if (o.exp !== false) { const x = $('[data-dk-exp]'); if (x) { x.innerHTML = e.semCasa ? semSeparadores() : explorador(e); if (o.entrar) { x.classList.remove('is-entrar'); void x.offsetWidth; x.classList.add('is-entrar'); } } }
   const top = Math.max(0, ...e.janelas.map((j) => j.z));
   put('[data-dk-janelas]', e.janelas.map((j) => janela(j, j.z === top)).join(''));
   put('[data-dk-doca]', doca(e));
@@ -110,11 +110,22 @@ function abrirRota(rota: string, titulo?: string, novo = false): void {
   if (e.banner === 'rota' || e.banner === 'sem-permissao' || e.banner === 'primeira') e.banner = '';
   desenhar({ exp: false });
 }
+/** A área de trabalho fecha-se como as outras; volta pela marca, pelo menu ou pelo vazio. */
+function fecharCasa(): void {
+  const ordem = ordemSeps(e), i = ordem.indexOf('inicio');
+  e.casa = i; e.semCasa = true; e.presos = (e.presos ?? []).filter((x) => x !== 'inicio');
+  if (e.ativo === 'inicio' && e.seps.length) { const resto = ordem.filter((x) => x !== 'inicio'); e.ativo = resto[Math.max(0, i - 1)] ?? resto[0]; }
+  desenhar();
+}
+function abrirCasa(): void { e.semCasa = false; e.ativo = 'inicio'; e.pasta = 'raiz'; e.sel = ''; desenhar({ exp: true, entrar: true }); }
+function prender(id: string): void { const p = e.presos ?? []; e.presos = p.includes(id) ? p.filter((x) => x !== id) : [...p, id]; desenhar({ exp: false }); }
 function fechar(id: string, forcar = false): void {
+  if (id === 'inicio') { fecharCasa(); return; }
   const s = e.seps.find((x) => x.id === id); if (!s) return;
   if (s.sujo && !forcar) { e.dialogo = `fechar:${id}`; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
-  const i = e.seps.indexOf(s); e.seps.splice(i, 1);
-  if (e.ativo === id) e.ativo = e.seps[Math.max(0, i - 1)]?.id ?? 'inicio';
+  const ordem = ordemSeps(e), i = ordem.indexOf(id); e.seps.splice(e.seps.indexOf(s), 1); e.presos = (e.presos ?? []).filter((x) => x !== id);
+  if (e.ativo === id) { const resto = ordem.filter((x) => x !== id); e.ativo = resto[Math.max(0, i - 1)] ?? 'inicio'; }
+  if (!e.seps.length && e.ativo !== 'inicio') e.ativo = 'inicio';
   e.dialogo = '';
   desenhar({ exp: e.ativo === 'inicio' });
 }
@@ -125,12 +136,12 @@ function abrirPasta(id: string, de?: HTMLElement | null): void {
   const m = MENU_ERP.find((l) => l.id === id && !l.pai);
   if (!m) { e.banner = 'desconhecido'; e.bannerTexto = `O módulo «${id}» não existe no ERP. Abrimos a área de trabalho.`; e.pasta = 'raiz'; desenhar(); return; }
   if (!m.ativo) { dizer(`«${m.rotulo}» ainda está no ERP antigo.`); return; }
-  const fazer = () => { e.ativo = 'inicio'; e.pasta = id; e.sel = filhos(id, e.perfil).find((f) => f.registada && f.permitido)?.rota ?? ''; e.arvore[id] = true; desenhar({ exp: true, entrar: true }); $<HTMLElement>('.dk-fich[aria-selected="true"]')?.focus(); };
+  const fazer = () => { e.semCasa = false; e.ativo = 'inicio'; e.pasta = id; e.sel = filhos(id, e.perfil).find((f) => f.registada && f.permitido)?.rota ?? ''; e.arvore[id] = true; desenhar({ exp: true, entrar: true }); $<HTMLElement>('.dk-fich[aria-selected="true"]')?.focus(); };
   const alvo = $('[data-dk-exp]');
   if (!de || quieto() || !alvo) { fazer(); return; }
   /* a assinatura: a aba levanta-se e a pasta cresce para a área */
   de.classList.add('is-abrir');
-  const g = de.querySelector<HTMLElement>('.dk-pasta-g')!, r = g.getBoundingClientRect(), ra = alvo.getBoundingClientRect();
+  const g = de.querySelector<HTMLElement>('.dk-arte, .dk-pasta-g')!, r = g.getBoundingClientRect(), ra = alvo.getBoundingClientRect();
   const c = g.cloneNode(true) as HTMLElement; c.classList.add('dk-voo');
   Object.assign(c.style, { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
   document.body.appendChild(c);
@@ -139,11 +150,23 @@ function abrirPasta(id: string, de?: HTMLElement | null): void {
   window.setTimeout(fazer, 150);
   an.onfinish = () => c.remove();
 }
-function voltar(): void { if (e.ativo !== 'inicio' || e.pasta === 'raiz') return; const de = e.pasta; e.pasta = 'raiz'; e.sel = de; desenhar({ exp: true, entrar: true }); $<HTMLElement>(`[data-dk-pasta="${de}"]`)?.focus(); }
+function voltar(): void {
+  if (e.ativo !== 'inicio' || e.pasta === 'raiz') return;
+  const de = e.pasta, area = $('[data-dk-exp]')?.getBoundingClientRect();
+  e.pasta = 'raiz'; e.sel = de; desenhar({ exp: true, entrar: true });
+  const b = $<HTMLElement>(`[data-dk-pasta="${de}"]`); b?.focus();
+  /* o caminho de volta: a pasta encolhe da área para o seu lugar e fecha a aba */
+  const g = b?.querySelector<HTMLElement>('.dk-arte');
+  if (!g || !area || quieto()) return;
+  const r = g.getBoundingClientRect(), k = Math.min(area.width / r.width, 5);
+  const dx = area.left + area.width / 2 - (r.left + r.width / 2), dy = area.top + Math.min(area.height, 420) / 2 - (r.top + r.height / 2);
+  b!.classList.add('is-abrir');
+  g.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${k})`, opacity: 0 }, { transform: 'translate(0, 0) scale(1)', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.4, 0, .2, 1)' }).onfinish = () => window.setTimeout(() => b!.classList.remove('is-abrir'), 60);
+}
 /** Escolher não redesenha o explorador (o duplo clique precisa do mesmo elemento): só a marcação, a barra e o detalhe. */
 function escolher(id: string): void {
   e.sel = id;
-  pg?.querySelectorAll<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]').forEach((t) => t.setAttribute('aria-selected', String((t.dataset.dkPasta ?? t.dataset.dkAbrir) === id)));
+  pg?.querySelectorAll<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]').forEach((t) => { const sim = (t.dataset.dkPasta ?? t.dataset.dkAbrir) === id; t.setAttribute('aria-selected', String(sim)); t.closest('.dk-mod')?.classList.toggle('is-sel', sim); });
   const a = $('[data-dk-acoes]'); if (a) a.innerHTML = acoes(e);
   const d = $('.dk-detalhe'); if (d) { const tmp = document.createElement('div'); tmp.innerHTML = explorador(e); const n = tmp.querySelector('.dk-detalhe'); if (n) d.innerHTML = n.innerHTML; }
   $<HTMLElement>(`.dk-exp [data-dk-pasta="${CSS.escape(id)}"], .dk-exp [data-dk-abrir="${CSS.escape(id)}"]`)?.focus();
@@ -211,7 +234,7 @@ type Item = { k: string; g: string; t: string; s?: string; ic: string; fazer: ()
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, '');
 function itens(): Item[] {
   const l: Item[] = [
-    { k: 'cmd:inicio', g: 'Comandos', t: 'Ir para a área de trabalho', ic: 'layout-grid', fazer: () => { e.ativo = 'inicio'; e.pasta = 'raiz'; desenhar(); } },
+    { k: 'cmd:inicio', g: 'Comandos', t: 'Ir para a área de trabalho', ic: 'layout-grid', fazer: abrirCasa },
     { k: 'cmd:compras', g: 'Comandos', t: 'Abrir a pasta Compras', ic: 'shopping-cart', fazer: () => abrirPasta('compras') },
     { k: 'cmd:fechar', g: 'Comandos', t: 'Fechar todos os separadores', ic: 'x', fazer: () => acao('fechar-todos') },
     { k: 'cmd:claro', g: 'Comandos', t: 'Tema claro', ic: 'sun', fazer: () => tema('light') },
@@ -259,6 +282,14 @@ function fecharPaleta(): void { pal = null; const c = $('[data-dk-paleta-caixa]'
 function teclas(ev: KeyboardEvent): void {
   if (!pg || editando()) return;
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); ev.stopImmediatePropagation(); if (pal) fecharPaleta(); else abrirPaleta(); return; }
+  /* atalhos para fixar (22 out.): Ctrl D no acesso rápido, Alt P o separador; Alt W fecha o separador */
+  const k = ev.key.toLowerCase();
+  if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && k === 'd') {
+    ev.preventDefault(); ev.stopImmediatePropagation();
+    if (e.ativo === 'inicio' && e.sel && ROTAS[e.sel]) acao('fixar'); else if (e.ativo !== 'inicio') acao('fixar-sep'); else dizer('Escolhe um ecrã para o fixar no acesso rápido.');
+    return;
+  }
+  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (k === 'p' || k === 'w')) { ev.preventDefault(); ev.stopImmediatePropagation(); if (k === 'p') { prender(e.ativo); dizer((e.presos ?? []).includes(e.ativo) ? 'Separador fixado.' : 'Separador desafixado.'); } else fechar(e.ativo); return; }
   const f = ({ F5: 'novo', F6: 'editar', F8: 'eliminar', F9: 'atualizar', F11: 'imprimir' } as Record<string, Acao>)[ev.key];
   if (f) {
     const b = $<HTMLButtonElement>(`[data-dk-acoes] [data-dk-acao="${f}"]`);
@@ -275,7 +306,7 @@ function ler(): Estado {
     const g = JSON.parse(localStorage.getItem(CHAVE) ?? 'null');
     if (!g) return base;
     const seps = (g.seps ?? []).filter((s: { rota: string }) => { const l = MENU_ERP.find((x) => x.rota === s.rota); return ROTAS[s.rota] && (!l || l.permissoes === '*' || l.permissoes.includes(base.perfil)); });
-    const est = { ...base, seps, ativo: seps.some((s: { id: string }) => s.id === g.ativo) ? g.ativo : 'inicio', fixados: (g.fixados ?? base.fixados).filter((r: string) => ROTAS[r]), arvore: g.arvore ?? base.arvore, vista: g.vista ?? base.vista, largura: g.largura ?? base.largura };
+    const est = { ...base, seps, ativo: seps.some((s: { id: string }) => s.id === g.ativo) ? g.ativo : g.semCasa && seps.length ? seps[0].id : 'inicio', fixados: (g.fixados ?? base.fixados).filter((r: string) => ROTAS[r]), arvore: g.arvore ?? base.arvore, vista: 'grelha' as const, largura: g.largura ?? base.largura, rail: !!g.rail, trabalho: g.trabalho ?? base.trabalho, casa: g.casa ?? 0, semCasa: !!g.semCasa && seps.length > 0, presos: (g.presos ?? []).filter((i: string) => i === 'inicio' || seps.some((s: { id: string }) => s.id === i)) };
     if (seps.length && !restaurou) { est.banner = 'restaurada'; est.bannerTexto = `Recuperámos a tua área de trabalho: ${seps.length} ${seps.length === 1 ? 'separador' : 'separadores'}. Os rascunhos por guardar não se recuperam.`; }
     return est;
   } catch { return base; }
@@ -292,7 +323,7 @@ function armar(): void {
   if (normal && h.get('abrir')) abrirRota(h.get('abrir')!);
   if (normal && h.get('pasta')) { const id = h.get('pasta')!; if (MENU_ERP.some((l) => l.id === id && !l.pai && l.ativo)) { e.pasta = id; e.arvore[id] = true; } else { e.banner = 'desconhecido'; e.bannerTexto = `O módulo «${id}» não existe no ERP. Abrimos a área de trabalho.`; } }
   if (normal && !navigator.onLine) e.banner = 'offline';
-  const c = p.querySelector<HTMLElement>('.dk-corpo'); c?.style.setProperty('--sh-lado', `${e.largura}px`);
+  const c = p.querySelector<HTMLElement>('.dk-corpo'); c?.style.setProperty('--sh-lado', `${e.rail ? 72 : e.largura}px`); c?.classList.toggle('is-rail', !!e.rail);
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
   p.querySelectorAll<HTMLElement>('[data-dk-tema]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dkTema === t)));
   desenhar();
@@ -333,7 +364,7 @@ export function iniciar(): void {
     if (tile && ev.key === 'Enter') { ev.preventDefault(); const id = tile.dataset.dkPasta ?? tile.dataset.dkAbrir!; e.sel = id; if (tile.dataset.dkPasta) abrirPasta(id, tile); else abrirRota(id); return; }
     if (tile && /^Arrow/.test(ev.key)) {
       const grelha = [...(tile.closest('.dk-grelha')?.querySelectorAll<HTMLElement>('[data-dk-pasta], [data-dk-abrir]') ?? [])];
-      const i = grelha.indexOf(tile), cols = Math.max(1, Math.round((tile.closest('.dk-grelha') as HTMLElement).offsetWidth / (tile.offsetWidth + 12)));
+      const i = grelha.indexOf(tile), gr = tile.closest<HTMLElement>('.dk-grelha'), cols = gr ? Math.max(1, Math.round(gr.offsetWidth / (tile.offsetWidth + 12))) : 1;
       const n = ev.key === 'ArrowRight' ? i + 1 : ev.key === 'ArrowLeft' ? i - 1 : ev.key === 'ArrowDown' ? i + cols : i - cols;
       const prox = grelha[Math.max(0, Math.min(grelha.length - 1, n))];
       if (prox) { ev.preventDefault(); escolher(prox.dataset.dkPasta ?? prox.dataset.dkAbrir!); }
@@ -341,9 +372,11 @@ export function iniciar(): void {
     }
     /* os separadores: setas */
     const sep = alvo.closest<HTMLElement>('[data-dk-sep]');
-    if (sep && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { const ids = ['inicio', ...e.seps.map((s) => s.id)]; const i = ids.indexOf(sep.dataset.dkSep!); ativar(ids[(i + (ev.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length]); $<HTMLElement>('.dk-sep.is-ativo')?.focus(); }
+    if (sep && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { const ids = ordemSeps(e); const i = ids.indexOf(sep.dataset.dkSep!); ativar(ids[(i + (ev.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length]); $<HTMLElement>('.dk-sep.is-ativo')?.focus(); }
   }, true);
 
+  /* a marca leva à área de trabalho, mesmo fechada */
+  window.addEventListener('click', (ev) => { const t = ev.target as HTMLElement; if (!pg || editando() || !pg.contains(t) || !t.closest('.dk-topo .hm-marca')) return; ev.preventDefault(); ev.stopImmediatePropagation(); abrirCasa(); }, true);
   window.addEventListener('click', (ev) => {
     if (!pg || editando()) return;
     const t = ev.target as HTMLElement; if (!pg.contains(t)) return;
@@ -358,12 +391,19 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dk-paleta]'))) { abrirPaleta(b.dataset.dkPaleta ?? ''); return; }
     if ((b = t.closest('[data-dk-dialogo]')) && b.matches('button')) { const d = b.dataset.dkDialogo; const id = e.dialogo.startsWith('fechar:') ? e.dialogo.slice(7) : ''; e.dialogo = ''; if (d === 'fechar' && id) fechar(id, true); else { if (d === 'eliminar') dizer('Protótipo: nada foi eliminado. No ERP, fica registado no histórico.'); desenhar({ exp: false }); } return; }
     if (t.closest('[data-dk-banner-fechar]')) { e.banner = ''; desenhar({ exp: false }); return; }
+    if ((b = t.closest('[data-dk-prender]'))) { ev.stopPropagation(); prender(b.dataset.dkPrender!); return; }
+    if (t.closest('[data-dk-casa]')) { abrirCasa(); return; }
     if ((b = t.closest('[data-dk-fechar]'))) { ev.stopPropagation(); fechar(b.dataset.dkFechar!); return; }
     if ((b = t.closest('[data-dk-sep]'))) { ativar(b.dataset.dkSep!); return; }
     if ((b = t.closest('[data-dk-acao]'))) { acao(b.dataset.dkAcao!, b); return; }
     if ((b = t.closest('[data-dk-vista]'))) { e.vista = b.dataset.dkVista as Estado['vista']; desenhar(); return; }
     if ((b = t.closest('[data-dk-dobrar]'))) { ev.stopPropagation(); const id = b.dataset.dkDobrar!; e.arvore[id] = !e.arvore[id]; desenhar({ exp: false }); return; }
-    if ((b = t.closest('[data-dk-ir]'))) { const id = b.dataset.dkIr!; pg.classList.remove('is-menu-aberto'); if (id === 'raiz') { e.ativo = 'inicio'; e.pasta = 'raiz'; e.sel = ''; desenhar({ exp: true, entrar: true }); } else abrirPasta(id); return; }
+    if ((b = t.closest('[data-dk-ir]'))) { const id = b.dataset.dkIr!; pg.classList.remove('is-menu-aberto'); if (id === 'raiz') abrirCasa(); else abrirPasta(id); return; }
+    if ((b = t.closest('[data-dk-atalho]'))) { pg.classList.remove('is-menu-aberto'); abrirRota(b.dataset.dkAtalho!); return; }
+    if ((b = t.closest('[data-dk-desafixar]'))) { const r = b.dataset.dkDesafixar!; e.fixados = e.fixados.filter((x) => x !== r); dizer(`«${ROTAS[r]?.titulo ?? r}» saiu do acesso rápido.`); desenhar(); return; }
+    if ((b = t.closest('[data-dk-pasta-abrir]'))) { const id = b.dataset.dkPastaAbrir!; abrirPasta(id, $(`[data-dk-pasta="${id}"]`)); return; }
+    if ((b = t.closest('[data-dk-trab]'))) { e.trabalho = b.dataset.dkTrab as Estado['trabalho']; desenhar(); $<HTMLElement>(`[data-dk-trab="${e.trabalho}"]`)?.focus(); return; }
+    if (t.closest('[data-dk-rail]')) { e.rail = !e.rail; const c = $('.dk-corpo'); c?.classList.toggle('is-rail', e.rail); c?.style.setProperty('--sh-lado', `${e.rail ? 72 : e.largura}px`); desenhar({ exp: false }); return; }
     if ((b = t.closest('[data-dk-janela]'))) { const [tipo, chave] = b.dataset.dkJanela!.split(':'); abrirJanela(tipo as Janela['tipo'], chave); return; }
     if ((b = t.closest('[data-dk-restaurar]'))) { const j = e.janelas.find((x) => x.id === b!.dataset.dkRestaurar); if (j) { j.min = false; j.z = topo() + 1; desenhar({ exp: false }); } return; }
     if ((b = t.closest('[data-dk-jan-acao]'))) { acaoJanela(b.closest<HTMLElement>('[data-dk-jan]')!.dataset.dkJan!, b.dataset.dkJanAcao!); return; }
@@ -377,7 +417,7 @@ export function iniciar(): void {
     const b = (ev.target as HTMLElement).closest<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]'); if (!b || !pg.contains(b)) return;
     if (b.dataset.dkPasta) abrirPasta(b.dataset.dkPasta, b); else abrirRota(b.dataset.dkAbrir!);
   });
-  window.addEventListener('auxclick', (ev) => { const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-dk-sep]'); if (pg?.contains(b as Node) && ev.button === 1 && b!.dataset.dkSep !== 'inicio') fechar(b!.dataset.dkSep!); });
+  window.addEventListener('auxclick', (ev) => { const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-dk-sep]'); if (pg?.contains(b as Node) && ev.button === 1) fechar(b!.dataset.dkSep!); });
   document.addEventListener('input', (ev) => { const t = ev.target as HTMLElement; if (pal && t.matches('[data-dk-paleta-q]')) { pal.q = (t as HTMLInputElement).value; pal.i = 0; pintarPaleta(); } });
 
   /* reordenar os separadores a arrastar */
@@ -387,8 +427,12 @@ export function iniciar(): void {
   document.addEventListener('drop', (ev) => {
     const s = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk-sep]'); if (!arrastado || !s || !pg?.contains(s)) return;
     ev.preventDefault();
-    const de = e.seps.findIndex((x) => x.id === arrastado), para = s.dataset.dkSep === 'inicio' ? 0 : e.seps.findIndex((x) => x.id === s.dataset.dkSep);
-    if (de >= 0 && para >= 0 && de !== para) { const [m] = e.seps.splice(de, 1); e.seps.splice(para, 0, m); desenhar({ exp: false }); }
+    const ordem = ordemSeps(e), de = ordem.indexOf(arrastado), para = ordem.indexOf(s.dataset.dkSep!);
+    if (de >= 0 && para >= 0 && de !== para) {
+      ordem.splice(para, 0, ...ordem.splice(de, 1));
+      e.seps = ordem.filter((x) => x !== 'inicio').map((x) => e.seps.find((y) => y.id === x)!); if (!e.semCasa) e.casa = ordem.indexOf('inicio');
+      desenhar({ exp: false });
+    }
     arrastado = '';
   });
   document.addEventListener('dragend', () => { arrastado = ''; pg?.querySelectorAll('.is-arrasta').forEach((x) => x.classList.remove('is-arrasta')); });
@@ -413,7 +457,7 @@ export function iniciar(): void {
   });
   /* a largura da árvore: arrasta-se o puxador */
   let puxa: { x: number; w: number } | null = null;
-  document.addEventListener('pointerdown', (ev) => { if ((ev.target as HTMLElement).closest?.('[data-dk-puxador]') && pg?.contains(ev.target as Node)) { puxa = { x: ev.clientX, w: e.largura }; ev.preventDefault(); } });
+  document.addEventListener('pointerdown', (ev) => { if ((ev.target as HTMLElement).closest?.('[data-dk-puxador]') && pg?.contains(ev.target as Node) && !e.rail) { puxa = { x: ev.clientX, w: e.largura }; ev.preventDefault(); } });
   document.addEventListener('pointermove', (ev) => { if (!puxa) return; e.largura = Math.max(200, Math.min(420, puxa.w + ev.clientX - puxa.x)); pg?.querySelector<HTMLElement>('.dk-corpo')?.style.setProperty('--sh-lado', `${e.largura}px`); indicador(); });
   document.addEventListener('pointerup', () => { if (puxa) { puxa = null; guardar(); } });
 

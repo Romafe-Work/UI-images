@@ -1,36 +1,36 @@
 /* =========================================================
    ERP — 00 · Abertura v6 «The Enterprise Engine» (22 out. 2026). Ver abertura-v6.ts.
    A camada por cima da página principal (.sh): navy industrial, as linhas de arquitetura, os anéis de precisão, o
-   documento e o pacote, a estrutura; o laranja só no sinal. Fases: is-a (0) fundo e linhas, is-b (200) anéis a
-   alinhar e peças a chegar, is-c (500) ligações e convergência, is-d (850) ROMAFE ERP, is-e (1100) a passagem —
+   documento e o pacote, a estrutura; o laranja só no sinal. Fases: is-a (0) fundo e linhas, is-b (400) anéis a
+   alinhar e peças a chegar, is-c (1300) ligações e convergência, is-d (2200) ROMAFE ERP, is-e (3600) a passagem —
    o fundo e o motor somem e a marca (a mesma do cabeçalho, em grande) desliza para o sítio dela (FLIP, em JS).
    ========================================================= */
 .ab6 { position: absolute; inset: 0; z-index: 50; display: grid; place-items: center; overflow: hidden; color: #f5f8fa; --curva: cubic-bezier(.22, 1, .36, 1); }
 .ab6__fundo { position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 45%, #12233a, #0a1420 70%); transition: opacity .45s ease; }
-.ab6__cena { position: absolute; left: 50%; top: 46%; width: min(1000px, 112vw); height: auto; transform: translate(-50%, -50%) scale(1); transition: transform .5s var(--curva), opacity .4s ease; overflow: visible; }
+.ab6__cena { position: absolute; left: 50%; top: 46%; width: min(1000px, 112vw); height: auto; transform: translate(-50%, -50%) scale(1); transition: transform .9s var(--curva), opacity .7s ease; overflow: visible; }
 .ab6__arq line, .ab6__arq path { fill: none; stroke: rgba(120, 165, 205, .1); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.ab6__arq { opacity: 0; transition: opacity .2s linear; }
+.ab6__arq { opacity: 0; transition: opacity .5s linear; }
 .ab6.is-a .ab6__arq { opacity: 1; }
 /* os anéis de precisão: entram desalinhados e rodam até encaixar */
 .ab6__anel circle { fill: none; stroke: #2d5378; stroke-width: 2; vector-effect: non-scaling-stroke; }
 .ab6__anel line { stroke: rgba(120, 165, 205, .4); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .ab6__anel--int circle { stroke: #3a6a96; stroke-width: 6; }
-.ab6__anel { transform-box: view-box; transform-origin: 0 0; opacity: 0; transition: transform .55s cubic-bezier(.2, .9, .12, 1), opacity .25s ease; }
+.ab6__anel { transform-box: view-box; transform-origin: 0 0; opacity: 0; transition: transform .95s cubic-bezier(.2, .9, .12, 1), opacity .45s ease; }
 .ab6__anel--ext { transform: rotate(-70deg) scale(1.25); } .ab6__anel--int { transform: rotate(90deg) scale(.7); }
 .ab6.is-b .ab6__anel { opacity: 1; transform: none; }
-.ab6__furo { fill: #0b1724; stroke: #0876bd; stroke-width: 1.5; vector-effect: non-scaling-stroke; opacity: 0; transition: opacity .3s ease .25s; }
+.ab6__furo { fill: #0b1724; stroke: #0876bd; stroke-width: 1.5; vector-effect: non-scaling-stroke; opacity: 0; transition: opacity .5s ease .45s; }
 .ab6.is-b .ab6__furo { opacity: 1; }
 .ab6__sinal { fill: #f58214; opacity: 0; }
 .ab6.is-a:not(.is-ja) .ab6__sinal { animation: ab6-sinal .5s ease 1 both; }
 .ab6.is-c .ab6__sinal { opacity: 1; }
 @keyframes ab6-sinal { 0% { opacity: 0; } 40% { opacity: 1; } 60% { opacity: .4; } 100% { opacity: 1; } }
 /* o documento e o pacote: chegam pelos seus caminhos (de fora, com aceleração controlada) */
-.ab6__doc, .ab6__pac { opacity: 0; transition: transform .45s cubic-bezier(.3, .7, .2, 1) .05s, opacity .25s ease .05s; }
+.ab6__doc, .ab6__pac { opacity: 0; transition: transform .8s cubic-bezier(.3, .7, .2, 1) .1s, opacity .45s ease .1s; }
 .ab6__doc { transform: translate(-260px, -40px) rotate(-8deg); } .ab6__pac { transform: translate(260px, 50px) rotate(8deg); }
 .ab6.is-b .ab6__doc, .ab6.is-b .ab6__pac { opacity: 1; transform: none; }
-.ab6__estrutura { opacity: 0; transform: translateY(30px); transition: transform .4s var(--curva) .15s, opacity .3s ease .15s; }
+.ab6__estrutura { opacity: 0; transform: translateY(30px); transition: transform .7s var(--curva) .3s, opacity .5s ease .3s; }
 .ab6.is-b .ab6__estrutura { opacity: 1; transform: translateY(0); }
-.ab6__ligacoes path { fill: none; stroke: rgba(245, 130, 20, .7); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .35s var(--curva); }
+.ab6__ligacoes path { fill: none; stroke: rgba(245, 130, 20, .7); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .8s var(--curva); }
 .ab6.is-c .ab6__ligacoes path { stroke-dashoffset: 0; }
 /* convergência: o documento e o pacote encostam à estrutura, a câmara recua */
 .ab6.is-c .ab6__doc { transform: translate(60px, 0); } .ab6.is-c .ab6__pac { transform: translate(-60px, 0); }
@@ -42,7 +42,7 @@
 
 /* a marca: é a do cabeçalho (os mesmos tamanhos), em grande; no fim desliza para lá */
 .ab6__centro { position: absolute; left: 50%; top: 46%; display: grid; justify-items: center; gap: 22px; transform: translate(-50%, -50%); }
-.ab6__marca { display: flex; align-items: center; gap: 10px; margin: 0; transform: scale(2.6); transform-origin: center; opacity: 0; filter: blur(4px); transition: opacity .25s ease, filter .25s ease; }
+.ab6__marca { display: flex; align-items: center; gap: 10px; margin: 0; transform: scale(2.6); transform-origin: center; opacity: 0; filter: blur(4px); transition: opacity .6s ease, filter .6s ease; }
 .ab6__romafe { font-size: 24px; line-height: 1; color: rgb(0, 99, 170); }
 .ab6__marca i { width: 2px; height: 18px; background: #f58214; }
 .ab6__erp { font-family: var(--f-titulo); font-size: 16px; font-weight: 800; letter-spacing: .06em; color: #f5f8fa; }

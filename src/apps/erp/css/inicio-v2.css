@@ -20,6 +20,8 @@
 .hm-marca { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .hm-romafe { font-size: 24px; line-height: 1; color: rgb(0, 99, 170); }
 .hm-marca i { width: 2px; height: 18px; background: var(--h-laranja); }
+/* (22 out., «alinha») a Motor desenha as maiúsculas acima do centro da caixa: desce 3 px para ficar ao centro do traço e do ERP. */
+.hm-marca .hm-romafe { transform: translateY(3px); } .hm-marca i { height: 16px; }
 .hm-erp { font-family: var(--f-titulo); font-size: 16px; font-weight: 800; letter-spacing: .06em; color: #f5f8fa; }
 .hm-caminho { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a8b7c5; white-space: nowrap; }
 .hm-caminho span { display: inline-flex; align-items: center; gap: 6px; } .hm-caminho svg { width: 15px; height: 15px; }

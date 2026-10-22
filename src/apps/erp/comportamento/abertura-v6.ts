@@ -1,9 +1,9 @@
 /* =========================================================
    ERP — 00 · Abertura v6 «The Enterprise Engine»: o que mexe (22 out. 2026)
    - Como no Peça A Peça: login comum → esta abertura → a página principal, sozinha (no protótipo, #so=ecra).
-   - A sequência: is-a 0 ms, is-b 200, is-c 500, is-d 850; aos 1100 ms, a passagem (is-e): a página por baixo entra
+   - A sequência (22 out., ela quis mais tempo): is-a 0 ms, is-b 400, is-c 1300, is-d 2200; aos 3600 ms, a passagem (is-e): a página por baixo entra
      (o menu desliza, a área em cascata) e a marca da abertura desliza (FLIP, Web Animations) até à marca do
-     cabeçalho, que só aparece quando ela lá chega. Aos ≈1,6 s mostra-se o 05 · Início (o mesmo desenho; marca-se
+     cabeçalho, que só aparece quando ela lá chega. Aos ≈4,1 s mostra-se o 05 · Início (o mesmo desenho; marca-se
      erp:sem-entrada para a página não voltar a entrar). Com deep link (#…&para=compras), segue para lá.
    - Antes de passar: sem rede → «Sem ligação». Não há «sessão terminada» aqui: chega-se depois do login (22 out., ela).
      Uma vez por sessão do navegador; depois, só a passagem (≈0,5 s).
@@ -65,10 +65,10 @@ function correr(): void {
   if (editando()) { ab.classList.add(...FASES, 'is-ja'); return; }
   if (quieto() || vista()) { ab.classList.add(...FASES, 'is-ja'); depois(350, passar); return; }
   depois(0, () => ab?.classList.add('is-a'));
-  depois(200, () => ab?.classList.add('is-b'));
-  depois(500, () => ab?.classList.add('is-c'));
-  depois(850, () => ab?.classList.add('is-d'));
-  depois(1100, passar);
+  depois(400, () => ab?.classList.add('is-b'));
+  depois(1300, () => ab?.classList.add('is-c'));
+  depois(2200, () => ab?.classList.add('is-d'));
+  depois(3600, passar);
 }
 function saltar(): void {
   if (!ab || ab.classList.contains('is-e')) return;

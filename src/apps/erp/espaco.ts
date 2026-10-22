@@ -139,7 +139,7 @@ export interface Janela { id: string; tipo: 'fornecedor' | 'artigo'; chave: stri
 export type Banner = '' | 'offline' | 'restaurada' | 'primeira' | 'sem-permissao' | 'navegacao' | 'rota' | 'desconhecido';
 export interface Estado {
   perfil: IdPerfil; seps: Sep[]; ativo: string; pasta: string; sel: string; vista: 'grelha' | 'lista'; fixados: string[]; arvore: Record<string, boolean>;
-  janelas: Janela[]; banner: Banner; bannerTexto?: string; dialogo: string; carga?: 'pasta'; semModulos?: boolean; semRecentes?: boolean; primeira?: boolean; pastaVazia?: boolean; largura: number;
+  janelas: Janela[]; banner: Banner; bannerTexto?: string; dialogo: string; carga?: 'pasta'; rail?: boolean; trabalho?: 'recentes' | 'curso'; casa?: number; semCasa?: boolean; presos?: string[]; semModulos?: boolean; semRecentes?: boolean; primeira?: boolean; pastaVazia?: boolean; largura: number;
 }
 export const novoEstado = (perfil: IdPerfil = 'compras'): Estado => ({ perfil, seps: [], ativo: 'inicio', pasta: 'raiz', sel: '', vista: 'grelha', fixados: ['compras.faltas', 'compras.encomendas'], arvore: { compras: true }, janelas: [], banner: '', dialogo: '', largura: 260 });
 
@@ -161,25 +161,39 @@ export function ficheiro(rota: string, rotulo: string, ic: string, o: { sel?: bo
   </button>`;
 }
 
-/* ---------- a árvore ---------- */
+/* ---------- a árvore (V5): secções, ícones maiores, fixados, e recolhe a um carril de ícones ---------- */
 export function arvore(e: Estado): string {
   const mods = e.semModulos ? [] : modulos(e.perfil).filter((m) => m.ativo);
   const ativoRota = e.seps.find((s) => s.id === e.ativo)?.rota;
-  return `<p class="dk-arv-raiz">${L(appWindow)}ROMAFE ERP</p>
+  const casa = e.ativo === 'inicio' && e.pasta === 'raiz' && !e.semCasa;
+  return `<div class="dk-arv-topo"><p class="dk-arv-emp">${L(appWindow)}<span><b>Romafe, SA</b><small>Armazém 60 · Coimbra</small></span></p><button type="button" class="dk-arv-rail" data-dk-rail aria-label="${e.rail ? 'Expandir o menu' : 'Recolher o menu'}" aria-expanded="${!e.rail}">${L(chevronRight)}</button></div>
   <ul class="dk-arv" role="tree" aria-label="Pastas do ERP">
-    <li role="treeitem" aria-selected="${e.ativo === 'inicio' && e.pasta === 'raiz'}"><button type="button" class="dk-arv-i${e.ativo === 'inicio' && e.pasta === 'raiz' ? ' is-ativo' : ''}" data-dk-ir="raiz">${L(layoutGrid)}<span>Área de trabalho</span></button></li>
-    ${mods.map((m) => { const aberta = !!e.arvore[m.id]; const fs = filhos(m.id, e.perfil); return `<li role="treeitem" aria-expanded="${aberta}">
-      <button type="button" class="dk-arv-i${e.ativo === 'inicio' && e.pasta === m.id ? ' is-ativo' : ''}" data-dk-ir="${m.id}"><span class="dk-arv-seta" data-dk-dobrar="${m.id}" aria-hidden="true">${L(chevronRight)}</span>${icone(m.icone)}<span>${esc(m.rotulo)}</span></button>
-      <ul role="group"${aberta ? '' : ' hidden'}>${fs.map((f) => `<li role="treeitem"><button type="button" class="dk-arv-i dk-arv-f${ativoRota === f.rota ? ' is-ativo' : ''}${!f.registada || !f.permitido ? ' is-off' : ''}" data-dk-abrir="${f.rota}">${icone(f.icone)}<span>${esc(f.rotulo)}</span>${!f.registada ? '<small>em breve</small>' : !f.permitido ? L(lock, 'dk-arv-cad') : ''}</button></li>`).join('')}</ul></li>`; }).join('')}
+    <li role="treeitem" aria-selected="${casa}"><button type="button" class="dk-arv-i${casa ? ' is-ativo' : ''}" data-dk-ir="raiz" title="Área de trabalho">${L(layoutGrid)}<span>Área de trabalho</span></button></li>
   </ul>
-  ${e.semModulos ? '' : `<details class="dk-arv-antigo"><summary>Ainda no ERP antigo <span>${modulos(e.perfil).filter((m) => !m.ativo).length}</span></summary><ul>${modulos(e.perfil).filter((m) => !m.ativo).map((m) => `<li>${icone(m.icone)}${esc(m.rotulo)}</li>`).join('')}</ul></details>`}`;
+  ${mods.length ? `<p class="dk-arv-h">Módulos</p>` : ''}
+  <ul class="dk-arv" role="tree" aria-label="Módulos">
+    ${mods.map((m) => { const aberta = !!e.arvore[m.id]; const fs = filhos(m.id, e.perfil); return `<li role="treeitem" aria-expanded="${aberta}">
+      <button type="button" class="dk-arv-i${e.ativo === 'inicio' && e.pasta === m.id ? ' is-ativo' : ''}" data-dk-ir="${m.id}" title="${esc(m.rotulo)}">${icone(m.icone)}<span>${esc(m.rotulo)}</span><span class="dk-arv-seta" data-dk-dobrar="${m.id}" aria-hidden="true">${L(chevronRight)}</span></button>
+      <ul role="group" class="dk-arv-sub"${aberta ? '' : ' hidden'}>${fs.map((f) => `<li role="treeitem"><button type="button" class="dk-arv-i dk-arv-f${ativoRota === f.rota ? ' is-ativo' : ''}${!f.registada || !f.permitido ? ' is-off' : ''}" data-dk-abrir="${f.rota}" title="${esc(f.rotulo)}"><span>${esc(f.rotulo)}</span>${!f.registada ? '<small>em breve</small>' : !f.permitido ? L(lock, 'dk-arv-cad') : ''}</button></li>`).join('')}</ul></li>`; }).join('')}
+  </ul>
+  ${e.fixados.length && mods.length ? `<p class="dk-arv-h">Fixados</p><ul class="dk-arv" role="tree" aria-label="Fixados">${e.fixados.filter((r) => ROTAS[r]).map((r) => `<li role="treeitem"><button type="button" class="dk-arv-i${ativoRota === r ? ' is-ativo' : ''}" data-dk-atalho="${r}" title="${esc(ROTAS[r].titulo)}">${icone(ROTAS[r].icone)}<span>${esc(ROTAS[r].titulo)}</span></button></li>`).join('')}</ul>` : ''}`;
 }
 
 /* ---------- os separadores ---------- */
+/** A ordem dos separadores: a área de trabalho também se mexe, fixa e fecha (22 out.); os fixados vão à frente. */
+export function ordemSeps(e: Estado): string[] {
+  const ids = e.seps.map((s) => s.id);
+  if (!e.semCasa) ids.splice(Math.min(e.casa ?? 0, ids.length), 0, 'inicio');
+  const presos = e.presos ?? [];
+  return [...ids.filter((i) => presos.includes(i)), ...ids.filter((i) => !presos.includes(i))];
+}
 export function separadores(e: Estado): string {
-  const sep = (id: string, titulo: string, ic: string, fixo = false, sujo = false) => `<div class="dk-sep${e.ativo === id ? ' is-ativo' : ''}${sujo ? ' is-sujo' : ''}" role="tab" aria-selected="${e.ativo === id}" tabindex="${e.ativo === id ? 0 : -1}" data-dk-sep="${id}"${fixo ? '' : ' draggable="true"'} title="${esc(titulo)}">
-    ${icone(ic, 'dk-sep-ic')}<span class="dk-sep-t">${esc(titulo)}</span>${sujo ? '<i class="dk-sep-sujo" aria-label="Alterações por guardar"></i>' : ''}${fixo ? '' : `<button type="button" class="dk-sep-x" data-dk-fechar="${id}" aria-label="Fechar ${esc(titulo)}">${L(x)}</button>`}</div>`;
-  return sep('inicio', 'Área de trabalho', 'layout-grid', true) + e.seps.map((s) => sep(s.id, s.titulo, ROTAS[s.rota]?.icone ?? 'file', false, !!s.sujo)).join('');
+  const sep = (id: string, titulo: string, ic: string, sujo = false) => {
+    const preso = (e.presos ?? []).includes(id);
+    return `<div class="dk-sep${e.ativo === id ? ' is-ativo' : ''}${sujo ? ' is-sujo' : ''}${preso ? ' is-preso' : ''}" role="tab" aria-selected="${e.ativo === id}" tabindex="${e.ativo === id ? 0 : -1}" data-dk-sep="${id}" draggable="true" title="${esc(titulo)}">
+    ${icone(ic, 'dk-sep-ic')}<span class="dk-sep-t">${esc(titulo)}</span>${sujo ? '<i class="dk-sep-sujo" aria-label="Alterações por guardar"></i>' : ''}<button type="button" class="dk-sep-pin" data-dk-prender="${id}" aria-pressed="${preso}" aria-label="${preso ? 'Desafixar' : 'Fixar'} ${esc(titulo)}" title="${preso ? 'Desafixar o separador' : 'Fixar o separador'} (Alt P)">${L(preso ? pinOff : pin)}</button>${preso ? '' : `<button type="button" class="dk-sep-x" data-dk-fechar="${id}" aria-label="Fechar ${esc(titulo)}" title="Fechar (Alt W)">${L(x)}</button>`}</div>`;
+  };
+  return ordemSeps(e).map((id) => { if (id === 'inicio') return sep('inicio', 'Área de trabalho', 'layout-grid'); const s = e.seps.find((y) => y.id === id)!; return sep(s.id, s.titulo, ROTAS[s.rota]?.icone ?? 'file', !!s.sujo); }).join('');
 }
 
 /* ---------- a barra de ações (muda com o separador) ---------- */
@@ -187,76 +201,109 @@ const NOME_ACAO: Record<Acao, [string, string]> = { novo: ['Novo', plus], editar
 export function acoes(e: Estado): string {
   const off = e.banner === 'offline' ? ' disabled' : '';
   const btn = (k: string, t: string, ic: string, tecla = '', extra = '') => `<button type="button" class="dk-acao" data-dk-acao="${k}"${extra}${off && k !== 'atualizar' ? '' : ''}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
+  if (e.ativo === 'inicio' && e.semCasa) return '';
   if (e.ativo === 'inicio') {
     const r = e.sel && ROTAS[e.sel], fixado = !!e.sel && e.fixados.includes(e.sel);
     return `${e.pasta !== 'raiz' ? btn('voltar', 'Voltar', arrowLeft, 'Alt ←') : ''}
       ${btn('abrir', 'Abrir', folderOpen, 'Enter', e.sel ? '' : ' disabled')}
-      ${btn('fixar', fixado ? 'Desafixar' : 'Fixar no acesso rápido', fixado ? pinOff : pin, '', r ? '' : ' disabled')}
+      ${btn('fixar', fixado ? 'Desafixar' : 'Fixar no acesso rápido', fixado ? pinOff : pin, 'Ctrl D', r ? '' : ' disabled')}
       ${btn('atualizar', 'Atualizar', rotateCw, 'F9')}
-      <span class="dk-acoes-sep"></span>
-      <div class="dk-vista" role="group" aria-label="Vista"><button type="button" data-dk-vista="grelha" aria-pressed="${e.vista === 'grelha'}" aria-label="Ícones">${L(layoutGrid)}</button><button type="button" data-dk-vista="lista" aria-pressed="${e.vista === 'lista'}" aria-label="Lista">${L(list)}</button></div>
-      <button type="button" class="dk-paleta-btn" data-dk-paleta>${L(search)}<span>Procurar ou executar…</span><kbd>Ctrl K</kbd></button>`;
+`;
   }
   const s = e.seps.find((x) => x.id === e.ativo); const r = s && ROTAS[s.rota];
   if (!r) return '';
   return `${r.acoes.map((a) => btn(a, NOME_ACAO[a][0], NOME_ACAO[a][1], TECLA[a], off && a !== 'atualizar' && a !== 'imprimir' ? ' disabled' : '')).join('')}
     <span class="dk-acoes-mais"><button type="button" class="dk-acao" data-dk-acao="mais" aria-haspopup="menu" aria-expanded="false">${L(ellipsis)}<span>Mais ações</span></button>
       <div class="dk-menu" data-dk-menu-mais role="menu" hidden>
-        <button type="button" role="menuitem" data-dk-acao="fixar-sep">${L(pin)}${e.fixados.includes(s!.rota) ? 'Desafixar do acesso rápido' : 'Fixar no acesso rápido'}</button>
+        <button type="button" role="menuitem" data-dk-acao="fixar-sep">${L(pin)}${e.fixados.includes(s!.rota) ? 'Desafixar do acesso rápido' : 'Fixar no acesso rápido'}<kbd>Ctrl D</kbd></button>
+        <button type="button" role="menuitem" data-dk-prender="${s!.id}">${L((e.presos ?? []).includes(s!.id) ? pinOff : pin)}${(e.presos ?? []).includes(s!.id) ? 'Desafixar o separador' : 'Fixar o separador'}<kbd>Alt P</kbd></button>
         <button type="button" role="menuitem" data-dk-acao="duplicar">${L(appWindow)}Abrir noutro separador</button>
         <button type="button" role="menuitem" data-dk-acao="externo">${L(externalLink)}Abrir numa janela do navegador</button>
         <button type="button" role="menuitem" data-dk-acao="fechar-outros">${L(x)}Fechar os outros separadores</button>
-      </div></span>
-    <button type="button" class="dk-paleta-btn" data-dk-paleta>${L(search)}<span>Procurar ou executar…</span><kbd>Ctrl K</kbd></button>`;
+      </div></span>`;
 }
 
-/* ---------- o explorador ---------- */
-function recentes(e: Estado): string {
-  const rec = e.semRecentes || e.primeira ? [] : RECENTES[e.perfil] ?? [];
-  if (!rec.length) return `<p class="dk-vazio">${L(history)}${e.primeira ? 'Ainda não abriste nada. O que abrires aparece aqui.' : 'Sem recentes. Os documentos que abrires aparecem aqui.'}</p>`;
-  return `<ul class="dk-linhas">${rec.slice(0, 5).map((r, i) => {
-    const alvo = r.tipo === 'registo' ? `data-dk-janela="fornecedor:${(FORNECEDORES.find((f) => r.titulo.includes(f.nome.split(' ')[0]))?.id ?? 'trw')}"` : r.tipo === 'pesquisa' ? `data-dk-paleta="${esc(r.procura ?? '')}"` : r.doc ? `data-dk-doc="compras.encomenda" data-dk-titulo="${esc(r.doc)}"` : 'data-dk-abrir="compras.encomendas"';
-    const ic = r.tipo === 'registo' ? users : r.tipo === 'pesquisa' ? search : r.tipo === 'espaco' ? pin : fileText;
-    return `<li style="--i:${i}"><button type="button" class="dk-linha" ${alvo}>${L(ic, 'dk-linha-ic')}<span class="dk-linha-t"><b>${esc(r.titulo)}</b><small>${esc(r.sub)}</small></span><span class="dk-linha-q">${esc(r.quando)}</span></button></li>`;
-  }).join('')}</ul>`;
+/* ---------- o explorador (V5) ---------- */
+/** O que cada módulo faz (uma linha) e o tipo de cada ecrã — para não serem todos o mesmo ícone de ficheiro. */
+const DESCR: Record<string, string> = { compras: 'Encomendas a fornecedor, receções, fornecedores, requisições, cotações e a lista de faltas.' };
+const TIPO: Record<string, [string, string]> = {
+  'compras.faltas': ['Análise', 'O que está em rutura e o que comprar'], 'compras.encomendas': ['Lista', 'Encomendas a fornecedor, por estado'], 'compras.fornecedores': ['Registos', 'Fichas, condições e desempenho'],
+  'compras.requisicoes': ['Lista', 'Pedidos internos de compra'], 'compras.cotacoes': ['Comparação', 'Propostas lado a lado'], 'compras.rececoes': ['Operação', 'O que chegou ao armazém'], 'compras.devolucoes': ['Lista', 'Ainda no ERP antigo'],
+};
+/** A pasta grande (V5): o fundo com a aba, as folhas que espreitam e a frente que se levanta. */
+function pastaArte(ic: string, cls = ''): string {
+  return `<span class="dk-arte${cls ? ` ${cls}` : ''}" aria-hidden="true"><svg viewBox="0 0 160 120"><path class="dk-p-fundo" d="M10 16a8 8 0 0 1 8-8h40a8 8 0 0 1 6 2.8L74 22h68a8 8 0 0 1 8 8v74a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8Z"/><rect class="dk-p-folha dk-p-folha--2" x="26" y="22" width="108" height="56" rx="3"/><rect class="dk-p-folha" x="20" y="28" width="120" height="56" rx="3"/><path class="dk-p-frente" d="M4 44a8 8 0 0 1 8-8h136a8 8 0 0 1 8 8l-4.4 60a8 8 0 0 1-8 7.4H16.4a8 8 0 0 1-8-7.4Z"/></svg>${icone(ic, 'dk-arte-ic')}</span>`;
 }
-function emCurso(e: Estado): string {
-  const l = e.primeira ? [] : encomendas().filter((x) => x.estado === 'Rascunho' || x.estado === 'A aprovar').slice(0, 4);
-  if (!l.length) return `<p class="dk-vazio">${L(fileClock)}Nada em curso.</p>`;
-  return `<ul class="dk-linhas">${l.map((x, i) => { const f = FORNECEDORES.find((ff) => ff.id === x.forn); return `<li style="--i:${i}"><button type="button" class="dk-linha" data-dk-doc="compras.encomenda" data-dk-titulo="${esc(x.ref)}">${L(fileClock, 'dk-linha-ic')}<span class="dk-linha-t"><b>${esc(x.ref)} · ${esc(f?.nome ?? x.forn)}</b><small>${esc(x.estado)} · ${x.linhas.length} linhas</small></span><span class="dk-linha-q dk-estado dk-estado--${x.estado === 'Rascunho' ? 'rasc' : 'aprov'}">${esc(x.estado)}</span></button></li>`; }).join('')}</ul>`;
+function modulo(m: LinhaMenu, e: Estado, i: number): string {
+  const fs = filhos(m.id, e.perfil).filter((f) => f.registada && f.permitido);
+  const l = encomendas();
+  const n = m.id === 'compras' ? [[l.filter((x) => x.estado === 'A aprovar').length, 'por aprovar'], [l.filter((x) => ['Aprovada', 'Emitida', 'Parcialmente recebida'].includes(x.estado)).length, 'em curso'], [l.filter((x) => x.estado === 'Rascunho').length, 'rascunhos']] as [number, string][] : [];
+  return `<article class="dk-mod${e.sel === m.id ? ' is-sel' : ''}" style="--i:${i}">
+    <button type="button" class="dk-mod-abrir" data-dk-pasta="${m.id}" aria-selected="${e.sel === m.id}" aria-describedby="dk-mod-d-${m.id}">${pastaArte(m.icone)}<span class="dk-mod-t"><small>Módulo</small><b>${esc(m.rotulo)}</b></span></button>
+    <p class="dk-mod-d" id="dk-mod-d-${m.id}">${esc(DESCR[m.id] ?? '')}</p>
+    ${n.length ? `<dl class="dk-mod-n">${n.map(([v, t]) => `<div><dd>${v}</dd><dt>${t}</dt></div>`).join('')}</dl>` : ''}
+    <div class="dk-mod-ecras">${fs.map((f) => `<button type="button" class="dk-chip" data-dk-atalho="${f.rota}">${icone(f.icone)}${esc(f.rotulo)}</button>`).join('')}</div>
+    <button type="button" class="dk-mod-cta" data-dk-pasta-abrir="${m.id}">Abrir ${esc(m.rotulo)}${L(chevronRight)}</button>
+  </article>`;
+}
+function trabalho(e: Estado): string {
+  const aba = e.trabalho ?? 'recentes';
+  const rec = e.semRecentes || e.primeira ? [] : RECENTES[e.perfil] ?? [];
+  const cur = e.primeira ? [] : encomendas().filter((x) => x.estado === 'Rascunho' || x.estado === 'A aprovar').slice(0, 5);
+  const linha = (i: number, ic: string, ref: string, ent: string, estado: string, quando: string, alvo: string, tom = '') => `<li style="--i:${i}"><button type="button" class="dk-tl" ${alvo}>${L(ic, 'dk-tl-ic')}<span class="dk-tl-ref">${esc(ref)}</span><span class="dk-tl-ent">${esc(ent)}</span><span class="dk-tl-est${tom ? ` dk-tl-est--${tom}` : ''}">${esc(estado)}</span><span class="dk-tl-q">${esc(quando)}</span><span class="dk-tl-acao">Abrir${L(chevronRight)}</span></button></li>`;
+  const corpo = aba === 'recentes'
+    ? (rec.length ? `<ul class="dk-tls">${rec.slice(0, 5).map((r, i) => {
+        const alvo = r.tipo === 'registo' ? `data-dk-janela="fornecedor:${(FORNECEDORES.find((f) => r.titulo.includes(f.nome.split(' ')[0]))?.id ?? 'trw')}"` : r.tipo === 'pesquisa' ? `data-dk-paleta="${esc(r.procura ?? '')}"` : r.doc ? `data-dk-doc="compras.encomenda" data-dk-titulo="${esc(r.doc)}"` : 'data-dk-atalho="compras.encomendas"';
+        const ic = r.tipo === 'registo' ? users : r.tipo === 'pesquisa' ? search : r.tipo === 'espaco' ? pin : fileText;
+        const [ref, ent] = r.titulo.includes(' · ') ? r.titulo.split(' · ') : [r.titulo, ''];
+        return linha(i, ic, ref, ent || r.sub.split(' · ')[0], r.sub.split(' · ').slice(ent ? 0 : 1).join(' · ') || r.tipo, r.quando, alvo);
+      }).join('')}</ul>` : `<p class="dk-vazio">${L(history)}${e.primeira ? 'Ainda não abriste nada. O que abrires aparece aqui.' : 'Sem recentes. Os documentos que abrires aparecem aqui.'}</p>`)
+    : (cur.length ? `<ul class="dk-tls">${cur.map((x, i) => linha(i, fileClock, x.ref, FORNECEDORES.find((f) => f.id === x.forn)?.nome ?? x.forn, x.estado, `${x.linhas.length} linhas`, `data-dk-doc="compras.encomenda" data-dk-titulo="${esc(x.ref)}"`, x.estado === 'Rascunho' ? 'rasc' : 'aprov')).join('')}</ul>` : `<p class="dk-vazio">${L(fileClock)}Nada em curso.</p>`);
+  return `<section class="dk-sec dk-trab" aria-labelledby="dk-tr-t"><div class="dk-sec-cab"><h2 id="dk-tr-t">O teu trabalho</h2>
+    <div class="dk-seg" role="tablist" aria-label="O teu trabalho"><button type="button" role="tab" aria-selected="${aba === 'recentes'}" data-dk-trab="recentes">${L(history)}Recentes <span>${rec.length}</span></button><button type="button" role="tab" aria-selected="${aba === 'curso'}" data-dk-trab="curso">${L(fileClock)}Em curso <span>${cur.length}</span></button></div></div>
+    ${corpo}</section>`;
+}
+function rapido(e: Estado): string {
+  const l = e.fixados.filter((r) => ROTAS[r]);
+  return `<section class="dk-sec dk-rapido" aria-labelledby="dk-ac-t"><div class="dk-sec-cab"><h2 id="dk-ac-t">Acesso rápido</h2></div>
+    ${l.length ? `<ul class="dk-atalhos">${l.map((r, i) => `<li style="--i:${i}"><button type="button" class="dk-atalho" data-dk-atalho="${r}"><span class="dk-atalho-ic">${icone(ROTAS[r].icone)}</span><span class="dk-atalho-t"><b>${esc(ROTAS[r].titulo)}</b><small>Compras</small></span>${L(chevronRight, 'dk-atalho-seta')}</button><button type="button" class="dk-atalho-pin" data-dk-desafixar="${r}" aria-label="Desafixar ${esc(ROTAS[r].titulo)}" title="Desafixar">${L(pinOff)}</button></li>`).join('')}</ul>`
+    : `<p class="dk-vazio">${L(pin)}Fixa aqui os ecrãs que usas mais: abre a pasta, escolhe um e «Fixar».</p>`}
+  </section>`;
 }
 export function explorador(e: Estado): string {
   const p = PERFIS[e.perfil];
   const raiz = e.pasta === 'raiz';
   const mod = !raiz ? MENU_ERP.find((l) => l.id === e.pasta && !l.pai) : undefined;
-  const cab = `<header class="dk-exp-cab">
-    <button type="button" class="dk-voltar" data-dk-acao="voltar" aria-label="Voltar"${raiz ? ' disabled' : ''}>${L(arrowLeft)}</button>
-    <nav class="dk-migalhas" aria-label="Onde estou"><button type="button" data-dk-ir="raiz">ROMAFE ERP</button>${L(chevronRight)}<button type="button" data-dk-ir="raiz"${raiz ? ' aria-current="page"' : ''}>Início</button>${mod ? `${L(chevronRight)}<span aria-current="page">${esc(mod.rotulo)}</span>` : ''}</nav>
-  </header>`;
   if (raiz) {
-    const mods = e.semModulos ? [] : modulos(e.perfil);
-    return `${cab}<div class="dk-exp dk-exp--raiz" data-vista="${e.vista}">
-      <div class="dk-titulo"><h1>Área de trabalho</h1><p>Os teus módulos, documentos e tarefas · ${esc(p.pessoa)}, ${esc(p.cargo)}</p></div>
-      <section class="dk-sec" aria-labelledby="dk-mod-t"><h2 id="dk-mod-t">Módulos</h2>
-        ${mods.length ? `<div class="dk-grelha dk-grelha--pastas">${mods.map((m, i) => pasta(m.id, m.rotulo, m.icone, { inativo: !m.ativo, sel: e.sel === m.id, i })).join('')}</div>`
-        : `<p class="dk-vazio dk-vazio--grande">${L(shieldX)}<span><b>A tua conta ainda não tem módulos do ERP.</b>Pede o acesso ao administrador da tua empresa.</span></p>`}
-      </section>
-      ${mods.length ? `<section class="dk-sec" aria-labelledby="dk-ac-t"><h2 id="dk-ac-t">Acesso rápido</h2>
-        ${e.fixados.length ? `<div class="dk-grelha">${e.fixados.filter((r) => ROTAS[r]).map((r, i) => ficheiro(r, ROTAS[r].titulo, ROTAS[r].icone, { sel: e.sel === r, i, sub: 'Compras' })).join('')}</div>` : `<p class="dk-vazio">${L(pin)}Fixa aqui os ecrãs que usas mais: escolhe um e «Fixar no acesso rápido».</p>`}
-      </section>
-      <div class="dk-duas">
-        <section class="dk-sec" aria-labelledby="dk-re-t"><h2 id="dk-re-t">Recentes</h2>${recentes(e)}</section>
-        <section class="dk-sec" aria-labelledby="dk-ec-t"><h2 id="dk-ec-t">Em curso</h2>${emCurso(e)}</section>
-      </div>` : ''}
+    const todos = e.semModulos ? [] : modulos(e.perfil), ativos = todos.filter((m) => m.ativo), prep = todos.filter((m) => !m.ativo);
+    return `<div class="dk-exp dk-exp--raiz" data-vista="${e.vista}">
+      <div class="dk-titulo dk-titulo--raiz"><h1>Área de trabalho</h1><p>Os teus módulos, documentos e tarefas · ${esc(p.pessoa)}, ${esc(p.cargo)}</p></div>
+      ${ativos.length ? `<div class="dk-palco">
+        <section class="dk-sec dk-mods-sec" aria-labelledby="dk-mod-t"><div class="dk-sec-cab"><h2 id="dk-mod-t">Módulos</h2></div><div class="dk-mods">${ativos.map((m, i) => modulo(m, e, i)).join('')}</div></section>
+        ${rapido(e)}
+      </div>
+      ${trabalho(e)}
+      ${prep.length ? `<p class="dk-prep"><span>${L(lock)}Em preparação — continuam no ERP antigo:</span>${prep.map((m) => `<span class="dk-prep-i" title="Ainda no ERP antigo">${icone(m.icone)}${esc(m.rotulo)}</span>`).join('')}</p>` : ''}`
+      : `<p class="dk-vazio dk-vazio--grande">${L(shieldX)}<span><b>A tua conta ainda não tem módulos do ERP.</b>Pede o acesso ao administrador da tua empresa.</span></p>`}
     </div>`;
   }
+  const cab = `<header class="dk-exp-cab">
+    <button type="button" class="dk-voltar" data-dk-acao="voltar" aria-label="Voltar à área de trabalho">${L(arrowLeft)}</button>
+    <nav class="dk-migalhas" aria-label="Onde estou"><button type="button" data-dk-ir="raiz">Área de trabalho</button>${L(chevronRight)}<span aria-current="page">${esc(mod?.rotulo ?? e.pasta)}</span></nav>
+  </header>`;
   const fs = e.pastaVazia ? [] : filhos(e.pasta, e.perfil);
   const sel = fs.find((f) => f.rota === e.sel);
+  const docs = e.pastaVazia || e.carga ? [] : encomendas().slice(0, 4);
+  const vistas = (RECENTES[e.perfil] ?? []).filter((r) => r.tipo === 'espaco');
   return `${cab}<div class="dk-exp dk-exp--pasta" data-vista="${e.vista}">
-    <div class="dk-titulo dk-titulo--pasta">${pasta(e.pasta, mod?.rotulo ?? e.pasta, mod?.icone ?? 'file', {})}<div><h1>${esc(mod?.rotulo ?? e.pasta)}</h1><p>${e.carga === 'pasta' ? 'A abrir a pasta…' : `${fs.filter((f) => f.registada && f.permitido).length} ecrãs disponíveis`}</p></div></div>
-    ${e.carga === 'pasta' ? `<div class="dk-grelha">${Array.from({ length: 6 }, () => '<span class="dk-esq"></span>').join('')}</div>`
-    : fs.length ? `<div class="dk-grelha">${fs.map((f, i) => ficheiro(f.rota!, f.rotulo, f.icone, { sel: e.sel === f.rota, i, estado: !f.registada ? 'sem-rota' : !f.permitido ? 'sem-permissao' : undefined })).join('')}</div>
-      <p class="dk-detalhe" aria-live="polite">${sel ? `${icone(sel.icone)}<b>${esc(sel.rotulo)}</b><span>${sel.registada && sel.permitido ? 'Enter ou duplo clique abre num separador' : sel.registada ? 'A tua conta não tem acesso a este ecrã' : 'Este ecrã ainda não existe no ERP novo'}</span>` : `${L(folderOpen)}<span>Escolhe um ecrã. Enter ou duplo clique abre-o num separador.</span>`}</p>`
+    <div class="dk-titulo dk-titulo--pasta">${pastaArte(mod?.icone ?? 'file', 'is-aberta')}<div><h1>${esc(mod?.rotulo ?? e.pasta)}</h1><p>${e.carga === 'pasta' ? 'A abrir a pasta…' : `${fs.filter((f) => f.registada && f.permitido).length} ecrãs disponíveis · ${esc(DESCR[e.pasta] ?? '')}`}</p></div></div>
+    ${e.carga === 'pasta' ? `<div class="dk-grelha dk-grelha--ecras">${Array.from({ length: 6 }, () => '<span class="dk-esq"></span>').join('')}</div>`
+    : fs.length ? `<section class="dk-sec"><div class="dk-sec-cab"><h2>Ecrãs</h2></div><div class="dk-grelha dk-grelha--ecras">${fs.map((f, i) => { const est = !f.registada ? 'sem-rota' : !f.permitido ? 'sem-permissao' : ''; const [tipo, d] = TIPO[f.rota!] ?? ['Ecrã', '']; return `<button type="button" class="dk-ecra${est ? ` is-${est}` : ''}" data-dk-abrir="${f.rota}" aria-selected="${e.sel === f.rota}" style="--i:${i}"${est ? ' aria-disabled="true"' : ''}><span class="dk-ecra-ic">${icone(f.icone)}</span><span class="dk-ecra-t"><small>${est === 'sem-rota' ? 'Ainda sem ecrã' : est ? 'Sem permissão' : tipo}</small><b>${esc(f.rotulo)}</b><span>${esc(d)}</span></span>${est ? L(lock, 'dk-ecra-cad') : L(chevronRight, 'dk-ecra-seta')}</button>`; }).join('')}</div></section>
+      <p class="dk-detalhe" aria-live="polite">${sel ? `${icone(sel.icone)}<b>${esc(sel.rotulo)}</b><span>${sel.registada && sel.permitido ? 'Enter ou duplo clique abre num separador' : sel.registada ? 'A tua conta não tem acesso a este ecrã' : 'Este ecrã ainda não existe no ERP novo'}</span>` : `${L(folderOpen)}<span>Escolhe um ecrã. Enter ou duplo clique abre-o num separador.</span>`}</p>
+      <div class="dk-duas">
+        ${vistas.length ? `<section class="dk-sec"><div class="dk-sec-cab"><h2>Vistas guardadas</h2></div><ul class="dk-tls">${vistas.map((v, i) => `<li style="--i:${i}"><button type="button" class="dk-tl" data-dk-atalho="compras.encomendas">${L(pin, 'dk-tl-ic')}<span class="dk-tl-ref">${esc(v.titulo.split(' · ')[1] ?? v.titulo)}</span><span class="dk-tl-ent">${esc(v.titulo.split(' · ')[0])}</span><span class="dk-tl-est">Vista</span><span class="dk-tl-q">${esc(v.quando)}</span><span class="dk-tl-acao">Abrir${L(chevronRight)}</span></button></li>`).join('')}</ul></section>` : ''}
+        <section class="dk-sec"><div class="dk-sec-cab"><h2>Documentos recentes</h2></div><ul class="dk-tls">${docs.map((x, i) => `<li style="--i:${i}"><button type="button" class="dk-tl" data-dk-doc="compras.encomenda" data-dk-titulo="${esc(x.ref)}">${L(fileText, 'dk-tl-ic')}<span class="dk-tl-ref">${esc(x.ref)}</span><span class="dk-tl-ent">${esc(FORNECEDORES.find((f) => f.id === x.forn)?.nome ?? x.forn)}</span><span class="dk-tl-est">${esc(x.estado)}</span><span class="dk-tl-q">${x.linhas.length} linhas</span><span class="dk-tl-acao">Abrir${L(chevronRight)}</span></button></li>`).join('')}</ul></section>
+      </div>`
     : `<p class="dk-vazio dk-vazio--grande">${L(folderOpen)}<span><b>Esta pasta está vazia.</b>Ainda não há ecrãs neste módulo para a tua conta.</span></p>`}
   </div>`;
 }
@@ -333,11 +380,15 @@ export function menuConta(e: Estado): string {
 /* =========================================================
    A página
    ========================================================= */
+/** Fechou-se tudo, até a área de trabalho: um vazio que diz como voltar. */
+export function semSeparadores(): string {
+  return `<div class="dk-nada">${icone('layout-grid')}<h1>Sem separadores abertos</h1><p>Abre a área de trabalho, um ecrã do menu à esquerda ou procura com Ctrl K.</p><button type="button" class="dk-mod-cta" data-dk-casa>${L(chevronRight)}Abrir a área de trabalho</button></div>`;
+}
 export function corpoEspaco(e: Estado): string {
   return `<div class="dk-acoes sh-r" style="--r:1" role="toolbar" aria-label="Ações" data-dk-acoes>${acoes(e)}</div>
     <div data-dk-banner>${banner(e)}</div>
     <div class="dk-paineis" data-dk-paineis>
-      <section class="dk-painel${e.ativo === 'inicio' ? ' is-ativo' : ''}" data-painel="inicio" role="tabpanel" aria-label="Área de trabalho"><div class="sh-r" style="--r:2" data-dk-exp>${explorador(e)}</div></section>
+      <section class="dk-painel${e.ativo === 'inicio' ? ' is-ativo' : ''}" data-painel="inicio" role="tabpanel" aria-label="Área de trabalho"><div class="sh-r" style="--r:2" data-dk-exp>${e.semCasa ? semSeparadores() : explorador(e)}</div></section>
       ${e.seps.map((s) => `<section class="dk-painel${e.ativo === s.id ? ' is-ativo' : ''}" data-painel="${s.id}" role="tabpanel" aria-label="${esc(s.titulo)}"><div class="dk-carga"><span></span>A abrir ${esc(s.titulo)}…</div></section>`).join('')}
     </div>
     <div class="dk-janelas" data-dk-janelas data-por-cima>${e.janelas.map((j) => janela(j, j.z === Math.max(...e.janelas.map((y) => y.z)))).join('')}</div>
@@ -348,8 +399,8 @@ export function paginaEspaco(e: Estado = novoEstado(), extra = '', cen = 'normal
   ${topoErp([['Área de trabalho', '']], false, e.perfil)
     .replace('<header class="hm-topo">', `<header class="hm-topo dk-topo"><button type="button" class="sh-menu-movel" data-sh-movel aria-label="Abrir as pastas">${L(list)}</button>`)
     .replace(/<nav class="hm-caminho"[\s\S]*?<\/nav>/, `<div class="dk-barra sh-r" style="--r:0"><div class="dk-seps" role="tablist" aria-label="Separadores abertos" data-dk-seps>${separadores(e)}</div><i class="dk-seps-ind" data-dk-seps-ind aria-hidden="true"></i></div>`)
-    .replace(/<label class="hm-procura">[\s\S]*?<\/label>/, '')}
-  <div class="sh-corpo dk-corpo" style="--sh-lado:${e.largura}px">
+    .replace(/<label class="hm-procura">[\s\S]*?<\/label>/, `<button type="button" class="dk-procura" data-dk-paleta>${L(search)}<span>Procurar ou executar…</span><kbd>Ctrl K</kbd></button>`)}
+  <div class="sh-corpo dk-corpo${e.rail ? ' is-rail' : ''}" style="--sh-lado:${e.rail ? 72 : e.largura}px">
     <nav class="sh-lado dk-arvore" aria-label="Pastas" data-dk-arvore>${arvore(e)}</nav>
     <i class="dk-puxador" data-dk-puxador aria-hidden="true"></i>
     <main class="dk" data-dk data-dk-cenario="${cen}" data-dk-estado="${esc(JSON.stringify(e))}">${corpoEspaco(e)}</main>
