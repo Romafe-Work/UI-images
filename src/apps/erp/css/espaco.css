@@ -454,3 +454,7 @@
 [data-theme="dark"] .dk-cartao { border-color: var(--k-borda-forte); } [data-theme="dark"] .dk-cartao kbd { border-color: var(--k-borda-forte); background: var(--k-sup-2); color: var(--k-tinta); } [data-theme="dark"] .dk-cartao small { color: var(--k-tinta-3); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dk-cartao { border-color: var(--k-borda-forte); } :root:not([data-theme="light"]) .dk-cartao kbd { border-color: var(--k-borda-forte); background: var(--k-sup-2); color: var(--k-tinta); } :root:not([data-theme="light"]) .dk-cartao small { color: var(--k-tinta-3); } }
 @media (max-width: 560px) { .dk-cartoes { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } .dk-cartao { width: auto; } }
+/* (22 out., ela) os separadores começam onde começa a área de trabalho, à direita do menu lateral: a marca ocupa a largura do menu */
+.dk-topo:not(.dk6-topo) { padding-left: 0; }
+.dk-topo:not(.dk6-topo) .hm-marca { box-sizing: border-box; min-width: calc(var(--dk-lado, 260px) - 20px); padding-left: clamp(16px, 2.5vw, 32px); }
+@media (max-width: 900px) { .dk-topo:not(.dk6-topo) .hm-marca { min-width: 0; } }

@@ -59,6 +59,8 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-dialogo]', dialogo(e));
   paineis(); indicador(); guardar();
 }
+/** A largura do menu lateral (v4): o corpo e o cabeçalho, para os separadores começarem onde começa a área (22 out.). */
+function lado(): void { const w = `${e.rail ? 72 : e.largura}px`; $('.dk-corpo')?.style.setProperty('--sh-lado', w); $('.dk-topo')?.style.setProperty('--dk-lado', w); }
 function indicador(): void {
   const a = $('.dk-sep.is-ativo'), ind = $('[data-dk-seps-ind]'), barra = $('.dk-barra');
   if (!a || !ind || !barra) return;
@@ -380,7 +382,7 @@ function armar(): void {
   if (normal && h.get('abrir')) abrirRota(h.get('abrir')!);
   if (normal && h.get('pasta')) { const id = h.get('pasta')!; if (MENU_ERP.some((l) => l.id === id && !l.pai && l.ativo)) { e.pasta = id; e.arvore[id] = true; } else { e.banner = 'desconhecido'; e.bannerTexto = `O módulo «${id}» não existe no ERP. Abrimos a área de trabalho.`; } }
   if (normal && !navigator.onLine) e.banner = 'offline';
-  const c = p.querySelector<HTMLElement>('.dk-corpo'); c?.style.setProperty('--sh-lado', `${e.rail ? 72 : e.largura}px`); c?.classList.toggle('is-rail', !!e.rail);
+  p.querySelector<HTMLElement>('.dk-corpo')?.classList.toggle('is-rail', !!e.rail); lado();
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
   p.querySelectorAll<HTMLElement>('[data-dk-tema]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dkTema === t)));
   desenhar();
@@ -468,7 +470,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dk-desafixar]'))) { const r = b.dataset.dkDesafixar!; e.fixados = e.fixados.filter((x) => x !== r); dizer(`«${ROTAS[r]?.titulo ?? r}» saiu do acesso rápido.`); desenhar(); return; }
     if ((b = t.closest('[data-dk-pasta-abrir]'))) { const id = b.dataset.dkPastaAbrir!; abrirPasta(id, $(`[data-dk-pasta="${id}"]`)); return; }
     if ((b = t.closest('[data-dk-trab]'))) { e.trabalho = b.dataset.dkTrab as Estado['trabalho']; desenhar(); $<HTMLElement>(`[data-dk-trab="${e.trabalho}"]`)?.focus(); return; }
-    if (t.closest('[data-dk-rail]')) { e.rail = !e.rail; const c = $('.dk-corpo'); c?.classList.toggle('is-rail', e.rail); c?.style.setProperty('--sh-lado', `${e.rail ? 72 : e.largura}px`); desenhar({ exp: false }); return; }
+    if (t.closest('[data-dk-rail]')) { e.rail = !e.rail; $('.dk-corpo')?.classList.toggle('is-rail', e.rail); lado(); desenhar({ exp: false }); return; }
     if ((b = t.closest('[data-dk-janela]'))) { const [tipo, chave] = b.dataset.dkJanela!.split(':'); abrirJanela(tipo as Janela['tipo'], chave); return; }
     if ((b = t.closest('[data-dk-restaurar]'))) { const j = e.janelas.find((x) => x.id === b!.dataset.dkRestaurar); if (j) { j.min = false; j.z = topo() + 1; desenhar({ exp: false }); } return; }
     if ((b = t.closest('[data-dk-jan-acao]'))) { acaoJanela(b.closest<HTMLElement>('[data-dk-jan]')!.dataset.dkJan!, b.dataset.dkJanAcao!); return; }
@@ -523,7 +525,7 @@ export function iniciar(): void {
   /* a largura da árvore: arrasta-se o puxador */
   let puxa: { x: number; w: number } | null = null;
   document.addEventListener('pointerdown', (ev) => { if ((ev.target as HTMLElement).closest?.('[data-dk-puxador]') && pg?.contains(ev.target as Node) && !e.rail) { puxa = { x: ev.clientX, w: e.largura }; ev.preventDefault(); } });
-  document.addEventListener('pointermove', (ev) => { if (!puxa) return; e.largura = Math.max(200, Math.min(420, puxa.w + ev.clientX - puxa.x)); pg?.querySelector<HTMLElement>('.dk-corpo')?.style.setProperty('--sh-lado', `${e.largura}px`); indicador(); });
+  document.addEventListener('pointermove', (ev) => { if (!puxa) return; e.largura = Math.max(200, Math.min(420, puxa.w + ev.clientX - puxa.x)); lado(); indicador(); });
   document.addEventListener('pointerup', () => { if (puxa) { puxa = null; guardar(); } });
 
   window.addEventListener('online', () => { if (normal && e.banner === 'offline') { e.banner = ''; desenhar({ exp: false }); dizer('Ligação de volta.'); } });

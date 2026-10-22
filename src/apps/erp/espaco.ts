@@ -408,7 +408,7 @@ export function corpoEspaco(e: Estado, exp: (e: Estado) => string = explorador):
 export function paginaEspaco(e: Estado = novoEstado(), extra = '', cen = 'normal'): string {
   return `<div class="hm sh dkr" data-hm data-sh>
   ${topoErp([['Área de trabalho', '']], false, e.perfil)
-    .replace('<header class="hm-topo">', `<header class="hm-topo dk-topo"><button type="button" class="sh-menu-movel" data-sh-movel aria-label="Abrir as pastas">${L(list)}</button>`)
+    .replace('<header class="hm-topo">', `<header class="hm-topo dk-topo" style="--dk-lado:${e.rail ? 72 : e.largura}px"><button type="button" class="sh-menu-movel" data-sh-movel aria-label="Abrir as pastas">${L(list)}</button>`)
     .replace(/<nav class="hm-caminho"[\s\S]*?<\/nav>/, `<div class="dk-barra sh-r" style="--r:0"><div class="dk-seps" role="tablist" aria-label="Separadores abertos" data-dk-seps>${separadores(e)}</div><i class="dk-seps-ind" data-dk-seps-ind aria-hidden="true"></i></div>`)
     .replace(/<label class="hm-procura">[\s\S]*?<\/label>/, `<button type="button" class="dk-procura" data-dk-paleta>${L(search)}<span>Procurar ou executar…</span><kbd>Ctrl K</kbd></button>`)}
   <div class="sh-corpo dk-corpo${e.rail ? ' is-rail' : ''}" style="--sh-lado:${e.rail ? 72 : e.largura}px">
