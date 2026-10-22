@@ -458,3 +458,11 @@
 .dk-topo:not(.dk6-topo) { padding-left: 0; }
 .dk-topo:not(.dk6-topo) .hm-marca { box-sizing: border-box; min-width: calc(var(--dk-lado, 260px) - 20px); padding-left: clamp(16px, 2.5vw, 32px); }
 @media (max-width: 900px) { .dk-topo:not(.dk6-topo) .hm-marca { min-width: 0; } }
+/* para hoje: uma linha, não cartões de indicadores */
+.dk-hoje { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px; border: 1px solid var(--k-borda); border-radius: 6px; background: var(--k-sup); }
+.dk-hoje h2 { margin: 0 8px 0 4px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--k-tinta-3); }
+.dk-hoje-i { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px 0 12px; border: 1px solid transparent; border-radius: 6px; background: var(--k-sup-2); color: var(--k-tinta); font: inherit; font-size: 14px; cursor: pointer; transition: border-color .12s ease; }
+.dk-hoje-i:hover { border-color: var(--k-azul); } .dk-hoje-i:focus-visible { outline: 2px solid var(--k-azul); outline-offset: 1px; }
+.dk-hoje-i b { font-size: 16px; } .dk-hoje-i svg { width: 15px; height: 15px; color: var(--k-tinta-3); }
+.dk-hoje-i.is-aviso b { color: #c25e00; } .dk-hoje-i.is-erro b { color: var(--k-erro); } .dk-hoje-i.is-zero { color: var(--k-tinta-3); }
+[data-theme="dark"] .dk-hoje-i.is-aviso b { color: #ffb066; }

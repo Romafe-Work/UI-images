@@ -21,7 +21,7 @@
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
 import type { IdErp } from './ids';
-import { topoErp } from './inicio-v2';
+import { topoErp, numerosDoDia } from './inicio-v2';
 import { PERFIS, RECENTES, type IdPerfil } from './inicio-dados';
 import { FORNECEDORES, ARTIGOS, encomendas, stock } from './compras/dominio';
 import file from 'lucide-static/icons/file.svg?raw';
@@ -248,6 +248,17 @@ export const ecrasCasa = (e: Estado) => (e.semModulos ? [] : modulos(e.perfil).f
 export function cartoesEcras(e: Estado): string {
   return `<div class="dk-cartoes">${ecrasCasa(e).map((r, i) => `<button type="button" class="dk-cartao" data-dk-atalho="${r}" style="--i:${i}" title="Abrir ${esc(ROTAS[r].titulo)}${i < 9 ? ` (Alt ${i + 1})` : ''}">${icone(ROTAS[r].icone, 'dk-cartao-ic')}<b>${esc(ROTAS[r].titulo)}</b><small>${esc(r.split('.')[1].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase())}</small>${i < 9 ? `<kbd>Alt+${i + 1}</kbd>` : ''}</button>`).join('')}</div>`;
 }
+/** Para hoje (22 out.): o que pede ação, numa linha; os números vêm das encomendas e do stock, e cada um abre a lista. */
+export function paraHoje(e: Estado): string {
+  if (e.semModulos || !ecrasCasa(e).length) return '';
+  const n = numerosDoDia();
+  const it = (k: number, um: string, varios: string, rota: string, tom: string) => `<button type="button" class="dk-hoje-i${k ? ` is-${tom}` : ' is-zero'}" data-dk-atalho="${rota}"><b>${k}</b><span>${k === 1 ? um : varios}</span>${L(chevronRight)}</button>`;
+  return `<section class="dk-hoje" aria-label="Para hoje"><h2>Para hoje</h2>
+    ${it(n.aprovar.length, 'encomenda por aprovar', 'encomendas por aprovar', 'compras.encomendas', 'aviso')}
+    ${it(n.atrasadas.length, 'entrega atrasada', 'entregas atrasadas', 'compras.encomendas', 'erro')}
+    ${it(n.rutura.length, 'artigo em rutura', 'artigos em rutura', 'compras.faltas', 'erro')}
+  </section>`;
+}
 function trabalho(e: Estado): string {
   const aba = e.trabalho ?? 'recentes';
   const rec = e.semRecentes || e.primeira ? [] : RECENTES[e.perfil] ?? [];
@@ -282,6 +293,7 @@ export function explorador(e: Estado): string {
       <div class="dk-titulo dk-titulo--raiz"><h1>Área de trabalho</h1><p>Os teus módulos, documentos e tarefas · ${esc(p.pessoa)}, ${esc(p.cargo)}</p></div>
       ${ativos.length ? `<div class="dk-palco">
         <section class="dk-sec dk-mods-sec" aria-labelledby="dk-mod-t"><div class="dk-sec-cab"><h2 id="dk-mod-t">${ativos.map((m) => esc(m.rotulo)).join(' · ')}</h2></div>${cartoesEcras(e)}</section>
+        ${paraHoje(e)}
         ${rapido(e)}
       </div>
       ${trabalho(e)}

@@ -17,7 +17,7 @@ import type { IdErp } from './ids';
 import { topoErp } from './inicio-v2';
 import { FORNECEDORES, encomendas } from './compras/dominio';
 import {
-  L, esc, icone, MENU_ERP, ROTAS, modulos, filhos, novoEstado, ecrasCasa, cartoesEcras, separadores, corpoEspaco, menuConta, dialogo, explorador,
+  L, esc, icone, MENU_ERP, ROTAS, modulos, filhos, novoEstado, ecrasCasa, cartoesEcras, paraHoje, separadores, corpoEspaco, menuConta, dialogo, explorador,
   ESTADOS, estadosEspaco, type Estado, type LinhaMenu, type Hist,
 } from './espaco';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
@@ -126,6 +126,7 @@ export function exploradorV6(e: Estado): string {
   return `<div class="dk-exp dk6-exp" data-vista="grelha">${cab}
     <div class="dk6-grade">
       <section class="dk6-sec dk6-sec--mods" aria-labelledby="dk6-mo-t"><div class="dk6-sec-cab"><h2 id="dk6-mo-t">${mods.map((m) => esc(m.rotulo)).join(' · ')}</h2></div>${cartoesEcras(e)}</section>
+      ${paraHoje(e)}
       ${rapidoV6(e)}
     </div>
     ${trabalhoV6(e)}
