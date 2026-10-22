@@ -10,7 +10,6 @@
    - «Saltar» e Esc passam logo. No editor fica na marca, parada.
    ========================================================= */
 import { mostrar } from '../../../comum/ecras';
-import { lerSessao } from '../sessao';
 import { irIdentidade } from './abertura-v4';
 import { estadoV6, type CenarioV6 } from '../abertura-v6';
 import { indicador } from './inicio-v3';
@@ -20,7 +19,6 @@ const editando = () => document.body.classList.contains('editando') || document.
 const prototipo = () => document.body.classList.contains('so-ecra');
 const VISTA = 'erp:abertura6-vista';
 const vista = () => { try { return sessionStorage.getItem(VISTA) === '1'; } catch { return false; } };
-const comSessao = () => { try { if (sessionStorage.getItem('romafe:sessao')) return true; } catch { /* */ } return !!lerSessao(); };
 let pagina: HTMLElement | null = null, ab: HTMLElement | null = null;
 let tempos: number[] = [];
 const limpar = () => { tempos.forEach((t) => window.clearTimeout(t)); tempos = []; };
@@ -34,7 +32,8 @@ function passar(): void {
   if (!pagina || !ab || !aVista()) return;
   const pg = pagina, camada = ab;
   if (!navigator.onLine) { estado('offline'); return; }
-  if (!comSessao()) { estado('autenticar'); depois(1400, () => { if (aVista()) irIdentidade(); }); return; }
+  /* (22 out.) ela: «depois da abertura deve ir para a página inicial e não para o login» — no protótipo não há servidor
+     de sessões: chega-se aqui depois do login, por isso segue sempre para o Início («Sessão terminada» fica como estado) */
   if (!prototipo() || editando()) return;
   camada.classList.add('is-e');
   pg.classList.add('is-marca-oculta'); pg.classList.remove('is-abertura');
