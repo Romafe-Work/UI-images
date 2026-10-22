@@ -65,11 +65,31 @@ const MODULOS: [string, string, string, boolean][] = [
 export type CenarioInicioV2 = 'normal' | 'carregar' | 'avisos' | 'vazio';
 export type IdInicioV2 = 'hm-carregar' | 'hm-avisos' | 'hm-vazio';
 
+/** O cabeçalho do ERP (o mesmo no Início e nos ecrãs dos módulos): o caminho é uma lista [nome, ecrã para onde vai]. */
+export function topoErp(caminho: [string, string][], avisosAbertos = false, perfil: IdPerfil = 'compras'): string {
+  const p = PERFIS[perfil], avisos = AVISOS[perfil] ?? [], cen = avisosAbertos ? 'avisos' : 'normal';
+  const trilho = caminho.map(([nome, ir], k) => k === caminho.length - 1 ? `<b>${esc(nome)}</b>` : `<button type="button" class="hm-caminho-ir" data-hm-ir="${ir}">${esc(nome)}</button>`).join('');
+  return `  <header class="hm-topo">
+    <a class="ws-marca hm-marca" href="#" data-hm-ir="inicio" aria-label="ROMAFE ERP, Início"><span class="romafe hm-romafe">ROMAFE</span><i aria-hidden="true"></i><span class="hm-erp">ERP</span></a>
+    <nav class="hm-caminho" aria-label="Onde estou"><span>${L(building)}${esc(EMPRESA.nome)}</span>${trilho}</nav>
+    <label class="hm-procura">${L(search)}<input type="search" placeholder="Procurar documentos, artigos, fornecedores…" aria-label="Procurar no ERP"><kbd>Ctrl K</kbd></label>
+    <div class="hm-icones">
+      <button type="button" class="hm-icone" aria-label="Ajuda" data-hm-dica="Ajuda">${L(lifeBuoy)}</button>
+      <button type="button" class="hm-icone" aria-label="Definições" data-hm-dica="Definições">${L(settings)}</button>
+      <button type="button" class="hm-icone" aria-label="Avisos, ${avisos.length} por ler" aria-expanded="${cen === 'avisos'}" data-hm-avisos>${L(bell)}${avisos.length ? `<span class="hm-badge">${avisos.length}</span>` : ''}</button>
+      <button type="button" class="hm-pessoa" aria-label="${esc(p.pessoa)}"><span class="hm-inicial">${p.iniciais}</span><span class="hm-pessoa-t"><b>${esc(p.pessoa)}</b><small>${esc(p.cargo)}</small></span></button>
+    </div>
+    <section class="hm-avisos" data-hm-avisos-painel${cen === 'avisos' ? '' : ' hidden'} aria-label="Avisos">
+      <h2>Avisos</h2>
+      <ul>${avisos.map((a) => `<li><b>${esc(a.titulo)}</b><span>${esc(a.texto)}</span><small>${esc(a.quando)}</small></li>`).join('')}</ul>
+    </section>
+  </header>`;
+}
+
 function html(cen: CenarioInicioV2, perfil: IdPerfil = 'compras'): string {
   const p = PERFIS[perfil];
   const n = numerosDoDia();
   const prio = cen === 'vazio' ? [] : PRIORIDADES[perfil] ?? [];
-  const avisos = AVISOS[perfil] ?? [];
   /* o fornecedor da entrega mais atrasada, tirado da própria encomenda */
   const atrasada = n.atrasadas.slice().sort((a, b) => a.entrega.localeCompare(b.entrega))[0];
   const maisLento = atrasada ? FORNECEDORES.find((f) => f.id === atrasada.forn) : undefined;
@@ -86,21 +106,7 @@ function html(cen: CenarioInicioV2, perfil: IdPerfil = 'compras'): string {
   ].filter(Boolean);
   const carregar = cen === 'carregar';
   return `<div class="hm${carregar ? ' is-carregar' : ''}" data-hm data-hm-cenario="${cen}">
-  <header class="hm-topo">
-    <a class="ws-marca hm-marca" href="#" data-hm-ir="inicio" aria-label="ROMAFE ERP, Início"><span class="romafe hm-romafe">ROMAFE</span><i aria-hidden="true"></i><span class="hm-erp">ERP</span></a>
-    <nav class="hm-caminho" aria-label="Onde estou"><span>${L(building)}${esc(EMPRESA.nome)}</span><b>Início</b></nav>
-    <label class="hm-procura">${L(search)}<input type="search" placeholder="Procurar documentos, artigos, fornecedores…" aria-label="Procurar no ERP"><kbd>Ctrl K</kbd></label>
-    <div class="hm-icones">
-      <button type="button" class="hm-icone" aria-label="Ajuda" data-hm-dica="Ajuda">${L(lifeBuoy)}</button>
-      <button type="button" class="hm-icone" aria-label="Definições" data-hm-dica="Definições">${L(settings)}</button>
-      <button type="button" class="hm-icone" aria-label="Avisos, ${avisos.length} por ler" aria-expanded="${cen === 'avisos'}" data-hm-avisos>${L(bell)}${avisos.length ? `<span class="hm-badge">${avisos.length}</span>` : ''}</button>
-      <button type="button" class="hm-pessoa" aria-label="${esc(p.pessoa)}"><span class="hm-inicial">${p.iniciais}</span><span class="hm-pessoa-t"><b>${esc(p.pessoa)}</b><small>${esc(p.cargo)}</small></span></button>
-    </div>
-    <section class="hm-avisos" data-hm-avisos-painel${cen === 'avisos' ? '' : ' hidden'} aria-label="Avisos">
-      <h2>Avisos</h2>
-      <ul>${avisos.map((a) => `<li><b>${esc(a.titulo)}</b><span>${esc(a.texto)}</span><small>${esc(a.quando)}</small></li>`).join('')}</ul>
-    </section>
-  </header>
+  ${topoErp([['Início', '']], cen === 'avisos', perfil)}
 
   <section class="hm-ola">
     <div class="hm-ola-texto">
@@ -112,7 +118,7 @@ function html(cen: CenarioInicioV2, perfil: IdPerfil = 'compras'): string {
     <svg class="hm-ola-desenho" viewBox="0 0 400 200" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => `<path d="M${-40 + i * 50} 200 L${60 + i * 50} 0"/>`).join('')}${Array.from({ length: 9 }, (_, i) => `<path d="M${440 - i * 50} 200 L${340 - i * 50} 0"/>`).join('')}<circle class="is-no" cx="200" cy="100" r="5"/><circle class="is-no" cx="150" cy="60" r="3.5"/><circle class="is-no" cx="250" cy="140" r="3.5"/><circle class="is-no is-laranja" cx="250" cy="60" r="4"/></svg>
   </section>
 
-  <section class="hm-numeros" aria-label="O dia em números">${cartoes.map(([, t, v, s, i, tom], j) => `<button type="button" class="hm-num hm-num--${tom}" data-hm-ir="compras" style="--i:${j}">
+  <section class="hm-numeros" aria-label="O dia em números">${cartoes.map(([k, t, v, s, i, tom], j) => `<button type="button" class="hm-num hm-num--${tom}" data-hm-ir="${k === 'rutura' ? 'compras-faltas' : 'compras'}" style="--i:${j}">
     <span class="hm-num-ic">${L(i)}</span><span class="hm-num-t">${t}</span>
     <b class="hm-num-v" data-hm-contar="${v}">${carregar ? '—' : v}</b><small>${esc(s)}</small>${L(arrowRight, 'hm-num-seta')}
   </button>`).join('')}</section>
