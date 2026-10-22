@@ -14,6 +14,7 @@ import './css/inicio-v2.css';
 import './css/faltas.css';
 import './css/inicio-v3.css';
 import './css/espaco.css';
+import './css/espaco-v6.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';

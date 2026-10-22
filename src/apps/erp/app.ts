@@ -7,7 +7,8 @@ import { versaoAberturaV6, estadosAberturaV6 } from './abertura-v6';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
 import { versaoInicioV2, estadosInicioV2 } from './inicio-v2';
 import { versaoInicioV3 } from './inicio-v3';
-import { versaoInicioV4, estadosEspaco } from './espaco';
+import { versaoInicioV4 } from './espaco';
+import { versaoInicioV5, estadosEspacoV6 } from './espaco-v6';
 import { ecrasFaltas } from './compras/faltas';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
@@ -29,7 +30,7 @@ const soAberturaV3 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, objetivo: 'Depois
 const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
 
 /* 22 out. 2026: o 05 · Início ganha a v2 (briefing do ecrã inicial, «simples e wow»), que passa a abrir; a v1 fica */
-const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2(), versaoInicioV3(), versaoInicioV4()] as Ecra<IdErp>['versoes'] } : e);
+const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2(), versaoInicioV3(), versaoInicioV4(), versaoInicioV5()] as Ecra<IdErp>['versoes'] } : e);
 
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 export const erp: App<IdErp> = {
@@ -44,5 +45,5 @@ export const erp: App<IdErp> = {
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...estadosEspaco(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...estadosEspacoV6(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

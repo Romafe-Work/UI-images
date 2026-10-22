@@ -14,9 +14,10 @@
      moldura é a da área de trabalho.
    ========================================================= */
 import {
-  novoEstado, arvore, separadores, ordemSeps, semSeparadores, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
+  novoEstado, arvore, separadores, ordemSeps, semSeparadores, pastaDe, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
   type Estado, type Acao, type Janela,
 } from '../espaco';
+import { exploradorV6, menuV6 } from '../espaco-v6';
 import { FORNECEDORES, ARTIGOS, encomendas } from '../compras/dominio';
 import { irIdentidade } from './abertura-v4';
 import { mostrar } from '../../../comum/ecras';
@@ -29,6 +30,8 @@ let e: Estado = novoEstado();
 let normal = false, restaurou = false, aviso = 0;
 const frames = new Map<string, HTMLIFrameElement>();
 
+/** O explorador da versão à vista (a V6 tem o seu; a v4 fica igual). */
+const exp = (x: Estado) => x.v6 ? exploradorV6(x) : explorador(x);
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => pg?.querySelector<T>(s) ?? null;
 function dizer(t: string): void {
   const el = $('[data-hm-aviso]'); if (!el) return;
@@ -36,7 +39,7 @@ function dizer(t: string): void {
 }
 function guardar(): void {
   if (!normal) return;
-  try { localStorage.setItem(CHAVE, JSON.stringify({ seps: e.seps.map(({ id, rota, titulo }) => ({ id, rota, titulo })), ativo: e.ativo, fixados: e.fixados, arvore: e.arvore, vista: e.vista, largura: e.largura, rail: !!e.rail, trabalho: e.trabalho, casa: e.casa ?? 0, semCasa: !!e.semCasa, presos: e.presos ?? [] })); } catch { /* */ }
+  try { localStorage.setItem(CHAVE, JSON.stringify({ seps: e.seps.map(({ id, rota, titulo }) => ({ id, rota, titulo })), ativo: e.ativo, fixados: e.fixados, arvore: e.arvore, vista: e.vista, largura: e.largura, rail: !!e.rail, trabalho: e.trabalho, casa: e.casa ?? 0, semCasa: !!e.semCasa, presos: e.presos ?? [], historico: (e.historico ?? []).slice(0, 12) })); } catch { /* */ }
 }
 
 /* ---------- desenhar ---------- */
@@ -47,7 +50,9 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-seps]', separadores(e));
   put('[data-dk-acoes]', acoes(e));
   put('[data-dk-banner]', banner(e));
-  if (o.exp !== false) { const x = $('[data-dk-exp]'); if (x) { x.innerHTML = e.semCasa ? semSeparadores() : explorador(e); if (o.entrar) { x.classList.remove('is-entrar'); void x.offsetWidth; x.classList.add('is-entrar'); } } }
+  if (o.exp !== false) { const x = $('[data-dk-exp]'); if (x) { x.innerHTML = e.semCasa ? semSeparadores() : exp(e); if (o.entrar) { x.classList.remove('is-entrar'); void x.offsetWidth; x.classList.add('is-entrar'); } } }
+  if (o.exp !== false) pg.querySelectorAll<HTMLElement>('[data-dk-exp-pasta]').forEach((p) => { p.innerHTML = exp({ ...e, pasta: p.dataset.dkExpPasta! }); });
+  if (e.v6) put('[data-dk6-menu]', menuV6({ ...e, menu: '' }));
   const top = Math.max(0, ...e.janelas.map((j) => j.z));
   put('[data-dk-janelas]', e.janelas.map((j) => janela(j, j.z === top)).join(''));
   put('[data-dk-doca]', doca(e));
@@ -68,7 +73,9 @@ function paineis(): void {
   caixa.querySelectorAll<HTMLElement>('[data-painel]').forEach((p) => { if (!ids.has(p.dataset.painel!)) { p.remove(); frames.delete(p.dataset.painel!); } });
   for (const s of e.seps) {
     let p = caixa.querySelector<HTMLElement>(`[data-painel="${s.id}"]`);
-    if (!p) { p = document.createElement('section'); p.className = 'dk-painel'; p.dataset.painel = s.id; p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-label', s.titulo); p.innerHTML = `<div class="dk-carga"><span></span>A abrir ${esc(s.titulo)}…</div>`; caixa.appendChild(p); }
+    const pasta = s.rota.startsWith('pasta:') ? s.rota.slice(6) : '';
+    if (!p) { p = document.createElement('section'); p.className = 'dk-painel'; p.dataset.painel = s.id; p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-label', s.titulo); p.innerHTML = pasta ? `<div class="is-entrar" data-dk-exp-pasta="${pasta}">${exp({ ...e, pasta })}</div>` : `<div class="dk-carga"><span></span>A abrir ${esc(s.titulo)}…</div>`; caixa.appendChild(p); }
+    if (pasta) continue;
     if (s.id === e.ativo && !frames.has(s.id) && !pg?.hasAttribute('data-sh-abertura')) carregar(s.id, p);
   }
   caixa.querySelectorAll<HTMLElement>('[data-painel]').forEach((p) => p.classList.toggle('is-ativo', p.dataset.painel === e.ativo));
@@ -105,6 +112,7 @@ function abrirRota(rota: string, titulo?: string, novo = false): void {
   if (l && l.permissoes !== '*' && !l.permissoes.includes(e.perfil)) { e.banner = 'sem-permissao'; e.bannerTexto = `A tua conta não tem acesso a ${l.rotulo}. Pede-o ao administrador.`; desenhar({ exp: false }); return; }
   const t = titulo ?? r.titulo;
   const ja = !novo && e.seps.find((s) => s.rota === rota && s.titulo === t);
+  e.historico = [{ rota, titulo: t, quando: Date.now() }, ...(e.historico ?? []).filter((h) => !(h.rota === rota && h.titulo === t))].slice(0, 12);
   if (ja) e.ativo = ja.id;
   else { const id = `s${Date.now().toString(36)}${seq++}`; e.seps.push({ id, rota, titulo: t }); e.ativo = id; }
   if (e.banner === 'rota' || e.banner === 'sem-permissao' || e.banner === 'primeira') e.banner = '';
@@ -136,8 +144,15 @@ function abrirPasta(id: string, de?: HTMLElement | null): void {
   const m = MENU_ERP.find((l) => l.id === id && !l.pai);
   if (!m) { e.banner = 'desconhecido'; e.bannerTexto = `O módulo «${id}» não existe no ERP. Abrimos a área de trabalho.`; e.pasta = 'raiz'; desenhar(); return; }
   if (!m.ativo) { dizer(`«${m.rotulo}» ainda está no ERP antigo.`); return; }
-  const fazer = () => { e.semCasa = false; e.ativo = 'inicio'; e.pasta = id; e.sel = filhos(id, e.perfil).find((f) => f.registada && f.permitido)?.rota ?? ''; e.arvore[id] = true; desenhar({ exp: true, entrar: true }); $<HTMLElement>('.dk-fich[aria-selected="true"]')?.focus(); };
-  const alvo = $('[data-dk-exp]');
+  const primeiro = filhos(id, e.perfil).find((f) => f.registada && f.permitido)?.rota ?? '';
+  /* V6: a pasta abre num separador seu */
+  const fazer = e.v6 ? () => {
+    const sid = `p-${id}`;
+    if (!e.seps.some((s) => s.id === sid)) e.seps.push({ id: sid, rota: `pasta:${id}`, titulo: m.rotulo });
+    e.ativo = sid; e.sel = primeiro; desenhar({ exp: false });
+    $<HTMLElement>(`[data-painel="${sid}"] .dk-ecra[aria-selected="true"]`)?.focus();
+  } : () => { e.semCasa = false; e.ativo = 'inicio'; e.pasta = id; e.sel = filhos(id, e.perfil).find((f) => f.registada && f.permitido)?.rota ?? ''; e.arvore[id] = true; desenhar({ exp: true, entrar: true }); $<HTMLElement>('.dk-fich[aria-selected="true"]')?.focus(); };
+  const alvo = e.v6 ? $('[data-dk-paineis]') : $('[data-dk-exp]');
   if (!de || quieto() || !alvo) { fazer(); return; }
   /* a assinatura: a aba levanta-se e a pasta cresce para a área */
   de.classList.add('is-abrir');
@@ -151,9 +166,16 @@ function abrirPasta(id: string, de?: HTMLElement | null): void {
   an.onfinish = () => c.remove();
 }
 function voltar(): void {
-  if (e.ativo !== 'inicio' || e.pasta === 'raiz') return;
-  const de = e.pasta, area = $('[data-dk-exp]')?.getBoundingClientRect();
-  e.pasta = 'raiz'; e.sel = de; desenhar({ exp: true, entrar: true });
+  const pa = pastaDe(e);
+  if (pa === null || pa === 'raiz') return;
+  let area: DOMRect | undefined;
+  if (e.v6) {
+    /* V6: o separador da pasta fecha-se e a pasta volta ao seu lugar na área de trabalho */
+    area = $('[data-dk-paineis]')?.getBoundingClientRect();
+    e.seps = e.seps.filter((s) => s.rota !== `pasta:${pa}`); e.presos = (e.presos ?? []).filter((x) => x !== `p-${pa}`);
+    e.semCasa = false; e.ativo = 'inicio'; e.sel = pa; desenhar({ exp: true });
+  } else { area = $('[data-dk-exp]')?.getBoundingClientRect(); e.pasta = 'raiz'; e.sel = pa; desenhar({ exp: true, entrar: true }); }
+  const de = pa;
   const b = $<HTMLElement>(`[data-dk-pasta="${de}"]`); b?.focus();
   /* o caminho de volta: a pasta encolhe da área para o seu lugar e fecha a aba */
   const g = b?.querySelector<HTMLElement>('.dk-arte');
@@ -168,7 +190,7 @@ function escolher(id: string): void {
   e.sel = id;
   pg?.querySelectorAll<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]').forEach((t) => { const sim = (t.dataset.dkPasta ?? t.dataset.dkAbrir) === id; t.setAttribute('aria-selected', String(sim)); t.closest('.dk-mod')?.classList.toggle('is-sel', sim); });
   const a = $('[data-dk-acoes]'); if (a) a.innerHTML = acoes(e);
-  const d = $('.dk-detalhe'); if (d) { const tmp = document.createElement('div'); tmp.innerHTML = explorador(e); const n = tmp.querySelector('.dk-detalhe'); if (n) d.innerHTML = n.innerHTML; }
+  const d = $('.dk-painel.is-ativo .dk-detalhe'); if (d) { const tmp = document.createElement('div'); tmp.innerHTML = exp({ ...e, pasta: pastaDe(e) ?? e.pasta }); const n = tmp.querySelector('.dk-detalhe'); if (n) d.innerHTML = n.innerHTML; }
   $<HTMLElement>(`.dk-exp [data-dk-pasta="${CSS.escape(id)}"], .dk-exp [data-dk-abrir="${CSS.escape(id)}"]`)?.focus();
 }
 function abrirEscolhido(): void {
@@ -220,7 +242,39 @@ function acao(a: string, botao?: HTMLElement): void {
     case 'fechar-todos': e.seps = e.seps.filter((x) => x.sujo); e.ativo = e.seps[0]?.id ?? 'inicio'; e.banner = ''; desenhar(); fecharMenus(); if (e.seps.length) dizer('Ficaram abertos os separadores com alterações por guardar.'); return;
   }
 }
-function fecharMenus(): void { pg?.querySelectorAll<HTMLElement>('[data-dk-menu-mais], [data-dk-menu-conta]').forEach((m) => { m.hidden = true; }); }
+function fecharMenus(): void { pg?.querySelectorAll<HTMLElement>('[data-dk-menu-mais], [data-dk-menu-conta]').forEach((m) => { m.hidden = true; }); fecharMenu6(); }
+/* ---------- o menu horizontal (V6): clique, passar com o menu aberto, F10, setas, Enter e Esc ---------- */
+let menu6 = '';
+function fecharMenu6(foco = false): void {
+  if (!menu6) return;
+  const m = $(`[data-dk6-m="${menu6}"]`); m?.querySelector('.dk6-drop')?.setAttribute('hidden', ''); m?.querySelector('.dk6-m-b')?.setAttribute('aria-expanded', 'false');
+  if (foco) m?.querySelector<HTMLElement>('.dk6-m-b')?.focus();
+  menu6 = '';
+}
+function abrirMenu6(id: string, item: 'primeiro' | 'ultimo' | '' = ''): void {
+  fecharMenu6();
+  const m = $(`[data-dk6-m="${id}"]`); if (!m) return;
+  m.querySelector('.dk6-drop')?.removeAttribute('hidden'); m.querySelector('.dk6-m-b')?.setAttribute('aria-expanded', 'true'); menu6 = id;
+  const its = [...m.querySelectorAll<HTMLElement>('.dk6-i:not([aria-disabled="true"])')];
+  if (item) (item === 'primeiro' ? its[0] : its[its.length - 1])?.focus(); else m.querySelector<HTMLElement>('.dk6-m-b')?.focus();
+}
+function teclasMenu6(ev: KeyboardEvent, alvo: HTMLElement): boolean {
+  const m = alvo.closest<HTMLElement>('[data-dk6-m]'); if (!m) return false;
+  const bs = [...($('[data-dk6-menu]')?.querySelectorAll<HTMLElement>('.dk6-m-b') ?? [])], b = m.querySelector<HTMLElement>('.dk6-m-b')!, i = bs.indexOf(b);
+  const lado = (d: number) => { const n = bs[(i + d + bs.length) % bs.length]; bs.forEach((x) => x.tabIndex = x === n ? 0 : -1); if (menu6) abrirMenu6(n.closest<HTMLElement>('[data-dk6-m]')!.dataset.dk6M!, 'primeiro'); else n.focus(); };
+  if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { lado(ev.key === 'ArrowRight' ? 1 : -1); return true; }
+  if (ev.key === 'Escape') { fecharMenu6(true); return true; }
+  if (alvo === b) {
+    if (ev.key === 'ArrowDown' || ev.key === 'Enter' || ev.key === ' ') { abrirMenu6(m.dataset.dk6M!, 'primeiro'); return true; }
+    if (ev.key === 'ArrowUp') { abrirMenu6(m.dataset.dk6M!, 'ultimo'); return true; }
+    return false;
+  }
+  const its = [...m.querySelectorAll<HTMLElement>('.dk6-i:not([aria-disabled="true"])')], j = its.indexOf(alvo);
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { its[(j + (ev.key === 'ArrowDown' ? 1 : -1) + its.length) % its.length]?.focus(); return true; }
+  if (ev.key === 'Home' || ev.key === 'End') { (ev.key === 'Home' ? its[0] : its[its.length - 1])?.focus(); return true; }
+  if (ev.key === 'Tab') { fecharMenu6(); return false; }
+  return false;
+}
 function sair(): void { try { sessionStorage.removeItem('romafe:sessao'); sessionStorage.removeItem('erp:sessao'); } catch { /* */ } irIdentidade(); }
 function tema(t: string): void {
   try { localStorage.setItem('uiux:tema', t); } catch { /* */ }
@@ -282,6 +336,9 @@ function fecharPaleta(): void { pal = null; const c = $('[data-dk-paleta-caixa]'
 function teclas(ev: KeyboardEvent): void {
   if (!pg || editando()) return;
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); ev.stopImmediatePropagation(); if (pal) fecharPaleta(); else abrirPaleta(); return; }
+  if (e.v6 && ev.key === 'F1') { ev.preventDefault(); ev.stopImmediatePropagation(); e.dialogo = 'atalhos'; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
+  if (e.v6 && ev.key === 'F10') { ev.preventDefault(); ev.stopImmediatePropagation(); fecharMenus(); $<HTMLElement>('.dk6-m-b')?.focus(); return; }
+  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const r = e.fixados.filter((x) => ROTAS[x])[Number(ev.code.slice(5)) - 1]; if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
   /* atalhos para fixar (22 out.): Ctrl D no acesso rápido, Alt P o separador; Alt W fecha o separador */
   const k = ev.key.toLowerCase();
   if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && k === 'd') {
@@ -305,8 +362,8 @@ function ler(): Estado {
   try {
     const g = JSON.parse(localStorage.getItem(CHAVE) ?? 'null');
     if (!g) return base;
-    const seps = (g.seps ?? []).filter((s: { rota: string }) => { const l = MENU_ERP.find((x) => x.rota === s.rota); return ROTAS[s.rota] && (!l || l.permissoes === '*' || l.permissoes.includes(base.perfil)); });
-    const est = { ...base, seps, ativo: seps.some((s: { id: string }) => s.id === g.ativo) ? g.ativo : g.semCasa && seps.length ? seps[0].id : 'inicio', fixados: (g.fixados ?? base.fixados).filter((r: string) => ROTAS[r]), arvore: g.arvore ?? base.arvore, vista: 'grelha' as const, largura: g.largura ?? base.largura, rail: !!g.rail, trabalho: g.trabalho ?? base.trabalho, casa: g.casa ?? 0, semCasa: !!g.semCasa && seps.length > 0, presos: (g.presos ?? []).filter((i: string) => i === 'inicio' || seps.some((s: { id: string }) => s.id === i)) };
+    const seps = (g.seps ?? []).filter((s: { rota: string }) => { if (base.v6 && s.rota.startsWith('pasta:')) return MENU_ERP.some((m) => m.id === s.rota.slice(6) && m.ativo); const l = MENU_ERP.find((x) => x.rota === s.rota); return ROTAS[s.rota] && (!l || l.permissoes === '*' || l.permissoes.includes(base.perfil)); });
+    const est = { ...base, seps, ativo: seps.some((s: { id: string }) => s.id === g.ativo) ? g.ativo : g.semCasa && seps.length ? seps[0].id : 'inicio', fixados: (g.fixados ?? base.fixados).filter((r: string) => ROTAS[r]), arvore: g.arvore ?? base.arvore, vista: 'grelha' as const, largura: g.largura ?? base.largura, rail: !!g.rail, trabalho: g.trabalho ?? base.trabalho, casa: g.casa ?? 0, semCasa: !!g.semCasa && seps.length > 0, historico: Array.isArray(g.historico) ? g.historico.filter((h: { rota: string }) => ROTAS[h.rota]) : [], presos: (g.presos ?? []).filter((i: string) => i === 'inicio' || seps.some((s: { id: string }) => s.id === i)) };
     if (seps.length && !restaurou) { est.banner = 'restaurada'; est.bannerTexto = `Recuperámos a tua área de trabalho: ${seps.length} ${seps.length === 1 ? 'separador' : 'separadores'}. Os rascunhos por guardar não se recuperam.`; }
     return est;
   } catch { return base; }
@@ -353,6 +410,7 @@ export function iniciar(): void {
       if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); pal.i = (pal.i + (ev.key === 'ArrowDown' ? 1 : -1) + pal.lista.length) % Math.max(1, pal.lista.length); pintarPaleta(); return; }
       if (ev.key === 'Enter') { ev.preventDefault(); executarPaleta(pal.i); return; }
     }
+    if (e.v6 && teclasMenu6(ev, ev.target as HTMLElement)) { ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     teclas(ev);
     if (ev.defaultPrevented) return;
     if (ev.key === 'Escape') { if (e.dialogo && e.dialogo !== 'sessao') { e.dialogo = ''; desenhar({ exp: false }); } fecharMenus(); return; }
@@ -375,6 +433,8 @@ export function iniciar(): void {
     if (sep && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { const ids = ordemSeps(e); const i = ids.indexOf(sep.dataset.dkSep!); ativar(ids[(i + (ev.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length]); $<HTMLElement>('.dk-sep.is-ativo')?.focus(); }
   }, true);
 
+  /* com um menu aberto, passar o rato por outro abre-o (como no Windows) */
+  window.addEventListener('pointerover', (ev) => { if (!menu6 || !pg) return; const b = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk6-abrir]'); if (b && pg.contains(b) && b.dataset.dk6Abrir !== menu6) abrirMenu6(b.dataset.dk6Abrir!); });
   /* a marca leva à área de trabalho, mesmo fechada */
   window.addEventListener('click', (ev) => { const t = ev.target as HTMLElement; if (!pg || editando() || !pg.contains(t) || !t.closest('.dk-topo .hm-marca')) return; ev.preventDefault(); ev.stopImmediatePropagation(); abrirCasa(); }, true);
   window.addEventListener('click', (ev) => {
@@ -385,7 +445,12 @@ export function iniciar(): void {
     if (t.closest('.hm-procura')) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirPaleta(); return; }
     if ((b = t.closest('[data-dk-tema]'))) { tema(b.dataset.dkTema!); return; }
     if (t.closest('[data-dk-sair]')) { sair(); return; }
-    if (!t.closest('[data-dk-menu-mais], [data-dk-menu-conta], [data-dk-acao="mais"]')) fecharMenus();
+    if ((b = t.closest('[data-dk6-abrir]'))) { const id = b.dataset.dk6Abrir!; if (menu6 === id) fecharMenu6(); else abrirMenu6(id); return; }
+    if ((b = t.closest('.dk6-i'))) { if (b.getAttribute('aria-disabled') === 'true') { dizer(`${b.querySelector('span')?.textContent}: ${b.querySelector('small')?.textContent?.toLowerCase()}.`); return; } fecharMenu6(); }
+    if (t.closest('[data-dk-fechar-ativo]')) { fechar(e.ativo); return; }
+    if (t.closest('[data-dk-ajuda-atalhos]')) { e.dialogo = 'atalhos'; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
+    if (t.closest('[data-dk-dialogo-fora]')) { e.dialogo = ''; desenhar({ exp: false }); return; }
+    if (!t.closest('[data-dk-menu-mais], [data-dk-menu-conta], [data-dk-acao="mais"], [data-dk6-menu]')) fecharMenus();
     if (t.closest('[data-dk-paleta-fechar]')) { fecharPaleta(); return; }
     if ((b = t.closest('[data-dk-pal-i]'))) { executarPaleta(Number(b.dataset.dkPalI)); return; }
     if ((b = t.closest('[data-dk-paleta]'))) { abrirPaleta(b.dataset.dkPaleta ?? ''); return; }
@@ -409,7 +474,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dk-jan-acao]'))) { acaoJanela(b.closest<HTMLElement>('[data-dk-jan]')!.dataset.dkJan!, b.dataset.dkJanAcao!); return; }
     if ((b = t.closest('[data-dk-doc]'))) { abrirRota(b.dataset.dkDoc!, b.dataset.dkTitulo); return; }
     /* o explorador: um clique escolhe (no toque, abre); na árvore, abre */
-    if ((b = t.closest('[data-dk-pasta]'))) { const id = b.dataset.dkPasta!; if (b.getAttribute('aria-disabled') === 'true') { dizer(`«${b.querySelector('.dk-pasta-t')?.textContent}» ainda está no ERP antigo.`); return; } if ((ev as PointerEvent).pointerType === 'touch' || b.closest('.dk-titulo--pasta')) abrirPasta(id, b); else escolher(id); return; }
+    if ((b = t.closest('[data-dk-pasta]'))) { const id = b.dataset.dkPasta!; if (b.getAttribute('aria-disabled') === 'true') { dizer(`«${b.querySelector('.dk-pasta-t')?.textContent}» ainda está no ERP antigo.`); return; } if (e.v6 || (ev as PointerEvent).pointerType === 'touch' || b.closest('.dk-titulo--pasta')) abrirPasta(id, b); else escolher(id); return; }
     if ((b = t.closest('[data-dk-abrir]'))) { const id = b.dataset.dkAbrir!; if (b.closest('.dk-arvore') || (ev as PointerEvent).pointerType === 'touch') abrirRota(id); else { if (b.getAttribute('aria-disabled') === 'true') { e.sel = id; abrirRota(id); return; } escolher(id); } return; }
   }, true);
   window.addEventListener('dblclick', (ev) => {

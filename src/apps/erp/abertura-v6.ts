@@ -17,7 +17,7 @@
    ========================================================= */
 import type { EcraErp } from './ids';
 import { PECAS, caixa } from './abertura-v3';
-import { paginaEspaco } from './espaco';
+import { paginaV6 } from './espaco-v6';
 import skipForward from 'lucide-static/icons/skip-forward.svg?raw';
 import rotateCw from 'lucide-static/icons/rotate-cw.svg?raw';
 import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
@@ -77,7 +77,7 @@ function html(cen: CenarioV6): string {
     <button type="button" class="ab6__saltar" data-ab6-saltar>${L(skipForward)}<span>Saltar</span></button>
   </div>`;
   /* enquanto a abertura tapa a página, a página por baixo não se lê nem se alcança com o teclado */
-  return paginaEspaco(undefined, camada).replace(/^<div class="hm sh([^"]*)" data-hm data-sh>/, '<div class="hm sh$1 is-abertura" data-hm data-sh data-sh-abertura>').replace('<div class="sh-corpo', '<div aria-hidden="true" inert class="sh-corpo');
+  return paginaV6(undefined, camada).replace(/^<div class="hm sh([^"]*)" data-hm data-sh>/, '<div class="hm sh$1 is-abertura" data-hm data-sh data-sh-abertura>').replace('<div class="sh-corpo', '<div aria-hidden="true" inert class="sh-corpo');
 }
 
 const NOTA = 'A abertura v6 «The Enterprise Engine» (22 out., briefing «ERP V3»): os anéis de precisão, o documento e o pacote juntam-se numa estrutura, aparece ROMAFE ERP e a marca desliza para o cabeçalho enquanto o menu e a área de trabalho surgem — sozinha, depois do login comum';
