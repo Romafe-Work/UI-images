@@ -104,12 +104,12 @@ function html(cen: CenarioV5): string {
       </div>
       ${cen === 'sem-sessao' ? '<p class="ab5__nota">Ainda sem sessão: «Entrar no ERP» abre o início de sessão ROMAFE.</p>' : cen === 'offline' ? `<p class="ab5__nota ab5__nota--erro">Sem ligação ao servidor. <button type="button" class="ab5__ligacao" data-ab5-repetir>${L(rotateCw)}Tentar de novo</button></p>` : cen === 'erro' ? `<p class="ab5__nota ab5__nota--erro">Não foi possível abrir o ERP (ERP-503). <button type="button" class="ab5__ligacao" data-ab5-repetir>${L(rotateCw)}Tentar de novo</button></p>` : ''}
     </div>
-    <section class="ab5__foco-card" aria-label="Módulo em foco: Compras">
-      <p class="ab5__foco-titulo">${L(shoppingCart)}<span>Módulo em foco</span><b>Compras</b></p>
+    <section class="ab5__foco-card" aria-label="Hoje em Compras">
+      <p class="ab5__foco-titulo">${L(shoppingCart)}<span>Hoje em Compras</span><button type="button" class="ab5__foco-abrir" data-ab5-entrar data-para="compras">Abrir Compras${L(arrowRight)}</button></p>
       <dl class="ab5__numeros">
-        <div><dt>Em aprovação</dt><dd data-ab5-n="aprovar">${aprovar}</dd></div>
+        <div><dt>Encomendas por aprovar</dt><dd data-ab5-n="aprovar">${aprovar}</dd></div>
         <div><dt>Fornecedores ativos</dt><dd data-ab5-n="forn">${forn}</dd></div>
-        <div><dt>Encomendas em curso</dt><dd data-ab5-n="curso">${curso}</dd></div>
+        <div><dt>Encomendas a caminho</dt><dd data-ab5-n="curso">${curso}</dd></div>
       </dl>
     </section>
     <nav class="ab5__modulos" aria-label="Módulos">${MODULOS.map(([n, i, ok], k) => `<span class="ab5__mod${ok ? ' is-ok' : ''}" style="--i:${k}">${L(i)}${n}${ok ? '' : '<small>em breve</small>'}</span>`).join('')}</nav>

@@ -70,7 +70,9 @@
 .ab5.is-c .ab5__foco-card { opacity: 1; transform: none; }
 .ab5__foco-titulo { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--a5-tinta-3); }
 .ab5__foco-titulo svg { width: 16px; height: 16px; color: var(--a5-laranja); }
-.ab5__foco-titulo b { margin-left: auto; font-size: 13px; letter-spacing: .04em; color: var(--a5-tinta); }
+.ab5__foco-abrir { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 2px; border: 0; background: none; color: var(--a5-tinta); font: inherit; font-size: 13px; font-weight: 700; letter-spacing: .02em; text-transform: none; cursor: pointer; }
+.ab5__foco-abrir svg { width: 15px; height: 15px; color: var(--a5-laranja); transition: transform .16s var(--curva); }
+.ab5__foco-abrir:hover svg { transform: translateX(3px); } .ab5__foco-abrir:hover { text-decoration: underline; }
 .ab5__numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
 .ab5__numeros div { display: grid; gap: 2px; }
 .ab5__numeros dt { order: 2; font-size: 12.5px; color: var(--a5-tinta-2); }
