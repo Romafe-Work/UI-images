@@ -426,3 +426,20 @@
 .dk-nada > svg { width: 44px !important; height: 44px !important; color: var(--k-tinta-3); }
 .dk-nada h1 { margin: 6px 0 0; font-family: var(--f-titulo); font-size: 24px; color: var(--k-tinta); } .dk-nada p { margin: 0 0 8px; max-width: 46ch; }
 .dk-nada .dk-mod-cta { justify-self: center; }
+
+/* ---------- os cartões dos ecrãs (22 out., ela: «quero como» o ERP antigo) — v4 e v5 ----------
+   Brancos, cantos quase retos, o ícone azul-escuro em cima, o nome, o código em maiúsculas e a tecla. */
+.dk-cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.dk-cartao { display: grid; justify-items: start; align-content: start; gap: 4px; min-height: 148px; padding: 20px; border: 1px solid var(--k-borda-forte); border-radius: 4px; background: var(--k-sup); color: var(--k-tinta); font: inherit; text-align: left; cursor: pointer; transition: border-color .14s ease, box-shadow .14s ease; animation: dk-ent .28s var(--curva) calc(var(--i) * 30ms) both; }
+.dk-cartao:hover { border-color: var(--k-azul); box-shadow: 0 4px 14px rgba(16, 32, 48, .08); }
+.dk-cartao:focus-visible { outline: 2px solid var(--k-azul); outline-offset: 2px; }
+.dk-cartao .dk-cartao-ic { width: 26px !important; height: 26px !important; margin-bottom: 8px; color: #244a72; }
+[data-theme="dark"] .dk-cartao .dk-cartao-ic { color: #6fb4e6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dk-cartao .dk-cartao-ic { color: #6fb4e6; } }
+.dk-cartao b { font-size: 17px; font-weight: 600; line-height: 1.25; }
+.dk-cartao small { font-family: var(--f-mono); font-size: 12px; letter-spacing: .04em; color: var(--k-tinta-3); }
+.dk-cartao kbd { margin-top: 10px; }
+/* os cartões ocupam a largura toda, numa linha (como no ERP antigo); o acesso rápido vem por baixo */
+:is(.dk-palco, .dk6-grade):has(.dk-cartoes) { grid-template-columns: minmax(0, 1fr); }
+.dk-cartoes { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
+.dk-palco:has(.dk-cartoes) .dk-atalhos { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }

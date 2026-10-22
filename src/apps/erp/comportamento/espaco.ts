@@ -14,7 +14,7 @@
      moldura é a da área de trabalho.
    ========================================================= */
 import {
-  novoEstado, arvore, separadores, ordemSeps, semSeparadores, pastaDe, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
+  novoEstado, arvore, separadores, ordemSeps, semSeparadores, pastaDe, ecrasCasa, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
   type Estado, type Acao, type Janela,
 } from '../espaco';
 import { exploradorV6, menuV6 } from '../espaco-v6';
@@ -338,7 +338,7 @@ function teclas(ev: KeyboardEvent): void {
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); ev.stopImmediatePropagation(); if (pal) fecharPaleta(); else abrirPaleta(); return; }
   if (e.v6 && ev.key === 'F1') { ev.preventDefault(); ev.stopImmediatePropagation(); e.dialogo = 'atalhos'; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
   if (e.v6 && ev.key === 'F10') { ev.preventDefault(); ev.stopImmediatePropagation(); fecharMenus(); $<HTMLElement>('.dk6-m-b')?.focus(); return; }
-  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const r = e.fixados.filter((x) => ROTAS[x])[Number(ev.code.slice(5)) - 1]; if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
+  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const r = ecrasCasa(e)[Number(ev.code.slice(5)) - 1]; if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
   /* atalhos para fixar (22 out.): Ctrl D no acesso rápido, Alt P o separador; Alt W fecha o separador */
   const k = ev.key.toLowerCase();
   if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && k === 'd') {

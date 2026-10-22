@@ -17,7 +17,7 @@ import type { IdErp } from './ids';
 import { topoErp } from './inicio-v2';
 import { FORNECEDORES, encomendas } from './compras/dominio';
 import {
-  L, esc, icone, MENU_ERP, ROTAS, modulos, filhos, novoEstado, separadores, corpoEspaco, menuConta, dialogo, pastaArte, DESCR, explorador,
+  L, esc, icone, MENU_ERP, ROTAS, modulos, filhos, novoEstado, ecrasCasa, cartoesEcras, separadores, corpoEspaco, menuConta, dialogo, explorador,
   ESTADOS, estadosEspaco, type Estado, type LinhaMenu, type Hist,
 } from './espaco';
 import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
@@ -57,7 +57,7 @@ export function quando(ts: number, agora = Date.now()): string {
 type Item = { t: string; ic: string; attr: string; k?: string; off?: string } | '-';
 export function menuV6(e: Estado): string {
   const mods = e.semModulos ? [] : modulos(e.perfil).filter((m) => m.ativo);
-  const fix = e.fixados.filter((r) => ROTAS[r]);
+  const fix = ecrasCasa(e);
   const doModulo = (m: LinhaMenu): Item[] => [
     { t: `Abrir a pasta ${m.rotulo}`, ic: L(folderOpen), attr: `data-dk-pasta-abrir="${m.id}"`, k: 'Enter' }, '-',
     ...filhos(m.id, e.perfil).map((f): Item => {
@@ -87,18 +87,10 @@ export function menuV6(e: Estado): string {
 }
 
 /* ---------- o explorador ---------- */
-function pastaV6(m: LinhaMenu, e: Estado, i: number): string {
-  const n = filhos(m.id, e.perfil).filter((f) => f.registada && f.permitido).length;
-  return `<button type="button" class="dk6-pasta" data-dk-pasta="${m.id}" aria-selected="${e.sel === m.id}" style="--i:${i}" title="Abrir ${esc(m.rotulo)} (Enter)">
-    ${pastaArte(m.icone)}
-    <span class="dk6-pasta-t"><small>Módulo</small><b>${esc(m.rotulo)}</b><span>${esc(DESCR[m.id] ?? '')}</span><em>${n} ${n === 1 ? 'ecrã' : 'ecrãs'}</em></span>
-    ${L(chevronRight, 'dk6-pasta-seta')}
-  </button>`;
-}
 function rapidoV6(e: Estado): string {
   const l = e.fixados.filter((r) => ROTAS[r]);
   return `<section class="dk6-sec dk6-sec--rapido" aria-labelledby="dk6-ar-t"><div class="dk6-sec-cab"><h2 id="dk6-ar-t">Acesso rápido</h2><small>Ctrl D fixa o ecrã escolhido</small></div>
-    ${l.length ? `<ul class="dk6-atalhos">${l.map((r, i) => `<li style="--i:${i}"><button type="button" class="dk6-atalho" data-dk-atalho="${r}" title="Abrir ${esc(ROTAS[r].titulo)}${i < 9 ? ` (Alt ${i + 1})` : ''}"><span class="dk6-atalho-ic">${icone(ROTAS[r].icone)}</span><span class="dk6-atalho-t"><b>${esc(ROTAS[r].titulo)}</b><small>${esc(modDe(r))}</small></span>${i < 9 ? `<kbd>Alt ${i + 1}</kbd>` : ''}</button><button type="button" class="dk6-atalho-pin" data-dk-desafixar="${r}" aria-label="Desafixar ${esc(ROTAS[r].titulo)}" title="Desafixar">${L(pinOff)}</button></li>`).join('')}</ul>`
+    ${l.length ? `<ul class="dk6-atalhos">${l.map((r, i) => `<li style="--i:${i}"><button type="button" class="dk6-atalho" data-dk-atalho="${r}" title="Abrir ${esc(ROTAS[r].titulo)}"><span class="dk6-atalho-ic">${icone(ROTAS[r].icone)}</span><span class="dk6-atalho-t"><b>${esc(ROTAS[r].titulo)}</b><small>${esc(modDe(r))}</small></span></button><button type="button" class="dk6-atalho-pin" data-dk-desafixar="${r}" aria-label="Desafixar ${esc(ROTAS[r].titulo)}" title="Desafixar">${L(pinOff)}</button></li>`).join('')}</ul>`
     : `<p class="dk6-vazio">${L(pin)}<span><b>Sem atalhos.</b>Abre uma pasta, escolhe um ecrã e carrega em Ctrl D para o fixar aqui.</span></p>`}
   </section>`;
 }
@@ -133,7 +125,7 @@ export function exploradorV6(e: Estado): string {
   if (!mods.length) return `<div class="dk-exp dk6-exp">${cab}<p class="dk6-vazio dk6-vazio--grande">${L(shieldX)}<span><b>A tua conta ainda não tem módulos do ERP.</b>Pede o acesso ao administrador da tua empresa.</span></p></div>`;
   return `<div class="dk-exp dk6-exp" data-vista="grelha">${cab}
     <div class="dk6-grade">
-      <section class="dk6-sec dk6-sec--mods" aria-labelledby="dk6-mo-t"><div class="dk6-sec-cab"><h2 id="dk6-mo-t">Módulos</h2></div><div class="dk-grelha dk6-mods">${mods.map((m, i) => pastaV6(m, e, i)).join('')}</div></section>
+      <section class="dk6-sec dk6-sec--mods" aria-labelledby="dk6-mo-t"><div class="dk6-sec-cab"><h2 id="dk6-mo-t">${mods.map((m) => esc(m.rotulo)).join(' · ')}</h2></div>${cartoesEcras(e)}</section>
       ${rapidoV6(e)}
     </div>
     ${trabalhoV6(e)}

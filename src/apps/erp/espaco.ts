@@ -242,17 +242,11 @@ export const TIPO: Record<string, [string, string]> = {
 export function pastaArte(ic: string, cls = ''): string {
   return `<span class="dk-arte${cls ? ` ${cls}` : ''}" aria-hidden="true"><svg viewBox="0 0 160 120"><path class="dk-p-fundo" d="M10 16a8 8 0 0 1 8-8h40a8 8 0 0 1 6 2.8L74 22h68a8 8 0 0 1 8 8v74a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8Z"/><rect class="dk-p-folha dk-p-folha--2" x="26" y="22" width="108" height="56" rx="3"/><rect class="dk-p-folha" x="20" y="28" width="120" height="56" rx="3"/><path class="dk-p-frente" d="M4 44a8 8 0 0 1 8-8h136a8 8 0 0 1 8 8l-4.4 60a8 8 0 0 1-8 7.4H16.4a8 8 0 0 1-8-7.4Z"/></svg>${icone(ic, 'dk-arte-ic')}</span>`;
 }
-function modulo(m: LinhaMenu, e: Estado, i: number): string {
-  const fs = filhos(m.id, e.perfil).filter((f) => f.registada && f.permitido);
-  const l = encomendas();
-  const n = m.id === 'compras' ? [[l.filter((x) => x.estado === 'A aprovar').length, 'por aprovar'], [l.filter((x) => ['Aprovada', 'Emitida', 'Parcialmente recebida'].includes(x.estado)).length, 'em curso'], [l.filter((x) => x.estado === 'Rascunho').length, 'rascunhos']] as [number, string][] : [];
-  return `<article class="dk-mod${e.sel === m.id ? ' is-sel' : ''}" style="--i:${i}">
-    <button type="button" class="dk-mod-abrir" data-dk-pasta="${m.id}" aria-selected="${e.sel === m.id}" aria-describedby="dk-mod-d-${m.id}">${pastaArte(m.icone)}<span class="dk-mod-t"><small>Módulo</small><b>${esc(m.rotulo)}</b></span></button>
-    <p class="dk-mod-d" id="dk-mod-d-${m.id}">${esc(DESCR[m.id] ?? '')}</p>
-    ${n.length ? `<dl class="dk-mod-n">${n.map(([v, t]) => `<div><dd>${v}</dd><dt>${t}</dt></div>`).join('')}</dl>` : ''}
-    <div class="dk-mod-ecras">${fs.map((f) => `<button type="button" class="dk-chip" data-dk-atalho="${f.rota}">${icone(f.icone)}${esc(f.rotulo)}</button>`).join('')}</div>
-    <button type="button" class="dk-mod-cta" data-dk-pasta-abrir="${m.id}">Abrir ${esc(m.rotulo)}${L(chevronRight)}</button>
-  </article>`;
+/** Os ecrãs que abrem da área de trabalho, pela ordem do menu: os cartões e as teclas Alt 1…9 (como no ERP antigo). */
+export const ecrasCasa = (e: Estado) => (e.semModulos ? [] : modulos(e.perfil).filter((m) => m.ativo)).flatMap((m) => filhos(m.id, e.perfil).filter((f) => f.registada && f.permitido)).map((f) => f.rota!);
+/** Os cartões (22 out., ela: «quero como» o ERP antigo): brancos, o ícone, o nome, o código e a tecla. Um clique abre. */
+export function cartoesEcras(e: Estado): string {
+  return `<div class="dk-cartoes">${ecrasCasa(e).map((r, i) => `<button type="button" class="dk-cartao" data-dk-atalho="${r}" style="--i:${i}" title="Abrir ${esc(ROTAS[r].titulo)}${i < 9 ? ` (Alt ${i + 1})` : ''}">${icone(ROTAS[r].icone, 'dk-cartao-ic')}<b>${esc(ROTAS[r].titulo)}</b><small>${esc(r.split('.')[1].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase())}</small>${i < 9 ? `<kbd>Alt+${i + 1}</kbd>` : ''}</button>`).join('')}</div>`;
 }
 function trabalho(e: Estado): string {
   const aba = e.trabalho ?? 'recentes';
@@ -287,7 +281,7 @@ export function explorador(e: Estado): string {
     return `<div class="dk-exp dk-exp--raiz" data-vista="${e.vista}">
       <div class="dk-titulo dk-titulo--raiz"><h1>Área de trabalho</h1><p>Os teus módulos, documentos e tarefas · ${esc(p.pessoa)}, ${esc(p.cargo)}</p></div>
       ${ativos.length ? `<div class="dk-palco">
-        <section class="dk-sec dk-mods-sec" aria-labelledby="dk-mod-t"><div class="dk-sec-cab"><h2 id="dk-mod-t">Módulos</h2></div><div class="dk-mods">${ativos.map((m, i) => modulo(m, e, i)).join('')}</div></section>
+        <section class="dk-sec dk-mods-sec" aria-labelledby="dk-mod-t"><div class="dk-sec-cab"><h2 id="dk-mod-t">${ativos.map((m) => esc(m.rotulo)).join(' · ')}</h2></div>${cartoesEcras(e)}</section>
         ${rapido(e)}
       </div>
       ${trabalho(e)}
@@ -361,7 +355,7 @@ export function banner(e: Estado): string {
 /** Os atalhos (V6): os do ERP antigo e os da área de trabalho; a ajuda mostra-os todos. */
 export const ATALHOS: [string, string][] = [
   ['Procurar ou executar', 'Ctrl K'], ['Ir para o menu', 'F10'], ['Abrir o escolhido', 'Enter'], ['Voltar à pasta de cima', 'Alt ←'],
-  ['Fixar no acesso rápido', 'Ctrl D'], ['Fixar o separador', 'Alt P'], ['Fechar o separador', 'Alt W'], ['Acesso rápido 1 a 9', 'Alt 1…9'],
+  ['Fixar no acesso rápido', 'Ctrl D'], ['Fixar o separador', 'Alt P'], ['Fechar o separador', 'Alt W'], ['Abrir os ecrãs da área de trabalho', 'Alt 1…9'],
   ['Novo', 'F5'], ['Editar', 'F6'], ['Eliminar', 'F8'], ['Atualizar', 'F9'], ['Imprimir', 'F11'], ['Atalhos de teclado', 'F1'],
 ];
 export function dialogo(e: Estado): string {
