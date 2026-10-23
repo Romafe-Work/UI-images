@@ -121,3 +121,9 @@
 .dk8 :is(.dk-cartao-ic, .dk7-i svg, .dk8-pasta-ic svg, .dk7-rail svg, .dk-sep-ic, .dk-acao svg, .dk7-lin-b svg, .dk8-seta, .hm-icone svg, .dk7-g--sub .dk7-g-t svg) { color: var(--romafe) !important; }
 .dk8 .dk7-cartao .dk-cartao-ic { color: var(--romafe) !important; }
 .dk8 .dk8-seta { background: color-mix(in srgb, var(--romafe) 12%, transparent); }
+.dk8 .dk7-i.is-antigo svg { color: var(--romafe) !important; opacity: .45; }
+.dk8 .dk7-g--sub > .dk7-l { margin-left: 18px; }
+/* 23 out.: o menu Compras do ERP antigo tem nomes longos — o menu alarga e os nomes passam à linha, inteiros */
+.dk8:not(.is-rail) { --lado: 268px; }
+.dk8:not(.is-rail) .dk7-i { height: auto; min-height: 34px; padding-top: 6px; padding-bottom: 6px; }
+.dk8:not(.is-rail) .dk7-i span { white-space: normal; line-height: 1.3; overflow: visible; text-overflow: clip; }

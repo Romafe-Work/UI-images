@@ -47,6 +47,7 @@ export const estadoLat = (o: Partial<Estado> = {}): Estado => ({ ...estadoV6(), 
 /* ---------- o menu lateral ---------- */
 const rotaAtiva = (e: Estado) => e.ativo === 'inicio' ? '' : e.seps.find((s) => s.id === e.ativo)?.rota ?? '';
 function itemNav(n: NoNav, e: Estado): string {
+  if (n.antigo) return `<li><button type="button" class="dk7-i is-antigo" aria-disabled="true" data-dk7-antigo="${esc(n.rotulo)}" data-dica="${esc(n.rotulo)} · no ERP antigo" title="${esc(n.rotulo)} — ainda no ERP antigo">${n.icone ? icone(n.icone) : '<i class="dk7-i-vazio"></i>'}<span>${esc(n.rotulo)}</span></button></li>`;
   const ativa = n.acao === 'casa' ? e.ativo === 'inicio' && !e.semCasa : !!n.rota && n.rota === rotaAtiva(e);
   const alvo = n.rota ? `data-dk-atalho="${n.rota}"` : n.acao === 'casa' ? 'data-dk-casa' : n.acao === 'atalhos' ? 'data-dk-ajuda-atalhos' : '';
   const tecla = n.acao === 'atalhos' ? '<kbd>F1</kbd>' : '';
@@ -55,8 +56,9 @@ function itemNav(n: NoNav, e: Estado): string {
 function grupoNav(g: NoNav, e: Estado, nivel = 0): string {
   /* Principal não se dobra; os outros grupos sim (e os sub-grupos, se a configuração os tiver) */
   if (g.id === 'principal') return `<ul class="dk7-l">${g.filhos.map((f) => itemNav(f, e)).join('')}</ul>`;
-  const aberto = e.arvore[g.id] !== false, temAtivo = (n: NoNav): boolean => n.rota === rotaAtiva(e) || n.filhos.some(temAtivo);
-  const corpo = g.filhos.map((f) => f.filhos.length ? `<li>${grupoNav(f, e, nivel + 1)}</li>` : itemNav(f, e)).join('');
+  /* os sub-grupos (Mapas ▸ …) começam fechados; os grupos de cima abertos */
+  const aberto = nivel ? e.arvore[g.id] === true : e.arvore[g.id] !== false, temAtivo = (n: NoNav): boolean => n.rota === rotaAtiva(e) || n.filhos.some(temAtivo);
+  const corpo = g.filhos.map((f, i) => `${f.sep && i ? '<li class="dk7-sep-l" role="separator"></li>' : ''}${f.filhos.length ? `<li>${grupoNav(f, e, nivel + 1)}</li>` : itemNav(f, e)}`).join('');
   /* v7 (vivo): cada grupo é uma pasta que abre e fecha; a de um módulo (Compras) também se abre como espaço de trabalho */
   const pastaIc = e.vivo ? `<span class="dk8-pasta-ic" aria-hidden="true">${L(folder, 'dk8-fechada')}${L(folderOpen, 'dk8-aberta')}</span>` : nivel ? icone(g.icone) : '';
   const modulo = e.vivo && !nivel && MENU_ERP.some((m) => m.id === g.id && !m.pai && m.ativo);

@@ -545,7 +545,8 @@ export function iniciar(): void {
     if (vivo.ligado(pg)) vivo.marcar(t.closest<HTMLElement>('button'));
     if ((b = t.closest('[data-dk8-pasta]'))) { const id = b.dataset.dk8Pasta!; const ic = b.closest('[data-dk8-g]')?.querySelector<HTMLElement>('.dk8-pasta-ic'); vivo.marcar(b, ic?.getBoundingClientRect()); abrirPasta(id); return; }
     /* v6: o menu lateral, os favoritos e a gaveta */
-    if ((b = t.closest('[data-dk7-grupo]'))) { const id = b.dataset.dk7Grupo!; e.arvore[id] = e.arvore[id] === false; desenhar({ exp: false }); $<HTMLElement>(`[data-dk7-grupo="${id}"]`)?.focus(); if (e.arvore[id] !== false) $(`#dk7-g-${id}`)?.classList.add('is-abrir'); return; }
+    if ((b = t.closest('[data-dk7-antigo]'))) { dizer(`«${b.dataset.dk7Antigo}» ainda está no ERP antigo.`); return; }
+    if ((b = t.closest('[data-dk7-grupo]'))) { const id = b.dataset.dk7Grupo!; e.arvore[id] = b.getAttribute('aria-expanded') !== 'true'; desenhar({ exp: false }); $<HTMLElement>(`[data-dk7-grupo="${id}"]`)?.focus(); if (e.arvore[id]) $(`#dk7-g-${id}`)?.classList.add('is-abrir'); return; }
     if (t.closest('[data-dk7-rail]')) { e.rail = !e.rail; dica(null); desenhar({ exp: false }); $('[data-dk7-lado]')?.classList.add('is-mudar'); window.setTimeout(() => $('[data-dk7-lado]')?.classList.remove('is-mudar'), 260); $<HTMLElement>('[data-dk7-rail]')?.focus(); return; }
     if ((b = t.closest('[data-dk7-fav]'))) { const r = b.dataset.dk7Fav!; e.fixados = e.fixados.includes(r) ? e.fixados.filter((y) => y !== r) : [...e.fixados, r]; dizer(e.fixados.includes(r) ? `«${ROTAS[r]?.titulo}» nos favoritos.` : `«${ROTAS[r]?.titulo}» saiu dos favoritos.`); desenhar(); $<HTMLElement>(`[data-dk7-fav="${r}"]`)?.focus(); return; }
     if (t.closest('[data-dk7-gaveta]')) { gaveta(!pg.classList.contains('is-gaveta')); return; }

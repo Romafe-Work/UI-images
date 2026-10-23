@@ -14,7 +14,7 @@
 import type { IdPerfil } from './inicio-dados';
 import { MENU_ERP, ROTAS } from './espaco';
 
-export interface LinhaNav { id: string; app: 'erp'; pai: string | null; rotulo: string; icone: string; rota: string | null; acao?: string; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean; casa?: number; curto?: string; /** fora do menu lateral, mas as rotas continuam (os cartões do Início abrem-nas) */ semMenu?: boolean }
+export interface LinhaNav { id: string; app: 'erp'; pai: string | null; rotulo: string; icone: string; rota: string | null; acao?: string; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean; casa?: number; curto?: string; /** fora do menu lateral, mas as rotas continuam (os cartões do Início abrem-nas) */ semMenu?: boolean; /** um separador antes (como no menu do ERP antigo) */ sep?: boolean; /** ainda sem ecrã novo: aparece desligado, como no ERP antigo */ antigo?: boolean }
 const G = (id: string, rotulo: string, icone: string, ordem: number): LinhaNav => ({ id, app: 'erp', pai: null, rotulo, icone, rota: null, ordem, permissoes: '*', ativo: true });
 const F = (id: string, pai: string, rotulo: string, icone: string, rota: string, ordem: number, casa?: number): LinhaNav => ({ id, app: 'erp', pai, rotulo, icone, rota, ordem, permissoes: '*', ativo: true, casa });
 
@@ -32,8 +32,11 @@ export const NAV_ERP: LinhaNav[] = [
   F('ficheiros-marcas', 'ficheiros', 'Marcas', 'tag', 'ficheiros.marcas', 40, 4),
   F('ficheiros-unidades', 'ficheiros', 'Unidades de medida', 'ruler', 'ficheiros.unidades', 50, 5),
   { ...G('compras', 'Compras', 'shopping-cart', 30), permissoes: MENU_ERP.find((l) => l.id === 'compras')!.permissoes },
-  /* os ecrãs de Compras: as linhas de MENU_ERP (a mesma configuração da v5); Encomendas é o 6.º atalho */
-  ...MENU_ERP.filter((l) => l.pai === 'compras' && !l.so).map((l): LinhaNav => ({ id: l.id, app: 'erp', pai: 'compras', rotulo: l.rotulo, icone: l.icone, rota: l.rota, ordem: l.ordem, permissoes: l.permissoes, ativo: l.ativo, casa: l.rota === 'compras.encomendas' ? 6 : undefined, curto: l.rota === 'compras.encomendas' ? 'Encomendas' : undefined })),
+  /* Compras (23 out., ela mostrou o menu do ERP antigo): todas as linhas de MENU_ERP debaixo de Compras, pela ordem do
+     menu antigo (om), com os separadores e os Mapas em submenus; o que ainda não tem ecrã novo vem «antigo» (desligado).
+     Encomendas é o 6.º atalho do Início. */
+  ...MENU_ERP.filter((l) => { for (let p = l.pai; p; p = MENU_ERP.find((m) => m.id === p)?.pai ?? null) if (p === 'compras') return true; return false; })
+    .map((l): LinhaNav => ({ id: l.id, app: 'erp', pai: l.pai, rotulo: l.rotulo, icone: l.icone, rota: l.rota, ordem: l.om ?? l.ordem, permissoes: l.permissoes, ativo: l.ativo, sep: l.sep, antigo: !(l.rota && ROTAS[l.rota]) && !MENU_ERP.some((m) => m.pai === l.id), casa: l.rota === 'compras.encomendas' ? 6 : undefined, curto: l.rota === 'compras.encomendas' ? 'Encomendas' : undefined })),
   G('ajuda', 'Ajuda', 'life-buoy', 90),
   { ...F('ajuda-atalhos', 'ajuda', 'Atalhos de teclado', 'keyboard', '', 10), rota: null, acao: 'atalhos' },
 ];
@@ -45,7 +48,7 @@ const valida = (l: LinhaNav) => (l.rota ? !!ROTAS[l.rota] : !!(l.acao && ACOES_N
 export function navegacao(p: IdPerfil, linhas: LinhaNav[] = NAV_ERP): NoNav[] {
   const ramo = (pai: string | null): NoNav[] => linhas.filter((l) => l.pai === pai && l.ativo && pode(l, p)).sort((a, b) => a.ordem - b.ordem)
     .map((l) => ({ ...l, filhos: ramo(l.id) }))
-    .filter((n) => n.filhos.length ? true : pai !== null && valida(n));
+    .filter((n) => n.filhos.length ? true : pai !== null && (valida(n) || !!n.antigo));
   return ramo(null);
 }
 /** Os atalhos do Início (os seis que a gestão aprovou), pela ordem da casa; só os permitidos e registados. */

@@ -142,3 +142,12 @@
 @media (prefers-reduced-motion: reduce) {
   .dk7 *, .dk7 *::before, .dk7-dica { animation: none !important; transition: none !important; }
 }
+
+/* 23 out.: o menu Compras como no ERP antigo — separadores e o que ainda não tem ecrã novo, desligado */
+.dk7-sep-l { height: 1px; margin: 4px 10px; background: var(--k-borda); list-style: none; }
+.dk7-i.is-antigo { color: var(--k-tinta-3); cursor: default; }
+.dk7-i.is-antigo svg { opacity: .5; }
+.dk7-i.is-antigo:hover { background: color-mix(in srgb, var(--k-tinta-3) 7%, transparent); }
+.dk7-i-vazio { display: block; width: 18px; flex: none; }
+.dk7-g--sub > .dk8-g-cab .dk7-g-t, .dk7-g--sub > .dk7-g-t { height: 34px; padding: 0 10px; }
+.dk7.is-rail .dk7-sep-l { margin: 4px 6px; }
