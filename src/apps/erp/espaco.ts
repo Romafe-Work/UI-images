@@ -149,7 +149,7 @@ export const icone = (n: string, cls = '') => L(ICONES[n] ?? file, cls);
 /** As teclas do ERP antigo, numa barra que muda com o separador. */
 export type Acao = 'novo' | 'editar' | 'eliminar' | 'atualizar' | 'imprimir';
 export const TECLA: Record<Acao, string> = { novo: 'F5', editar: 'F6', eliminar: 'F8', atualizar: 'F9', imprimir: 'F11' };
-export interface Rota { ecra: string; titulo: string; icone: string; acoes: Acao[]; novo?: [string, string]; editar?: [string, string] }
+export interface Rota { ecra: string; titulo: string; icone: string; acoes: Acao[]; novo?: [string, string]; editar?: [string, string]; /** outra rota que abre o mesmo separador (e o modo em que o abre) */ alias?: string; modo?: string }
 /** O registo: a rota da base de dados → um ecrã que existe. O que não está aqui não abre (nunca se executa código vindo da base). */
 export const ROTAS: Record<string, Rota> = {
   'compras.faltas': { ecra: 'compras-faltas', titulo: 'Lista de faltas', icone: 'package-x', acoes: ['novo', 'editar', 'eliminar', 'atualizar', 'imprimir'], novo: ['compras-encomenda', 'Nova encomenda'], editar: ['compras-encomenda', 'EF 2026/0413'] },
@@ -179,6 +179,14 @@ MENU_ANTIGO.forEach((id) => {
 });
 /* o separador de Artigos/Compras Automático chama-se «Artigos / Compras» (o briefing) */
 ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
+/* 23 out. (ela: «quero num só ecrã»): os comparativos «X» e «X (variação anual)» são um ecrã só. A rota nova (-var) abre
+   em Variações anuais; a antiga (sem -var) continua a existir para os favoritos e os atalhos e abre o MESMO separador
+   em Mensal (se já estiver aberto, ativa-o e muda-lhe o modo). */
+([['comp-geral', 'Comparativo geral'], ['comp-artigo', 'Comparativo por artigo'], ['comp-familia', 'Comparativo Família/Subfamília'], ['comp-forn', 'Comparativo por fornecedor']] as const).forEach(([v, t]) => {
+  const alvo = `compras.${v}-var`; if (!ROTAS[alvo]) return;
+  ROTAS[alvo].titulo = t;
+  ROTAS[`compras.${v}`] = { ...ROTAS[alvo], alias: alvo, modo: 'mensal' };
+});
 export const rotaDoEcra = (ecra: string) => Object.keys(ROTAS).find((k) => ROTAS[k].ecra === ecra);
 const pode = (l: LinhaMenu, p: IdPerfil) => l.permissoes === '*' || l.permissoes.includes(p);
 /** Os módulos do perfil, pela ordem da base; os inativos vêm marcados (referência), não como se funcionassem. */
@@ -190,7 +198,7 @@ export const linhasMenu = (pai: string, p: IdPerfil) => MENU_ERP.filter((l) => l
 /* =========================================================
    O estado da área de trabalho
    ========================================================= */
-export interface Sep { id: string; rota: string; titulo: string; sujo?: boolean }
+export interface Sep { id: string; rota: string; titulo: string; sujo?: boolean; /** o modo em que o separador abriu (comparativos) */ modo?: string }
 export interface Janela { id: string; tipo: 'fornecedor' | 'artigo'; chave: string; x: number; y: number; w: number; h: number; min?: boolean; max?: boolean; z: number }
 export type Banner = '' | 'offline' | 'restaurada' | 'primeira' | 'sem-permissao' | 'navegacao' | 'rota' | 'desconhecido';
 /** Um ecrã aberto de verdade (V6): o que «Recentes» mostra; nada inventado. */

@@ -38,6 +38,7 @@ import chevronsUp from 'lucide-static/icons/chevrons-up.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import calendarRange from 'lucide-static/icons/calendar-range.svg?raw';
 import calendarDays from 'lucide-static/icons/calendar-days.svg?raw';
+import chartLine from 'lucide-static/icons/chart-line.svg?raw';
 
 /* ---------- os dados ---------- */
 export const ANO_ATUAL = Number(HOJE.slice(0, 4));
@@ -46,12 +47,23 @@ export const ANO_MIN = 2000;
 export interface EncCf { ref: string; data: string; qtd: number; liq: number; arquivo: boolean }
 /** futuro: o mês ainda não chegou (só no Geral, que tem uma linha por mês) */
 export interface AnoCf { qtd: number; liq: number; encs: EncCf[]; futuro?: boolean }
+/** Os filtros que o relatório sabe aplicar (os mesmos nos dois modos). */
+export interface FiltrosCf { ref?: string; fam?: string; sub?: string; marca?: string; forn?: string }
+export type FiltroCf = keyof FiltrosCf;
 /** Uma linha: os campos que a descrevem (Nº, nome, país… conforme a dimensão) e os três anos. */
-export interface LinhaCf { id: string; c: Record<string, string>; anos: AnoCf[] }
-export interface RelCf { anos: number[]; semDados: number[]; linhas: LinhaCf[] }
+export interface LinhaCf { id: string; c: Record<string, string>; anos: AnoCf[]; /** mensal: um por mês do período */ mes?: AnoCf[]; /** mensal detalhado: a linha de que este mês é */ ent?: string }
+/** per: o período mensal (AAAA-MM, por ordem); detalhe: as linhas do relatório mensal original (uma por mês e linha) */
+export interface RelCf { anos: number[]; semDados: number[]; linhas: LinhaCf[]; filtros: FiltrosCf; per?: { meses: string[] }; detalhe?: LinhaCf[] }
 const PAISES: Record<string, string> = { PT: 'Portugal', ES: 'Espanha', BE: 'Bélgica', DE: 'Alemanha' };
-const MES_NOME = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+export const MES_NOME = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const fNome = (id: string) => FORNECEDORES.find((f) => f.id === id)?.nome ?? id;
+/* as famílias e as subfamílias do protótipo, com códigos (de exemplo, pela ordem alfabética: 01, 0101…) */
+export const FAMILIAS = [...new Set(ARTIGOS.map((a) => familiaDe(a.desc)))].sort((a, b) => a.localeCompare(b, 'pt'));
+export const subfamiliasDe = (fam: string) => [...new Set(ARTIGOS.filter((a) => !fam || familiaDe(a.desc) === fam).map((a) => a.desc))].sort((a, b) => a.localeCompare(b, 'pt'));
+export const codFam = (fam: string) => String(FAMILIAS.indexOf(fam) + 1).padStart(2, '0');
+export const codSub = (fam: string, sub: string) => `${codFam(fam)}${String(subfamiliasDe(fam).indexOf(sub) + 1).padStart(2, '0')}`;
+export const MARCAS = [...new Set(ARTIGOS.map((a) => a.marca))].sort((a, b) => a.localeCompare(b, 'pt'));
+export const fornecedorNome = fNome;
 /** O Nº do fornecedor (de exemplo: o protótipo não o tinha). */
 export const numForn = (id: string) => String(2001 + FORNECEDORES.findIndex((f) => f.id === id));
 /** (B − A) ÷ A. null: sem base (A = 0, B ≠ 0) — N/D; undefined: nada nos dois anos. */
@@ -80,6 +92,10 @@ export interface DimDef {
   um: string; varios: string; nenhum: string; descr: ColDesc[]; ocultas0: string[]; esconder: [string, string][]; grupos0: string[];
   /** há o modo Mês a mês (o Geral já é por mês) */
   mensal: boolean; exemplo: string; grupoEx: string;
+  /** os filtros que esta dimensão oferece; a vista mensal por omissão (linhas = o relatório original) */
+  filtros: FiltroCf[]; vistaM: 'linhas' | 'quadro';
+  /** o gráfico da evolução por cima da grelha (o Geral) */
+  grafico?: boolean;
   chave: (f: Fonte) => string; campos: (id: string) => Record<string, string>; todas?: () => string[];
   /** o cabeçalho do detalhe: o que é, o nome e uma linha */
   cab: (l: LinhaCf) => [string, string, string]; janelas: (l: LinhaCf) => [string, string, string][];
@@ -88,29 +104,29 @@ const art = (ref: string) => ARTIGOS.find((a) => a.ref === ref);
 const famKey = (ref: string) => { const a = art(ref); return `${familiaDe(a?.desc ?? '')}|${a?.desc ?? ref}`; };
 const TEND: ColDesc = { k: 'tend', t: 'Tendência', tipo: 'txt', w: 170, agrupa: true };
 export const DIMS: Record<DimCf, DimDef> = {
-  geral: { id: 'geral', base: 'cm-comp-geral-var', pre: 'compgeral', titulo: 'Comparativo Geral', sub: 'Compara as compras de cada mês ao longo dos anos.', caminho: 'Geral', ficheiro: 'geral',
-    um: 'mês', varios: 'meses', nenhum: 'nenhum mês', mensal: false, exemplo: '10', grupoEx: 'tri', grupos0: [], ocultas0: ['tend'],
+  geral: { id: 'geral', base: 'cm-comp-geral-var', pre: 'compgeral', titulo: 'Comparativo Geral de Compras', sub: 'Analisa a evolução global das compras ao longo do tempo.', caminho: 'Geral', ficheiro: 'geral',
+    um: 'mês', varios: 'meses', nenhum: 'nenhum mês', mensal: true, filtros: [], vistaM: 'linhas', grafico: true, exemplo: '10', grupoEx: 'tri', grupos0: [], ocultas0: ['tend'],
     descr: [{ k: 'mes', t: 'Mês', tipo: 'txt', w: 130, fixa: true }, { k: 'tri', t: 'Trimestre', tipo: 'txt', w: 120, agrupa: true }, TEND],
     esconder: [['tri', 'Trimestre'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']],
     chave: (f) => f.data.slice(5, 7), todas: () => MES_NOME.map((_, i) => String(i + 1).padStart(2, '0')),
     campos: (id) => ({ mes: MES_NOME[Number(id) - 1], tri: `${Math.ceil(Number(id) / 3)}.º trimestre` }),
-    cab: (l) => ['Mês', l.c.mes, l.c.tri], janelas: () => [] },
-  artigo: { id: 'artigo', base: 'cm-comp-artigo-var', pre: 'compartigo', titulo: 'Comparativo por Artigo', sub: 'Analisa a evolução das compras de cada artigo ao longo dos anos.', caminho: 'Por artigo', ficheiro: 'artigos',
-    um: 'artigo', varios: 'artigos', nenhum: 'nenhum artigo', mensal: true, exemplo: '6206-2RSH', grupoEx: 'fam', grupos0: [], ocultas0: ['marca', 'tend'],
-    descr: [{ k: 'ref', t: 'Artigo', tipo: 'mono', w: 130, fixa: true }, { k: 'desc', t: 'Descrição', tipo: 'txt', w: 210, fixa: true }, { k: 'marca', t: 'Marca', tipo: 'txt', w: 90, agrupa: true }, { k: 'fam', t: 'Família', tipo: 'txt', w: 130, agrupa: true }, { k: 'forn', t: 'Fornecedor', tipo: 'txt', w: 140, agrupa: true }, TEND],
-    esconder: [['marca', 'Marca'], ['fam', 'Família'], ['forn', 'Fornecedor'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']],
+    cab: (l) => l.id === 'tudo' ? ['Geral', 'Todas as compras', 'o período escolhido'] : ['Mês', l.c.mes, l.c.tri], janelas: () => [] },
+  artigo: { id: 'artigo', base: 'cm-comp-artigo-var', pre: 'compartigo', titulo: 'Comparativo de Compras por Artigo', sub: 'Analisa quantidades e valores de compra por artigo ao longo do tempo.', caminho: 'Por artigo', ficheiro: 'artigos',
+    um: 'artigo', varios: 'artigos', nenhum: 'nenhum artigo', mensal: true, filtros: ['ref', 'fam', 'sub', 'marca', 'forn'], vistaM: 'linhas', exemplo: '6206-2RSH', grupoEx: 'fam', grupos0: [], ocultas0: ['marca', 'sub', 'tend'],
+    descr: [{ k: 'ref', t: 'Referência', tipo: 'mono', w: 130, fixa: true }, { k: 'desc', t: 'Descrição', tipo: 'txt', w: 210, fixa: true }, { k: 'marca', t: 'Marca', tipo: 'txt', w: 90, agrupa: true }, { k: 'fam', t: 'Família', tipo: 'txt', w: 130, agrupa: true }, { k: 'sub', t: 'Subfamília', tipo: 'txt', w: 200, agrupa: true }, { k: 'forn', t: 'Fornecedor', tipo: 'txt', w: 140, agrupa: true }, TEND],
+    esconder: [['marca', 'Marca'], ['fam', 'Família'], ['sub', 'Subfamília'], ['forn', 'Fornecedor'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']],
     chave: (f) => f.ref, todas: () => ARTIGOS.map((a) => a.ref),
-    campos: (id) => { const a = art(id); return { ref: id, desc: a?.desc ?? '—', marca: a?.marca ?? '—', fam: familiaDe(a?.desc ?? ''), forn: a ? fNome(a.forn) : '—' }; },
-    cab: (l) => ['Artigo', l.c.ref, `${l.c.desc} · ${l.c.marca} · ${l.c.forn}`], janelas: (l) => [[`artigo:${l.c.ref}`, 'warehouse', 'Stock por armazém']] },
-  familia: { id: 'familia', base: 'cm-comp-familia-var', pre: 'compfamilia', titulo: 'Comparativo por Família/Subfamília', sub: 'Analisa a evolução das compras de cada família e subfamília ao longo dos anos.', caminho: 'Por família/subfamília', ficheiro: 'familias',
-    um: 'subfamília', varios: 'subfamílias', nenhum: 'nenhuma subfamília', mensal: true, exemplo: `Rolamentos|Rolamento rígido de esferas`, grupoEx: 'fam', grupos0: ['fam'], ocultas0: ['tend'],
-    descr: [{ k: 'fam', t: 'Família', tipo: 'txt', w: 150, agrupa: true, fixa: true }, { k: 'sub', t: 'Subfamília', tipo: 'txt', w: 230, fixa: true }, { k: 'arts', t: 'Artigos', tipo: 'txt', w: 90 }, TEND],
-    esconder: [['arts', 'Artigos'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']],
+    campos: (id) => { const a = art(id); return { ref: id, desc: a?.desc ?? '—', marca: a?.marca ?? '—', fam: familiaDe(a?.desc ?? ''), sub: a?.desc ?? '—', forn: a ? fNome(a.forn) : '—' }; },
+    cab: (l) => ['Artigo', l.c.ref, `${l.c.desc} · ${l.c.fam} · ${l.c.marca} · ${l.c.forn}`], janelas: (l) => [[`artigo:${l.c.ref}`, 'package', 'Ver artigo'], [`artigo:${l.c.ref}`, 'warehouse', 'Stock por armazém']] },
+  familia: { id: 'familia', base: 'cm-comp-familia-var', pre: 'compfamilia', titulo: 'Comparativo por Família / Subfamília', sub: 'Analisa a evolução das compras de cada família e subfamília ao longo dos anos.', caminho: 'Por família/subfamília', ficheiro: 'familias',
+    um: 'subfamília', varios: 'subfamílias', nenhum: 'nenhuma subfamília', mensal: true, filtros: ['fam', 'sub', 'forn'], vistaM: 'linhas', exemplo: `Rolamentos|Rolamento rígido de esferas`, grupoEx: 'fam', grupos0: ['fam'], ocultas0: ['tend'],
+    descr: [{ k: 'codFam', t: 'Cód.', tipo: 'mono', w: 60, fixa: true }, { k: 'fam', t: 'Família', tipo: 'txt', w: 150, agrupa: true, fixa: true }, { k: 'codSub', t: 'Cód.', tipo: 'mono', w: 70, fixa: true }, { k: 'sub', t: 'Subfamília', tipo: 'txt', w: 220, fixa: true }, { k: 'arts', t: 'Artigos', tipo: 'txt', w: 90 }, TEND],
+    esconder: [['codFam', 'Código da família'], ['codSub', 'Código da subfamília'], ['arts', 'Artigos'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']],
     chave: (f) => famKey(f.ref),
-    campos: (id) => { const [fam, sub] = id.split('|'); const n = ARTIGOS.filter((a) => a.desc === sub).length; return { fam, sub, arts: `${n} ${n === 1 ? 'artigo' : 'artigos'}` }; },
-    cab: (l) => ['Família · subfamília', l.c.sub, `${l.c.fam} · ${l.c.arts}`], janelas: () => [] },
+    campos: (id) => { const [fam, sub] = id.split('|'); const n = ARTIGOS.filter((a) => a.desc === sub).length; return { codFam: codFam(fam), fam, codSub: codSub(fam, sub), sub, arts: `${n} ${n === 1 ? 'artigo' : 'artigos'}` }; },
+    cab: (l) => [`Subfamília · ${l.c.codSub}`, l.c.sub, `${l.c.codFam} · ${l.c.fam} · ${l.c.arts}`], janelas: () => [] },
   forn: { id: 'forn', base: 'cm-comp-forn-var', pre: 'compforn', titulo: 'Comparativo por Fornecedor', sub: 'Analisa a evolução das compras por fornecedor ao longo dos anos.', caminho: 'Por fornecedor', ficheiro: 'fornecedores',
-    um: 'fornecedor', varios: 'fornecedores', nenhum: 'nenhum fornecedor', mensal: true, exemplo: 'skf', grupoEx: 'pais', grupos0: [], ocultas0: ['cidade', 'tend'],
+    um: 'fornecedor', varios: 'fornecedores', nenhum: 'nenhum fornecedor', mensal: true, filtros: ['forn'], vistaM: 'quadro', exemplo: 'skf', grupoEx: 'pais', grupos0: [], ocultas0: ['cidade', 'tend'],
     descr: [{ k: 'num', t: 'Nº', tipo: 'mono', w: 72, fixa: true }, { k: 'nome', t: 'Nome', tipo: 'txt', w: 200, fixa: true }, { k: 'pais', t: 'País', tipo: 'txt', w: 104, agrupa: true }, { k: 'cidade', t: 'Cidade', tipo: 'txt', w: 110, agrupa: true }, TEND],
     esconder: [['num', 'Nº'], ['pais', 'País'], ['cidade', 'Cidade'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']],
     chave: (f) => f.forn, todas: () => FORNECEDORES.map((f) => f.id),
@@ -123,40 +139,82 @@ function fontes(): Fonte[] {
     ...historico().flatMap((h) => h.linhas.map((l) => ({ enc: h.ref, forn: h.forn, data: h.data, ref: l.ref, qtd: l.qtd, liq: l.qtd * l.preco, arquivo: true }))),
   ];
 }
+/** Uma linha passa nos filtros? A referência procura a referência exata e, se não houver, na descrição. */
+function passa(f: Fonte, x: FiltrosCf): boolean {
+  const a = art(f.ref), q = x.ref?.trim().toLowerCase();
+  if (q && !(f.ref.toLowerCase() === q || (!ARTIGOS.some((y) => y.ref.toLowerCase() === q) && `${f.ref} ${a?.desc ?? ''} ${a?.refForn ?? ''}`.toLowerCase().includes(q)))) return false;
+  if (x.fam && familiaDe(a?.desc ?? '') !== x.fam) return false;
+  if (x.sub && a?.desc !== x.sub) return false;
+  if (x.marca && a?.marca !== x.marca) return false;
+  if (x.forn && f.forn !== x.forn) return false;
+  return true;
+}
+const vazios = (x: FiltrosCf): FiltrosCf => Object.fromEntries(Object.entries(x).filter(([, v]) => v && String(v).trim()));
+const somaAno = (ys: Fonte[], futuro = false): AnoCf => {
+  const porEnc = new Map<string, EncCf>();
+  ys.forEach((y) => { const e = porEnc.get(y.enc) ?? { ref: y.enc, data: y.data, qtd: 0, liq: 0, arquivo: y.arquivo }; e.qtd += y.qtd; e.liq += y.liq; porEnc.set(y.enc, e); });
+  return { qtd: ys.reduce((s, y) => s + y.qtd, 0), liq: ys.reduce((s, y) => s + y.liq, 0), encs: [...porEnc.values()].sort((p, q) => q.data.localeCompare(p.data)), futuro };
+};
+/** O pedido mensal: do mês ini ao mês fim (AAAA-MM), uma coluna por mês; e as linhas do relatório original. */
+export function compararMensal(dim: DimCf, ini: string, fim: string, filtros: FiltrosCf = {}): RelCf {
+  const d = DIMS[dim], x = vazios(filtros), meses: string[] = [];
+  for (let [y, m] = [Number(ini.slice(0, 4)), Number(ini.slice(5, 7))]; `${y}-${String(m).padStart(2, '0')}` <= fim; m === 12 ? (y++, m = 1) : m++) meses.push(`${y}-${String(m).padStart(2, '0')}`);
+  /* no Geral mensal há uma só linha (todas as compras); o detalhe é o relatório original, um mês por linha */
+  const chave = dim === 'geral' ? () => 'tudo' : d.chave, campos = dim === 'geral' ? (): Record<string, string> => ({ mes: 'Todas as compras', tri: '' }) : d.campos;
+  const fs = fontes().filter((f) => meses.includes(f.data.slice(0, 7)) && passa(f, x)), porChave = new Map<string, Fonte[]>();
+  fs.forEach((f) => { const k = chave(f); porChave.set(k, [...(porChave.get(k) ?? []), f]); });
+  const ids = (dim !== 'geral' && d.todas ? d.todas() : [...porChave.keys()].sort((a, b) => a.localeCompare(b, 'pt'))).filter((k) => porChave.has(k));
+  const anos = [...new Set(meses.map((m) => Number(m.slice(0, 4))))];
+  const linhas = ids.map((id): LinhaCf => { const xs = porChave.get(id)!, mes = meses.map((m) => somaAno(xs.filter((y) => y.data.startsWith(m))));
+    const z: AnoCf = { qtd: 0, liq: 0, encs: [] };
+    return { id, c: { ...campos(id), tend: '' }, anos: [z, z, somaAno(xs)], mes }; });
+  /* o relatório mensal original: uma linha por mês e por linha da dimensão, só onde houve compras */
+  const detalhe = meses.flatMap((m, i) => linhas.filter((l) => dim === 'geral' || l.mes![i].encs.length).map((l): LinhaCf => ({ id: `${m}|${l.id}`, ent: l.id,
+    c: { ano: m.slice(0, 4), mesN: m.slice(5, 7), mesDesc: MES_NOME[Number(m.slice(5, 7)) - 1], ...l.c }, anos: [l.anos[0], l.anos[1], l.mes![i]] })));
+  return { anos: [anos[0], anos[0], anos[anos.length - 1]], semDados: [], linhas, filtros: x, per: { meses }, detalhe };
+}
 /** O pedido ao «servidor»: três anos seguidos a partir de a0, por dimensão. */
-export function comparar(dim: DimCf, a0: number): RelCf {
-  const d = DIMS[dim], anos = [a0, a0 + 1, a0 + 2], fs = fontes();
+export function comparar(dim: DimCf, a0: number, filtros: FiltrosCf = {}): RelCf {
+  const d = DIMS[dim], anos = [a0, a0 + 1, a0 + 2], x = vazios(filtros), fs = fontes().filter((f) => passa(f, x));
   const comDados = new Set(fs.map((f) => Number(f.data.slice(0, 4))));
   const semDados = anos.filter((a) => !comDados.has(a));
   const porChave = new Map<string, Fonte[]>(); fs.forEach((f) => { if (!anos.includes(Number(f.data.slice(0, 4)))) return; const k = d.chave(f); porChave.set(k, [...(porChave.get(k) ?? []), f]); });
   const ids = d.todas ? d.todas().filter((k) => dim === 'geral' || porChave.has(k)) : [...porChave.keys()].sort((a, b) => a.localeCompare(b, 'pt'));
-  if (semDados.length === 3) return { anos, semDados, linhas: [] };
+  if (semDados.length === 3) return { anos, semDados, linhas: [], filtros: x };
   const linhas = ids.map((id): LinhaCf => {
     const xs = porChave.get(id) ?? [];
-    const porAno = anos.map((a): AnoCf => {
-      const ys = xs.filter((x) => x.data.startsWith(`${a}-`)), porEnc = new Map<string, EncCf>();
-      ys.forEach((y) => { const e = porEnc.get(y.enc) ?? { ref: y.enc, data: y.data, qtd: 0, liq: 0, arquivo: y.arquivo }; e.qtd += y.qtd; e.liq += y.liq; porEnc.set(y.enc, e); });
-      return { qtd: ys.reduce((s, y) => s + y.qtd, 0), liq: ys.reduce((s, y) => s + y.liq, 0), encs: [...porEnc.values()].sort((p, q) => q.data.localeCompare(p.data)), futuro: dim === 'geral' && a === ANO_ATUAL && Number(id) > MES_ATUAL };
-    });
+    const porAno = anos.map((a): AnoCf => somaAno(xs.filter((y) => y.data.startsWith(`${a}-`)), dim === 'geral' && a === ANO_ATUAL && Number(id) > MES_ATUAL));
     return { id, c: { ...d.campos(id), tend: tendencia(porAno[1], porAno[2]) }, anos: porAno };
   });
-  return { anos, semDados, linhas };
+  return { anos, semDados, linhas, filtros: x };
 }
 
 /* ---------- a página ---------- */
-export type CenarioCf = 'inicial' | 'mensal' | 'editar' | 'invalido' | 'a-gerar' | 'resultados' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe'
+export type CenarioCf = 'inicial' | 'mensal' | 'quadro' | 'outro-modo' | 'restaurado' | 'grafico-qtd' | 'grafico-oculto' | 'grafico-vazio' | 'editar' | 'invalido' | 'a-gerar' | 'resultados' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe'
   | 'exportado' | 'export-falhou' | 'erro' | 'tempo' | 'offline' | 'permissao' | 'sessao';
 const B = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-cf-acao="${k}"${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
+const MES_OPC = (sel: number) => MES_NOME.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}"${i + 1 === sel ? ' selected' : ''}>${m}</option>`).join('');
+const opc = (v: string, t: string) => `<option value="${v.replace(/"/g, '&quot;')}">${t}</option>`;
+/** Os filtros de cada dimensão (só o que o relatório sabe aplicar). */
+function campoFiltro(k: FiltroCf, id: (x: string) => string): string {
+  const lab = (t: string, inp: string) => `<label class="ak-campo cf-filtro cf-f-${k}" for="${id(k)}"><span>${t}</span>${inp}</label>`;
+  if (k === 'ref') return lab('Artigo / Referência', `<input type="search" id="${id(k)}" name="ref" list="${id('refs')}" placeholder="Referência ou descrição" autocomplete="off"><datalist id="${id('refs')}">${ARTIGOS.map((a) => `<option value="${a.ref}">${a.desc} · ${a.marca}</option>`).join('')}</datalist>`);
+  if (k === 'fam') return lab('Família', `<select id="${id(k)}" name="fam">${opc('', 'Todas')}${FAMILIAS.map((f) => opc(f, `${codFam(f)} · ${f}`)).join('')}</select>`);
+  if (k === 'sub') return lab('Subfamília', `<select id="${id(k)}" name="sub" data-cf-sub>${opc('', 'Todas')}${subfamiliasDe('').map((x) => opc(x, x)).join('')}</select>`);
+  if (k === 'marca') return lab('Marca', `<select id="${id(k)}" name="marca">${opc('', 'Todas')}${MARCAS.map((m) => opc(m, m)).join('')}</select>`);
+  return lab('Fornecedor', `<select id="${id(k)}" name="forn">${opc('', 'Todos')}${FORNECEDORES.map((f) => opc(f.id, f.nome)).join('')}</select>`);
+}
 function html(d: DimDef, cen: CenarioCf): string {
-  const id = (x: string) => `cf-${d.id}-${x}-${cen}`, a0 = ANO_ATUAL - 2;
+  const id = (x: string) => `cf-${d.id}-${x}-${cen}`, a0 = ANO_ATUAL - 2, mensal = cen === 'mensal' || cen === 'quadro';
   const agr = d.descr.filter((c) => c.agrupa).map((c) => c.t), dica = `Arraste para aqui o cabeçalho ${agr.length > 1 ? `${agr.slice(0, -1).join(', ')} ou ${agr[agr.length - 1]}` : agr[0]} para agrupar`;
-  return `<div class="hm ak ak2 cf${cen === 'mensal' ? ' cf-mensal' : ''}" data-hm data-cf data-cf-dim="${d.id}" data-cf-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
+  return `<div class="hm ak ak2 cf${mensal ? ' cf-mensal' : ''}" data-hm data-cf data-cf-dim="${d.id}" data-cf-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
   ${topoErp([['ERP', 'inicio'], ['Compras', 'compras'], ['Mapas', ''], ['Comparativos', ''], [d.caminho, '']])}
   <header class="ak-cab">
     <span class="ak-cab-ic">${L(chart)}</span>
     <div><h1>${d.titulo}</h1><p>${d.sub}</p></div>
-    <span class="ak2-vista-ativa" data-cf-vista hidden><small>Vista</small><b>Guardada</b></span>
+    <span class="ak2-vista-ativa" data-cf-vista hidden></span>
   </header>
+  ${d.mensal ? `<div class="cf-modos" role="radiogroup" aria-label="Tipo de análise"><i class="cf-modos-ind" aria-hidden="true"></i><button type="button" role="radio" data-cf-modo="mensal" aria-checked="${mensal}">${L(calendarDays)}<span>Mensal</span></button><button type="button" role="radio" data-cf-modo="anual" aria-checked="${!mensal}">${L(calendarRange)}<span>Variações anuais</span></button></div>` : ''}
   <div class="ak-barra ak2-barra" role="toolbar" aria-label="Ações do comparativo">
     ${B('filtrar', funnel, 'Filtrar', 'F2', ' aria-pressed="false"')}
     ${B('limpar', funnelX, 'Remover filtros', 'F3')}
@@ -165,13 +223,15 @@ function html(d: DimDef, cen: CenarioCf): string {
       <div class="ak-menu" role="menu" data-cf-menu="exportar" hidden>
         <button type="button" role="menuitem" data-cf-exportar="todos">Todas as linhas <small data-cf-n-todos></small></button>
         <button type="button" role="menuitem" data-cf-exportar="escolhidos">Só as escolhidas <small data-cf-n-sel></small></button>
-        <p>Leva as linhas que passam nos filtros, as colunas à vista e, com Somatórios, a linha do total. As variações vão como percentagem.</p>
+        <p>Leva o modo à vista (mensal ou variações anuais), as linhas que passam nos filtros, as colunas à vista e, com Somatórios, o total. As variações vão como percentagem.</p>
       </div></span>
     ${B('imprimir', printer, 'Imprimir', 'F12')}
     <i class="ak-sep" aria-hidden="true"></i>
     ${B('somas', sigma, 'Somatórios', '', ' aria-pressed="true" title="Totais dos grupos e total geral"')}
-    ${B('guardar', bookmark, 'Guardar vista', '', ' title="Guarda as colunas, a ordem, os grupos e os Somatórios para a próxima vez"')}
+    ${d.grafico ? B('grafico', chartLine, 'Gráfico', '', ' aria-pressed="true" title="Mostrar ou esconder o gráfico da evolução"') : ''}
     <span class="ak2-esp"></span>
+    <span class="ak-menu-c">${B('vistas', bookmark, 'Vistas guardadas', '', ' aria-haspopup="menu" aria-expanded="false"')}
+      <div class="ak-menu ak-menu--dir ak2-vistas" role="menu" data-cf-menu="vistas" hidden></div></span>
     ${B('atualizar', refresh, 'Atualizar', 'F9')}
     <span class="ak-menu-c">${B('mais', ellipsis, 'Mais ações', '', ' aria-haspopup="menu" aria-expanded="false"')}
       <div class="ak-menu ak-menu--dir ak2-mais-menu" role="menu" data-cf-menu="mais" hidden>
@@ -185,19 +245,28 @@ function html(d: DimDef, cen: CenarioCf): string {
 
   <form class="ak-crit ak2-crit cf-crit" data-cf-crit novalidate>
     <div class="ak2-resumo-crit">
-      <h2>Período</h2><ul class="ak2-etiquetas" data-cf-etiquetas></ul>
+      <h2>Filtros aplicados</h2><ul class="ak2-etiquetas" data-cf-etiquetas></ul>
       <span class="cf-gerado" data-cf-gerado></span>
-      <button type="button" class="ak-btn ak-btn--linha" data-cf-acao="alterar">${L(pencil)}<span>Alterar período</span></button>
+      <button type="button" class="ak-btn ak-btn--linha" data-cf-acao="alterar">${L(pencil)}<span>Alterar critérios</span></button>
     </div>
     <div class="ak2-aberto">
-      <div class="ak-crit-cab"><h2>Critérios</h2><button type="button" class="ak-crit-x" data-cf-acao="recolher" title="Recolher os critérios num resumo" hidden>${L(chevronsUp)}<span>Recolher</span></button></div>
+      <div class="ak-crit-cab"><h2>Filtros e critérios</h2><button type="button" class="ak-crit-x" data-cf-acao="recolher" title="Recolher os critérios num resumo" hidden>${L(chevronsUp)}<span>Recolher</span></button></div>
       <div class="ak-crit-c">
         <div class="ak2-campos cf-anos">
-          <div class="ak-campo cf-modo" role="radiogroup"${d.mensal ? '' : ' hidden'} aria-labelledby="${id('modo')}"><span id="${id('modo')}">Comparar</span><span class="cf-seg"><button type="button" role="radio" data-cf-modo="anual" aria-checked="${cen !== 'mensal'}">${L(calendarRange)}Variação anual</button><button type="button" role="radio" data-cf-modo="mensal" aria-checked="${cen === 'mensal'}">${L(calendarDays)}Mês a mês</button></span></div>
-          <label class="ak-campo cf-so-anual" for="${id('ini')}"><span>Ano inicial</span><input type="number" id="${id('ini')}" name="ini" value="${a0}" min="${ANO_MIN}" max="${ANO_ATUAL - 2}" step="1" inputmode="numeric" data-cf-primeiro></label>
-          <span class="cf-seta cf-so-anual" aria-hidden="true">${L(arrowRight)}</span>
-          <label class="ak-campo" for="${id('fim')}"><span><span class="cf-so-anual">Ano final</span><span class="cf-so-mensal">Ano</span></span><input type="number" id="${id('fim')}" name="fim" value="${a0 + 2}" min="${ANO_MIN + 2}" max="${ANO_ATUAL}" step="1" inputmode="numeric"></label>
-          <p class="cf-dica"><span class="cf-so-anual">Três anos seguidos, como no ERP antigo: mudar um ano acerta o outro.</span><span class="cf-so-mensal">Os doze meses do ano, lado a lado, com o total.</span> Valores líquidos, sem IVA.</p>
+          <div class="cf-per cf-so-anual">
+            <label class="ak-campo" for="${id('ini')}"><span>Ano inicial</span><input type="number" id="${id('ini')}" name="ini" value="${a0}" min="${ANO_MIN}" max="${ANO_ATUAL - 2}" step="1" inputmode="numeric" data-cf-primeiro></label>
+            <span class="cf-seta" aria-hidden="true">${L(arrowRight)}</span>
+            <label class="ak-campo" for="${id('fim')}"><span>Ano final</span><input type="number" id="${id('fim')}" name="fim" value="${a0 + 2}" min="${ANO_MIN + 2}" max="${ANO_ATUAL}" step="1" inputmode="numeric"></label>
+          </div>
+          <div class="cf-per cf-so-mensal">
+            <label class="ak-campo cf-ano" for="${id('mai')}"><span>Ano inicial</span><input type="number" id="${id('mai')}" name="mai" value="${ANO_ATUAL}" min="${ANO_MIN}" max="${ANO_ATUAL}" step="1" inputmode="numeric"></label>
+            <label class="ak-campo cf-mes" for="${id('mmi')}"><span>Mês inicial</span><select id="${id('mmi')}" name="mmi">${MES_OPC(1)}</select></label>
+            <span class="cf-seta" aria-hidden="true">${L(arrowRight)}</span>
+            <label class="ak-campo cf-ano" for="${id('maf')}"><span>Ano final</span><input type="number" id="${id('maf')}" name="maf" value="${ANO_ATUAL}" min="${ANO_MIN}" max="${ANO_ATUAL}" step="1" inputmode="numeric"></label>
+            <label class="ak-campo cf-mes" for="${id('mmf')}"><span>Mês final</span><select id="${id('mmf')}" name="mmf">${MES_OPC(MES_ATUAL)}</select></label>
+          </div>
+          ${d.filtros.length ? `<div class="cf-filtros">${d.filtros.map((k) => campoFiltro(k, id)).join('')}</div>` : ''}
+          <p class="cf-dica"><span class="cf-so-anual">Três anos seguidos, como no ERP antigo: mudar um ano acerta o outro.</span><span class="cf-so-mensal">De um mês a outro (até 24 meses, até ao mês corrente).</span> Valores líquidos, sem IVA. Enter passa ao campo seguinte.</p>
         </div>
         <div class="ak-crit-acoes">
           ${B('gerar', play, 'Gerar dados', 'F10', ' data-cf-gerar-crit', 'ak-btn--acao')}
@@ -210,7 +279,9 @@ function html(d: DimDef, cen: CenarioCf): string {
 
   <section class="ak-res" aria-label="Resultados">
     <p class="cf-imprimir-t" data-cf-imprimir-t></p>
+    <p class="cf-outro" data-cf-outro role="status" hidden></p>
     <div class="ak2-sumario cf-sumario" data-cf-sumario role="status" aria-live="polite" hidden></div>
+    ${d.grafico ? '<div class="cf-grafico" data-cf-graf hidden></div>' : ''}
     <div class="ak-grupos" data-cf-grupos aria-label="Agrupar por">${L(layers)}<span class="ak-grupos-dica">${dica}</span></div>
     <div class="ak-corpo">
       <div class="ak-grelha cf-grelha" data-cf-grelha tabindex="-1"></div>
@@ -222,33 +293,40 @@ function html(d: DimDef, cen: CenarioCf): string {
 </div>`;
 }
 
-const NOTA = 'Comparativo por Fornecedor v2 (23 out., briefing «Comparativo por Fornecedor V2»; ela: «quero num só ecrã» — «Por fornecedor» e «Por fornecedor (variação anual)» são agora este ecrã, com Variação anual ou Mês a mês): Ano inicial → Ano final (três anos seguidos), a grelha com os anos em grupos (Quantidade, Líquido) e a variação entre eles, N/D sem base, Somatórios com as variações feitas sobre as somas, detalhe com a evolução e as encomendas, Excel e imprimir. 2024 e 2025 são histórico de exemplo.';
-export const ESTADOS_CF: [Exclude<CenarioCf, 'inicial'>, string, string][] = [
-  ['mensal', 'Mês a mês', '2026 mês a mês (o antigo «Por fornecedor», agora no mesmo ecrã): os doze meses lado a lado e o total; os meses que ainda não chegaram ficam «—».'],
-  ['resultados', 'Resultados', '2024–2026: os critérios recolhidos em «Período», o resumo, os anos revelados da esquerda para a direita e os Somatórios.'],
-  ['editar', 'A alterar o período', 'Os critérios abertos por cima dos resultados; Cancelar (Esc) volta ao resumo sem perder nada.'],
-  ['invalido', 'Período inválido', 'O ano final é 2027: ainda não começou. O campo marcado e a mensagem; nada se pede.'],
-  ['a-gerar', 'A gerar', 'O pedido a correr: a forma da grelha, sem percentagens inventadas; Esc cancela.'],
-  ['parcial', 'Dados parciais', '2023–2025: 2023 não tem compras no ERP — as colunas ficam vazias e a variação 2023→2024 fica N/D.'],
-  ['vazio', 'Sem resultados', '2018–2020: nenhum fornecedor tem compras nesses anos; «Alterar período».'],
-  ['a-atualizar', 'A atualizar (F9)', 'O mesmo período outra vez: as linhas ficam à vista, esbatidas, até chegar a resposta.'],
-  ['agrupado', 'Agrupado por país', 'País arrastado para a zona de agrupar: cada grupo com as somas e a variação calculada sobre elas.'],
-  ['filtros', 'Filtros da tabela', 'F2: filtros por coluna — texto, ou «>10000» nos valores e «<0» nas variações.'],
-  ['detalhe', 'Detalhe do fornecedor', 'A SKF Portugal à direita: os três anos em barras, a tabela e as encomendas de cada ano.'],
-  ['exportado', 'Exportado', 'O Excel foi gerado: o nome do ficheiro e o que levou.'],
-  ['export-falhou', 'A exportação falhou', 'O Excel não foi gerado: diz-se, e os resultados ficam.'],
-  ['erro', 'Erro do servidor', 'O servidor de relatórios falhou: «Tentar outra vez»; o período fica.'],
-  ['tempo', 'Tempo esgotado', 'O servidor demorou demasiado: tentar outra vez.'],
-  ['offline', 'Sem ligação', 'Sem rede: o período fica; tenta-se quando a ligação voltar.'],
-  ['permissao', 'Sem permissão', 'O utilizador não tem acesso a este mapa.'],
-  ['sessao', 'Sessão terminada', 'Voltar a entrar pelo login comum; o período fica.'],
-];
-/** Os estados dos outros três comparativos (o de fornecedor tem-nos todos; o comportamento é o mesmo). */
-const ESTADOS_CURTOS: CenarioCf[] = ['resultados', 'mensal', 'agrupado', 'detalhe', 'parcial'];
-const NOTA_D = (d: DimDef) => d.id === 'forn' ? NOTA : `${d.titulo} v2 (23 out., ela: «quero num só ecrã» — «${d.caminho}» e «${d.caminho} (variação anual)» são agora este ecrã${d.mensal ? ', com Variação anual ou Mês a mês' : ', com uma linha por mês e os três anos lado a lado'}). O mesmo ecrã do Comparativo por Fornecedor: anos em grupos, N/D sem base, Somatórios sobre as somas, detalhe, Excel e imprimir. 2024 e 2025 são histórico de exemplo.`;
+/** Os estados de cada comparativo (o texto diz o caso desta dimensão). */
+function estadosDe(d: DimDef): [Exclude<CenarioCf, 'inicial'>, string, string][] {
+  if (d.id === 'geral') d = { ...d, exemplo: '10' };
+  const V = d.varios, ex = d.cab({ id: d.exemplo, c: { ...d.campos(d.exemplo), tend: '' }, anos: [] })[1];
+  const lista: [Exclude<CenarioCf, 'inicial'>, string, string][] = [
+    ['resultados', 'Variações anuais', `2024–2026: os critérios recolhidos em «Filtros aplicados», o resumo, os anos revelados da esquerda para a direita (as variações depois dos valores) e os Somatórios.`],
+    ['mensal', 'Mensal · vista detalhada', `Janeiro a ${MES_NOME[MES_ATUAL - 1].toLowerCase()} de ${ANO_ATUAL}: o relatório mensal original — Ano, Mês, Descrição do mês, ${d.descr.filter((c) => c.fixa).map((c) => c.t).join(', ')}, Quantidade e Valor — uma linha por mês.`],
+    ['quadro', 'Mensal · vista por períodos', `O mesmo período com um grupo de colunas por mês (Quantidade e Valor) e o total; os totais são os mesmos da vista detalhada.`],
+    ['outro-modo', 'A mudar de modo', `Escolhido «Mensal» com os resultados das variações anuais à vista: os critérios abrem-se nos campos do mês e os resultados ficam marcados como anuais até Gerar dados.`],
+    ['editar', 'A alterar os critérios', 'Os critérios abertos por cima dos resultados; Cancelar (Esc) volta ao resumo sem perder nada.'],
+    ['invalido', 'Período inválido', `O ano final é ${ANO_ATUAL + 1}: ainda não começou. O campo marcado e a mensagem; nada se pede.`],
+    ['a-gerar', 'A gerar', 'O pedido a correr: a forma da grelha, sem percentagens inventadas; Esc cancela.'],
+    ['parcial', 'Dados parciais', `2023–2025: 2023 não tem compras no ERP — as colunas ficam vazias e a variação 2023→2024 fica N/D.`],
+    ['vazio', 'Sem resultados', `2018–2020: nenhum dos ${V} tem compras nesses anos; «Alterar critérios».`],
+    ['a-atualizar', 'A atualizar (F9)', 'O mesmo pedido outra vez: as linhas ficam à vista, esbatidas, até chegar a resposta.'],
+    ['agrupado', 'Agrupado', `${d.descr.find((c) => c.k === d.grupoEx)?.t ?? ''} na zona de agrupar: cada grupo abre e fecha, com as somas e a variação calculada sobre elas (sem contar duas vezes).`],
+    ['filtros', 'Filtros da tabela', 'F2: filtros por coluna — texto, ou «>10000» nos valores e «<0» nas variações.'],
+    ['detalhe', 'Detalhe', `${ex} à direita: as barras de cada ano, a tabela e as encomendas.`],
+    ['restaurado', 'Área de trabalho reposta', 'Ao voltar ao separador: os critérios, os resultados, os grupos e a linha escolhida como estavam, sem gerar outra vez.'],
+    ['exportado', 'Exportado', 'O Excel foi gerado: o nome do ficheiro e o que levou.'],
+    ['export-falhou', 'A exportação falhou', 'O Excel não foi gerado: diz-se, e os resultados ficam.'],
+    ['erro', 'Servidor indisponível', 'O servidor de relatórios falhou: «Tentar outra vez»; os critérios ficam.'],
+    ['tempo', 'Tempo esgotado', 'O servidor demorou demasiado: tentar outra vez.'],
+    ['offline', 'Sem ligação', 'Sem rede: os critérios ficam; tenta-se quando a ligação voltar.'],
+    ['permissao', 'Sem permissão', 'O utilizador não tem acesso a este mapa.'],
+    ['sessao', 'Sessão terminada', 'Voltar a entrar pelo login comum; os critérios ficam.'],
+  ];
+  if (d.grafico) lista.splice(3, 0, ['grafico-qtd', 'Gráfico · quantidades', 'O gráfico da evolução em quantidades (o eixo diz «un.»); passar o rato mostra o valor exato e clicar num mês escolhe a linha na grelha.'], ['grafico-oculto', 'Gráfico escondido', 'O gráfico fechado: a grelha ganha a altura; «Gráfico» na barra volta a abri-lo.'], ['grafico-vazio', 'Gráfico indisponível', 'Um período sem compras: o gráfico diz que não há nada para desenhar, em vez de mostrar barras a zero.']);
+  return lista;
+}
+const NOTA_D = (d: DimDef) => `${d.titulo} v2 (23 out., ela: «quero num só ecrã»${d.id === 'familia' ? ' e o briefing «Unified Family / Subfamily Purchasing Comparison»' : d.id === 'artigo' ? ' e o briefing «Comparativo de Compras por Artigo V2»' : d.id === 'forn' ? ' e o briefing «Comparativo por Fornecedor V2»' : ''}): ${d.mensal ? 'Mensal ou Variações anuais no mesmo ecrã (os dois itens antigos do menu abrem este separador, cada um no seu modo); o mensal tem a vista detalhada (o relatório original) e a vista por períodos;' : 'uma linha por mês e os três anos lado a lado;'} anos em grupos, N/D sem base, Somatórios sobre as somas, detalhe, vistas guardadas, Excel e imprimir. 2024 e 2025 são histórico de exemplo; os códigos de família e subfamília e o Nº do fornecedor também.`;
 /** A v2 do ecrã e os seus estados (o ecrã base recebe a v2 ao lado da v1 de menu-antigo.ts). */
 export function versaoComparativo(dim: DimCf): Ecra<IdErp>['versoes'][number] { const d = DIMS[dim]; return { id: 'v2', nota: NOTA_D(d), html: html(d, 'inicial') }; }
 export function estadosComparativo(dim: DimCf, num: string): Ecra<IdErp>[] {
-  const d = DIMS[dim], lista = dim === 'forn' ? ESTADOS_CF : ESTADOS_CF.filter(([c]) => ESTADOS_CURTOS.includes(c) && (d.mensal || c !== 'mensal'));
-  return lista.map(([cen, nome, objetivo], i) => ({ id: `cm-${d.pre}-${cen}` as IdErp, nome: `${num}.${i + 1} · ${nome}`, fluxo: 'Compras', estadoDe: d.base as IdErp, objetivo: dim === 'forn' ? objetivo : `${d.titulo}: ${nome.toLowerCase()}.`, versoes: [{ id: 'v2', nota: NOTA_D(d), html: html(d, cen) }] }));
+  const d = DIMS[dim];
+  return estadosDe(d).map(([cen, nome, objetivo], i) => ({ id: `cm-${d.pre}-${cen}` as IdErp, nome: `${num}.${i + 1} · ${nome}`, fluxo: 'Compras', estadoDe: d.base as IdErp, objetivo, versoes: [{ id: 'v2', nota: NOTA_D(d), html: html(d, cen) }] }));
 }

@@ -102,15 +102,15 @@ function paineis(): void {
   }
   caixa.querySelectorAll<HTMLElement>('[data-painel]').forEach((p) => p.classList.toggle('is-ativo', p.dataset.painel === e.ativo));
 }
-function endereco(rota: string, emSeparador = true): string {
+function endereco(rota: string, emSeparador = true, modo?: string): string {
   const r = ROTAS[rota];
-  return `${location.pathname}${emSeparador ? '?separador=1' : ''}#so=ecra&ecra=${encodeURIComponent(r?.ecra ?? 'inicio')}`;
+  return `${location.pathname}${emSeparador ? '?separador=1' : ''}#so=ecra&ecra=${encodeURIComponent(r?.ecra ?? 'inicio')}${modo ? `&modo=${encodeURIComponent(modo)}` : ''}`;
 }
 function carregar(id: string, p: HTMLElement): void {
   const s = e.seps.find((x) => x.id === id); if (!s) return;
   if (!ROTAS[s.rota]) { p.innerHTML = `<div class="dk-carga dk-carga--erro">${L(IC.lock)}Este ecrã ainda não existe no ERP novo.</div>`; return; }
   const f = document.createElement('iframe');
-  f.className = 'dk-frame'; f.title = s.titulo; f.src = endereco(s.rota);
+  f.className = 'dk-frame'; f.title = s.titulo; f.src = endereco(s.rota, true, s.modo);
   let primeira = true;
   f.addEventListener('load', () => {
     p.querySelector('.dk-carga')?.remove();
@@ -144,6 +144,8 @@ function carregar(id: string, p: HTMLElement): void {
 let seq = 0;
 function linhaDaRota(rota: string) { return MENU_ERP.find((l) => l.rota === rota); }
 function abrirRota(rota: string, titulo?: string, novo = false): void {
+  /* uma rota antiga que é o mesmo ecrã de outra (os comparativos): o mesmo separador, no modo dela */
+  const modo = ROTAS[rota]?.modo; if (ROTAS[rota]?.alias) rota = ROTAS[rota].alias!;
   const r = ROTAS[rota];
   const l = linhaDaRota(rota);
   if (!r) { e.banner = 'rota'; e.bannerTexto = `«${l?.rotulo ?? rota}» ainda não existe no ERP novo. Continua no ERP antigo.`; desenhar({ exp: false }); return; }
@@ -151,8 +153,8 @@ function abrirRota(rota: string, titulo?: string, novo = false): void {
   const t = titulo ?? r.titulo;
   const ja = !novo && e.seps.find((s) => s.rota === rota && s.titulo === t);
   e.historico = [{ rota, titulo: t, quando: Date.now() }, ...(e.historico ?? []).filter((h) => !(h.rota === rota && h.titulo === t))].slice(0, 12);
-  if (ja) e.ativo = ja.id;
-  else { const id = `s${Date.now().toString(36)}${seq++}`; e.seps.push({ id, rota, titulo: t }); e.ativo = id; }
+  if (ja) { e.ativo = ja.id; if (modo) frames.get(ja.id)?.contentWindow?.postMessage({ romafe: 'cf-modo', modo }, '*'); }
+  else { const id = `s${Date.now().toString(36)}${seq++}`; e.seps.push({ id, rota, titulo: t, ...(modo ? { modo } : {}) }); e.ativo = id; }
   if (e.banner === 'rota' || e.banner === 'sem-permissao' || e.banner === 'primeira') e.banner = '';
   desenhar({ exp: false });
 }
