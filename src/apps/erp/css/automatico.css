@@ -177,3 +177,40 @@
 @media (max-width: 1100px) { .ak.com-det .ak-corpo { grid-template-columns: minmax(0, 1fr); } .ak-det { border-left: 1px solid var(--h-borda); border-top: 0; border-radius: 0 0 8px 8px; } .ak.com-det .ak-grelha { border-radius: 0; } }
 @media (max-width: 760px) { .ak-campo--largo, .ak-periodo { grid-column: auto; } .ak-btn kbd, .ak-btn span { display: none; } .ak-btn--acao span { display: inline; } .ak-agrupar-tecla { margin-left: 0; } }
 @media (prefers-reduced-motion: reduce) { .ak *, .ak *::before { animation: none !important; transition: none !important; } }
+
+/* ---------- 23 out. (ela: «em falta … quero as coisas alinhadas»): como no ERP antigo — Imprimir (F12) na barra;
+   Gerar dados (F10) e Cancelar (Esc) empilhados à direita dos critérios; os campos numa grelha de 4 colunas iguais,
+   todos com a mesma altura; os critérios escondem-se e mostram-se (o ✕ do ecrã antigo) ---------- */
+.ak-barra { gap: 4px; min-height: 48px; }
+.ak-barra > .ak-btn, .ak-barra .ak-menu-c > .ak-btn, .ak-seg { height: 34px; }
+.ak-sep { height: 24px; margin: 0 6px; }
+.ak-menu--dir { left: auto; right: 0; }
+.ak-crit { padding: 0; }
+.ak-crit-cab { display: flex; align-items: center; justify-content: space-between; height: 38px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--h-borda); }
+.ak-crit-cab h2 { margin: 0; }
+.ak-crit-x { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.ak-crit-x:hover { background: var(--h-sup-2); color: var(--h-tinta); } .ak-crit-x svg { width: 15px; height: 15px; }
+.ak-crit-c { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 0; }
+.ak-crit-c > .ak-crit-g { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; padding: 12px 14px; align-items: start; }
+.ak-crit-c .ak-campo { grid-column: auto !important; }
+.ak-campo > span { display: block; height: 16px; line-height: 16px; }
+.ak-campo :is(input, select) { height: 34px; }
+.ak-crit-acoes { display: grid; align-content: start; gap: 8px; padding: 12px 14px; border-left: 1px solid var(--h-borda); background: var(--h-sup-2); border-radius: 0 0 8px 0; }
+.ak-crit-acoes .ak-btn { justify-content: flex-start; width: 100%; height: 36px; margin-top: 19px; }
+.ak-crit-acoes .ak-btn + .ak-btn { margin-top: 0; }
+.ak-crit-acoes .ak-btn kbd { margin-left: auto; }
+.ak-btn--linha { border-color: var(--h-borda-forte); background: var(--h-sup); }
+.ak-btn--linha svg { color: var(--h-erro); }
+.ak-erro-campo { margin: 0 14px 8px; }
+.ak-crit-dica { margin: 0; padding: 6px 14px; border-top: 1px solid var(--h-borda); font-size: 12px; color: var(--h-tinta-3); }
+.ak.sem-crit .ak-crit-c, .ak.sem-crit .ak-crit-dica, .ak.sem-crit .ak-erro-campo { display: none; }
+.ak.sem-crit .ak-crit-cab { border-bottom: 0; }
+@media (max-width: 1100px) { .ak-crit-c > .ak-crit-g { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .ak-crit-c { grid-template-columns: minmax(0, 1fr); } .ak-crit-c > .ak-crit-g { grid-template-columns: minmax(0, 1fr); } .ak-crit-acoes { border-left: 0; border-top: 1px solid var(--h-borda); } .ak-crit-acoes .ak-btn { margin-top: 0; } }
+/* imprimir: só a grelha, inteira */
+@media print {
+  .ak :is(.hm-topo, .ak-barra, .ak-crit, .ak-grupos .ak-agrupar-tecla, .ak-det, .ak-vazio button, .hm-aviso) { display: none !important; }
+  .ak-grelha { max-height: none !important; overflow: visible !important; border: 0; }
+  .ak-tab thead th, .ak-tab tfoot td { position: static; }
+  .ak-td-sel, .ak-th-sel { display: none; }
+}

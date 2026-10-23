@@ -25,9 +25,10 @@ import sheet from 'lucide-static/icons/file-spreadsheet.svg?raw';
 import play from 'lucide-static/icons/play.svg?raw';
 import columns3 from 'lucide-static/icons/columns-3.svg?raw';
 import rows3 from 'lucide-static/icons/rows-3.svg?raw';
-import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
 import chartBar from 'lucide-static/icons/chart-bar.svg?raw';
+import printer from 'lucide-static/icons/printer.svg?raw';
+import xIc from 'lucide-static/icons/x.svg?raw';
 
 /* ---------- os critérios e as linhas ---------- */
 export type Tipo = 'todos' | 'com' | 'sem' | 'rutura' | 'minimo';
@@ -76,7 +77,7 @@ function html(cen: CenarioAk): string {
   const c = CRIT0(), id = (x: string) => `ak-${x}-${cen}`;
   const campo = (k: string, t: string, input: string, cls = '') => `<label class="ak-campo${cls ? ` ${cls}` : ''}" for="${id(k)}"><span>${t}</span>${input}</label>`;
   const forns = uniq(ARTIGOS.map((a) => fNome(a.forn))), fams = uniq(ARTIGOS.map((a) => familiaDe(a.desc))), marcas = uniq(ARTIGOS.map((a) => a.marca));
-  return `<div class="hm ak" data-hm data-ak data-ak-cenario="${cen}" data-teclas="F2 F3 F4 F10">
+  return `<div class="hm ak" data-hm data-ak data-ak-cenario="${cen}" data-teclas="F2 F3 F4 F10 F12">
   ${topoErp([['ERP', 'inicio'], ['Compras', 'compras'], ['Mapas', ''], ['Artigos / Compras Automático', '']])}
   <header class="ak-cab">
     <span class="ak-cab-ic">${L(chartBar)}</span>
@@ -85,6 +86,7 @@ function html(cen: CenarioAk): string {
   <div class="ak-barra" role="toolbar" aria-label="Ações da análise">
     ${B('filtrar', funnel, 'Filtrar tabela', 'F2', ' aria-pressed="false"')}
     ${B('limpar', funnelX, 'Remover filtros', 'F3')}
+    <i class="ak-sep" aria-hidden="true"></i>
     <span class="ak-menu-c">${B('exportar', sheet, 'Exportar para Excel', 'F4', ' aria-haspopup="menu" aria-expanded="false"')}
       <div class="ak-menu" role="menu" data-ak-menu="exportar" hidden>
         <button type="button" role="menuitem" data-ak-exportar="todos">Todos os resultados <small data-ak-n-todos></small></button>
@@ -92,32 +94,35 @@ function html(cen: CenarioAk): string {
         <p>Exporta as linhas que passam nos filtros da tabela, com todos os grupos abertos, e só as colunas à vista.</p>
       </div></span>
     <i class="ak-sep" aria-hidden="true"></i>
-    <span class="ak-menu-c">${B('colunas', columns3, 'Colunas', '', ' aria-haspopup="menu" aria-expanded="false"')}
-      <div class="ak-menu ak-menu--colunas" role="menu" data-ak-menu="colunas" hidden></div></span>
-    <div class="ak-seg" role="group" aria-label="Densidade">${L(rows3)}<button type="button" data-ak-densidade="compacta" aria-pressed="true">Compacta</button><button type="button" data-ak-densidade="normal" aria-pressed="false">Normal</button></div>
+    ${B('imprimir', printer, 'Imprimir', 'F12')}
     <span class="ak-esp"></span>
-    ${B('gerar', play, 'Gerar dados', 'F10', '', 'ak-btn--acao')}
+    <span class="ak-menu-c">${B('colunas', columns3, 'Colunas', '', ' aria-haspopup="menu" aria-expanded="false"')}
+      <div class="ak-menu ak-menu--colunas ak-menu--dir" role="menu" data-ak-menu="colunas" hidden></div></span>
+    <div class="ak-seg" role="group" aria-label="Densidade">${L(rows3)}<button type="button" data-ak-densidade="compacta" aria-pressed="true">Compacta</button><button type="button" data-ak-densidade="normal" aria-pressed="false">Normal</button></div>
   </div>
 
   <form class="ak-crit" data-ak-crit aria-labelledby="${id('crit-t')}" novalidate>
-    <h2 id="${id('crit-t')}">Critérios de análise</h2>
-    <div class="ak-crit-g">
-      ${campo('armazem', 'Armazém', `<select id="${id('armazem')}" name="armazem" data-ak-primeiro>${op('60', 'Armazém 60', true)}${op('', 'Todos')}</select>`)}
-      ${campo('forn', 'Fornecedor', `<select id="${id('forn')}" name="forn">${op('', 'Todos')}${forns.map((f) => op(f, f)).join('')}</select>`)}
-      ${campo('fam', 'Família', `<select id="${id('fam')}" name="fam">${op('', 'Todas')}${fams.map((f) => op(f, f)).join('')}</select>`)}
-      ${campo('sub', 'Subfamília', `<select id="${id('sub')}" name="sub" data-ak-sub>${op('', 'Todas')}</select>`)}
-      <fieldset class="ak-campo ak-periodo"><legend>Período</legend><span><input type="date" id="${id('de')}" name="de" value="${c.de}" aria-label="De"><i>a</i><input type="date" id="${id('ate')}" name="ate" value="${c.ate}" aria-label="Até"></span></fieldset>
-      ${campo('ref', 'Artigo / Referência', `<input type="search" id="${id('ref')}" name="ref" list="${id('refs')}" placeholder="Referência, ref. fornecedor ou descrição" autocomplete="off"><datalist id="${id('refs')}">${ARTIGOS.map((a) => `<option value="${esc(a.ref)}">${esc(a.desc)}</option>`).join('')}</datalist>`, 'ak-campo--largo')}
-      ${campo('tipo', 'Tipo de análise', `<select id="${id('tipo')}" name="tipo">${op('todos', 'Todos os artigos', true)}${op('com', 'Com compras no período')}${op('sem', 'Sem compras no período')}${op('rutura', 'Em rutura')}${op('minimo', 'Abaixo do mínimo')}</select>`)}
-    </div>
-    <details class="ak-mais"><summary>${L(chevronDown)}Mais critérios</summary>
+    <div class="ak-crit-cab"><h2 id="${id('crit-t')}">Critérios</h2><button type="button" class="ak-crit-x" data-ak-acao="criterios" aria-expanded="true" aria-controls="${id('crit-c')}" title="Esconder os critérios">${L(xIc)}<span>Esconder</span></button></div>
+    <div class="ak-crit-c" id="${id('crit-c')}">
       <div class="ak-crit-g">
+        ${campo('armazem', 'Armazém', `<select id="${id('armazem')}" name="armazem" data-ak-primeiro>${op('60', 'Armazém 60', true)}${op('', 'Todos')}</select>`)}
+        ${campo('forn', 'Fornecedor', `<select id="${id('forn')}" name="forn">${op('', 'Todos')}${forns.map((f) => op(f, f)).join('')}</select>`)}
+        ${campo('fam', 'Família', `<select id="${id('fam')}" name="fam">${op('', 'Todas')}${fams.map((f) => op(f, f)).join('')}</select>`)}
+        ${campo('sub', 'Subfamília', `<select id="${id('sub')}" name="sub" data-ak-sub>${op('', 'Todas')}</select>`)}
+        ${campo('de', 'Período — de', `<input type="date" id="${id('de')}" name="de" value="${c.de}">`)}
+        ${campo('ate', 'Período — até', `<input type="date" id="${id('ate')}" name="ate" value="${c.ate}">`)}
+        ${campo('ref', 'Artigo / Referência', `<input type="search" id="${id('ref')}" name="ref" list="${id('refs')}" placeholder="Referência ou descrição" autocomplete="off"><datalist id="${id('refs')}">${ARTIGOS.map((a) => `<option value="${esc(a.ref)}">${esc(a.desc)}</option>`).join('')}</datalist>`)}
+        ${campo('tipo', 'Tipo de análise', `<select id="${id('tipo')}" name="tipo">${op('todos', 'Todos os artigos', true)}${op('com', 'Com compras no período')}${op('sem', 'Sem compras no período')}${op('rutura', 'Em rutura')}${op('minimo', 'Abaixo do mínimo')}</select>`)}
         ${campo('marca', 'Marca', `<select id="${id('marca')}" name="marca">${op('', 'Todas')}${marcas.map((m) => op(m, m)).join('')}</select>`)}
         ${campo('stock', 'Stock', `<select id="${id('stock')}" name="stock">${op('todos', 'Todos', true)}${op('com', 'Com stock')}${op('sem', 'Sem stock')}</select>`)}
       </div>
-    </details>
+      <div class="ak-crit-acoes">
+        ${B('gerar', play, 'Gerar dados', 'F10', ' data-ak-gerar-crit', 'ak-btn--acao')}
+        ${B('cancelar', xIc, 'Cancelar', 'Esc', '', 'ak-btn--linha')}
+      </div>
+    </div>
     <p class="ak-erro-campo" data-ak-erro-campo role="alert" hidden></p>
-    <div class="ak-crit-pe"><small>Enter passa ao campo seguinte; no último, vai a Gerar dados.</small>${B('gerar', play, 'Gerar dados', 'F10', ' data-ak-gerar-crit', 'ak-btn--acao')}</div>
+    <p class="ak-crit-dica">Enter passa ao campo seguinte; no último, vai a Gerar dados. Cancelar repõe os critérios da última análise.</p>
   </form>
 
   <section class="ak-res" aria-labelledby="${id('res-t')}">

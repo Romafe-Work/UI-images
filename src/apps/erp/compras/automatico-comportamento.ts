@@ -33,6 +33,8 @@ interface Est {
   ordem: Ordem[]; filtros: Partial<Record<keyof LinhaAk, string>>; filtrosAbertos: boolean; grupos: (keyof LinhaAk)[]; fechados: Set<string>;
   cols: (keyof LinhaAk)[]; ocultas: Set<keyof LinhaAk>; larguras: Partial<Record<keyof LinhaAk, number>>; densidade: 'compacta' | 'normal';
   sel: Set<string>; ativo: string; ancora: string; det: boolean; aviso?: string;
+  /** cada geração tem um número; Cancelar (Esc) muda-o e a geração em curso deixa de contar */
+  vez: number;
 }
 const CHAVE = 'erp:automatico:vista';
 const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
@@ -62,7 +64,7 @@ function guardarVista(r: HTMLElement, e: Est): void {
   try { localStorage.setItem(CHAVE, JSON.stringify({ cols: e.cols, ocultas: [...e.ocultas], larguras: e.larguras, densidade: e.densidade, grupos: e.grupos, ordem: e.ordem })); } catch { /* */ }
 }
 function novo(r: HTMLElement): Est {
-  const base: Est = { crit: CRIT0(), linhas: null, fase: 'inicial', ordem: [], filtros: {}, filtrosAbertos: false, grupos: [], fechados: new Set(), cols: COLS.map((c) => c.k), ocultas: new Set(['refForn', 'un', 'min'] as (keyof LinhaAk)[]), larguras: {}, densidade: 'compacta', sel: new Set(), ativo: '', ancora: '', det: false };
+  const base: Est = { crit: CRIT0(), linhas: null, fase: 'inicial', ordem: [], filtros: {}, filtrosAbertos: false, grupos: [], fechados: new Set(), cols: COLS.map((c) => c.k), ocultas: new Set(['refForn', 'un', 'min'] as (keyof LinhaAk)[]), larguras: {}, densidade: 'compacta', sel: new Set(), ativo: '', ancora: '', det: false, vez: 0 };
   return r.dataset.akCenario === 'inicial' ? { ...base, ...lerVista() } : base;
 }
 
@@ -148,7 +150,7 @@ function estado(r: HTMLElement, e: Est): void {
   const nt = r.querySelector('[data-ak-n-todos]'), ns = r.querySelector('[data-ak-n-sel]');
   if (nt) nt.textContent = `(${n(ls.length)})`; if (ns) ns.textContent = `(${n(e.sel.size)})`;
   r.querySelector('[data-ak-exportar="escolhidos"]')?.toggleAttribute('disabled', !e.sel.size);
-  r.querySelectorAll<HTMLButtonElement>('[data-ak-acao="exportar"], [data-ak-acao="filtrar"], [data-ak-acao="limpar"]').forEach((b) => { b.disabled = !e.linhas || !e.linhas.length; });
+  r.querySelectorAll<HTMLButtonElement>('[data-ak-acao="exportar"], [data-ak-acao="filtrar"], [data-ak-acao="limpar"], [data-ak-acao="imprimir"]').forEach((b) => { b.disabled = !e.linhas || !e.linhas.length; });
   r.querySelectorAll<HTMLButtonElement>('[data-ak-acao="gerar"]').forEach((b) => { b.disabled = e.fase === 'a-gerar'; b.classList.toggle('is-carregar', e.fase === 'a-gerar'); });
   r.querySelector('[data-ak-acao="filtrar"]')?.setAttribute('aria-pressed', String(e.filtrosAbertos));
   r.querySelectorAll<HTMLElement>('[data-ak-densidade]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.akDensidade === e.densidade)));
@@ -182,9 +184,12 @@ async function gerarDados(r: HTMLElement, e: Est): Promise<void> {
   const c = lerCrit(r);
   if (!c.de || !c.ate) { erroCampo(r, c.de ? 'ate' : 'de', 'Escolhe o período: as duas datas.'); return; }
   if (c.de > c.ate) { erroCampo(r, 'ate', 'O fim do período tem de ser depois do início.'); return; }
-  e.crit = c; e.fase = 'a-gerar'; e.aviso = undefined; grelha(r, e);
+  const antes = e.fase, vez = ++e.vez;
+  e.fase = 'a-gerar'; e.aviso = undefined; grelha(r, e);
   /* deixa a página pintar o «A gerar…» antes de calcular (o tempo é o do cálculo, não um atraso inventado) */
   await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
+  if (vez !== e.vez) return; /* cancelada entretanto */
+  void antes; e.crit = c;
   try {
     const ls = gerar(c);
     e.linhas = ls; e.fase = 'ok'; e.gerado = Date.now(); e.fechados.clear();
@@ -208,6 +213,21 @@ function exportar(r: HTMLElement, e: Est, escopo: 'todos' | 'escolhidos'): void 
     e.aviso = `Exportado: ${nome} · ${n(ls.length)} ${ls.length === 1 ? 'artigo' : 'artigos'} (${escopo === 'todos' ? 'todos os resultados' : 'só os escolhidos'}).`;
   } catch { e.aviso = 'A exportação falhou. Tenta outra vez.'; }
   estado(r, e);
+}
+/** Cancelar (Esc): pára uma geração em curso; senão repõe os critérios da última análise. Nunca apaga resultados. */
+function cancelar(r: HTMLElement, e: Est): void {
+  if (e.fase === 'a-gerar') { e.vez++; e.fase = e.linhas ? 'ok' : 'inicial'; e.aviso = 'Geração cancelada. Os resultados anteriores ficam.'; grelha(r, e); return; }
+  const f = r.querySelector<HTMLFormElement>('[data-ak-crit]')!;
+  (Object.entries(e.crit) as [string, string][]).forEach(([k, v]) => { const el = f.elements.namedItem(k) as HTMLInputElement | HTMLSelectElement | null; if (el) el.value = v; });
+  subfamilias(r); (f.elements.namedItem('sub') as HTMLSelectElement).value = e.crit.sub;
+  r.querySelectorAll('[aria-invalid]').forEach((x) => x.removeAttribute('aria-invalid')); r.querySelector<HTMLElement>('[data-ak-erro-campo]')!.hidden = true;
+  e.aviso = e.linhas ? 'Critérios repostos como na última análise.' : 'Critérios repostos.'; estado(r, e);
+}
+function criterios(r: HTMLElement, mostrar?: boolean): void {
+  const vai = mostrar ?? r.classList.contains('sem-crit'); r.classList.toggle('sem-crit', !vai);
+  const b = r.querySelector<HTMLElement>('[data-ak-acao="criterios"]')!; b.setAttribute('aria-expanded', String(vai)); b.title = vai ? 'Esconder os critérios' : 'Mostrar os critérios';
+  b.querySelector('span')!.textContent = vai ? 'Esconder' : 'Mostrar';
+  if (vai) campos(r)[0]?.focus();
 }
 function fecharMenus(r: HTMLElement): boolean {
   let fechou = false;
@@ -275,7 +295,10 @@ export function iniciar(): void {
       else if (a === 'todas-colunas') { e.ocultas.clear(); tudo(r, e); guardarVista(r, e); }
       else if (a === 'desagrupar') { e.grupos = []; e.fechados.clear(); tudo(r, e, true); guardarVista(r, e); }
       else if (a === 'fechar-det') { e.det = false; detalhe(r, e); r.querySelector<HTMLElement>('tbody tr.is-ativo')?.focus(); }
-      else if (a === 'alterar') campos(r)[0]?.focus();
+      else if (a === 'alterar') { criterios(r, true); campos(r)[0]?.focus(); }
+      else if (a === 'imprimir') { if (e.linhas?.length) window.print(); else { e.aviso = 'Gera os dados primeiro (F10).'; estado(r, e); } }
+      else if (a === 'cancelar') cancelar(r, e);
+      else if (a === 'criterios') criterios(r);
       return;
     }
     if ((b = t.closest('[data-ak-exportar]'))) { fecharMenus(r); exportar(r, e, b.dataset.akExportar as 'todos' | 'escolhidos'); r.querySelector<HTMLElement>('[data-ak-acao="exportar"]')?.focus(); return; }
@@ -312,9 +335,10 @@ export function iniciar(): void {
     if (!r || editando() || r.closest('[hidden]')) return;
     const e = de(r);
     /* as teclas do ERP antigo */
-    if (['F2', 'F3', 'F4', 'F10'].includes(ev.key) && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
+    if (['F2', 'F3', 'F4', 'F10', 'F12'].includes(ev.key) && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       ev.preventDefault(); ev.stopPropagation();
       if (ev.key === 'F10') void gerarDados(r, e);
+      else if (ev.key === 'F12') { if (e.linhas?.length) window.print(); else { e.aviso = 'Gera os dados primeiro (F10).'; estado(r, e); } }
       else if (!e.linhas?.length) { e.aviso = 'Gera os dados primeiro (F10).'; estado(r, e); }
       else if (ev.key === 'F2') { if (!e.filtrosAbertos) { e.filtrosAbertos = true; grelha(r, e); } r.querySelector<HTMLElement>('[data-ak-filtro]')?.focus(); }
       else if (ev.key === 'F3') { e.filtros = {}; grelha(r, e, true); e.aviso = 'Filtros da tabela removidos; os critérios ficam.'; estado(r, e); }
@@ -325,6 +349,8 @@ export function iniciar(): void {
       if (fecharMenus(r)) { ev.preventDefault(); return; }
       if (e.det && (t.closest('[data-ak-det]') || t.closest('tbody'))) { ev.preventDefault(); e.det = false; detalhe(r, e); r.querySelector<HTMLElement>('tbody tr.is-ativo')?.focus(); return; }
       if (t.matches('[data-ak-filtro]')) { ev.preventDefault(); e.filtrosAbertos = false; grelha(r, e); r.querySelector<HTMLElement>('tbody tr[tabindex="0"]')?.focus(); return; }
+      /* uma geração em curso, ou os critérios a meio: Cancelar */
+      if (e.fase === 'a-gerar' || t.closest('[data-ak-crit]')) { ev.preventDefault(); cancelar(r, e); }
       return; /* nunca apaga os resultados */
     }
     /* Enter nos critérios: o campo seguinte (Shift: o anterior); no último, Gerar dados — nunca gera sozinho */
