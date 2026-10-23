@@ -72,7 +72,7 @@ export function ladoLat(e: Estado): string {
   if (e.nav === 'carregar') return `<div class="dk7-lista" aria-busy="true">${[5, 3, 6, 4].map((k) => `<span class="dk7-esq dk7-esq--t"></span>${Array.from({ length: Math.min(k, 3) }, () => '<span class="dk7-esq"></span>').join('')}`).join('')}</div>${pe}`;
   if (e.nav === 'falha') return `<div class="dk7-lista"><ul class="dk7-l">${itemNav({ id: 'inicio', app: 'erp', pai: 'principal', rotulo: 'Início', icone: 'house', rota: null, acao: 'casa', ordem: 10, permissoes: '*', ativo: true, filhos: [] }, e)}</ul>
     <p class="dk7-falha">${L(circleAlert)}<span><b>O menu não carregou.</b>Os separadores abertos continuam a funcionar.</span><button type="button" class="dk7-falha-b" data-dk7-nav-repetir>${L(rotateCw)}<span>Tentar outra vez</span></button></p></div>${pe}`;
-  const arv = e.semModulos ? [] : navegacao(e.perfil);
+  const arv = e.semModulos ? [] : navegacao(e.perfil).filter((g) => !g.semMenu);
   return `<div class="dk7-lista">${arv.map((g) => grupoNav(g, e)).join('')}</div>${pe}`;
 }
 

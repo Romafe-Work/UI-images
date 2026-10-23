@@ -14,7 +14,7 @@
 import type { IdPerfil } from './inicio-dados';
 import { MENU_ERP, ROTAS } from './espaco';
 
-export interface LinhaNav { id: string; app: 'erp'; pai: string | null; rotulo: string; icone: string; rota: string | null; acao?: string; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean; casa?: number; curto?: string }
+export interface LinhaNav { id: string; app: 'erp'; pai: string | null; rotulo: string; icone: string; rota: string | null; acao?: string; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean; casa?: number; curto?: string; /** fora do menu lateral, mas as rotas continuam (os cartões do Início abrem-nas) */ semMenu?: boolean }
 const G = (id: string, rotulo: string, icone: string, ordem: number): LinhaNav => ({ id, app: 'erp', pai: null, rotulo, icone, rota: null, ordem, permissoes: '*', ativo: true });
 const F = (id: string, pai: string, rotulo: string, icone: string, rota: string, ordem: number, casa?: number): LinhaNav => ({ id, app: 'erp', pai, rotulo, icone, rota, ordem, permissoes: '*', ativo: true, casa });
 
@@ -24,7 +24,8 @@ export const ACOES_NAV: Record<string, string> = { casa: 'Abrir a área de traba
 export const NAV_ERP: LinhaNav[] = [
   G('principal', 'Principal', 'house', 10),
   { ...F('inicio', 'principal', 'Início', 'house', '', 10), rota: null, acao: 'casa' },
-  G('ficheiros', 'Ficheiros', 'file', 20),
+  /* 23 out. (ela: «para já vamos manter só as compras»): Ficheiros sai do menu lateral; os cartões do Início ficam */
+  { ...G('ficheiros', 'Ficheiros', 'file', 20), semMenu: true },
   F('ficheiros-artigos', 'ficheiros', 'Artigos', 'package', 'ficheiros.artigos', 10, 1),
   F('ficheiros-armazens', 'ficheiros', 'Armazéns', 'warehouse', 'ficheiros.armazens', 20, 2),
   F('ficheiros-familias', 'ficheiros', 'Famílias', 'folder-tree', 'ficheiros.familias', 30, 3),
