@@ -1,0 +1,144 @@
+/* =========================================================
+   ERP — 05 · Início v6, o menu lateral (23 out. 2026). Ver espaco-lateral.ts.
+   Tokens da v5 (.dk6, --k-*): claro e escuro (no escuro, o preto que ela pediu). O azul ROMAFE marca; o laranja
+   só na ação. Movimento só em transform e opacidade (nada de animar larguras no fluxo): o carril muda de largura
+   de uma vez e os nomes aparecem em 200 ms; um grupo que abre traz as linhas em 180 ms; cartões 150 ms; botões 100 ms.
+   Ecrãs ajustáveis: a largura nunca sai da janela; abaixo de 900 px o menu é uma gaveta; a área rola.
+   ========================================================= */
+.dk7 { --lado: 236px; }
+.dk7.is-rail { --lado: 60px; }
+.dk7 .dk7-corpo { display: grid; grid-template-columns: var(--lado) minmax(0, 1fr); min-height: 0; transition: none; }
+.dk7-area { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; }
+.dk7-gaveta, .dk7-veu { display: none; }
+
+/* ---------- o menu lateral ---------- */
+.dk7-lado { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--k-borda); background: var(--k-arvore); }
+.dk7-lista { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 8px; scrollbar-width: thin; }
+.dk7-l { margin: 0; padding: 0; list-style: none; }
+.dk7-l.is-abrir > li { animation: dk7-cair .18s var(--curva) both; }
+.dk7-l.is-abrir > li:nth-child(2) { animation-delay: 20ms; } .dk7-l.is-abrir > li:nth-child(3) { animation-delay: 40ms; } .dk7-l.is-abrir > li:nth-child(n+4) { animation-delay: 60ms; }
+@keyframes dk7-cair { from { opacity: 0; transform: translateY(-4px); } }
+.dk7-g { margin-top: 12px; }
+.dk7-g-t { display: flex; align-items: center; gap: 6px; width: 100%; height: 26px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta-3); font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; text-align: left; cursor: pointer; }
+.dk7-g-t span { flex: 1; }
+.dk7-g-t:hover { color: var(--k-tinta); }
+.dk7-g-t:focus-visible, .dk7-i:focus-visible, .dk7-rail:focus-visible { outline: 2px solid var(--k-azul); outline-offset: -2px; }
+.dk7-g-seta { width: 14px !important; height: 14px !important; transition: transform .18s var(--curva); }
+.dk7-g:not(.is-aberto) > .dk7-g-t .dk7-g-seta { transform: rotate(-90deg); }
+.dk7-g.tem-ativo > .dk7-g-t { color: var(--k-azul); }
+.dk7-g--sub { margin: 2px 0 2px 10px; } .dk7-g--sub .dk7-g-t { height: 32px; font-size: 13.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--k-tinta); }
+.dk7-i { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; margin-top: 1px; padding: 0 10px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta); font: inherit; font-size: 13.5px; font-weight: 500; text-align: left; cursor: pointer; transition: background-color .12s ease, transform .1s ease; }
+.dk7-i svg { width: 18px !important; height: 18px !important; color: var(--k-tinta-3); transition: color .12s ease; }
+.dk7-i span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk7-i kbd { flex: none; }
+.dk7-i:hover { background: color-mix(in srgb, var(--k-azul) 8%, transparent); } .dk7-i:hover svg { color: var(--k-azul); }
+.dk7-i:active { transform: scale(.98); }
+.dk7-i.is-ativo { background: color-mix(in srgb, var(--k-azul) 14%, transparent); color: var(--k-azul); font-weight: 700; }
+.dk7-i.is-ativo::before { content: ""; position: absolute; left: 0; top: 7px; bottom: 7px; width: 3px; border-radius: 0 3px 3px 0; background: var(--k-azul); }
+.dk7-i.is-ativo svg { color: var(--k-azul); }
+.dk7-pe { padding: 8px; border-top: 1px solid var(--k-borda); }
+.dk7-rail { display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; padding: 0 10px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta-2); font: inherit; font-size: 13px; cursor: pointer; transition: background-color .12s ease; }
+.dk7-rail:hover { background: color-mix(in srgb, var(--k-azul) 8%, transparent); color: var(--k-tinta); }
+.dk7-rail svg { width: 18px !important; height: 18px !important; }
+.dk7-lado.is-mudar :is(.dk7-i, .dk7-rail, .dk7-g-t) > span { animation: dk7-nome .2s ease both; }
+@keyframes dk7-nome { from { opacity: 0; transform: translateX(-4px); } }
+/* a navegação a carregar ou falhada */
+.dk7-esq { display: block; height: 30px; margin: 4px 0; border-radius: 6px; background: linear-gradient(90deg, var(--k-sup-2), var(--k-borda), var(--k-sup-2)); background-size: 200% 100%; animation: dk-esq 1.2s linear infinite; }
+.dk7-esq--t { width: 50%; height: 12px; margin: 16px 8px 8px; }
+.dk7-falha { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 4px 8px; margin: 12px 2px; padding: 10px; border: 1px dashed var(--k-borda-forte); border-radius: 6px; font-size: 12.5px; line-height: 1.4; color: var(--k-tinta-2); }
+.dk7-falha > svg { width: 18px; height: 18px; color: var(--k-erro); } .dk7-falha b { display: block; color: var(--k-tinta); }
+.dk7-falha-b { grid-column: 2; justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 30px; margin-top: 4px; padding: 0 10px; border: 0; border-radius: 6px; background: var(--k-laranja); color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.dk7-falha-b:active { transform: scale(.97); }
+
+/* o carril: só ícones; os nomes ficam para os leitores de ecrã e aparecem na dica */
+.dk7.is-rail .dk7-lista { padding: 10px 6px; }
+.dk7.is-rail :is(.dk7-i, .dk7-rail) { justify-content: center; padding: 0; }
+.dk7.is-rail :is(.dk7-i, .dk7-rail) > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.dk7.is-rail .dk7-i kbd { display: none; }
+.dk7.is-rail .dk7-g-t { height: 1px; margin: 10px 8px 6px; padding: 0; background: var(--k-borda); pointer-events: none; }
+.dk7.is-rail .dk7-g-t > * { display: none; }
+.dk7.is-rail .dk7-g--sub { margin-left: 0; }
+.dk7.is-rail .dk7-falha { display: none; }
+.dk7-dica { position: fixed; z-index: 90; padding: 5px 9px; border-radius: 5px; background: var(--k-tinta); color: var(--k-fundo); font-size: 12.5px; font-weight: 600; white-space: nowrap; pointer-events: none; animation: dk7-dica .12s ease both; }
+@keyframes dk7-dica { from { opacity: 0; transform: translateX(-3px); } }
+
+/* ---------- a área de trabalho ---------- */
+.dk7-exp { display: grid; gap: 18px; width: 100%; max-width: 1360px; margin: 0 auto; padding: 20px 28px 36px; }
+.dk7-cab h1 { margin: 0; font-family: var(--f-titulo); font-size: 22px; line-height: 1.2; color: var(--k-tinta); }
+/* os seis cartões aprovados: a mesma forma; a grelha enche a largura em vez de deixar um vazio à direita */
+.dk7-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.dk7-cartao-c { position: relative; animation: dk-ent .28s var(--curva) calc(var(--i) * 30ms) both; }
+.dk7 .dk7-cartao { width: 100%; height: 100%; min-height: 140px; transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease; }
+.dk7 .dk7-cartao .dk-cartao-ic { transition: transform .15s var(--curva); }
+.dk7 .dk7-cartao:hover .dk-cartao-ic, .dk7 .dk7-cartao:focus-visible .dk-cartao-ic { transform: translateY(-2px); }
+.dk7 .dk7-cartao:active { transform: scale(.985); }
+.dk7 .dk7-cartao:focus-visible { outline: 2px solid var(--k-azul); outline-offset: 2px; border-color: var(--k-azul); }
+.dk7-fav { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta-3); opacity: 0; cursor: pointer; transition: opacity .12s ease, background-color .12s ease, transform .1s ease; }
+.dk7-fav svg { width: 16px !important; height: 16px !important; }
+.dk7-cartao-c:hover .dk7-fav, .dk7-fav:focus-visible, .dk7-fav.is-fav { opacity: 1; }
+.dk7-fav:hover { background: var(--k-sup-2); color: var(--k-tinta); } .dk7-fav:active { transform: scale(.9); }
+.dk7-fav:focus-visible { outline: 2px solid var(--k-azul); outline-offset: -2px; }
+.dk7-fav.is-fav { color: var(--k-azul); } .dk7-fav.is-fav svg { fill: currentColor; }
+@media (hover: none) { .dk7-fav { opacity: 1; } }
+.dk7-esq-cartao { height: 140px; border-radius: 4px; }
+
+/* requer atenção: uma linha, só com o que tem número */
+.dk7-aten { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--k-borda); border-radius: 6px; background: var(--k-sup); }
+.dk7-aten h2 { display: flex; align-items: center; gap: 6px; margin: 0 6px 0 2px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--k-tinta-3); }
+.dk7-aten h2 svg { width: 15px; height: 15px; color: var(--k-laranja); }
+.dk7-aten-i { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 10px; border: 1px solid var(--k-borda); border-radius: 6px; background: var(--k-fundo); color: var(--k-tinta); font: inherit; font-size: 13px; cursor: pointer; transition: border-color .12s ease, transform .1s ease; }
+.dk7-aten-i b { font-variant-numeric: tabular-nums; } .dk7-aten-i.is-erro b { color: var(--k-erro); } .dk7-aten-i.is-aviso b { color: #b85800; }
+.dk7-aten-i svg { width: 14px; height: 14px; color: var(--k-tinta-3); }
+.dk7-aten-i:hover { border-color: var(--k-azul); } .dk7-aten-i:active { transform: scale(.97); }
+.dk7-aten-i:focus-visible { outline: 2px solid var(--k-azul); outline-offset: 1px; }
+
+/* favoritos, recentes, em curso: três colunas baixas */
+.dk7-secs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; align-items: start; }
+.dk7-secs > .dk-esq { height: 160px; }
+.dk7-sec { min-width: 0; padding: 10px 12px 8px; border: 1px solid var(--k-borda); border-radius: 6px; background: var(--k-sup); }
+.dk7-sec h2 { margin: 0 0 4px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--k-tinta-3); }
+.dk7-lin { margin: 0; padding: 0; list-style: none; }
+.dk7-lin li { position: relative; display: flex; align-items: center; border-top: 1px solid var(--k-borda); }
+.dk7-lin li:first-child { border-top: 0; }
+.dk7-lin-b { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 10px; flex: 1; min-width: 0; height: 36px; padding: 0 4px; border: 0; background: none; color: var(--k-tinta); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; border-radius: 4px; transition: background-color .12s ease; }
+.dk7-lin-b svg { width: 17px !important; height: 17px !important; color: var(--k-azul); }
+.dk7-lin-b span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk7-lin-b span.is-doc { font-family: var(--f-mono); font-size: 13px; font-weight: 600; }
+.dk7-lin-b small { font-size: 12px; color: var(--k-tinta-3); white-space: nowrap; }
+.dk7-lin-b small.is-aviso { color: #b85800; font-weight: 600; }
+[data-theme="dark"] :is(.dk7-lin-b small.is-aviso, .dk7-aten-i.is-aviso b) { color: #ffb066; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.dk7-lin-b small.is-aviso, .dk7-aten-i.is-aviso b) { color: #ffb066; } }
+.dk7-lin-b:hover { background: color-mix(in srgb, var(--k-azul) 6%, transparent); }
+.dk7-lin-b:focus-visible, .dk7-lin-x:focus-visible { outline: 2px solid var(--k-azul); outline-offset: -2px; }
+.dk7-lin-x { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border: 0; border-radius: 5px; background: none; color: var(--k-tinta-3); opacity: 0; cursor: pointer; transition: opacity .12s ease; }
+.dk7-lin-x svg { width: 14px; height: 14px; }
+.dk7-lin li:hover .dk7-lin-x, .dk7-lin-x:focus-visible { opacity: 1; } .dk7-lin-x:hover { background: var(--k-sup-2); color: var(--k-tinta); }
+@media (hover: none) { .dk7-lin-x { opacity: 1; } }
+.dk7-vazio { display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 6px; font-size: 13px; line-height: 1.45; color: var(--k-tinta-2); }
+.dk7-vazio > svg { flex: none; width: 17px; height: 17px; margin-top: 1px; color: var(--k-tinta-3); }
+.dk7-vazio b { color: var(--k-tinta); }
+.dk7-vazio--grande { justify-content: center; padding: 40px 20px; border: 1px dashed var(--k-borda-forte); border-radius: 6px; }
+
+/* ---------- ecrãs estreitos: o menu é uma gaveta ---------- */
+@media (max-width: 900px) {
+  .dk7 .dk7-corpo { grid-template-columns: minmax(0, 1fr); }
+  .dk7-gaveta { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border: 0; border-radius: 6px; background: none; color: #f5f8fa; cursor: pointer; }
+  .dk7-gaveta svg { width: 20px; height: 20px; }
+  .dk7-gaveta:focus-visible { outline: 2px solid #6fb4e6; outline-offset: 1px; }
+  .dk7-lado { position: fixed; z-index: 70; top: 52px; bottom: 0; left: 0; width: min(290px, 86vw); box-shadow: var(--k-sombra); transform: translateX(-102%); visibility: hidden; transition: transform .2s var(--curva), visibility 0s .2s; }
+  .dk7.is-gaveta .dk7-lado { transform: none; visibility: visible; transition: transform .2s var(--curva); }
+  .dk7-veu { display: block; position: fixed; z-index: 69; inset: 52px 0 0; background: rgba(8, 16, 24, .42); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+  .dk7.is-gaveta .dk7-veu { opacity: 1; pointer-events: auto; }
+  /* na gaveta, o carril não faz sentido: os nomes voltam */
+  .dk7.is-rail .dk7-lista { padding: 10px 8px; }
+  .dk7.is-rail :is(.dk7-i, .dk7-rail) { justify-content: flex-start; padding: 0 10px; }
+  .dk7.is-rail :is(.dk7-i, .dk7-rail) > span { position: static; width: auto; height: auto; clip-path: none; }
+  .dk7.is-rail .dk7-g-t { height: 26px; margin: 0; padding: 0 8px; background: none; pointer-events: auto; }
+  .dk7.is-rail .dk7-g-t > * { display: revert; }
+  .dk7-pe { display: none; }
+  .dk7-exp { padding: 16px 16px 28px; }
+}
+@media (max-width: 520px) { .dk7-cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .dk7 .dk7-cartao { min-height: 120px; padding: 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .dk7 *, .dk7 *::before, .dk7-dica { animation: none !important; transition: none !important; }
+}

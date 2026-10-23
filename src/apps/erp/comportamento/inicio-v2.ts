@@ -34,7 +34,8 @@ function dizer(t: string): void {
 }
 function avisos(abrir?: boolean): void {
   if (!raiz) return;
-  const p = raiz.querySelector<HTMLElement>('[data-hm-avisos-painel]')!, b = raiz.querySelector<HTMLElement>('[data-hm-avisos]')!;
+  const p = raiz.querySelector<HTMLElement>('[data-hm-avisos-painel]'), b = raiz.querySelector<HTMLElement>('[data-hm-avisos]');
+  if (!p || !b) return; /* o Início v6 não tem avisos */
   const vai = abrir ?? p.hidden; p.hidden = !vai; b.setAttribute('aria-expanded', String(vai));
 }
 function armar(): void {

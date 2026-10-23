@@ -27,7 +27,6 @@ import pinOff from 'lucide-static/icons/pin-off.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
 import fileClock from 'lucide-static/icons/file-clock.svg?raw';
 import folderOpen from 'lucide-static/icons/folder-open.svg?raw';
-import building2 from 'lucide-static/icons/building-2.svg?raw';
 import keyboard from 'lucide-static/icons/keyboard.svg?raw';
 import bookOpen from 'lucide-static/icons/book-open.svg?raw';
 import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
@@ -141,7 +140,7 @@ export function exploradorV6(e: Estado): string {
 export function paginaV6(e: Estado = estadoV6(), extra = '', cen = 'normal'): string {
   const topo = topoErp([['Área de trabalho', '']], false, e.perfil)
     .replace('<header class="hm-topo">', '<header class="hm-topo dk-topo dk6-topo">')
-    .replace(/<nav class="hm-caminho"[\s\S]*?<\/nav>/, `<p class="dk6-emp" title="Empresa e armazém da sessão">${L(building2)}<span><b>Romafe, SA</b><small>Armazém 60 · Coimbra</small></span></p>`)
+    .replace(/<nav class="hm-caminho"[\s\S]*?<\/nav>/, '')
     .replace(/<label class="hm-procura">[\s\S]*?<\/label>/, `<button type="button" class="dk-procura" data-dk-paleta>${L(search)}<span>Procurar ou executar…</span><kbd>Ctrl K</kbd></button>`);
   return `<div class="hm sh dkr dk6" data-hm data-sh>
   ${topo}

@@ -15,10 +15,12 @@ import type { IdFaltas } from './compras/faltas';
 import type { IdEspaco } from './espaco';
 import type { IdCompras3 } from './compras/ecras2';
 import type { IdCentral } from './entrar-central';
+import type { IdFicheiros } from './ficheiros/ecras';
+import type { IdLateral } from './espaco-lateral';
 
 /** Os ecrãs do ERP: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */
-export type IdErp = 'abertura' | IdEntrar | IdEstadoRede | IdCentral | IdInicio | IdCompras2 | IdAberturaV2 | IdAberturaV3 | IdAberturaV4 | IdAberturaV5 | IdAberturaV6 | IdInicioV2 | IdFaltas | IdEspaco | IdCompras3 | IdCompras | IdCarregarErp | IdErroErp;
+export type IdErp = 'abertura' | IdEntrar | IdEstadoRede | IdCentral | IdInicio | IdCompras2 | IdAberturaV2 | IdAberturaV3 | IdAberturaV4 | IdAberturaV5 | IdAberturaV6 | IdInicioV2 | IdFaltas | IdEspaco | IdCompras3 | IdCompras | IdCarregarErp | IdErroErp | IdFicheiros | IdLateral;
 
 export type EcraErp = Ecra<IdErp>;
 

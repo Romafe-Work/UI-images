@@ -18,6 +18,7 @@ import {
   type Estado, type Acao, type Janela,
 } from '../espaco';
 import { exploradorV6, menuV6 } from '../espaco-v6';
+import { ladoLat, exploradorLat, acoesLat, ecrasCasaLat } from '../espaco-lateral';
 import { FORNECEDORES, ARTIGOS, encomendas } from '../compras/dominio';
 import { irIdentidade } from './abertura-v4';
 import { mostrar } from '../../../comum/ecras';
@@ -31,7 +32,10 @@ let normal = false, restaurou = false, aviso = 0;
 const frames = new Map<string, HTMLIFrameElement>();
 
 /** O explorador da versão à vista (a V6 tem o seu; a v4 fica igual). */
-const exp = (x: Estado) => x.v6 ? exploradorV6(x) : explorador(x);
+const exp = (x: Estado) => x.lat ? exploradorLat(x) : x.v6 ? exploradorV6(x) : explorador(x);
+/** Os ecrãs das teclas Alt 1…9: na v6, os seis atalhos da casa. */
+const daCasa = (x: Estado) => x.lat ? ecrasCasaLat(x) : ecrasCasa(x);
+const barra = (x: Estado) => x.lat ? acoesLat(x) : acoes(x);
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => pg?.querySelector<T>(s) ?? null;
 function dizer(t: string): void {
   const el = $('[data-hm-aviso]'); if (!el) return;
@@ -48,7 +52,8 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   const put = (s: string, h: string) => { const el = $(s); if (el) el.innerHTML = h; };
   put('[data-dk-arvore]', arvore(e));
   put('[data-dk-seps]', separadores(e));
-  put('[data-dk-acoes]', acoes(e));
+  put('[data-dk-acoes]', barra(e));
+  if (e.lat) { put('[data-dk7-lado]', ladoLat(e)); pg.classList.toggle('is-rail', !!e.rail); }
   put('[data-dk-banner]', banner(e));
   if (o.exp !== false) { const x = $('[data-dk-exp]'); if (x) { x.innerHTML = e.semCasa ? semSeparadores() : exp(e); if (o.entrar) { x.classList.remove('is-entrar'); void x.offsetWidth; x.classList.add('is-entrar'); } } }
   if (o.exp !== false) pg.querySelectorAll<HTMLElement>('[data-dk-exp-pasta]').forEach((p) => { p.innerHTML = exp({ ...e, pasta: p.dataset.dkExpPasta! }); });
@@ -202,7 +207,7 @@ function voltar(): void {
 function escolher(id: string): void {
   e.sel = id;
   pg?.querySelectorAll<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]').forEach((t) => { const sim = (t.dataset.dkPasta ?? t.dataset.dkAbrir) === id; t.setAttribute('aria-selected', String(sim)); t.closest('.dk-mod')?.classList.toggle('is-sel', sim); });
-  const a = $('[data-dk-acoes]'); if (a) a.innerHTML = acoes(e);
+  const a = $('[data-dk-acoes]'); if (a) a.innerHTML = barra(e);
   const d = $('.dk-painel.is-ativo .dk-detalhe'); if (d) { const tmp = document.createElement('div'); tmp.innerHTML = exp({ ...e, pasta: pastaDe(e) ?? e.pasta }); const n = tmp.querySelector('.dk-detalhe'); if (n) d.innerHTML = n.innerHTML; }
   $<HTMLElement>(`.dk-exp [data-dk-pasta="${CSS.escape(id)}"], .dk-exp [data-dk-abrir="${CSS.escape(id)}"]`)?.focus();
 }
@@ -302,6 +307,22 @@ function teclasMenu6(ev: KeyboardEvent, alvo: HTMLElement): boolean {
   if (ev.key === 'Tab') { fecharMenu6(); return false; }
   return false;
 }
+/** A gaveta do menu (ecrãs estreitos): abre por cima da página; Esc, o véu ou escolher fecham-na. */
+function gaveta(abrir: boolean): void {
+  if (!pg) return;
+  pg.classList.toggle('is-gaveta', abrir);
+  $('[data-dk7-gaveta]')?.setAttribute('aria-expanded', String(abrir));
+  if (abrir) $<HTMLElement>('[data-dk7-lado] .dk7-i')?.focus(); else if (pg.contains(document.activeElement) && document.activeElement?.closest('[data-dk7-lado]')) $<HTMLElement>('[data-dk7-gaveta]')?.focus();
+}
+/** A dica do carril: fixa na janela, porque a lista do menu corta o que sai dela. */
+function dica(b: HTMLElement | null): void {
+  document.querySelector('.dk7-dica')?.remove();
+  if (!b || !pg?.classList.contains('is-rail') || window.matchMedia('(max-width: 900px)').matches) return;
+  const r = b.getBoundingClientRect(), d = document.createElement('div');
+  d.className = 'dk7-dica'; d.setAttribute('role', 'tooltip'); d.textContent = b.dataset.dica ?? '';
+  d.style.left = `${r.right + 10}px`; d.style.top = `${r.top + r.height / 2 - 13}px`;
+  pg.appendChild(d);
+}
 function sair(): void { try { sessionStorage.removeItem('romafe:sessao'); sessionStorage.removeItem('erp:sessao'); } catch { /* */ } irIdentidade(); }
 function tema(t: string): void {
   try { localStorage.setItem('uiux:tema', t); } catch { /* */ }
@@ -323,6 +344,7 @@ function itens(): Item[] {
     { k: 'cmd:sair', g: 'Comandos', t: 'Terminar sessão', ic: 'log-out', fazer: sair },
   ];
   filhos('compras', e.perfil).filter((f) => f.registada && f.permitido).forEach((f) => l.push({ k: `ecra:${f.rota}`, g: 'Ecrãs', t: f.rotulo, s: 'Compras', ic: f.icone, fazer: () => abrirRota(f.rota!) }));
+  if (e.lat) Object.keys(ROTAS).filter((r) => r.startsWith('ficheiros.')).forEach((r) => l.push({ k: `ecra:${r}`, g: 'Ecrãs', t: ROTAS[r].titulo, s: 'Ficheiros', ic: 'file-text', fazer: () => abrirRota(r) }));
   FORNECEDORES.forEach((f) => l.push({ k: `forn:${f.id}`, g: 'Fornecedores', t: f.nome, s: `${f.cidade} · ${f.nif}`, ic: 'users', fazer: () => abrirJanela('fornecedor', f.id) }));
   ARTIGOS.forEach((a) => l.push({ k: `art:${a.ref}`, g: 'Artigos', t: a.ref, s: `${a.marca} · ${a.desc}`, ic: 'warehouse', fazer: () => abrirJanela('artigo', a.ref) }));
   encomendas().forEach((x) => l.push({ k: `doc:${x.ref}`, g: 'Documentos', t: x.ref, s: `${FORNECEDORES.find((f) => f.id === x.forn)?.nome ?? x.forn} · ${x.estado}`, ic: 'file-text', fazer: () => abrirRota('compras.encomenda', x.ref) }));
@@ -364,8 +386,9 @@ function teclas(ev: KeyboardEvent): void {
   if (!pg || editando()) return;
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); ev.stopImmediatePropagation(); if (pal) fecharPaleta(); else abrirPaleta(); return; }
   if (e.v6 && ev.key === 'F1') { ev.preventDefault(); ev.stopImmediatePropagation(); e.dialogo = 'atalhos'; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
+  if (e.lat && ev.key === 'F10') { ev.preventDefault(); ev.stopImmediatePropagation(); fecharMenus(); $<HTMLElement>('.dk7-lado .dk7-i.is-ativo, .dk7-lado .dk7-i')?.focus(); return; }
   if (e.v6 && ev.key === 'F10') { ev.preventDefault(); ev.stopImmediatePropagation(); fecharMenus(); $<HTMLElement>('.dk6-m-b')?.focus(); return; }
-  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const r = ecrasCasa(e)[Number(ev.code.slice(5)) - 1]; if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
+  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const r = daCasa(e)[Number(ev.code.slice(5)) - 1]; if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
   /* atalhos para fixar (22 out.): Ctrl D no acesso rápido, Alt P o separador; Alt W fecha o separador */
   const k = ev.key.toLowerCase();
   if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && k === 'd') {
@@ -441,10 +464,27 @@ export function iniciar(): void {
     if (e.v6 && teclasMenu6(ev, ev.target as HTMLElement)) { ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     teclas(ev);
     if (ev.defaultPrevented) return;
+    if (ev.key === 'Escape' && pg.classList.contains('is-gaveta')) { gaveta(false); return; }
     if (ev.key === 'Escape') { if (e.dialogo && e.dialogo !== 'sessao') { e.dialogo = ''; desenhar({ exp: false }); } fecharMenus(); return; }
     const alvo = ev.target as HTMLElement;
     if (alvo.closest('input, textarea, select')) return;
     if (ev.altKey && ev.key === 'ArrowLeft') { ev.preventDefault(); voltar(); return; }
+    /* v6: as setas nos cartões (como numa grelha) e no menu lateral (de cima para baixo) */
+    const cartao = alvo.closest<HTMLElement>('.dk7-cartao');
+    if (cartao && /^Arrow/.test(ev.key)) {
+      const cs = [...(pg.querySelectorAll<HTMLElement>('.dk7-cartao'))], i = cs.indexOf(cartao), lista = cartao.closest<HTMLElement>('.dk7-cartoes')!;
+      const cols = Math.max(1, getComputedStyle(lista).gridTemplateColumns.split(' ').length);
+      const n = ev.key === 'ArrowRight' ? i + 1 : ev.key === 'ArrowLeft' ? i - 1 : ev.key === 'ArrowDown' ? i + cols : i - cols;
+      const prox = cs[n]; if (prox) { ev.preventDefault(); prox.focus(); }
+      return;
+    }
+    const lad = alvo.closest<HTMLElement>('.dk7-i, .dk7-g-t');
+    if (lad && pg.querySelector('[data-dk7-lado]')?.contains(lad) && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp' || ev.key === 'Home' || ev.key === 'End')) {
+      const vs = [...pg.querySelectorAll<HTMLElement>('[data-dk7-lado] :is(.dk7-i, .dk7-g-t)')].filter((b) => b.offsetParent !== null), i = vs.indexOf(lad);
+      const prox = ev.key === 'Home' ? vs[0] : ev.key === 'End' ? vs[vs.length - 1] : vs[i + (ev.key === 'ArrowDown' ? 1 : -1)];
+      if (prox) { ev.preventDefault(); prox.focus(); }
+      return;
+    }
     /* o explorador: setas e Enter */
     const tile = alvo.closest<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]');
     if (tile && ev.key === 'Enter') { ev.preventDefault(); const id = tile.dataset.dkPasta ?? tile.dataset.dkAbrir!; e.sel = id; if (tile.dataset.dkPasta) abrirPasta(id, tile); else abrirRota(id); return; }
@@ -468,12 +508,23 @@ export function iniciar(): void {
   document.fonts?.ready.then(reajustar);
   window.addEventListener('focusin', (ev) => { const s = (ev.target as HTMLElement).closest?.<HTMLElement>('.dk6-sub'); if (s && pg?.contains(s)) ajustarSub(s); });
   window.addEventListener('pointerover', (ev) => { if (!menu6 || !pg) return; const b = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk6-abrir]'); if (b && pg.contains(b) && b.dataset.dk6Abrir !== menu6) abrirMenu6(b.dataset.dk6Abrir!); });
+  const dicaDe = (ev: Event) => { const b = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk7-lado] [data-dica]'); dica(b && pg?.contains(b) ? b : null); };
+  window.addEventListener('pointerover', dicaDe); window.addEventListener('focusin', dicaDe);
+  window.addEventListener('scroll', () => dica(null), true);
   /* a marca leva à área de trabalho, mesmo fechada */
   window.addEventListener('click', (ev) => { const t = ev.target as HTMLElement; if (!pg || editando() || !pg.contains(t) || !t.closest('.dk-topo .hm-marca')) return; ev.preventDefault(); ev.stopImmediatePropagation(); abrirCasa(); }, true);
   window.addEventListener('click', (ev) => {
     if (!pg || editando()) return;
     const t = ev.target as HTMLElement; if (!pg.contains(t)) return;
     let b: HTMLElement | null;
+    /* v6: o menu lateral, os favoritos e a gaveta */
+    if ((b = t.closest('[data-dk7-grupo]'))) { const id = b.dataset.dk7Grupo!; e.arvore[id] = e.arvore[id] === false; desenhar({ exp: false }); $<HTMLElement>(`[data-dk7-grupo="${id}"]`)?.focus(); if (e.arvore[id] !== false) $(`#dk7-g-${id}`)?.classList.add('is-abrir'); return; }
+    if (t.closest('[data-dk7-rail]')) { e.rail = !e.rail; dica(null); desenhar({ exp: false }); $('[data-dk7-lado]')?.classList.add('is-mudar'); window.setTimeout(() => $('[data-dk7-lado]')?.classList.remove('is-mudar'), 260); $<HTMLElement>('[data-dk7-rail]')?.focus(); return; }
+    if ((b = t.closest('[data-dk7-fav]'))) { const r = b.dataset.dk7Fav!; e.fixados = e.fixados.includes(r) ? e.fixados.filter((y) => y !== r) : [...e.fixados, r]; dizer(e.fixados.includes(r) ? `«${ROTAS[r]?.titulo}» nos favoritos.` : `«${ROTAS[r]?.titulo}» saiu dos favoritos.`); desenhar(); $<HTMLElement>(`[data-dk7-fav="${r}"]`)?.focus(); return; }
+    if (t.closest('[data-dk7-gaveta]')) { gaveta(!pg.classList.contains('is-gaveta')); return; }
+    if (t.closest('[data-dk7-veu]')) { gaveta(false); return; }
+    if (t.closest('[data-dk7-nav-repetir]')) { e.nav = 'carregar'; desenhar({ exp: false }); window.setTimeout(() => { e.nav = undefined; desenhar({ exp: false }); dizer('Menu carregado.'); }, 400); return; }
+    if (t.closest('[data-dk7-lado] button') && !t.closest('[data-dk7-grupo], [data-dk7-rail]')) gaveta(false);
     if ((b = t.closest('.hm-pessoa, [data-hm-dica="Definições"]'))) { ev.preventDefault(); ev.stopImmediatePropagation(); const m = $('[data-dk-menu-conta]'); if (m) { const vai = m.hidden; fecharMenus(); m.hidden = !vai; } return; }
     if (t.closest('.hm-procura')) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirPaleta(); return; }
     if ((b = t.closest('[data-dk-tema]'))) { tema(b.dataset.dkTema!); return; }

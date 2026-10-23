@@ -86,6 +86,12 @@ import fileInput from 'lucide-static/icons/file-input.svg?raw';
 import userStar from 'lucide-static/icons/user-star.svg?raw';
 import calendarClock from 'lucide-static/icons/calendar-clock.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
+import packageIc from 'lucide-static/icons/package.svg?raw';
+import folderTree from 'lucide-static/icons/folder-tree.svg?raw';
+import tag from 'lucide-static/icons/tag.svg?raw';
+import ruler from 'lucide-static/icons/ruler.svg?raw';
+import house from 'lucide-static/icons/house.svg?raw';
+import keyboardIc from 'lucide-static/icons/keyboard.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -134,7 +140,9 @@ export const MENU_ERP: LinhaMenu[] = [
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
 const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, true], 'compras-fornecedores': [120, true], 'compras-requisicoes': [130, false] };
 MENU_ERP.forEach((l) => { const o = OM[l.id]; if (o) { l.om = o[0]; l.sep = o[1]; } });
-const ICONES: Record<string, string> = { 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar };
+const ICONES: Record<string, string> = { 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
+  /* Ficheiros (23 out., Início v6) */
+  package: packageIc, warehouse, 'folder-tree': folderTree, tag, ruler, house, keyboard: keyboardIc };
 export const icone = (n: string, cls = '') => L(ICONES[n] ?? file, cls);
 
 /** As teclas do ERP antigo, numa barra que muda com o separador. */
@@ -149,6 +157,12 @@ export const ROTAS: Record<string, Rota> = {
   'compras.requisicoes': { ecra: 'compras-requisicoes', titulo: 'Requisições', icone: 'clipboard-list', acoes: ['novo', 'editar', 'eliminar', 'atualizar'], novo: ['compras-requisicao', 'Nova requisição'], editar: ['compras-requisicao', 'Requisição'] },
   'compras.cotacoes': { ecra: 'compras-cotacoes', titulo: 'Cotações', icone: 'scale', acoes: ['novo', 'atualizar', 'imprimir'], novo: ['compras-cotacao', 'Nova cotação'] },
   'compras.rececoes': { ecra: 'compras-rececoes', titulo: 'Receções', icone: 'package-check', acoes: ['novo', 'atualizar', 'imprimir'], novo: ['compras-rececao', 'Nova receção'] },
+  /* Ficheiros (23 out., Início v6): só consulta — o que não existe (novo, editar) não aparece na barra */
+  'ficheiros.artigos': { ecra: 'ficheiros-artigos', titulo: 'Artigos', icone: 'package', acoes: ['atualizar', 'imprimir'] },
+  'ficheiros.armazens': { ecra: 'ficheiros-armazens', titulo: 'Armazéns', icone: 'warehouse', acoes: ['atualizar', 'imprimir'] },
+  'ficheiros.familias': { ecra: 'ficheiros-familias', titulo: 'Famílias', icone: 'folder-tree', acoes: ['atualizar', 'imprimir'] },
+  'ficheiros.marcas': { ecra: 'ficheiros-marcas', titulo: 'Marcas', icone: 'tag', acoes: ['atualizar', 'imprimir'] },
+  'ficheiros.unidades': { ecra: 'ficheiros-unidades', titulo: 'Unidades de medida', icone: 'ruler', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },
   'compras.fornecedor': { ecra: 'compras-fornecedor', titulo: 'Fornecedor', icone: 'users', acoes: ['editar', 'atualizar', 'imprimir'] },
@@ -175,6 +189,8 @@ export interface Hist { rota: string; titulo: string; quando: number }
 export interface Estado {
   perfil: IdPerfil; seps: Sep[]; ativo: string; pasta: string; sel: string; vista: 'grelha' | 'lista'; fixados: string[]; arvore: Record<string, boolean>;
   janelas: Janela[]; banner: Banner; bannerTexto?: string; dialogo: string; carga?: 'pasta' | 'espaco'; rail?: boolean; trabalho?: 'recentes' | 'curso'; casa?: number; semCasa?: boolean; presos?: string[]; v6?: boolean; historico?: Hist[]; semCurso?: boolean; menu?: string; semModulos?: boolean; semRecentes?: boolean; primeira?: boolean; pastaVazia?: boolean; largura: number;
+  /** v6 (23 out.): o menu lateral; nav = a navegação ainda a chegar da API ou falhada */
+  lat?: boolean; nav?: 'carregar' | 'falha';
 }
 export const novoEstado = (perfil: IdPerfil = 'compras'): Estado => ({ perfil, seps: [], ativo: 'inicio', pasta: 'raiz', sel: '', vista: 'grelha', fixados: ['compras.faltas', 'compras.encomendas'], arvore: { compras: true }, janelas: [], banner: '', dialogo: '', largura: 260 });
 
@@ -201,7 +217,7 @@ export function arvore(e: Estado): string {
   const mods = e.semModulos ? [] : modulos(e.perfil).filter((m) => m.ativo);
   const ativoRota = e.seps.find((s) => s.id === e.ativo)?.rota;
   const casa = e.ativo === 'inicio' && e.pasta === 'raiz' && !e.semCasa;
-  return `<div class="dk-arv-topo"><p class="dk-arv-emp">${L(appWindow)}<span><b>Romafe, SA</b><small>Armazém 60 · Coimbra</small></span></p><button type="button" class="dk-arv-rail" data-dk-rail aria-label="${e.rail ? 'Expandir o menu' : 'Recolher o menu'}" aria-expanded="${!e.rail}">${L(chevronRight)}</button></div>
+  return `<div class="dk-arv-topo"><span></span><button type="button" class="dk-arv-rail" data-dk-rail aria-label="${e.rail ? 'Expandir o menu' : 'Recolher o menu'}" aria-expanded="${!e.rail}">${L(chevronRight)}</button></div>
   <ul class="dk-arv" role="tree" aria-label="Pastas do ERP">
     <li role="treeitem" aria-selected="${casa}"><button type="button" class="dk-arv-i${casa ? ' is-ativo' : ''}" data-dk-ir="raiz" title="Área de trabalho">${L(layoutGrid)}<span>Área de trabalho</span></button></li>
   </ul>

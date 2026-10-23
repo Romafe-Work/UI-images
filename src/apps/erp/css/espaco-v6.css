@@ -14,6 +14,8 @@
 .dk6-emp > svg { width: 18px; height: 18px; color: #6fb4e6; }
 .dk6-emp span { display: grid; line-height: 1.2; } .dk6-emp b { font-size: 13px; color: #f5f8fa; } .dk6-emp small { font-size: 11.5px; }
 .dk6 .dk-procura { height: 34px; }
+/* 23 out.: ela tirou o bloco da empresa («Romafe, SA · Armazém 60») do cabeçalho; a procura fica à direita */
+.dk6 .dk6-topo .dk-procura { margin-left: auto; }
 
 /* ---------- o corpo: menu, separadores e a área ---------- */
 .dk6 .dk6-corpo { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); min-height: 0; }

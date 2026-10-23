@@ -9,6 +9,8 @@ import { versaoInicioV2, estadosInicioV2 } from './inicio-v2';
 import { versaoInicioV3 } from './inicio-v3';
 import { versaoInicioV4 } from './espaco';
 import { versaoInicioV5, estadosEspacoV6 } from './espaco-v6';
+import { versaoInicioV6, versaoEstadoLat, estadosLat } from './espaco-lateral';
+import { ecrasFicheiros, DESCRICAO_FICHEIROS } from './ficheiros/ecras';
 import { ecrasFaltas } from './compras/faltas';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
@@ -30,7 +32,10 @@ const soAberturaV3 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, objetivo: 'Depois
 const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
 
 /* 22 out. 2026: o 05 · Início ganha a v2 (briefing do ecrã inicial, «simples e wow»), que passa a abrir; a v1 fica */
-const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2(), versaoInicioV3(), versaoInicioV4(), versaoInicioV5()] as Ecra<IdErp>['versoes'] } : e);
+const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2(), versaoInicioV3(), versaoInicioV4(), versaoInicioV5(), versaoInicioV6()] as Ecra<IdErp>['versoes'] } : e);
+
+/* 23 out. 2026: o Início v6 (menu lateral) — os estados da v4/v5 ganham também a v6, menos o do menu horizontal */
+const comV6 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => { const v = versaoEstadoLat(e.id); return v ? { ...e, versoes: [...e.versoes, v] as Ecra<IdErp>['versoes'] } : e; });
 
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 export const erp: App<IdErp> = {
@@ -40,10 +45,10 @@ export const erp: App<IdErp> = {
   grupo: 'ERP',
   marca: 'ROMAFE',
   tela: { l: 1440, a: 900 },
-  fluxos: { 'Entrar': 'O login é o comum a todas as apps (ROMAFE Identity, em identidade/); ao escolher o ERP, passa a abertura e depois o Início. «Terminar sessão» e a sessão expirada voltam ao login comum.', 'Início': DESCRICAO_INICIO, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
+  fluxos: { 'Entrar': 'O login é o comum a todas as apps (ROMAFE Identity, em identidade/); ao escolher o ERP, passa a abertura e depois o Início. «Terminar sessão» e a sessão expirada voltam ao login comum.', 'Início': DESCRICAO_INICIO, 'Ficheiros': DESCRICAO_FICHEIROS, 'Compras': DESCRICAO_COMPRAS, 'Carregamento': DESCRICAO_CARREGAR_ERP, 'Erros': DESCRICAO_ERROS_ERP },
   /* 19 out. 2026: a 00 · Abertura («um ecrã wow como temos no goparts») antes do 01 · Entrar */
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...estadosEspacoV6(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...comV6(estadosEspacoV6()), ...estadosLat(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };
