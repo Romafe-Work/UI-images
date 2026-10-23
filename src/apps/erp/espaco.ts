@@ -133,10 +133,9 @@ export const MENU_ERP: LinhaMenu[] = [
   A('mapas-analise-forn', 'compras-mapas', 'Análise de fornecedores', '', 80, true), A('mapas-automatico', 'compras-mapas', 'Artigos/compras automático', '', 90, true),
   A('analise-artigo', 'mapas-analise', 'Mapa de compras por artigo', '', 10), A('analise-artigo-forn', 'mapas-analise', 'Mapa de compras por artigo/fornecedor', '', 20),
   A('analise-familia', 'mapas-analise', 'Mapa de compras por família', '', 30, true), A('analise-familia-forn', 'mapas-analise', 'Mapa de compras por família/fornecedor', '', 40),
-  A('comp-geral', 'mapas-comparativos', 'Geral', '', 10), A('comp-geral-var', 'mapas-comparativos', 'Geral (variação anual)', '', 20),
-  A('comp-artigo', 'mapas-comparativos', 'Por artigo', '', 30, true), A('comp-artigo-var', 'mapas-comparativos', 'Por artigo (variação anual)', '', 40),
-  A('comp-familia', 'mapas-comparativos', 'Por família/subfamília', '', 50, true), A('comp-familia-var', 'mapas-comparativos', 'Por família/subfamília (variação anual)', '', 60),
-  /* 23 out. (ela: «quero num só ecrã»): «Por fornecedor» e «(variação anual)» são um ecrã só, com Variação anual ou Mês a mês */
+  /* 23 out. (ela: «quero num só ecrã»): cada par «X» e «X (variação anual)» é agora um ecrã só (Variação anual ou Mês a mês) */
+  A('comp-geral-var', 'mapas-comparativos', 'Geral', '', 10), A('comp-artigo-var', 'mapas-comparativos', 'Por artigo', '', 30, true),
+  A('comp-familia-var', 'mapas-comparativos', 'Por família/subfamília', '', 50, true),
   A('comp-forn-var', 'mapas-comparativos', 'Por fornecedor', '', 70, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */

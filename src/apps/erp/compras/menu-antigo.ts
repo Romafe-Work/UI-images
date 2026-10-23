@@ -146,7 +146,8 @@ export function ecrasMenuAntigo(): Ecra<IdErp>[] {
     const t: Tabela = { ...D[id], id: `cm-${id}`, num: String(40 + i), caminho: 'Compras' };
     const base: Ecra<IdErp> = { id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] };
     /* Comparativo por fornecedor (variação anual): a v2 do briefing de 23 out., com os seus estados */
-    if (id === 'comp-forn-var') return [{ ...base, versoes: [...base.versoes, versaoComparativo()] }, ...estadosComparativo(t.num)];
+    const dim = ({ 'comp-forn-var': 'forn', 'comp-geral-var': 'geral', 'comp-artigo-var': 'artigo', 'comp-familia-var': 'familia' } as const)[id as string];
+    if (dim) return [{ ...base, versoes: [...base.versoes, versaoComparativo(dim)] }, ...estadosComparativo(dim, t.num)];
     return [base];
   });
 }

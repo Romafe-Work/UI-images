@@ -16,8 +16,7 @@
        modo é um critério (só conta depois de Gerar dados), e os meses que ainda não chegaram ficam «—».
    Movimento só em transform/opacity; com «reduzir movimento», tudo aparece logo.
    ========================================================= */
-import { comparar, variacao, ANO_ATUAL, ANO_MIN, type RelCf, type LinhaCf, type CenarioCf } from './comparativo';
-import { HOJE } from './dominio';
+import { comparar, variacao, DIMS, ANO_ATUAL, ANO_MIN, MES_ATUAL, type RelCf, type LinhaCf, type CenarioCf, type DimCf, type DimDef } from './comparativo';
 import { xlsx, descarregar, type Celula } from './xlsx';
 import { euros, dia } from './dominio';
 import { L, esc, icone } from '../espaco';
@@ -49,12 +48,14 @@ interface Est {
   sel: Set<string>; ativo: string; ancora: string; det: boolean; aviso?: string; vez: number; nums?: number[];
   /** o modo dos resultados à vista (o do formulário é a classe cf-mensal da página) */
   modo: 'anual' | 'mensal';
+  /** a dimensão do ecrã (Geral, Por artigo, Por família/subfamília, Por fornecedor) */
+  d: DimDef;
 }
 const MESES = ['Jan.', 'Fev.', 'Mar.', 'Abr.', 'Mai.', 'Jun.', 'Jul.', 'Ago.', 'Set.', 'Out.', 'Nov.', 'Dez.'];
-const MES_ATUAL = Number(HOJE.slice(5, 7));
 const modoForm = (r: HTMLElement): Est['modo'] => r.classList.contains('cf-mensal') ? 'mensal' : 'anual';
 const SESSAO = { utilizador: 'rui.matos', empresa: 'emp-000001' };
-const CHAVE = `erp:comparativo-forn:vista:${SESSAO.utilizador}:${SESSAO.empresa}`;
+const chaveVista = (d: DimDef) => `erp:comparativo-${d.id}:vista:${SESSAO.utilizador}:${SESSAO.empresa}`;
+const cap = (t: string) => t[0].toUpperCase() + t.slice(1);
 const SEM_DADOS = 'Gera os dados primeiro (F10).';
 const estados = new WeakMap<HTMLElement, Est>();
 const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
@@ -70,17 +71,12 @@ const pct = (v: number) => `${v > 0.00049 ? '+' : v < -0.00049 ? '−' : ''}${(M
 type Tipo = 'txt' | 'mono' | 'n' | 'eur' | 'pct';
 interface Col { k: string; t: string; tipo: Tipo; w: number; banda: number; ano?: number; i?: number; agrupa?: boolean; futuro?: boolean }
 interface Banda { t: string; sub?: string; cols: Col[]; tipo: 'forn' | 'ano' | 'var' | 'tot'; vazia?: boolean }
-const DESCR: Col[] = [
-  { k: 'num', t: 'Nº', tipo: 'mono', w: 72, banda: 0 }, { k: 'nome', t: 'Nome', tipo: 'txt', w: 200, banda: 0 },
-  { k: 'pais', t: 'País', tipo: 'txt', w: 104, banda: 0, agrupa: true }, { k: 'cidade', t: 'Cidade', tipo: 'txt', w: 110, banda: 0, agrupa: true },
-  { k: 'tend', t: 'Tendência', tipo: 'txt', w: 170, banda: 0, agrupa: true },
-];
-const OCULTAS0 = ['cidade', 'tend'];
-/** Os grupos do menu Colunas: o que se pode esconder (o Nome e os líquidos ficam sempre). */
-const ESCONDER: [string, string][] = [['num', 'Nº'], ['pais', 'País'], ['cidade', 'Cidade'], ['tend', 'Tendência'], ['qtd', 'Quantidades'], ['var', 'Variações']];
+/** As colunas que descrevem a linha (Nº, Nome, País… conforme a dimensão). */
+const descr = (e: Est): Col[] => e.d.descr.map((c) => ({ ...c, banda: 0 }));
+const nomeDe = (e: Est, l: LinhaCf) => l.c[e.d.descr.filter((c) => c.fixa).slice(-1)[0]?.k ?? e.d.descr[0].k] ?? l.id;
 function bandas(e: Est): Banda[] {
   const anos = e.rel?.anos ?? [], sd = new Set(e.rel?.semDados ?? []);
-  const forn: Banda = { t: 'Fornecedor', tipo: 'forn', cols: DESCR.filter((c) => !e.ocultas.has(c.k)) };
+  const forn: Banda = { t: cap(e.d.um), tipo: 'forn', cols: descr(e).filter((c) => !e.ocultas.has(c.k)) };
   if (e.modo === 'mensal') {
     /* um ano, os doze meses e o total; os meses que ainda não chegaram ficam «—» */
     const y = anos[2], meses: Col[] = MESES.map((m, i) => ({ k: `m${i}`, t: m, tipo: 'eur', w: 100, banda: 1, ano: y, futuro: y === ANO_ATUAL && i + 1 > MES_ATUAL }));
@@ -96,20 +92,22 @@ function bandas(e: Est): Banda[] {
   return sai;
 }
 const folhas = (e: Est) => bandas(e).flatMap((b) => b.cols);
-const colDe = (e: Est, k: string) => folhas(e).find((c) => c.k === k) ?? DESCR.find((c) => c.k === k)!;
+const colDe = (e: Est, k: string) => folhas(e).find((c) => c.k === k) ?? descr(e).find((c) => c.k === k)!;
 /** O valor de uma coluna numa linha (ou nas somas de várias). */
 function valor(l: LinhaCf, k: string): unknown {
-  if (k === 'num' || k === 'nome' || k === 'pais' || k === 'cidade' || k === 'tend') return l[k];
+  if (k in l.c) return l.c[k];
   if (k === 't') return l.anos[2].liq;
   if (k === 'tq') return l.anos[2].qtd;
   if (k[0] === 'm') { const mm = `-${String(Number(k.slice(1)) + 1).padStart(2, '0')}-`; return l.anos[2].encs.filter((x) => x.data.slice(4, 8) === mm).reduce((s, x) => s + x.liq, 0); }
   const i = Number(k.slice(1));
-  if (k[0] === 'q') return l.anos[i].qtd;
-  if (k[0] === 'l') return l.anos[i].liq;
+  /* um mês que ainda não chegou (Geral) não é zero: fica «—» e não entra nas variações */
+  if (k[0] === 'q') return l.anos[i].futuro ? undefined : l.anos[i].qtd;
+  if (k[0] === 'l') return l.anos[i].futuro ? undefined : l.anos[i].liq;
+  if (l.anos[i].futuro || l.anos[i + 1].futuro) return undefined;
   return variacao(l.anos[i].liq, l.anos[i + 1].liq);
 }
 /** As somas de um conjunto, como se fosse uma linha (a variação vem das somas, não das percentagens). */
-const soma = (ls: LinhaCf[]): LinhaCf => ({ id: '', num: '', nome: '', pais: '', cidade: '', tend: '', anos: [0, 1, 2].map((i) => ({ qtd: ls.reduce((s, l) => s + l.anos[i].qtd, 0), liq: ls.reduce((s, l) => s + l.anos[i].liq, 0), encs: ls.flatMap((l) => l.anos[i].encs) })) });
+const soma = (ls: LinhaCf[]): LinhaCf => ({ id: '', c: {}, anos: [0, 1, 2].map((i) => ({ qtd: ls.reduce((s, l) => s + l.anos[i].qtd, 0), liq: ls.reduce((s, l) => s + l.anos[i].liq, 0), encs: ls.flatMap((l) => l.anos[i].encs) })) });
 
 /* ---------- células ---------- */
 function celVar(v: unknown, anoA: number | undefined, anoB: number | undefined): string {
@@ -121,7 +119,7 @@ function celVar(v: unknown, anoA: number | undefined, anoB: number | undefined):
 function cel(e: Est, c: Col, l: LinhaCf): string {
   const v = valor(l, c.k), anos = e.rel!.anos, sd = new Set(e.rel!.semDados);
   if (c.tipo === 'pct') return celVar(v, anos[c.i!], anos[c.i! + 1]);
-  if ((c.tipo === 'n' || c.tipo === 'eur') && ((c.ano !== undefined && sd.has(c.ano)) || c.futuro)) return '—';
+  if ((c.tipo === 'n' || c.tipo === 'eur') && ((c.ano !== undefined && sd.has(c.ano)) || c.futuro || v === undefined)) return '—';
   if (c.tipo === 'n') return n(v as number);
   if (c.tipo === 'eur') return euros(v as number);
   return esc(String(v ?? '—'));
@@ -150,7 +148,7 @@ function filtradas(e: Est): LinhaCf[] {
     if (typeof x === 'string' && typeof y === 'string') d = x.localeCompare(y, 'pt', { numeric: true });
     else if (nx === null && ny === null) d = 0; else if (nx === null) return 1; else if (ny === null) return -1; else d = nx - ny; /* N/D e «—» ficam sempre no fim */
     if (d) return d * o.dir; } return 0; };
-  return e.ordem.length ? ls.slice().sort(cmp) : ls.slice().sort((a, b) => b.anos[2].liq - a.anos[2].liq || b.anos[1].liq - a.anos[1].liq);
+  return e.ordem.length ? ls.slice().sort(cmp) : e.d.id === 'geral' ? ls : ls.slice().sort((a, b) => b.anos[2].liq - a.anos[2].liq || b.anos[1].liq - a.anos[1].liq);
 }
 type No = { tipo: 'g'; chave: string; nivel: number; k: string; valor: string; linhas: LinhaCf[] } | { tipo: 'l'; l: LinhaCf };
 function arvore(e: Est, ls: LinhaCf[]): No[] {
@@ -165,22 +163,23 @@ function arvore(e: Est, ls: LinhaCf[]): No[] {
 }
 
 /* ---------- a vista guardada ---------- */
-function lerVista(): Partial<Est> {
-  try { const g = JSON.parse(localStorage.getItem(CHAVE) ?? 'null'); if (!g) return {};
-    const ok = (k: string) => ESCONDER.some(([x]) => x === k), okG = (k: string) => DESCR.some((c) => c.k === k && c.agrupa);
+function lerVista(d: DimDef): Partial<Est> {
+  try { const g = JSON.parse(localStorage.getItem(chaveVista(d)) ?? 'null'); if (!g) return {};
+    const ok = (k: string) => d.esconder.some(([x]) => x === k), okG = (k: string) => d.descr.some((c) => c.k === k && c.agrupa);
     return { ocultas: new Set((g.ocultas ?? []).filter(ok)), larguras: g.larguras ?? {}, ordem: (g.ordem ?? []).filter((o: Ordem) => typeof o.k === 'string'), grupos: (g.grupos ?? []).filter(okG), densidade: g.densidade === 'normal' ? 'normal' : 'compacta', recentes: !!g.recentes, somas: g.somas !== false };
   } catch { return {}; }
 }
 function guardarVista(r: HTMLElement, e: Est): void {
-  const ok = r.dataset.cfCenario !== 'inicial' || (() => { try { localStorage.setItem(CHAVE, JSON.stringify({ ocultas: [...e.ocultas], larguras: e.larguras, ordem: e.ordem, grupos: e.grupos, densidade: e.densidade, recentes: e.recentes, somas: e.somas })); return true; } catch { return false; } })();
+  const ok = r.dataset.cfCenario !== 'inicial' || (() => { try { localStorage.setItem(chaveVista(e.d), JSON.stringify({ ocultas: [...e.ocultas], larguras: e.larguras, ordem: e.ordem, grupos: e.grupos, densidade: e.densidade, recentes: e.recentes, somas: e.somas })); return true; } catch { return false; } })();
   if (!ok) { toast(r, 'Não foi possível guardar a vista neste computador.'); return; }
   r.querySelector<HTMLElement>('[data-cf-vista]')!.hidden = false;
   toast(r, 'Vista guardada: colunas, larguras, ordem, grupos, anos, linhas e Somatórios.');
 }
 function novo(r: HTMLElement): Est {
-  const base: Est = { rel: null, fase: 'inicial', ini: ANO_ATUAL - 2, ordem: [], filtros: {}, filtrosAbertos: false, grupos: [], fechados: new Set(), ocultas: new Set(OCULTAS0), larguras: {}, densidade: 'compacta', recentes: false, somas: true, sel: new Set(), ativo: '', ancora: '', det: false, vez: 0, modo: modoForm(r) };
+  const d = DIMS[(r.dataset.cfDim as DimCf) || 'forn'];
+  const base: Est = { rel: null, fase: 'inicial', ini: ANO_ATUAL - 2, ordem: [], filtros: {}, filtrosAbertos: false, grupos: [...d.grupos0], fechados: new Set(), ocultas: new Set(d.ocultas0), larguras: {}, densidade: 'compacta', recentes: false, somas: true, sel: new Set(), ativo: '', ancora: '', det: false, vez: 0, modo: modoForm(r), d };
   if (r.dataset.cfCenario !== 'inicial') return base;
-  const v = lerVista(); if (Object.keys(v).length) r.querySelector<HTMLElement>('[data-cf-vista]')!.hidden = false;
+  const v = lerVista(d); if (Object.keys(v).length) r.querySelector<HTMLElement>('[data-cf-vista]')!.hidden = false;
   return { ...base, ...v };
 }
 
@@ -209,20 +208,20 @@ function grelha(r: HTMLElement, e: Est, animar: 'nada' | 'linhas' | 'revelar' = 
   r.classList.toggle('is-a-gerar', e.fase === 'a-gerar');
   r.classList.toggle('tem-dados', !!e.rel?.linhas.length);
   if (!e.rel) { g.innerHTML = e.fase === 'a-gerar' ? ESQUELETO : e.fase === 'erro' ? painelErro(e) : PRONTO; estado(r, e); return; }
-  if (!e.rel.linhas.length) { const [a, , c] = e.rel.anos; g.innerHTML = `<div class="ak-vazio ak2-erro">${L(searchX)}<p><b>Não há compras de ${a} a ${c}.</b>Nenhum fornecedor tem encomendas nesses anos. Escolhe outro período.</p><div class="ak2-erro-acoes"><button type="button" class="ak-btn" data-cf-acao="alterar">${L(pencil)}<span>Alterar período</span></button></div></div>`; estado(r, e); return; }
+  if (!e.rel.linhas.length) { const [a, , c] = e.rel.anos; g.innerHTML = `<div class="ak-vazio ak2-erro">${L(searchX)}<p><b>Não há compras de ${a} a ${c}.</b>Não há encomendas nesses anos. Escolhe outro período.</p><div class="ak2-erro-acoes"><button type="button" class="ak-btn" data-cf-acao="alterar">${L(pencil)}<span>Alterar período</span></button></div></div>`; estado(r, e); return; }
   const bs = bandas(e), cs = bs.flatMap((b) => b.cols), ls = filtradas(e), nos = arvore(e, ls);
   const antes = new Map<string, number>(); if (animar === 'linhas' && !quieto()) g.querySelectorAll<HTMLElement>('tr[data-cf-id]').forEach((t) => antes.set(t.dataset.cfId!, t.getBoundingClientRect().top));
   const sc = g.scrollTop, sl = g.scrollLeft;
   const larg = (c: Col) => e.larguras[c.k] ?? c.w;
   /* Nº e Nome presos à esquerda: as posições somam as larguras à frente */
-  const fixas = cs.filter((c) => c.k === 'num' || c.k === 'nome'), esq = new Map<string, number>(); let acc = 34;
+  const fixas = cs.filter((c) => e.d.descr.find((y) => y.k === c.k)?.fixa), esq = new Map<string, number>(); let acc = 34;
   fixas.forEach((c) => { esq.set(c.k, acc); acc += larg(c); });
   const ultFixa = fixas[fixas.length - 1]?.k;
   const fx = (c: Col) => esq.has(c.k) ? ` is-fixa${c.k === ultFixa ? ' is-fixa-ult' : ''}" style="left:${esq.get(c.k)}px` : '';
   const cls = (c: Col) => `${c.tipo === 'n' || c.tipo === 'eur' || c.tipo === 'pct' ? 'is-num' : c.tipo === 'mono' ? 'is-mono' : ''} cf-b-${bs[c.banda].tipo}${c === bs[c.banda].cols[0] ? ' is-b-ini' : ''}`;
   const ordemDe = (k: string) => { const i = e.ordem.findIndex((o) => o.k === k); return i < 0 ? '' : `<span class="ak-ord">${L(e.ordem[i].dir === 1 ? arrowUp : arrowDown)}${e.ordem.length > 1 ? `<i>${i + 1}</i>` : ''}</span>`; };
   const sort = (k: string) => { const o = e.ordem.find((y) => y.k === k); return o ? (o.dir === 1 ? 'ascending' : 'descending') : 'none'; };
-  const cab1 = `<tr class="cf-bandas"><th class="ak-th-sel is-fixa" style="left:0" rowspan="2"><input type="checkbox" aria-label="Escolher todos" data-cf-todas${ls.length && ls.every((l) => e.sel.has(l.id)) ? ' checked' : ''}></th>${bs.map((b, k) => `<th scope="colgroup" colspan="${b.cols.length}" class="cf-banda cf-b-${b.tipo}${b.vazia ? ' is-vazia' : ''}${b.tipo === 'forn' ? ' is-fixa" style="left:34px' : ''}" data-g="${k}"><span>${b.tipo === 'var' ? `<small>Variação</small> ${esc(b.t)}` : esc(b.t)}${b.sub ? `<em>${b.sub}</em>` : ''}</span></th>`).join('')}</tr>`;
+  const cab1 = `<tr class="cf-bandas"><th class="ak-th-sel is-fixa" style="left:0" rowspan="2"><input type="checkbox" aria-label="Escolher todas" data-cf-todas${ls.length && ls.every((l) => e.sel.has(l.id)) ? ' checked' : ''}></th>${bs.map((b, k) => `<th scope="colgroup" colspan="${b.cols.length}" class="cf-banda cf-b-${b.tipo}${b.vazia ? ' is-vazia' : ''}${b.tipo === 'forn' ? ' is-fixa" style="left:34px' : ''}" data-g="${k}"><span>${b.tipo === 'var' ? `<small>Variação</small> ${esc(b.t)}` : esc(b.t)}${b.sub ? `<em>${b.sub}</em>` : ''}</span></th>`).join('')}</tr>`;
   const cab2 = `<tr class="cf-folhas">${cs.map((c) => `<th scope="col" class="${cls(c)}${fx(c)}" aria-sort="${sort(c.k)}" data-g="${c.banda}" data-cf-col="${c.k}"${c.agrupa ? ' draggable="true"' : ''}><button type="button" data-cf-ordenar="${c.k}" title="Ordenar${c.ano ? ` ${c.t.toLowerCase()} de ${c.ano}` : ''} (Shift junta)">${esc(c.t)}${ordemDe(c.k)}</button><i class="ak-redim" data-cf-redim="${c.k}" aria-hidden="true"></i></th>`).join('')}</tr>`;
   const filt = e.filtrosAbertos ? `<tr class="ak-filtros"><th class="is-fixa" style="left:0"></th>${cs.map((c) => `<th class="${fx(c) ? fx(c).slice(1) : ''}"><input type="search" data-cf-filtro="${c.k}" value="${esc(e.filtros[c.k] ?? '')}" aria-label="Filtrar ${esc(c.t)}${c.ano ? ` ${c.ano}` : ''}" placeholder="${c.tipo === 'txt' || c.tipo === 'mono' ? 'Filtrar…' : c.tipo === 'pct' ? '<0' : '>0'}"></th>`).join('')}</tr>` : '';
   const desc = cs.filter((c) => c.banda === 0).length;
@@ -230,14 +229,14 @@ function grelha(r: HTMLElement, e: Est, animar: 'nada' | 'linhas' | 'revelar' = 
   const corpo = nos.map((no) => {
     if (no.tipo === 'g') {
       const aberto = !e.fechados.has(no.chave), c = colDe(e, no.k);
-      return `<tr class="ak-g cf-g" data-cf-grupo="${esc(no.chave)}" tabindex="-1" aria-expanded="${aberto}" style="--n:${no.nivel}"><td class="ak-g-c is-fixa" style="left:0"><button type="button" data-cf-dobrar="${esc(no.chave)}" aria-label="${aberto ? 'Fechar' : 'Abrir'} o grupo">${L(chevronRight)}</button></td><td colspan="${desc}" class="is-fixa is-fixa-ult" style="left:34px"><span class="ak-g-t"><small>${esc(c.t)}</small><b>${esc(no.valor)}</b><em>${no.linhas.length} ${no.linhas.length === 1 ? 'fornecedor' : 'fornecedores'}</em></span></td>${e.somas ? linhaSoma(soma(no.linhas), '') : `<td colspan="${cs.length - desc}"></td>`}</tr>`;
+      return `<tr class="ak-g cf-g" data-cf-grupo="${esc(no.chave)}" tabindex="-1" aria-expanded="${aberto}" style="--n:${no.nivel}"><td class="ak-g-c is-fixa" style="left:0"><button type="button" data-cf-dobrar="${esc(no.chave)}" aria-label="${aberto ? 'Fechar' : 'Abrir'} o grupo">${L(chevronRight)}</button></td><td colspan="${desc}" class="is-fixa is-fixa-ult" style="left:34px"><span class="ak-g-t"><small>${esc(c.t)}</small><b>${esc(no.valor)}</b><em>${no.linhas.length} ${no.linhas.length === 1 ? e.d.um : e.d.varios}</em></span></td>${e.somas ? linhaSoma(soma(no.linhas), '') : `<td colspan="${cs.length - desc}"></td>`}</tr>`;
     }
     const l = no.l, sel = e.sel.has(l.id);
-    return `<tr data-cf-id="${esc(l.id)}" tabindex="${l.id === e.ativo ? 0 : -1}" aria-selected="${sel}"${l.id === e.ativo ? ' class="is-ativo"' : ''}><td class="ak-td-sel is-fixa" style="left:0"><input type="checkbox" tabindex="-1" aria-label="Escolher ${esc(l.nome)}" data-cf-escolher="${esc(l.id)}"${sel ? ' checked' : ''}></td>${cs.map((c) => { const t = cel(e, c, l); return `<td class="${cls(c)}${fx(c)}${t === '—' ? ' is-nada' : (c.tipo === 'n' || c.tipo === 'eur') && valor(l, c.k) === 0 ? ' is-zero' : ''}" data-g="${c.banda}">${t}</td>`; }).join('')}</tr>`;
+    return `<tr data-cf-id="${esc(l.id)}" tabindex="${l.id === e.ativo ? 0 : -1}" aria-selected="${sel}"${l.id === e.ativo ? ' class="is-ativo"' : ''}><td class="ak-td-sel is-fixa" style="left:0"><input type="checkbox" tabindex="-1" aria-label="Escolher ${esc(nomeDe(e, l))}" data-cf-escolher="${esc(l.id)}"${sel ? ' checked' : ''}></td>${cs.map((c) => { const t = cel(e, c, l); return `<td class="${cls(c)}${fx(c)}${t === '—' ? ' is-nada' : (c.tipo === 'n' || c.tipo === 'eur') && valor(l, c.k) === 0 ? ' is-zero' : ''}" data-g="${c.banda}">${t}</td>`; }).join('')}</tr>`;
   }).join('');
-  const total = e.somas && ls.length ? `<tfoot><tr><td class="is-fixa" style="left:0"></td><td colspan="${desc}" class="is-fixa is-fixa-ult" style="left:34px"><b>Total · ${n(ls.length)} ${ls.length === 1 ? 'fornecedor' : 'fornecedores'}</b></td>${linhaSoma(soma(ls), '')}</tr></tfoot>` : '';
-  const nada = !ls.length ? `<div class="ak-vazio ak-vazio--linha">${L(searchX)}<p><b>Os filtros da tabela não deixam nenhum fornecedor.</b>F3 tira os filtros; o período fica.</p><button type="button" class="ak-btn" data-cf-acao="limpar">${L(x)}<span>Remover filtros</span></button></div>` : '';
-  g.innerHTML = `<table class="ak-tab cf-tab" aria-label="Comparativo por fornecedor" aria-rowcount="${ls.length}" aria-multiselectable="true"><colgroup><col style="width:34px">${cs.map((c) => `<col style="width:${larg(c)}px">`).join('')}</colgroup><thead>${cab1}${cab2}${filt}</thead><tbody>${corpo}</tbody>${total}</table>${nada}`;
+  const total = e.somas && ls.length ? `<tfoot><tr><td class="is-fixa" style="left:0"></td><td colspan="${desc}" class="is-fixa is-fixa-ult" style="left:34px"><b>Total · ${n(ls.length)} ${ls.length === 1 ? e.d.um : e.d.varios}</b></td>${linhaSoma(soma(ls), '')}</tr></tfoot>` : '';
+  const nada = !ls.length ? `<div class="ak-vazio ak-vazio--linha">${L(searchX)}<p><b>Os filtros da tabela não deixam ${e.d.nenhum}.</b>F3 tira os filtros; o período fica.</p><button type="button" class="ak-btn" data-cf-acao="limpar">${L(x)}<span>Remover filtros</span></button></div>` : '';
+  g.innerHTML = `<table class="ak-tab cf-tab" aria-label="${esc(e.d.titulo)}" aria-rowcount="${ls.length}" aria-multiselectable="true"><colgroup><col style="width:34px">${cs.map((c) => `<col style="width:${larg(c)}px">`).join('')}</colgroup><thead>${cab1}${cab2}${filt}</thead><tbody>${corpo}</tbody>${total}</table>${nada}`;
   g.scrollTop = sc; g.scrollLeft = sl;
   if (!quieto()) {
     if (animar === 'revelar') revelarGrelha(g);
@@ -272,20 +271,20 @@ function contar(alvos: [HTMLElement, number, number?][], fmt: (v: number) => str
 function zonaGrupos(r: HTMLElement, e: Est): void {
   const z = r.querySelector<HTMLElement>('[data-cf-grupos]')!;
   z.classList.toggle('tem-grupos', e.grupos.length > 0);
-  const nome = (k: string) => DESCR.find((c) => c.k === k)!.t;
-  z.innerHTML = `${L(columns3)}${e.grupos.length ? e.grupos.map((k, i) => `<span class="ak-chip" draggable="true" tabindex="0" data-cf-chip="${k}" title="Delete tira; Alt+← → muda o nível">${i ? L(chevronRight) : ''}<b>${esc(nome(k))}</b><button type="button" data-cf-tirar-grupo="${k}" aria-label="Deixar de agrupar por ${esc(nome(k))}">${L(x)}</button></span>`).join('') + '<button type="button" class="ak-desagrupar" data-cf-acao="desagrupar">Desagrupar</button>' : '<span class="ak-grupos-dica">Arraste para aqui o cabeçalho País, Cidade ou Tendência para agrupar</span>'}
-    <label class="ak-agrupar-tecla"><span class="sr">Agrupar por</span><select data-cf-agrupar aria-label="Agrupar por (teclado)"><option value="">Agrupar por…</option>${DESCR.filter((c) => c.agrupa && !e.grupos.includes(c.k)).map((c) => `<option value="${c.k}">${esc(c.t)}</option>`).join('')}</select></label>`;
+  const nome = (k: string) => colDe(e, k).t, agr = descr(e).filter((c) => c.agrupa).map((c) => c.t);
+  z.innerHTML = `${L(columns3)}${e.grupos.length ? e.grupos.map((k, i) => `<span class="ak-chip" draggable="true" tabindex="0" data-cf-chip="${k}" title="Delete tira; Alt+← → muda o nível">${i ? L(chevronRight) : ''}<b>${esc(nome(k))}</b><button type="button" data-cf-tirar-grupo="${k}" aria-label="Deixar de agrupar por ${esc(nome(k))}">${L(x)}</button></span>`).join('') + '<button type="button" class="ak-desagrupar" data-cf-acao="desagrupar">Desagrupar</button>' : `<span class="ak-grupos-dica">Arraste para aqui o cabeçalho ${agr.length > 1 ? `${agr.slice(0, -1).join(', ')} ou ${agr[agr.length - 1]}` : agr[0]} para agrupar</span>`}
+    <label class="ak-agrupar-tecla"><span class="sr">Agrupar por</span><select data-cf-agrupar aria-label="Agrupar por (teclado)"><option value="">Agrupar por…</option>${descr(e).filter((c) => c.agrupa && !e.grupos.includes(c.k)).map((c) => `<option value="${c.k}">${esc(c.t)}</option>`).join('')}</select></label>`;
 }
 function colunasMenu(r: HTMLElement, e: Est): void {
   const m = r.querySelector<HTMLElement>('[data-cf-cols]'); if (!m) return;
-  m.innerHTML = `<p class="ak-menu-t">Colunas à vista</p>${ESCONDER.map(([k, t]) => `<div class="ak-col-i cf-col-i"><label><input type="checkbox" data-cf-ver="${k}"${e.ocultas.has(k) ? '' : ' checked'}>${t}</label></div>`).join('')}<p>O Nome e os líquidos ficam sempre.</p>`;
+  m.innerHTML = `<p class="ak-menu-t">Colunas à vista</p>${e.d.esconder.map(([k, t]) => `<div class="ak-col-i cf-col-i"><label><input type="checkbox" data-cf-ver="${k}"${e.ocultas.has(k) ? '' : ' checked'}>${t}</label></div>`).join('')}<p>${esc(e.d.descr.filter((c) => c.fixa).map((c) => c.t).join(' e '))} e os líquidos ficam sempre.</p>`;
   r.querySelectorAll<HTMLElement>('[data-cf-densidade]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cfDensidade === e.densidade)));
   r.querySelectorAll<HTMLElement>('[data-cf-anos]').forEach((b) => b.setAttribute('aria-checked', String((b.dataset.cfAnos === 'recentes') === e.recentes)));
 }
 function estado(r: HTMLElement, e: Est): void {
   const ls = e.rel ? filtradas(e) : [], nf = Object.values(e.filtros).filter((v) => v && v.trim()).length;
   const fase = e.fase === 'a-gerar' ? (e.rel ? 'A atualizar…' : 'A gerar…') : e.fase === 'erro' ? 'Erro ao gerar' : e.rel ? 'Pronto' : 'Sem dados';
-  r.querySelector<HTMLElement>('[data-cf-estado]')!.innerHTML = `<span>Seleção <b>${n(e.sel.size)}</b></span>${nf ? `<span>Filtros da tabela <b>${nf}</b></span>` : ''}${e.grupos.length ? `<span>Agrupado por <b>${e.grupos.map((k) => esc(DESCR.find((c) => c.k === k)!.t)).join(' › ')}</b></span>` : ''}<span>Somatórios <b>${e.somas ? 'sim' : 'não'}</b></span><span class="ak-estado-f is-${e.fase}">${e.fase === 'a-gerar' ? L(loader) : ''}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
+  r.querySelector<HTMLElement>('[data-cf-estado]')!.innerHTML = `<span>Seleção <b>${n(e.sel.size)}</b></span>${nf ? `<span>Filtros da tabela <b>${nf}</b></span>` : ''}${e.grupos.length ? `<span>Agrupado por <b>${e.grupos.map((k) => esc(colDe(e, k).t)).join(' › ')}</b></span>` : ''}<span>Somatórios <b>${e.somas ? 'sim' : 'não'}</b></span><span class="ak-estado-f is-${e.fase}">${e.fase === 'a-gerar' ? L(loader) : ''}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
   const nt = r.querySelector('[data-cf-n-todos]'), ns = r.querySelector('[data-cf-n-sel]');
   if (nt) nt.textContent = `(${n(ls.length)})`; if (ns) ns.textContent = `(${n(e.sel.size)})`;
   r.querySelector('[data-cf-exportar="escolhidos"]')?.toggleAttribute('disabled', !e.sel.size);
@@ -311,16 +310,16 @@ function sumario(r: HTMLElement, e: Est, ls: LinhaCf[]): void {
     /* mês a mês: o ano, a quantidade, as encomendas e o mês com mais compras */
     const ms = MESES.map((_, i) => valor(t, `m${i}`) as number), top = ms.indexOf(Math.max(...ms));
     s.hidden = false;
-    s.innerHTML = `<span class="ak2-m"><small>Fornecedores</small><b data-cf-num="0">${n(ls.length)}</b>${ls.length !== e.rel.linhas.length ? `<i>de ${n(e.rel.linhas.length)}</i>` : ''}</span><span class="ak2-m"><small>Líquido ${a2}</small><b data-cf-num="3">${euros(t.anos[2].liq)}</b><i>${n(t.anos[2].qtd)} un.</i></span><span class="ak2-m"><small>Encomendas</small><b>${n(new Set(t.anos[2].encs.map((x) => x.ref)).size)}</b></span>${ms[top] > 0 ? `<span class="ak2-m"><small>Mês com mais compras</small><b>${MESES[top].replace('.', '')} ${a2}</b><i>${euros(ms[top])}</i></span>` : ''}${e.fase === 'a-gerar' ? `<span class="ak2-m-hora">${L(loader)}A atualizar…</span>` : ''}`;
-    pt.textContent = `Comparativo por Fornecedor · ${a2} mês a mês · ${n(ls.length)} fornecedores · gerado às ${hora}`;
+    s.innerHTML = `<span class="ak2-m"><small>${cap(e.d.varios)}</small><b data-cf-num="0">${n(ls.length)}</b>${ls.length !== e.rel.linhas.length ? `<i>de ${n(e.rel.linhas.length)}</i>` : ''}</span><span class="ak2-m"><small>Líquido ${a2}</small><b data-cf-num="3">${euros(t.anos[2].liq)}</b><i>${n(t.anos[2].qtd)} un.</i></span><span class="ak2-m"><small>Encomendas</small><b>${n(new Set(t.anos[2].encs.map((x) => x.ref)).size)}</b></span>${ms[top] > 0 ? `<span class="ak2-m"><small>Mês com mais compras</small><b>${MESES[top].replace('.', '')} ${a2}</b><i>${euros(ms[top])}</i></span>` : ''}${e.fase === 'a-gerar' ? `<span class="ak2-m-hora">${L(loader)}A atualizar…</span>` : ''}`;
+    pt.textContent = `${e.d.titulo} · ${a2} mês a mês · ${n(ls.length)} ${e.d.varios} · gerado às ${hora}`;
     e.nums = [ls.length, 0, 0, t.anos[2].liq]; return;
   }
   const ano = (i: number) => `<span class="ak2-m cf-m-ano${sd.has(e.rel!.anos[i]) ? ' is-vazio' : ''}"><small>Líquido ${e.rel!.anos[i]}</small><b data-cf-num="${i + 1}">${sd.has(e.rel!.anos[i]) ? 'sem dados' : euros(t.anos[i].liq)}</b><i>${sd.has(e.rel!.anos[i]) ? '' : `${n(t.anos[i].qtd)} un.`}</i></span>`;
   const vr = (i: number) => `<span class="cf-m-var">${celVar(variacao(t.anos[i].liq, t.anos[i + 1].liq), e.rel!.anos[i], e.rel!.anos[i + 1])}</span>`;
   s.hidden = false;
-  s.innerHTML = `<span class="ak2-m"><small>Fornecedores analisados</small><b data-cf-num="0">${n(ls.length)}</b>${ls.length !== e.rel.linhas.length ? `<i>de ${n(e.rel.linhas.length)}</i>` : ''}</span>${ano(0)}${vr(0)}${ano(1)}${vr(1)}${ano(2)}<span class="ak2-m cf-m-global"><small>Variação ${a0} → ${a2}</small>${celVar(variacao(t.anos[0].liq, t.anos[2].liq), a0, a2)}</span>${e.fase === 'a-gerar' ? `<span class="ak2-m-hora">${L(loader)}A atualizar…</span>` : ''}`
+  s.innerHTML = `<span class="ak2-m"><small>${cap(e.d.varios)} ${e.d.id === 'geral' ? 'comparados' : e.d.id === 'familia' ? 'analisadas' : 'analisados'}</small><b data-cf-num="0">${n(ls.length)}</b>${ls.length !== e.rel.linhas.length ? `<i>de ${n(e.rel.linhas.length)}</i>` : ''}</span>${ano(0)}${vr(0)}${ano(1)}${vr(1)}${ano(2)}<span class="ak2-m cf-m-global"><small>Variação ${a0} → ${a2}</small>${celVar(variacao(t.anos[0].liq, t.anos[2].liq), a0, a2)}</span>${e.fase === 'a-gerar' ? `<span class="ak2-m-hora">${L(loader)}A atualizar…</span>` : ''}`
     + (sd.size ? `<p class="cf-parcial">${L(circleAlert)}<span><b>Dados parciais.</b> ${[...sd].join(' e ')} não ${sd.size === 1 ? 'tem' : 'têm'} compras registadas no ERP: ${sd.size === 1 ? 'a coluna fica vazia' : 'as colunas ficam vazias'} e as variações a partir ${sd.size === 1 ? 'desse ano' : 'desses anos'} ficam N/D. Nada é estimado.</span></p>` : '');
-  pt.textContent = `Comparativo por Fornecedor · ${a0}–${a2} · ${n(ls.length)} fornecedores · ${a1 === ANO_ATUAL || a2 === ANO_ATUAL ? `${ANO_ATUAL} até hoje · ` : ''}gerado às ${hora}`;
+  pt.textContent = `${e.d.titulo} · ${a0}–${a2} · ${n(ls.length)} ${e.d.varios} · ${a1 === ANO_ATUAL || a2 === ANO_ATUAL ? `${ANO_ATUAL} até hoje · ` : ''}gerado às ${hora}`;
   const nums = [ls.length, t.anos[0].liq, t.anos[1].liq, t.anos[2].liq], antes = e.nums; e.nums = nums;
   if (!antes || quieto()) return;
   const alvos: [HTMLElement, number, number?][] = [];
@@ -349,10 +348,11 @@ function detalhe(r: HTMLElement, e: Est, entrar = false): void {
     return `<g><rect class="cf-bar${i === k - 1 || (mensal && v === max) ? ' is-ult' : ''}" x="${xx}" y="${H - 18 - h}" width="${bw}" height="${Math.max(h, v ? 2 : 0)}" rx="3" style="--i:${mensal ? i / 3 : i}"/><text class="cf-bar-v" x="${xx + bw / 2}" y="${H - 22 - h}" text-anchor="middle">${v === null ? (mensal ? '' : 'sem dados') : curto(v)}</text><text class="cf-bar-a" x="${xx + bw / 2}" y="${H - 4}" text-anchor="middle">${rot}</text></g>`; }).join('');
   const linhasAno = l.anos.map((a, i) => `<tr><th scope="row">${anos[i]}</th><td class="is-num">${sd.has(anos[i]) ? '—' : n(a.qtd)}</td><td class="is-num">${sd.has(anos[i]) ? '—' : euros(a.liq)}</td><td class="is-num">${i ? celVar(variacao(l.anos[i - 1].liq, a.liq), anos[i - 1], anos[i]) : ''}</td></tr>`).join('');
   const encs = l.anos.flatMap((a, i) => a.encs.map((y) => ({ ...y, ano: anos[i] })));
-  d.innerHTML = `<header><div><small>Fornecedor · Nº ${esc(l.num)}</small><h3>${esc(l.nome)}</h3><p>${esc(l.cidade)}, ${esc(l.pais)} · ${esc(l.tend)}</p></div><button type="button" class="ak-x" data-cf-acao="fechar-det" aria-label="Fechar o detalhe (Esc)">${L(x)}</button></header>
+  const [cabP, cabT, cabL] = e.d.cab(l), jan = e.d.janelas(l);
+  d.innerHTML = `<header><div><small>${esc(cabP)}</small><h3>${esc(cabT)}</h3><p>${esc(cabL)}</p></div><button type="button" class="ak-x" data-cf-acao="fechar-det" aria-label="Fechar o detalhe (Esc)">${L(x)}</button></header>
     <figure class="cf-graf"><figcaption>${mensal ? `Líquido por mês · ${anos[2]}` : 'Líquido por ano'}</figcaption><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Líquido: ${l.anos.map((a, i) => `${anos[i]} ${euros(a.liq)}`).join(', ')}">${barras}<line x1="0" x2="${W}" y1="${H - 18}" y2="${H - 18}" class="cf-bar-base"/></svg></figure>
     <table class="ak-hist cf-det-tab"><thead><tr><th>Ano</th><th class="is-num">Quantidade</th><th class="is-num">Líquido</th><th class="is-num">Variação</th></tr></thead><tbody>${linhasAno}</tbody></table>
-    <div class="ak-det-acoes"><button type="button" class="ak-btn" data-dk-janela="fornecedor:${esc(l.id)}">${icone('users')}<span>Ver fornecedor</span></button></div>
+    ${jan.length ? `<div class="ak-det-acoes">${jan.map(([j, ic, t]) => `<button type="button" class="ak-btn" data-dk-janela="${esc(j)}">${icone(ic)}<span>${t}</span></button>`).join('')}</div>` : ''}
     <h4>Encomendas no período <span>${encs.length}</span></h4>
     ${encs.length ? `<table class="ak-hist"><thead><tr><th>Encomenda</th><th>Data</th><th class="is-num">Qtd.</th><th class="is-num">Líquido</th></tr></thead><tbody>${encs.map((y) => `<tr><td>${y.arquivo ? `<span class="cf-arq" title="Encomenda fechada (arquivo de ${y.ano})">${esc(y.ref)}</span>` : `<button type="button" class="ak-lig" data-dk-doc="compras.encomenda" data-dk-titulo="${esc(y.ref)}">${esc(y.ref)}</button>`}</td><td>${dia(y.data)}</td><td class="is-num">${n(y.qtd)}</td><td class="is-num">${euros(y.liq)}</td></tr>`).join('')}</tbody></table>` : '<p class="ak-det-nada">Sem encomendas no período.</p>'}`;
   const vem = d.hidden; d.hidden = false; r.classList.add('com-det');
@@ -424,7 +424,7 @@ async function gerarDados(r: HTMLElement, e: Est, mesmo = false): Promise<void> 
   if (vez !== e.vez) return;
   if (!navigator.onLine) { falhar(r, e, 'offline'); return; }
   try {
-    const modo = mesmo ? e.modo : modoForm(r), base = comparar(a0);
+    const modo = mesmo ? e.modo : modoForm(r), base = comparar(e.d.id, a0);
     /* mês a mês: só os fornecedores com compras nesse ano */
     const rel: RelCf = modo === 'mensal' ? { ...base, linhas: base.linhas.filter((l) => l.anos[2].encs.length), semDados: base.semDados.filter((y) => y === base.anos[2]) } : base;
     const mudou = !e.rel || e.rel.anos[0] !== rel.anos[0] || e.modo !== modo;
@@ -461,13 +461,13 @@ function exportar(r: HTMLElement, e: Est, escopo: 'todos' | 'escolhidos'): void 
     const titulo = (c: Col) => c.tipo === 'pct' ? `Variação ${e.rel!.anos[c.i!]}→${e.rel!.anos[c.i! + 1]}` : c.k === 't' || c.k === 'tq' ? `${c.t} ${c.ano} (total)` : c.ano ? `${c.t} ${c.ano}` : c.t;
     const celula = (c: Col, l: LinhaCf): Celula => { const v = valor(l, c.k);
       if ((c.ano !== undefined && sd.has(c.ano)) || c.futuro) return null;
-      return c.tipo === 'pct' ? (typeof v === 'number' ? { pct: v } : v === null ? 'N/D' : null) : c.tipo === 'eur' ? { euros: v as number } : c.tipo === 'n' ? v as number : c.k === 'num' ? Number(v) : String(v); };
+      return c.tipo === 'pct' ? (typeof v === 'number' ? { pct: v } : v === null ? 'N/D' : null) : c.tipo === 'eur' ? { euros: v as number } : c.tipo === 'n' ? v as number : c.k === 'num' ? Number(v) : v === undefined ? null : String(v); };
     const gcols = e.grupos.map((k) => colDe(e, k)), todas = [...gcols, ...cs.filter((c) => !e.grupos.includes(c.k))];
     const linhas = ls.map((l) => todas.map((c) => celula(c, l)));
     if (e.somas) { const t = soma(ls); linhas.push(todas.map((c, i) => c.banda === 0 || e.grupos.includes(c.k) ? (i === 0 ? `Total (${ls.length})` : null) : celula(c, t))); }
-    const [a0, , a2] = e.rel.anos, nome = e.modo === 'mensal' ? `Comparativo-fornecedores-${a2}-mensal.xlsx` : `Comparativo-fornecedores-${a0}-${a2}.xlsx`;
+    const [a0, , a2] = e.rel.anos, nome = e.modo === 'mensal' ? `Comparativo-${e.d.ficheiro}-${a2}-mensal.xlsx` : `Comparativo-${e.d.ficheiro}-${a0}-${a2}.xlsx`;
     descarregar(xlsx({ nome: e.modo === 'mensal' ? `Comparativo ${a2} mensal` : `Comparativo ${a0}-${a2}`, colunas: todas.map(titulo), linhas, larguras: todas.map((c) => Math.max(10, Math.round((e.larguras[c.k] ?? c.w) / 7))) }), nome);
-    avisar(r, e, `Exportado: ${nome} · ${n(ls.length)} ${ls.length === 1 ? 'fornecedor' : 'fornecedores'} (${escopo === 'todos' ? 'todos' : 'só os escolhidos'})${e.somas ? ', com o total' : ''}.`);
+    avisar(r, e, `Exportado: ${nome} · ${n(ls.length)} ${ls.length === 1 ? e.d.um : e.d.varios} (${escopo === 'todos' ? 'todas as linhas' : 'só as escolhidas'})${e.somas ? ', com o total' : ''}.`);
   } catch { avisar(r, e, 'A exportação falhou. Os resultados ficam; tenta outra vez (F4).'); }
 }
 function imprimir(r: HTMLElement, e: Est): void { if (e.rel?.linhas.length) window.print(); else avisar(r, e, SEM_DADOS); }
@@ -506,14 +506,14 @@ function armar(r: HTMLElement): void {
     return;
   }
   const a0 = cen === 'parcial' ? ANO_ATUAL - 3 : cen === 'vazio' ? ANO_ATUAL - 8 : ANO_ATUAL - 2;
-  anos(a0); e.rel = comparar(a0);
+  anos(a0); e.rel = comparar(e.d.id, a0);
   if (cen === 'mensal') { e.modo = 'mensal'; e.rel = { ...e.rel, linhas: e.rel.linhas.filter((l) => l.anos[2].encs.length), semDados: [] }; } e.ini = a0; e.fase = 'ok'; e.gerado = Date.now();
   e.ativo = filtradas(e)[0]?.id ?? ''; e.sel = new Set(e.ativo ? [e.ativo] : []);
-  if (cen === 'agrupado') e.grupos = ['pais'];
-  if (cen === 'detalhe') { e.det = true; e.ativo = 'skf'; e.sel = new Set(['skf']); }
+  if (cen === 'agrupado') { e.grupos = [e.d.grupoEx]; e.ocultas.delete(e.d.grupoEx); }
+  if (cen === 'detalhe') { e.det = true; e.ativo = e.d.exemplo; e.sel = new Set([e.d.exemplo]); }
   if (cen === 'filtros') { e.filtrosAbertos = true; e.filtros = { v1: '<0' }; }
   if (cen === 'a-atualizar') e.fase = 'a-gerar';
-  if (cen === 'exportado') e.aviso = `Exportado: Comparativo-fornecedores-${a0}-${a0 + 2}.xlsx · ${n(e.rel.linhas.length)} fornecedores (todos), com o total.`;
+  if (cen === 'exportado') e.aviso = `Exportado: Comparativo-${e.d.ficheiro}-${a0}-${a0 + 2}.xlsx · ${n(e.rel.linhas.length)} ${e.d.varios} (todas as linhas), com o total.`;
   if (cen === 'export-falhou') e.aviso = 'A exportação falhou. Os resultados ficam; tenta outra vez (F4).';
   etiquetas(r, e);
   if (cen !== 'editar' && e.rel.linhas.length) r.classList.add('crit-resumo');
@@ -559,7 +559,7 @@ export function iniciar(): void {
       const k = b.dataset.cfOrdenar!, o = e.ordem.find((y) => y.k === k);
       if ((ev as MouseEvent).shiftKey) { if (o) o.dir = o.dir === 1 ? -1 : 1; else e.ordem.push({ k, dir: 1 }); }
       /* texto: A→Z, Z→A, sem ordem; números: do maior para o menor primeiro */
-      else { const d1: 1 | -1 = DESCR.some((c) => c.k === k) ? 1 : -1; e.ordem = !o ? [{ k, dir: d1 }] : o.dir === d1 ? [{ k, dir: d1 === 1 ? -1 : 1 }] : []; }
+      else { const d1: 1 | -1 = descr(e).some((c) => c.k === k) ? 1 : -1; e.ordem = !o ? [{ k, dir: d1 }] : o.dir === d1 ? [{ k, dir: d1 === 1 ? -1 : 1 }] : []; }
       grelha(r, e, 'linhas'); r.querySelector<HTMLElement>(`[data-cf-ordenar="${k}"]`)?.focus();
       if (!quieto()) r.querySelector<HTMLElement>(`th[data-cf-col="${k}"] .ak-ord`)?.animate([{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: ease });
       return;
