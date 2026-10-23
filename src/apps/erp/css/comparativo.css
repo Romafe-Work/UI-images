@@ -1,0 +1,109 @@
+/* =========================================================
+   ERP — Comparativo por Fornecedor v2 (23 out. 2026). Ver compras/comparativo.ts.
+   Assenta no Automático v2 (.ak .ak2: barra, critérios em resumo, resumo, grelha, detalhe, avisos); aqui só o que é
+   deste ecrã: os anos lado a lado no cabeçalho, as variações com seta e barra, Nº e Nome presos, as barras do detalhe.
+   Cores das variações neutras (a subida não é «boa» nem a descida «má»): azul ROMAFE a subir, ardósia a descer.
+   ========================================================= */
+/* o período */
+.cf-anos { display: flex !important; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; }
+.cf-anos .ak-campo { width: 128px; }
+.cf-anos input { font-variant-numeric: tabular-nums; font-weight: 700 !important; }
+.cf-seta { display: grid; place-items: center; height: 34px; color: rgb(0, 99, 170); }
+.cf-seta svg { width: 18px; height: 18px; }
+.cf-dica { flex-basis: 100%; margin: 2px 0 0; font-size: 12.5px; color: var(--h-tinta-3); }
+.cf .ak-crit-acoes { align-content: center; }
+.cf-etq { display: inline-flex; align-items: center; height: 28px; font-size: 13px; color: var(--h-tinta-2); }
+.cf-pronto-ic { width: 40px !important; height: 40px !important; color: rgb(0, 99, 170); }
+
+/* o resumo */
+.cf-sumario { row-gap: 6px; }
+.cf-m-ano.is-vazio b { font-size: 14px; font-weight: 700; color: var(--h-tinta-3); }
+.cf-m-var { display: inline-flex; align-items: baseline; padding: 0 2px; }
+.cf-m-global { border-left: 1px solid var(--h-borda); }
+.cf-m-global .cf-var b { font-size: 16px; }
+.cf-parcial { display: flex; align-items: flex-start; gap: 8px; flex-basis: 100%; margin: 4px 0 0; padding: 7px 10px; border-radius: 6px; background: color-mix(in srgb, var(--h-laranja) 11%, var(--h-sup)); font-size: 13px; color: var(--h-tinta); }
+.cf-parcial svg { width: 16px; height: 16px; margin-top: 1px; color: var(--h-laranja); }
+.cf-imprimir-t { display: none; }
+
+/* a grelha: duas linhas de cabeçalho */
+.cf-tab thead tr.cf-bandas th { top: 0; height: 30px; padding: 0 10px; border-bottom: 1px solid var(--h-borda); font-size: 12.5px; font-weight: 800; text-align: center; color: var(--h-tinta); }
+.cf-tab thead tr.cf-folhas th { top: 30px; }
+.cf-tab thead tr.ak-filtros th { top: 64px !important; }
+.cf-tab thead th.ak-th-sel { top: 0; vertical-align: middle; }
+.cf-banda span { display: inline-flex; align-items: baseline; gap: 6px; }
+.cf-banda small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--h-tinta-3); }
+.cf-banda em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--h-tinta-3); }
+.cf-banda.cf-b-forn { text-align: left !important; }
+.cf-banda.cf-b-ano { background: color-mix(in srgb, var(--h-azul) 13%, var(--h-sup-2)) !important; color: rgb(0, 99, 170) !important; font-size: 13.5px !important; font-variant-numeric: tabular-nums; }
+:root[data-theme="dark"] .cf-banda.cf-b-ano { color: var(--h-azul) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cf-banda.cf-b-ano { color: var(--h-azul) !important; } }
+.cf-banda.cf-b-ano.is-vazia { background: var(--h-sup-2) !important; color: var(--h-tinta-3) !important; }
+.cf-banda.cf-b-var { font-weight: 700 !important; }
+/* a separação dos anos: uma linha à esquerda de cada grupo */
+.cf-tab .is-b-ini.cf-b-ano, .cf-tab .is-b-ini.cf-b-var, .cf-tab th.cf-banda.cf-b-ano, .cf-tab th.cf-banda.cf-b-var { border-left: 1px solid var(--h-borda-forte); }
+.cf-tab td.cf-b-var { background: color-mix(in srgb, var(--h-azul) 3%, transparent); }
+/* Nº e Nome presos à esquerda */
+.cf-tab .is-fixa { position: sticky; z-index: 1; background: var(--h-sup); }
+.cf-tab thead .is-fixa { z-index: 3; background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup-2)); }
+.cf-tab tbody tr[aria-selected="true"] .is-fixa { background: color-mix(in srgb, var(--h-azul) 14%, var(--h-sup)); }
+.cf-tab tbody tr[data-cf-id]:hover .is-fixa { background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup)); }
+.cf-tab tr.ak-g .is-fixa, .cf-tab tfoot .is-fixa { background: var(--h-sup-2); }
+.cf-tab .is-fixa-ult { box-shadow: 1px 0 0 var(--h-borda-forte), 6px 0 8px -6px rgba(16, 32, 48, .18); }
+.cf-tab td.ak-td-sel.is-fixa, .cf-tab .ak-g-c.is-fixa { z-index: 2; }
+.cf-tab tbody tr.is-ativo td:first-child { box-shadow: inset 3px 0 0 rgb(0, 99, 170); }
+.cf-tab tfoot td { font-weight: 800; }
+.cf-tab .ak-g td { font-weight: 700; }
+
+/* a variação: seta, número e uma barra curta (100 % = barra cheia) */
+.cf-var { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; font-variant-numeric: tabular-nums; }
+.cf-var svg { width: 14px !important; height: 14px !important; }
+.cf-var b { font-weight: 700; min-width: 58px; text-align: right; }
+.cf-barra { position: relative; display: block; width: 30px; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--h-tinta-3) 16%, transparent); overflow: hidden; }
+.cf-barra > i { position: absolute; inset: 0; transform: scaleX(var(--p)); transform-origin: left; border-radius: 3px; }
+.cf-var.is-sobe svg, .cf-var.is-sobe b { color: rgb(0, 99, 170); }
+.cf-var.is-sobe .cf-barra > i { background: rgb(0, 99, 170); }
+.cf-var.is-desce svg, .cf-var.is-desce b { color: #56657a; }
+.cf-var.is-desce .cf-barra > i { background: #8796ab; }
+:root[data-theme="dark"] .cf-var.is-sobe svg, :root[data-theme="dark"] .cf-var.is-sobe b { color: var(--h-azul); }
+:root[data-theme="dark"] .cf-var.is-desce svg, :root[data-theme="dark"] .cf-var.is-desce b { color: #a8b5c7; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cf-var.is-sobe svg, :root:not([data-theme="light"]) .cf-var.is-sobe b { color: var(--h-azul); } :root:not([data-theme="light"]) .cf-var.is-desce svg, :root:not([data-theme="light"]) .cf-var.is-desce b { color: #a8b5c7; } }
+.cf-var.is-igual { color: var(--h-tinta-3); }
+.cf-var.is-nd { display: inline-block; padding: 0 6px; border: 1px dashed var(--h-borda-forte); border-radius: 4px; font-size: 11.5px; font-weight: 800; letter-spacing: .04em; color: var(--h-tinta-2); cursor: help; }
+.cf-var.is-nada { color: var(--h-tinta-3); }
+
+/* o detalhe: as barras dos três anos */
+.cf-det .cf-graf { margin: 12px 0 4px; }
+.cf-graf figcaption { margin-bottom: 4px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--h-tinta-3); }
+.cf-graf svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cf-bar { fill: color-mix(in srgb, var(--h-azul) 38%, var(--h-sup)); transform-box: fill-box; transform-origin: bottom; animation: cf-cresce .28s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i) * 60ms + 80ms); }
+.cf-bar.is-ult { fill: rgb(0, 99, 170); }
+@keyframes cf-cresce { from { transform: scaleY(0); } }
+.cf-bar-v { font-size: 10.5px; font-weight: 700; fill: var(--h-tinta); font-variant-numeric: tabular-nums; }
+.cf-bar-a { font-size: 11px; font-weight: 700; fill: var(--h-tinta-3); }
+.cf-bar-base { stroke: var(--h-borda-forte); }
+.cf-det-tab th[scope="row"] { font-weight: 700; color: var(--h-tinta); }
+.cf-det-tab .cf-var b { min-width: 0; }
+.cf-arq { font-family: var(--f-mono); font-size: 12.5px; font-weight: 600; color: var(--h-tinta-2); }
+:root:not(.dk8-vivo) .cf-det [data-dk-janela] { display: none; }
+.cf.com-det .ak-corpo { grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); }
+
+@media (max-width: 760px) { .cf-anos .ak-campo { width: calc(50% - 30px); } }
+@media print {
+  .cf-imprimir-t { display: block; margin: 0 0 8px; font-weight: 700; }
+  .cf .ak2-sumario { border: 0; }
+  .cf-tab .is-fixa { position: static; box-shadow: none; }
+  .cf-barra { display: none; }
+}
+/* o resumo cabe numa linha a 1366: sem as barras e com menos espaço entre os números */
+.cf-sumario .cf-barra { display: none; }
+.cf-sumario .ak2-m { padding: 0 12px; }
+.cf-sumario .cf-var b { min-width: 0; }
+.cf-sumario .cf-m-var { padding: 0; margin-left: -4px; margin-right: 4px; }
+.cf-gerado { flex: none; font-size: 12.5px; color: var(--h-tinta-3); } .cf-gerado b { color: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
+/* o total preso em baixo tapa as linhas por trás (também nas colunas de variação) */
+.cf-tab tfoot td.cf-b-var { background: color-mix(in srgb, var(--h-azul) 4%, var(--h-sup-2)); }
+.cf-tab tfoot td { z-index: 1; }
+.cf-tab tfoot td { z-index: 3; } .cf-tab tfoot td.is-fixa { z-index: 4; }
+.cf-sumario .ak2-m { padding: 0 10px; gap: 6px; }
+.cf-sumario .ak2-m b { font-size: 16px; }
+@media (max-width: 1440px) { .cf-sumario .ak2-m small { font-size: 11.5px; } .cf-sumario .ak2-m i { font-size: 12px; } }

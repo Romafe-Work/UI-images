@@ -4,7 +4,7 @@
    as datas como datas (dd/mm/aaaa) e os euros com o formato «# ##0,00 €». O ficheiro é um ZIP sem compressão
    (método 0), que é o que o Excel e o LibreOffice abrem.
    ========================================================= */
-export type Celula = string | number | { data: string } | { euros: number } | null;
+export type Celula = string | number | { data: string } | { euros: number } | { pct: number } | null;
 export interface Folha { nome: string; colunas: string[]; linhas: Celula[][]; larguras?: number[] }
 
 const xml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -19,6 +19,7 @@ function folhaXml(f: Folha): string {
     if (typeof c === 'number') return `<c r="${ref}" s="3"><v>${c}</v></c>`;
     if (typeof c === 'string') return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xml(c)}</t></is></c>`;
     if ('data' in c) return `<c r="${ref}" s="1"><v>${serie(c.data)}</v></c>`;
+    if ('pct' in c) return `<c r="${ref}" s="5"><v>${c.pct}</v></c>`;
     return `<c r="${ref}" s="2"><v>${(c.euros / 100).toFixed(2)}</v></c>`;
   };
   const cab = `<row r="1">${f.colunas.map((t, i) => `<c r="${col(i)}1" t="inlineStr" s="4"><is><t>${xml(t)}</t></is></c>`).join('')}</row>`;
@@ -26,7 +27,7 @@ function folhaXml(f: Folha): string {
   const larg = (f.larguras ?? f.colunas.map((t) => Math.max(10, t.length + 4))).map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('');
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${larg}</cols><sheetData>${cab}${corpo}</sheetData><autoFilter ref="A1:${col(f.colunas.length - 1)}${f.linhas.length + 1}"/></worksheet>`;
 }
-const ESTILOS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="#,##0.00\\ &quot;€&quot;"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="5"><xf/><xf numFmtId="164" applyNumberFormat="1"/><xf numFmtId="165" applyNumberFormat="1"/><xf numFmtId="3" applyNumberFormat="1"/><xf fontId="1" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+const ESTILOS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="3"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="#,##0.00\\ &quot;€&quot;"/><numFmt numFmtId="166" formatCode="+0.0%;-0.0%;0.0%"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="6"><xf/><xf numFmtId="164" applyNumberFormat="1"/><xf numFmtId="165" applyNumberFormat="1"/><xf numFmtId="3" applyNumberFormat="1"/><xf fontId="1" applyFont="1"/><xf numFmtId="166" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
 
 /* ---------- o ZIP (sem compressão) ---------- */
 const TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();

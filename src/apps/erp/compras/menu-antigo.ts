@@ -14,6 +14,7 @@ import { encomendas, rececoes, FORNECEDORES, ARTIGOS, linhaLiquida, totais, euro
 import { faltas } from './faltas';
 import { MENU_ANTIGO } from './menu-antigo-ids';
 import { ecrasAutomatico } from './automatico';
+import { versaoComparativo, estadosComparativo } from './comparativo';
 
 const n = (k: number) => k.toLocaleString('pt-PT');
 const eur = (c: number | null) => (c === null ? '—' : euros(c));
@@ -143,6 +144,9 @@ export function ecrasMenuAntigo(): Ecra<IdErp>[] {
     /* Artigos/Compras Automático tem ecrã próprio (o briefing de 23 out.) */
     if (id === 'mapas-automatico') return ecrasAutomatico(String(40 + i));
     const t: Tabela = { ...D[id], id: `cm-${id}`, num: String(40 + i), caminho: 'Compras' };
-    return [{ id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] }];
+    const base: Ecra<IdErp> = { id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] };
+    /* Comparativo por fornecedor (variação anual): a v2 do briefing de 23 out., com os seus estados */
+    if (id === 'comp-forn-var') return [{ ...base, versoes: [...base.versoes, versaoComparativo()] }, ...estadosComparativo(t.num)];
+    return [base];
   });
 }
