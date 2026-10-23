@@ -207,3 +207,163 @@
   .ak-tab thead th, .ak-tab tfoot td { position: static; }
   .ak-td-sel, .ak-th-sel { display: none; }
 }
+
+/* =========================================================
+   v2 (23 out., briefing «Artigos / Compras Automático V2»): a mesma base, mais cor da ROMAFE e mais trabalho à vista.
+   O ecrã ocupa a janela e a grelha fica com a altura que sobra (rola só ela); os critérios recolhem-se num resumo.
+   Movimento: botões 100 ms, campos 140 ms, critérios 200–220 ms, tabela 160–220 ms, detalhe 250 ms — só transform/opacity.
+   ========================================================= */
+.ak2 { height: max(100dvh, 640px); overflow: clip; }
+.ak2 .ak-res { min-height: 0; margin-top: 10px; }
+.ak2 .ak-corpo { min-height: 0; }
+.ak2 .ak-grelha, .ak2 .ak-det { max-height: none; height: 100%; }
+.ak2 .ak-estado { margin-top: 8px; }
+.ak2 .ak-cab h1 { color: var(--h-azul); }
+.ak2 .ak-cab { padding-block: 12px 10px; }
+.ak2-vista-ativa { display: inline-flex; align-items: baseline; gap: 6px; margin-left: auto; padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--h-azul) 30%, var(--h-borda)); border-radius: 6px; background: color-mix(in srgb, var(--h-azul) 7%, var(--h-sup)); font-size: 13px; }
+.ak2-vista-ativa small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-3); }
+
+/* a barra: superfície própria, grupos claros */
+.ak2-barra { background: color-mix(in srgb, var(--h-azul) 4%, var(--h-sup)); border-color: color-mix(in srgb, var(--h-azul) 14%, var(--h-borda)); }
+.ak2-barra > .ak-btn, .ak2-barra .ak-menu-c > .ak-btn { height: 32px; margin: 0 2px; }
+.ak2-esp { flex: 1; }
+.ak2 .ak-btn[aria-disabled="true"] { opacity: .45; cursor: default; }
+.ak2 .ak-btn[aria-disabled="true"]:hover { background: none; }
+.ak2 .ak-btn[aria-disabled="true"]:active { transform: none; }
+.ak2 .ak-btn--acao:active:not(:disabled) { transform: scale(.97); transition-duration: .08s; }
+.ak2 .ak-btn--linha svg { color: rgb(0, 99, 170); }
+.ak2 .ak-crit-acoes [data-ak-acao="cancelar"] svg { color: var(--h-erro); }
+.ak-btn--perigo { border-color: var(--h-erro); background: var(--h-erro); color: #fff; } .ak-btn--perigo svg { color: #fff; }
+
+/* os menus da v2 */
+.ak2-mais-menu { min-width: 270px; }
+.ak2-dens { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 0 6px 6px; border-bottom: 1px solid var(--h-borda); margin-bottom: 4px; }
+.ak2-dens button { height: 30px; border: 1px solid var(--h-borda); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color .12s ease, border-color .12s ease; }
+.ak2-dens button[aria-checked="true"] { border-color: color-mix(in srgb, var(--h-azul) 45%, transparent); background: color-mix(in srgb, var(--h-azul) 12%, var(--h-sup)); color: var(--h-tinta); }
+.ak2-dens button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.ak2-mais-menu [data-ak-cols] { max-height: 46vh; overflow: auto; }
+.ak2-mais-menu [data-ak-cols] .ak-btn { width: 100%; justify-content: center; margin-top: 4px; border-color: var(--h-borda); }
+.ak2-vistas { width: 340px; }
+.ak2-vl { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ak2-vl li { display: grid; grid-template-columns: minmax(0, 1fr) 30px; align-items: center; border-radius: 6px; }
+.ak2-vl li.is-ativa { background: color-mix(in srgb, var(--h-azul) 10%, transparent); box-shadow: inset 3px 0 0 rgb(0, 99, 170); }
+.ak2-vl [data-ak-vista-carregar] { display: grid; gap: 1px; min-width: 0; padding: 6px 10px; border: 0; border-radius: 6px; background: none; color: var(--h-tinta); font: inherit; text-align: left; cursor: pointer; }
+.ak2-vl [data-ak-vista-carregar]:hover, .ak2-vl [data-ak-vista-carregar]:focus-visible { background: color-mix(in srgb, var(--h-azul) 8%, transparent); outline: 0; }
+.ak2-vl b { font-size: 13.5px; } .ak2-vl small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.ak2-vl-x { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-3); cursor: pointer; }
+.ak2-vl-x:hover, .ak2-vl-x:focus-visible { background: color-mix(in srgb, var(--h-erro) 12%, transparent); color: var(--h-erro); outline: 0; }
+.ak2-vl-x svg { width: 15px; height: 15px; }
+.ak2-vl-conf { grid-template-columns: minmax(0, 1fr) auto auto !important; gap: 4px; padding: 4px 4px 4px 10px; background: color-mix(in srgb, var(--h-erro) 8%, transparent); animation: ak-cair .14s ease both; }
+.ak2-vl-conf span { font-size: 13px; font-weight: 600; }
+.ak2-vl-conf .ak-btn { height: 28px; padding: 0 8px; } .ak2-vl-conf .ak-btn:not(.ak-btn--perigo) { border-color: var(--h-borda-forte); background: var(--h-sup); }
+.ak2-vl-acoes { display: grid; gap: 6px; margin-top: 6px; padding: 8px 6px 2px; border-top: 1px solid var(--h-borda); }
+.ak2-vl-acoes > .ak-btn { justify-content: flex-start; border-color: var(--h-borda); }
+.ak2-vl-nova { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.ak2-vl-nova input { height: 32px; min-width: 0; padding: 0 9px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13px; transition: border-color .12s ease, box-shadow .14s ease; }
+.ak2-vl-nova input:focus { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
+.ak2-vl-nova input[aria-invalid="true"] { border-color: var(--h-erro); }
+.ak-menu p.ak2-vl-nota { margin: 0 2px; } .ak2-vl-nota.is-erro { color: var(--h-erro) !important; font-weight: 600; }
+.ak2-ctx { position: fixed; left: 0; top: 0; min-width: 240px; }
+.ak2-ctx > button { justify-content: flex-start !important; }
+.ak2-ctx > button svg { width: 16px; height: 16px; color: rgb(0, 99, 170); }
+.ak2-ctx > button span { flex: 1; } .ak2-ctx kbd { margin-left: auto; }
+:root:not(.dk8-vivo) .ak2-ctx [data-dk-janela] { display: none; }
+
+/* os critérios: abertos (essenciais + «Mais critérios») ou em resumo */
+.ak2-crit { margin-top: 10px; }
+.ak2-crit h2 { color: var(--h-azul); }
+.ak2-resumo-crit { display: none; align-items: center; gap: 10px; min-height: 48px; padding: 6px 8px 6px 14px; }
+.ak2-resumo-crit h2 { margin: 0; flex: none; }
+.ak2.crit-resumo .ak2-resumo-crit { display: flex; }
+.ak2.crit-resumo .ak2-aberto { display: none; }
+.ak2-etiquetas { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; margin: 0; padding: 0; list-style: none; }
+.ak2-etiquetas button { height: 28px; padding: 0 10px; border: 1px solid var(--h-borda-forte); border-radius: 14px; background: var(--h-sup-2); color: var(--h-tinta); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color .12s ease, border-color .12s ease; }
+.ak2-etiquetas button.is-forte { border-color: color-mix(in srgb, var(--h-azul) 40%, transparent); background: color-mix(in srgb, var(--h-azul) 10%, var(--h-sup)); }
+.ak2-etiquetas button:hover, .ak2-etiquetas button:focus-visible { border-color: var(--h-azul); outline: 0; }
+.ak2-resumo-crit > .ak-btn { flex: none; height: 32px; }
+.ak2 .ak-crit-cab button[hidden] { display: none; }
+.ak2-campos { display: grid; align-content: start; gap: 0; padding: 12px 14px 10px; min-width: 0; }
+.ak2 .ak-crit-c > .ak2-campos .ak-crit-g { padding: 0; }
+.ak2 .ak2-essenciais { grid-template-columns: minmax(140px, .9fr) minmax(170px, 1.2fr) minmax(280px, 1.7fr) minmax(190px, 1.3fr) !important; gap: 10px 14px; }
+.ak2 .ak2-secundarios { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 10px 14px; margin-top: 10px; }
+.ak2-periodo { min-width: 0; }
+.ak2-per { display: flex !important; align-items: center; gap: 6px; height: auto !important; }
+.ak2-per input { flex: 1; min-width: 0; }
+.ak2-periodo i { font-style: normal; font-weight: 500; color: var(--h-tinta-3); }
+.ak2 .ak-campo :is(input, select) { transition: border-color .14s ease, box-shadow .14s ease; }
+.ak2-mais { margin-top: 10px; }
+.ak2-mais summary { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 4px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--h-azul); cursor: pointer; list-style: none; }
+.ak2-mais summary::-webkit-details-marker { display: none; }
+.ak2-mais summary:hover { background: color-mix(in srgb, var(--h-azul) 8%, transparent); }
+.ak2-mais summary:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.ak2-mais summary svg { width: 16px; height: 16px; transform: rotate(-90deg); transition: transform .18s ease; }
+.ak2-mais[open] summary svg { transform: none; }
+.ak2-mais summary small { padding: 1px 7px; border-radius: 9px; background: color-mix(in srgb, var(--h-azul) 12%, transparent); color: var(--h-tinta); font-size: 11.5px; }
+.ak2-mais summary small:empty { display: none; }
+.ak2-mais:not([open]) .ak2-secundarios { display: none; }
+.ak2-mais[open] .ak2-secundarios { animation: ak2-entra .2s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes ak2-entra { from { opacity: 0; transform: translateY(-6px); } }
+.ak2 .ak-crit-acoes { align-content: center; }
+.ak2 .ak-crit-acoes .ak-btn { margin-top: 0; }
+.ak2 .ak-erro-campo:not([hidden]) { animation: ak2-entra .16s ease both; }
+
+/* o resumo dos resultados */
+.ak2-sumario { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 0; margin-bottom: 8px; padding: 6px 4px; border-bottom: 1px solid var(--h-borda); }
+.ak2-m { display: inline-flex; align-items: baseline; gap: 7px; padding: 0 16px; border-left: 1px solid var(--h-borda); }
+.ak2-m:first-child { padding-left: 2px; border-left: 0; }
+.ak2-m small { font-size: 12px; font-weight: 700; color: var(--h-tinta-3); }
+.ak2-m b { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--h-tinta); }
+.ak2-m:first-child b { color: rgb(0, 99, 170); }
+.ak2-m i { font-style: normal; font-size: 12.5px; color: var(--h-tinta-3); font-variant-numeric: tabular-nums; }
+.ak2-m--valor b { color: var(--h-tinta); }
+.ak2-m--sel { margin-left: 4px; padding: 2px 10px; border: 0; border-radius: 6px; background: color-mix(in srgb, var(--h-azul) 10%, transparent); }
+.ak2-m-hora { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12.5px; color: var(--h-tinta-3); }
+.ak2-m-hora b { color: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
+.ak2-m-hora svg { width: 14px; height: 14px; color: rgb(0, 99, 170); animation: ak-roda .8s linear infinite; }
+.ak2:not(.tem-dados) .ak-grupos { display: none; }
+
+/* a grelha da v2: cabeçalho com cor, escolha em azul ROMAFE */
+.ak2 .ak-tab thead th { background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup-2)); }
+.ak2 .ak-tab thead th button { color: var(--h-tinta-2); }
+.ak2 .ak-tab tbody tr[data-ak-ref]:hover { background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup)); }
+.ak2 .ak-tab tbody tr[aria-selected="true"] { background: color-mix(in srgb, var(--h-azul) 14%, var(--h-sup)); }
+.ak2 .ak-tab tbody tr.is-ativo td:first-child { box-shadow: inset 3px 0 0 rgb(0, 99, 170); }
+.ak2 .ak-tab tbody tr:focus-visible { outline: 2px solid var(--h-azul); outline-offset: -2px; }
+.ak2 .ak-grupos { border-color: color-mix(in srgb, var(--h-azul) 30%, var(--h-borda-forte)); }
+.ak2.a-arrastar .ak-grupos { background: color-mix(in srgb, var(--h-azul) 9%, var(--h-sup-2)); }
+.ak2 .ak-chip { border-color: color-mix(in srgb, var(--h-azul) 40%, transparent); background: color-mix(in srgb, var(--h-azul) 9%, var(--h-sup)); }
+.ak2.is-a-gerar .ak-tab { opacity: .5; }
+
+/* antes de haver linhas: pronto, a carregar, erros */
+.ak2-pronto { display: flex; align-items: center; justify-content: center; gap: 22px; height: 100%; min-height: 180px; padding: 24px; color: var(--h-tinta-2); }
+.ak .ak2-desenho { width: 132px; height: 84px; flex: none; color: var(--h-tinta-3); }
+.ak2-pronto b { display: block; font-size: 16px; color: var(--h-tinta); }
+.ak2-pronto p { margin: 4px 0 0; font-size: 13.5px; }
+.ak2-esq { padding: 0; }
+.ak2-esq-l { display: flex; gap: 22px; height: var(--ak-linha); align-items: center; padding: 0 12px 0 46px; border-top: 1px solid var(--h-borda); }
+.ak2-esq-cab { height: 34px; border-top: 0; background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup-2)); }
+.ak2-esq-l i { display: block; flex: none; height: 8px; border-radius: 4px; background: var(--h-borda); animation: ak2-pulsa 1.2s ease-in-out infinite alternate; }
+@keyframes ak2-pulsa { from { opacity: .55; } to { opacity: 1; } }
+.ak2-carga { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 14px 0; font-size: 13.5px; font-weight: 700; color: var(--h-tinta); }
+.ak2-carga svg { width: 16px; height: 16px; color: rgb(0, 99, 170); animation: ak-roda .8s linear infinite; }
+.ak2-carga span { font-weight: 500; color: var(--h-tinta-3); }
+.ak2-erro { height: 100%; align-content: center; }
+.ak2-erro p b { font-size: 15px; }
+.ak2-erro-acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.ak2-erro.is-offline > svg, .ak2-erro.is-tempo > svg { color: var(--h-laranja); }
+.ak2-erro.is-permissao > svg, .ak2-erro.is-sessao > svg { color: rgb(0, 99, 170); }
+
+/* o aviso breve (o .hm-aviso do Início) sobe acima da barra de estado */
+.ak2 .hm-aviso { bottom: 52px; max-width: min(560px, calc(100vw - 32px)); }
+
+/* janelas mais estreitas: menos colunas, ações secundárias só com ícone */
+@media (max-width: 1280px) { .ak2 .ak2-essenciais { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .ak2 .ak2-periodo { grid-column: span 2 !important; } .ak2 .ak2-secundarios { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } }
+@media (max-width: 1100px) { .ak2-barra .ak-btn kbd { display: none; } .ak2-m { padding: 0 10px; } }
+@media (max-width: 760px) {
+  .ak2 { height: auto; overflow: visible; }
+  .ak2 .ak-grelha { height: auto; max-height: 70vh; }
+  .ak2 .ak2-essenciais, .ak2 .ak2-secundarios { grid-template-columns: minmax(0, 1fr) !important; } .ak2 .ak2-periodo { grid-column: auto !important; }
+  .ak2-resumo-crit { flex-wrap: wrap; } .ak2-vista-ativa { display: none; } .ak2-m-hora { margin-left: 0; }
+  .ak2-pronto { flex-direction: column; text-align: center; }
+}
+@media print { .ak2 { height: auto; overflow: visible; } .ak2 :is(.ak2-crit, .ak2-ctx, .ak2-vista-ativa) { display: none !important; } }

@@ -27,6 +27,12 @@ import layers from 'lucide-static/icons/layers.svg?raw';
 import chartBar from 'lucide-static/icons/chart-bar.svg?raw';
 import printer from 'lucide-static/icons/printer.svg?raw';
 import xIc from 'lucide-static/icons/x.svg?raw';
+import refresh from 'lucide-static/icons/refresh-cw.svg?raw';
+import ellipsis from 'lucide-static/icons/ellipsis.svg?raw';
+import bookmark from 'lucide-static/icons/bookmark.svg?raw';
+import pencil from 'lucide-static/icons/pencil.svg?raw';
+import chevronsUp from 'lucide-static/icons/chevrons-up.svg?raw';
+import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
 
 /* ---------- os critérios e as linhas ---------- */
 export type Tipo = 'todos' | 'com' | 'sem' | 'rutura' | 'minimo';
@@ -67,7 +73,9 @@ export function gerar(c: Crit): LinhaAk[] {
 }
 
 /* ---------- a página ---------- */
-export type CenarioAk = 'inicial' | 'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'detalhe' | 'exportado';
+export type CenarioAk = 'inicial' | 'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'detalhe' | 'exportado'
+  /* só na v2 */
+  | 'mais-criterios' | 'invalido' | 'a-atualizar' | 'vistas' | 'export-falhou' | 'offline' | 'tempo' | 'permissao' | 'sessao';
 const op = (v: string, t: string, sel = false) => `<option value="${esc(v)}"${sel ? ' selected' : ''}>${esc(t)}</option>`;
 const uniq = (xs: string[]) => [...new Set(xs)].sort((a, b) => a.localeCompare(b, 'pt'));
 const B = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-ak-acao="${k}"${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
@@ -132,6 +140,94 @@ function html(cen: CenarioAk): string {
 </div>`;
 }
 
+/* ---------- v2 (23 out., briefing «Artigos / Compras Automático V2»): os mesmos dados e o mesmo motor
+   (automatico-comportamento.ts), com os critérios em dois estados (abertos / resumo em etiquetas), «Mais critérios»,
+   o resumo dos resultados, as Vistas guardadas, Atualizar (F9) e Mais ações (colunas e linhas, que saíram da barra). */
+function html2(cen: CenarioAk): string {
+  const c = CRIT0(), id = (x: string) => `ak2-${x}-${cen}`;
+  const campo = (k: string, t: string, input: string, cls = '') => `<label class="ak-campo${cls ? ` ${cls}` : ''}" for="${id(k)}"><span>${t}</span>${input}</label>`;
+  const forns = uniq(ARTIGOS.map((a) => fNome(a.forn))), fams = uniq(ARTIGOS.map((a) => familiaDe(a.desc))), marcas = uniq(ARTIGOS.map((a) => a.marca));
+  return `<div class="hm ak ak2" data-hm data-ak data-ak-v="2" data-ak-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
+  ${topoErp([['ERP', 'inicio'], ['Compras', 'compras'], ['Mapas', ''], ['Artigos / Compras Automático', '']])}
+  <header class="ak-cab">
+    <span class="ak-cab-ic">${L(chartBar)}</span>
+    <div><h1>Artigos / Compras Automático</h1><p>Consulta e analisa os artigos e respetiva informação de compras.</p></div>
+    <span class="ak2-vista-ativa" data-ak-vista-ativa hidden></span>
+  </header>
+  <div class="ak-barra ak2-barra" role="toolbar" aria-label="Ações dos resultados">
+    ${B('filtrar', funnel, 'Filtrar', 'F2', ' aria-pressed="false"')}
+    ${B('limpar', funnelX, 'Remover filtros', 'F3')}
+    <i class="ak-sep" aria-hidden="true"></i>
+    <span class="ak-menu-c">${B('exportar', sheet, 'Exportar Excel', 'F4', ' aria-haspopup="menu" aria-expanded="false"')}
+      <div class="ak-menu" role="menu" data-ak-menu="exportar" hidden>
+        <button type="button" role="menuitem" data-ak-exportar="todos">Todos os resultados <small data-ak-n-todos></small></button>
+        <button type="button" role="menuitem" data-ak-exportar="escolhidos">Só as linhas escolhidas <small data-ak-n-sel></small></button>
+        <p>Exporta as linhas que passam nos filtros da tabela, com todos os grupos abertos, e só as colunas à vista.</p>
+      </div></span>
+    ${B('imprimir', printer, 'Imprimir', 'F12')}
+    <i class="ak-sep" aria-hidden="true"></i>
+    <span class="ak-menu-c">${B('vistas', bookmark, 'Vistas guardadas', '', ' aria-haspopup="menu" aria-expanded="false"')}
+      <div class="ak-menu ak2-vistas" role="menu" data-ak-menu="vistas" hidden></div></span>
+    <span class="ak2-esp"></span>
+    ${B('atualizar', refresh, 'Atualizar', 'F9')}
+    <span class="ak-menu-c">${B('mais', ellipsis, 'Mais ações', '', ' aria-haspopup="menu" aria-expanded="false"')}
+      <div class="ak-menu ak-menu--dir ak2-mais-menu" role="menu" data-ak-menu="mais" hidden>
+        <p class="ak-menu-t">Linhas</p>
+        <div class="ak2-dens" role="group" aria-label="Linhas"><button type="button" role="menuitemradio" data-ak-densidade="compacta" aria-checked="true">Compactas</button><button type="button" role="menuitemradio" data-ak-densidade="normal" aria-checked="false">Normais</button></div>
+        <div data-ak-cols></div>
+      </div></span>
+  </div>
+
+  <form class="ak-crit ak2-crit" data-ak-crit aria-labelledby="${id('crit-t')}" novalidate>
+    <div class="ak2-resumo-crit" data-ak-resumo-crit>
+      <h2>Critérios</h2><ul class="ak2-etiquetas" data-ak-etiquetas></ul>
+      <button type="button" class="ak-btn ak-btn--linha" data-ak-acao="alterar">${L(pencil)}<span>Alterar critérios</span></button>
+    </div>
+    <div class="ak2-aberto" data-ak-aberto>
+      <div class="ak-crit-cab"><h2 id="${id('crit-t')}">Critérios</h2><button type="button" class="ak-crit-x" data-ak-acao="recolher" title="Recolher os critérios num resumo" hidden>${L(chevronsUp)}<span>Recolher</span></button></div>
+      <div class="ak-crit-c">
+        <div class="ak2-campos">
+          <div class="ak-crit-g ak2-essenciais">
+            ${campo('armazem', 'Armazém', `<select id="${id('armazem')}" name="armazem" data-ak-primeiro>${op('60', 'Armazém 60', true)}${op('', 'Todos')}</select>`)}
+            ${campo('forn', 'Fornecedor', `<select id="${id('forn')}" name="forn">${op('', 'Todos')}${forns.map((f) => op(f, f)).join('')}</select>`)}
+            <div class="ak-campo ak2-periodo" role="group" aria-labelledby="${id('per')}"><span id="${id('per')}">Período</span><span class="ak2-per"><input type="date" id="${id('de')}" name="de" value="${c.de}" aria-label="Período — de"><i>a</i><input type="date" id="${id('ate')}" name="ate" value="${c.ate}" aria-label="Período — até"></span></div>
+            ${campo('ref', 'Artigo / Referência', `<input type="search" id="${id('ref')}" name="ref" list="${id('refs')}" placeholder="Referência ou descrição" autocomplete="off"><datalist id="${id('refs')}">${ARTIGOS.map((a) => `<option value="${esc(a.ref)}">${esc(a.desc)}</option>`).join('')}</datalist>`)}
+          </div>
+          <details class="ak2-mais" data-ak-mais${cen === 'mais-criterios' ? ' open' : ''}>
+            <summary>${L(chevronDown)}<span>Mais critérios</span><small data-ak-n-mais></small></summary>
+            <div class="ak-crit-g ak2-secundarios">
+              ${campo('fam', 'Família', `<select id="${id('fam')}" name="fam">${op('', 'Todas')}${fams.map((f) => op(f, f)).join('')}</select>`)}
+              ${campo('sub', 'Subfamília', `<select id="${id('sub')}" name="sub" data-ak-sub>${op('', 'Todas')}</select>`)}
+              ${campo('marca', 'Marca', `<select id="${id('marca')}" name="marca">${op('', 'Todas')}${marcas.map((m) => op(m, m)).join('')}</select>`)}
+              ${campo('stock', 'Stock', `<select id="${id('stock')}" name="stock">${op('todos', 'Todos', true)}${op('com', 'Com stock')}${op('sem', 'Sem stock')}</select>`)}
+              ${campo('tipo', 'Tipo de análise', `<select id="${id('tipo')}" name="tipo">${op('todos', 'Todos os artigos', true)}${op('com', 'Com compras no período')}${op('sem', 'Sem compras no período')}${op('rutura', 'Em rutura')}${op('minimo', 'Abaixo do mínimo')}</select>`)}
+            </div>
+          </details>
+        </div>
+        <div class="ak-crit-acoes">
+          ${B('gerar', play, 'Gerar dados', 'F10', ' data-ak-gerar-crit', 'ak-btn--acao')}
+          ${B('cancelar', xIc, 'Cancelar', 'Esc', '', 'ak-btn--linha')}
+        </div>
+      </div>
+      <p class="ak-erro-campo" data-ak-erro-campo role="alert" hidden></p>
+    </div>
+  </form>
+
+  <section class="ak-res" aria-labelledby="${id('res-t')}">
+    <h2 id="${id('res-t')}" class="sr">Resultados</h2>
+    <div class="ak2-sumario" data-ak-sumario role="status" aria-live="polite" hidden></div>
+    <div class="ak-grupos" data-ak-grupos aria-label="Agrupar por">${L(layers)}<span class="ak-grupos-dica">Arraste para aqui o cabeçalho de uma coluna para agrupar</span></div>
+    <div class="ak-corpo">
+      <div class="ak-grelha" data-ak-grelha tabindex="-1"></div>
+      <aside class="ak-det" data-ak-det aria-label="Detalhe do artigo" hidden></aside>
+    </div>
+  </section>
+  <div class="ak-menu ak2-ctx" role="menu" data-ak-ctx hidden></div>
+  <footer class="ak-estado" data-ak-estado role="status" aria-live="polite"></footer>
+  <p class="hm-aviso" data-hm-aviso role="status" aria-live="polite"></p>
+</div>`;
+}
+
 const NOTA = 'Artigos / Compras Automático (23 out., briefing «Modern Enterprise Analysis Workspace with Full Keyboard Support» e o ecrã do ERP antigo): critérios compactos, Gerar dados (F10), grelha com ordenar, filtrar (F2/F3), colunas, agrupar a arrastar, detalhe do artigo e Excel (F4).';
 const ESTADOS: [Exclude<CenarioAk, 'inicial'>, string, string][] = [
   ['resultados', '67.1 · Resultados', 'Os artigos do armazém 60 com as compras do período; o primeiro escolhido.'],
@@ -143,11 +239,26 @@ const ESTADOS: [Exclude<CenarioAk, 'inicial'>, string, string][] = [
   ['erro', '67.7 · Erro', 'Não foi possível gerar a análise: «Tentar outra vez»; os resultados anteriores ficam.'],
   ['exportado', '67.9 · Exportado', 'O Excel foi gerado: o nome do ficheiro e o que levou, na barra de estado.'],
 ];
+const NOTA2 = 'Artigos / Compras Automático v2 (23 out., briefing «Advanced Motion, Intelligent Filters & Professional Data Workspace»): os critérios essenciais à vista e «Mais critérios»; depois de gerar, recolhem-se num resumo em etiquetas e a grelha ganha a altura; resumo dos resultados; Vistas guardadas; Atualizar (F9); colunas e linhas em Mais ações.';
+/** Os estados que só existem na v2. */
+const ESTADOS2: [CenarioAk, string, string][] = [
+  ['mais-criterios', '67.10 · Mais critérios', 'Família, Subfamília, Marca, Stock e Tipo de análise abertos; fechados, contam-se os que estão escolhidos.'],
+  ['invalido', '67.11 · Critérios inválidos', 'O fim do período antes do início: o campo marcado e a mensagem; os critérios não se recolhem.'],
+  ['a-atualizar', '67.12 · A atualizar (F9)', 'Atualizar volta a pedir a mesma análise: as linhas ficam à vista, esbatidas, até chegar a resposta.'],
+  ['vistas', '67.13 · Vistas guardadas', 'Guardar, carregar, atualizar e eliminar vistas (critérios, colunas, larguras, ordem, grupos e linhas), por utilizador e empresa.'],
+  ['export-falhou', '67.14 · A exportação falhou', 'O Excel não foi gerado: diz-se, e os resultados ficam.'],
+  ['offline', '67.15 · Sem ligação', 'Sem rede: os critérios ficam; tenta-se outra vez quando a ligação voltar.'],
+  ['tempo', '67.16 · Tempo esgotado', 'O servidor demorou demasiado: reduzir o período ou tentar outra vez.'],
+  ['permissao', '67.17 · Sem permissão', 'O utilizador não tem acesso a este mapa: quem pode dar acesso; os critérios ficam.'],
+  ['sessao', '67.18 · Sessão terminada', 'A sessão terminou: voltar a entrar pelo login comum; nada se perde.'],
+];
 export function ecrasAutomatico(num: string): Ecra<IdErp>[] {
-  const v = (cen: CenarioAk) => [{ id: 'v1', nota: NOTA, html: html(cen) }] as Ecra<IdErp>['versoes'];
+  const v = (cen: CenarioAk) => [{ id: 'v1', nota: NOTA, html: html(cen) }, { id: 'v2', nota: NOTA2, html: html2(cen) }] as Ecra<IdErp>['versoes'];
+  const so2 = (cen: CenarioAk) => [{ id: 'v2', nota: NOTA2, html: html2(cen) }] as Ecra<IdErp>['versoes'];
   return [
     { id: 'cm-mapas-automatico' as IdErp, nome: `${num} · Artigos / Compras Automático`, fluxo: 'Compras', objetivo: 'Compras ▸ Mapas ▸ Artigos/Compras Automático: definir os critérios, gerar a análise (F10) e trabalhar a grelha — ordenar, filtrar (F2/F3), agrupar a arrastar, ver o artigo e exportar para Excel (F4).', versoes: v('inicial') },
     ...ESTADOS.map(([cen, nome, objetivo]) => ({ id: `cm-automatico-${cen}` as IdErp, nome, fluxo: 'Compras', estadoDe: 'cm-mapas-automatico' as IdErp, objetivo, versoes: v(cen) })),
+    ...ESTADOS2.map(([cen, nome, objetivo]) => ({ id: `cm-automatico-${cen}` as IdErp, nome, fluxo: 'Compras', estadoDe: 'cm-mapas-automatico' as IdErp, objetivo, versoes: so2(cen) })),
   ];
 }
 export type IdAutomatico = `cm-automatico-${Exclude<CenarioAk, 'inicial'>}`;
