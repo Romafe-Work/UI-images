@@ -29,7 +29,7 @@ const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').match
 const CHAVE = 'erp:espaco', CHAVE_PALETA = 'erp:paleta-recentes';
 let pg: HTMLElement | null = null, dk: HTMLElement | null = null;
 let e: Estado = novoEstado();
-let normal = false, restaurou = false, aviso = 0;
+let normal = false, aviso = 0;
 const frames = new Map<string, HTMLIFrameElement>();
 
 /** O explorador da versão à vista (a V6 tem o seu; a v4 fica igual). */
@@ -437,7 +437,7 @@ function ler(): Estado {
     if (!g) return base;
     const seps = (g.seps ?? []).filter((s: { rota: string }) => { if (base.v6 && s.rota.startsWith('pasta:')) return MENU_ERP.some((m) => m.id === s.rota.slice(6) && m.ativo); const l = MENU_ERP.find((x) => x.rota === s.rota); return ROTAS[s.rota] && (!l || l.permissoes === '*' || l.permissoes.includes(base.perfil)); });
     const est = { ...base, seps, ativo: seps.some((s: { id: string }) => s.id === g.ativo) ? g.ativo : g.semCasa && seps.length ? seps[0].id : 'inicio', fixados: (g.fixados ?? base.fixados).filter((r: string) => ROTAS[r]), arvore: g.arvore ?? base.arvore, vista: 'grelha' as const, largura: g.largura ?? base.largura, rail: !!g.rail, trabalho: g.trabalho ?? base.trabalho, casa: g.casa ?? 0, semCasa: !!g.semCasa && seps.length > 0, historico: Array.isArray(g.historico) ? g.historico.filter((h: { rota: string }) => ROTAS[h.rota]) : [], presos: (g.presos ?? []).filter((i: string) => i === 'inicio' || seps.some((s: { id: string }) => s.id === i)) };
-    if (seps.length && !restaurou) { est.banner = 'restaurada'; est.bannerTexto = `Recuperámos a tua área de trabalho: ${seps.length} ${seps.length === 1 ? 'separador' : 'separadores'}. Os rascunhos por guardar não se recuperam.`; }
+    /* 23 out.: ela tirou o aviso «Recuperámos a tua área de trabalho…» — os separadores voltam, sem aviso */
     return est;
   } catch { return base; }
 }
@@ -447,7 +447,7 @@ function armar(): void {
   pg = p; dk = p?.querySelector<HTMLElement>('[data-dk]') ?? null; frames.clear();
   if (!p || !dk) return;
   normal = dk.dataset.dkCenario === 'normal' && !p.hasAttribute('data-sh-abertura') && !editando();
-  e = ler(); restaurou = true;
+  e = ler();
   /* o endereço: #…&abrir=<rota> abre um separador; #…&pasta=<módulo> abre a pasta (ou diz que não existe) */
   const h = new URLSearchParams(location.hash.slice(1));
   if (normal && h.get('abrir')) abrirRota(h.get('abrir')!);
