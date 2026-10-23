@@ -86,7 +86,14 @@ function cartoes(e: Estado): string {
   return `<ul class="dk7-cartoes" aria-label="Atalhos">${casa(e).map((l, i) => { const r = l.rota!, fav = e.fixados.includes(r); return `<li class="dk7-cartao-c" style="--i:${i}">
     <button type="button" class="dk-cartao dk7-cartao" data-dk-atalho="${r}" aria-keyshortcuts="Alt+${i + 1}" title="Abrir ${esc(l.rotulo)} (Alt ${i + 1})">${icone(l.icone, 'dk-cartao-ic')}<b>${esc(l.curto ?? l.rotulo)}</b><small>${codigo(r)}</small><kbd>Alt+${i + 1}</kbd>${e.vivo ? `<span class="dk8-seta" aria-hidden="true">${L(arrowRight)}</span>` : ''}</button>
     <button type="button" class="dk7-fav${fav ? ' is-fav' : ''}" data-dk7-fav="${r}" aria-pressed="${fav}" aria-label="${fav ? 'Tirar dos favoritos' : 'Pôr nos favoritos'}: ${esc(l.curto ?? l.rotulo)}" title="${fav ? 'Tirar dos favoritos' : 'Pôr nos favoritos'}">${L(star)}</button>
-  </li>`; }).join('')}</ul>`;
+  </li>`; }).join('')}${pastaCasa(e)}</ul>`;
+}
+/** 23 out. (ela: «aqui coloca um de compras»): a pasta Compras, a seguir aos seis cartões; abre o módulo num separador. */
+export const temPastaCasa = (e: Estado) => !e.semModulos && MENU_ERP.some((m) => m.id === 'compras' && !m.pai && m.ativo && (m.permissoes === '*' || m.permissoes.includes(e.perfil)));
+function pastaCasa(e: Estado): string {
+  if (!temPastaCasa(e)) return '';
+  const k = casa(e).length + 1;
+  return `<li class="dk7-cartao-c dk7-cartao-c--pasta" style="--i:${k - 1}"><button type="button" class="dk-cartao dk7-cartao dk7-cartao--pasta" ${e.vivo ? 'data-dk8-pasta="compras"' : 'data-dk-pasta-abrir="compras"'} aria-keyshortcuts="Alt+${k}" title="Abrir a pasta Compras (Alt ${k})">${L(folderOpen, 'dk-cartao-ic')}<b>Compras</b><small>MÓDULO</small><kbd>Alt+${k}</kbd>${e.vivo ? `<span class="dk8-seta" aria-hidden="true">${L(arrowRight)}</span>` : ''}</button></li>`;
 }
 /** Requer atenção: só o que tem número; sem nada, a linha não aparece. */
 function atencao(e: Estado): string {

@@ -18,7 +18,7 @@ import {
   type Estado, type Acao, type Janela,
 } from '../espaco';
 import { exploradorV6, menuV6 } from '../espaco-v6';
-import { ladoLat, exploradorLat, acoesLat, ecrasCasaLat } from '../espaco-lateral';
+import { ladoLat, exploradorLat, acoesLat, ecrasCasaLat, temPastaCasa } from '../espaco-lateral';
 import * as vivo from './vivo';
 import { FORNECEDORES, ARTIGOS, encomendas } from '../compras/dominio';
 import { irIdentidade } from './abertura-v4';
@@ -406,7 +406,9 @@ function teclas(ev: KeyboardEvent): void {
   if (e.v6 && ev.key === 'F1') { ev.preventDefault(); ev.stopImmediatePropagation(); e.dialogo = 'atalhos'; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
   if (e.lat && ev.key === 'F10') { ev.preventDefault(); ev.stopImmediatePropagation(); fecharMenus(); $<HTMLElement>('.dk7-lado .dk7-i.is-ativo, .dk7-lado .dk7-i')?.focus(); return; }
   if (e.v6 && ev.key === 'F10') { ev.preventDefault(); ev.stopImmediatePropagation(); fecharMenus(); $<HTMLElement>('.dk6-m-b')?.focus(); return; }
-  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const r = daCasa(e)[Number(ev.code.slice(5)) - 1]; if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
+  if (ev.altKey && !ev.ctrlKey && !ev.metaKey && /^Digit[1-9]$/.test(ev.code)) { const i = Number(ev.code.slice(5)) - 1, r = daCasa(e)[i];
+    if (!r && e.lat && i === daCasa(e).length && temPastaCasa(e)) { ev.preventDefault(); ev.stopImmediatePropagation(); const b = $<HTMLElement>('.dk7-cartao--pasta'); vivo.marcar(b); abrirPasta('compras'); return; }
+    if (r) { ev.preventDefault(); ev.stopImmediatePropagation(); abrirRota(r); } return; }
   /* atalhos para fixar (22 out.): Ctrl D no acesso rápido, Alt P o separador; Alt W fecha o separador */
   const k = ev.key.toLowerCase();
   if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && k === 'd') {

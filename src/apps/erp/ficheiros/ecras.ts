@@ -39,17 +39,19 @@ const UNIDADES: Record<string, [string, number]> = { 'un.': ['Unidade', 0], jogo
 const fornNome = (id: string) => FORNECEDORES.find((f) => f.id === id)?.nome ?? id;
 const n = (k: number) => k.toLocaleString('pt-PT');
 
-type Col = { k: string; t: string; num?: boolean; mono?: boolean };
-type Linha = { v: Record<string, string>; ord: Record<string, string | number>; det: string };
-interface Tabela { id: IdFicheiros; num: string; titulo: string; ic: string; um: string; varios: string; procura: string; nota: string; cols: Col[]; linhas: () => Linha[] }
+export type Col = { k: string; t: string; num?: boolean; mono?: boolean };
+/** Uma linha: os valores à vista, os de ordenar (números) e o detalhe (sem ele, sai das colunas). */
+export type Linha = { v: Record<string, string>; ord: Record<string, string | number>; det?: string };
+/** Uma tabela de consulta (Ficheiros e, desde 23 out., os ecrãs do menu Compras): caminho = o grupo no cabeçalho. */
+export interface Tabela { id: string; num: string; titulo: string; ic: string; um: string; varios: string; procura: string; nota: string; cols: Col[]; linhas: () => Linha[]; caminho?: string; vazio?: [string, string] }
 
 /** As janelas de contexto (só dentro de um separador do Início v2, que as abre a partir do botão). */
 const janelas = (bs: [string, string, string][]) => `<div class="fx-jans">${bs.map(([alvo, ic, t]) => `<button type="button" class="fx-jan-b" data-dk-janela="${esc(alvo)}">${L(ic)}<span>${esc(t)}</span></button>`).join('')}</div>`;
 /** O detalhe: as fichas em pares rótulo/valor e, quando há, os artigos que lhe pertencem. */
-const det = (titulo: string, pares: [string, string][], artigos?: string[], extra = '') => `<p class="fx-conta" data-fx-conta></p><h2>${esc(titulo)}</h2>
+export const det = (titulo: string, pares: [string, string][], artigos?: string[], extra = '', rotuloLista = 'Artigos') => `<p class="fx-conta" data-fx-conta></p><h2>${esc(titulo)}</h2>
   <dl>${pares.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
   ${extra}
-  ${artigos ? `<h3>Artigos <span>${artigos.length}</span></h3><ul>${artigos.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}`;
+  ${artigos ? `<h3>${esc(rotuloLista)} <span>${artigos.length}</span></h3><ul>${artigos.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}`;
 const artigosDe = (f: (a: typeof ARTIGOS[number]) => boolean) => ARTIGOS.filter(f).map((a) => `${a.ref} · ${a.desc}`);
 
 const TABELAS: Tabela[] = [
@@ -90,12 +92,12 @@ const TABELAS: Tabela[] = [
 ];
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-function pagina(t: Tabela): string {
-  const ls = t.linhas();
+export function paginaTabela(t: Tabela): string {
+  const ls = t.linhas().map((l) => ({ ...l, det: l.det ?? det(l.v[t.cols[0].k], t.cols.slice(1).map((c): [string, string] => [c.t, l.v[c.k]])) }));
   const th = t.cols.map((c, i) => `<th scope="col"${c.num ? ' class="is-num"' : ''} aria-sort="${i === 0 ? 'ascending' : 'none'}"><button type="button" data-fx-ord="${c.k}">${esc(c.t)}${L(arrowUpDown)}</button></th>`).join('');
   const tr = ls.map((l, i) => `<tr tabindex="${i === 0 ? 0 : -1}" aria-selected="${i === 0}" data-fx-i="${i}" data-fx-texto="${esc(norm(Object.values(l.v).join(' ')))}" ${t.cols.map((c) => `data-fx-v-${c.k}="${esc(String(l.ord[c.k] ?? norm(l.v[c.k])))}"`).join(' ')}>${t.cols.map((c) => `<td${c.num ? ' class="is-num"' : c.mono ? ' class="is-mono"' : ''}>${esc(l.v[c.k])}</td>`).join('')}</tr>`).join('');
   return `<div class="hm fx" data-hm data-fx>
-  ${topoErp([['ERP', 'inicio'], ['Ficheiros', ''], [t.titulo, '']])}
+  ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [t.titulo, '']])}
   <header class="fx-cab">
     <span class="fx-ic">${icone(t.ic)}</span>
     <div><h1>${esc(t.titulo)}</h1><p class="fx-sub"><b data-fx-n>${ls.length}</b> <span data-fx-um="${esc(t.um)}" data-fx-varios="${esc(t.varios)}">${ls.length === 1 ? t.um : t.varios}</span> · ${esc(t.nota)}</p></div>
@@ -103,10 +105,11 @@ function pagina(t: Tabela): string {
   </header>
   <div class="fx-corpo">
     <div class="fx-caixa">
-      <table class="fx-tab" aria-label="${esc(t.titulo)}"><thead><tr>${th}</tr></thead><tbody data-fx-linhas>${tr}</tbody></table>
+      ${!ls.length && t.vazio ? `<div class="fx-nada fx-nada--vazio"><p><b>${esc(t.vazio[0])}</b>${esc(t.vazio[1])}</p></div>` : ''}
+      <table class="fx-tab" aria-label="${esc(t.titulo)}"${ls.length ? '' : ' hidden'}><thead><tr>${th}</tr></thead><tbody data-fx-linhas>${tr}</tbody></table>
       <div class="fx-nada" data-fx-nada hidden>${L(searchX)}<p><b>Nada para «<span data-fx-nada-q></span>».</b>Procura em ${esc(t.procura.toLowerCase())}.</p><button type="button" class="fx-btn" data-fx-limpar>${L(x)}<span>Limpar a procura</span></button></div>
     </div>
-    <aside class="fx-det" data-fx-det aria-live="polite" aria-label="Detalhe">${ls[0]?.det ?? `<p class="fx-vazio">${L(mousePointerClick)}Escolhe uma linha.</p>`}</aside>
+    <aside class="fx-det" data-fx-det aria-live="polite" aria-label="Detalhe">${ls[0]?.det ?? `<p class="fx-vazio">${L(mousePointerClick)}${ls.length ? 'Escolhe uma linha.' : 'Nada para mostrar.'}</p>`}</aside>
     ${ls.map((l, i) => `<template data-fx-det-i="${i}">${l.det}</template>`).join('')}
   </div>
   <p class="hm-aviso" data-hm-aviso role="status" aria-live="polite"></p>
@@ -116,5 +119,5 @@ function pagina(t: Tabela): string {
 const NOTA = 'Consulta (23 out., para os atalhos do Início v6 não serem botões falsos): procurar, ordenar, escolher a linha e ver o detalhe; Enter na procura passa à primeira linha. Criar e editar fichas ainda não existe.';
 export const DESCRICAO_FICHEIROS = 'Os dados mestres que os atalhos do Início abrem: artigos, armazéns, famílias, marcas e unidades de medida. Só consulta; abrem num separador da área de trabalho.';
 export function ecrasFicheiros(): Ecra<IdErp>[] {
-  return TABELAS.map((t) => ({ id: t.id, nome: `${t.num} · ${t.titulo}`, fluxo: 'Ficheiros', objetivo: `${t.titulo}: procurar, ordenar e ver o detalhe de cada linha. ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: pagina(t) }] }));
+  return TABELAS.map((t) => ({ id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Ficheiros', objetivo: `${t.titulo}: procurar, ordenar e ver o detalhe de cada linha. ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] }) as Ecra<IdErp>);
 }

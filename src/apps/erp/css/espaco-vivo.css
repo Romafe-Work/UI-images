@@ -76,7 +76,7 @@
 .dk8-fundo { position: absolute; z-index: -1; right: -70px; bottom: -90px; width: min(560px, 44%); height: auto; color: var(--k-traco); opacity: .1; pointer-events: none; }
 [data-theme="dark"] .dk8-fundo { opacity: .13; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dk8-fundo { opacity: .13; } }
-.dk8 .dk7-cartoes { grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 14px; padding-top: 8px; }
+.dk8 .dk7-cartoes { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 12px; padding-top: 8px; }
 .dk8 .dk7-cartao-c { animation: dk8-cartao .32s var(--m-curva) calc(var(--i) * 35ms) both; }
 @keyframes dk8-cartao { from { opacity: 0; transform: translateY(10px); } }
 /* a aba da pasta, por cima do cartão */
@@ -127,3 +127,6 @@
 .dk8:not(.is-rail) { --lado: 268px; }
 .dk8:not(.is-rail) .dk7-i { height: auto; min-height: 34px; padding-top: 6px; padding-bottom: 6px; }
 .dk8:not(.is-rail) .dk7-i span { white-space: normal; line-height: 1.3; overflow: visible; text-overflow: clip; }
+/* a pasta Compras na casa: o cartão com a aba laranja, para se ver que é um módulo e não um ecrã */
+.dk8 .dk7-cartao-c--pasta::before { border-color: var(--k-laranja); background: color-mix(in srgb, var(--k-laranja) 14%, var(--k-sup)); }
+.dk8 .dk7-cartao--pasta small { color: var(--k-laranja); font-weight: 700; }

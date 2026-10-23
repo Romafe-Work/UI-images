@@ -21,6 +21,7 @@
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
 import type { IdErp } from './ids';
+import { MENU_ANTIGO } from './compras/menu-antigo-ids';
 import { topoErp, numerosDoDia } from './inicio-v2';
 import { PERFIS, RECENTES, type IdPerfil } from './inicio-dados';
 import { FORNECEDORES, ARTIGOS, encomendas, stock } from './compras/dominio';
@@ -170,6 +171,12 @@ export const ROTAS: Record<string, Rota> = {
   'compras.cotacao': { ecra: 'compras-cotacao', titulo: 'Cotação', icone: 'scale', acoes: ['atualizar', 'imprimir'] },
   'compras.rececao': { ecra: 'compras-rececao', titulo: 'Receção', icone: 'package-check', acoes: ['atualizar', 'imprimir'] },
 };
+/* 23 out. (ela: «no figma coloca tudo available»): cada item do menu Compras do ERP antigo abre um ecrã (compras/menu-antigo.ts) */
+MENU_ANTIGO.forEach((id) => {
+  const l = MENU_ERP.find((x) => x.id === id); if (!l) return;
+  const rota = l.rota ?? `compras.${id}`; l.rota = rota;
+  ROTAS[rota] = { ecra: `cm-${id}`, titulo: l.rotulo, icone: l.icone || 'chart-bar', acoes: ['atualizar', 'imprimir'] };
+});
 export const rotaDoEcra = (ecra: string) => Object.keys(ROTAS).find((k) => ROTAS[k].ecra === ecra);
 const pode = (l: LinhaMenu, p: IdPerfil) => l.permissoes === '*' || l.permissoes.includes(p);
 /** Os módulos do perfil, pela ordem da base; os inativos vêm marcados (referência), não como se funcionassem. */
