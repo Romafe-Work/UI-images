@@ -119,8 +119,10 @@ function carregar(id: string, p: HTMLElement): void {
       /* v7: a página entra coordenada; as janelas de contexto pedidas lá dentro nascem do botão (posição medida) */
       if (vivo.ligado(pg)) {
         vivo.dentro(d, primeira);
-        if (primeira) d.querySelector<HTMLElement>('[data-fx-q]')?.focus({ preventScroll: true });
+        if (primeira) d.querySelector<HTMLElement>('.ecra:not([hidden]) :is([data-fx-q], [data-ak-primeiro])')?.focus({ preventScroll: true });
         d.addEventListener('click', (ev) => {
+          const doc = (ev.target as HTMLElement).closest<HTMLElement>('[data-dk-doc]');
+          if (doc) { vivo.marcar(null, (() => { const fr = f.getBoundingClientRect(), r = doc.getBoundingClientRect(); return new DOMRect(fr.left + r.left, fr.top + r.top, r.width, r.height); })()); abrirRota(doc.dataset.dkDoc!, doc.dataset.dkTitulo); return; }
           const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-dk-janela]'); if (!b) return;
           const fr = f.getBoundingClientRect(), r = b.getBoundingClientRect();
           vivo.marcar(b, new DOMRect(fr.left + r.left, fr.top + r.top, r.width, r.height));
@@ -131,7 +133,8 @@ function carregar(id: string, p: HTMLElement): void {
       /* alterações por guardar: qualquer escrita num formulário marca o separador */
       d.addEventListener('input', (ev) => { const t = ev.target as HTMLElement; if (t.closest('form, .cp, [data-cp], .lf-filtros') && !t.closest('.lf-filtros, [type="search"]')) { const x = e.seps.find((y) => y.id === id); if (x && !x.sujo) { x.sujo = true; desenhar({ exp: false }); } } }, true);
       /* as teclas da área de trabalho também funcionam dentro do separador */
-      w.addEventListener('keydown', (ev) => teclas(ev), true);
+      /* as teclas que a página declara como suas (data-teclas, ex.: F2 F3 F4 F10) ficam para ela */
+      w.addEventListener('keydown', (ev) => { if (d.querySelector(`.ecra:not([hidden]) [data-teclas~="${ev.key}"]`)) return; teclas(ev); }, true);
     } catch { /* outra origem: sem ganchos */ }
   });
   p.appendChild(f); frames.set(id, f);

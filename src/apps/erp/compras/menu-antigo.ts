@@ -13,6 +13,7 @@ import { paginaTabela, familiaDe, det, type Tabela, type Linha, type Col } from 
 import { encomendas, rececoes, FORNECEDORES, ARTIGOS, linhaLiquida, totais, euros, dia, atrasada, pendente, diasAtraso, HOJE, type Encomenda } from './dominio';
 import { faltas } from './faltas';
 import { MENU_ANTIGO } from './menu-antigo-ids';
+import { ecrasAutomatico } from './automatico';
 
 const n = (k: number) => k.toLocaleString('pt-PT');
 const eur = (c: number | null) => (c === null ? '—' : euros(c));
@@ -138,8 +139,10 @@ comparativo('comp-forn', (e) => fNome(e.forn), 'Fornecedor');
 const NOTA = 'Do menu Compras do ERP antigo (23 out., ela: «no figma coloca tudo available»): consulta com os números das encomendas e das receções do protótipo; o que ainda não existe diz-se na nota.';
 export const DESCRICAO_MENU_ANTIGO = 'Os itens do menu Compras do ERP antigo (agendamento, guias, faturas, créditos, verificação e os mapas), cada um num ecrã de consulta.';
 export function ecrasMenuAntigo(): Ecra<IdErp>[] {
-  return MENU_ANTIGO.map((id, i) => {
+  return MENU_ANTIGO.flatMap((id, i): Ecra<IdErp>[] => {
+    /* Artigos/Compras Automático tem ecrã próprio (o briefing de 23 out.) */
+    if (id === 'mapas-automatico') return ecrasAutomatico(String(40 + i));
     const t: Tabela = { ...D[id], id: `cm-${id}`, num: String(40 + i), caminho: 'Compras' };
-    return { id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] };
+    return [{ id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] }];
   });
 }

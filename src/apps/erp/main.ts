@@ -18,6 +18,7 @@ import './css/espaco-v6.css';
 import './css/espaco-lateral.css';
 import './css/espaco-vivo.css';
 import './css/ficheiros.css';
+import './css/automatico.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
@@ -36,5 +37,6 @@ import { iniciar as espaco } from './comportamento/espaco';
 import { iniciar as inicio2 } from './comportamento/inicio-v2';
 import { iniciar as faltas } from './compras/faltas-comportamento';
 import { iniciar as ficheiros } from './ficheiros/comportamento';
+import { iniciar as automatico } from './compras/automatico-comportamento';
 
-montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, moldura, espaco, inicio, compras, compras2, ficheiros]);
+montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, moldura, espaco, inicio, compras, compras2, ficheiros, automatico]);

@@ -177,6 +177,8 @@ MENU_ANTIGO.forEach((id) => {
   const rota = l.rota ?? `compras.${id}`; l.rota = rota;
   ROTAS[rota] = { ecra: `cm-${id}`, titulo: l.rotulo, icone: l.icone || 'chart-bar', acoes: ['atualizar', 'imprimir'] };
 });
+/* o separador de Artigos/Compras Automático chama-se «Artigos / Compras» (o briefing) */
+ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
 export const rotaDoEcra = (ecra: string) => Object.keys(ROTAS).find((k) => ROTAS[k].ecra === ecra);
 const pode = (l: LinhaMenu, p: IdPerfil) => l.permissoes === '*' || l.permissoes.includes(p);
 /** Os módulos do perfil, pela ordem da base; os inativos vêm marcados (referência), não como se funcionassem. */
