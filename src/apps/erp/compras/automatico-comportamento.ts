@@ -10,7 +10,7 @@
      - Critérios: Enter passa ao campo seguinte (Shift+Enter ao anterior); no último vai a Gerar dados — nunca gera
        sozinho. Esc fecha o que estiver aberto (menu, detalhe, filtros) e nunca apaga os resultados.
      - Excel (F4): um .xlsx com as linhas que passam nos filtros (ou só as escolhidas) e as colunas à vista.
-     - Guarda-se neste computador só a vista (colunas, larguras, ordem, grupos, densidade) — nunca os dados.
+     - Guarda-se neste computador só a vista (ordem e larguras das colunas, grupos) — nunca os dados.
    ========================================================= */
 import { gerar, CRIT0, COLS, type Crit, type LinhaAk, type ColAk, type CenarioAk } from './automatico';
 import { xlsx, descarregar, type Celula } from './xlsx';
@@ -56,7 +56,7 @@ const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCa
 function lerVista(): Partial<Est> {
   try { const g = JSON.parse(localStorage.getItem(CHAVE) ?? 'null'); if (!g) return {};
     const ok = (k: string) => COLS.some((c) => c.k === k);
-    return { cols: [...(g.cols ?? []).filter(ok), ...COLS.map((c) => c.k).filter((k) => !(g.cols ?? []).includes(k))], ocultas: new Set((g.ocultas ?? []).filter(ok)), larguras: g.larguras ?? {}, densidade: g.densidade === 'normal' ? 'normal' : 'compacta', grupos: (g.grupos ?? []).filter(ok), ordem: (g.ordem ?? []).filter((o: Ordem) => ok(o.k as string)) };
+    return { cols: [...(g.cols ?? []).filter(ok), ...COLS.map((c) => c.k).filter((k) => !(g.cols ?? []).includes(k))], larguras: g.larguras ?? {}, grupos: (g.grupos ?? []).filter(ok), ordem: (g.ordem ?? []).filter((o: Ordem) => ok(o.k as string)) };
   } catch { return {}; }
 }
 function guardarVista(r: HTMLElement, e: Est): void {
@@ -138,7 +138,7 @@ function grupos(r: HTMLElement, e: Est): void {
     <label class="ak-agrupar-tecla"><span class="sr">Agrupar por</span><select data-ak-agrupar aria-label="Agrupar por (teclado)"><option value="">Agrupar por…</option>${COLS.filter((c) => !e.grupos.includes(c.k) && c.tipo !== 'eur').map((c) => `<option value="${c.k}">${esc(c.t)}</option>`).join('')}</select></label>`;
 }
 function colunasMenu(r: HTMLElement, e: Est): void {
-  const m = r.querySelector<HTMLElement>('[data-ak-menu="colunas"]')!;
+  const m = r.querySelector<HTMLElement>('[data-ak-menu="colunas"]'); if (!m) return;
   m.innerHTML = `<p class="ak-menu-t">Colunas à vista</p>${e.cols.map((k, i) => `<div class="ak-col-i"><label><input type="checkbox" data-ak-ver="${k}"${e.ocultas.has(k) ? '' : ' checked'}>${esc(colDe(k).t)}</label><button type="button" data-ak-mover="${k}:-1" aria-label="Subir ${esc(colDe(k).t)}"${i ? '' : ' disabled'}>${L(arrowUp)}</button><button type="button" data-ak-mover="${k}:1" aria-label="Descer ${esc(colDe(k).t)}"${i < e.cols.length - 1 ? '' : ' disabled'}>${L(arrowDown)}</button></div>`).join('')}<button type="button" class="ak-btn" data-ak-acao="todas-colunas">Mostrar todas</button>`;
 }
 function estado(r: HTMLElement, e: Est): void {
@@ -153,7 +153,6 @@ function estado(r: HTMLElement, e: Est): void {
   r.querySelectorAll<HTMLButtonElement>('[data-ak-acao="exportar"], [data-ak-acao="filtrar"], [data-ak-acao="limpar"], [data-ak-acao="imprimir"]').forEach((b) => { b.disabled = !e.linhas || !e.linhas.length; });
   r.querySelectorAll<HTMLButtonElement>('[data-ak-acao="gerar"]').forEach((b) => { b.disabled = e.fase === 'a-gerar'; b.classList.toggle('is-carregar', e.fase === 'a-gerar'); });
   r.querySelector('[data-ak-acao="filtrar"]')?.setAttribute('aria-pressed', String(e.filtrosAbertos));
-  r.querySelectorAll<HTMLElement>('[data-ak-densidade]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.akDensidade === e.densidade)));
 }
 function detalhe(r: HTMLElement, e: Est, entrar = false): void {
   const d = r.querySelector<HTMLElement>('[data-ak-det]')!, l = e.linhas?.find((x) => x.ref === e.ativo);
@@ -263,7 +262,6 @@ function armar(r: HTMLElement): void {
   if (cen === 'agrupado') e.grupos = ['forn'];
   if (cen === 'detalhe') { e.det = true; e.ativo = e.linhas.find((l) => l.hist.length)?.ref ?? e.ativo; e.sel = new Set([e.ativo]); }
   if (cen === 'filtros') { e.filtrosAbertos = true; e.filtros = { desc: 'amortecedor' }; }
-  if (cen === 'sem-colunas') e.ocultas = new Set(COLS.map((x) => x.k));
   if (cen === 'exportado') e.aviso = `Exportado: Artigos-Compras-${new Date().toISOString().slice(0, 10)}.xlsx · ${n(e.linhas.length)} artigos (todos os resultados).`;
   tudo(r, e);
 }
@@ -302,7 +300,6 @@ export function iniciar(): void {
       return;
     }
     if ((b = t.closest('[data-ak-exportar]'))) { fecharMenus(r); exportar(r, e, b.dataset.akExportar as 'todos' | 'escolhidos'); r.querySelector<HTMLElement>('[data-ak-acao="exportar"]')?.focus(); return; }
-    if ((b = t.closest('[data-ak-densidade]'))) { e.densidade = b.dataset.akDensidade as Est['densidade']; grelha(r, e); guardarVista(r, e); return; }
     if ((b = t.closest('[data-ak-mover]'))) { const [k, d] = b.dataset.akMover!.split(':'), i = e.cols.indexOf(k as keyof LinhaAk), j = i + Number(d); if (j < 0 || j >= e.cols.length) return; e.cols.splice(j, 0, ...e.cols.splice(i, 1)); grelha(r, e); colunasMenu(r, e); guardarVista(r, e); r.querySelector<HTMLElement>(`[data-ak-mover="${k}:${d}"]`)?.focus(); return; }
     if ((b = t.closest('[data-ak-tirar-grupo]'))) { e.grupos = e.grupos.filter((k) => k !== b!.dataset.akTirarGrupo); e.fechados.clear(); tudo(r, e, true); guardarVista(r, e); return; }
     if ((b = t.closest('[data-ak-ordenar]'))) {

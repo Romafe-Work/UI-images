@@ -3,7 +3,7 @@
    Workspace with Full Keyboard Support») e do ecrã do ERP antigo (a grelha com «Arraste para aqui o cabeçalho de uma
    coluna…» e os critérios).
    Um ecrã de trabalho, de cima para baixo: título e uma linha · a barra (Filtrar F2, Limpar filtros F3, Excel F4,
-   Gerar dados F10, Colunas, Densidade) · os critérios (Armazém, Fornecedor, Família, Subfamília, Período,
+   Gerar dados F10, Imprimir F12) · os critérios (Armazém, Fornecedor, Família, Subfamília, Período,
    Artigo/Referência, Tipo de análise; mais: Marca e Stock) · a zona de agrupar · a grelha (cabeçalho preso, ordenar,
    filtrar por coluna, mostrar/esconder, reordenar e alargar colunas, agrupar em vários níveis, escolher várias
    linhas) · o detalhe do artigo à direita · a barra de estado.
@@ -23,8 +23,6 @@ import funnel from 'lucide-static/icons/funnel.svg?raw';
 import funnelX from 'lucide-static/icons/funnel-x.svg?raw';
 import sheet from 'lucide-static/icons/file-spreadsheet.svg?raw';
 import play from 'lucide-static/icons/play.svg?raw';
-import columns3 from 'lucide-static/icons/columns-3.svg?raw';
-import rows3 from 'lucide-static/icons/rows-3.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
 import chartBar from 'lucide-static/icons/chart-bar.svg?raw';
 import printer from 'lucide-static/icons/printer.svg?raw';
@@ -69,7 +67,7 @@ export function gerar(c: Crit): LinhaAk[] {
 }
 
 /* ---------- a página ---------- */
-export type CenarioAk = 'inicial' | 'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'sem-colunas' | 'detalhe' | 'exportado';
+export type CenarioAk = 'inicial' | 'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'detalhe' | 'exportado';
 const op = (v: string, t: string, sel = false) => `<option value="${esc(v)}"${sel ? ' selected' : ''}>${esc(t)}</option>`;
 const uniq = (xs: string[]) => [...new Set(xs)].sort((a, b) => a.localeCompare(b, 'pt'));
 const B = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-ak-acao="${k}"${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
@@ -95,10 +93,6 @@ function html(cen: CenarioAk): string {
       </div></span>
     <i class="ak-sep" aria-hidden="true"></i>
     ${B('imprimir', printer, 'Imprimir', 'F12')}
-    <span class="ak-esp"></span>
-    <span class="ak-menu-c">${B('colunas', columns3, 'Colunas', '', ' aria-haspopup="menu" aria-expanded="false"')}
-      <div class="ak-menu ak-menu--colunas ak-menu--dir" role="menu" data-ak-menu="colunas" hidden></div></span>
-    <div class="ak-seg" role="group" aria-label="Densidade">${L(rows3)}<button type="button" data-ak-densidade="compacta" aria-pressed="true">Compacta</button><button type="button" data-ak-densidade="normal" aria-pressed="false">Normal</button></div>
   </div>
 
   <form class="ak-crit" data-ak-crit aria-labelledby="${id('crit-t')}" novalidate>
@@ -147,7 +141,6 @@ const ESTADOS: [Exclude<CenarioAk, 'inicial'>, string, string][] = [
   ['vazio', '67.5 · Sem resultados', 'Os critérios não deixam nenhum artigo: «Alterar critérios» volta ao primeiro campo.'],
   ['filtros', '67.6 · Filtros da tabela sem resultados', 'Os filtros da tabela (F2) não deixam nenhuma linha; F3 tira-os sem tocar nos critérios.'],
   ['erro', '67.7 · Erro', 'Não foi possível gerar a análise: «Tentar outra vez»; os resultados anteriores ficam.'],
-  ['sem-colunas', '67.8 · Sem colunas à vista', 'Todas as colunas escondidas: diz-se, e «Mostrar todas».'],
   ['exportado', '67.9 · Exportado', 'O Excel foi gerado: o nome do ficheiro e o que levou, na barra de estado.'],
 ];
 export function ecrasAutomatico(num: string): Ecra<IdErp>[] {

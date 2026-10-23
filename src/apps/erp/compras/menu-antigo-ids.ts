@@ -11,4 +11,4 @@ export const MENU_ANTIGO = [
   'comp-geral', 'comp-geral-var', 'comp-artigo', 'comp-artigo-var', 'comp-familia', 'comp-familia-var', 'comp-forn', 'comp-forn-var',
   'mapas-analise-forn', 'mapas-automatico',
 ] as const;
-export type IdMenuAntigo = `cm-${typeof MENU_ANTIGO[number]}` | `cm-automatico-${'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'sem-colunas' | 'detalhe' | 'exportado'}`;
+export type IdMenuAntigo = `cm-${typeof MENU_ANTIGO[number]}` | `cm-automatico-${'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'detalhe' | 'exportado'}`;

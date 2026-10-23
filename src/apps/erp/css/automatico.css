@@ -24,8 +24,7 @@
 .ak-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--h-azul) 8%, transparent); }
 .ak-btn:active:not(:disabled) { transform: scale(.96); }
 .ak-btn:disabled { opacity: .42; cursor: default; }
-.ak-btn:focus-visible, .ak-seg button:focus-visible, .ak :is(input, select):focus-visible, .ak-chip:focus-visible, .ak-tab tbody tr:focus-visible, .ak-tab th button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
-.ak-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--h-azul) 12%, transparent); border-color: color-mix(in srgb, var(--h-azul) 35%, transparent); }
+.ak-btn:focus-visible, .ak-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--h-azul) 12%, transparent); border-color: color-mix(in srgb, var(--h-azul) 35%, transparent); }
 .ak-btn--acao { border-color: var(--h-laranja); background: var(--h-laranja); color: #fff; }
 .ak-btn--acao svg { color: #fff; }
 .ak-btn--acao kbd { border-color: rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .16); color: #fff; }
@@ -33,11 +32,6 @@
 .ak-btn.is-carregar svg { animation: ak-roda .8s linear infinite; }
 @keyframes ak-roda { to { transform: rotate(360deg); } }
 .ak-sep { width: 1px; height: 22px; margin: 0 4px; background: var(--h-borda); }
-.ak-esp { flex: 1; }
-.ak-seg { display: inline-flex; align-items: center; gap: 2px; height: 32px; padding: 0 3px 0 8px; border: 1px solid var(--h-borda); border-radius: 7px; }
-.ak-seg svg { color: rgb(0, 99, 170); margin-right: 3px; }
-.ak-seg button { height: 24px; padding: 0 8px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-.ak-seg button[aria-pressed="true"] { background: color-mix(in srgb, var(--h-azul) 14%, transparent); color: var(--h-tinta); }
 .ak-menu-c { position: relative; }
 .ak-menu { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; min-width: 260px; padding: 6px; border: 1px solid var(--h-borda-forte); border-radius: 8px; background: var(--h-sup); box-shadow: 0 14px 34px rgba(16, 32, 48, .18); animation: ak-cair .16s cubic-bezier(.22, 1, .36, 1) both; }
 @keyframes ak-cair { from { opacity: 0; transform: translateY(-4px); } }
@@ -182,8 +176,7 @@
    Gerar dados (F10) e Cancelar (Esc) empilhados à direita dos critérios; os campos numa grelha de 4 colunas iguais,
    todos com a mesma altura; os critérios escondem-se e mostram-se (o ✕ do ecrã antigo) ---------- */
 .ak-barra { gap: 4px; min-height: 48px; }
-.ak-barra > .ak-btn, .ak-barra .ak-menu-c > .ak-btn, .ak-seg { height: 34px; }
-.ak-sep { height: 24px; margin: 0 6px; }
+.ak-barra > .ak-btn, .ak-barra .ak-menu-c > .ak-btn, .ak-sep { height: 24px; margin: 0 6px; }
 .ak-menu--dir { left: auto; right: 0; }
 .ak-crit { padding: 0; }
 .ak-crit-cab { display: flex; align-items: center; justify-content: space-between; height: 38px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--h-borda); }
