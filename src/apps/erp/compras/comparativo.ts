@@ -18,7 +18,7 @@ import type { Ecra } from '../../../comum/tipos';
 import type { IdErp } from '../ids';
 import { topoErp } from '../inicio-v2';
 import { L } from '../espaco';
-import { encomendas, FORNECEDORES, ARTIGOS, linhaLiquida, HOJE } from './dominio';
+import { encomendas, FORNECEDORES, ARTIGOS, linhaLiquida, HOJE, dia } from './dominio';
 import { familiaDe } from '../ficheiros/ecras';
 import { historico } from './historico';
 import funnel from 'lucide-static/icons/funnel.svg?raw';
@@ -39,6 +39,8 @@ import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import calendarRange from 'lucide-static/icons/calendar-range.svg?raw';
 import calendarDays from 'lucide-static/icons/calendar-days.svg?raw';
 import chartLine from 'lucide-static/icons/chart-line.svg?raw';
+import packageIc from 'lucide-static/icons/package.svg?raw';
+import folderTree from 'lucide-static/icons/folder-tree.svg?raw';
 
 /* ---------- os dados ---------- */
 export const ANO_ATUAL = Number(HOJE.slice(0, 4));
@@ -83,7 +85,7 @@ function tendencia(a: AnoCf, b: AnoCf): string {
 }
 
 /* ---------- as dimensões: o mesmo ecrã para Geral, Por artigo, Por família/subfamília e Por fornecedor ---------- */
-export type DimCf = 'geral' | 'artigo' | 'familia' | 'forn';
+export type DimCf = 'geral' | 'artigo' | 'familia' | 'forn' | 'analise';
 export interface ColDesc { k: string; t: string; tipo: 'txt' | 'mono'; w: number; agrupa?: boolean; fixa?: boolean }
 /** Uma linha de encomenda (de 2026 ou do histórico), a unidade de tudo o que se soma. */
 interface Fonte { enc: string; forn: string; data: string; ref: string; qtd: number; liq: number; arquivo: boolean }
@@ -96,6 +98,8 @@ export interface DimDef {
   filtros: FiltroCf[]; vistaM: 'linhas' | 'quadro';
   /** o gráfico da evolução por cima da grelha (o Geral) */
   grafico?: boolean;
+  /** a Análise de compras: um mapa por documento (sem anos nem variações), com quatro modos */
+  mapa?: boolean;
   chave: (f: Fonte) => string; campos: (id: string) => Record<string, string>; todas?: () => string[];
   /** o cabeçalho do detalhe: o que é, o nome e uma linha */
   cab: (l: LinhaCf) => [string, string, string]; janelas: (l: LinhaCf) => [string, string, string][];
@@ -132,7 +136,64 @@ export const DIMS: Record<DimCf, DimDef> = {
     chave: (f) => f.forn, todas: () => FORNECEDORES.map((f) => f.id),
     campos: (id) => { const f = FORNECEDORES.find((x) => x.id === id); return { num: numForn(id), nome: f?.nome ?? id, pais: f ? PAISES[f.nif.slice(0, 2)] ?? f.nif.slice(0, 2) : '—', cidade: f?.cidade ?? '—' }; },
     cab: (l) => [`Fornecedor · Nº ${l.c.num}`, l.c.nome, `${l.c.cidade}, ${l.c.pais} · ${l.c.tend}`], janelas: (l) => [[`fornecedor:${l.id}`, 'users', 'Ver fornecedor']] },
+  /* a Análise de compras (os quatro «Mapa de compras por …» do ERP antigo num ecrã): as colunas vêm do modo (MAPA_COLS) */
+  analise: { id: 'analise', base: 'cm-analise-artigo', pre: 'analise', titulo: 'Análise de Compras', sub: 'Consulta quantidades e valores de compras por artigo, fornecedor e família.', caminho: 'Análise de compras', ficheiro: 'analise-compras',
+    um: 'linha', varios: 'linhas', nenhum: 'nenhuma linha', mensal: false, filtros: [], vistaM: 'linhas', mapa: true, exemplo: '', grupoEx: 'forn', grupos0: [], ocultas0: ['data'],
+    descr: [], esconder: [['data', 'Data do documento'], ['conta', 'Conta'], ['codFam', 'Código da família'], ['codSub', 'Código da subfamília']],
+    chave: (f) => f.ref, campos: () => ({}),
+    cab: (l) => [`Documento · ${l.c.doc} · ${l.c.data}`, l.c.desc || l.c.sub || l.c.doc, [l.c.ref, l.c.fam, l.c.forn && `${l.c.forn} (conta ${l.c.conta})`].filter(Boolean).join(' · ')],
+    janelas: (l) => [...(l.c.ref ? [[`artigo:${l.c.ref}`, 'package', 'Ver artigo'] as [string, string, string]] : []), ...(l.c.fornId ? [[`fornecedor:${l.c.fornId}`, 'users', 'Ver fornecedor'] as [string, string, string]] : [])] },
 };
+
+/* ---------- a Análise de compras: quatro mapas, um ecrã ---------- */
+export type ModoMapa = 'artigo' | 'artigo-forn' | 'familia' | 'familia-forn';
+export const MODOS_MAPA: [ModoMapa, string, string][] = [
+  ['artigo', 'Artigo', 'Mapa de compras por artigo'], ['artigo-forn', 'Artigo / Fornecedor', 'Mapa de compras por artigo/fornecedor'],
+  ['familia', 'Família / Subfamília', 'Mapa de compras por família/subfamília'], ['familia-forn', 'Família / Subfamília / Fornecedor', 'Mapa de compras por família/subfamília/fornecedor'],
+];
+/** As colunas originais de cada mapa (Documento à frente, Quantidade e Líquido no fim). */
+export const MAPA_COLS: Record<ModoMapa, ColDesc[]> = (() => {
+  const doc: ColDesc = { k: 'doc', t: 'Documento', tipo: 'mono', w: 120, fixa: true, agrupa: true }, data: ColDesc = { k: 'data', t: 'Data', tipo: 'mono', w: 92 };
+  const forn: ColDesc = { k: 'forn', t: 'Fornecedor', tipo: 'txt', w: 170, agrupa: true }, conta: ColDesc = { k: 'conta', t: 'Conta', tipo: 'mono', w: 100 };
+  const ref: ColDesc = { k: 'ref', t: 'Nº artigo', tipo: 'mono', w: 130, agrupa: true }, desc: ColDesc = { k: 'desc', t: 'Descrição', tipo: 'txt', w: 230 };
+  const fam: ColDesc[] = [{ k: 'codFam', t: 'Cód. família', tipo: 'mono', w: 86 }, { k: 'fam', t: 'Família', tipo: 'txt', w: 160, agrupa: true }, { k: 'codSub', t: 'Cód. subfamília', tipo: 'mono', w: 100 }, { k: 'sub', t: 'Subfamília', tipo: 'txt', w: 230, agrupa: true }];
+  return { artigo: [doc, data, ref, desc], 'artigo-forn': [doc, data, forn, conta, ref, desc], familia: [doc, data, ...fam], 'familia-forn': [doc, data, forn, conta, ...fam] };
+})();
+/** Os grupos por omissão de cada mapa (a hierarquia: Família → Subfamília; Fornecedor → Família → Subfamília). */
+export const MAPA_GRUPOS: Record<ModoMapa, string[]> = { artigo: [], 'artigo-forn': ['forn'], familia: ['fam', 'sub'], 'familia-forn': ['forn', 'fam', 'sub'] };
+/** A conta do fornecedor (de exemplo, como no plano de contas: 2211 · Fornecedores c/c + o Nº) — não é o Nº do fornecedor. */
+export const contaForn = (id: string) => `2211${numForn(id)}`;
+/** Os intervalos do ERP antigo: de … a … (vazio = sem limite; os extremos contam). */
+export interface CritMapa { di: string; df: string; ai?: string; af?: string; fi?: string; ff?: string; gi?: string; gf?: string; si?: string; sf?: string }
+export function analisar(modo: ModoMapa, c: CritMapa): RelCf {
+  const dentro = (v: string, a?: string, b?: string, cmp = (x: string, y: string) => x.localeCompare(y, 'pt', { numeric: true, sensitivity: 'base' })) => (!a || cmp(v, a) >= 0) && (!b || cmp(v, b) <= 0);
+  const comForn = modo.endsWith('-forn'), porFam = modo.startsWith('familia');
+  const fs = fontes().filter((f) => {
+    if (f.data < c.di || f.data > c.df) return false;
+    const a = art(f.ref), fam = familiaDe(a?.desc ?? '');
+    if (modo === 'artigo' && !dentro(f.ref, c.ai, c.af)) return false;
+    if (comForn && !dentro(numForn(f.forn), c.fi, c.ff)) return false;
+    if (porFam && (!dentro(codFam(fam), c.gi, c.gf) || !dentro(codSub(fam, a?.desc ?? ''), c.si, c.sf))) return false;
+    return true;
+  });
+  /* uma linha por documento e por artigo (ou subfamília), como os mapas antigos */
+  const m = new Map<string, LinhaCf>();
+  fs.forEach((f) => {
+    const a = art(f.ref), fam = familiaDe(a?.desc ?? ''), sub = a?.desc ?? f.ref, k = `${f.enc}|${porFam ? codSub(fam, sub) : f.ref}`;
+    let l = m.get(k);
+    if (!l) {
+      const cc: Record<string, string> = { doc: f.enc, data: dia(f.data), dataIso: f.data };
+      if (comForn) Object.assign(cc, { forn: fNome(f.forn), conta: contaForn(f.forn), fornId: f.forn });
+      if (porFam) Object.assign(cc, { codFam: codFam(fam), fam, codSub: codSub(fam, sub), sub });
+      else Object.assign(cc, { ref: f.ref, desc: a?.desc ?? '—' });
+      l = { id: k, c: cc, anos: [{ qtd: 0, liq: 0, encs: [] }, { qtd: 0, liq: 0, encs: [] }, { qtd: 0, liq: 0, encs: [{ ref: f.enc, data: f.data, qtd: 0, liq: 0, arquivo: f.arquivo }] }] };
+      m.set(k, l);
+    }
+    l.anos[2].qtd += f.qtd; l.anos[2].liq += f.liq; l.anos[2].encs[0].qtd += f.qtd; l.anos[2].encs[0].liq += f.liq;
+  });
+  const linhas = [...m.values()].sort((p, q) => p.c.dataIso.localeCompare(q.c.dataIso) || p.c.doc.localeCompare(q.c.doc) || p.id.localeCompare(q.id));
+  return { anos: [Number(c.di.slice(0, 4)), Number(c.di.slice(0, 4)), Number(c.df.slice(0, 4))], semDados: [], linhas, filtros: {} };
+}
 function fontes(): Fonte[] {
   return [
     ...encomendas().filter((e) => e.estado !== 'Rascunho' && e.estado !== 'Cancelada').flatMap((e) => e.linhas.map((l) => ({ enc: e.ref, forn: e.forn, data: e.data, ref: l.ref, qtd: l.qtd, liq: linhaLiquida(l) ?? 0, arquivo: false }))),
@@ -190,7 +251,7 @@ export function comparar(dim: DimCf, a0: number, filtros: FiltrosCf = {}): RelCf
 }
 
 /* ---------- a página ---------- */
-export type CenarioCf = 'inicial' | 'mensal' | 'quadro' | 'outro-modo' | 'restaurado' | 'grafico-qtd' | 'grafico-oculto' | 'grafico-vazio' | 'editar' | 'invalido' | 'a-gerar' | 'resultados' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe'
+export type CenarioCf = 'inicial' | 'mensal' | 'modo-artigo-forn' | 'modo-familia' | 'modo-familia-forn' | 'quadro' | 'outro-modo' | 'restaurado' | 'grafico-qtd' | 'grafico-oculto' | 'grafico-vazio' | 'editar' | 'invalido' | 'a-gerar' | 'resultados' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe'
   | 'exportado' | 'export-falhou' | 'erro' | 'tempo' | 'offline' | 'permissao' | 'sessao';
 const B = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-cf-acao="${k}"${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
 const MES_OPC = (sel: number) => MES_NOME.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}"${i + 1 === sel ? ' selected' : ''}>${m}</option>`).join('');
@@ -204,16 +265,41 @@ function campoFiltro(k: FiltroCf, id: (x: string) => string): string {
   if (k === 'marca') return lab('Marca', `<select id="${id(k)}" name="marca">${opc('', 'Todas')}${MARCAS.map((m) => opc(m, m)).join('')}</select>`);
   return lab('Fornecedor', `<select id="${id(k)}" name="forn">${opc('', 'Todos')}${FORNECEDORES.map((f) => opc(f.id, f.nome)).join('')}</select>`);
 }
+/** Os critérios da Análise de compras: as datas e os intervalos de cada mapa antigo (de … a …; vazio = sem limite). */
+function criteriosMapa(id: (x: string) => string): string {
+  const fams = FAMILIAS.map((f) => opc(codFam(f), `${codFam(f)} · ${f}`)).join(''), subs = FAMILIAS.flatMap((f) => subfamiliasDe(f).map((x) => opc(codSub(f, x), `${codSub(f, x)} · ${x}`))).join('');
+  const forns = [...FORNECEDORES].sort((a, b) => numForn(a.id).localeCompare(numForn(b.id))).map((f) => opc(numForn(f.id), `${numForn(f.id)} · ${f.nome}`)).join('');
+  const par = (so: string, rot: string, a: string, b: string, inp: (k: string, ph: string) => string) => `<div class="cf-intervalo" data-so="${so}"><span class="cf-int-t">${rot}</span><label class="ak-campo" for="${id(a)}"><span>Inicial</span>${inp(a, 'de')}</label><span class="cf-seta" aria-hidden="true">${L(arrowRight)}</span><label class="ak-campo" for="${id(b)}"><span>Final</span>${inp(b, 'até')}</label></div>`;
+  const sel = (ops: string, todos: string) => (k: string) => `<select id="${id(k)}" name="${k}">${opc('', todos)}${ops}</select>`;
+  return `<div class="ak2-campos cf-anos cf-mapa-c">
+    <div class="cf-per cf-datas">
+      <label class="ak-campo" for="${id('di')}"><span>Data inicial</span><input type="date" id="${id('di')}" name="di" value="${ANO_ATUAL}-01-01" data-cf-primeiro></label>
+      <span class="cf-seta" aria-hidden="true">${L(arrowRight)}</span>
+      <label class="ak-campo" for="${id('df')}"><span>Data final</span><input type="date" id="${id('df')}" name="df" value="${HOJE}"></label>
+    </div>
+    <div class="cf-intervalos">
+      ${par('artigo', 'Artigo', 'ai', 'af', (k, ph) => `<input type="search" id="${id(k)}" name="${k}" list="${id('refs')}" placeholder="${ph === 'de' ? 'Do primeiro' : 'Ao último'}" autocomplete="off">`)}
+      <datalist id="${id('refs')}">${[...ARTIGOS].sort((a, b) => a.ref.localeCompare(b.ref, 'pt', { numeric: true })).map((a) => `<option value="${a.ref}">${a.desc} · ${a.marca}</option>`).join('')}</datalist>
+      ${par('artigo-forn familia-forn', 'Fornecedor', 'fi', 'ff', (k) => sel(forns, k === 'fi' ? 'Do primeiro' : 'Ao último')(k))}
+      ${par('familia familia-forn', 'Família', 'gi', 'gf', (k) => sel(fams, k === 'gi' ? 'Da primeira' : 'À última')(k))}
+      ${par('familia familia-forn', 'Subfamília', 'si', 'sf', (k) => sel(subs, k === 'si' ? 'Da primeira' : 'À última')(k))}
+    </div>
+    <p class="cf-dica">Os intervalos são os do ERP antigo: de … a …, com os extremos; vazio é sem limite. Valores líquidos, sem IVA. Enter passa ao campo seguinte.</p>
+  </div>`;
+}
 function html(d: DimDef, cen: CenarioCf): string {
   const id = (x: string) => `cf-${d.id}-${x}-${cen}`, a0 = ANO_ATUAL - 2, mensal = cen === 'mensal' || cen === 'quadro';
+  const mm: ModoMapa = cen.startsWith('modo-') ? cen.slice(5) as ModoMapa : cen === 'outro-modo' ? 'artigo' : 'artigo';
+  const modoIni = d.mapa ? mm : mensal ? 'mensal' : 'anual';
   const agr = d.descr.filter((c) => c.agrupa).map((c) => c.t), dica = `Arraste para aqui o cabeçalho ${agr.length > 1 ? `${agr.slice(0, -1).join(', ')} ou ${agr[agr.length - 1]}` : agr[0]} para agrupar`;
-  return `<div class="hm ak ak2 cf${mensal ? ' cf-mensal' : ''}" data-hm data-cf data-cf-dim="${d.id}" data-cf-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
+  return `<div class="hm ak ak2 cf${mensal ? ' cf-mensal' : ''}${d.mapa ? ` cf-mapa cf-m-${mm}` : ''}" data-hm data-cf data-cf-dim="${d.id}" data-cf-modo-form="${modoIni}" data-cf-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
   ${topoErp([['ERP', 'inicio'], ['Compras', 'compras'], ['Mapas', ''], ['Comparativos', ''], [d.caminho, '']])}
   <header class="ak-cab">
     <span class="ak-cab-ic">${L(chart)}</span>
     <div><h1>${d.titulo}</h1><p>${d.sub}</p></div>
     <span class="ak2-vista-ativa" data-cf-vista hidden></span>
   </header>
+  ${d.mapa ? `<div class="cf-modos cf-modos--4" role="radiogroup" aria-label="Tipo de análise" style="--i:${MODOS_MAPA.findIndex(([k]) => k === mm)}"><i class="cf-modos-ind" aria-hidden="true"></i>${MODOS_MAPA.map(([k, t, legado]) => `<button type="button" role="radio" data-cf-modo="${k}" aria-checked="${k === mm}" title="${legado}">${L(k.startsWith('familia') ? folderTree : packageIc)}<span>${t}</span></button>`).join('')}</div>` : ''}
   ${d.mensal ? `<div class="cf-modos" role="radiogroup" aria-label="Tipo de análise"><i class="cf-modos-ind" aria-hidden="true"></i><button type="button" role="radio" data-cf-modo="mensal" aria-checked="${mensal}">${L(calendarDays)}<span>Mensal</span></button><button type="button" role="radio" data-cf-modo="anual" aria-checked="${!mensal}">${L(calendarRange)}<span>Variações anuais</span></button></div>` : ''}
   <div class="ak-barra ak2-barra" role="toolbar" aria-label="Ações do comparativo">
     ${B('filtrar', funnel, 'Filtrar', 'F2', ' aria-pressed="false"')}
@@ -252,7 +338,7 @@ function html(d: DimDef, cen: CenarioCf): string {
     <div class="ak2-aberto">
       <div class="ak-crit-cab"><h2>Filtros e critérios</h2><button type="button" class="ak-crit-x" data-cf-acao="recolher" title="Recolher os critérios num resumo" hidden>${L(chevronsUp)}<span>Recolher</span></button></div>
       <div class="ak-crit-c">
-        <div class="ak2-campos cf-anos">
+        ${d.mapa ? criteriosMapa(id) : `<div class="ak2-campos cf-anos">
           <div class="cf-per cf-so-anual">
             <label class="ak-campo" for="${id('ini')}"><span>Ano inicial</span><input type="number" id="${id('ini')}" name="ini" value="${a0}" min="${ANO_MIN}" max="${ANO_ATUAL - 2}" step="1" inputmode="numeric" data-cf-primeiro></label>
             <span class="cf-seta" aria-hidden="true">${L(arrowRight)}</span>
@@ -267,7 +353,7 @@ function html(d: DimDef, cen: CenarioCf): string {
           </div>
           ${d.filtros.length ? `<div class="cf-filtros">${d.filtros.map((k) => campoFiltro(k, id)).join('')}</div>` : ''}
           <p class="cf-dica"><span class="cf-so-anual">Três anos seguidos, como no ERP antigo: mudar um ano acerta o outro.</span><span class="cf-so-mensal">De um mês a outro (até 24 meses, até ao mês corrente).</span> Valores líquidos, sem IVA. Enter passa ao campo seguinte.</p>
-        </div>
+        </div>`}
         <div class="ak-crit-acoes">
           ${B('gerar', play, 'Gerar dados', 'F10', ' data-cf-gerar-crit', 'ak-btn--acao')}
           ${B('cancelar', xIc, 'Cancelar', 'Esc', '', 'ak-btn--linha')}
@@ -295,6 +381,28 @@ function html(d: DimDef, cen: CenarioCf): string {
 
 /** Os estados de cada comparativo (o texto diz o caso desta dimensão). */
 function estadosDe(d: DimDef): [Exclude<CenarioCf, 'inicial'>, string, string][] {
+  if (d.mapa) return [
+    ['resultados', 'Artigo', 'Mapa de compras por artigo: Documento, Nº artigo, Descrição, Quantidade e Líquido, de 1 de janeiro até hoje; os critérios recolhidos em «Filtros aplicados».'],
+    ['modo-artigo-forn', 'Artigo / Fornecedor', 'Mapa de compras por artigo/fornecedor: entram o Fornecedor e a Conta (a conta não é o Nº do fornecedor); agrupado por fornecedor.'],
+    ['modo-familia', 'Família / Subfamília', 'Mapa de compras por família/subfamília: códigos e nomes; Família → Subfamília em grupos que abrem e fecham, com as somas sem contar duas vezes.'],
+    ['modo-familia-forn', 'Família / Subfamília / Fornecedor', 'O mapa com fornecedor: Fornecedor → Família → Subfamília.'],
+    ['outro-modo', 'A mudar de modo', 'Escolhido «Artigo / Fornecedor» com o mapa por artigo à vista: os intervalos de fornecedor aparecem, os resultados ficam marcados como do outro mapa até Gerar dados.'],
+    ['editar', 'A alterar os critérios', 'Os critérios abertos por cima dos resultados (o rascunho); os resultados continuam a ser os dos critérios aplicados.'],
+    ['invalido', 'Critérios inválidos', 'A data inicial depois da final: o campo marcado e a mensagem; nada se pede.'],
+    ['a-gerar', 'A gerar', 'O pedido a correr: a forma da grelha, sem percentagens inventadas; Esc cancela.'],
+    ['vazio', 'Sem resultados', 'Um intervalo sem compras: diz-se, e «Alterar critérios».'],
+    ['agrupado', 'Agrupado', 'Por documento na zona de agrupar: cada documento com as suas linhas e somas.'],
+    ['filtros', 'Filtros da tabela', 'F2: filtros por coluna — texto, ou «>1000» no Líquido.'],
+    ['detalhe', 'Detalhe', 'A linha escolhida à direita: o documento, o artigo ou a subfamília, o fornecedor e as outras linhas do mesmo documento.'],
+    ['restaurado', 'Área de trabalho reposta', 'Ao voltar ao separador: o modo, os critérios, os resultados e a linha escolhida como estavam.'],
+    ['exportado', 'Exportado', 'O Excel foi gerado: o mapa à vista, com as colunas originais.'],
+    ['export-falhou', 'A exportação falhou', 'O Excel não foi gerado: diz-se, e os resultados ficam.'],
+    ['erro', 'Servidor indisponível', 'O servidor de relatórios falhou: «Tentar outra vez»; os critérios ficam.'],
+    ['tempo', 'Tempo esgotado', 'O servidor demorou demasiado: tentar outra vez.'],
+    ['offline', 'Sem ligação', 'Sem rede: os critérios ficam; tenta-se quando a ligação voltar.'],
+    ['permissao', 'Sem permissão', 'O utilizador não tem acesso a este mapa.'],
+    ['sessao', 'Sessão terminada', 'Voltar a entrar pelo login comum; os critérios ficam.'],
+  ];
   if (d.id === 'geral') d = { ...d, exemplo: '10' };
   const V = d.varios, ex = d.cab({ id: d.exemplo, c: { ...d.campos(d.exemplo), tend: '' }, anos: [] })[1];
   const lista: [Exclude<CenarioCf, 'inicial'>, string, string][] = [
@@ -323,7 +431,7 @@ function estadosDe(d: DimDef): [Exclude<CenarioCf, 'inicial'>, string, string][]
   if (d.grafico) lista.splice(3, 0, ['grafico-qtd', 'Gráfico · quantidades', 'O gráfico da evolução em quantidades (o eixo diz «un.»); passar o rato mostra o valor exato e clicar num mês escolhe a linha na grelha.'], ['grafico-oculto', 'Gráfico escondido', 'O gráfico fechado: a grelha ganha a altura; «Gráfico» na barra volta a abri-lo.'], ['grafico-vazio', 'Gráfico indisponível', 'Um período sem compras: o gráfico diz que não há nada para desenhar, em vez de mostrar barras a zero.']);
   return lista;
 }
-const NOTA_D = (d: DimDef) => `${d.titulo} v2 (23 out., ela: «quero num só ecrã»${d.id === 'familia' ? ' e o briefing «Unified Family / Subfamily Purchasing Comparison»' : d.id === 'artigo' ? ' e o briefing «Comparativo de Compras por Artigo V2»' : d.id === 'forn' ? ' e o briefing «Comparativo por Fornecedor V2»' : ''}): ${d.mensal ? 'Mensal ou Variações anuais no mesmo ecrã (os dois itens antigos do menu abrem este separador, cada um no seu modo); o mensal tem a vista detalhada (o relatório original) e a vista por períodos;' : 'uma linha por mês e os três anos lado a lado;'} anos em grupos, N/D sem base, Somatórios sobre as somas, detalhe, vistas guardadas, Excel e imprimir. 2024 e 2025 são histórico de exemplo; os códigos de família e subfamília e o Nº do fornecedor também.`;
+const NOTA_D = (d: DimDef) => d.mapa ? 'Análise de Compras v2 (23 out., briefing «Unified Purchasing Analysis V3»): os quatro «Mapa de compras por …» do ERP antigo num só ecrã — Artigo, Artigo / Fornecedor, Família / Subfamília e Família / Subfamília / Fornecedor — com as datas e os intervalos de cada um (de … a …), as colunas originais (Documento, Conta…), os grupos em hierarquia, Somatórios, detalhe, vistas guardadas, Excel e imprimir. Os quatro itens antigos do menu abrem este separador, cada um no seu modo. 2024 e 2025 são histórico de exemplo; os códigos de família/subfamília e a conta do fornecedor também.' : `${d.titulo} v2 (23 out., ela: «quero num só ecrã»${d.id === 'familia' ? ' e o briefing «Unified Family / Subfamily Purchasing Comparison»' : d.id === 'artigo' ? ' e o briefing «Comparativo de Compras por Artigo V2»' : d.id === 'forn' ? ' e o briefing «Comparativo por Fornecedor V2»' : ''}): ${d.mensal ? 'Mensal ou Variações anuais no mesmo ecrã (os dois itens antigos do menu abrem este separador, cada um no seu modo); o mensal tem a vista detalhada (o relatório original) e a vista por períodos;' : 'uma linha por mês e os três anos lado a lado;'} anos em grupos, N/D sem base, Somatórios sobre as somas, detalhe, vistas guardadas, Excel e imprimir. 2024 e 2025 são histórico de exemplo; os códigos de família e subfamília e o Nº do fornecedor também.`;
 /** A v2 do ecrã e os seus estados (o ecrã base recebe a v2 ao lado da v1 de menu-antigo.ts). */
 export function versaoComparativo(dim: DimCf): Ecra<IdErp>['versoes'][number] { const d = DIMS[dim]; return { id: 'v2', nota: NOTA_D(d), html: html(d, 'inicial') }; }
 export function estadosComparativo(dim: DimCf, num: string): Ecra<IdErp>[] {

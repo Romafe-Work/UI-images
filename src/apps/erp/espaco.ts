@@ -129,10 +129,9 @@ export const MENU_ERP: LinhaMenu[] = [
   A('mapas-tot-enc', 'compras-mapas', 'Totais de documentos de encomenda', '', 10), A('mapas-det-enc', 'compras-mapas', 'Detalhes por documentos de encomenda', '', 20),
   A('mapas-tot-ge', 'compras-mapas', 'Totais de documentos de guia de entrada', '', 30, true), A('mapas-det-ge', 'compras-mapas', 'Detalhes por documentos de guia de entrada', '', 40),
   A('mapas-recap', 'compras-mapas', 'Mapa recapitulativo de fornecedores', '', 50, true),
-  A('mapas-analise', 'compras-mapas', 'Análise de compras', '', 60, true), A('mapas-comparativos', 'compras-mapas', 'Comparativos de compras', '', 70),
+  /* 23 out. (briefing «Unified Purchasing Analysis»): os quatro «Mapa de compras por …» são um ecrã só, com quatro modos */
+  A('analise-artigo', 'compras-mapas', 'Análise de compras', '', 60, true), A('mapas-comparativos', 'compras-mapas', 'Comparativos de compras', '', 70),
   A('mapas-analise-forn', 'compras-mapas', 'Análise de fornecedores', '', 80, true), A('mapas-automatico', 'compras-mapas', 'Artigos/compras automático', '', 90, true),
-  A('analise-artigo', 'mapas-analise', 'Mapa de compras por artigo', '', 10), A('analise-artigo-forn', 'mapas-analise', 'Mapa de compras por artigo/fornecedor', '', 20),
-  A('analise-familia', 'mapas-analise', 'Mapa de compras por família', '', 30, true), A('analise-familia-forn', 'mapas-analise', 'Mapa de compras por família/fornecedor', '', 40),
   /* 23 out. (ela: «quero num só ecrã»): cada par «X» e «X (variação anual)» é agora um ecrã só (Variação anual ou Mês a mês) */
   A('comp-geral-var', 'mapas-comparativos', 'Geral', '', 10), A('comp-artigo-var', 'mapas-comparativos', 'Por artigo', '', 30, true),
   A('comp-familia-var', 'mapas-comparativos', 'Por família/subfamília', '', 50, true),
@@ -187,6 +186,11 @@ ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
   ROTAS[alvo].titulo = t;
   ROTAS[`compras.${v}`] = { ...ROTAS[alvo], alias: alvo, modo: 'mensal' };
 });
+/* a Análise de compras: os quatro mapas antigos abrem o mesmo separador, cada um no seu modo */
+if (ROTAS['compras.analise-artigo']) {
+  ROTAS['compras.analise-artigo'].titulo = 'Análise de Compras';
+  ([['analise-artigo-forn', 'artigo-forn'], ['analise-familia', 'familia'], ['analise-familia-forn', 'familia-forn']] as const).forEach(([v, m]) => { ROTAS[`compras.${v}`] = { ...ROTAS['compras.analise-artigo'], alias: 'compras.analise-artigo', modo: m }; });
+}
 export const rotaDoEcra = (ecra: string) => Object.keys(ROTAS).find((k) => ROTAS[k].ecra === ecra);
 const pode = (l: LinhaMenu, p: IdPerfil) => l.permissoes === '*' || l.permissoes.includes(p);
 /** Os módulos do perfil, pela ordem da base; os inativos vêm marcados (referência), não como se funcionassem. */
