@@ -13,7 +13,7 @@
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
 import type { IdErp } from './ids';
-import { PERFIS, EMPRESA, PRIORIDADES, ATIVIDADE, AVISOS, type IdPerfil } from './inicio-dados';
+import { PERFIS, PRIORIDADES, ATIVIDADE, AVISOS, type IdPerfil } from './inicio-dados';
 import { ARTIGOS, FORNECEDORES, encomendas, stock, HOJE as HOJE_CP } from './compras/dominio';
 import search from 'lucide-static/icons/search.svg?raw';
 import bell from 'lucide-static/icons/bell.svg?raw';
@@ -36,8 +36,6 @@ import clockAlert from 'lucide-static/icons/clock-alert.svg?raw';
 import packageX from 'lucide-static/icons/package-x.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import lightbulb from 'lucide-static/icons/lightbulb.svg?raw';
-import mapPin from 'lucide-static/icons/map-pin.svg?raw';
-import building from 'lucide-static/icons/building-2.svg?raw';
 import listTodo from 'lucide-static/icons/list-todo.svg?raw';
 
 const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
@@ -71,7 +69,7 @@ export function topoErp(caminho: [string, string][], avisosAbertos = false, perf
   const trilho = caminho.map(([nome, ir], k) => k === caminho.length - 1 ? `<b>${esc(nome)}</b>` : `<button type="button" class="hm-caminho-ir" data-hm-ir="${ir}">${esc(nome)}</button>`).join('');
   return `  <header class="hm-topo">
     <a class="ws-marca hm-marca" href="#" data-hm-ir="inicio" aria-label="ROMAFE ERP, Início"><span class="romafe hm-romafe">ROMAFE</span><i aria-hidden="true"></i><span class="hm-erp">ERP</span></a>
-    <nav class="hm-caminho" aria-label="Onde estou"><span>${L(building)}${esc(EMPRESA.nome)}</span>${trilho}</nav>
+    <nav class="hm-caminho" aria-label="Onde estou">${trilho}</nav>
     <label class="hm-procura">${L(search)}<input type="search" placeholder="Procurar documentos, artigos, fornecedores…" aria-label="Procurar no ERP"><kbd>Ctrl K</kbd></label>
     <div class="hm-icones">
       <button type="button" class="hm-icone" aria-label="Ajuda" data-hm-dica="Ajuda">${L(lifeBuoy)}</button>
@@ -113,7 +111,7 @@ function html(cen: CenarioInicioV2, perfil: IdPerfil = 'compras'): string {
       <p class="hm-data" data-hm-data>quarta-feira, 22 de outubro</p>
       <h1 class="hm-titulo"><span data-hm-saudacao>Bom dia</span>, ${esc(p.primeiro)}.</h1>
       <p class="hm-resumo">${prio.length ? `Tudo pronto para a operação de hoje. <b>${prio.length} ${prio.length === 1 ? 'assunto pede' : 'assuntos pedem'}</b> a tua atenção.` : 'Tudo em dia. Nada pede a tua atenção agora.'}</p>
-      <p class="hm-onde"><span>${L(building)}${esc(EMPRESA.nome)}</span><span>${L(mapPin)}${esc(EMPRESA.local)}</span><span class="is-area">${L(shoppingCart)}Área: ${esc(p.nome)}</span></p>
+      
     </div>
     <svg class="hm-ola-desenho" viewBox="0 0 400 200" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => `<path d="M${-40 + i * 50} 200 L${60 + i * 50} 0"/>`).join('')}${Array.from({ length: 9 }, (_, i) => `<path d="M${440 - i * 50} 200 L${340 - i * 50} 0"/>`).join('')}<circle class="is-no" cx="200" cy="100" r="5"/><circle class="is-no" cx="150" cy="60" r="3.5"/><circle class="is-no" cx="250" cy="140" r="3.5"/><circle class="is-no is-laranja" cx="250" cy="60" r="4"/></svg>
   </section>

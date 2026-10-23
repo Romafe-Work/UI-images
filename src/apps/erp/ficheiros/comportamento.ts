@@ -10,10 +10,29 @@ const raiz = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTM
 const linhas = (r: HTMLElement) => [...r.querySelectorAll<HTMLTableRowElement>('[data-fx-linhas] tr')];
 const visiveis = (r: HTMLElement) => linhas(r).filter((l) => !l.hidden);
 
+const vivo = () => document.documentElement.classList.contains('dk8-vivo') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** O contador do registo («3 de 20»), pela ordem e o filtro que estão à vista. */
+function contar(r: HTMLElement, tr: HTMLTableRowElement): void {
+  const c = r.querySelector<HTMLElement>('[data-fx-conta]'), vs = visiveis(r); if (c) c.textContent = `${vs.indexOf(tr) + 1} de ${vs.length}`;
+}
 function escolher(r: HTMLElement, tr: HTMLTableRowElement, foco = true): void {
+  const antes = r.querySelector<HTMLTableRowElement>('[data-fx-linhas] tr[aria-selected="true"]');
   linhas(r).forEach((l) => { const sim = l === tr; l.setAttribute('aria-selected', String(sim)); l.tabIndex = sim ? 0 : -1; });
   const d = r.querySelector<HTMLElement>('[data-fx-det]'), t = r.querySelector<HTMLTemplateElement>(`template[data-fx-det-i="${tr.dataset.fxI}"]`);
-  if (d && t) { d.replaceChildren(t.content.cloneNode(true)); d.classList.remove('is-entrar'); void d.offsetWidth; d.classList.add('is-entrar'); }
+  if (d && t) {
+    if (vivo()) {
+      /* Início v2: a referência da linha passa ao título do detalhe; o painel fica e só os valores mudam */
+      const td = tr.querySelector('td')!, de = td.getBoundingClientRect();
+      d.replaceChildren(t.content.cloneNode(true)); contar(r, tr);
+      const h = d.querySelector<HTMLElement>('h2');
+      if (h && antes !== tr) {
+        const para = h.getBoundingClientRect();
+        h.animate([{ transformOrigin: '0 0', transform: `translate(${de.left - para.left + 12}px, ${de.top - para.top + 10}px) scale(.92)`, opacity: .5 }, { transformOrigin: '0 0', transform: 'none', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+        d.querySelectorAll<HTMLElement>('dd, .fx-jans, h3, li').forEach((x, i) => x.animate([{ opacity: 0, transform: 'translateY(3px)' }, { opacity: 1, transform: 'none' }], { duration: 180, delay: 40 + Math.min(i, 12) * 12, easing: 'ease-out', fill: 'backwards' }));
+        tr.animate([{ backgroundColor: 'color-mix(in srgb, var(--h-azul) 22%, var(--h-sup))' }, { backgroundColor: 'color-mix(in srgb, var(--h-azul) 11%, var(--h-sup))' }], { duration: 300, easing: 'ease-out' });
+      }
+    } else { d.replaceChildren(t.content.cloneNode(true)); contar(r, tr); d.classList.remove('is-entrar'); void d.offsetWidth; d.classList.add('is-entrar'); }
+  }
   if (foco) tr.focus();
 }
 function filtrar(r: HTMLElement, q: string): void {
@@ -36,6 +55,9 @@ function ordenar(r: HTMLElement, b: HTMLElement): void {
 }
 
 export function iniciar(): void {
+  /* o contador do registo escolhido à partida */
+  const armar = () => document.querySelectorAll<HTMLElement>('[data-fx]').forEach((r) => { const tr = r.querySelector<HTMLTableRowElement>('[data-fx-linhas] tr[aria-selected="true"]'); if (tr) contar(r, tr); });
+  requestAnimationFrame(armar); ['romafe:versao', 'romafe:ecra'].forEach((x) => document.addEventListener(x, () => requestAnimationFrame(armar)));
   document.addEventListener('input', (ev) => { const t = ev.target as HTMLInputElement, r = raiz(t); if (r && t.matches('[data-fx-q]')) filtrar(r, t.value); });
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return;

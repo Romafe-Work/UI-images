@@ -1,0 +1,123 @@
+/* =========================================================
+   ERP — 05 · Início v2, «The Living Workspace» (23 out. 2026). Ver espaco-vivo.ts e comportamento/vivo.ts.
+   Por cima da casa com menu lateral (espaco-lateral.css, .dk7). Tokens de movimento: carregar 100 ms, passar
+   140 ms, menu 230 ms, grupos 190 ms, separadores 180 ms, pasta 440 ms, janela 260 ms, registo 260 ms; uma curva
+   (.22, 1, .36, 1). Superfícies: a tela um pouco mais funda que os cartões, o menu e a barra entre os dois.
+   Claro e escuro. Com «reduzir movimento», só ficam as mudanças de cor.
+   ========================================================= */
+.dk8 {
+  --m-press: .1s; --m-hover: .14s; --m-curva: cubic-bezier(.22, 1, .36, 1);
+  --k-fundo: #edf1f5; --k-arvore: #f7f9fb; --k-sup: #ffffff; --k-sup-2: #e6ecf2; --k-borda: #d3dde6; --k-borda-forte: #b7c6d4;
+  --k-azul: #0063aa; --k-azul-2: #1f86cf; --k-traco: #0063aa;
+}
+[data-theme="dark"] .dk8 { --k-fundo: #05080b; --k-arvore: #0c1015; --k-sup: #12171d; --k-sup-2: #1a2028; --k-borda: #262e38; --k-borda-forte: #36414d; --k-azul: #3d9be0; --k-azul-2: #6fb4e6; --k-traco: #6fb4e6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dk8 { --k-fundo: #05080b; --k-arvore: #0c1015; --k-sup: #12171d; --k-sup-2: #1a2028; --k-borda: #262e38; --k-borda-forte: #36414d; --k-azul: #3d9be0; --k-azul-2: #6fb4e6; --k-traco: #6fb4e6; } }
+
+/* ---------- cabeçalho: ícones maiores, estados claros ---------- */
+.dk8 .hm-icone, .dk8 .dk7-gaveta { transition: background-color var(--m-hover) ease, transform var(--m-press) ease; }
+.dk8 .hm-icone svg { width: 20px; height: 20px; }
+.dk8 .hm-icone:hover { background: rgba(255, 255, 255, .09); }
+.dk8 .hm-icone:active, .dk8 .hm-pessoa:active { transform: scale(.94); }
+.dk8 :is(.hm-icone, .hm-pessoa, .dk-procura, .hm-marca):focus-visible { outline: 2px solid #6fb4e6; outline-offset: 2px; }
+.dk8 .dk-procura { transition: border-color var(--m-hover) ease, background-color var(--m-hover) ease; }
+.dk8 .dk-menu--conta:not([hidden]) { animation: dk8-cair .18s var(--m-curva) both; transform-origin: top right; }
+@keyframes dk8-cair { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+
+/* ---------- separadores: o indicador desliza ---------- */
+.dk8 .dk6-seps { position: relative; background: var(--k-sup-2); }
+.dk8 .dk6-seps .dk-sep.is-ativo { box-shadow: none; }
+.dk8-ind { position: absolute; left: 0; top: 5px; height: 2px; border-radius: 0 0 2px 2px; background: var(--k-laranja); pointer-events: none; transition: transform .2s var(--m-curva), width .2s var(--m-curva), opacity .12s ease; }
+.dk8 .dk-sep { transition: background-color var(--m-hover) ease, color var(--m-hover) ease; }
+.dk8 .dk-sep:active { transform: scale(.98); }
+.dk8 .dk-painel, .dk8 .dk-painel.is-ativo { transition: none; }
+.dk8 .dk-jan { animation: none; }
+
+/* ---------- a barra de ações: carregar responde já; Atualizar mostra o carregamento e o fim ---------- */
+.dk8 .dk-acao { transition: background-color var(--m-hover) ease, border-color var(--m-hover) ease, opacity .16s ease, transform var(--m-press) ease; }
+.dk8 .dk-acao:active:not(:disabled) { transform: scale(.96); }
+.dk8 .dk-acao:disabled { opacity: .45; }
+.dk8 .dk-acao.is-carregar svg { animation: dk8-roda .8s linear infinite; }
+.dk8 .dk-acao.is-ok svg { color: var(--k-ok); animation: dk8-ok .3s var(--m-curva); }
+@keyframes dk8-roda { to { transform: rotate(360deg); } }
+@keyframes dk8-ok { 40% { transform: scale(1.25); } }
+
+/* ---------- o menu: pastas, guia, indicador ---------- */
+.dk8 .dk7-lado { background: var(--k-arvore); }
+.dk8 .dk7-lista { position: relative; }
+.dk8-g-cab { position: relative; display: flex; align-items: center; }
+.dk8-g-cab .dk7-g-t { flex: 1; min-width: 0; }
+.dk8 .dk7-g-t { height: 30px; gap: 8px; } .dk8 .dk7-g-t > span:not(.dk8-pasta-ic) { text-align: left; }
+.dk8 .dk7-g-t .dk8-pasta-ic { position: relative; display: grid; width: 18px; height: 18px; flex: none; }
+.dk8-pasta-ic svg { position: absolute; inset: 0; width: 18px !important; height: 18px !important; color: var(--k-azul); }
+.dk8-pasta-ic .dk8-aberta { opacity: 0; } .dk7-g.is-aberto .dk8-pasta-ic .dk8-aberta { opacity: 1; } .dk7-g.is-aberto .dk8-pasta-ic .dk8-fechada { opacity: 0; }
+.dk7-g.is-mudou .dk8-pasta-ic { animation: dk8-pasta .26s var(--m-curva); }
+@keyframes dk8-pasta { 40% { transform: translateY(-2px) scale(1.12); } }
+.dk8-abrir { position: absolute; right: 26px; display: grid; place-items: center; width: 26px; height: 26px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta-3); opacity: 0; cursor: pointer; transition: opacity var(--m-hover) ease, background-color var(--m-hover) ease, transform var(--m-press) ease; }
+.dk8-abrir svg { width: 15px !important; height: 15px !important; }
+.dk8-g-cab:hover .dk8-abrir, .dk8-abrir:focus-visible { opacity: 1; }
+.dk8-abrir:hover { background: color-mix(in srgb, var(--k-azul) 10%, transparent); color: var(--k-azul); }
+.dk8-abrir:active { transform: scale(.9); }
+.dk8-abrir:focus-visible { outline: 2px solid var(--k-azul); outline-offset: -2px; }
+@media (hover: none) { .dk8-abrir { opacity: 1; } }
+/* a guia vertical dos filhos (cresce ao abrir) */
+@property --guia { syntax: '<number>'; inherits: false; initial-value: 1; }
+.dk8 .dk7-g > .dk7-l { position: relative; margin-left: 17px; padding-left: 6px; }
+.dk8 .dk7-g > .dk7-l::before { content: ""; position: absolute; left: 0; top: 2px; bottom: 6px; width: 1px; background: var(--k-borda-forte); transform-origin: top; transform: scaleY(var(--guia)); }
+.dk8.is-rail .dk7-g > .dk7-l { margin-left: 0; padding-left: 0; } .dk8.is-rail .dk7-g > .dk7-l::before { display: none; }
+.dk8 .dk7-i.is-ativo::before { display: none; }
+.dk8-ind-lado { position: absolute; width: 3px; border-radius: 0 3px 3px 0; background: var(--k-azul); pointer-events: none; }
+.dk8 .dk7-i { transition: background-color var(--m-hover) ease, color var(--m-hover) ease, transform var(--m-press) ease; }
+.dk8 .dk7-i:hover svg { transform: translateX(1px); } .dk8 .dk7-i svg { transition: color var(--m-hover) ease, transform var(--m-hover) var(--m-curva); }
+
+/* ---------- a casa: tela, desenho técnico, cartões em forma de pasta ---------- */
+.dk8 [data-painel="inicio"] { isolation: isolate; }
+.dk8 .dk7-exp { position: static; }
+/* o desenho fica no canto livre da tela (o painel), por trás de tudo e sem tocar nos formulários */
+.dk8-fundo { position: absolute; z-index: -1; right: -70px; bottom: -90px; width: min(560px, 44%); height: auto; color: var(--k-traco); opacity: .1; pointer-events: none; }
+[data-theme="dark"] .dk8-fundo { opacity: .13; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dk8-fundo { opacity: .13; } }
+.dk8 .dk7-cartoes { grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 14px; padding-top: 8px; }
+.dk8 .dk7-cartao-c { animation: dk8-cartao .32s var(--m-curva) calc(var(--i) * 35ms) both; }
+@keyframes dk8-cartao { from { opacity: 0; transform: translateY(10px); } }
+/* a aba da pasta, por cima do cartão */
+.dk8 .dk7-cartao-c::before { content: ""; position: absolute; left: 14px; top: -7px; width: 58px; height: 8px; border: 1px solid var(--k-borda-forte); border-bottom: 0; border-radius: 5px 5px 0 0; background: var(--k-sup); transition: transform var(--m-hover) var(--m-curva), border-color var(--m-hover) ease, background-color var(--m-hover) ease; z-index: 1; }
+.dk8 .dk7-cartao { position: relative; min-height: 148px; padding: 20px 20px 18px; border-color: var(--k-borda-forte); border-radius: 4px 8px 8px 8px; background: var(--k-sup); box-shadow: 0 1px 0 rgba(16, 32, 48, .04), 0 6px 18px -12px rgba(16, 32, 48, .25); transition: border-color var(--m-hover) ease, box-shadow var(--m-hover) ease, transform var(--m-press) ease; }
+.dk8 .dk7-cartao .dk-cartao-ic { width: 30px !important; height: 30px !important; margin-bottom: 10px; color: var(--k-azul); stroke-width: 2; transition: transform var(--m-hover) var(--m-curva); }
+.dk8 .dk7-cartao b { font-size: 17.5px; font-weight: 600; letter-spacing: -.005em; }
+.dk8 .dk7-cartao small { transition: color var(--m-hover) ease; }
+.dk8-seta { position: absolute; right: 14px; bottom: 14px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: color-mix(in srgb, var(--k-azul) 10%, transparent); color: var(--k-azul); opacity: 0; transform: translateX(-6px); transition: opacity var(--m-hover) ease, transform var(--m-hover) var(--m-curva); }
+.dk8-seta svg { width: 15px !important; height: 15px !important; }
+.dk8 .dk7-cartao-c:hover::before, .dk8 .dk7-cartao-c:focus-within::before { transform: translateY(-2px); border-color: var(--k-azul); }
+.dk8 .dk7-cartao:hover, .dk8 .dk7-cartao:focus-visible { border-color: var(--k-azul); box-shadow: 0 1px 0 rgba(16, 32, 48, .04), 0 12px 26px -14px rgba(0, 63, 110, .38); }
+.dk8 .dk7-cartao:hover .dk-cartao-ic, .dk8 .dk7-cartao:focus-visible .dk-cartao-ic { transform: translateY(-3px); }
+.dk8 .dk7-cartao:hover small, .dk8 .dk7-cartao:focus-visible small { color: var(--k-tinta-2); }
+.dk8 .dk7-cartao:hover .dk8-seta, .dk8 .dk7-cartao:focus-visible .dk8-seta { opacity: 1; transform: none; }
+.dk8 .dk7-cartao:active { transform: scale(.985); border-color: var(--k-laranja); }
+.dk8 .dk7-cartao.is-soltar .dk-cartao-ic { animation: dk8-soltar .22s var(--m-curva); }
+@keyframes dk8-soltar { 35% { transform: translateY(-5px) scale(1.1); } }
+[data-theme="dark"] .dk8 .dk7-cartao { box-shadow: 0 8px 22px -14px rgba(0, 0, 0, .8); }
+.dk8 .dk7-fav { z-index: 2; }
+.dk8 :is(.dk7-sec, .dk7-aten) { box-shadow: 0 1px 0 rgba(16, 32, 48, .03); }
+
+/* ---------- as peças que voam (clones fixos; não recebem o rato) ---------- */
+.dk8-voo { position: fixed; z-index: 90; margin: 0; pointer-events: none; will-change: transform, opacity; }
+.dk8-voo-doc svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 6px 10px rgba(0, 40, 80, .25)); }
+.dk8-doc-f { fill: var(--k-sup); stroke: var(--k-azul); stroke-width: 1.5; } .dk8-doc-c { fill: none; stroke: var(--k-azul); stroke-width: 1.5; } .dk8-doc-l { stroke: var(--k-azul); stroke-width: 1.4; opacity: .5; }
+.dk8-voo-pasta svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 10px 14px rgba(0, 40, 80, .28)); }
+.dk8-p-fundo { fill: color-mix(in srgb, var(--k-azul) 75%, #000); } .dk8-p-folha { fill: var(--k-sup); }
+.dk8-p-frente { position: absolute; left: 0; right: 0; bottom: 0; height: 68%; border-radius: 4px 4px 5px 5px; background: var(--k-azul); transform-origin: 50% 100%; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); }
+.dk8-contorno { border: 2px solid var(--k-azul); border-radius: 10px; background: color-mix(in srgb, var(--k-azul) 5%, transparent); transform-origin: 0 0; }
+.dk8-voo-sep { display: flex; align-items: center; gap: 7px; transform-origin: 0 50%; overflow: hidden; }
+.dk8 > .dk7-l.dk8-voo, .dk8 .dk7-lado > .dk7-l.dk8-voo { position: fixed; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dk8 *, .dk8 *::before, .dk8 *::after { animation: none !important; transition: none !important; }
+  .dk8-voo { display: none !important; }
+}
+
+/* ---------- 23 out. (ela: «quero os icons da cor da palavra romafe»): os ícones são rgb(0, 99, 170), como o ROMAFE,
+   no claro e no escuro (a mesma regra da marca: nunca o azul claro) ---------- */
+.dk8 { --romafe: rgb(0, 99, 170); }
+.dk8 :is(.dk-cartao-ic, .dk7-i svg, .dk8-pasta-ic svg, .dk7-rail svg, .dk-sep-ic, .dk-acao svg, .dk7-lin-b svg, .dk8-seta, .hm-icone svg, .dk7-g--sub .dk7-g-t svg) { color: var(--romafe) !important; }
+.dk8 .dk7-cartao .dk-cartao-ic { color: var(--romafe) !important; }
+.dk8 .dk8-seta { background: color-mix(in srgb, var(--romafe) 12%, transparent); }

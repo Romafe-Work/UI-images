@@ -16,7 +16,7 @@ import type { Ecra } from '../../comum/tipos';
 import type { IdErp } from './ids';
 import { topoErp, numerosDoDia } from './inicio-v2';
 import { FORNECEDORES, encomendas } from './compras/dominio';
-import { L, esc, icone, ROTAS, separadores, corpoEspaco, menuConta, dialogo, explorador, acoes, ESTADOS, type Estado, type Hist } from './espaco';
+import { L, esc, icone, ROTAS, MENU_ERP, separadores, corpoEspaco, menuConta, dialogo, explorador, acoes, ESTADOS, type Estado, type Hist } from './espaco';
 import { quando, estadoV6 } from './espaco-v6';
 import { navegacao, atalhosCasa, type NoNav } from './navegacao';
 import search from 'lucide-static/icons/search.svg?raw';
@@ -34,6 +34,10 @@ import fileText from 'lucide-static/icons/file-text.svg?raw';
 import shieldX from 'lucide-static/icons/shield-x.svg?raw';
 import circleAlert from 'lucide-static/icons/circle-alert.svg?raw';
 import rotateCw from 'lucide-static/icons/rotate-cw.svg?raw';
+import folder from 'lucide-static/icons/folder.svg?raw';
+import folderOpen from 'lucide-static/icons/folder-open.svg?raw';
+import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import abrirFora from 'lucide-static/icons/square-arrow-out-up-right.svg?raw';
 
 export const VERSAO_INICIO_V6 = 'v6';
 const NOTA7 = 'O Início v6 (23 out., briefing «Modern Classic Workspace with Left Sidebar»): a casa aprovada (os seis cartões) com um menu lateral vindo da navegação configurada — recolhe, guarda-se, marca a rota ativa e vira gaveta no telemóvel —, um só cabeçalho, Favoritos, Recentes, Em curso e Requer atenção só com o que existe, separadores e a barra de ações.';
@@ -53,8 +57,12 @@ function grupoNav(g: NoNav, e: Estado, nivel = 0): string {
   if (g.id === 'principal') return `<ul class="dk7-l">${g.filhos.map((f) => itemNav(f, e)).join('')}</ul>`;
   const aberto = e.arvore[g.id] !== false, temAtivo = (n: NoNav): boolean => n.rota === rotaAtiva(e) || n.filhos.some(temAtivo);
   const corpo = g.filhos.map((f) => f.filhos.length ? `<li>${grupoNav(f, e, nivel + 1)}</li>` : itemNav(f, e)).join('');
-  return `<section class="dk7-g${nivel ? ' dk7-g--sub' : ''}${aberto ? ' is-aberto' : ''}${!aberto && temAtivo(g) ? ' tem-ativo' : ''}">
-    <button type="button" class="dk7-g-t" data-dk7-grupo="${g.id}" aria-expanded="${aberto}" aria-controls="dk7-g-${g.id}"${e.rail ? ' tabindex="-1" aria-hidden="true"' : ''}>${nivel ? icone(g.icone) : ''}<span>${esc(g.rotulo)}</span>${L(chevronDown, 'dk7-g-seta')}</button>
+  /* v7 (vivo): cada grupo é uma pasta que abre e fecha; a de um módulo (Compras) também se abre como espaço de trabalho */
+  const pastaIc = e.vivo ? `<span class="dk8-pasta-ic" aria-hidden="true">${L(folder, 'dk8-fechada')}${L(folderOpen, 'dk8-aberta')}</span>` : nivel ? icone(g.icone) : '';
+  const modulo = e.vivo && !nivel && MENU_ERP.some((m) => m.id === g.id && !m.pai && m.ativo);
+  const abrirPasta = modulo && !e.rail ? `<button type="button" class="dk8-abrir" data-dk8-pasta="${g.id}" aria-label="Abrir a pasta ${esc(g.rotulo)} na área de trabalho" title="Abrir a pasta ${esc(g.rotulo)}">${L(abrirFora)}</button>` : '';
+  return `<section class="dk7-g${nivel ? ' dk7-g--sub' : ''}${aberto ? ' is-aberto' : ''}${!aberto && temAtivo(g) ? ' tem-ativo' : ''}" data-dk8-g="${g.id}">
+    <div class="dk8-g-cab"><button type="button" class="dk7-g-t" data-dk7-grupo="${g.id}" aria-expanded="${aberto}" aria-controls="dk7-g-${g.id}"${e.rail ? ' tabindex="-1" aria-hidden="true"' : ''}>${pastaIc}<span>${esc(g.rotulo)}</span>${L(chevronDown, 'dk7-g-seta')}</button>${abrirPasta}</div>
     <ul class="dk7-l" id="dk7-g-${g.id}"${aberto || e.rail ? '' : ' hidden'}>${corpo}</ul>
   </section>`;
 }
@@ -74,7 +82,7 @@ export const ecrasCasaLat = (e: Estado) => casa(e).map((l) => l.rota!);
 const codigo = (r: string) => r.split('.')[1].normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
 function cartoes(e: Estado): string {
   return `<ul class="dk7-cartoes" aria-label="Atalhos">${casa(e).map((l, i) => { const r = l.rota!, fav = e.fixados.includes(r); return `<li class="dk7-cartao-c" style="--i:${i}">
-    <button type="button" class="dk-cartao dk7-cartao" data-dk-atalho="${r}" aria-keyshortcuts="Alt+${i + 1}" title="Abrir ${esc(l.rotulo)} (Alt ${i + 1})">${icone(l.icone, 'dk-cartao-ic')}<b>${esc(l.curto ?? l.rotulo)}</b><small>${codigo(r)}</small><kbd>Alt+${i + 1}</kbd></button>
+    <button type="button" class="dk-cartao dk7-cartao" data-dk-atalho="${r}" aria-keyshortcuts="Alt+${i + 1}" title="Abrir ${esc(l.rotulo)} (Alt ${i + 1})">${icone(l.icone, 'dk-cartao-ic')}<b>${esc(l.curto ?? l.rotulo)}</b><small>${codigo(r)}</small><kbd>Alt+${i + 1}</kbd>${e.vivo ? `<span class="dk8-seta" aria-hidden="true">${L(arrowRight)}</span>` : ''}</button>
     <button type="button" class="dk7-fav${fav ? ' is-fav' : ''}" data-dk7-fav="${r}" aria-pressed="${fav}" aria-label="${fav ? 'Tirar dos favoritos' : 'Pôr nos favoritos'}: ${esc(l.curto ?? l.rotulo)}" title="${fav ? 'Tirar dos favoritos' : 'Pôr nos favoritos'}">${L(star)}</button>
   </li>`; }).join('')}</ul>`;
 }
@@ -116,12 +124,14 @@ export function exploradorLat(e: Estado): string {
   const cab = `<header class="dk7-cab"><h1>Área de trabalho</h1></header>`;
   if (e.carga === 'espaco') return `<div class="dk-exp dk7-exp" aria-busy="true">${cab}<div class="dk7-cartoes">${Array.from({ length: 6 }, () => '<span class="dk-esq dk7-esq-cartao"></span>').join('')}</div><div class="dk7-secs"><span class="dk-esq"></span><span class="dk-esq"></span><span class="dk-esq"></span></div></div>`;
   if (!casa(e).length) return `<div class="dk-exp dk7-exp">${cab}<p class="dk7-vazio dk7-vazio--grande">${L(shieldX)}<span><b>A tua conta ainda não tem ecrãs do ERP.</b> Pede o acesso ao administrador da tua empresa.</span></p></div>`;
-  return `<div class="dk-exp dk7-exp">${cab}
+  return `<div class="dk-exp dk7-exp">${e.vivo ? FUNDO : ''}${cab}
     ${cartoes(e)}
     ${atencao(e)}
     <div class="dk7-secs">${favoritos(e)}${recentes(e)}${emCurso(e)}</div>
   </div>`;
 }
+/** v7: o desenho técnico ao fundo da casa — um rolamento em corte, com cotas —, só na área vazia, muito ténue. */
+const FUNDO = `<svg class="dk8-fundo" viewBox="0 0 520 520" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1"><circle cx="260" cy="260" r="236"/><circle cx="260" cy="260" r="206"/><circle cx="260" cy="260" r="120"/><circle cx="260" cy="260" r="92"/><circle cx="260" cy="260" r="163" stroke-dasharray="3 7"/>${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<circle cx="${(260 + 163 * Math.cos(a)).toFixed(1)}" cy="${(260 + 163 * Math.sin(a)).toFixed(1)}" r="34"/>`; }).join('')}<path d="M10 260h500M260 10v500" stroke-dasharray="14 5 2 5"/><path d="M24 500h472M24 492v16M496 492v16"/><path d="M260 24l-8 0M268 24h-8" /></g><text x="260" y="490" text-anchor="middle" fill="currentColor" font-size="13" font-family="monospace">Ø 472</text></svg>`;
 /** Na área de trabalho, a barra só tem o que lá funciona: Atualizar. Nos separadores, as ações do ecrã (v4/v5). */
 export function acoesLat(e: Estado): string {
   if (e.ativo === 'inicio' && !e.semCasa) return `<button type="button" class="dk-acao" data-dk-acao="atualizar">${L(rotateCw)}<span>Atualizar</span><kbd>F9</kbd></button>`;
@@ -138,13 +148,13 @@ export function paginaLat(e: Estado = estadoLat(), extra = '', cen = 'normal'): 
     .replace(/<button type="button" class="hm-icone" aria-label="Ajuda"[\s\S]*?<button type="button" class="hm-pessoa"/, `<button type="button" class="hm-icone" aria-label="Atalhos de teclado" title="Atalhos de teclado (F1)" data-dk-ajuda-atalhos>${L(keyboard)}</button>
       <button type="button" class="hm-pessoa"`)
     .replace(/<section class="hm-avisos"[\s\S]*?<\/section>/, '');
-  return `<div class="hm sh dkr dk6 dk7${e.rail ? ' is-rail' : ''}" data-hm data-sh>
+  return `<div class="hm sh dkr dk6 dk7${e.vivo ? ' dk8' : ''}${e.rail ? ' is-rail' : ''}" data-hm data-sh>
   ${topo}
   <div class="sh-corpo dk7-corpo">
     <nav class="dk7-lado" aria-label="Menu do ERP" data-dk7-lado>${ladoLat(e)}</nav>
     <div class="dk7-veu" data-dk7-veu aria-hidden="true"></div>
     <div class="dk7-area">
-      <div class="dk6-seps"><div class="dk-seps" role="tablist" aria-label="Separadores abertos" data-dk-seps>${separadores(e)}</div></div>
+      <div class="dk6-seps"><div class="dk-seps" role="tablist" aria-label="Separadores abertos" data-dk-seps>${separadores(e)}</div>${e.vivo ? '<i class="dk8-ind" data-dk8-ind aria-hidden="true"></i>' : ''}</div>
       <main class="dk" data-dk data-dk-cenario="${cen}" data-dk-estado="${esc(JSON.stringify(e))}">${corpoEspaco(e, exploradorLat).replace(/(<div class="dk-acoes[^>]*>)[\s\S]*?(<\/div>\s*<div data-dk-banner>)/, `$1${acoesLat(e)}$2`)}</main>
     </div>
   </div>
@@ -165,13 +175,13 @@ const DA_V5: Record<string, Partial<Estado>> = {
   'dk-recentes': { historico: [H('compras.encomenda', 'EF 2026/0413', 6), H('ficheiros.artigos', 'Artigos', 18), H('compras.faltas', 'Lista de faltas', 25), H('ficheiros.marcas', 'Marcas', 70), H('compras.encomendas', 'Encomendas de compra', 60 * 20)] },
   'dk-atalhos': { dialogo: 'atalhos' },
 };
-export function versaoEstadoLat(id: string) {
+export function versaoEstadoLat(id: string, vivo?: { id: string; nota: string }) {
   /* o menu horizontal da v5 e a pasta aberta da v4 não existem na v6 */
   if (['dk-menu', 'dk-compras', 'dk-pasta-carregar', 'dk-pasta-vazia'].includes(id)) return null;
-  const o = DA_V5[id] ?? { ...(ESTADOS.find(([k]) => k === id)?.[3] ?? {}) };
-  const e = estadoLat(o);
+  const o = DA_V5[id] ?? NOVOS.find(([k]) => k === id)?.[3] ?? { ...(ESTADOS.find(([k]) => k === id)?.[3] ?? {}) };
+  const e = estadoLat(vivo ? { ...o, vivo: true } : o);
   if (e.pasta !== 'raiz') e.pasta = 'raiz';
-  return { id: VERSAO_INICIO_V6, nota: NOTA7, html: paginaLat(e, '', id) };
+  return { id: vivo?.id ?? VERSAO_INICIO_V6, nota: vivo?.nota ?? NOTA7, html: paginaLat(e, '', id) };
 }
 const S = (id: string, rota: string, titulo: string, sujo = false) => ({ id, rota, titulo, sujo });
 export type IdLateral = 'dk7-rail' | 'dk7-nav-carregar' | 'dk7-nav-falha' | 'dk7-ficheiro' | 'dk7-sem-permissao';

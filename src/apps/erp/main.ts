@@ -16,6 +16,7 @@ import './css/inicio-v3.css';
 import './css/espaco.css';
 import './css/espaco-v6.css';
 import './css/espaco-lateral.css';
+import './css/espaco-vivo.css';
 import './css/ficheiros.css';
 import '../../comum/css/editor.css';
 

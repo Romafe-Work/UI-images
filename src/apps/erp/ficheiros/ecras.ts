@@ -17,6 +17,8 @@ import searchX from 'lucide-static/icons/search-x.svg?raw';
 import arrowUpDown from 'lucide-static/icons/arrow-up-down.svg?raw';
 import mousePointerClick from 'lucide-static/icons/mouse-pointer-click.svg?raw';
 import x from 'lucide-static/icons/x.svg?raw';
+import warehouseIc from 'lucide-static/icons/warehouse.svg?raw';
+import usersIc from 'lucide-static/icons/users.svg?raw';
 
 export type IdFicheiros = 'ficheiros-artigos' | 'ficheiros-armazens' | 'ficheiros-familias' | 'ficheiros-marcas' | 'ficheiros-unidades';
 
@@ -41,9 +43,12 @@ type Col = { k: string; t: string; num?: boolean; mono?: boolean };
 type Linha = { v: Record<string, string>; ord: Record<string, string | number>; det: string };
 interface Tabela { id: IdFicheiros; num: string; titulo: string; ic: string; um: string; varios: string; procura: string; nota: string; cols: Col[]; linhas: () => Linha[] }
 
+/** As janelas de contexto (só dentro de um separador do Início v2, que as abre a partir do botão). */
+const janelas = (bs: [string, string, string][]) => `<div class="fx-jans">${bs.map(([alvo, ic, t]) => `<button type="button" class="fx-jan-b" data-dk-janela="${esc(alvo)}">${L(ic)}<span>${esc(t)}</span></button>`).join('')}</div>`;
 /** O detalhe: as fichas em pares rótulo/valor e, quando há, os artigos que lhe pertencem. */
-const det = (titulo: string, pares: [string, string][], artigos?: string[]) => `<h2>${esc(titulo)}</h2>
+const det = (titulo: string, pares: [string, string][], artigos?: string[], extra = '') => `<p class="fx-conta" data-fx-conta></p><h2>${esc(titulo)}</h2>
   <dl>${pares.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+  ${extra}
   ${artigos ? `<h3>Artigos <span>${artigos.length}</span></h3><ul>${artigos.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}`;
 const artigosDe = (f: (a: typeof ARTIGOS[number]) => boolean) => ARTIGOS.filter(f).map((a) => `${a.ref} · ${a.desc}`);
 
@@ -53,7 +58,7 @@ const TABELAS: Tabela[] = [
     linhas: () => ARTIGOS.map((a) => { const s = stock(a.ref), fam = familiaDe(a.desc); return {
       v: { ref: a.ref, desc: a.desc, marca: a.marca, fam, un: a.un, stock: n(s), preco: a.preco === null ? '—' : euros(a.preco), _ean: a.ean },
       ord: { stock: s, preco: a.preco ?? -1 },
-      det: det(a.ref, [['Descrição', a.desc], ['Marca', a.marca], ['Família', fam], ['Unidade', a.un], ['Stock no armazém 60', n(s)], ['Último preço', a.preco === null ? 'Sem preço' : euros(a.preco)], ['IVA', `${a.iva / 100} %`], ['EAN', a.ean], ['Fornecedor habitual', fornNome(a.forn)], ['Referência no fornecedor', a.refForn]]),
+      det: det(a.ref, [['Descrição', a.desc], ['Marca', a.marca], ['Família', fam], ['Unidade', a.un], ['Stock no armazém 60', n(s)], ['Último preço', a.preco === null ? 'Sem preço' : euros(a.preco)], ['IVA', `${a.iva / 100} %`], ['EAN', a.ean], ['Fornecedor habitual', fornNome(a.forn)], ['Referência no fornecedor', a.refForn]], undefined, janelas([[`artigo:${a.ref}`, warehouseIc, 'Stock por armazém'], [`fornecedor:${a.forn}`, usersIc, 'Ver fornecedor']])),
     }; }) },
   { id: 'ficheiros-armazens', num: '31', titulo: 'Armazéns', ic: 'warehouse', um: 'armazém', varios: 'armazéns', procura: 'Código, nome ou localidade', nota: 'O 60 é o do protótipo; o 10 e o 20 são os da Lista de faltas, de exemplo, ainda sem stock.',
     cols: [{ k: 'cod', t: 'Código', mono: true }, { k: 'nome', t: 'Nome' }, { k: 'loc', t: 'Localidade' }, { k: 'arts', t: 'Artigos com stock', num: true }],
@@ -74,7 +79,7 @@ const TABELAS: Tabela[] = [
     cols: [{ k: 'marca', t: 'Marca' }, { k: 'forn', t: 'Fornecedor habitual' }, { k: 'arts', t: 'Artigos', num: true }, { k: 'sem', t: 'Sem stock', num: true }],
     linhas: () => [...new Set(ARTIGOS.map((a) => a.marca))].sort().map((marca) => {
       const as = ARTIGOS.filter((a) => a.marca === marca), forn = [...new Set(as.map((a) => fornNome(a.forn)))].join(', '), sem = as.filter((a) => stock(a.ref) <= 0).length;
-      return { v: { marca, forn, arts: n(as.length), sem: n(sem) }, ord: { arts: as.length, sem }, det: det(marca, [['Fornecedor habitual', forn], ['Artigos sem stock', n(sem)]], artigosDe((a) => a.marca === marca)) };
+      return { v: { marca, forn, arts: n(as.length), sem: n(sem) }, ord: { arts: as.length, sem }, det: det(marca, [['Fornecedor habitual', forn], ['Artigos sem stock', n(sem)]], artigosDe((a) => a.marca === marca), janelas([...new Set(as.map((a) => a.forn))].map((f): [string, string, string] => [`fornecedor:${f}`, usersIc, `Ver ${fornNome(f)}`]))) };
     }) },
   { id: 'ficheiros-unidades', num: '34', titulo: 'Unidades de medida', ic: 'ruler', um: 'unidade', varios: 'unidades', procura: 'Código ou descrição', nota: 'As unidades usadas pelos artigos do protótipo.',
     cols: [{ k: 'cod', t: 'Código', mono: true }, { k: 'desc', t: 'Descrição' }, { k: 'casas', t: 'Casas decimais', num: true }, { k: 'arts', t: 'Artigos', num: true }],

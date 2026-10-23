@@ -19,6 +19,7 @@ import {
 } from '../espaco';
 import { exploradorV6, menuV6 } from '../espaco-v6';
 import { ladoLat, exploradorLat, acoesLat, ecrasCasaLat } from '../espaco-lateral';
+import * as vivo from './vivo';
 import { FORNECEDORES, ARTIGOS, encomendas } from '../compras/dominio';
 import { irIdentidade } from './abertura-v4';
 import { mostrar } from '../../../comum/ecras';
@@ -49,6 +50,8 @@ function guardar(): void {
 /* ---------- desenhar ---------- */
 function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void {
   if (!pg || !dk) return;
+  /* v7: a fotografia do antes, para o movimento ligado (comportamento/vivo.ts) */
+  const foto = vivo.ligado(pg) ? vivo.antes(pg, e) : null;
   const put = (s: string, h: string) => { const el = $(s); if (el) el.innerHTML = h; };
   put('[data-dk-arvore]', arvore(e));
   put('[data-dk-seps]', separadores(e));
@@ -64,6 +67,7 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-dialogo]', dialogo(e));
   paineis(); indicador(); guardar();
   if (o.exp !== false) contar();
+  if (foto) vivo.depois(pg, foto, e);
 }
 /** Os números do «Para hoje» contam de 0 até ao valor (≈0,6 s, a abrandar); sem movimento, aparecem logo. */
 function contar(): void {
@@ -107,10 +111,23 @@ function carregar(id: string, p: HTMLElement): void {
   if (!ROTAS[s.rota]) { p.innerHTML = `<div class="dk-carga dk-carga--erro">${L(IC.lock)}Este ecrã ainda não existe no ERP novo.</div>`; return; }
   const f = document.createElement('iframe');
   f.className = 'dk-frame'; f.title = s.titulo; f.src = endereco(s.rota);
+  let primeira = true;
   f.addEventListener('load', () => {
     p.querySelector('.dk-carga')?.remove();
     try {
       const w = f.contentWindow!, d = f.contentDocument!;
+      /* v7: a página entra coordenada; as janelas de contexto pedidas lá dentro nascem do botão (posição medida) */
+      if (vivo.ligado(pg)) {
+        vivo.dentro(d, primeira);
+        if (primeira) d.querySelector<HTMLElement>('[data-fx-q]')?.focus({ preventScroll: true });
+        d.addEventListener('click', (ev) => {
+          const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-dk-janela]'); if (!b) return;
+          const fr = f.getBoundingClientRect(), r = b.getBoundingClientRect();
+          vivo.marcar(b, new DOMRect(fr.left + r.left, fr.top + r.top, r.width, r.height));
+          const [tipo, chave] = b.dataset.dkJanela!.split(':'); abrirJanela(tipo as Janela['tipo'], chave);
+        });
+      }
+      primeira = false;
       /* alterações por guardar: qualquer escrita num formulário marca o separador */
       d.addEventListener('input', (ev) => { const t = ev.target as HTMLElement; if (t.closest('form, .cp, [data-cp], .lf-filtros') && !t.closest('.lf-filtros, [type="search"]')) { const x = e.seps.find((y) => y.id === id); if (x && !x.sujo) { x.sujo = true; desenhar({ exp: false }); } } }, true);
       /* as teclas da área de trabalho também funcionam dentro do separador */
@@ -246,7 +263,8 @@ function acao(a: string, botao?: HTMLElement): void {
     case 'fixar-sep': if (!s) return; e.fixados = e.fixados.includes(s.rota) ? e.fixados.filter((y) => y !== s.rota) : [...e.fixados, s.rota]; dizer(e.fixados.includes(s.rota) ? 'Fixado no acesso rápido.' : 'Saiu do acesso rápido.'); desenhar({ exp: false }); return;
     case 'atualizar':
       if (e.banner === 'navegacao') e.banner = '';
-      if (f) { f.contentWindow?.location.reload(); dizer(`«${s!.titulo}» atualizado.`); }
+      /* o aviso só depois de a página voltar (23 out.: antes dizia «atualizado» antes de recarregar) */
+      if (f) { if (vivo.ligado(pg)) vivo.aCarregar(pg!, f); f.addEventListener('load', () => dizer(`«${s!.titulo}» atualizado.`), { once: true }); f.contentWindow?.location.reload(); }
       else { e.carga = e.pasta !== 'raiz' ? 'pasta' : undefined; desenhar(); window.setTimeout(() => { e.carga = undefined; desenhar({ exp: true, entrar: true }); dizer('Atualizado.'); }, 350); }
       return;
     case 'novo': if (r?.novo) { const k = rotaDoEcra(r.novo[0]); if (k) abrirRota(k, r.novo[1], true); } return;
@@ -453,6 +471,9 @@ export function iniciar(): void {
   ['romafe:versao', 'romafe:ecra'].forEach((x) => document.addEventListener(x, () => { pg = null; requestAnimationFrame(() => { paraSeparador(); armar(); }); }));
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
   window.addEventListener('resize', indicador);
+  /* v2: o indicador do separador volta a medir-se quando a janela ou as letras mudam */
+  const medir = () => { if (vivo.ligado(pg)) vivo.indicadores(pg); };
+  window.addEventListener('resize', medir); document.fonts?.ready.then(() => requestAnimationFrame(medir));
   requestAnimationFrame(paraSeparador);
   window.addEventListener('keydown', (ev) => {
     if (!pg || editando() || !pg.isConnected || pg.closest('[hidden]')) return;
@@ -465,6 +486,9 @@ export function iniciar(): void {
     teclas(ev);
     if (ev.defaultPrevented) return;
     if (ev.key === 'Escape' && pg.classList.contains('is-gaveta')) { gaveta(false); return; }
+    /* v7: Esc numa janela de contexto fecha-a (e o foco volta ao botão que a abriu) */
+    const jan = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk-jan]');
+    if (ev.key === 'Escape' && jan && vivo.ligado(pg)) { acaoJanela(jan.dataset.dkJan!, 'fechar'); return; }
     if (ev.key === 'Escape') { if (e.dialogo && e.dialogo !== 'sessao') { e.dialogo = ''; desenhar({ exp: false }); } fecharMenus(); return; }
     const alvo = ev.target as HTMLElement;
     if (alvo.closest('input, textarea, select')) return;
@@ -517,6 +541,9 @@ export function iniciar(): void {
     if (!pg || editando()) return;
     const t = ev.target as HTMLElement; if (!pg.contains(t)) return;
     let b: HTMLElement | null;
+    /* v7: a origem do gesto (o documento, a pasta e as janelas nascem daqui) */
+    if (vivo.ligado(pg)) vivo.marcar(t.closest<HTMLElement>('button'));
+    if ((b = t.closest('[data-dk8-pasta]'))) { const id = b.dataset.dk8Pasta!; const ic = b.closest('[data-dk8-g]')?.querySelector<HTMLElement>('.dk8-pasta-ic'); vivo.marcar(b, ic?.getBoundingClientRect()); abrirPasta(id); return; }
     /* v6: o menu lateral, os favoritos e a gaveta */
     if ((b = t.closest('[data-dk7-grupo]'))) { const id = b.dataset.dk7Grupo!; e.arvore[id] = e.arvore[id] === false; desenhar({ exp: false }); $<HTMLElement>(`[data-dk7-grupo="${id}"]`)?.focus(); if (e.arvore[id] !== false) $(`#dk7-g-${id}`)?.classList.add('is-abrir'); return; }
     if (t.closest('[data-dk7-rail]')) { e.rail = !e.rail; dica(null); desenhar({ exp: false }); $('[data-dk7-lado]')?.classList.add('is-mudar'); window.setTimeout(() => $('[data-dk7-lado]')?.classList.remove('is-mudar'), 260); $<HTMLElement>('[data-dk7-rail]')?.focus(); return; }

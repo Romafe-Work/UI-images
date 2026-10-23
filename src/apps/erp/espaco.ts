@@ -191,6 +191,8 @@ export interface Estado {
   janelas: Janela[]; banner: Banner; bannerTexto?: string; dialogo: string; carga?: 'pasta' | 'espaco'; rail?: boolean; trabalho?: 'recentes' | 'curso'; casa?: number; semCasa?: boolean; presos?: string[]; v6?: boolean; historico?: Hist[]; semCurso?: boolean; menu?: string; semModulos?: boolean; semRecentes?: boolean; primeira?: boolean; pastaVazia?: boolean; largura: number;
   /** v6 (23 out.): o menu lateral; nav = a navegação ainda a chegar da API ou falhada */
   lat?: boolean; nav?: 'carregar' | 'falha';
+  /** v7 (23 out.): «The Living Workspace» — as transições ligadas (comportamento/vivo.ts) */
+  vivo?: boolean;
 }
 export const novoEstado = (perfil: IdPerfil = 'compras'): Estado => ({ perfil, seps: [], ativo: 'inicio', pasta: 'raiz', sel: '', vista: 'grelha', fixados: ['compras.faltas', 'compras.encomendas'], arvore: { compras: true }, janelas: [], banner: '', dialogo: '', largura: 260 });
 
@@ -381,9 +383,10 @@ export function conteudoJanela(j: Janela): [string, string] {
   }
   const a = ARTIGOS.find((x) => x.ref === j.chave) ?? ARTIGOS[0];
   const s60 = stock(a.ref);
-  const linhas: [string, number][] = [['60 · Coimbra', s60], ['10 · Porto', Math.max(0, Math.round(s60 * .4))], ['20 · Sacavém', Math.max(0, Math.round(s60 * .2))]];
+  /* 23 out.: só o 60 tem stock no protótipo; os outros não se inventam */
+  const linhas: [string, number | null][] = [['60 · Coimbra', s60], ['10 · Porto', null], ['20 · Sacavém', null]];
   return [`Artigo · ${a.ref}`, `<p class="dk-jan-sub">${esc(a.marca)} · ${esc(a.desc)}</p>
-    <table class="dk-tab"><thead><tr><th>Armazém</th><th class="is-num">Stock</th></tr></thead><tbody>${linhas.map(([n, q]) => `<tr><td>${L(warehouse)}${n}</td><td class="is-num${q <= 0 ? ' is-zero' : ''}">${q}</td></tr>`).join('')}</tbody></table>
+    <table class="dk-tab"><thead><tr><th>Armazém</th><th class="is-num">Stock</th></tr></thead><tbody>${linhas.map(([n, q]) => `<tr><td>${L(warehouse)}${n}</td><td class="is-num${q !== null && q <= 0 ? ' is-zero' : ''}">${q ?? '—'}</td></tr>`).join('')}</tbody></table>
     <p class="dk-jan-sub">Fornecedor: ${esc(FORNECEDORES.find((f) => f.id === a.forn)?.nome ?? a.forn)} · ref. ${esc(a.refForn)}</p>`];
 }
 export function janela(j: Janela, focada: boolean): string {

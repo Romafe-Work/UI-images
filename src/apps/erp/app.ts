@@ -5,12 +5,10 @@ import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
 import { versaoAberturaV6, estadosAberturaV6 } from './abertura-v6';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
-import { versaoInicioV2, estadosInicioV2 } from './inicio-v2';
-import { versaoInicioV3 } from './inicio-v3';
-import { versaoInicioV4 } from './espaco';
-import { versaoInicioV5, estadosEspacoV6 } from './espaco-v6';
-import { versaoInicioV6, versaoEstadoLat, estadosLat } from './espaco-lateral';
+import { estadosEspacoV6 } from './espaco-v6';
+import { estadosLat } from './espaco-lateral';
 import { ecrasFicheiros, DESCRICAO_FICHEIROS } from './ficheiros/ecras';
+import { versaoInicioV7, versaoEstadoVivo, estadosVivo } from './espaco-vivo';
 import { ecrasFaltas } from './compras/faltas';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
@@ -31,11 +29,12 @@ const soAberturaV3 = (e: Ecra<IdErp>): Ecra<IdErp> => ({ ...e, objetivo: 'Depois
 /* 19 out. 2026: a fase 1 de Compras (compras/ecras.ts) — o 10 · Compras ganha a v2, na casca do Início */
 const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, VERSAO_COMPRAS_V2()] as Ecra<IdErp>['versoes'] } : e);
 
-/* 22 out. 2026: o 05 · Início ganha a v2 (briefing do ecrã inicial, «simples e wow»), que passa a abrir; a v1 fica */
-const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [...e.versoes, versaoInicioV2(), versaoInicioV3(), versaoInicioV4(), versaoInicioV5(), versaoInicioV6()] as Ecra<IdErp>['versoes'] } : e);
-
-/* 23 out. 2026: o Início v6 (menu lateral) — os estados da v4/v5 ganham também a v6, menos o do menu horizontal */
-const comV6 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => { const v = versaoEstadoLat(e.id); return v ? { ...e, versoes: [...e.versoes, v] as Ecra<IdErp>['versoes'] } : e; });
+/* 23 out. 2026 (ela: «só quero uma v2»): o 05 · Início fica com a v1 e uma só versão nova, a v2 = «The Living
+   Workspace» (os seis cartões, o menu lateral, as transições ligadas). Saem as v2–v6 de 22–23 out. e os estados que
+   só existiam nelas; o código fica (inicio-v2.ts, inicio-v3.ts, espaco.ts, espaco-v6.ts, espaco-lateral.ts), porque
+   a v2 assenta nele. Dos estados da área de trabalho fica só a versão v2. */
+const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [e.versoes[0], versaoInicioV7()] as Ecra<IdErp>['versoes'] } : e);
+const soV2 = (ecras: Ecra<IdErp>[]) => ecras.flatMap((e) => { const v = versaoEstadoVivo(e.id); return v ? [{ ...e, versoes: [v] as Ecra<IdErp>['versoes'] }] : []; });
 
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 export const erp: App<IdErp> = {
@@ -50,5 +49,5 @@ export const erp: App<IdErp> = {
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosInicioV2(), ...comV6(estadosEspacoV6()), ...estadosLat(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comV2(ecrasCompras()), ...ecrasCompras2(), ...ecrasFase2(), ...ecrasFaltas(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };
