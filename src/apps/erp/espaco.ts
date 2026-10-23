@@ -136,7 +136,8 @@ export const MENU_ERP: LinhaMenu[] = [
   A('comp-geral', 'mapas-comparativos', 'Geral', '', 10), A('comp-geral-var', 'mapas-comparativos', 'Geral (variação anual)', '', 20),
   A('comp-artigo', 'mapas-comparativos', 'Por artigo', '', 30, true), A('comp-artigo-var', 'mapas-comparativos', 'Por artigo (variação anual)', '', 40),
   A('comp-familia', 'mapas-comparativos', 'Por família/subfamília', '', 50, true), A('comp-familia-var', 'mapas-comparativos', 'Por família/subfamília (variação anual)', '', 60),
-  A('comp-forn', 'mapas-comparativos', 'Por fornecedor', '', 70, true), A('comp-forn-var', 'mapas-comparativos', 'Por fornecedor (variação anual)', '', 80),
+  /* 23 out. (ela: «quero num só ecrã»): «Por fornecedor» e «(variação anual)» são um ecrã só, com Variação anual ou Mês a mês */
+  A('comp-forn-var', 'mapas-comparativos', 'Por fornecedor', '', 70, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
 const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, true], 'compras-fornecedores': [120, true], 'compras-requisicoes': [130, false] };

@@ -35,6 +35,8 @@ import ellipsis from 'lucide-static/icons/ellipsis.svg?raw';
 import pencil from 'lucide-static/icons/pencil.svg?raw';
 import chevronsUp from 'lucide-static/icons/chevrons-up.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import calendarRange from 'lucide-static/icons/calendar-range.svg?raw';
+import calendarDays from 'lucide-static/icons/calendar-days.svg?raw';
 
 /* ---------- os dados ---------- */
 export const ANO_ATUAL = Number(HOJE.slice(0, 4));
@@ -77,12 +79,12 @@ export function comparar(a0: number): RelCf {
 }
 
 /* ---------- a página ---------- */
-export type CenarioCf = 'inicial' | 'editar' | 'invalido' | 'a-gerar' | 'resultados' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe'
+export type CenarioCf = 'inicial' | 'mensal' | 'editar' | 'invalido' | 'a-gerar' | 'resultados' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe'
   | 'exportado' | 'export-falhou' | 'erro' | 'tempo' | 'offline' | 'permissao' | 'sessao';
 const B = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-cf-acao="${k}"${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
 function html(cen: CenarioCf): string {
   const id = (x: string) => `cf-${x}-${cen}`, a0 = ANO_ATUAL - 2;
-  return `<div class="hm ak ak2 cf" data-hm data-cf data-cf-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
+  return `<div class="hm ak ak2 cf${cen === 'mensal' ? ' cf-mensal' : ''}" data-hm data-cf data-cf-cenario="${cen}" data-teclas="F2 F3 F4 F9 F10 F12">
   ${topoErp([['ERP', 'inicio'], ['Compras', 'compras'], ['Mapas', ''], ['Comparativos', ''], ['Por fornecedor (variação anual)', '']])}
   <header class="ak-cab">
     <span class="ak-cab-ic">${L(chart)}</span>
@@ -125,10 +127,11 @@ function html(cen: CenarioCf): string {
       <div class="ak-crit-cab"><h2>Critérios</h2><button type="button" class="ak-crit-x" data-cf-acao="recolher" title="Recolher os critérios num resumo" hidden>${L(chevronsUp)}<span>Recolher</span></button></div>
       <div class="ak-crit-c">
         <div class="ak2-campos cf-anos">
-          <label class="ak-campo" for="${id('ini')}"><span>Ano inicial</span><input type="number" id="${id('ini')}" name="ini" value="${a0}" min="${ANO_MIN}" max="${ANO_ATUAL - 2}" step="1" inputmode="numeric" data-cf-primeiro></label>
-          <span class="cf-seta" aria-hidden="true">${L(arrowRight)}</span>
-          <label class="ak-campo" for="${id('fim')}"><span>Ano final</span><input type="number" id="${id('fim')}" name="fim" value="${a0 + 2}" min="${ANO_MIN + 2}" max="${ANO_ATUAL}" step="1" inputmode="numeric"></label>
-          <p class="cf-dica">Três anos seguidos, como no ERP antigo: mudar um ano acerta o outro. Valores líquidos, sem IVA.</p>
+          <div class="ak-campo cf-modo" role="radiogroup" aria-labelledby="${id('modo')}"><span id="${id('modo')}">Comparar</span><span class="cf-seg"><button type="button" role="radio" data-cf-modo="anual" aria-checked="${cen !== 'mensal'}">${L(calendarRange)}Variação anual</button><button type="button" role="radio" data-cf-modo="mensal" aria-checked="${cen === 'mensal'}">${L(calendarDays)}Mês a mês</button></span></div>
+          <label class="ak-campo cf-so-anual" for="${id('ini')}"><span>Ano inicial</span><input type="number" id="${id('ini')}" name="ini" value="${a0}" min="${ANO_MIN}" max="${ANO_ATUAL - 2}" step="1" inputmode="numeric" data-cf-primeiro></label>
+          <span class="cf-seta cf-so-anual" aria-hidden="true">${L(arrowRight)}</span>
+          <label class="ak-campo" for="${id('fim')}"><span><span class="cf-so-anual">Ano final</span><span class="cf-so-mensal">Ano</span></span><input type="number" id="${id('fim')}" name="fim" value="${a0 + 2}" min="${ANO_MIN + 2}" max="${ANO_ATUAL}" step="1" inputmode="numeric"></label>
+          <p class="cf-dica"><span class="cf-so-anual">Três anos seguidos, como no ERP antigo: mudar um ano acerta o outro.</span><span class="cf-so-mensal">Os doze meses do ano, lado a lado, com o total.</span> Valores líquidos, sem IVA.</p>
         </div>
         <div class="ak-crit-acoes">
           ${B('gerar', play, 'Gerar dados', 'F10', ' data-cf-gerar-crit', 'ak-btn--acao')}
@@ -153,8 +156,9 @@ function html(cen: CenarioCf): string {
 </div>`;
 }
 
-const NOTA = 'Comparativo por Fornecedor v2 (23 out., briefing «Comparativo por Fornecedor V2»): Ano inicial → Ano final (três anos seguidos), a grelha com os anos em grupos (Quantidade, Líquido) e a variação entre eles, N/D sem base, Somatórios com as variações feitas sobre as somas, detalhe com a evolução e as encomendas, Excel e imprimir. 2024 e 2025 são histórico de exemplo.';
+const NOTA = 'Comparativo por Fornecedor v2 (23 out., briefing «Comparativo por Fornecedor V2»; ela: «quero num só ecrã» — «Por fornecedor» e «Por fornecedor (variação anual)» são agora este ecrã, com Variação anual ou Mês a mês): Ano inicial → Ano final (três anos seguidos), a grelha com os anos em grupos (Quantidade, Líquido) e a variação entre eles, N/D sem base, Somatórios com as variações feitas sobre as somas, detalhe com a evolução e as encomendas, Excel e imprimir. 2024 e 2025 são histórico de exemplo.';
 export const ESTADOS_CF: [Exclude<CenarioCf, 'inicial'>, string, string][] = [
+  ['mensal', 'Mês a mês', '2026 mês a mês (o antigo «Por fornecedor», agora no mesmo ecrã): os doze meses lado a lado e o total; os meses que ainda não chegaram ficam «—».'],
   ['resultados', 'Resultados', '2024–2026: os critérios recolhidos em «Período», o resumo, os anos revelados da esquerda para a direita e os Somatórios.'],
   ['editar', 'A alterar o período', 'Os critérios abertos por cima dos resultados; Cancelar (Esc) volta ao resumo sem perder nada.'],
   ['invalido', 'Período inválido', 'O ano final é 2027: ainda não começou. O campo marcado e a mensagem; nada se pede.'],

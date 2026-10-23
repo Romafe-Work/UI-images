@@ -13,4 +13,4 @@ export const MENU_ANTIGO = [
 ] as const;
 export type IdMenuAntigo = `cm-${typeof MENU_ANTIGO[number]}` | `cm-automatico-${'resultados' | 'agrupado' | 'a-gerar' | 'vazio' | 'erro' | 'filtros' | 'detalhe' | 'exportado'
   | 'mais-criterios' | 'invalido' | 'a-atualizar' | 'vistas' | 'export-falhou' | 'offline' | 'tempo' | 'permissao' | 'sessao'}`
-  | `cm-compforn-${'resultados' | 'editar' | 'invalido' | 'a-gerar' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe' | 'exportado' | 'export-falhou' | 'erro' | 'tempo' | 'offline' | 'permissao' | 'sessao'}`;
+  | `cm-compforn-${'mensal' | 'resultados' | 'editar' | 'invalido' | 'a-gerar' | 'parcial' | 'vazio' | 'a-atualizar' | 'agrupado' | 'filtros' | 'detalhe' | 'exportado' | 'export-falhou' | 'erro' | 'tempo' | 'offline' | 'permissao' | 'sessao'}`;

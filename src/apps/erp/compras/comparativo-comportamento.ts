@@ -12,9 +12,12 @@
        alargar colunas, escolher várias, ↑ ↓ Enter Espaço; Enter abre o detalhe e Esc fecha-o.
      - Excel (F4) com os números como números e as variações como percentagem; Imprimir (F12) imprime a grelha.
      - Guardar vista: colunas, larguras, ordem, grupos, ordem dos anos, linhas e Somatórios, por utilizador e empresa.
+     - Mês a mês (23 out., ela: «quero num só ecrã»): o antigo «Por fornecedor» — um ano, os doze meses e o total; o
+       modo é um critério (só conta depois de Gerar dados), e os meses que ainda não chegaram ficam «—».
    Movimento só em transform/opacity; com «reduzir movimento», tudo aparece logo.
    ========================================================= */
 import { comparar, variacao, ANO_ATUAL, ANO_MIN, type RelCf, type LinhaCf, type CenarioCf } from './comparativo';
+import { HOJE } from './dominio';
 import { xlsx, descarregar, type Celula } from './xlsx';
 import { euros, dia } from './dominio';
 import { L, esc, icone } from '../espaco';
@@ -44,7 +47,12 @@ interface Est {
   ordem: Ordem[]; filtros: Record<string, string>; filtrosAbertos: boolean; grupos: string[]; fechados: Set<string>;
   ocultas: Set<string>; larguras: Record<string, number>; densidade: 'compacta' | 'normal'; recentes: boolean; somas: boolean;
   sel: Set<string>; ativo: string; ancora: string; det: boolean; aviso?: string; vez: number; nums?: number[];
+  /** o modo dos resultados à vista (o do formulário é a classe cf-mensal da página) */
+  modo: 'anual' | 'mensal';
 }
+const MESES = ['Jan.', 'Fev.', 'Mar.', 'Abr.', 'Mai.', 'Jun.', 'Jul.', 'Ago.', 'Set.', 'Out.', 'Nov.', 'Dez.'];
+const MES_ATUAL = Number(HOJE.slice(5, 7));
+const modoForm = (r: HTMLElement): Est['modo'] => r.classList.contains('cf-mensal') ? 'mensal' : 'anual';
 const SESSAO = { utilizador: 'rui.matos', empresa: 'emp-000001' };
 const CHAVE = `erp:comparativo-forn:vista:${SESSAO.utilizador}:${SESSAO.empresa}`;
 const SEM_DADOS = 'Gera os dados primeiro (F10).';
@@ -60,8 +68,8 @@ const pct = (v: number) => `${v > 0.00049 ? '+' : v < -0.00049 ? '−' : ''}${(M
 
 /* ---------- as colunas (dependem dos anos) ---------- */
 type Tipo = 'txt' | 'mono' | 'n' | 'eur' | 'pct';
-interface Col { k: string; t: string; tipo: Tipo; w: number; banda: number; ano?: number; i?: number; agrupa?: boolean }
-interface Banda { t: string; sub?: string; cols: Col[]; tipo: 'forn' | 'ano' | 'var'; vazia?: boolean }
+interface Col { k: string; t: string; tipo: Tipo; w: number; banda: number; ano?: number; i?: number; agrupa?: boolean; futuro?: boolean }
+interface Banda { t: string; sub?: string; cols: Col[]; tipo: 'forn' | 'ano' | 'var' | 'tot'; vazia?: boolean }
 const DESCR: Col[] = [
   { k: 'num', t: 'Nº', tipo: 'mono', w: 72, banda: 0 }, { k: 'nome', t: 'Nome', tipo: 'txt', w: 200, banda: 0 },
   { k: 'pais', t: 'País', tipo: 'txt', w: 104, banda: 0, agrupa: true }, { k: 'cidade', t: 'Cidade', tipo: 'txt', w: 110, banda: 0, agrupa: true },
@@ -73,6 +81,12 @@ const ESCONDER: [string, string][] = [['num', 'Nº'], ['pais', 'País'], ['cidad
 function bandas(e: Est): Banda[] {
   const anos = e.rel?.anos ?? [], sd = new Set(e.rel?.semDados ?? []);
   const forn: Banda = { t: 'Fornecedor', tipo: 'forn', cols: DESCR.filter((c) => !e.ocultas.has(c.k)) };
+  if (e.modo === 'mensal') {
+    /* um ano, os doze meses e o total; os meses que ainda não chegaram ficam «—» */
+    const y = anos[2], meses: Col[] = MESES.map((m, i) => ({ k: `m${i}`, t: m, tipo: 'eur', w: 100, banda: 1, ano: y, futuro: y === ANO_ATUAL && i + 1 > MES_ATUAL }));
+    const tot: Col[] = [...(e.ocultas.has('qtd') ? [] : [{ k: 'tq', t: 'Quantidade', tipo: 'n' as Tipo, w: 100, banda: 2, ano: y }]), { k: 't', t: 'Líquido', tipo: 'eur', w: 128, banda: 2, ano: y }];
+    return [forn, { t: String(y), sub: y === ANO_ATUAL ? 'até hoje' : undefined, tipo: 'ano', cols: meses }, { t: `Total ${y}`, tipo: 'tot', cols: tot }];
+  }
   const ano = (i: number): Banda => ({ t: String(anos[i]), sub: sd.has(anos[i]) ? 'sem dados' : anos[i] === ANO_ATUAL ? 'até hoje' : undefined, tipo: 'ano', vazia: sd.has(anos[i]),
     cols: [...(e.ocultas.has('qtd') ? [] : [{ k: `q${i}`, t: 'Quantidade', tipo: 'n' as Tipo, w: 96, banda: 0, ano: anos[i], i }]), { k: `l${i}`, t: 'Líquido', tipo: 'eur', w: 124, banda: 0, ano: anos[i], i }] });
   const vr = (i: number): Banda => ({ t: `${anos[i]} → ${anos[i + 1]}`, tipo: 'var', cols: [{ k: `v${i}`, t: 'Variação', tipo: 'pct', w: 124, banda: 0, i }] });
@@ -86,13 +100,16 @@ const colDe = (e: Est, k: string) => folhas(e).find((c) => c.k === k) ?? DESCR.f
 /** O valor de uma coluna numa linha (ou nas somas de várias). */
 function valor(l: LinhaCf, k: string): unknown {
   if (k === 'num' || k === 'nome' || k === 'pais' || k === 'cidade' || k === 'tend') return l[k];
+  if (k === 't') return l.anos[2].liq;
+  if (k === 'tq') return l.anos[2].qtd;
+  if (k[0] === 'm') { const mm = `-${String(Number(k.slice(1)) + 1).padStart(2, '0')}-`; return l.anos[2].encs.filter((x) => x.data.slice(4, 8) === mm).reduce((s, x) => s + x.liq, 0); }
   const i = Number(k.slice(1));
   if (k[0] === 'q') return l.anos[i].qtd;
   if (k[0] === 'l') return l.anos[i].liq;
   return variacao(l.anos[i].liq, l.anos[i + 1].liq);
 }
 /** As somas de um conjunto, como se fosse uma linha (a variação vem das somas, não das percentagens). */
-const soma = (ls: LinhaCf[]): LinhaCf => ({ id: '', num: '', nome: '', pais: '', cidade: '', tend: '', anos: [0, 1, 2].map((i) => ({ qtd: ls.reduce((s, l) => s + l.anos[i].qtd, 0), liq: ls.reduce((s, l) => s + l.anos[i].liq, 0), encs: [] })) });
+const soma = (ls: LinhaCf[]): LinhaCf => ({ id: '', num: '', nome: '', pais: '', cidade: '', tend: '', anos: [0, 1, 2].map((i) => ({ qtd: ls.reduce((s, l) => s + l.anos[i].qtd, 0), liq: ls.reduce((s, l) => s + l.anos[i].liq, 0), encs: ls.flatMap((l) => l.anos[i].encs) })) });
 
 /* ---------- células ---------- */
 function celVar(v: unknown, anoA: number | undefined, anoB: number | undefined): string {
@@ -104,7 +121,7 @@ function celVar(v: unknown, anoA: number | undefined, anoB: number | undefined):
 function cel(e: Est, c: Col, l: LinhaCf): string {
   const v = valor(l, c.k), anos = e.rel!.anos, sd = new Set(e.rel!.semDados);
   if (c.tipo === 'pct') return celVar(v, anos[c.i!], anos[c.i! + 1]);
-  if ((c.tipo === 'n' || c.tipo === 'eur') && c.ano !== undefined && sd.has(c.ano)) return '—';
+  if ((c.tipo === 'n' || c.tipo === 'eur') && ((c.ano !== undefined && sd.has(c.ano)) || c.futuro)) return '—';
   if (c.tipo === 'n') return n(v as number);
   if (c.tipo === 'eur') return euros(v as number);
   return esc(String(v ?? '—'));
@@ -161,14 +178,14 @@ function guardarVista(r: HTMLElement, e: Est): void {
   toast(r, 'Vista guardada: colunas, larguras, ordem, grupos, anos, linhas e Somatórios.');
 }
 function novo(r: HTMLElement): Est {
-  const base: Est = { rel: null, fase: 'inicial', ini: ANO_ATUAL - 2, ordem: [], filtros: {}, filtrosAbertos: false, grupos: [], fechados: new Set(), ocultas: new Set(OCULTAS0), larguras: {}, densidade: 'compacta', recentes: false, somas: true, sel: new Set(), ativo: '', ancora: '', det: false, vez: 0 };
+  const base: Est = { rel: null, fase: 'inicial', ini: ANO_ATUAL - 2, ordem: [], filtros: {}, filtrosAbertos: false, grupos: [], fechados: new Set(), ocultas: new Set(OCULTAS0), larguras: {}, densidade: 'compacta', recentes: false, somas: true, sel: new Set(), ativo: '', ancora: '', det: false, vez: 0, modo: modoForm(r) };
   if (r.dataset.cfCenario !== 'inicial') return base;
   const v = lerVista(); if (Object.keys(v).length) r.querySelector<HTMLElement>('[data-cf-vista]')!.hidden = false;
   return { ...base, ...v };
 }
 
 /* ---------- antes de haver linhas ---------- */
-const PRONTO = `<div class="ak2-pronto cf-pronto">${L(calendarRange, 'cf-pronto-ic')}<div><b>Pronto para comparar</b><p>Escolhe os anos e prime <kbd>F10</kbd> para gerar o comparativo.</p></div></div>`;
+const PRONTO = `<div class="ak2-pronto cf-pronto">${L(calendarRange, 'cf-pronto-ic')}<div><b>Pronto para comparar</b><p>Escolhe o período e prime <kbd>F10</kbd> para gerar o comparativo.</p></div></div>`;
 const ESQUELETO = `<div class="ak2-esq" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => `<div class="ak2-esq-l${i ? '' : ' ak2-esq-cab'}">${[64, 180, 80, 70, 100, 90, 70, 100, 90, 70, 100].map((w, j) => `<i style="width:${Math.round(w * (i ? 0.5 + ((i * 7 + j * 3) % 5) / 10 : 0.55))}px"></i>`).join('')}</div>`).join('')}</div><p class="ak2-carga" role="status">${L(loader)}A gerar o comparativo… <span>O período fica como está; Esc cancela.</span></p>`;
 const ERROS: Record<TipoErro, [string, string, string]> = {
   servidor: [circleAlert, 'Não foi possível gerar o comparativo.', ''],
@@ -216,7 +233,7 @@ function grelha(r: HTMLElement, e: Est, animar: 'nada' | 'linhas' | 'revelar' = 
       return `<tr class="ak-g cf-g" data-cf-grupo="${esc(no.chave)}" tabindex="-1" aria-expanded="${aberto}" style="--n:${no.nivel}"><td class="ak-g-c is-fixa" style="left:0"><button type="button" data-cf-dobrar="${esc(no.chave)}" aria-label="${aberto ? 'Fechar' : 'Abrir'} o grupo">${L(chevronRight)}</button></td><td colspan="${desc}" class="is-fixa is-fixa-ult" style="left:34px"><span class="ak-g-t"><small>${esc(c.t)}</small><b>${esc(no.valor)}</b><em>${no.linhas.length} ${no.linhas.length === 1 ? 'fornecedor' : 'fornecedores'}</em></span></td>${e.somas ? linhaSoma(soma(no.linhas), '') : `<td colspan="${cs.length - desc}"></td>`}</tr>`;
     }
     const l = no.l, sel = e.sel.has(l.id);
-    return `<tr data-cf-id="${esc(l.id)}" tabindex="${l.id === e.ativo ? 0 : -1}" aria-selected="${sel}"${l.id === e.ativo ? ' class="is-ativo"' : ''}><td class="ak-td-sel is-fixa" style="left:0"><input type="checkbox" tabindex="-1" aria-label="Escolher ${esc(l.nome)}" data-cf-escolher="${esc(l.id)}"${sel ? ' checked' : ''}></td>${cs.map((c) => { const t = cel(e, c, l); return `<td class="${cls(c)}${fx(c)}${t === '—' ? ' is-nada' : ''}" data-g="${c.banda}">${t}</td>`; }).join('')}</tr>`;
+    return `<tr data-cf-id="${esc(l.id)}" tabindex="${l.id === e.ativo ? 0 : -1}" aria-selected="${sel}"${l.id === e.ativo ? ' class="is-ativo"' : ''}><td class="ak-td-sel is-fixa" style="left:0"><input type="checkbox" tabindex="-1" aria-label="Escolher ${esc(l.nome)}" data-cf-escolher="${esc(l.id)}"${sel ? ' checked' : ''}></td>${cs.map((c) => { const t = cel(e, c, l); return `<td class="${cls(c)}${fx(c)}${t === '—' ? ' is-nada' : (c.tipo === 'n' || c.tipo === 'eur') && valor(l, c.k) === 0 ? ' is-zero' : ''}" data-g="${c.banda}">${t}</td>`; }).join('')}</tr>`;
   }).join('');
   const total = e.somas && ls.length ? `<tfoot><tr><td class="is-fixa" style="left:0"></td><td colspan="${desc}" class="is-fixa is-fixa-ult" style="left:34px"><b>Total · ${n(ls.length)} ${ls.length === 1 ? 'fornecedor' : 'fornecedores'}</b></td>${linhaSoma(soma(ls), '')}</tr></tfoot>` : '';
   const nada = !ls.length ? `<div class="ak-vazio ak-vazio--linha">${L(searchX)}<p><b>Os filtros da tabela não deixam nenhum fornecedor.</b>F3 tira os filtros; o período fica.</p><button type="button" class="ak-btn" data-cf-acao="limpar">${L(x)}<span>Remover filtros</span></button></div>` : '';
@@ -289,12 +306,20 @@ function sumario(r: HTMLElement, e: Est, ls: LinhaCf[]): void {
   if (!e.rel?.linhas.length) { s.hidden = true; e.nums = undefined; return; }
   const t = soma(ls), [a0, a1, a2] = e.rel.anos, sd = new Set(e.rel.semDados);
   const hora = e.gerado ? new Date(e.gerado).toLocaleTimeString('pt-PT') : '—';
+  r.querySelector<HTMLElement>('[data-cf-gerado]')!.innerHTML = `Gerado às <b>${hora}</b>`;
+  if (e.modo === 'mensal') {
+    /* mês a mês: o ano, a quantidade, as encomendas e o mês com mais compras */
+    const ms = MESES.map((_, i) => valor(t, `m${i}`) as number), top = ms.indexOf(Math.max(...ms));
+    s.hidden = false;
+    s.innerHTML = `<span class="ak2-m"><small>Fornecedores</small><b data-cf-num="0">${n(ls.length)}</b>${ls.length !== e.rel.linhas.length ? `<i>de ${n(e.rel.linhas.length)}</i>` : ''}</span><span class="ak2-m"><small>Líquido ${a2}</small><b data-cf-num="3">${euros(t.anos[2].liq)}</b><i>${n(t.anos[2].qtd)} un.</i></span><span class="ak2-m"><small>Encomendas</small><b>${n(new Set(t.anos[2].encs.map((x) => x.ref)).size)}</b></span>${ms[top] > 0 ? `<span class="ak2-m"><small>Mês com mais compras</small><b>${MESES[top].replace('.', '')} ${a2}</b><i>${euros(ms[top])}</i></span>` : ''}${e.fase === 'a-gerar' ? `<span class="ak2-m-hora">${L(loader)}A atualizar…</span>` : ''}`;
+    pt.textContent = `Comparativo por Fornecedor · ${a2} mês a mês · ${n(ls.length)} fornecedores · gerado às ${hora}`;
+    e.nums = [ls.length, 0, 0, t.anos[2].liq]; return;
+  }
   const ano = (i: number) => `<span class="ak2-m cf-m-ano${sd.has(e.rel!.anos[i]) ? ' is-vazio' : ''}"><small>Líquido ${e.rel!.anos[i]}</small><b data-cf-num="${i + 1}">${sd.has(e.rel!.anos[i]) ? 'sem dados' : euros(t.anos[i].liq)}</b><i>${sd.has(e.rel!.anos[i]) ? '' : `${n(t.anos[i].qtd)} un.`}</i></span>`;
   const vr = (i: number) => `<span class="cf-m-var">${celVar(variacao(t.anos[i].liq, t.anos[i + 1].liq), e.rel!.anos[i], e.rel!.anos[i + 1])}</span>`;
   s.hidden = false;
   s.innerHTML = `<span class="ak2-m"><small>Fornecedores analisados</small><b data-cf-num="0">${n(ls.length)}</b>${ls.length !== e.rel.linhas.length ? `<i>de ${n(e.rel.linhas.length)}</i>` : ''}</span>${ano(0)}${vr(0)}${ano(1)}${vr(1)}${ano(2)}<span class="ak2-m cf-m-global"><small>Variação ${a0} → ${a2}</small>${celVar(variacao(t.anos[0].liq, t.anos[2].liq), a0, a2)}</span>${e.fase === 'a-gerar' ? `<span class="ak2-m-hora">${L(loader)}A atualizar…</span>` : ''}`
     + (sd.size ? `<p class="cf-parcial">${L(circleAlert)}<span><b>Dados parciais.</b> ${[...sd].join(' e ')} não ${sd.size === 1 ? 'tem' : 'têm'} compras registadas no ERP: ${sd.size === 1 ? 'a coluna fica vazia' : 'as colunas ficam vazias'} e as variações a partir ${sd.size === 1 ? 'desse ano' : 'desses anos'} ficam N/D. Nada é estimado.</span></p>` : '');
-  r.querySelector<HTMLElement>('[data-cf-gerado]')!.innerHTML = `Gerado às <b>${hora}</b>`;
   pt.textContent = `Comparativo por Fornecedor · ${a0}–${a2} · ${n(ls.length)} fornecedores · ${a1 === ANO_ATUAL || a2 === ANO_ATUAL ? `${ANO_ATUAL} até hoje · ` : ''}gerado às ${hora}`;
   const nums = [ls.length, t.anos[0].liq, t.anos[1].liq, t.anos[2].liq], antes = e.nums; e.nums = nums;
   if (!antes || quieto()) return;
@@ -305,20 +330,27 @@ function sumario(r: HTMLElement, e: Est, ls: LinhaCf[]): void {
 /** As etiquetas do período, no resumo dos critérios. */
 function etiquetas(r: HTMLElement, e: Est): void {
   const ul = r.querySelector<HTMLElement>('[data-cf-etiquetas]'); if (!ul || !e.rel) return; const [a0, , a2] = e.rel.anos;
-  ul.innerHTML = `<li><button type="button" class="is-forte" data-cf-etiqueta title="Alterar o período">${a0}–${a2}</button></li><li><span class="cf-etq">três anos · líquido sem IVA${a2 === ANO_ATUAL ? ` · ${ANO_ATUAL} até hoje` : ''}</span></li>`;
+  ul.innerHTML = e.modo === 'mensal'
+    ? `<li><button type="button" class="is-forte" data-cf-etiqueta title="Alterar o período">${a2}</button></li><li><button type="button" data-cf-etiqueta title="Alterar o período">Mês a mês</button></li><li><span class="cf-etq">líquido sem IVA${a2 === ANO_ATUAL ? ' · até hoje' : ''}</span></li>`
+    : `<li><button type="button" class="is-forte" data-cf-etiqueta title="Alterar o período">${a0}–${a2}</button></li><li><button type="button" data-cf-etiqueta title="Alterar o período">Variação anual</button></li><li><span class="cf-etq">três anos · líquido sem IVA${a2 === ANO_ATUAL ? ` · ${ANO_ATUAL} até hoje` : ''}</span></li>`;
 }
 function detalhe(r: HTMLElement, e: Est, entrar = false): void {
   const d = r.querySelector<HTMLElement>('[data-cf-det]')!, l = e.rel?.linhas.find((y) => y.id === e.ativo);
   if (!e.det || !l || !e.rel) { if (!d.hidden) { if (quieto()) d.hidden = true; else d.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(24px)', opacity: 0 }], { duration: 180, easing: 'ease-in' }).onfinish = () => { d.hidden = true; }; } r.classList.remove('com-det'); return; }
-  const anos = e.rel.anos, sd = new Set(e.rel.semDados), max = Math.max(1, ...l.anos.map((a) => a.liq));
-  /* as barras: o líquido de cada ano, à mesma escala; a variação por cima de cada passagem */
-  const W = 300, H = 132, bw = 54, gap = (W - 3 * bw) / 3;
-  const barras = l.anos.map((a, i) => { const h = Math.round((a.liq / max) * (H - 34)), xx = Math.round(gap / 2 + i * (bw + gap));
-    return `<g><rect class="cf-bar${i === 2 ? ' is-ult' : ''}" x="${xx}" y="${H - 18 - h}" width="${bw}" height="${Math.max(h, a.liq ? 2 : 0)}" rx="3" style="--i:${i}"/><text class="cf-bar-v" x="${xx + bw / 2}" y="${H - 22 - h}" text-anchor="middle">${sd.has(anos[i]) ? 'sem dados' : euros(a.liq).replace(/,\d\d €$/, ' €')}</text><text class="cf-bar-a" x="${xx + bw / 2}" y="${H - 4}" text-anchor="middle">${anos[i]}</text></g>`; }).join('');
+  const anos = e.rel.anos, sd = new Set(e.rel.semDados), mensal = e.modo === 'mensal';
+  /* as barras: o líquido de cada ano (ou de cada mês, no mês a mês), à mesma escala */
+  const serie: [string, number | null][] = mensal
+    ? MESES.map((m, i) => [m.slice(0, 3), anos[2] === ANO_ATUAL && i + 1 > MES_ATUAL ? null : valor(l, `m${i}`) as number])
+    : l.anos.map((a, i) => [String(anos[i]), sd.has(anos[i]) ? null : a.liq]);
+  const max = Math.max(1, ...serie.map(([, v]) => v ?? 0));
+  const W = 300, H = 132, k = serie.length, bw = mensal ? 16 : 54, gap = (W - k * bw) / k;
+  const curto = (v: number) => mensal ? (v >= 100000 ? `${Math.round(v / 100000)} mil` : v ? String(Math.round(v / 100)) : '') : euros(v).replace(/,\d\d €$/, ' €');
+  const barras = serie.map(([rot, v], i) => { const h = Math.round(((v ?? 0) / max) * (H - 34)), xx = Math.round(gap / 2 + i * (bw + gap));
+    return `<g><rect class="cf-bar${i === k - 1 || (mensal && v === max) ? ' is-ult' : ''}" x="${xx}" y="${H - 18 - h}" width="${bw}" height="${Math.max(h, v ? 2 : 0)}" rx="3" style="--i:${mensal ? i / 3 : i}"/><text class="cf-bar-v" x="${xx + bw / 2}" y="${H - 22 - h}" text-anchor="middle">${v === null ? (mensal ? '' : 'sem dados') : curto(v)}</text><text class="cf-bar-a" x="${xx + bw / 2}" y="${H - 4}" text-anchor="middle">${rot}</text></g>`; }).join('');
   const linhasAno = l.anos.map((a, i) => `<tr><th scope="row">${anos[i]}</th><td class="is-num">${sd.has(anos[i]) ? '—' : n(a.qtd)}</td><td class="is-num">${sd.has(anos[i]) ? '—' : euros(a.liq)}</td><td class="is-num">${i ? celVar(variacao(l.anos[i - 1].liq, a.liq), anos[i - 1], anos[i]) : ''}</td></tr>`).join('');
   const encs = l.anos.flatMap((a, i) => a.encs.map((y) => ({ ...y, ano: anos[i] })));
   d.innerHTML = `<header><div><small>Fornecedor · Nº ${esc(l.num)}</small><h3>${esc(l.nome)}</h3><p>${esc(l.cidade)}, ${esc(l.pais)} · ${esc(l.tend)}</p></div><button type="button" class="ak-x" data-cf-acao="fechar-det" aria-label="Fechar o detalhe (Esc)">${L(x)}</button></header>
-    <figure class="cf-graf"><figcaption>Líquido por ano</figcaption><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Líquido: ${l.anos.map((a, i) => `${anos[i]} ${euros(a.liq)}`).join(', ')}">${barras}<line x1="0" x2="${W}" y1="${H - 18}" y2="${H - 18}" class="cf-bar-base"/></svg></figure>
+    <figure class="cf-graf"><figcaption>${mensal ? `Líquido por mês · ${anos[2]}` : 'Líquido por ano'}</figcaption><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Líquido: ${l.anos.map((a, i) => `${anos[i]} ${euros(a.liq)}`).join(', ')}">${barras}<line x1="0" x2="${W}" y1="${H - 18}" y2="${H - 18}" class="cf-bar-base"/></svg></figure>
     <table class="ak-hist cf-det-tab"><thead><tr><th>Ano</th><th class="is-num">Quantidade</th><th class="is-num">Líquido</th><th class="is-num">Variação</th></tr></thead><tbody>${linhasAno}</tbody></table>
     <div class="ak-det-acoes"><button type="button" class="ak-btn" data-dk-janela="fornecedor:${esc(l.id)}">${icone('users')}<span>Ver fornecedor</span></button></div>
     <h4>Encomendas no período <span>${encs.length}</span></h4>
@@ -327,6 +359,12 @@ function detalhe(r: HTMLElement, e: Est, entrar = false): void {
   if ((vem || entrar) && !quieto()) d.animate([{ transform: 'translateX(28px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 250, easing: ease });
 }
 function tudo(r: HTMLElement, e: Est, animar: 'nada' | 'linhas' | 'revelar' = 'nada'): void { zonaGrupos(r, e); grelha(r, e, animar); colunasMenu(r, e); detalhe(r, e); }
+
+/** O modo do formulário (Variação anual ou Mês a mês); só conta depois de Gerar dados. */
+function modoEm(r: HTMLElement, m: Est['modo']): void {
+  r.classList.toggle('cf-mensal', m === 'mensal');
+  r.querySelectorAll<HTMLElement>('[data-cf-modo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cfModo === m)));
+}
 
 /* ---------- avisos breves ---------- */
 const avisos = new WeakMap<HTMLElement, number>();
@@ -348,6 +386,12 @@ function limparErro(r: HTMLElement): void { r.querySelectorAll('[data-cf-crit] [
 /** Valida o período; devolve o ano inicial, ou null (com o erro à vista). */
 function validar(r: HTMLElement): number | null {
   const { ini, fim } = ler(r), a = Number(ini), b = Number(fim);
+  if (modoForm(r) === 'mensal') {
+    if (!/^\d{4}$/.test(fim)) { erroCampo(r, 'fim', 'Escreve o ano com quatro algarismos.'); return null; }
+    if (b > ANO_ATUAL) { erroCampo(r, 'fim', `${b} ainda não começou: o ano pode ir até ${ANO_ATUAL}.`); return null; }
+    if (b < ANO_MIN) { erroCampo(r, 'fim', `O ERP não tem compras antes de ${ANO_MIN}.`); return null; }
+    return b - 2;
+  }
   if (!/^\d{4}$/.test(ini)) { erroCampo(r, 'ini', 'Escreve o ano inicial com quatro algarismos.'); return null; }
   if (!/^\d{4}$/.test(fim)) { erroCampo(r, 'fim', 'Escreve o ano final com quatro algarismos.'); return null; }
   if (a < ANO_MIN) { erroCampo(r, 'ini', `O ERP não tem compras antes de ${ANO_MIN}.`); return null; }
@@ -380,9 +424,11 @@ async function gerarDados(r: HTMLElement, e: Est, mesmo = false): Promise<void> 
   if (vez !== e.vez) return;
   if (!navigator.onLine) { falhar(r, e, 'offline'); return; }
   try {
-    const rel = comparar(a0);
-    const mudou = !e.rel || e.rel.anos[0] !== rel.anos[0];
-    e.rel = rel; e.ini = a0; e.fase = 'ok'; e.gerado = Date.now(); e.tipoErro = undefined; e.fechados.clear();
+    const modo = mesmo ? e.modo : modoForm(r), base = comparar(a0);
+    /* mês a mês: só os fornecedores com compras nesse ano */
+    const rel: RelCf = modo === 'mensal' ? { ...base, linhas: base.linhas.filter((l) => l.anos[2].encs.length), semDados: base.semDados.filter((y) => y === base.anos[2]) } : base;
+    const mudou = !e.rel || e.rel.anos[0] !== rel.anos[0] || e.modo !== modo;
+    e.rel = rel; e.modo = modo; e.ini = a0; e.fase = 'ok'; e.gerado = Date.now(); e.tipoErro = undefined; e.fechados.clear();
     e.sel = new Set([...e.sel].filter((k) => rel.linhas.some((l) => l.id === k)));
     if (!rel.linhas.some((l) => l.id === e.ativo)) { e.ativo = filtradas(e)[0]?.id ?? ''; e.det = false; }
     resumir(r, e, true);
@@ -401,6 +447,7 @@ function falhar(r: HTMLElement, e: Est, t: TipoErro): void {
 function cancelar(r: HTMLElement, e: Est): void {
   if (e.fase === 'a-gerar') { e.vez++; e.fase = e.rel ? 'ok' : 'inicial'; grelha(r, e); avisar(r, e, e.rel ? 'Pedido cancelado. Os resultados anteriores ficam.' : 'Pedido cancelado.'); return; }
   const f = r.querySelector<HTMLFormElement>('[data-cf-crit]')!, a0 = e.rel?.anos[0] ?? e.ini;
+  if (e.rel) modoEm(r, e.modo);
   (f.elements.namedItem('ini') as HTMLInputElement).value = String(a0); (f.elements.namedItem('fim') as HTMLInputElement).value = String(a0 + 2);
   limparErro(r);
   if (e.rel?.linhas.length) { resumir(r, e, true); r.querySelector<HTMLElement>('tbody tr.is-ativo, tbody tr[data-cf-id]')?.focus(); }
@@ -411,15 +458,15 @@ function exportar(r: HTMLElement, e: Est, escopo: 'todos' | 'escolhidos'): void 
   const cs = folhas(e), ls = filtradas(e).filter((l) => escopo === 'todos' || e.sel.has(l.id)), sd = new Set(e.rel.semDados);
   if (!ls.length) { avisar(r, e, 'Nada para exportar.'); return; }
   try {
-    const titulo = (c: Col) => c.tipo === 'pct' ? `Variação ${e.rel!.anos[c.i!]}→${e.rel!.anos[c.i! + 1]}` : c.ano ? `${c.t} ${c.ano}` : c.t;
+    const titulo = (c: Col) => c.tipo === 'pct' ? `Variação ${e.rel!.anos[c.i!]}→${e.rel!.anos[c.i! + 1]}` : c.k === 't' || c.k === 'tq' ? `${c.t} ${c.ano} (total)` : c.ano ? `${c.t} ${c.ano}` : c.t;
     const celula = (c: Col, l: LinhaCf): Celula => { const v = valor(l, c.k);
-      if (c.ano !== undefined && sd.has(c.ano)) return null;
+      if ((c.ano !== undefined && sd.has(c.ano)) || c.futuro) return null;
       return c.tipo === 'pct' ? (typeof v === 'number' ? { pct: v } : v === null ? 'N/D' : null) : c.tipo === 'eur' ? { euros: v as number } : c.tipo === 'n' ? v as number : c.k === 'num' ? Number(v) : String(v); };
     const gcols = e.grupos.map((k) => colDe(e, k)), todas = [...gcols, ...cs.filter((c) => !e.grupos.includes(c.k))];
     const linhas = ls.map((l) => todas.map((c) => celula(c, l)));
     if (e.somas) { const t = soma(ls); linhas.push(todas.map((c, i) => c.banda === 0 || e.grupos.includes(c.k) ? (i === 0 ? `Total (${ls.length})` : null) : celula(c, t))); }
-    const [a0, , a2] = e.rel.anos, nome = `Comparativo-fornecedores-${a0}-${a2}.xlsx`;
-    descarregar(xlsx({ nome: `Comparativo ${a0}-${a2}`, colunas: todas.map(titulo), linhas, larguras: todas.map((c) => Math.max(10, Math.round((e.larguras[c.k] ?? c.w) / 7))) }), nome);
+    const [a0, , a2] = e.rel.anos, nome = e.modo === 'mensal' ? `Comparativo-fornecedores-${a2}-mensal.xlsx` : `Comparativo-fornecedores-${a0}-${a2}.xlsx`;
+    descarregar(xlsx({ nome: e.modo === 'mensal' ? `Comparativo ${a2} mensal` : `Comparativo ${a0}-${a2}`, colunas: todas.map(titulo), linhas, larguras: todas.map((c) => Math.max(10, Math.round((e.larguras[c.k] ?? c.w) / 7))) }), nome);
     avisar(r, e, `Exportado: ${nome} · ${n(ls.length)} ${ls.length === 1 ? 'fornecedor' : 'fornecedores'} (${escopo === 'todos' ? 'todos' : 'só os escolhidos'})${e.somas ? ', com o total' : ''}.`);
   } catch { avisar(r, e, 'A exportação falhou. Os resultados ficam; tenta outra vez (F4).'); }
 }
@@ -459,7 +506,8 @@ function armar(r: HTMLElement): void {
     return;
   }
   const a0 = cen === 'parcial' ? ANO_ATUAL - 3 : cen === 'vazio' ? ANO_ATUAL - 8 : ANO_ATUAL - 2;
-  anos(a0); e.rel = comparar(a0); e.ini = a0; e.fase = 'ok'; e.gerado = Date.now();
+  anos(a0); e.rel = comparar(a0);
+  if (cen === 'mensal') { e.modo = 'mensal'; e.rel = { ...e.rel, linhas: e.rel.linhas.filter((l) => l.anos[2].encs.length), semDados: [] }; } e.ini = a0; e.fase = 'ok'; e.gerado = Date.now();
   e.ativo = filtradas(e)[0]?.id ?? ''; e.sel = new Set(e.ativo ? [e.ativo] : []);
   if (cen === 'agrupado') e.grupos = ['pais'];
   if (cen === 'detalhe') { e.det = true; e.ativo = 'skf'; e.sel = new Set(['skf']); }
@@ -484,6 +532,7 @@ export function iniciar(): void {
     if (!t.closest('.ak-menu-c')) fecharMenus(r);
     if ((b = t.closest('[data-cf-acao][aria-disabled="true"]'))) { toast(r, b.title || SEM_DADOS); return; }
     if (t.closest('[data-cf-etiqueta]')) { resumir(r, e, false); return; }
+    if ((b = t.closest('[data-cf-modo]'))) { modoEm(r, b.dataset.cfModo as Est['modo']); limparErro(r); campos(r).find((i) => i.name === (modoForm(r) === 'mensal' ? 'fim' : 'ini'))?.focus(); return; }
     if ((b = t.closest('[data-cf-densidade]'))) { e.densidade = b.dataset.cfDensidade as Est['densidade']; grelha(r, e); colunasMenu(r, e); return; }
     if ((b = t.closest('[data-cf-anos]'))) { e.recentes = b.dataset.cfAnos === 'recentes'; grelha(r, e, 'revelar'); colunasMenu(r, e); return; }
     if ((b = t.closest('[data-cf-acao]'))) {
