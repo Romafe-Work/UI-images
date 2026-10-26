@@ -74,12 +74,29 @@ export interface CfgDoc {
   acao(r: HTMLElement, e: EstDoc, k: string, b: HTMLElement): boolean;
   cenario(r: HTMLElement, e: EstDoc, cen: string): void;
   dica: string;
+  /** em vez dos modos do antigo (F1 F2 F10 F12): uma pesquisa própria (o construtor Campo → Condição → Valor das faturas) */
+  construtor?: (cen: string) => string; filtrar?: (e: EstDoc, d: Doc) => boolean; chips?: (e: EstDoc) => [string, string][];
 }
 export const CFGS = new Map<string, CfgDoc>();
 export const registar = (c: CfgDoc) => { CFGS.set(c.k, c); return c; };
 
 export const BTN = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-dv2-acao="${k}"${tecla ? ` aria-keyshortcuts="${tecla}"${extra.includes('title=') ? '' : ` title="${t} (${tecla})"`}` : ''}${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
 const op = (v: string, t: string) => `<option value="${esc(v)}">${esc(t)}</option>`;
+
+/** A pesquisa do ERP antigo por modos (F1 Número, F2 Data, F10 Código, F12 Descrição) e como compara (Shift+F1/F2). */
+function pesquisaModos(id: (x: string) => string): string {
+  return `<div class="ak-campo dv2-pesquisa" role="group" aria-labelledby="${id('pq-t')}">
+        <span id="${id('pq-t')}">Pesquisar por</span>
+        <div class="dv2-pq">
+          <span class="dv2-modos" role="radiogroup" aria-label="Pesquisar por">${MODOS.map((m, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-dv2-modo="${m.k}" title="Visualizar por ${m.t.toLowerCase()} (${m.tecla})">${L(m.ic)}<span>${m.t}</span><kbd>${m.tecla}</kbd></button>`).join('')}</span>
+          <span class="lf2-comp" role="radiogroup" aria-label="Como compara">
+            <button type="button" role="radio" aria-checked="true" data-dv2-comp="inicio" title="Pesquisa iniciada por (Shift+F1)">Iniciado por</button>
+            <button type="button" role="radio" aria-checked="false" data-dv2-comp="contem" title="Pesquisa contendo (Shift+F2)">Contendo</button>
+          </span>
+          <label class="lf2-pq-in">${L(search)}<input type="search" id="${id('q')}" data-dv2-q data-dv2-campo data-ak-primeiro autocomplete="off" placeholder="Número, ex.: 2026/04" aria-label="Pesquisar por número, iniciado por"></label>
+        </div>
+      </div>`;
+}
 
 /** A página de um documento num cenário. */
 export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string][]): string {
@@ -113,21 +130,12 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
   <section class="lf-filtros lf2-filtros dv2-filtros" aria-label="Pesquisa e filtros">
     <div class="dv2-rapidos">
       ${campo('serie', 'Série <kbd>F4</kbd>', `<select id="${id('serie')}" data-dv2-f="serie" data-dv2-campo>${op('', 'Todas')}${c.series().map((s) => op(s, s)).join('')}</select>`)}
-      <div class="ak-campo dv2-pesquisa" role="group" aria-labelledby="${id('pq-t')}">
-        <span id="${id('pq-t')}">Pesquisar por</span>
-        <div class="dv2-pq">
-          <span class="dv2-modos" role="radiogroup" aria-label="Pesquisar por">${MODOS.map((m, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-dv2-modo="${m.k}" title="Visualizar por ${m.t.toLowerCase()} (${m.tecla})">${L(m.ic)}<span>${m.t}</span><kbd>${m.tecla}</kbd></button>`).join('')}</span>
-          <span class="lf2-comp" role="radiogroup" aria-label="Como compara">
-            <button type="button" role="radio" aria-checked="true" data-dv2-comp="inicio" title="Pesquisa iniciada por (Shift+F1)">Iniciado por</button>
-            <button type="button" role="radio" aria-checked="false" data-dv2-comp="contem" title="Pesquisa contendo (Shift+F2)">Contendo</button>
-          </span>
-          <label class="lf2-pq-in">${L(search)}<input type="search" id="${id('q')}" data-dv2-q data-dv2-campo data-ak-primeiro autocomplete="off" placeholder="Número, ex.: 2026/04" aria-label="Pesquisar por número, iniciado por"></label>
-        </div>
-      </div>
+      ${c.construtor ? '' : pesquisaModos(id)}
       ${campo('forn', 'Fornecedor', `<select id="${id('forn')}" data-dv2-f="forn" data-dv2-campo>${op('', 'Todos')}${fornecedores.map(([v, t]) => op(v, t)).join('')}</select>`)}
       ${campo('estado', 'Estado', `<select id="${id('estado')}" data-dv2-f="estado" data-dv2-campo>${c.estados.map(([v, t]) => op(v, t)).join('')}</select>`)}
       <button type="button" class="lf2-mais-f" data-dv2-acao="mais-filtros" aria-expanded="false" aria-controls="${id('av')}">${L(sliders)}<span>Mais filtros</span><small data-dv2-n-av></small>${L(chevronDown, 'lf2-seta')}</button>
     </div>
+    ${c.construtor ? c.construtor(cen) : ''}
     <div class="lf2-avancados dv2-avancados" id="${id('av')}" data-dv2-av hidden>
       <div class="ak-campo dv2-periodo" role="group" aria-labelledby="${id('per')}"><span id="${id('per')}">Período</span><span class="ak2-per"><input type="date" id="${id('de')}" data-dv2-f="de" data-dv2-campo aria-label="Período — de"><i>a</i><input type="date" id="${id('ate')}" data-dv2-f="ate" data-dv2-campo aria-label="Período — até"></span></div>
       ${campo('moeda', 'Moeda', `<select id="${id('moeda')}" data-dv2-f="moeda" data-dv2-campo>${op('', 'Todas')}${op('EUR', 'EUR · euro')}</select>`)}

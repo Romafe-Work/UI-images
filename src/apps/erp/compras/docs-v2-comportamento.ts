@@ -68,7 +68,7 @@ export function filtradas(r: HTMLElement, e: EstDoc): Doc[] {
   const c = cfgDe(r), f = e.f, q = norm(e.q), campo = c.campos[e.modo];
   const ls = (e.vazia ? [] : c.linhas(e)).filter((d) => (!f.serie || c.serieDe(d) === f.serie) && (!f.forn || c.fornDe(d) === f.forn)
     && (!f.estado || c.estadoPassa(d, f.estado)) && (!f.de || c.dataDe(d) >= f.de) && (!f.ate || c.dataDe(d) <= f.ate) && (!f.moeda || c.moedaDe(d) === f.moeda)
-    && (!q || (() => { const v = norm(e.modo === 'data' ? dia(String(c.valor(d, campo))) : String(c.valor(d, campo) ?? '')); return e.comp === 'inicio' ? v.startsWith(q) : v.includes(q); })())
+    && (c.filtrar ? c.filtrar(e, d) : !q || (() => { const v = norm(e.modo === 'data' ? dia(String(c.valor(d, campo))) : String(c.valor(d, campo) ?? '')); return e.comp === 'inicio' ? v.startsWith(q) : v.includes(q); })())
     && Object.entries(e.filtrosCol).every(([k, v]) => !v.trim() || norm(texto(c, d, k)).includes(norm(v))));
   const ordem = e.ordem.length ? e.ordem : [{ k: campo, dir: (e.modo === 'numero' || e.modo === 'data' ? -1 : 1) as 1 | -1 }];
   return ls.sort((a, b) => { for (const o of ordem) { const x = c.valor(a, o.k), y = c.valor(b, o.k); const k = typeof x === 'number' && typeof y === 'number' ? x - y : String(x ?? '').localeCompare(String(y ?? ''), 'pt', { numeric: true }); if (k) return k * o.dir; } return 0; });
@@ -121,10 +121,12 @@ export function abrirDoc(b: HTMLElement | null, rota: string, titulo: string, ec
 function filtrosNaPagina(r: HTMLElement, e: EstDoc): void {
   const s = (k: string, v: string) => { const el = r.querySelector<HTMLInputElement | HTMLSelectElement>(`[data-dv2-f="${k}"]`); if (el && el.value !== v) el.value = v; };
   (Object.keys(e.f) as (keyof EstDoc['f'])[]).forEach((k) => s(k, e.f[k]));
-  const m = MODOS.find((x) => x.k === e.modo)!, q = r.querySelector<HTMLInputElement>('[data-dv2-q]')!;
+  const m = MODOS.find((x) => x.k === e.modo)!, q = r.querySelector<HTMLInputElement>('[data-dv2-q]');
+  if (q) {
   if (q.value !== e.q) q.value = e.q;
   q.placeholder = e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? 'Código do fornecedor, ex.: bosch' : 'Descrição ou notas';
   q.setAttribute('aria-label', `Pesquisar por ${m.t.toLowerCase()}, ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`);
+  }
   r.querySelectorAll<HTMLElement>('[data-dv2-modo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.dv2Modo === e.modo)));
   r.querySelectorAll<HTMLElement>('[data-dv2-comp]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.dv2Comp === e.comp)));
   const nAv = [e.f.de, e.f.ate, e.f.moeda].filter(Boolean).length;
@@ -138,6 +140,7 @@ function etiquetas(r: HTMLElement, e: EstDoc): void {
   if (f.serie) ch.push(['serie', `Série ${f.serie}`]); if (f.forn) ch.push(['forn', nome('forn')]); if (f.estado) ch.push(['estado', nome('estado')]);
   if (f.de || f.ate) ch.push(['periodo', `${f.de ? dia(f.de) : '…'} a ${f.ate ? dia(f.ate) : '…'}`]); if (f.moeda) ch.push(['moeda', f.moeda]);
   if (e.q) ch.push(['q', `${MODOS.find((m) => m.k === e.modo)!.t} ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'} «${e.q}»`]);
+  ch.push(...(cfgDe(r).chips?.(e) ?? []));
   const ncol = Object.values(e.filtrosCol).filter((v) => v.trim()).length; if (ncol) ch.push(['colunas', `${ncol} ${ncol === 1 ? 'filtro de coluna' : 'filtros de coluna'}`]);
   const antes = new Set([...caixa.querySelectorAll<HTMLElement>('[data-dv2-chip]')].map((x) => x.dataset.dv2Chip));
   caixa.innerHTML = ch.length ? `${ch.map(([k, t]) => `<span class="lf2-chip${antes.has(k) ? '' : ' is-nova'}" data-dv2-chip="${k}">${esc(t)}<button type="button" aria-label="Tirar o filtro ${esc(t)}" data-dv2-tirar="${k}">${L(xIc)}</button></span>`).join('')}<button type="button" class="lf2-limpar" data-dv2-acao="limpar">${L(undo)}<span>Limpar filtros</span></button>` : '';
@@ -440,7 +443,7 @@ export function iniciar(): void {
     if (t.closest('[data-dv2-dlg-fechar]')) { fecharDialogo(r); return; }
     if ((b = t.closest('[data-dv2-modo]'))) { mudarModo(r, e, b.dataset.dv2Modo as Modo); return; }
     if ((b = t.closest('[data-dv2-comp]'))) { mudarComp(r, e, b.dataset.dv2Comp as 'inicio' | 'contem'); return; }
-    if ((b = t.closest('[data-dv2-tirar]'))) { const k = b.dataset.dv2Tirar!; if (k === 'q') e.q = ''; else if (k === 'colunas') e.filtrosCol = {}; else if (k === 'periodo') { e.f.de = ''; e.f.ate = ''; } else (e.f as unknown as Record<string, string>)[k] = ''; tudo(r, e, true); guardarVista(r, e); return; }
+    if ((b = t.closest('[data-dv2-tirar]'))) { const k = b.dataset.dv2Tirar!; if (k.startsWith('x:')) { c.acao(r, e, 'tirar', b); return; } if (k === 'q') e.q = ''; else if (k === 'colunas') e.filtrosCol = {}; else if (k === 'periodo') { e.f.de = ''; e.f.ate = ''; } else (e.f as unknown as Record<string, string>)[k] = ''; tudo(r, e, true); guardarVista(r, e); return; }
     if ((b = t.closest('[data-dv2-tab]'))) { e.tab = b.dataset.dv2Tab!; inspetor(r, e, true); guardarVista(r, e); return; }
     if ((b = t.closest('[data-dv2-dens]'))) { e.dens = b.dataset.dv2Dens as EstDoc['dens']; grelha(r, e); menuMais(r, e); guardarVista(r, e); return; }
     if ((b = t.closest('[data-dv2-mover]'))) { const [k, d] = b.dataset.dv2Mover!.split(':'), i = e.cols.indexOf(k), j = i + +d; if (j >= 1 && j < e.cols.length) { [e.cols[i], e.cols[j]] = [e.cols[j], e.cols[i]]; grelha(r, e); menuMais(r, e); guardarVista(r, e); r.querySelector<HTMLElement>(`[data-dv2-mover="${k}:${d}"]`)?.focus(); } return; }
@@ -525,10 +528,10 @@ export function iniciar(): void {
     const prop = c.teclas.find((x) => x.tecla === tecla);
     if (prop) { ev.preventDefault(); const b = r.querySelector<HTMLElement>(`[data-dv2-acao="${prop.acao}"]`) ?? r; if (b.getAttribute('aria-disabled') === 'true') toast(r, b.title || 'Não disponível.'); else c.acao(r, e, prop.acao, b); return; }
     if (/^F\d+$/.test(ev.key) && !ev.altKey && !ev.metaKey) {
-      if (ev.shiftKey && !ev.ctrlKey) { if (ev.key === 'F1' || ev.key === 'F2') { ev.preventDefault(); if (!e.ficha) mudarComp(r, e, ev.key === 'F1' ? 'inicio' : 'contem'); } return; }
+      if (ev.shiftKey && !ev.ctrlKey) { if (!c.construtor && (ev.key === 'F1' || ev.key === 'F2')) { ev.preventDefault(); if (!e.ficha) mudarComp(r, e, ev.key === 'F1' ? 'inicio' : 'contem'); } return; }
       if (ev.ctrlKey || ev.shiftKey) return;
       const m = MODOS.find((x) => x.tecla === ev.key);
-      if (m) { ev.preventDefault(); if (e.ficha) toast(r, 'Fecha a ficha para pesquisar (Esc).'); else mudarModo(r, e, m.k); return; }
+      if (m && !c.construtor) { ev.preventDefault(); if (e.ficha) toast(r, 'Fecha a ficha para pesquisar (Esc).'); else mudarModo(r, e, m.k); return; }
       if (ev.key === 'F4') { ev.preventDefault(); const s = r.querySelector<HTMLSelectElement>('[data-dv2-f="serie"]'); if (s && !e.ficha) { s.focus(); try { s.showPicker(); } catch { /* sem showPicker */ } } return; }
       const barra: Record<string, string> = { F5: 'novo', F6: 'editar', F8: 'anular', F9: 'atualizar', F11: 'imprimir' };
       if (barra[ev.key]) { ev.preventDefault(); r.querySelector<HTMLElement>(`.dv2-barra [data-dv2-acao="${barra[ev.key]}"]`)?.click(); }

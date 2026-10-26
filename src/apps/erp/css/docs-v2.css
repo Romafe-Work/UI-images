@@ -160,3 +160,27 @@
 /* os separadores do painel veem-se sempre (na Lista de Faltas, acima de 1280 px, os painéis ficam lado a lado) */
 .dv2 .lf2-tabs.dv2-tabs { display: inline-flex; flex-wrap: wrap; }
 .dv2-tabs small:not(:empty) { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--h-sup-2); font-size: 10.5px; font-weight: 800; color: var(--h-tinta-2); }
+
+/* faturas: a pesquisa avançada (Campo → Condição → Valor), a verificação e os créditos */
+.dv2-construtor { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--h-borda); }
+.dv2-crit-cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 6px; font-size: 13px; }
+.dv2-crit-cab small { font-size: 12px; color: var(--h-tinta-3); }
+.dv2-crit { display: grid; grid-template-columns: 64px minmax(170px, 260px) minmax(130px, 170px) minmax(220px, 1fr) 30px; gap: 8px 10px; align-items: end; margin-bottom: 6px; }
+.dv2-crit-liga { height: 32px; padding: 0 6px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup-2); color: var(--h-tinta); font: inherit; font-size: 12.5px; font-weight: 800; }
+.dv2-crit-onde { display: grid; place-items: center; border-style: dashed; color: var(--h-tinta-3); }
+.dv2-crit-vv { display: flex; align-items: center; gap: 6px; min-width: 0; height: 32px; } .dv2-crit-vv i { font-style: normal; font-size: 12.5px; color: var(--h-tinta-3); }
+.dv2-crit-vv :is(input, select) { flex: 1; min-width: 0; height: 32px; padding: 0 9px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13.5px; }
+.dv2-crit-vv :is(input, select):focus { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
+.dv2-crit .dv2-x { height: 32px; }
+.dv2-crit-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
+.dv2-sim--aviso svg { color: color-mix(in srgb, var(--h-aviso) 80%, var(--h-tinta)); }
+.dv2-verif { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.dv2-verif li { display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border: 1px solid var(--h-borda); border-radius: 6px; }
+.dv2-verif svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+.dv2-verif .is-ok svg { color: var(--h-ok); } .dv2-verif .is-aviso svg { color: var(--h-tinta-3); } .dv2-verif .is-erro { border-color: color-mix(in srgb, var(--h-erro) 35%, transparent); } .dv2-verif .is-erro svg { color: var(--h-erro); }
+.dv2-cred-barra { position: relative; height: 28px; margin-bottom: 10px; border: 1px solid var(--h-borda); border-radius: 6px; overflow: hidden; background: var(--h-sup-2); }
+.dv2-cred-barra i { position: absolute; inset: 0; background: color-mix(in srgb, var(--h-azul) 20%, transparent); transform-origin: 0 50%; }
+.dv2-cred-barra span { position: relative; display: block; padding: 0 10px; font-size: 12.5px; line-height: 26px; }
+.dv2-ficha-linha-acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+@media (max-width: 1279px) { .dv2-crit { grid-template-columns: 56px minmax(150px, 1fr) minmax(120px, 160px) minmax(180px, 1fr) 30px; } }
+@media (max-width: 1099px) { .dv2-crit { grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr) 30px; } .dv2-crit-v { grid-column: 2 / 4; } }
