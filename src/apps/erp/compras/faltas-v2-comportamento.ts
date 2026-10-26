@@ -299,56 +299,88 @@ function encomendaAside(r: HTMLElement, e: Est, realcar = false): void {
 }
 
 /* ---------- desenhar: o artigo escolhido ---------- */
-function inspetor(r: HTMLElement, e: Est, mudou = false): void {
-  const i = r.querySelector<HTMLElement>('[data-lf2-insp]')!, l = ativo(e), alvo = r.querySelector<HTMLElement>('[data-lf2-alvo]')!;
-  i.dataset.tab = e.tab;
-  r.querySelectorAll<HTMLElement>('[data-lf2-tab]').forEach((b) => { const s = b.dataset.lf2Tab === e.tab; b.setAttribute('aria-selected', String(s)); b.tabIndex = s ? 0 : -1; });
-  const p = (k: string) => r.querySelector<HTMLElement>(`[data-lf2-p="${k}"]`)!;
-  if (e.fase === 'carregar' || e.detCarregar) {
-    alvo.innerHTML = e.detCarregar && l ? `<b>${esc(l.ref)}</b><small>A carregar os detalhes…</small>` : '';
-    ['stock', 'classes', 'rot'].forEach((k) => { p(k).innerHTML = `<div class="lf2-esq lf2-esq--peq" aria-label="A carregar"><i></i><i></i><i></i><i></i></div>`; }); return;
-  }
-  if (!l) {
-    alvo.innerHTML = '';
-    const msg = e.fase === 'erro' ? 'Sem dados enquanto a lista não carregar.' : 'Escolhe um artigo na lista para ver o stock por armazém, as classes de reposição e a rotatividade.';
-    p('stock').innerHTML = `<p class="lf2-sem">${L(box)}${msg}</p>`; p('classes').innerHTML = ''; p('rot').innerHTML = ''; return;
-  }
+/* ---------- os detalhes de cada artigo numa janela flutuante (26 out., ela: «era engraçado as coisas funcionarem
+   como este quadrado» — a janela de contexto da área de trabalho). Arrasta-se pelo cabeçalho, redimensiona-se pelo
+   canto, minimiza-se, maximiza-se e fecha-se; várias ao mesmo tempo, em cascata; a da frente é a última tocada. */
+interface Jan { ref: string; x: number; y: number; w: number; h: number; min: boolean; max: boolean; z: number; dias: number }
+const janelas = new WeakMap<Est, Jan[]>();
+const jans = (e: Est) => { let j = janelas.get(e); if (!j) { j = []; janelas.set(e, j); } return j; };
+let zTopo = 10;
+const doArtigo = (e: Est, ref: string) => base(e).find((l) => l.ref === ref);
+/** O corpo de uma janela: o artigo, as ligações, o stock, as classes de reposição e a rotatividade. */
+function corpoJanela(e: Est, l: L2 | undefined, dias: number): string {
+  if (e.detCarregar) return `<div class="lf2-esq lf2-esq--peq" aria-label="A carregar"><i></i><i></i><i></i><i></i><i></i></div>`;
+  if (!l) return `<p class="lf2-sem">${L(box)}O artigo já não está na Lista de Faltas (foi apagado ou gerado outra vez).</p>`;
   const a = artigo(l.ref);
-  alvo.innerHTML = `<b data-lf2-alvo-ref>${esc(l.ref)}</b><span>${esc(l.desc)} · ${esc(l.marca)}</span>
-    <span class="lf2-insp-ir"><button type="button" class="ak-btn" data-dk-janela="artigo:${esc(l.ref)}" data-lf2-acao="ficha">${L(box)}<span>Ficha do artigo</span></button><button type="button" class="ak-btn" data-dk-janela="fornecedor:${esc(l.forn)}" data-lf2-acao="ficha-forn">${L(building)}<span>${esc(l.fornNome)}</span></button></span>`;
-  /* stock por armazém — o protótipo só tem o armazém 60 */
-  p('stock').innerHTML = `<h3>Stock por armazém</h3>
-    <table class="lf2-mini"><thead><tr><th>Armazém</th><th class="is-num">Qtd.</th><th>Designação</th></tr></thead><tbody><tr><td class="is-mono">60</td><td class="is-num${l.stock <= 0 ? ' is-rutura' : ''}">${nf(l.stock)} <small>${esc(l.un)}</small></td><td>Coimbra</td></tr></tbody></table>
-    <dl class="lf2-dl lf2-dl--3"><div><dt>Stock mínimo</dt><dd>${nf(l.min)}</dd></div><div><dt>Qtd. em rutura</dt><dd>${nf(l.pedida)}</dd></div><div><dt>Qtd. encomendada</dt><dd>${nf(l.encomendada)}</dd></div></dl>
-    <p class="lf2-nota">Os outros armazéns ainda não estão no protótipo.</p>`;
-  /* as classes de reposição em rutura (da lista à vista), com a do artigo marcada */
   const grupos = new Map<string, { d: string; n: number; q: number }>();
   filtradas(e).forEach((x) => { const g = grupos.get(x.clRep) ?? { d: x.clRepDesc, n: 0, q: 0 }; g.n++; g.q += x.pedida; grupos.set(x.clRep, g); });
-  p('classes').innerHTML = `<h3>Classes de reposição em rutura</h3>
-    <ul class="lf2-classes">${[...grupos].sort((x, y) => x[0].localeCompare(y[0])).map(([c, g]) => `<li class="${c === l.clRep ? 'is-esta' : ''}"><button type="button" data-lf2-clrep="${esc(c)}" aria-pressed="${e.f.clRep === c}" title="Mostrar só esta classe"><b>${esc(c)}</b><span>${esc(g.d)}</span><small>${g.n} ${g.n === 1 ? 'artigo' : 'artigos'} · ${nf(g.q)} em rutura</small></button>${c === l.clRep ? `<em>${L(check)}este artigo</em>` : ''}</li>`).join('')}</ul>
-    <p class="lf2-hier">${esc(l.fam)} <i>›</i> ${esc(l.sub)} <i>›</i> <b>${esc(l.clRep)}</b></p>`;
-  /* rotatividade do produto nos últimos N dias */
-  const rt = rotatividade(l, e.dias), saldo = rt.entradas - rt.saidas, desde = new Date(Date.parse(HOJE) - rt.semanas * 7 * 86_400_000).toISOString().slice(0, 10);
+  const rt = rotatividade(l, dias), saldo = rt.entradas - rt.saidas, desde = new Date(Date.parse(HOJE) - rt.semanas * 7 * 86_400_000).toISOString().slice(0, 10);
   const d = (t: string, v: string, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${t}</dt><dd>${v}</dd></div>`, nada = '<span class="is-nada" title="Ainda não está no protótipo">—</span>';
-  p('rot').innerHTML = `<div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${e.dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label></div>
-    ${rt.parcial ? `<p class="lf2-parcial" role="status">${L(triangle)}Só há ${SEMANAS_MAX} semanas de movimentos no protótipo: os valores são dos últimos ${SEMANAS_MAX * 7} dias, não dos ${nf(e.dias)} pedidos.</p>` : ''}
-    <dl class="lf2-dl lf2-dl--rot">${d('Período', `${dia(desde)} a ${dia(HOJE)}`, 'is-largo')}${d('Entradas', nf(rt.entradas))}${d('Saídas', nf(rt.saidas))}${d('Saldo', `<b class="${saldo < 0 ? 'is-neg' : ''}">${saldo > 0 ? '+' : ''}${nf(saldo)}</b>`)}
-      ${d('Família', esc(l.fam))}${d('Subfamília', esc(l.sub))}${d('Qtd. económica', nf(l.econ))}${d('Qtd. embalagem', nada)}
-      ${d('Stock mínimo', nf(l.min))}${d('Stock atual', nf(l.stock))}${d('Stock consignado', nf(l.consig))}${d('Stock devolvido', nada)}
-      ${d('Preço médio', a?.preco == null ? nada : euros(Math.round(a.preco * .97)))}${d('Último preço de custo', l.custo == null ? nada : euros(l.custo))}${d('Data do último custo', dia(l.custoData))}</dl>`;
-  if (mudou && !quieto()) i.querySelectorAll<HTMLElement>('.lf2-p').forEach((x, k) => x.animate([{ opacity: .35, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 200, delay: k * 40, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'backwards' }));
+  return `<p class="lf2-jan-desc">${esc(l.desc)} · ${esc(l.marca)}</p>
+    <div class="lf2-jan-ir"><button type="button" class="ak-btn" data-dk-janela="artigo:${esc(l.ref)}" data-lf2-acao="ficha">${L(box)}<span>Ficha do artigo</span></button><button type="button" class="ak-btn" data-dk-janela="fornecedor:${esc(l.forn)}" data-lf2-acao="ficha-forn">${L(building)}<span>${esc(l.fornNome)}</span></button></div>
+    <section class="lf2-p"><h3>Stock por armazém</h3>
+      <table class="lf2-mini"><thead><tr><th>Armazém</th><th class="is-num">Qtd.</th><th>Designação</th></tr></thead><tbody><tr><td class="is-mono">60</td><td class="is-num${l.stock <= 0 ? ' is-rutura' : ''}">${nf(l.stock)} <small>${esc(l.un)}</small></td><td>Coimbra</td></tr></tbody></table>
+      <dl class="lf2-dl lf2-dl--3"><div><dt>Stock mínimo</dt><dd>${nf(l.min)}</dd></div><div><dt>Qtd. em rutura</dt><dd>${nf(l.pedida)}</dd></div><div><dt>Qtd. encomendada</dt><dd>${nf(l.encomendada)}</dd></div></dl>
+      <p class="lf2-nota">Os outros armazéns ainda não estão no protótipo.</p></section>
+    <section class="lf2-p"><h3>Classes de reposição em rutura</h3>
+      <ul class="lf2-classes">${[...grupos].sort((x, y) => x[0].localeCompare(y[0])).map(([c, g]) => `<li class="${c === l.clRep ? 'is-esta' : ''}"><button type="button" data-lf2-clrep="${esc(c)}" aria-pressed="${e.f.clRep === c}" title="Mostrar só esta classe"><b>${esc(c)}</b><span>${esc(g.d)}</span><small>${g.n} ${g.n === 1 ? 'artigo' : 'artigos'} · ${nf(g.q)} em rutura</small></button>${c === l.clRep ? `<em>${L(check)}este artigo</em>` : ''}</li>`).join('')}</ul>
+      <p class="lf2-hier">${esc(l.fam)} <i>›</i> ${esc(l.sub)} <i>›</i> <b>${esc(l.clRep)}</b></p></section>
+    <section class="lf2-p lf2-p--rot"><div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label></div>
+      ${rt.parcial ? `<p class="lf2-parcial" role="status">${L(triangle)}Só há ${SEMANAS_MAX} semanas de movimentos no protótipo: os valores são dos últimos ${SEMANAS_MAX * 7} dias, não dos ${nf(dias)} pedidos.</p>` : ''}
+      <dl class="lf2-dl lf2-dl--rot">${d('Período', `${dia(desde)} a ${dia(HOJE)}`, 'is-largo')}${d('Entradas', nf(rt.entradas))}${d('Saídas', nf(rt.saidas))}${d('Saldo', `<b class="${saldo < 0 ? 'is-neg' : ''}">${saldo > 0 ? '+' : ''}${nf(saldo)}</b>`)}
+        ${d('Família', esc(l.fam))}${d('Subfamília', esc(l.sub))}${d('Qtd. económica', nf(l.econ))}${d('Qtd. embalagem', nada)}
+        ${d('Stock mínimo', nf(l.min))}${d('Stock atual', nf(l.stock))}${d('Stock consignado', nf(l.consig))}${d('Stock devolvido', nada)}
+        ${d('Preço médio', a?.preco == null ? nada : euros(Math.round(a.preco * .97)))}${d('Último preço de custo', l.custo == null ? nada : euros(l.custo))}${d('Data do último custo', dia(l.custoData))}</dl></section>`;
 }
-/** A referência voa da linha para o cabeçalho do painel (só transform/opacity; se o painel não se vê, só acende). */
-function voar(r: HTMLElement, de_: HTMLElement | null): void {
-  const para = r.querySelector<HTMLElement>('[data-lf2-alvo-ref]'); if (!para) return;
-  const acender = () => para.animate([{ backgroundColor: 'color-mix(in srgb, var(--h-laranja) 28%, transparent)' }, { backgroundColor: 'transparent' }], { duration: 600, easing: 'ease-out' });
-  if (quieto() || !de_) { if (!quieto()) acender(); return; }
-  const a = de_.getBoundingClientRect(), b = para.getBoundingClientRect();
-  if (b.top > innerHeight || b.bottom < 0 || a.width === 0) { acender(); return; }
-  const c = document.createElement('span'); c.className = 'lf2-voo'; c.textContent = de_.textContent; c.setAttribute('aria-hidden', 'true');
-  Object.assign(c.style, { left: `${a.left}px`, top: `${a.top}px` }); document.body.appendChild(c);
-  c.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${b.left - a.left}px, ${b.top - a.top}px) scale(1.08)`, opacity: .9 }], { duration: 260, easing: 'cubic-bezier(.3, .7, .2, 1)' }).finished.then(() => { c.remove(); acender(); }, () => c.remove());
+const IC_MIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-lucide="minus"><path d="M5 12h14"/></svg>';
+const IC_MAX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="maximize-2"><path d="M15 3h6v6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/><path d="M9 21H3v-6"/></svg>';
+const IC_RES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="minimize-2"><path d="m14 10 7-7"/><path d="M20 10h-6V4"/><path d="m3 21 7-7"/><path d="M4 14h6v6"/></svg>';
+const IC_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-lucide="x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+function janelaHtml(r: HTMLElement, e: Est, j: Jan): string {
+  const id = `lf2-jan-${r.dataset.lf2Cenario}-${j.ref.replace(/\W+/g, '-')}`;
+  return `<section class="lf2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-lf2-jan="${esc(j.ref)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.h}px;z-index:${j.z}">
+    <header class="lf2-jan-cab" data-lf2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(box)}<h3 id="${id}">Artigo · <b data-lf2-jan-ref>${esc(j.ref)}</b></h3>
+      <span class="lf2-jan-bts"><button type="button" data-lf2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${IC_MIN}</button><button type="button" data-lf2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${j.max ? IC_RES : IC_MAX}</button><button type="button" data-lf2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${IC_X}</button></span></header>
+    <div class="lf2-jan-corpo" data-lf2-jan-corpo>${corpoJanela(e, doArtigo(e, j.ref), j.dias)}</div>
+  </section>`;
 }
+/** Volta a desenhar as janelas abertas (os dados mudaram: filtros, para encomenda, editar…). */
+function inspetor(r: HTMLElement, e: Est, _mudou = false): void {
+  const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]'); if (!caixa) return;
+  jans(e).forEach((j) => { const c = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(j.ref)}"] [data-lf2-jan-corpo]`); if (c) c.innerHTML = corpoJanela(e, doArtigo(e, j.ref), j.dias); });
+}
+function desenharJanelas(r: HTMLElement, e: Est): void {
+  const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]'); if (caixa) caixa.innerHTML = jans(e).map((j) => janelaHtml(r, e, j)).join('');
+}
+/** Abre (ou traz para a frente) a janela do artigo; a janela nasce da linha (só transform e opacity). */
+function abrirJanela(r: HTMLElement, e: Est, ref: string): void {
+  const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]')!, js = jans(e); let j = js.find((x) => x.ref === ref);
+  if (j) { j.z = ++zTopo; j.min = false; desenharJanelas(r, e); }
+  else {
+    const n = js.length % 6, w = Math.min(460, innerWidth - 32), h = Math.min(600, innerHeight - 40);
+    j = { ref, x: Math.max(16, Math.min(innerWidth - w - 16, innerWidth - w - 40 - n * 28)), y: Math.max(16, Math.min(innerHeight - h - 16, 80 + n * 28)), w, h, min: false, max: false, z: ++zTopo, dias: e.dias };
+    js.push(j); caixa.insertAdjacentHTML('beforeend', janelaHtml(r, e, j));
+    const jan = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`), tr = r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`);
+    if (jan && tr && !quieto()) { const a = tr.getBoundingClientRect(), b = jan.getBoundingClientRect(); jan.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${Math.max(.2, a.width / b.width)}, ${Math.max(.06, a.height / b.height)})`, opacity: .2, transformOrigin: '0 0' }, { transform: 'none', opacity: 1, transformOrigin: '0 0' }], { duration: 280, easing: 'cubic-bezier(.22, 1, .36, 1)' }); }
+  }
+  const jan = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`); jan?.focus({ preventScroll: true });
+  const b = jan?.querySelector<HTMLElement>('[data-lf2-jan-ref]'); if (b && !quieto()) b.animate([{ backgroundColor: 'color-mix(in srgb, var(--h-laranja) 30%, transparent)' }, { backgroundColor: 'transparent' }], { duration: 700, easing: 'ease-out' });
+}
+function acaoJanela(r: HTMLElement, e: Est, ref: string, k: string): void {
+  const js = jans(e), j = js.find((x) => x.ref === ref); if (!j) return;
+  if (k === 'fechar') {
+    const el = r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`);
+    const tirar = () => { js.splice(js.indexOf(j), 1); el?.remove(); r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`)?.focus({ preventScroll: true }); };
+    if (el && !quieto()) el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.96)' }], { duration: 140, easing: 'ease-in' }).finished.then(tirar, tirar); else tirar();
+    return;
+  }
+  if (k === 'min') { j.min = !j.min; if (j.min) j.max = false; }
+  if (k === 'max') { j.max = !j.max; if (j.max) j.min = false; }
+  j.z = ++zTopo; desenharJanelas(r, e);
+  r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-jan-acao="${k}"]`)?.focus({ preventScroll: true });
+}
+/** A janela de cima (a última tocada), para o Esc. */
+const janelaDeCima = (e: Est) => jans(e).slice().sort((a, b) => b.z - a.z)[0];
 function tudo(r: HTMLElement, e: Est, animar = false): void {
   filtrosNaPagina(r, e); grelha(r, e, animar); resumo(r, e); encomendaAside(r, e); inspetor(r, e); estado(r, e); menuMais(r, e);
   r.style.setProperty('--lf2-alt', `${e.alt}px`); r.querySelector('[data-lf2-div]')?.setAttribute('aria-valuenow', String(e.alt));
@@ -359,24 +391,8 @@ function escolher(r: HTMLElement, e: Est, ref: string, focar = true): void {
   r.querySelectorAll('tr.is-ativo').forEach((t) => { t.classList.remove('is-ativo'); (t as HTMLElement).tabIndex = -1; });
   const tr = r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`);
   if (tr) { tr.classList.add('is-ativo'); tr.tabIndex = 0; if (focar) tr.focus({ preventScroll: true }); tr.scrollIntoView({ block: 'nearest' }); }
-  encomendaAside(r, e); inspetor(r, e, true); estado(r, e); guardarVista(e);
+  encomendaAside(r, e); estado(r, e); guardarVista(e);
 }
-/** Os detalhes do artigo num diálogo (o painel de baixo saiu): a referência voa da linha para o cabeçalho dele. */
-function abrirDet(r: HTMLElement, e: Est): void {
-  const d = r.querySelector<HTMLElement>('[data-lf2-det]')!, tr = r.querySelector<HTMLElement>('tr.is-ativo');
-  /* 26 out. (ela: «dialog lateral do lado direito»): uma gaveta que entra pela direita (a entrada é do CSS) */
-  const ja = !d.hidden; d.hidden = false; d.classList.remove('is-a-sair'); inspetor(r, e, ja);
-  voar(r, tr?.querySelector<HTMLElement>('[data-lf2-ref-t]') ?? null);
-  if (!ja) d.querySelector<HTMLElement>('.lf2-det-x')?.focus({ preventScroll: true });
-}
-function fecharDet(r: HTMLElement): boolean {
-  const d = r.querySelector<HTMLElement>('[data-lf2-det]'); if (!d || d.hidden) return false;
-  const g = d.querySelector<HTMLElement>('.lf2-dlg');
-  if (g && !quieto()) { d.classList.add('is-a-sair'); g.animate([{ transform: 'none' }, { transform: 'translateX(100%)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).finished.then(() => { d.hidden = true; d.classList.remove('is-a-sair'); }, () => { d.hidden = true; }); }
-  else d.hidden = true;
-  r.querySelector<HTMLElement>('tr.is-ativo')?.focus({ preventScroll: true }); return true;
-}
-
 /* ---------- Mais ações: predefinições, colunas, linhas, filtros de coluna, vistas e Excel ---------- */
 function menuMais(r: HTMLElement, e: Est): void {
   const m = r.querySelector<HTMLElement>('[data-lf2-menu="mais"]'); if (!m) return;
@@ -570,7 +586,7 @@ function armar(r: HTMLElement): void {
     case 'confirmado': { const enc = encomendaAtiva(); e.aviso = `2 artigos juntados à ${enc?.ref ?? 'encomenda ativa'}. Valor líquido atualizado.`; break; }
     case 'rejeitado': { const enc = encomendaAtiva(), x = ls().find((l) => l.forn !== enc?.forn); if (x) { e.ativo = x.ref; e.recusa = `Recusado: ${x.ref} é de outro fornecedor. A ${enc?.ref} é de ${fornecedor(enc?.forn ?? '')?.nome ?? '—'}; nada se gravou.`; } break; }
     case 'permissao': e.perfil = 'financeiro'; e.aviso = 'O teu perfil (Financeiro) só consulta a Lista de Faltas.'; break;
-    case 'parcial': e.dias = 120; e.tab = 'rot'; break;
+    case 'parcial': e.dias = 120; break;
     case 'restaurada': { e.modo = 'fam'; e.f.classe = 'A'; e.ativo = 'GDB2042'; const c = r.querySelector<HTMLElement>('[data-lf2-restaurada]')!; c.hidden = false; c.innerHTML = `${L(undo)}Reposta como a deixaste às 09:12`; break; }
     default: break;
   }
@@ -578,7 +594,7 @@ function armar(r: HTMLElement): void {
   if (cen === 'avancados') r.querySelector<HTMLElement>('[data-lf2-av]')!.hidden = false;
   if (cen === 'visualizar') { const m = r.querySelector<HTMLElement>('[data-lf2-menu="visualizar"]')!; m.hidden = false; }
   if (cen === 'acoes') { const m = r.querySelector<HTMLElement>('[data-lf2-menu="acoes"]')!; m.hidden = false; }
-  if ((cen === 'det-carregar' || cen === 'parcial') && e.ativo !== '-') r.querySelector<HTMLElement>('[data-lf2-det]')!.hidden = false;
+  if ((cen === 'det-carregar' || cen === 'parcial') && e.ativo && e.ativo !== '-') { abrirJanela(r, e, e.ativo); r.querySelector<HTMLElement>('.lf2-jan')?.getAnimations().forEach((a) => a.finish()); }
   if (cen === 'invalido') { e.ativo = ls()[0]?.ref ?? ''; dlgEditar(r, e, 'A quantidade em rutura é um número inteiro de 0 a 99 999.', '-3'); }
   if (cen === 'apagar') dlgApagar(r, e, true);
   if (cen === 'confirmado') encomendaAside(r, e, true);
@@ -611,7 +627,7 @@ function teclaGrelha(r: HTMLElement, e: Est, ev: KeyboardEvent, tr: HTMLElement)
     case 'Home': ev.preventDefault(); ir(0); break;
     case 'End': ev.preventDefault(); ir(ls.length - 1); break;
     case ' ': { ev.preventDefault(); const ref = ls[i].ref; if (e.sel.has(ref)) e.sel.delete(ref); else e.sel.add(ref); tr.setAttribute('aria-selected', String(e.sel.has(ref))); const c = tr.querySelector<HTMLInputElement>('[data-lf2-escolher]'); if (c) c.checked = e.sel.has(ref); estado(r, e); encomendaAside(r, e); break; }
-    case 'Enter': ev.preventDefault(); abrirDet(r, e); break;
+    case 'Enter': ev.preventDefault(); abrirJanela(r, e, ls[i].ref); break;
     default: break;
   }
 }
@@ -633,7 +649,6 @@ export function iniciar(): void {
     if ((b = t.closest('[data-lf2-comp]'))) { mudarComp(r, e, b.dataset.lf2Comp as 'inicio' | 'contem'); return; }
     if ((b = t.closest('[data-lf2-compra]'))) { acaoCompra(r, e, b.dataset.lf2Compra!); return; }
     if ((b = t.closest('[data-lf2-tirar]'))) { tirar(r, e, b.dataset.lf2Tirar!); return; }
-    if ((b = t.closest('[data-lf2-tab]'))) { e.tab = b.dataset.lf2Tab!; inspetor(r, e, true); guardarVista(e); return; }
     if ((b = t.closest('[data-lf2-clrep]'))) { const c = b.dataset.lf2Clrep!; e.f.clRep = e.f.clRep === c ? '' : c; tudo(r, e, true); guardarVista(e); return; }
     if ((b = t.closest('[data-lf2-ajuda]'))) { const [por, k] = b.dataset.lf2Ajuda!.split(/:(.*)/); fecharDialogo(r); if (por === 'tipo') { e.modo = 'tipo'; e.comp = 'inicio'; e.q = k; } else e.f.clRep = k; tudo(r, e, true); guardarVista(e); return; }
     if ((b = t.closest('[data-lf2-predef]'))) { predef(r, e, b.dataset.lf2Predef!); r.querySelector<HTMLElement>(`[data-lf2-predef="${e.predef}"]`)?.focus(); return; }
@@ -650,7 +665,6 @@ export function iniciar(): void {
       switch (k) {
         case 'acoes': case 'mais': case 'visualizar': abrirMenu(r, k); return;
         case 'novo': return;
-        case 'fechar-det': fecharDet(r); return;
         case 'editar': dlgEditar(r, e); return;
         case 'apagar': dlgApagar(r, e, false); return;
         case 'atualizar': case 'repetir': if (e.fase === 'erro') { e.fase = 'ok'; e.erro = undefined; } atualizar(r, e); return;
@@ -684,8 +698,8 @@ export function iniciar(): void {
         default: return;
       }
     }
-    if (t.closest('.lf2-det-fundo') && !t.closest('.lf2-dlg')) { fecharDet(r); return; }
-    if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) { e.ativo === b.dataset.lf2Ref ? inspetor(r, e) : escolher(r, e, b.dataset.lf2Ref!, false); abrirDet(r, e); }
+    if ((b = t.closest('[data-lf2-jan-acao]'))) { acaoJanela(r, e, b.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, b.dataset.lf2JanAcao!); return; }
+    if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) { escolher(r, e, b.dataset.lf2Ref!, false); abrirJanela(r, e, b.dataset.lf2Ref!); }
   });
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
@@ -705,10 +719,10 @@ export function iniciar(): void {
       espera = window.setTimeout(() => {
         const d = Math.round(+t.value);
         if (!(d >= 1 && d <= 999)) { t.setAttribute('aria-invalid', 'true'); return; }
-        t.removeAttribute('aria-invalid'); if (d === e.dias) return;
-        const pos = t.selectionStart; e.dias = d; inspetor(r, e); guardarVista(e);
-        const n = r.querySelector<HTMLInputElement>('[data-lf2-dias]'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch { /* number */ } }
-        if (!quieto()) r.querySelector<HTMLElement>('.lf2-dl--rot')?.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
+        t.removeAttribute('aria-invalid');
+        const pos = t.selectionStart, ref = t.closest<HTMLElement>('[data-lf2-jan]')?.dataset.lf2Jan, j = jans(e).find((x) => x.ref === ref); if (!j) return; j.dias = d; e.dias = d; inspetor(r, e); guardarVista(e);
+        const n = r.querySelector<HTMLInputElement>(`[data-lf2-jan="${CSS.escape(ref ?? '')}"] [data-lf2-dias]`); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch { /* number */ } }
+        if (!quieto()) r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref ?? '')}"] .lf2-dl--rot`)?.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
       }, 220);
       return;
     }
@@ -728,11 +742,11 @@ export function iniciar(): void {
 
   document.addEventListener('keydown', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t) ?? visivel(); if (!r || editando()) return;
-    const e = de(r), dlg = r.querySelector<HTMLElement>('[data-lf2-dlg]')!, det = r.querySelector<HTMLElement>('[data-lf2-det]')!;
-    /* os detalhes do artigo: Esc fecha, Tab não sai (os diálogos de editar e apagar ficam por cima e têm o seu) */
-    if (!det.hidden && dlg.hidden) {
-      if (ev.key === 'Escape') { ev.preventDefault(); fecharDet(r); return; }
-      if (ev.key === 'Tab') { const fs = [...det.querySelectorAll<HTMLElement>('input, button:not([tabindex="-1"]), [href]')].filter((x) => !x.closest('[hidden]')); const i = fs.indexOf(t); if (ev.shiftKey && i <= 0) { ev.preventDefault(); fs[fs.length - 1]?.focus(); } else if (!ev.shiftKey && i === fs.length - 1) { ev.preventDefault(); fs[0]?.focus(); } }
+    const e = de(r), dlg = r.querySelector<HTMLElement>('[data-lf2-dlg]')!;
+    /* as janelas dos artigos: Esc fecha a de cima (a que tem o foco, se houver); os diálogos de editar e apagar têm o seu */
+    if (dlg.hidden && ev.key === 'Escape' && jans(e).length && !r.querySelector('[data-lf2-menu]:not([hidden])')) {
+      const daqui = t.closest<HTMLElement>('[data-lf2-jan]')?.dataset.lf2Jan, j = daqui ?? janelaDeCima(e)?.ref;
+      if (j && (daqui || !t.closest('input, select, textarea'))) { ev.preventDefault(); acaoJanela(r, e, j, 'fechar'); return; }
     }
     /* um diálogo aberto fica com o teclado: Esc fecha, Enter passa ao seguinte, Tab não sai */
     if (!dlg.hidden) {
@@ -770,7 +784,6 @@ export function iniciar(): void {
     }
     if (ev.key === 'Enter' && t.matches('[data-lf2-dias]')) { ev.preventDefault(); return; }
     /* os separadores do painel: ← → */
-    if (t.matches('[data-lf2-tab]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const ks = ['stock', 'classes', 'rot'], i = ks.indexOf(e.tab); e.tab = ks[(i + (ev.key === 'ArrowRight' ? 1 : 2)) % 3]; inspetor(r, e, true); r.querySelector<HTMLElement>(`[data-lf2-tab="${e.tab}"]`)?.focus(); return; }
     /* o divisor: ↑ ↓ mudam a altura da lista */
     if (t.matches('[data-lf2-div]') && (ev.key === 'ArrowUp' || ev.key === 'ArrowDown')) { ev.preventDefault(); e.alt = Math.max(200, Math.min(900, e.alt + (ev.key === 'ArrowDown' ? 24 : -24))); r.style.setProperty('--lf2-alt', `${e.alt}px`); t.setAttribute('aria-valuenow', String(e.alt)); guardarVista(e); return; }
     const tr = t.closest<HTMLElement>('tr[data-lf2-ref]'); if (tr && t === tr) teclaGrelha(r, e, ev, tr);
@@ -779,6 +792,17 @@ export function iniciar(): void {
   /* alargar colunas e mudar a altura da lista (puxadores) */
   document.addEventListener('pointerdown', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
+    /* as janelas: tocar traz para a frente; o cabeçalho arrasta (dentro da janela do navegador) */
+    const jan = t.closest<HTMLElement>('[data-lf2-jan]');
+    if (jan) {
+      const j = jans(e).find((x) => x.ref === jan.dataset.lf2Jan); if (!j) return;
+      if (j.z !== zTopo) { j.z = ++zTopo; jan.style.zIndex = String(j.z); }
+      if (!t.closest('[data-lf2-jan-arrastar]') || t.closest('button') || j.max) return;
+      ev.preventDefault(); const x0 = ev.clientX - j.x, y0 = ev.clientY - j.y; jan.classList.add('is-a-mover');
+      const mover = (m: PointerEvent) => { j.x = Math.max(-j.w + 120, Math.min(innerWidth - 120, m.clientX - x0)); j.y = Math.max(0, Math.min(innerHeight - 40, m.clientY - y0)); jan.style.left = `${j.x}px`; jan.style.top = `${j.y}px`; };
+      const largar = () => { document.removeEventListener('pointermove', mover); document.removeEventListener('pointerup', largar); jan.classList.remove('is-a-mover'); };
+      document.addEventListener('pointermove', mover); document.addEventListener('pointerup', largar); return;
+    }
     const h = t.closest<HTMLElement>('[data-lf2-redim]');
     if (h) {
       ev.preventDefault(); ev.stopPropagation(); const k = h.dataset.lf2Redim!, c = r.querySelector<HTMLElement>(`col[data-lf2-w="${k}"]`)!, x0 = ev.clientX, w0 = c.getBoundingClientRect().width || col(k).w;
@@ -794,6 +818,10 @@ export function iniciar(): void {
       d.addEventListener('pointermove', mover); d.addEventListener('pointerup', largar);
     }
   });
+  /* o tamanho que se dá a uma janela pelo canto fica (para minimizar e voltar) */
+  const medir = new ResizeObserver((xs) => xs.forEach((x) => { const jan = x.target as HTMLElement, r = raiz(jan); if (!r || jan.classList.contains('is-min') || jan.classList.contains('is-max')) return; const j = jans(de(r)).find((y) => y.ref === jan.dataset.lf2Jan); if (j) { j.w = Math.round(jan.offsetWidth); j.h = Math.round(jan.offsetHeight); } }));
+  new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => { if (n instanceof HTMLElement && n.matches('[data-lf2-jan]')) medir.observe(n); }))).observe(document.body, { childList: true, subtree: true });
+  document.addEventListener('dblclick', (ev) => { const h = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-lf2-jan-arrastar]'); if (!h || (ev.target as HTMLElement).closest('button')) return; const r = raiz(h); if (!r || editando()) return; acaoJanela(r, de(r), h.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, 'max'); });
   /* reordenar colunas a arrastar o cabeçalho */
   let arrastada = '';
   document.addEventListener('dragstart', (ev) => { const th = (ev.target as HTMLElement).closest?.<HTMLElement>('th[data-lf2-col]'); if (!th || !raiz(th) || editando()) return; arrastada = th.dataset.lf2Col!; ev.dataTransfer?.setData('text/plain', arrastada); th.classList.add('is-arrastada'); });
