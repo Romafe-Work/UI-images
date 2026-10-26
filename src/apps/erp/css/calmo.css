@@ -1,0 +1,18 @@
+/* =========================================================
+   ERP — movimento calmo (26 out. 2026). Do colega: «num ERP evitava animações, é foco na produtividade»;
+   «ao mudar de páginas ou na sidebar quando se clica não vale a pena»; ela: «não queria que fosse 0, mas mais baixa».
+   Fica: a resposta ao rato e ao clique (hover, carregar), menus, diálogos e janelas, curtos; carregar e realces.
+   Sai: as entradas das páginas e das grelhas (subir, cascatas, cartões a cair), os voos entre o Início e os
+   separadores, o indicador a deslizar e as cascatas do menu lateral. Carrega-se em último: os @keyframes com o
+   mesmo nome substituem os de cada ecrã (uma animação sem quadros não mexe nada). Ver comportamento/calmo.ts.
+   ========================================================= */
+@keyframes ws-traco {} @keyframes ws-painel {} @keyframes ws-entra {} @keyframes ws-aparece {} @keyframes ws-conta {}
+@keyframes lf2-subir {} @keyframes lf-linha {} @keyframes hm-subir {} @keyframes fx-entrar {} @keyframes dv2-encher {}
+@keyframes dk8-soltar {} @keyframes dk8-pasta {} @keyframes dk8-entra {} @keyframes dk8-cartao {} @keyframes dk7-nome {}
+@keyframes dk-ent {} @keyframes dk-ic-gesto {} @keyframes cp-traco {} @keyframes cp-soma {} @keyframes cp-nova {}
+@keyframes cp-escolha {} @keyframes cf-cresce {} @keyframes ak2-entra {}
+
+/* a resposta ao rato fica, mais curta */
+.dk8 { --m-press: .08s; --m-hover: .1s; }
+/* o indicador do separador e o do menu não deslizam: mudam de sítio */
+.dk8-ind, .dk8-ind-lado { transition: none !important; }

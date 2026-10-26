@@ -13,6 +13,7 @@
    - Dentro de um separador (?separador=1): a página esconde a sua moldura (o cabeçalho e o menu), porque a
      moldura é a da área de trabalho.
    ========================================================= */
+import { PAGINAS_ANIMADAS } from './calmo';
 import {
   novoEstado, arvore, separadores, ordemSeps, semSeparadores, pastaDe, ecrasCasa, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
   type Estado, type Acao, type Janela,
@@ -194,7 +195,7 @@ function abrirPasta(id: string, de?: HTMLElement | null): void {
     $<HTMLElement>(`[data-painel="${sid}"] .dk-ecra[aria-selected="true"]`)?.focus();
   } : () => { e.semCasa = false; e.ativo = 'inicio'; e.pasta = id; e.sel = filhos(id, e.perfil).find((f) => f.registada && f.permitido)?.rota ?? ''; e.arvore[id] = true; desenhar({ exp: true, entrar: true }); $<HTMLElement>('.dk-fich[aria-selected="true"]')?.focus(); };
   const alvo = e.v6 ? $('[data-dk-paineis]') : $('[data-dk-exp]');
-  if (!de || quieto() || !alvo) { fazer(); return; }
+  if (!de || quieto() || !alvo || !PAGINAS_ANIMADAS) { fazer(); return; }
   /* a assinatura: a aba levanta-se e a pasta cresce para a área */
   de.classList.add('is-abrir');
   const g = de.querySelector<HTMLElement>('.dk-arte, .dk-pasta-g')!, r = g.getBoundingClientRect(), ra = alvo.getBoundingClientRect();
@@ -220,7 +221,7 @@ function voltar(): void {
   const b = $<HTMLElement>(`[data-dk-pasta="${de}"]`); b?.focus();
   /* o caminho de volta: a pasta encolhe da área para o seu lugar e fecha a aba */
   const g = b?.querySelector<HTMLElement>('.dk-arte');
-  if (!g || !area || quieto()) return;
+  if (!g || !area || quieto() || !PAGINAS_ANIMADAS) return;
   const r = g.getBoundingClientRect(), k = Math.min(area.width / r.width, 5);
   const dx = area.left + area.width / 2 - (r.left + r.width / 2), dy = area.top + Math.min(area.height, 420) / 2 - (r.top + r.height / 2);
   b!.classList.add('is-abrir');

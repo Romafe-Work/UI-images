@@ -12,6 +12,7 @@
    Só transform, opacidade e clip-path; posições medidas, nunca fixas. Com «reduzir movimento», nada disto corre.
    ========================================================= */
 import type { Estado } from '../espaco';
+import { PAGINAS_ANIMADAS } from './calmo';
 
 const T = { press: 100, hover: 140, lado: 230, sub: 190, sep: 180, pasta: 440, janela: 260, registo: 260 };
 const CURVA = 'cubic-bezier(.22, 1, .36, 1)', CURVA_IO = 'cubic-bezier(.4, 0, .2, 1)';
@@ -110,6 +111,8 @@ export function depois(pg: HTMLElement, f: Foto, e: Estado): void {
   const ids = new Set(novos.map((s) => s.dataset.dkSep!));
   const o = daOrigem();
 
+  /* 26 out. (movimento calmo): mudar de página não anima — nem separadores, nem voos, nem o painel; ficam as janelas */
+  if (PAGINAS_ANIMADAS) {
   /* separadores que ficam: chegam-se para o lugar novo (FLIP) */
   novos.forEach((s) => { const a = f.seps.get(s.dataset.dkSep!); if (!a) return; const dx = a.r.left - s.getBoundingClientRect().left; if (Math.abs(dx) > 1) s.animate([{ transform: `translateX(${dx}px)` }, { transform: 'none' }], { duration: T.sep + 20, easing: CURVA }); });
 
@@ -154,6 +157,8 @@ export function depois(pg: HTMLElement, f: Foto, e: Estado): void {
     pg.querySelectorAll<HTMLElement>('[data-dk-acoes] > *').forEach((b, i) => b.animate([{ opacity: 0, transform: 'translateY(3px)' }, { opacity: 1, transform: 'none' }], { duration: 150, delay: i * 22, easing: CURVA, fill: 'backwards' }));
   }
 
+  }
+
   /* janelas: nascem do botão que as abriu; as fechadas voltam para lá */
   pg.querySelectorAll<HTMLElement>('[data-dk-jan]:not([hidden])').forEach((j) => {
     const id = j.dataset.dkJan!; if (f.jans.has(id)) return;
@@ -174,7 +179,8 @@ export function depois(pg: HTMLElement, f: Foto, e: Estado): void {
     if (ida?.el?.isConnected) ida.el.focus({ preventScroll: true });
   }
 
-  /* o menu */
+  /* o menu: no movimento calmo não anima (abrir grupos, recolher, o resto a chegar-se) */
+  if (!PAGINAS_ANIMADAS) return;
   const rail = pg.classList.contains('is-rail');
   if (rail !== f.rail && f.area) {
     const area = pg.querySelector<HTMLElement>('.dk7-area'), lado = pg.querySelector<HTMLElement>('.dk7-lado');
@@ -231,7 +237,7 @@ export function indicadores(pg: HTMLElement, f?: Foto): void {
   const rl = lista.getBoundingClientRect(), ri = i.getBoundingClientRect();
   Object.assign(bar.style, { top: `${ri.top - rl.top + lista.scrollTop + 7}px`, height: `${ri.height - 14}px`, left: `${ri.left - rl.left}px` });
   lista.appendChild(bar);
-  if (f?.ind && !quieto()) { const dy = f.ind.top - ri.top; if (Math.abs(dy) > 1) bar.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 220, easing: CURVA }); }
+  if (f?.ind && !quieto() && PAGINAS_ANIMADAS) { const dy = f.ind.top - ri.top; if (Math.abs(dy) > 1) bar.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 220, easing: CURVA }); }
 }
 
 /* ---------- Atualizar: o carregamento e o fim verdadeiros (o load do separador) ---------- */
@@ -243,6 +249,6 @@ export function aCarregar(pg: HTMLElement, f: HTMLIFrameElement): void {
 /** Dentro de um separador da v7: a página entra coordenada e o primeiro campo recebe o foco. */
 export function dentro(d: Document, primeira: boolean): void {
   d.documentElement.classList.add('dk8-vivo');
-  if (!primeira || quieto()) return;
+  if (!primeira || quieto() || !PAGINAS_ANIMADAS) return;
   d.documentElement.classList.add('dk8-entra'); window.setTimeout(() => d.documentElement.classList.remove('dk8-entra'), 700);
 }
