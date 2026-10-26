@@ -53,7 +53,7 @@
 .dk6 .dk-acao svg { width: 18px; height: 18px; }
 
 /* ---------- o explorador ---------- */
-.dk6-exp { width: 100%; max-width: 1580px; margin: 0 auto; gap: 22px; padding: 18px 28px 36px; }
+.dk6-exp { width: 100%; margin: 0; gap: 22px; padding: 18px 28px 36px; }
 .dk6-cab h1 { margin: 0; font-family: var(--f-titulo); font-size: 22px; line-height: 1.2; color: var(--k-tinta); }
 .dk6-cab p { margin: 2px 0 0; font-size: 13.5px; color: var(--k-tinta-2); }
 .dk6-grade { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 22px; align-items: start; }
@@ -114,7 +114,7 @@
 
 .dk6-l-nome.is-doc { font-family: var(--f-mono); font-size: 13px; }
 /* a pasta aberta no seu separador: a mesma largura da área de trabalho */
-.dk6 :is(.dk-exp--pasta, .dk-exp-cab) { width: 100%; max-width: 1580px; margin: 0 auto; padding-left: 28px; padding-right: 28px; }
+.dk6 :is(.dk-exp--pasta, .dk-exp-cab) { width: 100%; margin: 0; padding-left: 28px; padding-right: 28px; }
 .dk6 .dk-exp-cab { border-bottom: 0; }
 /* os vazios e o esqueleto */
 .dk6-vazio { display: flex; align-items: flex-start; gap: 12px; margin: 0; padding: 14px 16px; border: 1px dashed var(--k-borda-forte); border-radius: 10px; font-size: 13.5px; line-height: 1.45; color: var(--k-tinta-2); }

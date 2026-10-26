@@ -63,7 +63,8 @@
 @keyframes dk7-dica { from { opacity: 0; transform: translateX(-3px); } }
 
 /* ---------- a área de trabalho ---------- */
-.dk7-exp { display: grid; gap: 18px; width: 100%; max-width: 1360px; margin: 0 auto; padding: 20px 28px 36px; }
+/* 26 out. (ela: «deve ocupar sempre a width toda»): sem largura máxima; as grelhas (auto-fit) enchem a linha */
+.dk7-exp { display: grid; gap: 18px; width: 100%; margin: 0; padding: 20px 28px 36px; }
 .dk7-cab h1 { margin: 0; font-family: var(--f-titulo); font-size: 22px; line-height: 1.2; color: var(--k-tinta); }
 /* os seis cartões aprovados: a mesma forma; a grelha enche a largura em vez de deixar um vazio à direita */
 .dk7-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
