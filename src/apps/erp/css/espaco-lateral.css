@@ -25,7 +25,7 @@
 .dk7-g-t:focus-visible, .dk7-i:focus-visible, .dk7-rail:focus-visible { outline: 2px solid var(--k-azul); outline-offset: -2px; }
 .dk7-g-seta { width: 14px !important; height: 14px !important; transition: transform .18s var(--curva); }
 .dk7-g:not(.is-aberto) > .dk7-g-t .dk7-g-seta { transform: rotate(-90deg); }
-.dk7-g.tem-ativo > .dk7-g-t { color: var(--k-azul); }
+.dk7-g.tem-ativo > .dk7-g-t { color: var(--k-laranja); }
 .dk7-g--sub { margin: 2px 0 2px 10px; } .dk7-g--sub .dk7-g-t { height: 32px; font-size: 13.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--k-tinta); }
 .dk7-i { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; margin-top: 1px; padding: 0 10px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta); font: inherit; font-size: 13.5px; font-weight: 500; text-align: left; cursor: pointer; transition: background-color .12s ease, transform .1s ease; }
 .dk7-i svg { width: 18px !important; height: 18px !important; color: var(--k-tinta-3); transition: color .12s ease; }
@@ -33,9 +33,10 @@
 .dk7-i kbd { flex: none; }
 .dk7-i:hover { background: color-mix(in srgb, var(--k-azul) 8%, transparent); } .dk7-i:hover svg { color: var(--k-azul); }
 .dk7-i:active { transform: scale(.98); }
-.dk7-i.is-ativo { background: color-mix(in srgb, var(--k-azul) 14%, transparent); color: var(--k-azul); font-weight: 700; }
-.dk7-i.is-ativo::before { content: ""; position: absolute; left: 0; top: 7px; bottom: 7px; width: 3px; border-radius: 0 3px 3px 0; background: var(--k-azul); }
-.dk7-i.is-ativo svg { color: var(--k-azul); }
+/* 26 out. (ela: «sempre que algo está aberto, selecionado deve ficar a laranja») */
+.dk7-i.is-ativo { background: color-mix(in srgb, var(--k-laranja) 14%, transparent); color: var(--k-laranja); font-weight: 700; }
+.dk7-i.is-ativo::before { content: ""; position: absolute; left: 0; top: 7px; bottom: 7px; width: 3px; border-radius: 0 3px 3px 0; background: var(--k-laranja); }
+.dk7-i.is-ativo svg { color: var(--k-laranja); }
 .dk7-pe { padding: 8px; border-top: 1px solid var(--k-borda); }
 .dk7-rail { display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; padding: 0 10px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta-2); font: inherit; font-size: 13px; cursor: pointer; transition: background-color .12s ease; }
 .dk7-rail:hover { background: color-mix(in srgb, var(--k-azul) 8%, transparent); color: var(--k-tinta); }

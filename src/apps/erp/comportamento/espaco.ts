@@ -596,7 +596,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dk-doc]'))) { abrirRota(b.dataset.dkDoc!, b.dataset.dkTitulo); return; }
     /* o explorador: um clique escolhe (no toque, abre); na árvore, abre */
     if ((b = t.closest('[data-dk-pasta]'))) { const id = b.dataset.dkPasta!; if (b.getAttribute('aria-disabled') === 'true') { dizer(`«${b.querySelector('.dk-pasta-t')?.textContent}» ainda está no ERP antigo.`); return; } if (e.v6 || (ev as PointerEvent).pointerType === 'touch' || b.closest('.dk-titulo--pasta')) abrirPasta(id, b); else escolher(id); return; }
-    if ((b = t.closest('[data-dk-abrir]'))) { const id = b.dataset.dkAbrir!; if (b.closest('.dk-arvore') || (ev as PointerEvent).pointerType === 'touch') abrirRota(id); else { if (b.getAttribute('aria-disabled') === 'true') { e.sel = id; abrirRota(id); return; } escolher(id); } return; }
+    if ((b = t.closest('[data-dk-abrir]'))) { const id = b.dataset.dkAbrir!; if (e.v6 || b.closest('.dk-arvore') || (ev as PointerEvent).pointerType === 'touch') { e.sel = id; abrirRota(id); } else { if (b.getAttribute('aria-disabled') === 'true') { e.sel = id; abrirRota(id); return; } escolher(id); } return; }
   }, true);
   window.addEventListener('dblclick', (ev) => {
     if (!pg || editando()) return;
