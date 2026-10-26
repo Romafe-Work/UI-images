@@ -113,7 +113,7 @@ export const MENU_ERP: LinhaMenu[] = [
   M('cobrancas', 'Cobranças', 'hand-coins', 60), M('pagamentos', 'Pagamentos', 'wallet', 70), M('bancos', 'Bancos', 'landmark', 80), M('servicos', 'Serviços', 'wrench', 90),
   M('crm', 'CRM', 'users', 100), M('bi', 'BI', 'chart-column', 110), M('relatorios', 'Relatórios', 'file-text', 120), M('configuracoes', 'Configurações', 'sliders-horizontal', 130),
   M('sistema', 'Sistema', 'monitor-cog', 140), M('ajuda', 'Ajuda', 'life-buoy', 150),
-  S('compras-faltas', 'Lista de faltas', 'package-x', 'compras.faltas', 10),
+  S('compras-faltas', 'Lista de Faltas', 'package-x', 'compras.faltas', 10),
   S('compras-encomendas', 'Encomendas de compra', 'file-text', 'compras.encomendas', 20),
   S('compras-fornecedores', 'Fornecedores', 'users', 'compras.fornecedores', 30),
   S('compras-requisicoes', 'Requisições', 'clipboard-list', 'compras.requisicoes', 40),
@@ -153,7 +153,8 @@ export const TECLA: Record<Acao, string> = { novo: 'F5', editar: 'F6', eliminar:
 export interface Rota { ecra: string; titulo: string; icone: string; acoes: Acao[]; novo?: [string, string]; editar?: [string, string]; /** outra rota que abre o mesmo separador (e o modo em que o abre) */ alias?: string; modo?: string }
 /** O registo: a rota da base de dados → um ecrã que existe. O que não está aqui não abre (nunca se executa código vindo da base). */
 export const ROTAS: Record<string, Rota> = {
-  'compras.faltas': { ecra: 'compras-faltas', titulo: 'Lista de faltas', icone: 'package-x', acoes: ['novo', 'editar', 'eliminar', 'atualizar', 'imprimir'], novo: ['compras-encomenda', 'Nova encomenda'], editar: ['compras-encomenda', 'EF 2026/0413'] },
+  /* 26 out.: a Lista de Faltas v2 tem a barra do ERP antigo (F5–F11) dentro do ecrã; a da área de trabalho fica com Atualizar e Imprimir, como nos mapas */
+  'compras.faltas': { ecra: 'compras-faltas', titulo: 'Lista de Faltas', icone: 'package-x', acoes: ['atualizar', 'imprimir'] },
   'compras.encomendas': { ecra: 'compras', titulo: 'Encomendas de compra', icone: 'file-text', acoes: ['novo', 'editar', 'eliminar', 'atualizar', 'imprimir'], novo: ['compras-encomenda', 'Nova encomenda'], editar: ['compras-encomenda', 'EF 2026/0413'] },
   'compras.fornecedores': { ecra: 'compras-fornecedores', titulo: 'Fornecedores', icone: 'users', acoes: ['novo', 'editar', 'atualizar', 'imprimir'], novo: ['compras-fornecedor', 'Novo fornecedor'], editar: ['compras-fornecedor', 'Fornecedor · SKF'] },
   'compras.requisicoes': { ecra: 'compras-requisicoes', titulo: 'Requisições', icone: 'clipboard-list', acoes: ['novo', 'editar', 'eliminar', 'atualizar'], novo: ['compras-requisicao', 'Nova requisição'], editar: ['compras-requisicao', 'Requisição'] },

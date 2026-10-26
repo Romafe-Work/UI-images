@@ -12,6 +12,7 @@ import './css/abertura-v2.css';
 import './css/abertura-v6.css';
 import './css/inicio-v2.css';
 import './css/faltas.css';
+import './css/faltas-v2.css';
 import './css/inicio-v3.css';
 import './css/espaco.css';
 import './css/espaco-v6.css';
@@ -37,8 +38,9 @@ import { iniciar as moldura } from './comportamento/inicio-v3';
 import { iniciar as espaco } from './comportamento/espaco';
 import { iniciar as inicio2 } from './comportamento/inicio-v2';
 import { iniciar as faltas } from './compras/faltas-comportamento';
+import { iniciar as faltas2 } from './compras/faltas-v2-comportamento';
 import { iniciar as ficheiros } from './ficheiros/comportamento';
 import { iniciar as automatico } from './compras/automatico-comportamento';
 import { iniciar as comparativo } from './compras/comparativo-comportamento';
 
-montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, moldura, espaco, inicio, compras, compras2, ficheiros, automatico, comparativo]);
+montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, moldura, espaco, inicio, compras, compras2, ficheiros, automatico, comparativo]);
