@@ -364,14 +364,17 @@ function escolher(r: HTMLElement, e: Est, ref: string, focar = true): void {
 /** Os detalhes do artigo num diálogo (o painel de baixo saiu): a referência voa da linha para o cabeçalho dele. */
 function abrirDet(r: HTMLElement, e: Est): void {
   const d = r.querySelector<HTMLElement>('[data-lf2-det]')!, tr = r.querySelector<HTMLElement>('tr.is-ativo');
-  d.hidden = false; inspetor(r, e, true);
-  if (!quieto()) d.querySelector<HTMLElement>('.lf2-dlg')?.animate([{ opacity: 0, transform: 'translateY(10px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+  /* 26 out. (ela: «dialog lateral do lado direito»): uma gaveta que entra pela direita (a entrada é do CSS) */
+  const ja = !d.hidden; d.hidden = false; d.classList.remove('is-a-sair'); inspetor(r, e, ja);
   voar(r, tr?.querySelector<HTMLElement>('[data-lf2-ref-t]') ?? null);
-  d.querySelector<HTMLElement>('[data-lf2-tab][aria-selected="true"], .lf2-det-x')?.focus({ preventScroll: true });
+  if (!ja) d.querySelector<HTMLElement>('.lf2-det-x')?.focus({ preventScroll: true });
 }
 function fecharDet(r: HTMLElement): boolean {
   const d = r.querySelector<HTMLElement>('[data-lf2-det]'); if (!d || d.hidden) return false;
-  d.hidden = true; r.querySelector<HTMLElement>('tr.is-ativo')?.focus({ preventScroll: true }); return true;
+  const g = d.querySelector<HTMLElement>('.lf2-dlg');
+  if (g && !quieto()) { d.classList.add('is-a-sair'); g.animate([{ transform: 'none' }, { transform: 'translateX(100%)' }], { duration: 180, easing: 'cubic-bezier(.4, 0, 1, 1)' }).finished.then(() => { d.hidden = true; d.classList.remove('is-a-sair'); }, () => { d.hidden = true; }); }
+  else d.hidden = true;
+  r.querySelector<HTMLElement>('tr.is-ativo')?.focus({ preventScroll: true }); return true;
 }
 
 /* ---------- Mais ações: predefinições, colunas, linhas, filtros de coluna, vistas e Excel ---------- */

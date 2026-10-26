@@ -293,10 +293,22 @@
 .lf2-auto { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--h-tinta-3); } .lf2-auto svg { width: 14px; height: 14px; color: rgb(0, 99, 170); }
 /* os menus dos filtros (Visualizar por) ficam por cima da grelha, também durante a entrada (que dá camadas próprias) */
 .lf2-filtros { position: relative; z-index: 8; }
-/* 26 out.: os detalhes do artigo num diálogo largo (os três painéis lado a lado; em separadores quando a janela é estreita) */
-.lf2-dlg--det { position: relative; width: min(1180px, 100%); padding: 0; }
-.lf2-dlg--det .lf2-insp { margin: 0 !important; border: 0; border-radius: 10px; }
-.lf2-dlg--det .lf2-insp-cab { padding-right: 52px; }
-.lf2-det-x { position: absolute; top: 9px; right: 10px; }
+/* 26 out.: os detalhes do artigo numa gaveta do lado direito (ela: «dialog lateral do lado direito»), com a altura da
+   janela; o stock, as classes e a rotatividade uns por baixo dos outros, sem separadores. Entra pela direita (transform). */
+.lf2-det-fundo { place-items: stretch end; padding: 0; background: rgba(10, 20, 30, .24); }
+.lf2-dlg--det { position: relative; width: min(540px, calc(100vw - 24px)); height: 100vh; max-height: 100vh; padding: 0; border-width: 0 0 0 1px; border-radius: 12px 0 0 12px; overflow: auto; overscroll-behavior: contain; animation: lf2-gaveta .26s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes lf2-gaveta { from { transform: translateX(100%); } }
+.lf2-det-fundo.is-a-sair { animation: lf2-fundo-sai .18s ease both; } @keyframes lf2-fundo-sai { to { opacity: 0; } }
+.lf2-dlg--det .lf2-insp { margin: 0 !important; border: 0; border-radius: 0; background: none; }
+.lf2-dlg--det .lf2-insp-cab { position: sticky; top: 0; z-index: 2; padding: 14px 52px 12px 18px; background: var(--h-sup); }
+.lf2-dlg--det .lf2-insp-art { display: grid; gap: 6px; }
+.lf2-dlg--det .lf2-insp-art b { justify-self: start; font-size: 17px; }
+.lf2-dlg--det .lf2-insp-ir { margin-left: 0; }
+.lf2-dlg--det .lf2-tabs { display: none !important; }
+.lf2-dlg--det .lf2-paineis { display: block; }
+.lf2-dlg--det .lf2-insp .lf2-p { display: block !important; padding: 14px 18px 16px; }
+.lf2-dlg--det .lf2-p + .lf2-p { border-left: 0; border-top: 1px solid var(--h-borda); }
+.lf2-dlg--det .lf2-dl--rot { grid-template-columns: repeat(3, minmax(0, 1fr)); } .lf2-dlg--det .lf2-dl .is-largo { grid-column: 1 / -1; }
+.lf2-det-x { position: absolute; top: 12px; right: 12px; z-index: 3; }
 .lf2-tab tbody tr[data-lf2-ref] { cursor: pointer; }
 .lf2-classes li.is-esta button > span { padding-right: 82px; }
