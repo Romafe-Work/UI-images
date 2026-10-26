@@ -10,8 +10,9 @@
         F7 Família, F10 Subfamília, F12 Fornecedor) escolhe a ordem e o campo onde se procura; Shift+F1 «Iniciado por»
         e Shift+F2 «Contendo» escolhem como se compara — sem procura aproximada;
      4. a grelha «Artigos em rutura» com as colunas do antigo e, ao lado, a Encomenda ativa;
-     5. por baixo, do artigo escolhido: Stock por armazém, Classes de reposição em rutura e Rotatividade do produto
-        nos últimos N dias (Calcular), lado a lado ou em separadores quando a janela é estreita.
+     5. clicar num artigo (ou Enter) abre os detalhes num diálogo (26 out., ela: «para ficar mais simples»): Stock por
+        armazém, Classes de reposição em rutura e Rotatividade nos últimos N dias (calcula-se ao escrever), lado a lado
+        ou em separadores quando a janela é estreita.
    Dados: os da v1 (compras/faltas.ts, que lê compras/dominio.ts). A classe de reposição sai da família (de exemplo,
    como a classe, o mínimo e a rotação da v1). O que o protótipo não tem — outros armazéns, embalagem, devolvido — fica
    «—» e diz-se. «Para encomenda» grava mesmo no rascunho (dominio.guardar), com as regras de lá.
@@ -38,7 +39,7 @@ import sliders from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 import layers from 'lucide-static/icons/layers.svg?raw';
 import activity from 'lucide-static/icons/activity.svg?raw';
-import gripH from 'lucide-static/icons/grip-horizontal.svg?raw';
+import xDet from 'lucide-static/icons/x.svg?raw';
 
 /* ---------- as linhas da v2: as faltas da v1 com a unidade e a classe de reposição ---------- */
 /** A classe de reposição de cada família (de exemplo, até haver o modelo de reposição). */
@@ -191,9 +192,10 @@ function html2(cen: Cen2): string {
     <aside class="lf2-ativa" data-lf2-ativa aria-label="Encomenda ativa"></aside>
   </div>
 
-  <div class="lf2-div" role="separator" aria-orientation="horizontal" aria-label="Altura da lista (↑ ↓)" aria-valuemin="200" aria-valuemax="900" aria-valuenow="380" tabindex="0" data-lf2-div>${L(gripH)}</div>
-
-  <section class="lf2-insp" data-lf2-insp aria-labelledby="${id('insp-t')}">
+  <!-- 26 out. (ela: «quando clico num artigo quero ver num dialog os seus detalhes, para ficar mais simples») -->
+  <div class="lf2-dlg-fundo lf2-det-fundo" data-lf2-det data-por-cima hidden>
+  <div class="lf2-dlg lf2-dlg--det" role="dialog" aria-modal="true" aria-labelledby="${id('insp-t')}">
+  <section class="lf2-insp" data-lf2-insp>
     <header class="lf2-insp-cab">
       <h2 id="${id('insp-t')}" class="sr">Detalhes do artigo</h2>
       <span class="lf2-insp-art" data-lf2-alvo></span>
@@ -209,6 +211,9 @@ function html2(cen: Cen2): string {
       <section class="lf2-p lf2-p--rot" role="tabpanel" id="${id('p-rot')}" aria-labelledby="${id('t-rot')}" data-lf2-p="rot"></section>
     </div>
   </section>
+  <button type="button" class="dv2-x lf2-det-x" data-lf2-acao="fechar-det" aria-label="Fechar os detalhes (Esc)">${L(xDet)}</button>
+  </div>
+  </div>
 
   <footer class="ak-estado lf2-estado" data-lf2-estado role="status" aria-live="polite"></footer>
   <div class="lf2-dlg-fundo" data-lf2-dlg data-por-cima hidden></div>
@@ -216,7 +221,7 @@ function html2(cen: Cen2): string {
 </div>`;
 }
 
-const NOTA2 = 'Lista de Faltas v2 (26 out., briefing «Advanced Purchasing Workspace» e os prints do ERP antigo): a barra do antigo (F5–F11), «Visualizar por» com as teclas F1…F12 e a pesquisa Iniciado por/Contendo (Shift+F1/F2), as Ações de compra (Ctrl+F1…F9), a grelha com as colunas do antigo, a Encomenda ativa ao lado e, por baixo, o stock, as classes de reposição e a rotatividade do artigo escolhido.';
+const NOTA2 = 'Lista de Faltas v2 (26 out., briefing «Advanced Purchasing Workspace» e os prints do ERP antigo): a barra do antigo (F5–F11), «Visualizar por» com as teclas F1…F12 e a pesquisa Iniciado por/Contendo (Shift+F1/F2), as Ações de compra (Ctrl+F1…F9), a grelha com as colunas do antigo e a Encomenda ativa ao lado; clicar num artigo abre os detalhes (stock, classes de reposição, rotatividade) num diálogo.';
 /** Os estados da v1 que também têm v2 (o mesmo id). */
 const PARES: Partial<Record<string, Cen2>> = {
   'compras-faltas': 'normal', 'faltas-avancados': 'avancados', 'faltas-carregar': 'carregar', 'faltas-sem-resultados': 'sem-resultados',
@@ -225,8 +230,8 @@ const PARES: Partial<Record<string, Cen2>> = {
 const ESTADOS2: [Cen2, string, string][] = [
   ['visualizar', '20.11 · Visualizar por', 'O menu «Visualizar por» aberto: os sete modos do ERP antigo com as teclas; procura-se o modo a escrever.'],
   ['acoes', '20.12 · Ações de compra', 'As Opções do ERP antigo num menu (Ctrl+F1…F9); «Apagar ruturas» pede confirmação.'],
-  ['sem-artigo', '20.13 · Sem artigo escolhido', 'Nenhuma linha escolhida: o painel de baixo diz o que mostra quando se escolher uma.'],
-  ['det-carregar', '20.14 · A carregar o artigo', 'O artigo mudou e os detalhes ainda estão a chegar: a lista fica; os painéis esperam no seu sítio.'],
+  ['sem-artigo', '20.13 · Sem artigo escolhido', 'Nenhuma linha escolhida: os detalhes abrem-se num diálogo ao clicar num artigo (ou Enter).'],
+  ['det-carregar', '20.14 · A carregar o artigo', 'O diálogo dos detalhes aberto e os dados ainda a chegar: os painéis esperam no seu sítio.'],
   ['a-atualizar', '20.15 · A atualizar (F9)', 'Atualizar volta a ler a lista: as linhas ficam à vista, esbatidas, e a escolhida mantém-se.'],
   ['gerar', '20.16 · A gerar ruturas', 'Gerar ruturas (Ctrl+F2) a correr: o botão espera e a lista refaz-se com o stock de agora.'],
   ['ajuda', '20.17 · Ajuda à compra', 'Ajuda à compra (Ctrl+F3): a coluna «Qtd. sugerida» e a regra que a calcula.'],

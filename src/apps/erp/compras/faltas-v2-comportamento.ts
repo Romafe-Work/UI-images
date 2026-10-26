@@ -330,7 +330,7 @@ function inspetor(r: HTMLElement, e: Est, mudou = false): void {
   /* rotatividade do produto nos últimos N dias */
   const rt = rotatividade(l, e.dias), saldo = rt.entradas - rt.saidas, desde = new Date(Date.parse(HOJE) - rt.semanas * 7 * 86_400_000).toISOString().slice(0, 10);
   const d = (t: string, v: string, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${t}</dt><dd>${v}</dd></div>`, nada = '<span class="is-nada" title="Ainda não está no protótipo">—</span>';
-  p('rot').innerHTML = `<div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${e.dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label><small class="lf2-auto">${L(calculator)}Calcula-se sozinho</small></div>
+  p('rot').innerHTML = `<div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${e.dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label></div>
     ${rt.parcial ? `<p class="lf2-parcial" role="status">${L(triangle)}Só há ${SEMANAS_MAX} semanas de movimentos no protótipo: os valores são dos últimos ${SEMANAS_MAX * 7} dias, não dos ${nf(e.dias)} pedidos.</p>` : ''}
     <dl class="lf2-dl lf2-dl--rot">${d('Período', `${dia(desde)} a ${dia(HOJE)}`, 'is-largo')}${d('Entradas', nf(rt.entradas))}${d('Saídas', nf(rt.saidas))}${d('Saldo', `<b class="${saldo < 0 ? 'is-neg' : ''}">${saldo > 0 ? '+' : ''}${nf(saldo)}</b>`)}
       ${d('Família', esc(l.fam))}${d('Subfamília', esc(l.sub))}${d('Qtd. económica', nf(l.econ))}${d('Qtd. embalagem', nada)}
@@ -360,7 +360,18 @@ function escolher(r: HTMLElement, e: Est, ref: string, focar = true): void {
   const tr = r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`);
   if (tr) { tr.classList.add('is-ativo'); tr.tabIndex = 0; if (focar) tr.focus({ preventScroll: true }); tr.scrollIntoView({ block: 'nearest' }); }
   encomendaAside(r, e); inspetor(r, e, true); estado(r, e); guardarVista(e);
+}
+/** Os detalhes do artigo num diálogo (o painel de baixo saiu): a referência voa da linha para o cabeçalho dele. */
+function abrirDet(r: HTMLElement, e: Est): void {
+  const d = r.querySelector<HTMLElement>('[data-lf2-det]')!, tr = r.querySelector<HTMLElement>('tr.is-ativo');
+  d.hidden = false; inspetor(r, e, true);
+  if (!quieto()) d.querySelector<HTMLElement>('.lf2-dlg')?.animate([{ opacity: 0, transform: 'translateY(10px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.22, 1, .36, 1)' });
   voar(r, tr?.querySelector<HTMLElement>('[data-lf2-ref-t]') ?? null);
+  d.querySelector<HTMLElement>('[data-lf2-tab][aria-selected="true"], .lf2-det-x')?.focus({ preventScroll: true });
+}
+function fecharDet(r: HTMLElement): boolean {
+  const d = r.querySelector<HTMLElement>('[data-lf2-det]'); if (!d || d.hidden) return false;
+  d.hidden = true; r.querySelector<HTMLElement>('tr.is-ativo')?.focus({ preventScroll: true }); return true;
 }
 
 /* ---------- Mais ações: predefinições, colunas, linhas, filtros de coluna, vistas e Excel ---------- */
@@ -564,6 +575,7 @@ function armar(r: HTMLElement): void {
   if (cen === 'avancados') r.querySelector<HTMLElement>('[data-lf2-av]')!.hidden = false;
   if (cen === 'visualizar') { const m = r.querySelector<HTMLElement>('[data-lf2-menu="visualizar"]')!; m.hidden = false; }
   if (cen === 'acoes') { const m = r.querySelector<HTMLElement>('[data-lf2-menu="acoes"]')!; m.hidden = false; }
+  if ((cen === 'det-carregar' || cen === 'parcial') && e.ativo !== '-') r.querySelector<HTMLElement>('[data-lf2-det]')!.hidden = false;
   if (cen === 'invalido') { e.ativo = ls()[0]?.ref ?? ''; dlgEditar(r, e, 'A quantidade em rutura é um número inteiro de 0 a 99 999.', '-3'); }
   if (cen === 'apagar') dlgApagar(r, e, true);
   if (cen === 'confirmado') encomendaAside(r, e, true);
@@ -596,7 +608,7 @@ function teclaGrelha(r: HTMLElement, e: Est, ev: KeyboardEvent, tr: HTMLElement)
     case 'Home': ev.preventDefault(); ir(0); break;
     case 'End': ev.preventDefault(); ir(ls.length - 1); break;
     case ' ': { ev.preventDefault(); const ref = ls[i].ref; if (e.sel.has(ref)) e.sel.delete(ref); else e.sel.add(ref); tr.setAttribute('aria-selected', String(e.sel.has(ref))); const c = tr.querySelector<HTMLInputElement>('[data-lf2-escolher]'); if (c) c.checked = e.sel.has(ref); estado(r, e); encomendaAside(r, e); break; }
-    case 'Enter': ev.preventDefault(); r.querySelector<HTMLElement>('[data-lf2-acao="ficha"]')?.click(); if (!emSeparador()) toast(r, `A ficha de ${ls[i].ref} abre numa janela na área de trabalho.`); break;
+    case 'Enter': ev.preventDefault(); abrirDet(r, e); break;
     default: break;
   }
 }
@@ -610,7 +622,7 @@ export function iniciar(): void {
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return;
     const e = de(r); let b: HTMLElement | null;
-    if (t.closest('.lf2-dlg-fundo') && !t.closest('.lf2-dlg')) { fecharDialogo(r); return; }
+    if (t.closest('[data-lf2-dlg]') && !t.closest('.lf2-dlg')) { fecharDialogo(r); return; }
     if (!t.closest('.ak-menu-c')) fecharMenus(r);
     if ((b = t.closest('[data-lf2-acao][aria-disabled="true"]'))) { toast(r, b.title || 'Não disponível.'); return; }
     if (t.closest('[data-lf2-dlg-fechar]')) { fecharDialogo(r); return; }
@@ -635,6 +647,7 @@ export function iniciar(): void {
       switch (k) {
         case 'acoes': case 'mais': case 'visualizar': abrirMenu(r, k); return;
         case 'novo': return;
+        case 'fechar-det': fecharDet(r); return;
         case 'editar': dlgEditar(r, e); return;
         case 'apagar': dlgApagar(r, e, false); return;
         case 'atualizar': case 'repetir': if (e.fase === 'erro') { e.fase = 'ok'; e.erro = undefined; } atualizar(r, e); return;
@@ -668,7 +681,8 @@ export function iniciar(): void {
         default: return;
       }
     }
-    if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) escolher(r, e, b.dataset.lf2Ref!);
+    if (t.closest('.lf2-det-fundo') && !t.closest('.lf2-dlg')) { fecharDet(r); return; }
+    if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) { e.ativo === b.dataset.lf2Ref ? inspetor(r, e) : escolher(r, e, b.dataset.lf2Ref!, false); abrirDet(r, e); }
   });
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
@@ -711,7 +725,12 @@ export function iniciar(): void {
 
   document.addEventListener('keydown', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t) ?? visivel(); if (!r || editando()) return;
-    const e = de(r), dlg = r.querySelector<HTMLElement>('[data-lf2-dlg]')!;
+    const e = de(r), dlg = r.querySelector<HTMLElement>('[data-lf2-dlg]')!, det = r.querySelector<HTMLElement>('[data-lf2-det]')!;
+    /* os detalhes do artigo: Esc fecha, Tab não sai (os diálogos de editar e apagar ficam por cima e têm o seu) */
+    if (!det.hidden && dlg.hidden) {
+      if (ev.key === 'Escape') { ev.preventDefault(); fecharDet(r); return; }
+      if (ev.key === 'Tab') { const fs = [...det.querySelectorAll<HTMLElement>('input, button:not([tabindex="-1"]), [href]')].filter((x) => !x.closest('[hidden]')); const i = fs.indexOf(t); if (ev.shiftKey && i <= 0) { ev.preventDefault(); fs[fs.length - 1]?.focus(); } else if (!ev.shiftKey && i === fs.length - 1) { ev.preventDefault(); fs[0]?.focus(); } }
+    }
     /* um diálogo aberto fica com o teclado: Esc fecha, Enter passa ao seguinte, Tab não sai */
     if (!dlg.hidden) {
       if (ev.key === 'Escape') { ev.preventDefault(); fecharDialogo(r); return; }
