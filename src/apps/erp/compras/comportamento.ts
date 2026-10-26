@@ -13,6 +13,7 @@
    - Outra janela muda os dados (evento storage): a página relê; se havia alterações por guardar, avisa.
    ========================================================= */
 import { ws, registarPaginas, travarSaida } from '../comportamento/inicio';
+import { comEstadoDaRaiz } from './estados-cp';
 import {
   paginaCompras, edicaoDe, cenario, vistaPadrao, filtrar, tabelaEncomendas, linhasEnc, resumoEnc, gavetaArtigos, dialogoMotivo, dialogoSair, dialogoNova,
   linhasRececao, tabelaFornecedores, type Contexto, type Edicao, type FormRec, type VistaLista,
@@ -54,7 +55,8 @@ function contexto(id: string): Contexto {
   if (id === 'compras-fornecedores') c.q = ws.raiz()?.querySelector<HTMLInputElement>('[data-cp-forn-q]')?.value ?? (ws.raiz()?.dataset.wsRef ? '' : qForn) ?? '';
   return c;
 }
-registarPaginas(['compras', 'compras-encomenda', 'compras-rececoes', 'compras-rececao', 'compras-fornecedores', 'compras-fornecedor'], (id, e) => paginaCompras(id, e, contexto(id)));
+/* os estados de 26 out. (compras/estados-cp.ts) ficam por cima de cada desenho */
+registarPaginas(['compras', 'compras-encomenda', 'compras-rececoes', 'compras-rececao', 'compras-fornecedores', 'compras-fornecedor'], (id, e) => comEstadoDaRaiz(paginaCompras(id, e, contexto(id)), ws.raiz()));
 
 /* ---------- ajudas ---------- */
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => ws.raiz()?.querySelector<T>(sel) ?? null;

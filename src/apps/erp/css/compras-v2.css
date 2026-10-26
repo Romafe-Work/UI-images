@@ -345,3 +345,9 @@ textarea.cp-input { resize: vertical; line-height: 1.45; }
   .cp-pc-forn { grid-template-columns: minmax(0, 1fr) !important; gap: 4px !important; }
   .cp-pc-forn .btn { justify-self: start; }
 }
+/* os estados de 26 out. (compras/estados-cp.ts): o esqueleto do conteúdo */
+.cp-esq { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--ws-borda); border-radius: 8px; background: var(--ws-sup); }
+.cp-esq i { display: block; height: 28px; border-radius: 5px; background: linear-gradient(90deg, var(--ws-sup-2, #f2f5f8) 30%, var(--ws-borda) 50%, var(--ws-sup-2, #f2f5f8) 70%) 0 0 / 300% 100%; animation: cp-brilho 1.2s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 40ms); }
+.cp-esq i:first-child { height: 40px; }
+@keyframes cp-brilho { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .cp-esq i { animation: none; } }

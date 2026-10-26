@@ -6,6 +6,7 @@
    ========================================================= */
 /* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
 const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
+import { mostrar } from '../../../comum/ecras';
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const raiz = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTMLElement>('[data-fx]') ?? null;
 const linhas = (r: HTMLElement) => [...r.querySelectorAll<HTMLTableRowElement>('[data-fx-linhas] tr')];
@@ -63,6 +64,7 @@ export function iniciar(): void {
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return;
     let b: HTMLElement | null;
+    if ((b = t.closest('[data-fx-repetir]'))) { mostrar(b.dataset.fxRepetir as never); return; }
     if ((b = t.closest('[data-fx-ord]'))) { ordenar(r, b); return; }
     if (t.closest('[data-fx-limpar]')) { const q = r.querySelector<HTMLInputElement>('[data-fx-q]')!; q.value = ''; filtrar(r, ''); q.focus(); return; }
     const tr = t.closest<HTMLTableRowElement>('[data-fx-linhas] tr'); if (tr) escolher(r, tr);

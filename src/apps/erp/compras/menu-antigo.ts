@@ -9,7 +9,7 @@
    ========================================================= */
 import type { Ecra } from '../../../comum/tipos';
 import type { IdErp } from '../ids';
-import { paginaTabela, familiaDe, det, type Tabela, type Linha, type Col } from '../ficheiros/ecras';
+import { paginaTabela, estadosTabela, familiaDe, det, type Tabela, type Linha, type Col } from '../ficheiros/ecras';
 import { encomendas, rececoes, FORNECEDORES, ARTIGOS, linhaLiquida, totais, euros, dia, atrasada, pendente, diasAtraso, HOJE, type Encomenda } from './dominio';
 import { faltas } from './faltas';
 import { MENU_ANTIGO } from './menu-antigo-ids';
@@ -148,6 +148,8 @@ export function ecrasMenuAntigo(): Ecra<IdErp>[] {
     /* Comparativo por fornecedor (variação anual): a v2 do briefing de 23 out., com os seus estados */
     const dim = ({ 'comp-forn-var': 'forn', 'comp-geral-var': 'geral', 'comp-artigo-var': 'artigo', 'comp-familia-var': 'familia', 'analise-artigo': 'analise' } as const)[id as string];
     if (dim) return [{ ...base, versoes: [...base.versoes, versaoComparativo(dim)] }, ...estadosComparativo(dim, t.num)];
-    return [base];
+    /* 26 out. (ela: «coloca todos os estados por screen»): os estados da consulta; as Faturas e o Mapa recapitulativo têm os da v2 */
+    if (id === 'compras-faturas' || id === 'mapas-recap') return [base];
+    return [base, ...estadosTabela(t, 'Compras', NOTA)];
   });
 }

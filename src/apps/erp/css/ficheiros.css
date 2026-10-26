@@ -77,3 +77,12 @@
 .dk8-entra .fx-caixa, .dk8-entra .lf-filtros { animation-delay: 40ms; } .dk8-entra .fx-det, .dk8-entra .lf-meio { animation-delay: 80ms; } .dk8-entra .lf-baixo { animation-delay: 110ms; }
 @keyframes dk8-entra { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .dk8-entra * { animation: none !important; } }
+/* os estados da consulta (26 out.): esqueleto e erros */
+.fx-esq { display: grid; gap: 8px; padding: 14px; }
+.fx-esq i { display: block; height: 26px; border-radius: 4px; background: linear-gradient(90deg, var(--h-sup-2) 30%, color-mix(in srgb, var(--h-azul) 7%, var(--h-sup-2)) 50%, var(--h-sup-2) 70%) 0 0 / 300% 100%; animation: fx-brilho 1.2s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 40ms); }
+.fx-esq--det i { height: 18px; }
+@keyframes fx-brilho { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.fx-corpo--erro { display: block; }
+.fx-nada--erro > svg { color: var(--h-erro); }
+.fx-btn--acao { border-color: var(--h-laranja) !important; background: var(--h-laranja) !important; color: #fff !important; } .fx-btn--acao svg { color: #fff !important; }
+@media (prefers-reduced-motion: reduce) { .fx-esq i { animation: none; } }

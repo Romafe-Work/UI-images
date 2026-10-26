@@ -19,6 +19,12 @@ import mousePointerClick from 'lucide-static/icons/mouse-pointer-click.svg?raw';
 import x from 'lucide-static/icons/x.svg?raw';
 import warehouseIc from 'lucide-static/icons/warehouse.svg?raw';
 import usersIc from 'lucide-static/icons/users.svg?raw';
+import serverOff from 'lucide-static/icons/server-off.svg?raw';
+import wifiOff from 'lucide-static/icons/wifi-off.svg?raw';
+import lockIc from 'lucide-static/icons/lock.svg?raw';
+import logIn from 'lucide-static/icons/log-in.svg?raw';
+import refreshCw from 'lucide-static/icons/refresh-cw.svg?raw';
+import inbox from 'lucide-static/icons/inbox.svg?raw';
 
 export type IdFicheiros = 'ficheiros-artigos' | 'ficheiros-armazens' | 'ficheiros-familias' | 'ficheiros-marcas' | 'ficheiros-unidades';
 
@@ -92,24 +98,51 @@ const TABELAS: Tabela[] = [
 ];
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-export function paginaTabela(t: Tabela): string {
-  const ls = t.linhas().map((l) => ({ ...l, det: l.det ?? det(l.v[t.cols[0].k], t.cols.slice(1).map((c): [string, string] => [c.t, l.v[c.k]])) }));
-  const th = t.cols.map((c, i) => `<th scope="col"${c.num ? ' class="is-num"' : ''} aria-sort="${i === 0 ? 'ascending' : 'none'}"><button type="button" data-fx-ord="${c.k}">${esc(c.t)}${L(arrowUpDown)}</button></th>`).join('');
-  const tr = ls.map((l, i) => `<tr tabindex="${i === 0 ? 0 : -1}" aria-selected="${i === 0}" data-fx-i="${i}" data-fx-texto="${esc(norm(Object.values(l.v).join(' ')))}" ${t.cols.map((c) => `data-fx-v-${c.k}="${esc(String(l.ord[c.k] ?? norm(l.v[c.k])))}"`).join(' ')}>${t.cols.map((c) => `<td${c.num ? ' class="is-num"' : c.mono ? ' class="is-mono"' : ''}>${esc(l.v[c.k])}</td>`).join('')}</tr>`).join('');
-  return `<div class="hm fx" data-hm data-fx>
+/** Os estados de uma consulta (26 out. 2026, ela: «coloca todos os estados por screen»). */
+export type CenarioTabela = 'normal' | 'carregar' | 'linha' | 'sem-resultados' | 'ordenado' | 'vazia' | 'servidor' | 'offline' | 'permissao' | 'sessao';
+const ERROS_TABELA: Partial<Record<CenarioTabela, [string, string, string, string]>> = {
+  servidor: [serverOff, 'O servidor não respondeu.', 'Não foi possível ler a lista (ERP-503). A procura fica como estava.', 'repetir'],
+  offline: [wifiOff, 'Sem ligação à rede.', 'A lista precisa do servidor. Quando a ligação voltar, tenta outra vez.', 'repetir'],
+  permissao: [lockIc, 'Sem permissão.', 'O teu perfil não tem acesso a esta consulta. Pede-o a quem gere os acessos do ERP.', ''],
+  sessao: [logIn, 'A sessão terminou.', 'Volta a entrar para continuar; voltas a este ecrã.', 'login'],
+};
+export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal'): string {
+  let ls = cen === 'vazia' ? [] : t.linhas().map((l) => ({ ...l, det: l.det ?? det(l.v[t.cols[0].k], t.cols.slice(1).map((c): [string, string] => [c.t, l.v[c.k]])) }));
+  if (cen === 'ordenado') ls = ls.slice().reverse();
+  const escolhida = cen === 'linha' ? Math.min(2, ls.length - 1) : 0;
+  const erro = ERROS_TABELA[cen];
+  if (erro || cen === 'carregar') {
+    const corpo = cen === 'carregar' ? `<div class="fx-caixa"><div class="fx-esq" aria-label="A carregar">${Array.from({ length: 8 }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div></div><aside class="fx-det"><div class="fx-esq fx-esq--det"><i></i><i></i><i></i><i></i></div></aside>`
+      : `<div class="fx-caixa fx-caixa--erro"><div class="fx-nada fx-nada--erro" role="alert">${L(erro![0])}<p><b>${esc(erro![1])}</b>${esc(erro![2])}</p>${erro![3] === 'repetir' ? `<button type="button" class="fx-btn fx-btn--acao" data-fx-repetir="${esc(t.id)}">${L(refreshCw)}<span>Tentar outra vez</span></button>` : erro![3] === 'login' ? `<button type="button" class="fx-btn fx-btn--acao" data-login>${L(logIn)}<span>Voltar a entrar</span></button>` : ''}</div></div>`;
+    return `<div class="hm fx" data-hm data-fx data-fx-cenario="${cen}">
+  ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [t.titulo, '']])}
+  <header class="fx-cab">
+    <span class="fx-ic">${icone(t.ic)}</span>
+    <div><h1>${esc(t.titulo)}</h1><p class="fx-sub">${cen === 'carregar' ? 'A carregar…' : esc(t.nota)}</p></div>
+    <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off"${cen === 'carregar' ? '' : ' disabled'}><kbd>Enter</kbd></label>
+  </header>
+  <div class="fx-corpo${cen === 'carregar' ? '' : ' fx-corpo--erro'}">${corpo}</div>
+  <p class="hm-aviso" data-hm-aviso role="status" aria-live="polite"></p>
+</div>`;
+  }
+  const vazio = t.vazio ?? [`Ainda não há ${t.varios}.`, 'Quando houver, aparecem aqui.'];
+  const th = t.cols.map((c, i) => `<th scope="col"${c.num ? ' class="is-num"' : ''} aria-sort="${i === 0 ? (cen === 'ordenado' ? 'descending' : 'ascending') : 'none'}"><button type="button" data-fx-ord="${c.k}">${esc(c.t)}${L(arrowUpDown)}</button></th>`).join('');
+  const tr = ls.map((l, i) => `<tr tabindex="${i === escolhida ? 0 : -1}" aria-selected="${i === escolhida}" data-fx-i="${i}" data-fx-texto="${esc(norm(Object.values(l.v).join(' ')))}" ${t.cols.map((c) => `data-fx-v-${c.k}="${esc(String(l.ord[c.k] ?? norm(l.v[c.k])))}"`).join(' ')}>${t.cols.map((c) => `<td${c.num ? ' class="is-num"' : c.mono ? ' class="is-mono"' : ''}>${esc(l.v[c.k])}</td>`).join('')}</tr>`).join('');
+  const q = cen === 'sem-resultados' ? 'XPTO-999' : '';
+  return `<div class="hm fx" data-hm data-fx data-fx-cenario="${cen}">
   ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [t.titulo, '']])}
   <header class="fx-cab">
     <span class="fx-ic">${icone(t.ic)}</span>
     <div><h1>${esc(t.titulo)}</h1><p class="fx-sub"><b data-fx-n>${ls.length}</b> <span data-fx-um="${esc(t.um)}" data-fx-varios="${esc(t.varios)}">${ls.length === 1 ? t.um : t.varios}</span> · ${esc(t.nota)}</p></div>
-    <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off"><kbd>Enter</kbd></label>
+    <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off" value="${q}"><kbd>Enter</kbd></label>
   </header>
   <div class="fx-corpo">
     <div class="fx-caixa">
-      ${!ls.length && t.vazio ? `<div class="fx-nada fx-nada--vazio"><p><b>${esc(t.vazio[0])}</b>${esc(t.vazio[1])}</p></div>` : ''}
-      <table class="fx-tab" aria-label="${esc(t.titulo)}"${ls.length ? '' : ' hidden'}><thead><tr>${th}</tr></thead><tbody data-fx-linhas>${tr}</tbody></table>
-      <div class="fx-nada" data-fx-nada hidden>${L(searchX)}<p><b>Nada para «<span data-fx-nada-q></span>».</b>Procura em ${esc(t.procura.toLowerCase())}.</p><button type="button" class="fx-btn" data-fx-limpar>${L(x)}<span>Limpar a procura</span></button></div>
+      ${!ls.length ? `<div class="fx-nada fx-nada--vazio">${L(inbox)}<p><b>${esc(vazio[0])}</b>${esc(vazio[1])}</p></div>` : ''}
+      <table class="fx-tab" aria-label="${esc(t.titulo)}"${ls.length && !q ? '' : ' hidden'}><thead><tr>${th}</tr></thead><tbody data-fx-linhas>${tr}</tbody></table>
+      <div class="fx-nada" data-fx-nada${q ? '' : ' hidden'}>${L(searchX)}<p><b>Nada para «<span data-fx-nada-q>${q}</span>».</b>Procura em ${esc(t.procura.toLowerCase())}.</p><button type="button" class="fx-btn" data-fx-limpar>${L(x)}<span>Limpar a procura</span></button></div>
     </div>
-    <aside class="fx-det" data-fx-det aria-live="polite" aria-label="Detalhe">${ls[0]?.det ?? `<p class="fx-vazio">${L(mousePointerClick)}${ls.length ? 'Escolhe uma linha.' : 'Nada para mostrar.'}</p>`}</aside>
+    <aside class="fx-det" data-fx-det aria-live="polite" aria-label="Detalhe">${q ? `<p class="fx-vazio">${L(mousePointerClick)}Nada para mostrar.</p>` : ls[escolhida]?.det ?? `<p class="fx-vazio">${L(mousePointerClick)}${ls.length ? 'Escolhe uma linha.' : 'Nada para mostrar.'}</p>`}</aside>
     ${ls.map((l, i) => `<template data-fx-det-i="${i}">${l.det}</template>`).join('')}
   </div>
   <p class="hm-aviso" data-hm-aviso role="status" aria-live="polite"></p>
@@ -118,6 +151,22 @@ export function paginaTabela(t: Tabela): string {
 
 const NOTA = 'Consulta (23 out., para os atalhos do Início v6 não serem botões falsos): procurar, ordenar, escolher a linha e ver o detalhe; Enter na procura passa à primeira linha. Criar e editar fichas ainda não existe.';
 export const DESCRICAO_FICHEIROS = 'Os dados mestres que os atalhos do Início abrem: artigos, armazéns, famílias, marcas e unidades de medida. Só consulta; abrem num separador da área de trabalho.';
+/** Os estados de uma consulta, como estados do ecrã (por baixo das versões no editor). */
+const ESTADOS_TABELA: [CenarioTabela, string, string][] = [
+  ['carregar', 'A carregar', 'A lista e o detalhe em esqueleto; a procura já se escreve.'],
+  ['linha', 'Linha escolhida', 'Uma linha escolhida (a terceira): o detalhe é o dela, com o contador «3 de N».'],
+  ['sem-resultados', 'Procura sem resultados', 'A procura não encontra nada: diz o que se procurou e onde, e «Limpar a procura».'],
+  ['ordenado', 'Ordenado ao contrário', 'O cabeçalho da primeira coluna carregado duas vezes: do fim para o princípio.'],
+  ['vazia', 'Sem dados', 'Ainda não há linhas: diz-se, sem ilustrações.'],
+  ['servidor', 'Erro do servidor', 'O servidor não respondeu: a referência do erro e «Tentar outra vez».'],
+  ['offline', 'Sem ligação', 'Sem rede: tenta-se outra vez quando a ligação voltar.'],
+  ['permissao', 'Sem permissão', 'O perfil não tem acesso: diz a quem pedir; não se mostram dados.'],
+  ['sessao', 'Sessão terminada', 'Voltar a entrar pelo login comum; volta-se a este ecrã.'],
+];
+export function estadosTabela(t: Tabela, fluxo: string, nota: string): Ecra<IdErp>[] {
+  return ESTADOS_TABELA.map(([cen, nome, objetivo], i) => ({ id: `${t.id}-est-${cen}` as IdErp, nome: `${t.num}.${i + 1} · ${nome}`, fluxo, estadoDe: t.id as IdErp, objetivo, versoes: [{ id: 'v1', nota, html: paginaTabela(t, cen) }] }) as Ecra<IdErp>);
+}
+export type IdEstados = `${string}-est-${string}`;
 export function ecrasFicheiros(): Ecra<IdErp>[] {
-  return TABELAS.map((t) => ({ id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Ficheiros', objetivo: `${t.titulo}: procurar, ordenar e ver o detalhe de cada linha. ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] }) as Ecra<IdErp>);
+  return TABELAS.flatMap((t) => [{ id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Ficheiros', objetivo: `${t.titulo}: procurar, ordenar e ver o detalhe de cada linha. ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] } as Ecra<IdErp>, ...estadosTabela(t, 'Ficheiros', NOTA)]);
 }

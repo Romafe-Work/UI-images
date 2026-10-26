@@ -6,6 +6,7 @@
    «Criar encomenda» e a confirmação.
    ========================================================= */
 import { ws, registarPaginas, travarSaida } from '../comportamento/inicio';
+import { comEstadoDaRaiz } from './estados-cp';
 import { dialogoSair } from './ecras';
 import {
   IDS_FASE2, paginaFase2, edReqDe, edPcDe, cenarioPc, tabelaReq, linhasReq, resumoReq, comparacao, escolhaResumo, gavetaTodos, dialogoMotivo2, dialogoResposta, dialogoEscolha,
@@ -32,7 +33,8 @@ function contexto(id: string): Contexto2 {
   if (id === 'compras-cotacao') { const k = cotacao(ref); if (!edPc || edPc.c.ref !== ref || (!edPc.sujo && k && k.versao !== edPc.versao)) edPc = cenarioPc(edPcDe(ref), ws.raiz()?.dataset.cpCenario); c.edPc = edPc; }
   return c;
 }
-registarPaginas(IDS_FASE2, (id, e) => paginaFase2(id, e, contexto(id)));
+/* os estados de 26 out. (compras/estados-cp.ts) ficam por cima de cada desenho */
+registarPaginas(IDS_FASE2, (id, e) => comEstadoDaRaiz(paginaFase2(id, e, contexto(id)), ws.raiz()));
 
 function trocar(sel: string, html: string): void { const v = $(sel); if (!v) return; const t = document.createElement('div'); t.innerHTML = html; v.replaceWith(t.firstElementChild!); }
 async function pedido<T>(b: HTMLButtonElement | null, texto: string, f: () => T): Promise<T | null> {
