@@ -12,7 +12,8 @@
 import { mostrar } from '../../../comum/ecras';
 import { faltas, celula, paineis, COLUNAS, type Falta } from './faltas';
 
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 type Filtros = { ind: string; classes: Set<string>; stock: string; fornecedor: string; encforn: string; tipo: string; inicio: string; codigo: string; procura: string };
 const novos = (): Filtros => ({ ind: 'Todos', classes: new Set(['A', 'B', 'C']), stock: 'Rutura e abaixo do mínimo', fornecedor: 'Todos', encforn: 'Todas', tipo: 'Todos', inicio: '', codigo: '', procura: '' });
 let raiz: HTMLElement | null = null;

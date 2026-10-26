@@ -175,7 +175,7 @@ function juntar(ref: string): void {
 
 /* ---------- os cliques ---------- */
 function aoClicar(ev: MouseEvent): void {
-  if (!nosso() || document.body.classList.contains('editando')) return;
+  if (!nosso() || (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir'))) return;
   const alvo = ev.target as Element, raiz = ws.raiz(); if (!raiz?.contains(alvo)) return;
   const q = <T extends HTMLElement = HTMLElement>(s: string) => alvo.closest?.<T>(s) ?? null;
   let b: HTMLElement | null;

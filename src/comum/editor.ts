@@ -158,6 +158,18 @@ function lembrar(tipo: keyof Originais, sel: string, valor: string): void {
 }
 let seleccionado: Peca | null = null;
 let ligado = false;
+/* «Interagir» (26 out. 2026, ela: «no ERP coloca tudo available no editar»): com ele ligado, a tela responde como no
+   protótipo (cliques, listas, teclas) e escolher, arrastar ou escrever numa peça faz-se com Alt. No ERP vem ligado. */
+const CHAVE_INTERAGIR = () => 'romafe:' + APP + ':editor:interagir';
+function interagirLigado(): boolean { return document.body.classList.contains('ed-interagir'); }
+/** o gesto é para o ecrã (e não para o editor): «Interagir» ligado e sem Alt */
+const paraOEcra = (ev: MouseEvent) => interagirLigado() && !ev.altKey;
+function definirInteragir(sim: boolean, botao?: HTMLButtonElement): void {
+  document.body.classList.toggle('ed-interagir', sim);
+  try { localStorage.setItem(CHAVE_INTERAGIR(), sim ? '1' : '0'); } catch { /* sem armazenamento */ }
+  if (botao) { botao.setAttribute('aria-pressed', String(sim)); botao.textContent = sim ? 'Interagir: ligado' : 'Interagir: desligado'; }
+  if (sim && seleccionado) seleccionar(null);
+}
 
 let folha: HTMLStyleElement;
 let painelEsq: HTMLElement;
@@ -438,7 +450,7 @@ let arrasto: { alvo: Peca; x0: number; y0: number; bx: number; by: number; moveu
 let engoleClique = false, mudouNoMousedown = false;
 
 function comecarArrasto(ev: MouseEvent): void {
-  if (!ligado || ev.button !== 0) return;
+  if (!ligado || ev.button !== 0 || paraOEcra(ev)) return;
   const destino = alvoDe(ev);
   if (!destino || ehMoldura(destino)) return;
   if (destino.getAttribute('contenteditable') === 'true') return;
@@ -1172,7 +1184,11 @@ function montar(): void {
   const bRepor = el('button', 'ed-botao', 'Repor tudo');
   bRepor.type = 'button';
   bRepor.addEventListener('click', reporTudo);
-  peE.appendChild(bCss); peE.appendChild(bAnular); peE.appendChild(bRepor);
+  const bInteragir = el('button', 'ed-botao ed-botao-interagir', 'Interagir');
+  bInteragir.type = 'button'; bInteragir.setAttribute('aria-pressed', 'false');
+  bInteragir.setAttribute('data-ed-dica', 'Ligado: a tela responde como no protótipo; Alt+clique escolhe a peça para editar.');
+  bInteragir.addEventListener('click', function () { definirInteragir(!interagirLigado(), bInteragir); });
+  peE.appendChild(bInteragir); peE.appendChild(bCss); peE.appendChild(bAnular); peE.appendChild(bRepor);
   /* a demonstração das animações (12 out. 2026): escolhe-se a animação e abre-se
      o ecrã que se vê num separador novo, em modo de apresentação */
   const demo = el('div', 'ed-demo');
@@ -1620,6 +1636,7 @@ let sobre: Element | null = null;
 function realcar(ev: MouseEvent): void {
   if (!ligado) return;
   if (sobre) { sobre.removeAttribute('data-ed-hover'); sobre = null; }
+  if (paraOEcra(ev)) return;
   const destino = alvoDe(ev);
   if (!destino || ehMoldura(destino)) return;
   const c = candidata(destino);
@@ -1630,6 +1647,7 @@ function interceptar(ev: MouseEvent): void {
   if (!ligado) return;
   const destino = alvoDe(ev);
   if (!destino || ehMoldura(destino)) return;
+  if (paraOEcra(ev)) return;
   if (destino.getAttribute('contenteditable') === 'true') return;
 
   ev.preventDefault();
@@ -1682,10 +1700,13 @@ export function iniciar(): void {
   document.addEventListener('mousemove', durante, true);
   document.addEventListener('mouseup', largar, true);
   document.addEventListener('submit', function (ev) { if (ligado) ev.preventDefault(); }, true);
+  /* «Interagir»: no ERP vem ligado; noutras aplicações, como ficou da última vez */
+  let guardado: string | null = null; try { guardado = localStorage.getItem(CHAVE_INTERAGIR()); } catch { /* */ }
+  definirInteragir(guardado === null ? APP === 'erp' : guardado === '1', document.querySelector<HTMLButtonElement>('.ed-botao-interagir') ?? undefined);
 
-  /* duplo clique escreve no sítio */
+  /* duplo clique escreve no sítio (com «Interagir» ligado, Alt+duplo clique) */
   document.addEventListener('dblclick', function (ev) {
-    if (!ligado) return;
+    if (!ligado || paraOEcra(ev)) return;
     const alvo = alvoDe(ev)?.closest<HTMLElement | SVGElement>('[data-ed-alvo]');
     if (!alvo || alvo.children.length) return;
     alvo.setAttribute('contenteditable', 'true');
@@ -1708,6 +1729,8 @@ export function iniciar(): void {
 
   document.addEventListener('keydown', function (ev) {
     if (!ligado) return;
+    /* com «Interagir» e nada escolhido, as teclas são do ecrã (F-teclas, Enter, Esc…) */
+    if (interagirLigado() && !seleccionado) return;
     if (ev.key === 'Escape') seleccionar(null);
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') { ev.preventDefault(); anular(); }
 

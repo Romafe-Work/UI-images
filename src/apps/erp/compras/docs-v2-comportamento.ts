@@ -47,7 +47,8 @@ import circleAlert from 'lucide-static/icons/circle-alert.svg?raw';
 /* ---------- o estado ---------- */
 const estados = new WeakMap<HTMLElement, EstDoc>();
 export const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const raiz = (t: Element | null) => t?.closest<HTMLElement>('[data-dv2]') ?? null;
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-dv2]');
 export const cfgDe = (r: HTMLElement): CfgDoc => CFGS.get(r.dataset.dv2!)!;
@@ -148,7 +149,8 @@ function etiquetas(r: HTMLElement, e: EstDoc): void {
 }
 function vazio(ic: string, t: string, d: string, botao = ''): string { return `<div class="ak-vazio lf2-vazio">${L(ic)}<p><b>${t}</b>${d}</p>${botao}</div>`; }
 const BT = (acao: string, ic: string, t: string, cls = '') => `<button type="button" class="ak-btn${cls}" data-dv2-acao="${acao}">${L(ic)}<span>${t}</span></button>`;
-const VLIM = 150;
+/* 26 out. (ela: «não quero dois scrolls!»): a grelha já não rola sozinha, por isso desenha todas as linhas */
+const VLIM = Number.POSITIVE_INFINITY;
 const vis = (c: CfgDoc, e: EstDoc) => e.cols.filter((k) => !e.ocultas.has(k)).map((k) => colDe(c, k));
 export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
   const c = cfgDe(r), g = r.querySelector<HTMLElement>('[data-dv2-grelha]')!;
@@ -297,7 +299,7 @@ export function abrirFicha(r: HTMLElement, e: EstDoc, modo: Ficha['modo'], d?: D
   const card = fx.querySelector<HTMLElement>('.dv2-ficha-c');
   if (card && de_ && !quieto()) { const p = card.getBoundingClientRect(); card.animate([{ transform: `translate(${de_.left - p.left}px, ${de_.top - p.top}px) scale(${Math.max(.2, de_.width / p.width)}, ${Math.max(.04, de_.height / p.height)})`, opacity: .35, transformOrigin: '0 0' }, { transform: 'none', opacity: 1, transformOrigin: '0 0' }], { duration: 280, easing: 'cubic-bezier(.22, 1, .36, 1)' }); }
   c.acao(r, e, '_ficha-aberta', fx);
-  (fx.querySelector<HTMLElement>('[data-dv2-ff]:not([disabled]):not([readonly])') ?? fx.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
+  requestAnimationFrame(() => (fx.querySelector<HTMLElement>('[data-dv2-ff]:not([disabled]):not([readonly])') ?? fx.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true }));
   scrollTo({ top: 0 });
 }
 export function fecharFicha(r: HTMLElement, e: EstDoc, forcar = false, ref = ''): void {
@@ -534,7 +536,7 @@ export function iniciar(): void {
       if (ev.ctrlKey || ev.shiftKey) return;
       const m = MODOS.find((x) => x.tecla === ev.key);
       if (m && !c.construtor) { ev.preventDefault(); if (e.ficha) toast(r, 'Fecha a ficha para pesquisar (Esc).'); else mudarModo(r, e, m.k); return; }
-      if (ev.key === 'F4') { ev.preventDefault(); const s = r.querySelector<HTMLSelectElement>('[data-dv2-f="serie"]'); if (s && !e.ficha) { s.focus(); try { s.showPicker(); } catch { /* sem showPicker */ } } return; }
+      if (ev.key === 'F4') { ev.preventDefault(); const s = r.querySelector<HTMLSelectElement>('[data-dv2-f="serie"]'); if (s && !e.ficha) s.dispatchEvent(new Event('esel:abrir', { bubbles: true })); return; }
       const barra: Record<string, string> = { F5: 'novo', F6: 'editar', F8: 'anular', F9: 'atualizar', F11: 'imprimir' };
       if (barra[ev.key]) { ev.preventDefault(); r.querySelector<HTMLElement>(`.dv2-barra [data-dv2-acao="${barra[ev.key]}"]`)?.click(); }
       return;
@@ -548,9 +550,11 @@ export function iniciar(): void {
       const cs = [...r.querySelectorAll<HTMLElement>('[data-dv2-lista] [data-dv2-campo]')].filter((x) => !x.closest('[hidden]')), i = cs.indexOf(t);
       (i >= 0 && i < cs.length - 1 ? cs[i + 1] : r.querySelector<HTMLElement>('[data-dv2-q]'))?.focus(); return;
     }
-    if (ev.key === 'Enter' && t.matches('[data-dv2-ff]') && !t.matches('textarea')) {
+    /* um select da ficha tem por cima o botão da lista (comportamento/select-erp.ts): conta o botão */
+    const doCampo = (x: HTMLElement) => x.classList.contains('esel__nativo') ? (x.nextElementSibling as HTMLElement) : x;
+    if (ev.key === 'Enter' && (t.matches('[data-dv2-ff]') || (t.matches('.esel__botao') && !!t.previousElementSibling?.matches('[data-dv2-ff]'))) && !t.matches('textarea')) {
       ev.preventDefault();
-      const cs = [...r.querySelectorAll<HTMLElement>('[data-dv2-ficha] [data-dv2-ff]')].filter((x) => !x.closest('[hidden]') && !x.hasAttribute('disabled') && !x.hasAttribute('readonly')), i = cs.indexOf(t);
+      const cs = [...r.querySelectorAll<HTMLElement>('[data-dv2-ficha] [data-dv2-ff]')].filter((x) => !x.closest('[hidden]') && !x.hasAttribute('disabled') && !x.hasAttribute('readonly')).map(doCampo), i = cs.indexOf(t);
       if (i >= 0 && i < cs.length - 1) cs[i + 1].focus(); else r.querySelector<HTMLElement>('[data-dv2-ficha] [data-dv2-acao="gravar"]')?.focus();
       return;
     }

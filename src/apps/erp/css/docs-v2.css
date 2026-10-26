@@ -223,7 +223,7 @@
 .rc-s.is-cred b { color: var(--h-erro); }
 .rc-corpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
 .rc-corpo:has(.rc-det:not([hidden])) { grid-template-columns: minmax(0, 1fr) 360px; }
-.rc-grelha { height: auto; min-height: 220px; max-height: 70vh; }
+.rc-grelha { height: auto; min-height: 220px; }
 .rc-tab tbody tr[data-rc-forn] { cursor: default; }
 .rc-tab tbody tr[data-rc-forn]:hover td { background: color-mix(in srgb, var(--h-azul) 5%, var(--h-sup)); }
 .rc-tab tbody tr.is-ativo td { background: color-mix(in srgb, var(--h-azul) 14%, var(--h-sup)); } .rc-tab tbody tr.is-ativo td:first-child { box-shadow: inset 3px 0 0 var(--h-laranja); }

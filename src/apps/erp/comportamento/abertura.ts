@@ -16,7 +16,8 @@ import { VERSAO_REDE } from '../entrar-rede';
 import { redeNaAbertura } from './rede';
 import type { Cena } from './abertura-cena';
 
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const VISTA = 'erp:abertura-vista';
 const pausa = () => { const m = /[#&]pausa=([\d.]+)/.exec(location.hash); return m ? Number(m[1]) : undefined; };

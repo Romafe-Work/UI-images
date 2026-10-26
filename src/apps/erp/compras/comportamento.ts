@@ -234,7 +234,7 @@ async function registar(b: HTMLButtonElement): Promise<void> {
 
 /* ---------- os cliques e as teclas ---------- */
 function aoClicar(ev: MouseEvent): void {
-  if (!ehCompras() || document.body.classList.contains('editando')) return;
+  if (!ehCompras() || (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir'))) return;
   const alvo = ev.target as Element, raiz = ws.raiz(); if (!raiz?.contains(alvo)) return;
   const q = <T extends HTMLElement = HTMLElement>(s: string) => alvo.closest?.<T>(s) ?? null;
   let b: HTMLElement | null;

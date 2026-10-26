@@ -23,7 +23,8 @@ import { destinoAoEntrar } from './inicio';
 import { abrirSessao, terminarSessao, escolherEmpresa, lerEmpresa, lerSessao, ultimaEmpresa } from '../sessao';
 import { EMPRESAS } from '../entrar-central';
 
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CORREIO_FORMA = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const espera = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));

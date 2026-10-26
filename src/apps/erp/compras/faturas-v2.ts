@@ -447,7 +447,7 @@ document.addEventListener('change', (ev) => {
 document.addEventListener('keydown', (ev) => {
   const t = ev.target as HTMLElement;
   /* F4 abre a lista do campo ou da condição, como no antigo */
-  if (ev.key === 'F4' && t.matches?.('[data-dv2="fat"] [data-fc-i] select')) { ev.preventDefault(); ev.stopImmediatePropagation(); try { (t as HTMLSelectElement).showPicker(); } catch { /* sem showPicker */ } return; }
+  if (ev.key === 'F4' && t.matches?.('[data-dv2="fat"] [data-fc-i] .esel__botao')) { ev.preventDefault(); ev.stopImmediatePropagation(); t.previousElementSibling?.dispatchEvent(new Event('esel:abrir', { bubbles: true })); return; }
   if (ev.key !== 'Enter' || !t.matches?.('[data-fc-v], [data-fc-v2]')) return;
   const r = t.closest<HTMLElement>('[data-dv2="fat"]'); if (!r) return;
   const row = t.closest<HTMLElement>('[data-fc-i]'), ult = [...r.querySelectorAll('[data-fc-i]')].pop() === row && (t.matches('[data-fc-v2]') || !row?.querySelector('[data-fc-v2]'));

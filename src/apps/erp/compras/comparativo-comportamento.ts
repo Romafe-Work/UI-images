@@ -74,7 +74,8 @@ const SEM_DADOS = 'Gera os dados primeiro (F10).';
 const MES3 = ['Jan.', 'Fev.', 'Mar.', 'Abr.', 'Mai.', 'Jun.', 'Jul.', 'Ago.', 'Set.', 'Out.', 'Nov.', 'Dez.'];
 const rotMes = (ym: string) => `${MES3[Number(ym.slice(5, 7)) - 1]} ${ym.slice(0, 4)}`;
 const estados = new WeakMap<HTMLElement, Est>();
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const raiz = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTMLElement>('[data-cf]') ?? null;
 const n = (v: number) => Math.round(v).toLocaleString('pt-PT');

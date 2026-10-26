@@ -103,7 +103,8 @@ const estados = new WeakMap<HTMLElement, Est>();
 const novo = (): Est => ({ crit: CRIT0(), fase: 'inicial', ordem: null, filtros: {}, filtrosAbertos: false, ocultas: new Set(['deb', 'cred']), grupo: '', ativo: '', aviso: '', hora: 0, det: false, detCarregar: false, resumo: false, editor: document.body.classList.contains('editando') });
 const de = (r: HTMLElement) => { let e = estados.get(r); if (!e) { e = novo(); estados.set(r, e); } return e; };
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const raiz = (t: Element | null) => t?.closest<HTMLElement>('[data-rc]') ?? null;
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-rc]');
 const nf = (n: number) => n.toLocaleString('pt-PT');

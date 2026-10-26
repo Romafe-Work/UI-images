@@ -26,7 +26,8 @@ import {
 } from '../inicio';
 import { PERFIS, AVISOS, OPERACOES, ETAPAS, type IdPerfil, type Achado, type Doc, type Modulo } from '../inicio-dados';
 
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const espera = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 const ESPERA = 550;

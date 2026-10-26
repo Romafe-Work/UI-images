@@ -42,8 +42,10 @@ import { iniciar as faltas } from './compras/faltas-comportamento';
 import { iniciar as faltas2 } from './compras/faltas-v2-comportamento';
 import { iniciar as docs2 } from './compras/docs-v2-comportamento';
 import { iniciar as recap2 } from './compras/recap-v2';
+import { iniciar as selectErp } from './comportamento/select-erp';
+import './css/select-erp.css';
 import { iniciar as ficheiros } from './ficheiros/comportamento';
 import { iniciar as automatico } from './compras/automatico-comportamento';
 import { iniciar as comparativo } from './compras/comparativo-comportamento';
 
-montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, recap2, moldura, espaco, inicio, compras, compras2, ficheiros, automatico, comparativo]);
+montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, recap2, selectErp, moldura, espaco, inicio, compras, compras2, ficheiros, automatico, comparativo]);

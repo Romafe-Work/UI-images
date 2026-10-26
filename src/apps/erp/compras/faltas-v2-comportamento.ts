@@ -71,7 +71,8 @@ interface Est {
 }
 const estados = new WeakMap<HTMLElement, Est>();
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const raiz = (t: Element | null) => t?.closest<HTMLElement>('[data-lf2]') ?? null;
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-lf2]');
 const nf = (v: number) => v.toLocaleString('pt-PT');
@@ -188,7 +189,8 @@ function etiquetas(r: HTMLElement, e: Est): void {
 }
 
 /* ---------- desenhar: a grelha ---------- */
-const VLIM = 150;
+/* 26 out. (ela: «não quero dois scrolls!»): a grelha já não rola sozinha, por isso desenha todas as linhas */
+const VLIM = Number.POSITIVE_INFINITY;
 const vis = (e: Est) => e.cols.filter((k) => !e.ocultas.has(k) && (k !== 'sugestao' || e.sugestao)).map(col);
 function celula(l: L2, c: Col2): string {
   const n = (v: number) => v ? `${nf(v)}<small>${esc(l.un)}</small>` : '<span class="is-nada">—</span>';
@@ -328,7 +330,7 @@ function inspetor(r: HTMLElement, e: Est, mudou = false): void {
   /* rotatividade do produto nos últimos N dias */
   const rt = rotatividade(l, e.dias), saldo = rt.entradas - rt.saidas, desde = new Date(Date.parse(HOJE) - rt.semanas * 7 * 86_400_000).toISOString().slice(0, 10);
   const d = (t: string, v: string, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${t}</dt><dd>${v}</dd></div>`, nada = '<span class="is-nada" title="Ainda não está no protótipo">—</span>';
-  p('rot').innerHTML = `<div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${e.dias}" data-lf2-dias aria-label="Dias da rotatividade"><span>dias</span></label><button type="button" class="ak-btn" data-lf2-acao="calcular">${L(calculator)}<span>Calcular</span></button></div>
+  p('rot').innerHTML = `<div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${e.dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label><small class="lf2-auto">${L(calculator)}Calcula-se sozinho</small></div>
     ${rt.parcial ? `<p class="lf2-parcial" role="status">${L(triangle)}Só há ${SEMANAS_MAX} semanas de movimentos no protótipo: os valores são dos últimos ${SEMANAS_MAX * 7} dias, não dos ${nf(e.dias)} pedidos.</p>` : ''}
     <dl class="lf2-dl lf2-dl--rot">${d('Período', `${dia(desde)} a ${dia(HOJE)}`, 'is-largo')}${d('Entradas', nf(rt.entradas))}${d('Saídas', nf(rt.saidas))}${d('Saldo', `<b class="${saldo < 0 ? 'is-neg' : ''}">${saldo > 0 ? '+' : ''}${nf(saldo)}</b>`)}
       ${d('Família', esc(l.fam))}${d('Subfamília', esc(l.sub))}${d('Qtd. económica', nf(l.econ))}${d('Qtd. embalagem', nada)}
@@ -650,7 +652,6 @@ export function iniciar(): void {
         case 'para-encomenda': void paraEncomenda(r, e); return;
         case 'encomenda': abrirEncomenda(r, e, b); return;
         case 'criar-enc': criarEncomenda(r, e); return;
-        case 'calcular': { const i = r.querySelector<HTMLInputElement>('[data-lf2-dias]')!, d = Math.round(+i.value); if (!(d >= 1 && d <= 999)) { i.setAttribute('aria-invalid', 'true'); toast(r, 'Os dias vão de 1 a 999.'); i.focus(); return; } e.dias = d; inspetor(r, e, true); guardarVista(e); r.querySelector<HTMLElement>('[data-lf2-acao="calcular"]')?.focus(); return; }
         case 'ficha': case 'ficha-forn': if (!emSeparador()) toast(r, 'A ficha abre numa janela quando o ecrã está na área de trabalho.'); return;
         case 'gravar-edicao': {
           const ref = b.dataset.lf2Ref!, q = r.querySelector<HTMLInputElement>('[data-lf2-ed="pedida"]')!.value.trim(), tipo = r.querySelector<HTMLSelectElement>('[data-lf2-ed="tipo"]')!.value as Linha2['tipo'];
@@ -681,6 +682,19 @@ export function iniciar(): void {
   let espera = 0;
   document.addEventListener('input', (ev) => {
     const t = ev.target as HTMLInputElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
+    /* a rotatividade calcula-se ao escrever os dias (26 out., ela: «quero o cálculo automático») */
+    if (t.matches('[data-lf2-dias]')) {
+      clearTimeout(espera);
+      espera = window.setTimeout(() => {
+        const d = Math.round(+t.value);
+        if (!(d >= 1 && d <= 999)) { t.setAttribute('aria-invalid', 'true'); return; }
+        t.removeAttribute('aria-invalid'); if (d === e.dias) return;
+        const pos = t.selectionStart; e.dias = d; inspetor(r, e); guardarVista(e);
+        const n = r.querySelector<HTMLInputElement>('[data-lf2-dias]'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch { /* number */ } }
+        if (!quieto()) r.querySelector<HTMLElement>('.lf2-dl--rot')?.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
+      }, 220);
+      return;
+    }
     if (t.matches('[data-lf2-vis-q]')) { const q = norm(t.value); r.querySelectorAll<HTMLElement>('[data-lf2-modo]').forEach((b) => { const m = modoDe(b.dataset.lf2Modo!); b.hidden = !!q && !norm(`${m.t} ${m.tecla}`).includes(q); }); return; }
     if (t.matches('[data-lf2-q], [data-lf2-fcol]')) {
       clearTimeout(espera);
@@ -701,7 +715,8 @@ export function iniciar(): void {
     /* um diálogo aberto fica com o teclado: Esc fecha, Enter passa ao seguinte, Tab não sai */
     if (!dlg.hidden) {
       if (ev.key === 'Escape') { ev.preventDefault(); fecharDialogo(r); return; }
-      if (ev.key === 'Enter' && t.matches('[data-lf2-ed]')) { ev.preventDefault(); const cs = [...dlg.querySelectorAll<HTMLElement>('[data-lf2-ed]')], i = cs.indexOf(t); if (i < cs.length - 1) cs[i + 1].focus(); else dlg.querySelector<HTMLElement>('[data-lf2-acao="gravar-edicao"]')?.click(); return; }
+      const doCampo = (x: HTMLElement) => x.classList.contains('esel__nativo') ? (x.nextElementSibling as HTMLElement) : x;
+      if (ev.key === 'Enter' && (t.matches('[data-lf2-ed]') || (t.matches('.esel__botao') && !!t.previousElementSibling?.matches('[data-lf2-ed]')))) { ev.preventDefault(); const cs = [...dlg.querySelectorAll<HTMLElement>('[data-lf2-ed]')].map(doCampo), i = cs.indexOf(t); if (i < cs.length - 1) cs[i + 1].focus(); else dlg.querySelector<HTMLElement>('[data-lf2-acao="gravar-edicao"]')?.click(); return; }
       if (ev.key === 'Tab') { const fs = [...dlg.querySelectorAll<HTMLElement>('input, select, button')]; const i = fs.indexOf(t); if (ev.shiftKey && i <= 0) { ev.preventDefault(); fs[fs.length - 1].focus(); } else if (!ev.shiftKey && i === fs.length - 1) { ev.preventDefault(); fs[0].focus(); } }
       if (/^F\d+$/.test(ev.key)) ev.preventDefault();
       return;
@@ -731,7 +746,7 @@ export function iniciar(): void {
       const cs = [...r.querySelectorAll<HTMLElement>('[data-lf2-campo]')].filter((c) => !c.closest('[hidden]')), i = cs.indexOf(t);
       (i >= 0 && i < cs.length - 1 ? cs[i + 1] : r.querySelector<HTMLElement>('[data-lf2-q]'))?.focus(); return;
     }
-    if (ev.key === 'Enter' && t.matches('[data-lf2-dias]')) { ev.preventDefault(); r.querySelector<HTMLElement>('[data-lf2-acao="calcular"]')?.click(); return; }
+    if (ev.key === 'Enter' && t.matches('[data-lf2-dias]')) { ev.preventDefault(); return; }
     /* os separadores do painel: ← → */
     if (t.matches('[data-lf2-tab]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const ks = ['stock', 'classes', 'rot'], i = ks.indexOf(e.tab); e.tab = ks[(i + (ev.key === 'ArrowRight' ? 1 : 2)) % 3]; inspetor(r, e, true); r.querySelector<HTMLElement>(`[data-lf2-tab="${e.tab}"]`)?.focus(); return; }
     /* o divisor: ↑ ↓ mudam a altura da lista */

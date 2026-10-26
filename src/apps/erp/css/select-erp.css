@@ -1,0 +1,31 @@
+/* =========================================================
+   ERP — listas de escolha interativas (26 out. 2026). Ver comportamento/select-erp.ts.
+   O botão tem a medida dos campos .ak-campo (32 px); a lista é do ERP (tokens --h-*, claro e escuro), com o visto e a risca
+   laranja na escolhida — a escolhida mantém a sua marca mesmo quando o rato passa noutra. Só transform/opacity.
+   ========================================================= */
+.esel { position: relative; display: block; width: 100%; min-width: 0; }
+.esel__nativo { position: absolute !important; inset: 0; width: 100% !important; height: 100% !important; opacity: 0; pointer-events: none; }
+.esel__botao { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; height: 32px; padding: 0 8px 0 10px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13.5px; font-weight: 500; text-align: left; cursor: pointer; transition: border-color .12s ease, box-shadow .12s ease, background-color .12s ease; }
+.esel__texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.esel__seta { flex: none; width: 15px; height: 15px; color: var(--h-tinta-3); transition: transform .16s cubic-bezier(.22, 1, .36, 1); }
+.esel__botao:hover:not(:disabled) { border-color: color-mix(in srgb, var(--h-azul) 55%, var(--h-borda-forte)); }
+.esel__botao:hover:not(:disabled) .esel__seta { color: rgb(0, 99, 170); }
+.esel__botao:focus-visible, .esel__botao.is-aberto { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
+.esel__botao.is-aberto .esel__seta { transform: rotate(180deg); color: rgb(0, 99, 170); }
+.esel__botao:active:not(:disabled) { transform: scale(.99); }
+.esel__botao:disabled { background: var(--h-sup-2); color: var(--h-tinta-2); cursor: default; }
+.esel__botao[aria-invalid] { border-color: var(--h-erro); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-erro) 16%, transparent); }
+/* sítios mais apertados: as linhas das fichas, a ligação E/OU, o agrupar */
+.dv2-linhas-ed .esel__botao { height: 30px; font-size: 13px; }
+.dv2-crit-vv .esel { flex: 1; }
+.dv2-crit > .esel { width: 64px; } .dv2-crit > .esel .esel__botao { justify-content: center; gap: 2px; padding: 0 4px; font-weight: 800; background: var(--h-sup-2); }
+.rc-agrupar .esel { width: 210px; } .rc-agrupar .esel__botao { height: 30px; font-size: 13px; }
+
+.esel__lista { position: fixed; z-index: 400; margin: 0; padding: 4px; min-width: 160px; overflow: auto; list-style: none; border: 1px solid var(--h-borda-forte); border-radius: 8px; background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 14px 34px rgba(10, 20, 30, .2); outline: none; }
+.esel__lista li { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 6px 10px 6px 8px; border-radius: 5px; font-size: 13.5px; line-height: 1.3; cursor: pointer; transition: background-color .1s ease; }
+.esel__lista li svg { flex: none; width: 14px; height: 14px; opacity: 0; color: var(--h-laranja); transform: scale(.6); transition: opacity .12s ease, transform .12s ease; }
+.esel__lista li.is-ativa { background: color-mix(in srgb, var(--h-azul) 10%, transparent); }
+.esel__lista li[aria-selected="true"] { font-weight: 700; box-shadow: inset 3px 0 0 var(--h-laranja); }
+.esel__lista li[aria-selected="true"] svg { opacity: 1; transform: none; }
+.esel__lista li[aria-disabled="true"] { opacity: .45; cursor: default; }
+@media (prefers-reduced-motion: reduce) { .esel__botao, .esel__seta, .esel__lista li, .esel__lista li svg { transition: none; } }

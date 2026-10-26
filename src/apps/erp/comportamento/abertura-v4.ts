@@ -15,7 +15,8 @@ import { acao, type CenarioV4 } from '../abertura-v4';
 import { lerSessao } from '../sessao';
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const prototipo = () => document.body.classList.contains('so-ecra');
 const VISTA = 'erp:abertura4-vista';
 const vista = () => { try { return sessionStorage.getItem(VISTA) === '1'; } catch { return false; } };

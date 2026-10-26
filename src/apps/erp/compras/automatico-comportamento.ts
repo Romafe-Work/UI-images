@@ -76,7 +76,8 @@ function lerVistas(): Vista[] {
   return EXEMPLOS();
 }
 const gravarVistas = (r: HTMLElement, vs: Vista[]): boolean => { if (r.dataset.akCenario !== 'inicial') return true; try { localStorage.setItem(CHAVE_VISTAS, JSON.stringify(vs)); return true; } catch { return false; } };
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const estados = new WeakMap<HTMLElement, Est>();
 const colDe = (k: keyof LinhaAk) => COLS.find((c) => c.k === k)!;

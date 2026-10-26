@@ -352,3 +352,6 @@
 .versoes--estados { top: 52px; max-width: calc(100vw - 32px); flex-wrap: wrap; justify-content: center; border-radius: 18px; }
 .versoes--estados .versoes__aba { padding: 5px 9px; }
 .com-fluxo .versoes--estados { display: none; }
+/* «Interagir» (26 out. 2026): ligado, a tela responde como no protótipo; Alt+clique escolhe a peça */
+.ed-botao-interagir[aria-pressed="true"] { border-color: #f08a1c; background: color-mix(in srgb, #f08a1c 16%, transparent); color: inherit; font-weight: 700; }
+body.ed-interagir [data-ed-hover] { outline: none !important; }

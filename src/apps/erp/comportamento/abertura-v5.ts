@@ -15,7 +15,8 @@ import { irIdentidade } from './abertura-v4';
 import { FORNECEDORES, encomendas } from '../compras/dominio';
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const VISTA = 'erp:abertura5-vista';
 const vista = () => { try { return sessionStorage.getItem(VISTA) === '1'; } catch { return false; } };
 const marcarVista = () => { try { sessionStorage.setItem(VISTA, '1'); } catch { /* */ } };

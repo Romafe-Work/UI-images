@@ -4,7 +4,8 @@
    - Os cabeçalhos ordenam (asc → desc); as linhas escolhem-se com o rato, com ↑ ↓ e com Enter.
    - O detalhe da linha vem do seu <template>, já desenhado; nada se inventa aqui.
    ========================================================= */
-const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
+/* no editor, com «Interagir» ligado (26 out.), o ecrã responde como no protótipo */
+const editando = () => (document.body.classList.contains('editando') && !document.body.classList.contains('ed-interagir')) || document.body.classList.contains('com-fluxo');
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const raiz = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTMLElement>('[data-fx]') ?? null;
 const linhas = (r: HTMLElement) => [...r.querySelectorAll<HTMLTableRowElement>('[data-fx-linhas] tr')];
