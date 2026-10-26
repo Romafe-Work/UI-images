@@ -76,6 +76,9 @@ export interface CfgDoc {
   dica: string;
   /** em vez dos modos do antigo (F1 F2 F10 F12): uma pesquisa própria (o construtor Campo → Condição → Valor das faturas) */
   construtor?: (cen: string) => string; filtrar?: (e: EstDoc, d: Doc) => boolean; chips?: (e: EstDoc) => [string, string][];
+  /** 26 out. (ela: «faz como na Lista de Faltas, a cena das windows»): os detalhes abrem numa janela flutuante por
+   *  documento, em vez do painel por baixo da lista; `estados` são os cenários do editor que já a mostram aberta */
+  janelas?: { titulo: string; icone: string; estados: string[] };
 }
 export const CFGS = new Map<string, CfgDoc>();
 export const registar = (c: CfgDoc) => { CFGS.set(c.k, c); return c; };
@@ -149,7 +152,7 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
     <div class="lf2-grelha" data-dv2-grelha></div>
   </section>
 
-  <div class="lf2-div" role="separator" aria-orientation="horizontal" aria-label="Altura da lista (↑ ↓)" aria-valuemin="200" aria-valuemax="900" aria-valuenow="340" tabindex="0" data-dv2-div>${L(gripH)}</div>
+  ${c.janelas ? '<div class="lf2-janelas" data-dv2-janelas data-por-cima></div>' : `  <div class="lf2-div" role="separator" aria-orientation="horizontal" aria-label="Altura da lista (↑ ↓)" aria-valuemin="200" aria-valuemax="900" aria-valuenow="340" tabindex="0" data-dv2-div>${L(gripH)}</div>
 
   <section class="lf2-insp dv2-insp" data-dv2-insp aria-labelledby="${id('insp-t')}">
     <header class="lf2-insp-cab">
@@ -159,6 +162,7 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
     </header>
     <div class="dv2-painel" role="tabpanel" id="${id('p')}" data-dv2-p tabindex="-1"></div>
   </section>
+  `}
   </div>
 
   <section class="dv2-ficha" data-dv2-ficha aria-label="Ficha" hidden></section>

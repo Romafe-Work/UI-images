@@ -43,6 +43,9 @@ import paperclip from 'lucide-static/icons/paperclip.svg?raw';
 import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
 import pencil from 'lucide-static/icons/pencil.svg?raw';
 import circleAlert from 'lucide-static/icons/circle-alert.svg?raw';
+import minus from 'lucide-static/icons/minus.svg?raw';
+import maximize from 'lucide-static/icons/maximize-2.svg?raw';
+import minimize from 'lucide-static/icons/minimize-2.svg?raw';
 
 /* ---------- o estado ---------- */
 const estados = new WeakMap<HTMLElement, EstDoc>();
@@ -215,6 +218,7 @@ function estado(r: HTMLElement, e: EstDoc): void {
   c.acao(r, e, '_barra', r);
 }
 export function inspetor(r: HTMLElement, e: EstDoc, mudou = false): void {
+  if (comJanelas(r)) { refrescarJanelas(r, e); return; }
   const c = cfgDe(r), d = ativoDe(r, e), alvo = r.querySelector<HTMLElement>('[data-dv2-alvo]')!, p = r.querySelector<HTMLElement>('[data-dv2-p]')!;
   r.querySelectorAll<HTMLElement>('[data-dv2-tab]').forEach((b) => { const s = b.dataset.dv2Tab === e.tab; b.setAttribute('aria-selected', String(s)); b.tabIndex = s ? 0 : -1; });
   r.querySelector('[data-dv2-p]')?.setAttribute('aria-labelledby', r.querySelector<HTMLElement>(`[data-dv2-tab="${e.tab}"]`)?.id ?? '');
@@ -250,6 +254,71 @@ export function escolher(r: HTMLElement, e: EstDoc, id: string, focar = true): v
   /* o painel acende-se: a ligação entre a linha e os detalhes */
   const a = r.querySelector<HTMLElement>('[data-dv2-alvo] b'); if (a && !quieto()) a.animate([{ backgroundColor: 'color-mix(in srgb, var(--h-laranja) 28%, transparent)' }, { backgroundColor: 'transparent' }], { duration: 600, easing: 'ease-out' });
 }
+
+/* ---------- os detalhes numa janela flutuante (26 out., ela: «faz como na Lista de Faltas, a cena das windows»).
+   Com `janelas` na configuração, não há painel por baixo da lista: tocar numa linha abre (ou traz para a frente) a
+   janela desse documento, com os separadores dos detalhes lá dentro. Arrasta-se pelo cabeçalho, redimensiona-se pelo
+   canto, minimiza-se, maximiza-se (duplo clique) e fecha-se (Esc fecha a de cima); várias ao mesmo tempo, em cascata.
+   Tocar numa janela escolhe o documento dela (é a ele que Editar, Anular e Anexos se aplicam). ---------- */
+interface JanDoc { id: string; x: number; y: number; w: number; h: number; min: boolean; max: boolean; z: number; tab: string }
+const janelasDe = new WeakMap<EstDoc, JanDoc[]>();
+const jds = (e: EstDoc) => { let j = janelasDe.get(e); if (!j) { j = []; janelasDe.set(e, j); } return j; };
+let zTopo = 10;
+const comJanelas = (r: HTMLElement) => !!cfgDe(r).janelas;
+const docDe = (r: HTMLElement, e: EstDoc, id: string) => e.fase === 'ok' || e.fase === 'atualizar' ? cfgDe(r).linhas(e).find((d) => d.id === id) : undefined;
+function corpoJan(r: HTMLElement, e: EstDoc, j: JanDoc): string {
+  const c = cfgDe(r), d = docDe(r, e, j.id);
+  if (!d) return `<p class="lf2-sem">${L(paperclip)}${e.fase === 'ok' || e.fase === 'atualizar' ? `Est${c.o === 'a' ? 'a' : 'e'} ${c.um} já não está na lista.` : 'Sem dados enquanto a lista não carregar.'}</p>`;
+  const n = anexosDe(c.docAnexo(d)).length;
+  return `<div class="lf2-insp-art dv2-jan-alvo">${c.painel(e, d, '_alvo')}</div>
+    <div class="lf2-tabs dv2-tabs dv2-jan-tabs" role="tablist" aria-label="Detalhes">${c.tabs.map((t) => `<button type="button" role="tab" aria-selected="${t.k === j.tab}"${t.k === j.tab ? '' : ' tabindex="-1"'} data-dv2-jan-tab="${t.k}">${L(t.ic)}${esc(t.t)}${t.k === 'anexos' ? `<small>${n || ''}</small>` : ''}</button>`).join('')}</div>
+    <div class="dv2-painel dv2-jan-p" role="tabpanel">${j.tab === 'anexos' ? painelAnexos(r, e, d) : c.painel(e, d, j.tab)}</div>`;
+}
+function janHtml(r: HTMLElement, e: EstDoc, j: JanDoc): string {
+  const c = cfgDe(r), d = docDe(r, e, j.id), id = `dv2-jan-${c.k}-${r.dataset.dv2Cenario}-${j.id.replace(/\W+/g, '-')}`;
+  const nome = d ? String(d.numero ?? d.ref ?? j.id) : j.id;
+  return `<section class="lf2-jan dv2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-dv2-jan="${esc(j.id)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.h}px;z-index:${j.z}">
+    <header class="lf2-jan-cab" data-dv2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(c.janelas!.icone)}<h3 id="${id}">${esc(c.janelas!.titulo)} · <b data-dv2-jan-ref>${esc(nome)}</b></h3>
+      <span class="lf2-jan-bts"><button type="button" data-dv2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${L(minus)}</button><button type="button" data-dv2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${L(j.max ? minimize : maximize)}</button><button type="button" data-dv2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${L(xIc)}</button></span></header>
+    <div class="lf2-jan-corpo" data-dv2-jan-corpo>${corpoJan(r, e, j)}</div>
+  </section>`;
+}
+/** Os dados mudaram (filtros, gravar, anular, anexos…): o corpo das janelas abertas volta a desenhar-se. */
+function refrescarJanelas(r: HTMLElement, e: EstDoc): void {
+  const caixa = r.querySelector<HTMLElement>('[data-dv2-janelas]'); if (!caixa) return;
+  jds(e).forEach((j) => { const x = caixa.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-corpo]`); if (x) x.innerHTML = corpoJan(r, e, j); });
+}
+function desenharJanelas(r: HTMLElement, e: EstDoc): void {
+  const caixa = r.querySelector<HTMLElement>('[data-dv2-janelas]'); if (caixa) caixa.innerHTML = jds(e).map((j) => janHtml(r, e, j)).join('');
+}
+/** Abre (ou traz para a frente) a janela do documento; nasce da linha (só transform e opacity). */
+export function abrirJanelaDoc(r: HTMLElement, e: EstDoc, id: string, tab = cfgDe(r).tabs[0].k, focar = true): void {
+  const caixa = r.querySelector<HTMLElement>('[data-dv2-janelas]'); if (!caixa) return;
+  const js = jds(e); let j = js.find((x) => x.id === id);
+  if (j) { j.z = ++zTopo; j.min = false; desenharJanelas(r, e); }
+  else {
+    const n = js.length % 6, w = Math.min(560, innerWidth - 32), h = Math.min(620, innerHeight - 150);
+    j = { id, x: Math.max(16, Math.min(innerWidth - w - 16, innerWidth - w - 40 - n * 28)), y: Math.max(16, Math.min(innerHeight - h - 16, 128 + n * 28)), w, h, min: false, max: false, z: ++zTopo, tab };
+    js.push(j); caixa.insertAdjacentHTML('beforeend', janHtml(r, e, j));
+    const jan = caixa.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(id)}"]`), tr = r.querySelector<HTMLElement>(`tr[data-dv2-id="${CSS.escape(id)}"]`);
+    if (jan && tr && !quieto()) { const a = tr.getBoundingClientRect(), b = jan.getBoundingClientRect(); jan.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${Math.max(.2, a.width / b.width)}, ${Math.max(.06, a.height / b.height)})`, opacity: .2, transformOrigin: '0 0' }, { transform: 'none', opacity: 1, transformOrigin: '0 0' }], { duration: 240, easing: 'cubic-bezier(.22, 1, .36, 1)' }); }
+  }
+  if (focar) caixa.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
+}
+function acaoJanelaDoc(r: HTMLElement, e: EstDoc, id: string, k: string): void {
+  const js = jds(e), j = js.find((x) => x.id === id); if (!j) return;
+  if (k === 'fechar') {
+    const el = r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(id)}"]`);
+    const tirar = () => { if (js.includes(j)) js.splice(js.indexOf(j), 1); el?.remove(); r.querySelector<HTMLElement>(`tr[data-dv2-id="${CSS.escape(id)}"]`)?.focus({ preventScroll: true }); };
+    if (el && !quieto()) el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.96)' }], { duration: 120, easing: 'ease-in' }).finished.then(tirar, tirar); else tirar();
+    return;
+  }
+  if (k === 'min') { j.min = !j.min; if (j.min) j.max = false; }
+  if (k === 'max') { j.max = !j.max; if (j.max) j.min = false; }
+  j.z = ++zTopo; desenharJanelas(r, e);
+  r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(id)}"] [data-dv2-jan-acao="${k}"]`)?.focus({ preventScroll: true });
+}
+const janelaDeCima = (e: EstDoc) => jds(e).slice().sort((a, b) => b.z - a.z)[0];
 
 /* ---------- anexos ---------- */
 function painelAnexos(r: HTMLElement, e: EstDoc, d: Doc): string {
@@ -403,6 +472,7 @@ function armar(r: HTMLElement): void {
   if (cen === 'anular') dlgAnular(r, e);
   if (cen === 'anexos' || cen === 'anexo-enviar' || cen === 'anexo-falhou') { e.tab = 'anexos'; if (cen === 'anexo-enviar') e.extra.anexoProgresso = .42; if (cen === 'anexo-falhou') e.extra.anexoErro = `«tabela-precos-2027.pdf» tem 4,2 MB; neste protótipo o limite é ${tamanho(MAX_ANEXO)}.`; inspetor(r, e); }
   if (cen === 'imprimir') { e.aviso = 'A preparar a impressão: só a lista, com as colunas à vista.'; estado(r, e); }
+  if (c.janelas && e.ativo && (c.janelas.estados.includes(cen) || e.tab === 'anexos') && docDe(r, e, e.ativo)) { abrirJanelaDoc(r, e, e.ativo, e.tab === 'anexos' ? 'anexos' : c.tabs[0].k, false); r.querySelectorAll<HTMLElement>('[data-dv2-jan]').forEach((x) => x.getAnimations().forEach((a) => a.finish())); }
   if (!e.editor && cen === 'normal' && aVista && !quieto()) r.classList.add('lf2-entra');
   if (!e.editor && cen === 'normal' && aVista && (emSeparador() || location.hash.includes('so=ecra'))) requestAnimationFrame(() => r.querySelector<HTMLElement>('[data-dv2-q]')?.focus({ preventScroll: true }));
 }
@@ -470,7 +540,7 @@ export function iniciar(): void {
         case 'atualizar': atualizar(r, e); return;
         case 'repetir': e.fase = 'ok'; e.erro = undefined; atualizar(r, e); return;
         case 'imprimir': window.print(); return;
-        case 'anexos': if (e.ficha) fecharFicha(r, e); e.tab = 'anexos'; inspetor(r, e, true); r.querySelector<HTMLElement>('[data-dv2-insp]')?.scrollIntoView({ block: 'nearest', behavior: quieto() ? 'auto' : 'smooth' }); r.querySelector<HTMLElement>('[data-dv2-tab="anexos"]')?.focus({ preventScroll: true }); return;
+        case 'anexos': if (e.ficha) fecharFicha(r, e); e.tab = 'anexos'; if (comJanelas(r)) { if (e.ativo) abrirJanelaDoc(r, e, e.ativo, 'anexos'); const j = jds(e).find((x) => x.id === e.ativo); if (j && j.tab !== 'anexos') { j.tab = 'anexos'; refrescarJanelas(r, e); } return; } inspetor(r, e, true); r.querySelector<HTMLElement>('[data-dv2-insp]')?.scrollIntoView({ block: 'nearest', behavior: quieto() ? 'auto' : 'smooth' }); r.querySelector<HTMLElement>('[data-dv2-tab="anexos"]')?.focus({ preventScroll: true }); return;
         case 'carregar-anexo': r.querySelector<HTMLInputElement>('[data-dv2-ficheiro]')?.click(); return;
         case 'limpar': e.f = F0(); e.q = ''; e.filtrosCol = {}; tudo(r, e, true); guardarVista(r, e); r.querySelector<HTMLElement>('[data-dv2-q]')?.focus(); return;
         case 'limpar-q': e.q = ''; tudo(r, e, true); guardarVista(r, e); r.querySelector<HTMLElement>('[data-dv2-q]')?.focus(); return;
@@ -484,7 +554,9 @@ export function iniciar(): void {
         default: return;
       }
     }
-    if ((b = t.closest('tr[data-dv2-id]')) && !t.closest('input, a, button')) escolher(r, e, b.dataset.dv2Id!);
+    if ((b = t.closest('[data-dv2-jan-acao]'))) { acaoJanelaDoc(r, e, b.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!, b.dataset.dv2JanAcao!); return; }
+    if ((b = t.closest('[data-dv2-jan-tab]'))) { const j = jds(e).find((x) => x.id === b!.closest<HTMLElement>('[data-dv2-jan]')?.dataset.dv2Jan); if (j) { j.tab = b.dataset.dv2JanTab!; refrescarJanelas(r, e); r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-tab="${j.tab}"]`)?.focus(); } return; }
+    if ((b = t.closest('tr[data-dv2-id]')) && !t.closest('input, a, button')) { escolher(r, e, b.dataset.dv2Id!, !comJanelas(r)); if (comJanelas(r)) abrirJanelaDoc(r, e, b.dataset.dv2Id!); }
   });
   document.addEventListener('dblclick', (ev) => { const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const tr = t.closest<HTMLElement>('tr[data-dv2-id]'); if (!tr || t.closest('input')) return; const e = de(r), d = filtradas(r, e).find((x) => x.id === tr.dataset.dv2Id); if (d) abrirFicha(r, e, 'editar', d); });
   document.addEventListener('change', (ev) => {
@@ -523,7 +595,9 @@ export function iniciar(): void {
     if (ev.key === 'Escape') {
       if (fecharMenus(r)) { ev.preventDefault(); return; }
       if (e.ficha) { ev.preventDefault(); fecharFicha(r, e); return; }
-      if (e.filtrosAbertos) { e.filtrosAbertos = false; e.filtrosCol = {}; tudo(r, e); ev.preventDefault(); }
+      if (e.filtrosAbertos) { e.filtrosAbertos = false; e.filtrosCol = {}; tudo(r, e); ev.preventDefault(); return; }
+      const daqui = t.closest<HTMLElement>('[data-dv2-jan]')?.dataset.dv2Jan, j = daqui ?? janelaDeCima(e)?.id;
+      if (j && (daqui || !t.closest('input, select, textarea'))) { ev.preventDefault(); acaoJanelaDoc(r, e, j, 'fechar'); }
       return;
     }
     const menu = t.closest<HTMLElement>('[data-dv2-menu]');
@@ -558,6 +632,7 @@ export function iniciar(): void {
       if (i >= 0 && i < cs.length - 1) cs[i + 1].focus(); else r.querySelector<HTMLElement>('[data-dv2-ficha] [data-dv2-acao="gravar"]')?.focus();
       return;
     }
+    if (t.matches('[data-dv2-jan-tab]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const ks = c.tabs.map((x) => x.k), i = ks.indexOf(t.dataset.dv2JanTab!), k = ks[(i + (ev.key === 'ArrowRight' ? 1 : ks.length - 1)) % ks.length]; r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(t.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!)}"] [data-dv2-jan-tab="${k}"]`)?.click(); return; }
     if (t.matches('[data-dv2-tab]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const ks = c.tabs.map((x) => x.k), i = ks.indexOf(e.tab); e.tab = ks[(i + (ev.key === 'ArrowRight' ? 1 : ks.length - 1)) % ks.length]; inspetor(r, e, true); r.querySelector<HTMLElement>(`[data-dv2-tab="${e.tab}"]`)?.focus(); return; }
     if (t.matches('[data-dv2-div]') && (ev.key === 'ArrowUp' || ev.key === 'ArrowDown')) { ev.preventDefault(); e.alt = Math.max(200, Math.min(900, e.alt + (ev.key === 'ArrowDown' ? 24 : -24))); r.style.setProperty('--lf2-alt', `${e.alt}px`); t.setAttribute('aria-valuenow', String(e.alt)); guardarVista(r, e); return; }
     const tr = t.closest<HTMLElement>('tr[data-dv2-id]'); if (tr && t === tr) teclaGrelha(r, e, ev, tr);
@@ -566,6 +641,17 @@ export function iniciar(): void {
   /* alargar colunas, a altura da lista e reordenar colunas */
   document.addEventListener('pointerdown', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
+    const jan = t.closest<HTMLElement>('[data-dv2-jan]');
+    if (jan) {
+      const j = jds(e).find((x) => x.id === jan.dataset.dv2Jan); if (!j) return;
+      if (j.z !== zTopo) { j.z = ++zTopo; jan.style.zIndex = String(j.z); }
+      if (e.ativo !== j.id && docDe(r, e, j.id)) escolher(r, e, j.id, false);
+      if (!t.closest('[data-dv2-jan-arrastar]') || t.closest('button') || j.max) return;
+      ev.preventDefault(); const x0 = ev.clientX - j.x, y0 = ev.clientY - j.y; jan.classList.add('is-a-mover');
+      const mover = (m: PointerEvent) => { j.x = Math.max(-j.w + 120, Math.min(innerWidth - 120, m.clientX - x0)); j.y = Math.max(0, Math.min(innerHeight - 40, m.clientY - y0)); jan.style.left = `${j.x}px`; jan.style.top = `${j.y}px`; };
+      const largar = () => { document.removeEventListener('pointermove', mover); document.removeEventListener('pointerup', largar); jan.classList.remove('is-a-mover'); };
+      document.addEventListener('pointermove', mover); document.addEventListener('pointerup', largar); return;
+    }
     const h = t.closest<HTMLElement>('[data-dv2-redim]');
     if (h) {
       ev.preventDefault(); ev.stopPropagation(); const k = h.dataset.dv2Redim!, col = r.querySelector<HTMLElement>(`col[data-dv2-w="${k}"]`)!, x0 = ev.clientX, w0 = col.getBoundingClientRect().width || 100;
@@ -591,6 +677,10 @@ export function iniciar(): void {
     e.cols.splice(e.cols.indexOf(arrastada), 1); e.cols.splice(e.cols.indexOf(para), 0, arrastada); arrastada = ''; grelha(r, e, true); menuMais(r, e); guardarVista(r, e);
   });
   document.addEventListener('dragend', () => { arrastada = ''; document.querySelectorAll('th.is-arrastada, th.is-alvo').forEach((x) => x.classList.remove('is-arrastada', 'is-alvo')); });
+  /* as janelas: o tamanho dado pelo canto fica (para minimizar e voltar); duplo clique no cabeçalho maximiza */
+  const medir = new ResizeObserver((xs) => xs.forEach((x) => { const jan = x.target as HTMLElement, r = raiz(jan); if (!r || jan.classList.contains('is-min') || jan.classList.contains('is-max')) return; const j = jds(de(r)).find((y) => y.id === jan.dataset.dv2Jan); if (j) { j.w = Math.round(jan.offsetWidth); j.h = Math.round(jan.offsetHeight); } }));
+  new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => { if (n instanceof HTMLElement && n.matches('[data-dv2-jan]')) medir.observe(n); }))).observe(document.body, { childList: true, subtree: true });
+  document.addEventListener('dblclick', (ev) => { const h = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dv2-jan-arrastar]'); if (!h || (ev.target as HTMLElement).closest('button')) return; const r = raiz(h); if (!r || editando()) return; acaoJanelaDoc(r, de(r), h.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!, 'max'); });
 }
 export function fecharMenus(r: HTMLElement): boolean {
   let fechou = false;

@@ -271,6 +271,7 @@ const CFG = registar({
   celula, valor,
   resumo: (ls) => { const t = ls.filter((d) => d.transferido).length, a = ls.filter((d) => d.anulado).length, s = ls.filter((d) => d.resposta === 'sem' && !d.anulado).length; const pl = (n: number, um: string, v: string) => `<span><b>${nf(n)}</b> ${n === 1 ? um : v}</span>`; return ls.length ? `${pl(ls.length - t - a, 'por transferir', 'por transferir')}${pl(t, 'transferido', 'transferidos')}${pl(a, 'anulado', 'anulados')}${pl(s, 'sem resposta', 'sem resposta')}` : ''; },
   barra: BTN('transferir', arrowRL, 'Transferir para encomenda', 'Ctrl+F2', '', 'ak-btn--acao'), teclasExtra: '',
+  janelas: { titulo: 'Orçamento', icone: scale, estados: ['ja-transferido', 'anulado', 'gravado'] },
   tabs: [{ k: 'detalhes', t: 'Detalhes', ic: info }, { k: 'linhas', t: 'Linhas', ic: list }, { k: 'documentos', t: 'Documentos', ic: link }, { k: 'anexos', t: 'Anexos', ic: paperclip }],
   painel, ficha, gravar,
   porque: {

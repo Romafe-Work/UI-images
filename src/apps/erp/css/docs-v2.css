@@ -250,3 +250,9 @@
   .rc-impressao { display: block; margin: 0 0 10px; } .rc-impressao h1 { margin: 0 0 4px; font-size: 18px; } .rc-impressao p { margin: 0; font-size: 12px; }
   .rc .rc-grelha { max-height: none; overflow: visible; } .rc-tab tfoot td { position: static; }
 }
+/* 26 out.: os detalhes numa janela flutuante (como na Lista de Faltas): o documento, os separadores e o painel */
+.dv2-jan-alvo { padding: 12px 14px 0; }
+.dv2 .lf2-tabs.dv2-jan-tabs { margin: 10px 14px 0; }
+.dv2-jan-p { min-height: 0; overflow-x: auto; }
+.dv2-jan-tabs small:not(:empty) { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--h-sup-2); font-size: 10.5px; }
+.dv2-jan-p .is-num { white-space: nowrap; }
