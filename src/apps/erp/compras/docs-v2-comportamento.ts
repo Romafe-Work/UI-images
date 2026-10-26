@@ -375,6 +375,8 @@ function armar(r: HTMLElement): void {
   const c = cfgDe(r), e = de(r), cen = r.dataset.dv2Cenario ?? 'normal', aVista = !!r.closest('.ecra:not([hidden]) > .versao:not([hidden])');
   if (cen === 'normal' && !e.editor) {
     const q = repor(r, e);
+    /* outro ecrã pediu este documento (abrirDoc grava a referência na sessão): fica escolhido */
+    try { const ec = r.closest<HTMLElement>('.ecra')?.dataset.ecra, k = `erp:ref:${ec}`, v = ec ? JSON.parse(sessionStorage.getItem(k) ?? 'null') : null; if (v && c.linhas(e).some((d) => d.id === v)) { e.ativo = v; e.f = F0(); e.q = ''; sessionStorage.removeItem(k); } } catch { /* sem sessão */ }
     if (q && Date.now() - q < 12 * 3600_000) { const x = r.querySelector<HTMLElement>('[data-dv2-restaurada]')!; x.hidden = false; x.innerHTML = `${L(undo)}Reposta como a deixaste às ${new Date(q).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`; window.setTimeout(() => { x.hidden = true; }, 5000); }
   }
   switch (cen) {
