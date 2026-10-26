@@ -158,7 +158,8 @@ export const ROTAS: Record<string, Rota> = {
   'compras.encomendas': { ecra: 'compras', titulo: 'Encomendas de compra', icone: 'file-text', acoes: ['novo', 'editar', 'eliminar', 'atualizar', 'imprimir'], novo: ['compras-encomenda', 'Nova encomenda'], editar: ['compras-encomenda', 'EF 2026/0413'] },
   'compras.fornecedores': { ecra: 'compras-fornecedores', titulo: 'Fornecedores', icone: 'users', acoes: ['novo', 'editar', 'atualizar', 'imprimir'], novo: ['compras-fornecedor', 'Novo fornecedor'], editar: ['compras-fornecedor', 'Fornecedor · SKF'] },
   'compras.requisicoes': { ecra: 'compras-requisicoes', titulo: 'Requisições', icone: 'clipboard-list', acoes: ['novo', 'editar', 'eliminar', 'atualizar'], novo: ['compras-requisicao', 'Nova requisição'], editar: ['compras-requisicao', 'Requisição'] },
-  'compras.cotacoes': { ecra: 'compras-cotacoes', titulo: 'Cotações', icone: 'scale', acoes: ['novo', 'atualizar', 'imprimir'], novo: ['compras-cotacao', 'Nova cotação'] },
+  /* 26 out.: os Orçamentos v2 têm a barra do ERP antigo dentro do ecrã */
+  'compras.cotacoes': { ecra: 'compras-cotacoes', titulo: 'Orçamentos', icone: 'scale', acoes: ['atualizar', 'imprimir'], novo: ['compras-cotacao', 'Nova cotação'] },
   'compras.rececoes': { ecra: 'compras-rececoes', titulo: 'Receções', icone: 'package-check', acoes: ['novo', 'atualizar', 'imprimir'], novo: ['compras-rececao', 'Nova receção'] },
   /* Ficheiros (23 out., Início v6): só consulta — o que não existe (novo, editar) não aparece na barra */
   'ficheiros.artigos': { ecra: 'ficheiros-artigos', titulo: 'Artigos', icone: 'package', acoes: ['atualizar', 'imprimir'] },
