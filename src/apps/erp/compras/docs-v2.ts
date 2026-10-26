@@ -43,7 +43,7 @@ export interface Filtros { serie: string; forn: string; estado: string; de: stri
 export const F0 = (): Filtros => ({ serie: '', forn: '', estado: '', de: '', ate: '', moeda: '' });
 export interface Ord { k: string; dir: 1 | -1 }
 export type Fase = 'ok' | 'carregar' | 'atualizar' | 'erro';
-export interface Ficha { modo: 'criar' | 'editar'; ref: string; sujo: boolean; erro: string; campo: string }
+export interface Ficha { modo: 'criar' | 'editar'; ref: string; sujo: boolean; erro: string; campo: string; /** o documento em edição (com janelas, as ações ficam presas a ele) */ id?: string }
 /** O estado de uma página (uma por ecrã e por estado no editor). */
 export interface EstDoc {
   modo: Modo; comp: 'inicio' | 'contem'; q: string; f: Filtros;

@@ -256,3 +256,7 @@
 .dv2-jan-p { min-height: 0; overflow-x: auto; }
 .dv2-jan-tabs small:not(:empty) { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--h-sup-2); font-size: 10.5px; }
 .dv2-jan-p .is-num { white-space: nowrap; }
+/* Editar numa janela: a ficha sem moldura própria (a janela já é a moldura) */
+.dv2-jan .dv2-ficha { margin: 0; }
+.dv2-jan .dv2-ficha-c { padding: 12px 14px 14px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.dv2-jan .dv2-ficha-g { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }

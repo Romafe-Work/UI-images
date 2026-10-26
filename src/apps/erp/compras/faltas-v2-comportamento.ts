@@ -302,7 +302,11 @@ function encomendaAside(r: HTMLElement, e: Est, realcar = false): void {
 /* ---------- os detalhes de cada artigo numa janela flutuante (26 out., ela: «era engraçado as coisas funcionarem
    como este quadrado» — a janela de contexto da área de trabalho). Arrasta-se pelo cabeçalho, redimensiona-se pelo
    canto, minimiza-se, maximiza-se e fecha-se; várias ao mesmo tempo, em cascata; a da frente é a última tocada. */
-interface Jan { ref: string; x: number; y: number; w: number; h: number; min: boolean; max: boolean; z: number; dias: number }
+interface Jan { ref: string; x: number; y: number; w: number; h: number; min: boolean; max: boolean; z: number; dias: number; ed?: Edicao }
+/** Editar na janela do artigo (26 out., ela: «o editar também numa janela; atenção a editar um artigo aberto»): a janela
+ *  que já mostrava o artigo passa a ficha (não se abre outra); `base` são os valores ao começar, para ver, ao gravar,
+ *  se outra pessoa (ou outro separador) mudou a falta entretanto. */
+interface Edicao { q: string; tipo: string; erro: string; sujo: boolean; base: { pedida: number; tipo: string }; pergunta?: 'fechar' | 'cancelar' | 'mudou' }
 const janelas = new WeakMap<Est, Jan[]>();
 const jans = (e: Est) => { let j = janelas.get(e); if (!j) { j = []; janelas.set(e, j); } return j; };
 let zTopo = 10;
@@ -335,18 +339,37 @@ const IC_MIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const IC_MAX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="maximize-2"><path d="M15 3h6v6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/><path d="M9 21H3v-6"/></svg>';
 const IC_RES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="minimize-2"><path d="m14 10 7-7"/><path d="M20 10h-6V4"/><path d="m3 21 7-7"/><path d="M4 14h6v6"/></svg>';
 const IC_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-lucide="x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+function corpoEdicao(e: Est, j: Jan, l: L2 | undefined): string {
+  if (!l || !j.ed) return corpoJanela(e, l, j.dias);
+  const x = j.ed, id = (k: string) => `lf2-jan-ed-${k}-${j.ref.replace(/\W+/g, '-')}`;
+  const pergunta = x.pergunta === 'mudou'
+    ? `<div class="lf2-jan-aviso is-aviso" role="alert">${L(circleAlert)}<p><b>A falta mudou enquanto editavas.</b> Agora está com ${nf(l.pedida)} ${esc(l.un)} em rutura, ${esc(l.tipo.toLowerCase())}. Gravar põe por cima o que escreveste.</p><span><button type="button" class="ak-btn ak-btn--linha" data-lf2-ed-acao="recarregar">${L(refresh)}<span>Ver os valores de agora</span></button><button type="button" class="ak-btn ak-btn--perigo" data-lf2-ed-acao="gravar-mesmo">${L(check)}<span>Gravar por cima</span></button></span></div>`
+    : x.pergunta ? `<div class="lf2-jan-aviso" role="alert">${L(circleAlert)}<p><b>Há alterações por gravar.</b> Se ${x.pergunta === 'fechar' ? 'fechares a janela' : 'cancelares'}, o que escreveste perde-se.</p><span><button type="button" class="ak-btn ak-btn--linha" data-lf2-ed-acao="continuar" data-lf2-primeiro>${L(pencil)}<span>Continuar a editar</span></button><button type="button" class="ak-btn ak-btn--perigo" data-lf2-ed-acao="descartar">${L(trash)}<span>Descartar</span></button></span></div>` : '';
+  return `<div class="lf2-jan-ed">
+    <p class="lf2-jan-desc">${esc(l.desc)} · ${esc(l.marca)} · ${esc(l.fornNome)}</p>
+    ${pergunta}
+    <div class="lf2-jan-ed-campos">
+      <label class="ak-campo" for="${id('q')}"><span>Qtd. em rutura (${esc(l.un)})</span><input id="${id('q')}" type="text" inputmode="numeric" value="${esc(x.q)}" data-lf2-ed="pedida" data-lf2-primeiro${x.erro ? ` aria-invalid="true" aria-describedby="${id('erro')}"` : ''}></label>
+      <label class="ak-campo" for="${id('t')}"><span>Tipo de encomenda</span><select id="${id('t')}" data-lf2-ed="tipo">${['Normal', 'Urgente', 'Consignação'].map((t) => `<option${t === x.tipo ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+    </div>
+    ${x.erro ? `<p class="ak-erro-campo" id="${id('erro')}" role="alert">${esc(x.erro)}</p>` : ''}
+    <p class="lf2-dlg-dica">Antes: ${nf(x.base.pedida)} ${esc(l.un)} em rutura, ${esc(x.base.tipo.toLowerCase())}. Enter passa ao campo seguinte; no último, grava. Esc cancela.</p>
+    <div class="lf2-dlg-acoes"><button type="button" class="ak-btn ak-btn--linha" data-lf2-ed-acao="cancelar">${L(xIc)}<span>Cancelar</span><kbd>Esc</kbd></button><button type="button" class="ak-btn ak-btn--acao" data-lf2-ed-acao="gravar">${L(check)}<span>Gravar</span><kbd>Ctrl Enter</kbd></button></div>
+  </div>`;
+}
 function janelaHtml(r: HTMLElement, e: Est, j: Jan): string {
   const id = `lf2-jan-${r.dataset.lf2Cenario}-${j.ref.replace(/\W+/g, '-')}`;
-  return `<section class="lf2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-lf2-jan="${esc(j.ref)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.h}px;z-index:${j.z}">
-    <header class="lf2-jan-cab" data-lf2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(box)}<h3 id="${id}">Artigo · <b data-lf2-jan-ref>${esc(j.ref)}</b></h3>
+  return `<section class="lf2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-lf2-jan="${esc(j.ref)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed ? 'auto' : `${j.h}px`};z-index:${j.z}">
+    <header class="lf2-jan-cab" data-lf2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : box)}<h3 id="${id}">${j.ed ? 'A editar a falta' : 'Artigo'} · <b data-lf2-jan-ref>${esc(j.ref)}</b>${j.ed?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
       <span class="lf2-jan-bts"><button type="button" data-lf2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${IC_MIN}</button><button type="button" data-lf2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${j.max ? IC_RES : IC_MAX}</button><button type="button" data-lf2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${IC_X}</button></span></header>
-    <div class="lf2-jan-corpo" data-lf2-jan-corpo>${corpoJanela(e, doArtigo(e, j.ref), j.dias)}</div>
+    <div class="lf2-jan-corpo" data-lf2-jan-corpo>${corpoEdicao(e, j, doArtigo(e, j.ref))}</div>
   </section>`;
 }
 /** Volta a desenhar as janelas abertas (os dados mudaram: filtros, para encomenda, editar…). */
 function inspetor(r: HTMLElement, e: Est, _mudou = false): void {
   const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]'); if (!caixa) return;
-  jans(e).forEach((j) => { const c = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(j.ref)}"] [data-lf2-jan-corpo]`); if (c) c.innerHTML = corpoJanela(e, doArtigo(e, j.ref), j.dias); });
+  /* as janelas em edição não se redesenham (perdia-se o que se está a escrever) */
+  jans(e).forEach((j) => { if (j.ed) return; const c = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(j.ref)}"] [data-lf2-jan-corpo]`); if (c) c.innerHTML = corpoJanela(e, doArtigo(e, j.ref), j.dias); });
 }
 function desenharJanelas(r: HTMLElement, e: Est): void {
   const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]'); if (caixa) caixa.innerHTML = jans(e).map((j) => janelaHtml(r, e, j)).join('');
@@ -367,6 +390,7 @@ function abrirJanela(r: HTMLElement, e: Est, ref: string): void {
 }
 function acaoJanela(r: HTMLElement, e: Est, ref: string, k: string): void {
   const js = jans(e), j = js.find((x) => x.ref === ref); if (!j) return;
+  if (k === 'fechar' && j.ed?.sujo && j.ed.pergunta !== 'fechar') { j.ed.pergunta = 'fechar'; j.min = false; j.z = ++zTopo; desenharJanelas(r, e); r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-ed-acao="continuar"]`)?.focus(); return; }
   if (k === 'fechar') {
     const el = r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`);
     const tirar = () => { js.splice(js.indexOf(j), 1); el?.remove(); r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`)?.focus({ preventScroll: true }); };
@@ -435,16 +459,44 @@ function fecharDialogo(r: HTMLElement): boolean {
   d.hidden = true; d.innerHTML = ''; voltaFoco?.focus({ preventScroll: true }); return true;
 }
 const alvos = (e: Est) => { const ls = filtradas(e); const sel = ls.filter((l) => e.sel.has(l.ref)); return sel.length ? sel : ls.filter((l) => l.ref === e.ativo); };
-function dlgEditar(r: HTMLElement, e: Est, erro = '', valor_ = ''): void {
+/** Editar (F6): na janela do artigo — a que já estava aberta passa a ficha; senão abre-se uma, já em edição. */
+function editarNaJanela(r: HTMLElement, e: Est, erro = '', valor_ = ''): void {
   const l = ativo(e); if (!l) return;
-  dialogo(r, `<h2 id="lf2-dlg-t">${L(pencil)}Editar a falta <span class="is-mono">${esc(l.ref)}</span></h2><p class="lf2-dlg-sub">${esc(l.desc)} · ${esc(l.fornNome)}</p>
-    <div class="lf2-dlg-campos">
-      <label class="ak-campo" for="lf2-ed-q"><span>Qtd. em rutura (${esc(l.un)})</span><input id="lf2-ed-q" type="text" inputmode="numeric" value="${esc(valor_ || String(l.pedida))}" data-lf2-ed="pedida" data-lf2-primeiro${erro ? ' aria-invalid="true" aria-describedby="lf2-ed-erro"' : ''}></label>
-      <label class="ak-campo" for="lf2-ed-t"><span>Tipo de encomenda</span><select id="lf2-ed-t" data-lf2-ed="tipo">${['Normal', 'Urgente', 'Consignação'].map((t) => `<option${t === l.tipo ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
-    </div>
-    ${erro ? `<p class="ak-erro-campo" id="lf2-ed-erro" role="alert">${esc(erro)}</p>` : ''}
-    <p class="lf2-dlg-dica">Enter passa ao campo seguinte; no último, grava. Esc fecha sem gravar.</p>
-    <div class="lf2-dlg-acoes"><button type="button" class="ak-btn ak-btn--linha" data-lf2-dlg-fechar>${L(xIc)}<span>Cancelar</span><kbd>Esc</kbd></button><button type="button" class="ak-btn ak-btn--acao" data-lf2-acao="gravar-edicao" data-lf2-ref="${esc(l.ref)}">${L(check)}<span>Gravar</span></button></div>`);
+  abrirJanela(r, e, l.ref);
+  const j = jans(e).find((x) => x.ref === l.ref)!;
+  if (!j.ed) j.ed = { q: String(l.pedida), tipo: l.tipo, erro: '', sujo: false, base: { pedida: l.pedida, tipo: l.tipo } };
+  if (erro) { j.ed.erro = erro; j.ed.q = valor_; j.ed.sujo = true; }
+  j.min = false; desenharJanelas(r, e);
+  const q = r.querySelector<HTMLInputElement>(`[data-lf2-jan="${CSS.escape(l.ref)}"] [data-lf2-ed="pedida"]`); q?.focus(); q?.select();
+}
+/** Gravar a edição de uma janela; `mesmo` grava por cima quando a falta mudou entretanto. */
+function gravarEdicao(r: HTMLElement, e: Est, ref: string, mesmo = false): void {
+  const j = jans(e).find((x) => x.ref === ref), x = j?.ed; if (!j || !x) return;
+  const jan = r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`);
+  x.q = jan?.querySelector<HTMLInputElement>('[data-lf2-ed="pedida"]')?.value.trim() ?? x.q; x.tipo = jan?.querySelector<HTMLSelectElement>('[data-lf2-ed="tipo"]')?.value ?? x.tipo;
+  const foco = () => { const n = r.querySelector<HTMLInputElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-ed="pedida"]`); n?.focus(); n?.select(); };
+  const l = doArtigo(e, ref);
+  if (!l) { x.erro = 'A falta já não está na lista (foi apagada ou gerada outra vez): não há o que gravar.'; desenharJanelas(r, e); return; }
+  if (!/^\d{1,5}$/.test(x.q)) { x.erro = 'A quantidade em rutura é um número inteiro de 0 a 99 999.'; x.pergunta = undefined; desenharJanelas(r, e); foco(); return; }
+  if (!mesmo && (l.pedida !== x.base.pedida || l.tipo !== x.base.tipo)) { x.pergunta = 'mudou'; x.erro = ''; desenharJanelas(r, e); r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-ed-acao="recarregar"]`)?.focus(); return; }
+  const d = dados(); d.editadas[ref] = { pedida: +x.q, tipo: x.tipo as Linha2['tipo'] };
+  if (!gravarDados(d)) { x.erro = 'Não foi possível gravar. Nada mudou; tenta outra vez.'; desenharJanelas(r, e); foco(); return; }
+  j.ed = undefined; tudo(r, e); desenharJanelas(r, e);
+  r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`)?.focus({ preventScroll: true });
+  toast(r, `Falta ${ref} alterada: ${x.q} em rutura, ${x.tipo.toLowerCase()}.`);
+}
+function acaoEdicao(r: HTMLElement, e: Est, ref: string, k: string): void {
+  const j = jans(e).find((x) => x.ref === ref), x = j?.ed; if (!j || !x) return;
+  const voltar = () => { j.ed = undefined; desenharJanelas(r, e); r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`)?.focus({ preventScroll: true }); };
+  switch (k) {
+    case 'gravar': gravarEdicao(r, e, ref); return;
+    case 'gravar-mesmo': gravarEdicao(r, e, ref, true); return;
+    case 'recarregar': { const l = doArtigo(e, ref); if (!l) return; j.ed = { q: String(l.pedida), tipo: l.tipo, erro: '', sujo: false, base: { pedida: l.pedida, tipo: l.tipo } }; desenharJanelas(r, e); r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-ed="pedida"]`)?.focus(); return; }
+    case 'cancelar': if (x.sujo && x.pergunta !== 'cancelar') { x.pergunta = 'cancelar'; desenharJanelas(r, e); r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-ed-acao="continuar"]`)?.focus(); return; } voltar(); return;
+    case 'continuar': x.pergunta = undefined; desenharJanelas(r, e); r.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"] [data-lf2-ed="pedida"]`)?.focus(); return;
+    case 'descartar': if (x.pergunta === 'fechar') { j.ed = undefined; acaoJanela(r, e, ref, 'fechar'); return; } voltar(); return;
+    default: return;
+  }
 }
 function dlgApagar(r: HTMLElement, e: Est, todas: boolean): void {
   const ls = todas ? filtradas(e) : alvos(e); if (!ls.length) return;
@@ -594,7 +646,7 @@ function armar(r: HTMLElement): void {
   if (cen === 'visualizar') { const m = r.querySelector<HTMLElement>('[data-lf2-menu="visualizar"]')!; m.hidden = false; }
   if (cen === 'acoes') { const m = r.querySelector<HTMLElement>('[data-lf2-menu="acoes"]')!; m.hidden = false; }
   if ((cen === 'det-carregar' || cen === 'parcial') && e.ativo && e.ativo !== '-') { abrirJanela(r, e, e.ativo); r.querySelector<HTMLElement>('.lf2-jan')?.getAnimations().forEach((a) => a.finish()); }
-  if (cen === 'invalido') { e.ativo = ls()[0]?.ref ?? ''; dlgEditar(r, e, 'A quantidade em rutura é um número inteiro de 0 a 99 999.', '-3'); }
+  if (cen === 'invalido') { e.ativo = ls()[0]?.ref ?? ''; editarNaJanela(r, e, 'A quantidade em rutura é um número inteiro de 0 a 99 999.', '-3'); r.querySelectorAll<HTMLElement>('.lf2-jan').forEach((x) => x.getAnimations().forEach((a) => a.finish())); }
   if (cen === 'apagar') dlgApagar(r, e, true);
   if (cen === 'confirmado') encomendaAside(r, e, true);
   /* a entrada: curta, só a primeira vez e fora do editor */
@@ -664,8 +716,8 @@ export function iniciar(): void {
       switch (k) {
         case 'acoes': case 'mais': case 'visualizar': abrirMenu(r, k); return;
         case 'novo': return;
-        case 'editar': dlgEditar(r, e); return;
-        case 'apagar': dlgApagar(r, e, false); return;
+        case 'editar': editarNaJanela(r, e); return;
+        case 'apagar': { const ed = alvos(e).find((l) => jans(e).some((j) => j.ref === l.ref && j.ed)); if (ed) { toast(r, `A falta ${ed.ref} está a ser editada numa janela: grava ou cancela primeiro.`); return; } dlgApagar(r, e, false); return; }
         case 'atualizar': case 'repetir': if (e.fase === 'erro') { e.fase = 'ok'; e.erro = undefined; } atualizar(r, e); return;
         case 'imprimir': window.print(); return;
         case 'gerar': atualizar(r, e, true); return;
@@ -682,13 +734,6 @@ export function iniciar(): void {
         case 'encomenda': abrirEncomenda(r, e, b); return;
         case 'criar-enc': criarEncomenda(r, e); return;
         case 'ficha': case 'ficha-forn': if (!emSeparador()) toast(r, 'A ficha abre numa janela quando o ecrã está na área de trabalho.'); return;
-        case 'gravar-edicao': {
-          const ref = b.dataset.lf2Ref!, q = r.querySelector<HTMLInputElement>('[data-lf2-ed="pedida"]')!.value.trim(), tipo = r.querySelector<HTMLSelectElement>('[data-lf2-ed="tipo"]')!.value as Linha2['tipo'];
-          if (!/^\d{1,5}$/.test(q)) { dlgEditar(r, e, 'A quantidade em rutura é um número inteiro de 0 a 99 999.', q); return; }
-          const d = dados(); d.editadas[ref] = { pedida: +q, tipo };
-          if (!gravarDados(d)) { dlgEditar(r, e, 'Não foi possível gravar. Nada mudou; tenta outra vez.', q); return; }
-          fecharDialogo(r); tudo(r, e); toast(r, `Falta ${ref} alterada: ${q} em rutura, ${tipo.toLowerCase()}.`); return;
-        }
         case 'apagar-sim': {
           const refs = b.dataset.lf2Refs!.split('|'), d = dados(); d.apagadas = [...new Set([...d.apagadas, ...refs])];
           if (!gravarDados(d)) { toast(r, 'Não foi possível apagar. Nada mudou.'); return; }
@@ -697,6 +742,7 @@ export function iniciar(): void {
         default: return;
       }
     }
+    if ((b = t.closest('[data-lf2-ed-acao]'))) { acaoEdicao(r, e, b.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, b.dataset.lf2EdAcao!); return; }
     if ((b = t.closest('[data-lf2-jan-acao]'))) { acaoJanela(r, e, b.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, b.dataset.lf2JanAcao!); return; }
     if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) { escolher(r, e, b.dataset.lf2Ref!, false); abrirJanela(r, e, b.dataset.lf2Ref!); }
   });
@@ -710,8 +756,18 @@ export function iniciar(): void {
   });
   /* a pesquisa e os filtros por coluna, com um pequeno intervalo enquanto se escreve */
   let espera = 0;
+  /* o que se escreve na janela em edição fica nela (e o ● diz que há alterações por gravar) */
+  const marcarEd = (e: Est, t: HTMLElement) => {
+    const jan = t.closest<HTMLElement>('[data-lf2-jan]'), j = jan && jans(e).find((x) => x.ref === jan.dataset.lf2Jan); if (!j?.ed) return;
+    if (t.dataset.lf2Ed === 'pedida') j.ed.q = (t as HTMLInputElement).value; else j.ed.tipo = (t as HTMLSelectElement).value;
+    j.ed.sujo = j.ed.q.trim() !== String(j.ed.base.pedida) || j.ed.tipo !== j.ed.base.tipo;
+    const h = jan!.querySelector('.lf2-jan-cab h3'), p = h?.querySelector('.dv2-sujo');
+    if (j.ed.sujo && h && !p) h.insertAdjacentHTML('beforeend', ' <span class="dv2-sujo" title="Alterações por gravar">●</span>'); else if (!j.ed.sujo) p?.remove();
+  };
+  document.addEventListener('change', (ev) => { const t = ev.target as HTMLElement, r = raiz(t); if (r && !editando() && t.matches?.('[data-lf2-ed]')) marcarEd(de(r), t); });
   document.addEventListener('input', (ev) => {
     const t = ev.target as HTMLInputElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
+    if (t.matches('[data-lf2-ed]')) { marcarEd(e, t); return; }
     /* a rotatividade calcula-se ao escrever os dias (26 out., ela: «quero o cálculo automático») */
     if (t.matches('[data-lf2-dias]')) {
       clearTimeout(espera);
@@ -742,6 +798,18 @@ export function iniciar(): void {
   document.addEventListener('keydown', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t) ?? visivel(); if (!r || editando()) return;
     const e = de(r), dlg = r.querySelector<HTMLElement>('[data-lf2-dlg]')!;
+    /* a janela em edição: Esc cancela (pergunta, se há alterações), Ctrl+Enter grava, Enter passa ao campo seguinte e, no último, grava */
+    const janEd = t.closest<HTMLElement>('[data-lf2-jan]'), jEd = janEd && jans(e).find((x) => x.ref === janEd.dataset.lf2Jan && x.ed);
+    if (jEd && dlg.hidden) {
+      const ref = jEd.ref;
+      if (ev.key === 'Escape') { ev.preventDefault(); acaoEdicao(r, e, ref, jEd.ed!.pergunta && jEd.ed!.pergunta !== 'mudou' ? 'continuar' : 'cancelar'); return; }
+      if (ev.key === 'Enter' && ev.ctrlKey) { ev.preventDefault(); gravarEdicao(r, e, ref); return; }
+      const doCampo = (x: HTMLElement) => x.classList.contains('esel__nativo') ? (x.nextElementSibling as HTMLElement) : x;
+      if (ev.key === 'Enter' && (t.matches('[data-lf2-ed]') || (t.matches('.esel__botao') && !!t.previousElementSibling?.matches('[data-lf2-ed]')))) {
+        ev.preventDefault(); const cs = [...janEd!.querySelectorAll<HTMLElement>('[data-lf2-ed]')].map(doCampo), i = cs.indexOf(t);
+        if (i >= 0 && i < cs.length - 1) cs[i + 1].focus(); else gravarEdicao(r, e, ref); return;
+      }
+    }
     /* as janelas dos artigos: Esc fecha a de cima (a que tem o foco, se houver); os diálogos de editar e apagar têm o seu */
     if (dlg.hidden && ev.key === 'Escape' && jans(e).length && !r.querySelector('[data-lf2-menu]:not([hidden])')) {
       const daqui = t.closest<HTMLElement>('[data-lf2-jan]')?.dataset.lf2Jan, j = daqui ?? janelaDeCima(e)?.ref;
@@ -818,7 +886,7 @@ export function iniciar(): void {
     }
   });
   /* o tamanho que se dá a uma janela pelo canto fica (para minimizar e voltar) */
-  const medir = new ResizeObserver((xs) => xs.forEach((x) => { const jan = x.target as HTMLElement, r = raiz(jan); if (!r || jan.classList.contains('is-min') || jan.classList.contains('is-max')) return; const j = jans(de(r)).find((y) => y.ref === jan.dataset.lf2Jan); if (j) { j.w = Math.round(jan.offsetWidth); j.h = Math.round(jan.offsetHeight); } }));
+  const medir = new ResizeObserver((xs) => xs.forEach((x) => { const jan = x.target as HTMLElement, r = raiz(jan); if (!r || jan.classList.contains('is-min') || jan.classList.contains('is-max') || jan.style.height === 'auto') return; const j = jans(de(r)).find((y) => y.ref === jan.dataset.lf2Jan); if (j) { j.w = Math.round(jan.offsetWidth); j.h = Math.round(jan.offsetHeight); } }));
   new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => { if (n instanceof HTMLElement && n.matches('[data-lf2-jan]')) medir.observe(n); }))).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('dblclick', (ev) => { const h = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-lf2-jan-arrastar]'); if (!h || (ev.target as HTMLElement).closest('button')) return; const r = raiz(h); if (!r || editando()) return; acaoJanela(r, de(r), h.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, 'max'); });
   /* reordenar colunas a arrastar o cabeçalho */

@@ -348,3 +348,14 @@
 .lf2-jan-classe[aria-pressed="true"] { color: var(--h-tinta-2); cursor: default; }
 @container (max-width: 380px) { .lf2-jan-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .lf2-jan-corpo { container-type: inline-size; }
+/* 26 out.: editar na janela do artigo */
+.lf2-jan-ed { padding: 0 0 14px; }
+.lf2-jan-ed-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 14px; margin: 12px 14px 0; }
+.lf2-jan-ed .ak-erro-campo { margin: 8px 14px 0; }
+.lf2-jan-ed .lf2-dlg-dica { margin: 10px 14px 0; }
+.lf2-jan-ed .lf2-dlg-acoes { margin: 14px 14px 0; }
+.lf2-jan-aviso { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; margin: 12px 14px 0; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--h-erro) 35%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--h-erro) 7%, var(--h-sup)); font-size: 13px; }
+.lf2-jan-aviso.is-aviso { border-color: color-mix(in srgb, var(--h-aviso) 45%, transparent); background: color-mix(in srgb, var(--h-aviso) 9%, var(--h-sup)); }
+.lf2-jan-aviso > svg { width: 18px; height: 18px; color: var(--h-erro); } .lf2-jan-aviso.is-aviso > svg { color: var(--h-aviso); }
+.lf2-jan-aviso p { margin: 0; } .lf2-jan-aviso > span { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.lf2-jan-cab .dv2-sujo { color: var(--h-laranja); }
