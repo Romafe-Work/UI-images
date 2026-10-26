@@ -110,9 +110,9 @@ export function fecharDialogo(r: HTMLElement): boolean {
 }
 /** Abre outro documento: na área de trabalho, num separador que nasce do elemento (data-dk-doc, que a área de trabalho
     apanha); sozinho, o ecrã dele. O clique que se dispara leva detail = -1, e os ouvintes deste motor ignoram-no. */
-export function abrirDoc(b: HTMLElement | null, rota: string, titulo: string, ecra: string): void {
+export function abrirDoc(b: HTMLElement | null, rota: string, titulo: string, ecra: string, ref = titulo): void {
   /* o ecrã do documento lê a referência da sessão (compras/comportamento.ts, refDe) */
-  try { sessionStorage.setItem(`erp:ref:${ecra}`, JSON.stringify(titulo)); } catch { /* sem sessão: abre o de omissão */ }
+  try { sessionStorage.setItem(`erp:ref:${ecra}`, JSON.stringify(ref)); } catch { /* sem sessão: abre o de omissão */ }
   if (emSeparador() && b) { b.dataset.dkDoc = rota; b.dataset.dkTitulo = titulo; b.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: -1 })); delete b.dataset.dkDoc; delete b.dataset.dkTitulo; return; }
   mostrar(ecra as never);
 }

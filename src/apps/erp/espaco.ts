@@ -114,10 +114,10 @@ export const MENU_ERP: LinhaMenu[] = [
   M('crm', 'CRM', 'users', 100), M('bi', 'BI', 'chart-column', 110), M('relatorios', 'Relatórios', 'file-text', 120), M('configuracoes', 'Configurações', 'sliders-horizontal', 130),
   M('sistema', 'Sistema', 'monitor-cog', 140), M('ajuda', 'Ajuda', 'life-buoy', 150),
   S('compras-faltas', 'Lista de Faltas', 'package-x', 'compras.faltas', 10),
-  S('compras-encomendas', 'Encomendas de compra', 'file-text', 'compras.encomendas', 20),
+  S('compras-encomendas', 'Encomendas', 'file-text', 'compras.encomendas', 20),
   S('compras-fornecedores', 'Fornecedores', 'users', 'compras.fornecedores', 30),
   S('compras-requisicoes', 'Requisições', 'clipboard-list', 'compras.requisicoes', 40),
-  S('compras-cotacoes', 'Cotações', 'scale', 'compras.cotacoes', 50),
+  S('compras-cotacoes', 'Orçamentos', 'scale', 'compras.cotacoes', 50),
   S('compras-rececoes', 'Receções', 'package-check', 'compras.rececoes', 60, ['compras', 'armazem', 'admin']),
   S('compras-devolucoes', 'Devoluções a fornecedor', 'undo-2', 'compras.devolucoes', 70),
   /* o menu Compras do ERP antigo (22 out., ela mostrou-o): a mesma ordem, os separadores e os mapas em submenus; o que ainda não tem ecrã novo fica desligado */
@@ -155,7 +155,8 @@ export interface Rota { ecra: string; titulo: string; icone: string; acoes: Acao
 export const ROTAS: Record<string, Rota> = {
   /* 26 out.: a Lista de Faltas v2 tem a barra do ERP antigo (F5–F11) dentro do ecrã; a da área de trabalho fica com Atualizar e Imprimir, como nos mapas */
   'compras.faltas': { ecra: 'compras-faltas', titulo: 'Lista de Faltas', icone: 'package-x', acoes: ['atualizar', 'imprimir'] },
-  'compras.encomendas': { ecra: 'compras', titulo: 'Encomendas de compra', icone: 'file-text', acoes: ['novo', 'editar', 'eliminar', 'atualizar', 'imprimir'], novo: ['compras-encomenda', 'Nova encomenda'], editar: ['compras-encomenda', 'EF 2026/0413'] },
+  /* 26 out.: as Encomendas v3 têm a barra do ERP antigo dentro do ecrã */
+  'compras.encomendas': { ecra: 'compras', titulo: 'Encomendas', icone: 'file-text', acoes: ['atualizar', 'imprimir'], novo: ['compras-encomenda', 'Nova encomenda'], editar: ['compras-encomenda', 'EF 2026/0413'] },
   'compras.fornecedores': { ecra: 'compras-fornecedores', titulo: 'Fornecedores', icone: 'users', acoes: ['novo', 'editar', 'atualizar', 'imprimir'], novo: ['compras-fornecedor', 'Novo fornecedor'], editar: ['compras-fornecedor', 'Fornecedor · SKF'] },
   'compras.requisicoes': { ecra: 'compras-requisicoes', titulo: 'Requisições', icone: 'clipboard-list', acoes: ['novo', 'editar', 'eliminar', 'atualizar'], novo: ['compras-requisicao', 'Nova requisição'], editar: ['compras-requisicao', 'Requisição'] },
   /* 26 out.: os Orçamentos v2 têm a barra do ERP antigo dentro do ecrã */

@@ -119,7 +119,11 @@
 .dv2-prog-l li { display: grid; grid-template-columns: minmax(120px, 200px) minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; font-size: 13px; transition: background-color .16s ease; }
 .dv2-prog-l li.is-realce { background: color-mix(in srgb, var(--h-laranja) 12%, transparent); }
 .dv2-barra-p { position: relative; height: 10px; border-radius: 5px; background: var(--h-sup-2); overflow: hidden; box-shadow: inset 0 0 0 1px var(--h-borda); }
-.dv2-barra-p i { position: absolute; inset: 0; border-radius: 5px; background: var(--h-ok); transform-origin: 0 50%; }
+.dv2-barra-p i { position: absolute; inset: 0; border-radius: 5px; background: var(--h-ok); transform-origin: 0 50%; animation: dv2-encher .5s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes dv2-encher { from { transform: scaleX(0); } }
+.dv2-seta-menu { width: 14px; height: 14px; margin-left: -6px; color: var(--h-tinta-3); pointer-events: none; }
+.dv2-edi-l li.is-a-enviar svg { animation: ak-roda .8s linear infinite; }
+.dv2-edi-l b svg { width: 14px; height: 14px; vertical-align: -2px; }
 .dv2-barra-p i.is-rej { background: var(--h-erro); }
 .dv2-prog-l small { font-variant-numeric: tabular-nums; color: var(--h-tinta-2); white-space: nowrap; }
 .dv2-recs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
@@ -153,3 +157,6 @@
   .dv2 :is(.hm-topo, .dv2-barra, .dv2-filtros, .lf2-div, .dv2-insp, .lf2-estado, .hm-aviso, .lf2-td-sel, .lf2-th-sel, .lf2-redim, .dv2-ficha-acoes) { display: none !important; }
   .dv2 .lf2-grelha { height: auto; overflow: visible; }
 }
+/* os separadores do painel veem-se sempre (na Lista de Faltas, acima de 1280 px, os painéis ficam lado a lado) */
+.dv2 .lf2-tabs.dv2-tabs { display: inline-flex; flex-wrap: wrap; }
+.dv2-tabs small:not(:empty) { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--h-sup-2); font-size: 10.5px; font-weight: 800; color: var(--h-tinta-2); }

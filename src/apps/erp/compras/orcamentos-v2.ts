@@ -269,7 +269,7 @@ const CFG = registar({
   estados: [['', 'Todos'], ['por', 'Por transferir'], ['transf', 'Transferidos'], ['anul', 'Anulados'], ['sem', 'Sem resposta']],
   estadoPassa: (d, v) => v === 'por' ? !d.transferido && !d.anulado : v === 'transf' ? !!d.transferido : v === 'anul' ? !!d.anulado : v === 'sem' ? d.resposta === 'sem' : true,
   celula, valor,
-  resumo: (ls) => { const t = ls.filter((d) => d.transferido).length, a = ls.filter((d) => d.anulado).length, s = ls.filter((d) => d.resposta === 'sem' && !d.anulado).length; return ls.length ? `<span><b>${nf(ls.length - t - a)}</b> por transferir</span><span><b>${nf(t)}</b> transferidos</span><span><b>${nf(a)}</b> anulados</span><span><b>${nf(s)}</b> sem resposta</span>` : ''; },
+  resumo: (ls) => { const t = ls.filter((d) => d.transferido).length, a = ls.filter((d) => d.anulado).length, s = ls.filter((d) => d.resposta === 'sem' && !d.anulado).length; const pl = (n: number, um: string, v: string) => `<span><b>${nf(n)}</b> ${n === 1 ? um : v}</span>`; return ls.length ? `${pl(ls.length - t - a, 'por transferir', 'por transferir')}${pl(t, 'transferido', 'transferidos')}${pl(a, 'anulado', 'anulados')}${pl(s, 'sem resposta', 'sem resposta')}` : ''; },
   barra: BTN('transferir', arrowRL, 'Transferir para encomenda', 'Ctrl+F2', '', 'ak-btn--acao'), teclasExtra: '',
   tabs: [{ k: 'detalhes', t: 'Detalhes', ic: info }, { k: 'linhas', t: 'Linhas', ic: list }, { k: 'documentos', t: 'Documentos', ic: link }, { k: 'anexos', t: 'Anexos', ic: paperclip }],
   painel, ficha, gravar,
