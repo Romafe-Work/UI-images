@@ -123,7 +123,7 @@ export const MENU_ERP: LinhaMenu[] = [
   /* o menu Compras do ERP antigo (22 out., ela mostrou-o): a mesma ordem, os separadores e os mapas em submenus; o que ainda não tem ecrã novo fica desligado */
   A('compras-agendamento', 'compras', 'Agendamento de encomendas', 'calendar-clock', 30, true), A('compras-especiais', 'compras', 'Clientes — encomendas especiais', 'user-star', 35),
   A('compras-guias-entrada', 'compras', 'Guias de entrada', 'file-input', 50, true), A('compras-guias-transporte', 'compras', 'Guias de transporte a fornecedor', 'truck', 60, true),
-  A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true), A('compras-notas-credito', 'compras', 'Notas de crédito', 'file-minus', 90, true),
+  A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true), A('compras-notas-credito', 'compras', 'Notas de crédito', 'file-minus', 90),
   A('compras-pendentes', 'compras', 'Pendentes de crédito de fornecedor', 'hourglass', 100, true), A('compras-verificacao', 'compras', 'Verificação de faturas', 'file-check', 110, true),
   A('compras-mapas', 'compras', 'Mapas', 'chart-bar', 200, true),
   A('mapas-tot-enc', 'compras-mapas', 'Totais de documentos de encomenda', '', 10), A('mapas-det-enc', 'compras-mapas', 'Detalhes por documentos de encomenda', '', 20),
@@ -138,7 +138,9 @@ export const MENU_ERP: LinhaMenu[] = [
   A('comp-forn-var', 'mapas-comparativos', 'Por fornecedor', '', 70, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
-const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, true], 'compras-fornecedores': [120, true], 'compras-requisicoes': [130, false] };
+/* 26 out. (ela mandou outra vez o print do menu): sem linha entre as Guias de transporte e as de devolução, nem entre as Faturas e as Notas de
+   crédito; Fornecedores e Requisições não estão no ERP antigo e vão para depois dos Mapas */
+const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, false], 'compras-fornecedores': [210, true], 'compras-requisicoes': [220, false] };
 MENU_ERP.forEach((l) => { const o = OM[l.id]; if (o) { l.om = o[0]; l.sep = o[1]; } });
 const ICONES: Record<string, string> = { 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
   /* Ficheiros (23 out., Início v6) */
