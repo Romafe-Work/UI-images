@@ -293,6 +293,8 @@
 .lf2-auto { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--h-tinta-3); } .lf2-auto svg { width: 14px; height: 14px; color: rgb(0, 99, 170); }
 /* os menus dos filtros (Visualizar por) ficam por cima da grelha, também durante a entrada (que dá camadas próprias) */
 .lf2-filtros { position: relative; z-index: 8; }
+/* 26 out.: os menus da barra (Mais ações, Ações de compra) ficam por cima dos filtros */
+.lf2 .lf2-barra { z-index: 9; }
 
 .lf2-tab tbody tr[data-lf2-ref] { cursor: pointer; }
 .lf2-classes li.is-esta button > span { padding-right: 82px; }

@@ -49,7 +49,7 @@
 .dk6-seps .dk-sep.is-ativo .dk-sep-ic { color: var(--k-laranja); }
 .dk6-seps .dk-sep:not(.is-ativo) + .dk-sep:not(.is-ativo)::before { content: ""; position: absolute; left: -2px; top: 8px; bottom: 8px; width: 1px; background: var(--k-borda); }
 .dk6-seps .dk-sep-x, .dk6-seps .dk-sep-pin { color: var(--k-tinta-3); }
-.dk6 .dk-acoes { min-height: 44px; }
+.dk6 .dk-acoes:not(:empty) { min-height: 44px; }
 .dk6 .dk-acao svg { width: 18px; height: 18px; }
 
 /* ---------- o explorador ---------- */
@@ -161,3 +161,5 @@
 .dk6-i small { margin-left: 18px; }
 /* os submenus abertos de propósito (o estado 05.37) sobem a partir do item, para caberem em qualquer altura; os de passar o rato acertam-se em JS */
 .dk6-sub.is-aberto > .dk6-drop--sub { top: auto; bottom: -5px; }
+/* 26 out. (ela: «existe redundância»): o ecrã com barra própria não leva a da área de trabalho */
+.dk-acoes:empty { min-height: 0; height: 0; padding: 0; border: 0; overflow: hidden; }

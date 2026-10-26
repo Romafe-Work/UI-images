@@ -150,7 +150,7 @@ export const icone = (n: string, cls = '') => L(ICONES[n] ?? file, cls);
 /** As teclas do ERP antigo, numa barra que muda com o separador. */
 export type Acao = 'novo' | 'editar' | 'eliminar' | 'atualizar' | 'imprimir';
 export const TECLA: Record<Acao, string> = { novo: 'F5', editar: 'F6', eliminar: 'F8', atualizar: 'F9', imprimir: 'F11' };
-export interface Rota { ecra: string; titulo: string; icone: string; acoes: Acao[]; novo?: [string, string]; editar?: [string, string]; /** outra rota que abre o mesmo separador (e o modo em que o abre) */ alias?: string; modo?: string }
+export interface Rota { ecra: string; titulo: string; icone: string; acoes: Acao[]; novo?: [string, string]; editar?: [string, string]; /** outra rota que abre o mesmo separador (e o modo em que o abre) */ alias?: string; modo?: string; /** o ecrã tem a sua barra (a do ERP antigo): a da área de trabalho não se repete */ propria?: boolean }
 /** O registo: a rota da base de dados → um ecrã que existe. O que não está aqui não abre (nunca se executa código vindo da base). */
 export const ROTAS: Record<string, Rota> = {
   /* 26 out.: a Lista de Faltas v2 tem a barra do ERP antigo (F5–F11) dentro do ecrã; a da área de trabalho fica com Atualizar e Imprimir, como nos mapas */
@@ -181,6 +181,9 @@ MENU_ANTIGO.forEach((id) => {
   const rota = l.rota ?? `compras.${id}`; l.rota = rota;
   ROTAS[rota] = { ecra: `cm-${id}`, titulo: l.rotulo, icone: l.icone || 'chart-bar', acoes: ['atualizar', 'imprimir'] };
 });
+/* 26 out. (ela: «existe redundância»): os ecrãs com barra própria não levam a barra da área de trabalho por cima */
+const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-compras-faturas|cm-mapas-recap|cm-mapas-automatico|cm-comp-.+|cm-analise-artigo)$/;
+Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* o separador de Artigos/Compras Automático chama-se «Artigos / Compras» (o briefing) */
 ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
 /* 23 out. (ela: «quero num só ecrã»): os comparativos «X» e «X (variação anual)» são um ecrã só. A rota nova (-var) abre
@@ -296,7 +299,7 @@ export function acoes(e: Estado): string {
 `;
   }
   const s = e.seps.find((x) => x.id === e.ativo); const r = s && ROTAS[s.rota];
-  if (!r) return '';
+  if (!r || r.propria) return '';
   return `${r.acoes.map((a) => btn(a, NOME_ACAO[a][0], NOME_ACAO[a][1], TECLA[a], off && a !== 'atualizar' && a !== 'imprimir' ? ' disabled' : '')).join('')}
     <span class="dk-acoes-mais"><button type="button" class="dk-acao" data-dk-acao="mais" aria-haspopup="menu" aria-expanded="false">${L(ellipsis)}<span>Mais ações</span></button>
       <div class="dk-menu" data-dk-menu-mais role="menu" hidden>
