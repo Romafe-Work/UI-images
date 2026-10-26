@@ -311,26 +311,25 @@ const doArtigo = (e: Est, ref: string) => base(e).find((l) => l.ref === ref);
 function corpoJanela(e: Est, l: L2 | undefined, dias: number): string {
   if (e.detCarregar) return `<div class="lf2-esq lf2-esq--peq" aria-label="A carregar"><i></i><i></i><i></i><i></i><i></i></div>`;
   if (!l) return `<p class="lf2-sem">${L(box)}O artigo já não está na Lista de Faltas (foi apagado ou gerado outra vez).</p>`;
-  const a = artigo(l.ref);
-  const grupos = new Map<string, { d: string; n: number; q: number }>();
-  filtradas(e).forEach((x) => { const g = grupos.get(x.clRep) ?? { d: x.clRepDesc, n: 0, q: 0 }; g.n++; g.q += x.pedida; grupos.set(x.clRep, g); });
+  /* 26 out. (ela: «parece confuso»): cada coisa uma vez, em blocos curtos — os números do artigo em cima, depois o
+     stock, a reposição, a rotatividade e os preços */
+  const a = artigo(l.ref), un = esc(l.un);
   const rt = rotatividade(l, dias), saldo = rt.entradas - rt.saidas, desde = new Date(Date.parse(HOJE) - rt.semanas * 7 * 86_400_000).toISOString().slice(0, 10);
-  const d = (t: string, v: string, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${t}</dt><dd>${v}</dd></div>`, nada = '<span class="is-nada" title="Ainda não está no protótipo">—</span>';
+  const nada = '<span class="is-nada" title="Ainda não está no protótipo">—</span>';
+  const d = (t: string, v: string) => `<div><dt>${t}</dt><dd>${v}</dd></div>`;
+  const num = (t: string, v: number, cls = '') => `<div class="${cls}"><small>${t}</small><b>${nf(v)}</b><i>${un}</i></div>`;
   return `<p class="lf2-jan-desc">${esc(l.desc)} · ${esc(l.marca)}</p>
     <div class="lf2-jan-ir"><button type="button" class="ak-btn" data-dk-janela="artigo:${esc(l.ref)}" data-lf2-acao="ficha">${L(box)}<span>Ficha do artigo</span></button><button type="button" class="ak-btn" data-dk-janela="fornecedor:${esc(l.forn)}" data-lf2-acao="ficha-forn">${L(building)}<span>${esc(l.fornNome)}</span></button></div>
-    <section class="lf2-p"><h3>Stock por armazém</h3>
-      <table class="lf2-mini"><thead><tr><th>Armazém</th><th class="is-num">Qtd.</th><th>Designação</th></tr></thead><tbody><tr><td class="is-mono">60</td><td class="is-num${l.stock <= 0 ? ' is-rutura' : ''}">${nf(l.stock)} <small>${esc(l.un)}</small></td><td>Coimbra</td></tr></tbody></table>
-      <dl class="lf2-dl lf2-dl--3"><div><dt>Stock mínimo</dt><dd>${nf(l.min)}</dd></div><div><dt>Qtd. em rutura</dt><dd>${nf(l.pedida)}</dd></div><div><dt>Qtd. encomendada</dt><dd>${nf(l.encomendada)}</dd></div></dl>
-      <p class="lf2-nota">Os outros armazéns ainda não estão no protótipo.</p></section>
-    <section class="lf2-p"><h3>Classes de reposição em rutura</h3>
-      <ul class="lf2-classes">${[...grupos].sort((x, y) => x[0].localeCompare(y[0])).map(([c, g]) => `<li class="${c === l.clRep ? 'is-esta' : ''}"><button type="button" data-lf2-clrep="${esc(c)}" aria-pressed="${e.f.clRep === c}" title="Mostrar só esta classe"><b>${esc(c)}</b><span>${esc(g.d)}</span><small>${g.n} ${g.n === 1 ? 'artigo' : 'artigos'} · ${nf(g.q)} em rutura</small></button>${c === l.clRep ? `<em>${L(check)}este artigo</em>` : ''}</li>`).join('')}</ul>
-      <p class="lf2-hier">${esc(l.fam)} <i>›</i> ${esc(l.sub)} <i>›</i> <b>${esc(l.clRep)}</b></p></section>
-    <section class="lf2-p lf2-p--rot"><div class="lf2-rot-cab"><h3>Rotatividade do produto nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label></div>
-      ${rt.parcial ? `<p class="lf2-parcial" role="status">${L(triangle)}Só há ${SEMANAS_MAX} semanas de movimentos no protótipo: os valores são dos últimos ${SEMANAS_MAX * 7} dias, não dos ${nf(dias)} pedidos.</p>` : ''}
-      <dl class="lf2-dl lf2-dl--rot">${d('Período', `${dia(desde)} a ${dia(HOJE)}`, 'is-largo')}${d('Entradas', nf(rt.entradas))}${d('Saídas', nf(rt.saidas))}${d('Saldo', `<b class="${saldo < 0 ? 'is-neg' : ''}">${saldo > 0 ? '+' : ''}${nf(saldo)}</b>`)}
-        ${d('Família', esc(l.fam))}${d('Subfamília', esc(l.sub))}${d('Qtd. económica', nf(l.econ))}${d('Qtd. embalagem', nada)}
-        ${d('Stock mínimo', nf(l.min))}${d('Stock atual', nf(l.stock))}${d('Stock consignado', nf(l.consig))}${d('Stock devolvido', nada)}
-        ${d('Preço médio', a?.preco == null ? nada : euros(Math.round(a.preco * .97)))}${d('Último preço de custo', l.custo == null ? nada : euros(l.custo))}${d('Data do último custo', dia(l.custoData))}</dl></section>`;
+    <div class="lf2-jan-nums">${num('Stock', l.stock, l.stock <= 0 ? 'is-rutura' : 'is-baixo')}${num('Mínimo', l.min)}${num('Em rutura', l.pedida)}${num('Encomendada', l.encomendada)}</div>
+    <section class="lf2-jan-s"><h3>Stock · armazém 60 Coimbra</h3><dl class="lf2-jan-dl">${d('Consignado', `${nf(l.consig)} ${un}`)}${d('Devolvido', nada)}</dl></section>
+    <section class="lf2-jan-s"><h3>Reposição</h3><dl class="lf2-jan-dl">
+      ${d('Classe de reposição', `<b>${esc(l.clRep)}</b> ${esc(l.clRepDesc)}`)}${d('Família', `${esc(l.fam)} › ${esc(l.sub)}`)}${d('Qtd. económica', `${nf(l.econ)} ${un}`)}${d('Qtd. embalagem', nada)}</dl>
+      <button type="button" class="lf2-limpar lf2-jan-classe" data-lf2-clrep="${esc(l.clRep)}" aria-pressed="${e.f.clRep === l.clRep}">${L(check)}<span>${e.f.clRep === l.clRep ? 'A lista já mostra só esta classe' : `Ver só a ${esc(l.clRep)} na lista`}</span></button></section>
+    <section class="lf2-jan-s"><div class="lf2-rot-cab"><h3>Rotatividade nos últimos</h3><label class="lf2-dias"><input type="number" min="1" max="999" step="1" value="${dias}" data-lf2-dias aria-label="Dias da rotatividade (calcula-se ao escrever)"><span>dias</span></label></div>
+      <p class="lf2-jan-periodo">${dia(desde)} a ${dia(HOJE)}</p>
+      ${rt.parcial ? `<p class="lf2-parcial" role="status">${L(triangle)}Só há ${SEMANAS_MAX} semanas de movimentos no protótipo: os valores são dos últimos ${SEMANAS_MAX * 7} dias.</p>` : ''}
+      <dl class="lf2-jan-dl lf2-jan-dl--3 lf2-dl--rot">${d('Entradas', nf(rt.entradas))}${d('Saídas', nf(rt.saidas))}${d('Saldo', `<b class="${saldo < 0 ? 'is-neg' : ''}">${saldo > 0 ? '+' : ''}${nf(saldo)}</b>`)}</dl></section>
+    <section class="lf2-jan-s"><h3>Preços</h3><dl class="lf2-jan-dl">${d('Preço médio', a?.preco == null ? nada : euros(Math.round(a.preco * .97)))}${d('Último custo', l.custo == null ? nada : `${euros(l.custo)} <small>a ${dia(l.custoData)}</small>`)}</dl></section>`;
 }
 const IC_MIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-lucide="minus"><path d="M5 12h14"/></svg>';
 const IC_MAX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="maximize-2"><path d="M15 3h6v6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/><path d="M9 21H3v-6"/></svg>';
