@@ -218,7 +218,7 @@ function painel(x: EstDoc, d: Doc | undefined, tab: string): string {
       <li>${f.enc ? docBtn('compras.encomenda', f.enc, 'compras-encomenda', 'Encomenda') : '<span class="dv2-cadeia-nada">Sem encomenda</span>'}</li>
       <li>${f.rec ? docBtn('compras.rececoes', 'Receções', 'compras-rececoes', 'Receção', packageCheck, f.rec) : '<span class="dv2-cadeia-nada">Sem receção</span>'}</li>
       <li class="dv2-cadeia-este"><span class="dv2-doc is-este">${L(receipt)}<span><small>Esta fatura</small><b class="is-mono">${esc(f.ref)}</b></span></span></li>
-      ${ncs.length ? ncs.map((n) => `<li data-fc-nc="${esc(n.ref)}">${docBtn('compras.compras-notas-credito', 'Notas de crédito', 'cm-compras-notas-credito', `Nota de crédito · ${euros(n.valor)}`, receiptText, n.ref)}</li>`).join('') : '<li><span class="dv2-cadeia-nada">Sem notas de crédito</span></li>'}</ol>
+      ${ncs.length ? ncs.map((n) => `<li data-fc-nc="${esc(n.ref)}">${docBtn('compras.compras-notas-credito', 'Notas de crédito', 'cm-compras-faturas', `Nota de crédito · ${euros(n.valor)}`, receiptText, n.ref)}</li>`).join('') : '<li><span class="dv2-cadeia-nada">Sem notas de crédito</span></li>'}</ol>
       <h3 class="dv2-h3">Verificação contra a encomenda e a receção</h3>
       <ul class="dv2-verif">${v.linhas.map((y) => `<li class="is-${y.nivel}">${L(y.nivel === 'ok' ? circleCheck : y.nivel === 'aviso' ? circleHelp : triangle)}<span>${esc(y.t)}</span></li>`).join('')}</ul>
       <p class="lf2-nota">Uma diferença não bloqueia a fatura sozinha: bloquear é uma decisão (Bloquear), e fica no histórico.</p>`;
@@ -227,7 +227,7 @@ function painel(x: EstDoc, d: Doc | undefined, tab: string): string {
     const falta = t.total - cr, pc = porqueCreditar(x.perfil, f);
     return `<div class="dv2-anexos-cab"><h3>Notas de crédito (${ncs.length})</h3>${pc ? `<small>${esc(pc)}</small>` : `<button type="button" class="ak-btn ak-btn--acao" data-dv2-acao="credito">${L(receipt)}<span>Lançar crédito</span><kbd>Ctrl F1</kbd></button>`}</div>
       <div class="dv2-cred-barra" role="img" aria-label="Creditado ${euros(cr)} de ${euros(t.total)}"><i style="transform:scaleX(${t.total ? cr / t.total : 0})"></i><span>Creditado <b>${euros(cr)}</b> de ${euros(t.total)} · falta ${euros(falta)}</span></div>
-      ${ncs.length ? `<ul class="dv2-edi-l dv2-nc-l">${ncs.map((n) => `<li data-fc-nc="${esc(n.ref)}"><span><b class="is-mono">${esc(n.ref)} · ${euros(n.valor)}</b><small>${dia(n.data)} · ${esc(n.motivo)} · ${esc(PERFIS[n.por].pessoa)}</small></span>${docBtn('compras.compras-notas-credito', 'Notas de crédito', 'cm-compras-notas-credito', 'Abrir', external, n.ref)}</li>`).join('')}</ul>` : '<p class="lf2-sem">Sem notas de crédito. Lançar um crédito não anula a fatura: a fatura fica, com o valor creditado ao lado.</p>'}`;
+      ${ncs.length ? `<ul class="dv2-edi-l dv2-nc-l">${ncs.map((n) => `<li data-fc-nc="${esc(n.ref)}"><span><b class="is-mono">${esc(n.ref)} · ${euros(n.valor)}</b><small>${dia(n.data)} · ${esc(n.motivo)} · ${esc(PERFIS[n.por].pessoa)}</small></span>${docBtn('compras.compras-notas-credito', 'Notas de crédito', 'cm-compras-faturas', 'Abrir', external, n.ref)}</li>`).join('')}</ul>` : '<p class="lf2-sem">Sem notas de crédito. Lançar um crédito não anula a fatura: a fatura fica, com o valor creditado ao lado.</p>'}`;
   }
   return '';
 }
@@ -355,7 +355,7 @@ function dlgBloquear(r: HTMLElement, x: EstDoc, erro = ''): void {
 }
 
 /* ---------- registar ---------- */
-const CFG = registar({
+export const CFG = registar({
   k: 'fat', titulo: 'Faturas de Compra', sub: 'Consulta, regista e acompanha faturas e créditos de fornecedores.', icone: receipt, um: 'fatura', o: 'a',
   caminho: [['ERP', 'inicio'], ['Compras', 'compras'], ['Faturas', '']],
   cols: COLS, verIniciais: ['numero', 'data', 'docForn', 'dataDocForn', 'fornNum', 'nome', 'estado', 'temCredito', 'bloqueado', 'anulado', 'moeda', 'valor', 'credito', 'utilizador'],
@@ -437,9 +437,11 @@ const CFG = registar({
   dica: 'Período e moeda juntam-se à pesquisa avançada. Enter passa ao campo seguinte.',
 });
 
-/* o construtor: mudar o campo muda as condições e o valor (com uma passagem curta); Enter no valor filtra */
+/* o construtor: mudar o campo muda as condições e o valor (com uma passagem curta); Enter no valor filtra. Também nas
+   Faturas v3 (27 out.), que usam esta configuração com vistas e janelas (compras/faturas-v3.ts) */
+const FAT = '[data-dv2="fat"], [data-dv2="fat3"]';
 document.addEventListener('change', (ev) => {
-  const t = ev.target as HTMLElement, r = t.closest?.<HTMLElement>('[data-dv2="fat"]'); if (!r) return; const e = de(r), row = t.closest<HTMLElement>('[data-fc-i]'); if (!row) return;
+  const t = ev.target as HTMLElement, r = t.closest?.<HTMLElement>(FAT); if (!r) return; const e = de(r), row = t.closest<HTMLElement>('[data-fc-i]'); if (!row) return;
   const i = Number(row.dataset.fcI), c = rascunho(e)[i]; if (!c) return;
   if (t.matches('[data-fc-campo]')) { lerCrit(r, e); c.campo = (t as HTMLSelectElement).value; c.op = OPS[campoDe(c.campo).tipo][0][0]; c.v = ''; c.v2 = ''; desenharCrit(r, e, i); r.querySelector<HTMLElement>(`[data-fc-i="${i}"] [data-fc-campo]`)?.focus(); }
   else if (t.matches('[data-fc-op]')) { lerCrit(r, e); const antes = r.querySelector(`[data-fc-i="${i}"] [data-fc-v2]`); if (!!antes !== (c.op === 'entre')) { desenharCrit(r, e, i); r.querySelector<HTMLElement>(`[data-fc-i="${i}"] [data-fc-op]`)?.focus(); } }
@@ -447,9 +449,9 @@ document.addEventListener('change', (ev) => {
 document.addEventListener('keydown', (ev) => {
   const t = ev.target as HTMLElement;
   /* F4 abre a lista do campo ou da condição, como no antigo */
-  if (ev.key === 'F4' && t.matches?.('[data-dv2="fat"] [data-fc-i] .esel__botao')) { ev.preventDefault(); ev.stopImmediatePropagation(); t.previousElementSibling?.dispatchEvent(new Event('esel:abrir', { bubbles: true })); return; }
+  if (ev.key === 'F4' && t.matches?.(':is([data-dv2="fat"], [data-dv2="fat3"]) [data-fc-i] .esel__botao')) { ev.preventDefault(); ev.stopImmediatePropagation(); t.previousElementSibling?.dispatchEvent(new Event('esel:abrir', { bubbles: true })); return; }
   if (ev.key !== 'Enter' || !t.matches?.('[data-fc-v], [data-fc-v2]')) return;
-  const r = t.closest<HTMLElement>('[data-dv2="fat"]'); if (!r) return;
+  const r = t.closest<HTMLElement>(FAT); if (!r) return;
   const row = t.closest<HTMLElement>('[data-fc-i]'), ult = [...r.querySelectorAll('[data-fc-i]')].pop() === row && (t.matches('[data-fc-v2]') || !row?.querySelector('[data-fc-v2]'));
   if (ult) { ev.preventDefault(); ev.stopImmediatePropagation(); filtrarRegistos(r, de(r)); }
 }, true);

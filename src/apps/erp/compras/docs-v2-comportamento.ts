@@ -661,7 +661,8 @@ export function iniciar(): void {
     }
     if ((b = t.closest('[data-dv2-vista]'))) { mudarVista(r, e, b.dataset.dv2Vista!); return; }
     if ((b = t.closest('[data-dv2-vrel]')) && !t.closest('button')) { escolherRel(r, e, b.dataset.dv2Vrel!); return; }
-    if ((b = t.closest('[data-dv2-vjan]'))) { const [id, tab] = b.dataset.dv2Vjan!.split('|'); if (!docDe(r, e, id)) { toast(r, b.dataset.dv2Vsem || 'Sem documento.'); return; } escolher(r, e, id, false); abrirJanelaDoc(r, e, id, tab || undefined); return; }
+    /* a janela já aberta passa ao separador que a vista pede (27 out.: das Faturas v3, a mesma fatura nos créditos ou nos documentos) */
+    if ((b = t.closest('[data-dv2-vjan]'))) { const [id, tab] = b.dataset.dv2Vjan!.split('|'); if (!docDe(r, e, id)) { toast(r, b.dataset.dv2Vsem || 'Sem documento.'); return; } escolher(r, e, id, false); const ja = jds(e).find((x) => x.id === id); if (ja && tab) ja.tab = tab; abrirJanelaDoc(r, e, id, tab || undefined); return; }
     if ((b = t.closest('[data-dv2-jan-acao]'))) { acaoJanelaDoc(r, e, b.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!, b.dataset.dv2JanAcao!); return; }
     if ((b = t.closest('[data-dv2-jan-tab]'))) { const j = jds(e).find((x) => x.id === b!.closest<HTMLElement>('[data-dv2-jan]')?.dataset.dv2Jan); if (j) { j.tab = b.dataset.dv2JanTab!; refrescarJanelas(r, e); r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-tab="${j.tab}"]`)?.focus(); } return; }
     if ((b = t.closest('tr[data-dv2-id]')) && !t.closest('input, a, button')) { escolher(r, e, b.dataset.dv2Id!, !comJanelas(r)); if (comJanelas(r)) abrirJanelaDoc(r, e, b.dataset.dv2Id!); }

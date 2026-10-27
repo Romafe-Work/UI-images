@@ -123,8 +123,8 @@ export const MENU_ERP: LinhaMenu[] = [
   /* o menu Compras do ERP antigo (22 out., ela mostrou-o): a mesma ordem, os separadores e os mapas em submenus; o que ainda não tem ecrã novo fica desligado */
   /* 27 out. (ela: «coloca isto num só ecrã»): Agendamento e Clientes — encomendas especiais são vistas das Encomendas (v4); saem do menu */
   A('compras-guias-entrada', 'compras', 'Guias', 'file-input', 50, true),
-  A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true), A('compras-notas-credito', 'compras', 'Notas de crédito', 'file-minus', 90),
-  A('compras-pendentes', 'compras', 'Pendentes de crédito de fornecedor', 'hourglass', 100, true), A('compras-verificacao', 'compras', 'Verificação de faturas', 'file-check', 110, true),
+  /* 27 out. (ela: «coloca esses 4 no mesmo ecrã»): as Notas de crédito, os Pendentes de crédito de fornecedor e a Verificação de faturas são vistas das Faturas (v3); saem do menu */
+  A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true),
   A('compras-mapas', 'compras', 'Mapas', 'chart-bar', 200, true),
   A('mapas-tot-enc', 'compras-mapas', 'Totais de documentos de encomenda', '', 10), A('mapas-det-enc', 'compras-mapas', 'Detalhes por documentos de encomenda', '', 20),
   A('mapas-tot-ge', 'compras-mapas', 'Totais de documentos de guia de entrada', '', 30, true), A('mapas-det-ge', 'compras-mapas', 'Detalhes por documentos de guia de entrada', '', 40),
@@ -191,6 +191,10 @@ ROTAS['compras.compras-guias-entrada'] = { ...ROTAS['compras.compras-guias-entra
 ROTAS['compras.compras-guias-transporte'] = { ...ROTAS['compras.compras-guias-entrada'], alias: 'compras.compras-guias-entrada', modo: 'transporte' };
 ROTAS['compras.devolucoes'] = { ...ROTAS['compras.compras-guias-entrada'], alias: 'compras.compras-guias-entrada', modo: 'devolucao' };
 ROTAS['compras.rececoes'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'rececoes' };
+/* os três itens que passaram a vistas das Faturas (v3): quem os tinha nos favoritos ou nos recentes abre as Faturas na vista deles */
+ROTAS['compras.compras-notas-credito'] = { ...ROTAS['compras.compras-faturas'], alias: 'compras.compras-faturas', modo: 'notas' };
+ROTAS['compras.compras-pendentes'] = { ...ROTAS['compras.compras-faturas'], alias: 'compras.compras-faturas', modo: 'pendentes' };
+ROTAS['compras.compras-verificacao'] = { ...ROTAS['compras.compras-faturas'], alias: 'compras.compras-faturas', modo: 'verificar' };
 Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* o separador de Artigos/Compras Automático chama-se «Artigos / Compras» (o briefing) */
 ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';

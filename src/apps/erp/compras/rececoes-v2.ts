@@ -21,7 +21,7 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const nf = (n: number) => n.toLocaleString('pt-PT');
 const NOTA = 'Receções v2 (27 out., ela: «faz a mesma lógica das janelas»): o ecrã da v1, com a encomenda e a receção a abrirem em janelas flutuantes (como na Lista de Faltas), em vez de se sair para a página delas.';
 /* 27 out.: também nas Guias de entrada v2 (ela: «faz o mesmo para a guia de entrada») */
-const ESCOPO = '.ecra[data-ecra="compras-rececoes"] > .versao[data-versao="v2"], .ecra[data-ecra="cm-compras-guias-entrada"] > .versao[data-versao="v2"], .ecra[data-ecra^="rc2-"] > .versao, .ecra[data-ecra^="gui2-"] > .versao, .ecra[data-ecra="cm-compras-guias-entrada"] > .versao[data-versao="v3"], .ecra[data-ecra^="gui3-"] > .versao';
+const ESCOPO = '.ecra[data-ecra="compras-rececoes"] > .versao[data-versao="v2"], .ecra[data-ecra="cm-compras-guias-entrada"] > .versao[data-versao="v2"], .ecra[data-ecra^="gui2-"] > .versao, .ecra[data-ecra="cm-compras-guias-entrada"] > .versao[data-versao="v3"], .ecra[data-ecra^="gui3-"] > .versao';
 const GUIAS = '[data-ecra="cm-compras-guias-entrada"], [data-ecra^="gui2-"]';
 const NOTA_GUIAS = 'Guias de entrada v2 (27 out., ela: «faz o mesmo para a guia de entrada»): sem o painel ao lado; tocar numa guia abre-a numa janela flutuante, e a receção e a encomenda (na linha ou dentro da janela) abrem as delas — como nas Receções v2.';
 

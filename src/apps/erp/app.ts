@@ -14,9 +14,10 @@ import { comOrcamentosV2 } from './compras/orcamentos-v2';
 import { comEncomendasV3 } from './compras/encomendas-v3';
 import { comEncomendasV4 } from './compras/encomendas-v4';
 import { comEncomendasV5 } from './compras/encomendas-v5';
-import { comRececoesV2, comGuiasV2 } from './compras/rececoes-v2';
+import { comGuiasV2 } from './compras/rececoes-v2';
 import { comGuiasV3 } from './compras/guias-v3';
 import { comFaturasV2 } from './compras/faturas-v2';
+import { comFaturasV3 } from './compras/faturas-v3';
 import { comRecapV2 } from './compras/recap-v2';
 import { comEstadosCp } from './compras/estados-cp';
 import { ecrasMenuAntigo } from './compras/menu-antigo';
@@ -47,6 +48,9 @@ const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio'
 const soV2 = (ecras: Ecra<IdErp>[]) => ecras.flatMap((e) => { const v = versaoEstadoVivo(e.id); return v ? [{ ...e, versoes: [v] as Ecra<IdErp>['versoes'] }] : []; });
 
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
+/* 27 out. (ela: «coloca esses 4 no mesmo ecrã»): as Notas de crédito, os Pendentes de crédito e a Verificação de faturas passaram a vistas das Faturas (v3) */
+const JUNTADOS = new Set(['compras-rececoes', 'cm-compras-guias-transporte', 'cm-compras-devolucoes', 'cm-compras-notas-credito', 'cm-compras-pendentes', 'cm-compras-verificacao']);
+const semJuntados = <T extends { id: string; estadoDe?: string }>(xs: T[]) => xs.filter((e) => !JUNTADOS.has(e.id) && !JUNTADOS.has(e.estadoDe ?? ''));
 export const erp: App<IdErp> = {
   id: 'erp',
   nome: 'ERP',
@@ -59,5 +63,6 @@ export const erp: App<IdErp> = {
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(comRececoesV2(ecrasCompras2())), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV2(ecrasMenuAntigo())))), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  /* 27 out. (ela: «sim», tirar): a Receção de encomendas, as Guias de transporte e as Devoluções passaram a vistas das Encomendas e das Guias */
+  ecras: semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()]),
 };

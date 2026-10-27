@@ -219,7 +219,7 @@ export const DIAGRAMAS: Diagrama[] = [
       e('app', 'ROMAFE Identity · Onde queres trabalhar?', 'identidade', 'aplicacoes'), e('abertura', '00 · Abertura', 'erp', 'abertura'),
       e('inicio', '05 · Início', 'erp', 'inicio'), e('compras', '10 · Compras', 'erp', 'compras'),
       e('enc', '11 · Encomenda a fornecedor', 'erp', 'compras-encomenda'), e('aprovar', 'Aprovar', 'erp', 'cp-enc-aprovar'), e('encerros', 'Submeter com erros', 'erp', 'cp-enc-erros'),
-      e('rececoes', '12 · Receções', 'erp', 'compras-rececoes'), e('rececao', '13 · Receção', 'erp', 'compras-rececao'),
+      e('rececoes', '10.99 · Receções (vista das Encomendas)', 'erp', 'enc5-vista-rececoes'), e('rececao', '13 · Receção', 'erp', 'compras-rececao'),
       e('fornecedores', '14 · Fornecedores', 'erp', 'compras-fornecedores'), e('fornecedor', '15 · Fornecedor', 'erp', 'compras-fornecedor'),
       e('reqs', '16 · Requisições', 'erp', 'compras-requisicoes'), e('req', '17 · Requisição', 'erp', 'compras-requisicao'),
       e('cots', '18 · Cotações', 'erp', 'compras-cotacoes'), e('cot', '19 · Cotação', 'erp', 'compras-cotacao'), e('faltas', '20 · Lista de faltas', 'erp', 'compras-faltas'),

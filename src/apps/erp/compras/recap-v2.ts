@@ -318,8 +318,10 @@ function escolher(r: HTMLElement, e: Est, forn: string, abrir = true): void {
 }
 function abrirDocumento(b: HTMLElement): void {
   const tipo = b.dataset.tipo, ref = b.dataset.ref!, fat = b.dataset.fatura!;
-  const ecra = tipo === 'NC' ? 'cm-compras-notas-credito' : 'cm-compras-faturas', rota = tipo === 'NC' ? 'compras.compras-notas-credito' : 'compras.compras-faturas';
-  try { sessionStorage.setItem(`erp:ref:${ecra}`, JSON.stringify(tipo === 'NC' ? ref : fat)); } catch { /* sem sessão */ }
+  /* 27 out.: as notas de crédito são uma vista das Faturas (v3); o ecrã antigo saiu. Abre-se a fatura da nota, e na área
+     de trabalho a rota das notas abre as Faturas nessa vista */
+  const ecra = 'cm-compras-faturas', rota = tipo === 'NC' ? 'compras.compras-notas-credito' : 'compras.compras-faturas'; void ref;
+  try { sessionStorage.setItem(`erp:ref:${ecra}`, JSON.stringify(fat)); } catch { /* sem sessão */ }
   /* na área de trabalho, o separador nasce do botão (a área de trabalho lê data-dk-doc neste mesmo clique) */
   if (window.self !== window.top) { b.dataset.dkDoc = rota; b.dataset.dkTitulo = tipo === 'NC' ? 'Notas de crédito' : 'Faturas de Compra'; window.setTimeout(() => { delete b.dataset.dkDoc; delete b.dataset.dkTitulo; }); return; }
   mostrar(ecra as never);

@@ -282,3 +282,5 @@
 /* nas outras vistas, a Série, o Estado e os modos de pesquisa (Número, Data…) são da lista das encomendas: saem */
 .dv2[data-dv2-vista-atual="agenda"] :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"]), .dv2-modos, .lf2-comp),
 .dv2[data-dv2-vista-atual="clientes"] :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"]), .dv2-modos, .lf2-comp) { display: none; }
+/* 27 out. (Faturas v3): nas Notas de crédito, no Crédito por receber e na Verificação, a Série e o Estado são da lista das faturas: saem */
+.dv2[data-dv2="fat3"]:not([data-dv2-vista-atual="docs"]) :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"])) { display: none; }

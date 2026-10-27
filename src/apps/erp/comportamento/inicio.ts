@@ -14,6 +14,7 @@
    - Teclado: Ctrl+K (ou Cmd+K) abre a procura; ↑ ↓ Enter Esc lá dentro; setas na barra lateral;
      Alt+N «Nova encomenda a fornecedor»; Esc fecha a camada aberta e devolve o foco a quem a abriu.
    ========================================================= */
+import { mudarVista, de as deDoc } from '../compras/docs-v2-comportamento';
 import { irIdentidade } from './abertura-v4';
 import { mostrar, mostrarVersao } from '../../../comum/ecras';
 import * as cp from '../compras/dominio';
@@ -197,6 +198,13 @@ function abrirAchado(x: Achado, de: HTMLElement | null): void {
 /* ---------- ir a outro ecrã, abrir um documento ---------- */
 /** Vai a outro ecrã do ERP; `ref` é o documento a abrir lá (fica na sessão, por página). */
 export function irPara(ecra: string, ref?: string): void {
+  /* 27 out.: a Receção de encomendas é a vista Receções das Encomendas (v5); o ecrã antigo saiu (ela: «sim», tirar) */
+  if (ecra === 'compras-rececoes' && !ref) {
+    mostrar('compras'); mostrarVersao('v5');
+    const r = document.querySelector<HTMLElement>('.ecra[data-ecra="compras"] > .versao[data-versao="v5"] [data-dv2]');
+    if (r) requestAnimationFrame(() => mudarVista(r, deDoc(r), 'rececoes'));
+    window.scrollTo({ top: 0 }); return;
+  }
   if (ref) gravar(`erp:ref:${ecra}`, ref, sessionStorage);
   if (ecra === (raiz?.dataset.wsPagina || 'inicio') && !ref) { window.scrollTo({ top: 0 }); return; }
   for (const g of guardas) if (!g(() => irPara(ecra, ref))) return;
