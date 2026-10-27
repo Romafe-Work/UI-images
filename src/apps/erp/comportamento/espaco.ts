@@ -15,7 +15,7 @@
    ========================================================= */
 import { PAGINAS_ANIMADAS } from './calmo';
 import {
-  novoEstado, arvore, separadores, ordemSeps, semSeparadores, pastaDe, ecrasCasa, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC,
+  novoEstado, arvore, separadores, ordemSeps, semSeparadores, pastaDe, ecrasCasa, acoes, explorador, banner, dialogo, janela, doca, ROTAS, MENU_ERP, TECLA, filhos, rotaDoEcra, esc, L, IC, icone,
   type Estado, type Acao, type Janela,
 } from '../espaco';
 import { exploradorV6, menuV6 } from '../espaco-v6';
@@ -67,7 +67,7 @@ function desenhar(o: { exp?: boolean; entrar?: boolean } = { exp: true }): void 
   put('[data-dk-janelas]', e.janelas.map((j) => janela(j, j.z === top)).join(''));
   put('[data-dk-doca]', doca(e));
   put('[data-dk-dialogo]', dialogo(e));
-  paineis(); indicador(); guardar();
+  paineis(); indicador(); guardar(); todosVer();
   if (o.exp !== false) contar();
   if (foto) vivo.depois(pg, foto, e);
 }
@@ -174,10 +174,41 @@ function fechar(id: string, forcar = false): void {
   const s = e.seps.find((x) => x.id === id); if (!s) return;
   if (s.sujo && !forcar) { e.dialogo = `fechar:${id}`; desenhar({ exp: false }); $<HTMLElement>('[data-dk-dialogo] button')?.focus(); return; }
   const ordem = ordemSeps(e), i = ordem.indexOf(id); e.seps.splice(e.seps.indexOf(s), 1); e.presos = (e.presos ?? []).filter((x) => x !== id);
+  if (!s.rota.startsWith('pasta:')) e.fechados = [{ rota: s.rota, titulo: s.titulo, modo: s.modo }, ...(e.fechados ?? []).filter((x) => !(x.rota === s.rota && x.titulo === s.titulo))].slice(0, 8);
   if (e.ativo === id) { const resto = ordem.filter((x) => x !== id); e.ativo = resto[Math.max(0, i - 1)] ?? 'inicio'; }
   if (!e.seps.length && e.ativo !== 'inicio') e.ativo = 'inicio';
   e.dialogo = '';
   desenhar({ exp: e.ativo === 'inicio' });
+}
+/* ---------- 27 out. (briefing V3): todos os separadores — quando não cabem na barra, um botão lista-os todos, com
+   pesquisa, e os fechados há pouco para os reabrir; a roda do rato rola a barra; o separador ativo fica sempre à vista ---------- */
+function todosVer(): void {
+  const barra = $('[data-dk-seps]'), b = $<HTMLButtonElement>('[data-dk-todos]'); if (!barra || !b) return;
+  const cabe = barra.scrollWidth <= barra.clientWidth + 1;
+  b.hidden = cabe && !(e.fechados ?? []).length; b.classList.toggle('is-transborda', !cabe);
+  const n = $('[data-dk-todos-n]'); if (n) n.textContent = cabe ? '' : String(e.seps.length + (e.semCasa ? 0 : 1));
+  const a = barra.querySelector<HTMLElement>('.dk-sep.is-ativo');
+  if (a && !cabe) { const x = a.offsetLeft - barra.offsetLeft; if (x < barra.scrollLeft) barra.scrollLeft = x - 8; else if (x + a.offsetWidth > barra.scrollLeft + barra.clientWidth) barra.scrollLeft = x + a.offsetWidth - barra.clientWidth + 8; }
+  if (!$('[data-dk-todos-m]')?.hidden) pintarTodos();
+}
+let todosQ = '';
+function pintarTodos(): void {
+  const m = $('[data-dk-todos-m]'); if (!m) return;
+  const q = todosQ.trim().toLowerCase(), passa = (t: string) => !q || t.toLowerCase().includes(q);
+  const abertos = ordemSeps(e).map((id) => id === 'inicio' ? { id, titulo: 'Área de trabalho', ic: 'layout-grid', sujo: false } : (() => { const s = e.seps.find((y) => y.id === id)!; return { id, titulo: s.titulo, ic: ROTAS[s.rota]?.icone ?? (s.rota.startsWith('pasta:') ? 'folder-open' : 'file'), sujo: !!s.sujo }; })()).filter((x) => passa(x.titulo));
+  const fechados = (e.fechados ?? []).filter((x) => passa(x.titulo) && !e.seps.some((y) => y.rota === x.rota && y.titulo === x.titulo));
+  const lista = m.querySelector<HTMLElement>('[data-dk-todos-l]');
+  const html = `${abertos.length ? `<p class="dk-todos-t">Abertos <small>${abertos.length}</small></p>${abertos.map((x) => `<button type="button" class="dk-todos-i${x.id === e.ativo ? ' is-ativo' : ''}" data-dk-ir-sep="${esc(x.id)}">${icone(x.ic)}<span>${esc(x.titulo)}</span>${x.sujo ? '<i class="dk-sep-sujo" aria-label="Alterações por guardar"></i>' : ''}${x.id === e.ativo ? '<small>à vista</small>' : ''}</button>`).join('')}` : ''}
+    ${fechados.length ? `<p class="dk-todos-t">Fechados há pouco</p>${fechados.map((x, i) => `<button type="button" class="dk-todos-i is-fechado" data-dk-reabrir="${i}">${icone(ROTAS[x.rota]?.icone ?? 'file')}<span>${esc(x.titulo)}</span><small>Reabrir</small></button>`).join('')}` : ''}
+    ${!abertos.length && !fechados.length ? `<p class="dk-todos-nada">Nenhum separador com «${esc(todosQ)}».</p>` : ''}`;
+  if (lista) lista.innerHTML = html;
+  else m.innerHTML = `<label class="dk-todos-q">${L(IC.search)}<input type="search" placeholder="Procurar nos separadores" aria-label="Procurar nos separadores" data-dk-todos-q value="${esc(todosQ)}"></label><div class="dk-todos-l" data-dk-todos-l>${html}</div>`;
+}
+function abrirTodos(abrir = true): void {
+  const m = $('[data-dk-todos-m]'), b = $('[data-dk-todos]'); if (!m || !b) return;
+  if (!abrir) { if (!m.hidden) { m.hidden = true; m.innerHTML = ''; b.setAttribute('aria-expanded', 'false'); } return; }
+  todosQ = ''; m.innerHTML = ''; pintarTodos(); m.hidden = false; b.setAttribute('aria-expanded', 'true');
+  m.querySelector<HTMLInputElement>('[data-dk-todos-q]')?.focus();
 }
 function ativar(id: string): void { if (e.ativo === id) return; e.ativo = id; desenhar({ exp: id === 'inicio' }); }
 
@@ -491,6 +522,15 @@ export function iniciar(): void {
       if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); pal.i = (pal.i + (ev.key === 'ArrowDown' ? 1 : -1) + pal.lista.length) % Math.max(1, pal.lista.length); pintarPaleta(); return; }
       if (ev.key === 'Enter') { ev.preventDefault(); executarPaleta(pal.i); return; }
     }
+    /* todos os separadores: Ctrl+Shift+E abre; ↑ ↓ entre eles; Enter vai; Esc fecha */
+    if (ev.ctrlKey && ev.shiftKey && (ev.key === 'E' || ev.key === 'e') && $('[data-dk-todos]')) { ev.preventDefault(); const b = $<HTMLButtonElement>('[data-dk-todos]')!; b.hidden = false; abrirTodos(true); return; }
+    const tm = $('[data-dk-todos-m]');
+    if (tm && !tm.hidden) {
+      const is = [...tm.querySelectorAll<HTMLElement>('.dk-todos-i')], i = is.indexOf(document.activeElement as HTMLElement);
+      if (ev.key === 'Escape') { ev.preventDefault(); abrirTodos(false); $('[data-dk-todos]')?.focus(); return; }
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); is[Math.max(0, Math.min(is.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]?.focus(); return; }
+      if (ev.key === 'Enter' && (ev.target as HTMLElement).matches('[data-dk-todos-q]')) { ev.preventDefault(); is[0]?.click(); return; }
+    }
     if (e.v6 && teclasMenu6(ev, ev.target as HTMLElement)) { ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     teclas(ev);
     if (ev.defaultPrevented) return;
@@ -554,6 +594,10 @@ export function iniciar(): void {
     if (vivo.ligado(pg)) vivo.marcar(t.closest<HTMLElement>('button'));
     if ((b = t.closest('[data-dk8-pasta]'))) { const id = b.dataset.dk8Pasta!; const ic = b.closest('[data-dk8-g]')?.querySelector<HTMLElement>('.dk8-pasta-ic'); vivo.marcar(b, ic?.getBoundingClientRect()); abrirPasta(id); return; }
     /* v6: o menu lateral, os favoritos e a gaveta */
+    if (t.closest('[data-dk-todos]')) { const m = $('[data-dk-todos-m]'); abrirTodos(!!m?.hidden); return; }
+    if ((b = t.closest('[data-dk-ir-sep]'))) { abrirTodos(false); ativar(b.dataset.dkIrSep!); $<HTMLElement>(`[data-dk-sep="${CSS.escape(b.dataset.dkIrSep!)}"]`)?.focus(); return; }
+    if ((b = t.closest('[data-dk-reabrir]'))) { const x = (e.fechados ?? []).filter((y) => !e.seps.some((z) => z.rota === y.rota && z.titulo === y.titulo))[Number(b.dataset.dkReabrir)]; abrirTodos(false); if (x) { e.fechados = (e.fechados ?? []).filter((y) => y !== x); abrirRota(x.rota, x.titulo); } return; }
+    if (!t.closest('[data-dk-todos-m]')) abrirTodos(false);
     if ((b = t.closest('[data-dk7-antigo]'))) { dizer(`«${b.dataset.dk7Antigo}» ainda está no ERP antigo.`); return; }
     if ((b = t.closest('[data-dk7-grupo]'))) { const id = b.dataset.dk7Grupo!; e.arvore[id] = b.getAttribute('aria-expanded') !== 'true'; desenhar({ exp: false }); $<HTMLElement>(`[data-dk7-grupo="${id}"]`)?.focus(); if (e.arvore[id]) $(`#dk7-g-${id}`)?.classList.add('is-abrir'); return; }
     if (t.closest('[data-dk7-rail]')) { e.rail = !e.rail; dica(null); desenhar({ exp: false }); $('[data-dk7-lado]')?.classList.add('is-mudar'); window.setTimeout(() => $('[data-dk7-lado]')?.classList.remove('is-mudar'), 260); $<HTMLElement>('[data-dk7-rail]')?.focus(); return; }
@@ -604,6 +648,10 @@ export function iniciar(): void {
     const b = (ev.target as HTMLElement).closest<HTMLElement>('.dk-exp [data-dk-pasta], .dk-exp [data-dk-abrir]'); if (!b || !pg.contains(b)) return;
     if (b.dataset.dkPasta) abrirPasta(b.dataset.dkPasta, b); else abrirRota(b.dataset.dkAbrir!);
   });
+  /* a pesquisa nos separadores e a roda do rato na barra (rola para o lado quando os separadores não cabem) */
+  window.addEventListener('input', (ev) => { const t = ev.target as HTMLInputElement; if (!pg?.contains(t) || !t.matches('[data-dk-todos-q]')) return; todosQ = t.value; pintarTodos(); });
+  window.addEventListener('wheel', (ev) => { const b = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dk-seps]'); if (!b || !pg?.contains(b) || b.scrollWidth <= b.clientWidth + 1 || Math.abs(ev.deltaY) <= Math.abs(ev.deltaX)) return; ev.preventDefault(); b.scrollLeft += ev.deltaY; }, { passive: false });
+  window.addEventListener('resize', () => todosVer());
   window.addEventListener('auxclick', (ev) => { const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-dk-sep]'); if (pg?.contains(b as Node) && ev.button === 1) fechar(b!.dataset.dkSep!); });
   document.addEventListener('input', (ev) => { const t = ev.target as HTMLElement; if (pal && t.matches('[data-dk-paleta-q]')) { pal.q = (t as HTMLInputElement).value; pal.i = 0; pintarPaleta(); } });
 

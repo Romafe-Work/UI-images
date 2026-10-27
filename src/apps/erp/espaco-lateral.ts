@@ -37,6 +37,7 @@ import rotateCw from 'lucide-static/icons/rotate-cw.svg?raw';
 import folder from 'lucide-static/icons/folder.svg?raw';
 import folderOpen from 'lucide-static/icons/folder-open.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import listTree from 'lucide-static/icons/chevrons-up-down.svg?raw';
 import abrirFora from 'lucide-static/icons/square-arrow-out-up-right.svg?raw';
 
 export const VERSAO_INICIO_V6 = 'v6';
@@ -163,7 +164,8 @@ export function paginaLat(e: Estado = estadoLat(), extra = '', cen = 'normal'): 
     <nav class="dk7-lado" aria-label="Menu do ERP" data-dk7-lado>${ladoLat(e)}</nav>
     <div class="dk7-veu" data-dk7-veu aria-hidden="true"></div>
     <div class="dk7-area">
-      <div class="dk6-seps"><div class="dk-seps" role="tablist" aria-label="Separadores abertos" data-dk-seps>${separadores(e)}</div>${e.vivo ? '<i class="dk8-ind" data-dk8-ind aria-hidden="true"></i>' : ''}</div>
+      <div class="dk6-seps"><div class="dk-seps" role="tablist" aria-label="Separadores abertos" data-dk-seps>${separadores(e)}</div>${e.vivo ? '<i class="dk8-ind" data-dk8-ind aria-hidden="true"></i>' : ''}
+        <span class="dk-todos-c"><button type="button" class="dk-todos" data-dk-todos aria-haspopup="dialog" aria-expanded="false" title="Todos os separadores (Ctrl+Shift+E)" hidden>${L(listTree)}<small data-dk-todos-n></small></button><div class="dk-todos-m" data-dk-todos-m role="dialog" aria-label="Todos os separadores" hidden></div></span></div>
       <main class="dk" data-dk data-dk-cenario="${cen}" data-dk-estado="${esc(JSON.stringify(e))}">${corpoEspaco(e, exploradorLat).replace(/(<div class="dk-acoes[^>]*>)[\s\S]*?(<\/div>\s*<div data-dk-banner>)/, `$1${acoesLat(e)}$2`)}</main>
     </div>
   </div>

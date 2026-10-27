@@ -82,6 +82,11 @@ export interface CfgDoc {
   /** 27 out. (ela: «coloca isto num só ecrã»): outras vistas no mesmo ecrã, ao lado da lista dos documentos (a primeira,
    *  `docs`, é a lista); cada uma desenha a sua tabela com os filtros e a pesquisa de cima, e abre a janela do documento */
   vistas?: Vista[];
+  /** 27 out. (briefing V3 das Encomendas): a janela das ligações — um só «inspetor» que segue a linha escolhida nas
+   *  outras vistas e mostra a cadeia real (pedido → encomenda → entrega → receção); `chave` é a da linha */
+  relacao?: { icone: string; titulo(r: HTMLElement, e: EstDoc, chave: string): string; corpo(r: HTMLElement, e: EstDoc, chave: string): string };
+  /** o que vai para o topo de Mais ações (ações menos usadas que saem da barra) */
+  maisTopo?: string;
 }
 export interface Vista { k: string; t: string; ic: string; tecla: string; titulo: string; tabela?(r: HTMLElement, e: EstDoc): string; resumo?(e: EstDoc): string }
 export const CFGS = new Map<string, CfgDoc>();

@@ -44,6 +44,7 @@ import { iniciar as docs2 } from './compras/docs-v2-comportamento';
 import { iniciar as recap2 } from './compras/recap-v2';
 import { iniciar as selectErp } from './comportamento/select-erp';
 import './css/select-erp.css';
+import './css/encomendas-v5.css';
 import './css/calmo.css';
 import { iniciar as calmo } from './comportamento/calmo';
 import { iniciar as ficheiros } from './ficheiros/comportamento';

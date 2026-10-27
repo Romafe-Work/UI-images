@@ -153,3 +153,32 @@
 .dk7-i-vazio { display: block; width: 18px; flex: none; }
 .dk7-g--sub > .dk8-g-cab .dk7-g-t, .dk7-g--sub > .dk7-g-t { height: 34px; padding: 0 10px; }
 .dk7.is-rail .dk7-sep-l { margin: 4px 6px; }
+/* 27 out. (briefing V3): todos os separadores — o botão no fim da barra (só quando não cabem, ou há fechados para reabrir) */
+.dk6-seps { position: relative; display: flex; align-items: flex-end; }
+.dk6-seps .dk-seps { flex: 1; min-width: 0; scrollbar-width: none; }
+.dk6-seps .dk-seps::-webkit-scrollbar { display: none; }
+.dk-todos-c { position: relative; flex: none; align-self: center; padding: 0 8px 0 4px; }
+.dk-todos { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border: 1px solid var(--k-borda); border-radius: 6px; background: var(--k-sup); color: var(--k-tinta-2, var(--k-tinta)); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: background-color .1s ease, border-color .1s ease; }
+.dk-todos svg { width: 15px; height: 15px; color: rgb(0, 99, 170); }
+.dk-todos:hover, .dk-todos[aria-expanded="true"] { border-color: rgb(0, 99, 170); }
+.dk-todos.is-transborda { box-shadow: -14px 0 12px -6px var(--k-sup-2); }
+.dk-todos small:empty { display: none; }
+.dk-todos-m { position: absolute; right: 8px; top: calc(100% + 6px); z-index: 60; width: 320px; max-height: min(460px, 70vh); display: flex; flex-direction: column; border: 1px solid var(--k-borda-forte, var(--k-borda)); border-radius: 10px; background: var(--k-sup); box-shadow: 0 16px 36px rgba(10, 20, 30, .22); overflow: hidden; animation: dk-todos .16s cubic-bezier(.22, 1, .36, 1); }
+@keyframes dk-todos { from { opacity: 0; transform: translateY(-4px); } }
+.dk-todos-q { display: flex; align-items: center; gap: 8px; margin: 8px; padding: 0 10px; height: 34px; border: 1px solid var(--k-borda); border-radius: 7px; }
+.dk-todos-q:focus-within { border-color: rgb(0, 99, 170); }
+.dk-todos-q svg { width: 15px; height: 15px; color: var(--k-tinta-3, currentColor); }
+.dk-todos-q input { flex: 1; min-width: 0; border: 0; background: none; color: var(--k-tinta); font: inherit; font-size: 13px; outline: none; }
+.dk-todos-l { overflow: auto; padding: 0 6px 8px; }
+.dk-todos-t { margin: 8px 6px 4px; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--k-tinta-3, var(--k-tinta)); }
+.dk-todos-t small { margin-left: 4px; font-weight: 600; letter-spacing: 0; }
+.dk-todos-i { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--k-tinta); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.dk-todos-i svg { flex: none; width: 15px; height: 15px; color: rgb(0, 99, 170); }
+.dk-todos-i span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk-todos-i small { font-size: 11.5px; color: var(--k-tinta-3, var(--k-tinta)); }
+.dk-todos-i:hover, .dk-todos-i:focus-visible { background: color-mix(in srgb, rgb(0, 99, 170) 9%, transparent); outline: none; }
+.dk-todos-i.is-ativo { font-weight: 700; box-shadow: inset 3px 0 0 var(--k-laranja); }
+.dk-todos-i.is-fechado span { color: var(--k-tinta-2, var(--k-tinta)); }
+.dk-todos-i.is-fechado small { color: rgb(0, 99, 170); font-weight: 700; }
+.dk-todos-nada { margin: 10px; font-size: 13px; color: var(--k-tinta-3, var(--k-tinta)); }
+@media (prefers-reduced-motion: reduce) { .dk-todos-m { animation: none; } }

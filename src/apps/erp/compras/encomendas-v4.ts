@@ -25,10 +25,10 @@ import searchX from 'lucide-static/icons/search-x.svg?raw';
 import inbox from 'lucide-static/icons/inbox.svg?raw';
 import listIc from 'lucide-static/icons/list-checks.svg?raw';
 
-const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '');
-const nomeF = (id: string) => fornecedor(id)?.nome ?? id;
+export const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '');
+export const nomeF = (id: string) => fornecedor(id)?.nome ?? id;
 /** Os filtros de cima e a pesquisa, nas vistas que não são a lista: fornecedor, período (pela data dada) e texto. */
-function passa(e: EstDoc, forn: string, data: string, texto: string[]): boolean {
+export function passa(e: EstDoc, forn: string, data: string, texto: string[]): boolean {
   if (e.f.forn && e.f.forn !== forn) return false;
   if (e.f.de && data < e.f.de) return false;
   if (e.f.ate && data > e.f.ate) return false;
@@ -38,8 +38,8 @@ const vazio = (ic: string, t: string, d: string) => `<div class="ak-vazio lf2-va
 const semNada = (e: EstDoc, um: string) => vazio(searchX, `Nenhum ${um} com estes filtros.`, e.q ? `Procura-se «${esc(e.q)}» em qualquer parte da linha.` : 'Tira um filtro, ou limpa-os.');
 
 /* ---------- Agendamento: o que falta receber, pela data de entrega ---------- */
-interface Entrega { enc: string; forn: string; ref: string; desc: string; pend: number; qtd: number; un: string; entrega: string; atraso: number; estado: string }
-const entregas = (): Entrega[] => encomendas().filter((x) => ['Aprovada', 'Emitida', 'Parcialmente recebida'].includes(x.estado))
+export interface Entrega { enc: string; forn: string; ref: string; desc: string; pend: number; qtd: number; un: string; entrega: string; atraso: number; estado: string }
+export const entregas = (): Entrega[] => encomendas().filter((x) => ['Aprovada', 'Emitida', 'Parcialmente recebida'].includes(x.estado))
   .flatMap((x) => x.linhas.filter((l) => pendente(l) > 0).map((l) => ({ enc: x.ref, forn: x.forn, ref: l.ref, desc: artigo(l.ref)?.desc ?? '', pend: pendente(l), qtd: l.qtd, un: artigo(l.ref)?.un ?? 'un.', entrega: l.entrega, atraso: diasAtraso(l.entrega), estado: x.estado })))
   .sort((a, b) => a.entrega.localeCompare(b.entrega) || a.enc.localeCompare(b.enc));
 const agenda = (e: EstDoc) => entregas().filter((x) => passa(e, x.forn, x.entrega, [x.enc, nomeF(x.forn), x.ref, x.desc]));
@@ -67,8 +67,8 @@ function resumoAgenda(e: EstDoc): string {
 }
 
 /* ---------- Pedidos de clientes: os artigos em falta pedidos por clientes ---------- */
-interface Pedido { cli: string; ref: string; desc: string; un: string; qtd: number; stock: number; forn: string; fornNome: string; enc: string; aCaminho: number }
-const pedidos = (): Pedido[] => faltas().filter((f) => f.cliente && f.cliente !== '—').map((f) => {
+export interface Pedido { cli: string; ref: string; desc: string; un: string; qtd: number; stock: number; forn: string; fornNome: string; enc: string; aCaminho: number }
+export const pedidos = (): Pedido[] => faltas().filter((f) => f.cliente && f.cliente !== '—').map((f) => {
   const x = encomendas().find((y) => ['Rascunho', 'A aprovar', 'Aprovada', 'Emitida', 'Parcialmente recebida'].includes(y.estado) && y.linhas.some((l) => l.ref === f.ref && pendente(l) > 0));
   const aCaminho = x?.linhas.filter((l) => l.ref === f.ref).reduce((s, l) => s + pendente(l), 0) ?? 0;
   return { cli: f.cliente, ref: f.ref, desc: f.desc, un: artigo(f.ref)?.un ?? 'un.', qtd: f.pedida, stock: f.stock, forn: f.forn, fornNome: f.fornNome, enc: x?.ref ?? '', aCaminho };

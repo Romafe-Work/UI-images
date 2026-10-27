@@ -72,7 +72,7 @@ export function filtradas(r: HTMLElement, e: EstDoc): Doc[] {
   const c = cfgDe(r), f = e.f, q = norm(e.q), campo = c.campos[e.modo];
   const ls = (e.vazia ? [] : c.linhas(e)).filter((d) => (!f.serie || c.serieDe(d) === f.serie) && (!f.forn || c.fornDe(d) === f.forn)
     && (!f.estado || c.estadoPassa(d, f.estado)) && (!f.de || c.dataDe(d) >= f.de) && (!f.ate || c.dataDe(d) <= f.ate) && (!f.moeda || c.moedaDe(d) === f.moeda)
-    && (c.filtrar ? c.filtrar(e, d) : !q || (() => { const v = norm(e.modo === 'data' ? dia(String(c.valor(d, campo))) : String(c.valor(d, campo) ?? '')); return e.comp === 'inicio' ? v.startsWith(q) : v.includes(q); })())
+    && (c.filtrar ? c.filtrar(e, d) : !q || (e.extra.geral ? vis(c, e).some((x) => norm(texto(c, d, x.k)).includes(q)) : false) || (!e.extra.geral && (() => { const v = norm(e.modo === 'data' ? dia(String(c.valor(d, campo))) : String(c.valor(d, campo) ?? '')); return e.comp === 'inicio' ? v.startsWith(q) : v.includes(q); })()))
     && Object.entries(e.filtrosCol).every(([k, v]) => !v.trim() || norm(texto(c, d, k)).includes(norm(v))));
   const ordem = e.ordem.length ? e.ordem : [{ k: campo, dir: (e.modo === 'numero' || e.modo === 'data' ? -1 : 1) as 1 | -1 }];
   return ls.sort((a, b) => { for (const o of ordem) { const x = c.valor(a, o.k), y = c.valor(b, o.k); const k = typeof x === 'number' && typeof y === 'number' ? x - y : String(x ?? '').localeCompare(String(y ?? ''), 'pt', { numeric: true }); if (k) return k * o.dir; } return 0; });
@@ -128,12 +128,14 @@ function filtrosNaPagina(r: HTMLElement, e: EstDoc): void {
   const m = MODOS.find((x) => x.k === e.modo)!, q = r.querySelector<HTMLInputElement>('[data-dv2-q]');
   if (q) {
   if (q.value !== e.q) q.value = e.q;
-  q.placeholder = e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? 'Código do fornecedor, ex.: bosch' : 'Descrição ou notas';
+  q.placeholder = e.extra.geral ? 'Procura em todas as colunas à vista' : e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? 'Código do fornecedor, ex.: bosch' : 'Descrição ou notas';
   q.setAttribute('aria-label', `Pesquisar por ${m.t.toLowerCase()}, ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`);
   }
   r.querySelectorAll<HTMLElement>('[data-dv2-modo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.dv2Modo === e.modo)));
+  const ms = r.querySelector<HTMLSelectElement>('[data-dv2-modo-sel]'), mv = e.extra.geral ? 'geral' : e.modo; if (ms && ms.value !== mv) ms.value = mv;
+  r.querySelector('.dv2c-pq')?.classList.toggle('is-geral', !!e.extra.geral);
   r.querySelectorAll<HTMLElement>('[data-dv2-comp]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.dv2Comp === e.comp)));
-  const nAv = [e.f.de, e.f.ate, e.f.moeda].filter(Boolean).length;
+  const nAv = [...r.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-dv2-av] [data-dv2-f]')].filter((x) => !!x.value).length;
   r.querySelector<HTMLElement>('[data-dv2-n-av]')!.textContent = nAv ? String(nAv) : '';
   etiquetas(r, e);
 }
@@ -161,6 +163,9 @@ function vistas(r: HTMLElement, e: EstDoc): boolean {
   const c = cfgDe(r); if (!c.vistas) return false;
   const k = vistaDe(e), v = c.vistas.find((x) => x.k === k) ?? c.vistas[0], ok = e.fase === 'ok' || e.fase === 'atualizar';
   r.querySelectorAll<HTMLElement>('[data-dv2-vista]').forEach((b) => { const s = b.dataset.dv2Vista === v.k; b.setAttribute('aria-selected', String(s)); b.tabIndex = s ? 0 : -1; });
+  /* o indicador da vista escolhida desliza (só transform: translateX e scaleX de uma peça de 100 px) */
+  const ind = r.querySelector<HTMLElement>('[data-dv2-vistas-ind]'), bs = r.querySelector<HTMLElement>(`[data-dv2-vista="${v.k}"]`);
+  if (ind && bs) requestAnimationFrame(() => { const pr = bs.parentElement!.getBoundingClientRect(), b = bs.getBoundingClientRect(); if (!b.width) return; ind.style.transform = `translateX(${b.left - pr.left}px) scaleX(${b.width / 100})`; ind.classList.add('is-pronto'); });
   c.vistas.forEach((x) => { const n = r.querySelector<HTMLElement>(`[data-dv2-vista-n="${x.k}"]`); if (n) n.textContent = ok && x.resumo ? (x.resumo(e).replace(/<[^>]+>/g, '').match(/\d+/)?.[0] ?? '') : ''; });
   const t = r.querySelector<HTMLElement>('[data-dv2-lista-t]'); if (t) t.textContent = v.titulo;
   const g = r.querySelector<HTMLElement>('[data-dv2-grelha]')!, vg = r.querySelector<HTMLElement>('[data-dv2-vista-g]')!;
@@ -248,7 +253,7 @@ export function inspetor(r: HTMLElement, e: EstDoc, mudou = false): void {
 }
 function menuMais(r: HTMLElement, e: EstDoc): void {
   const c = cfgDe(r), m = r.querySelector<HTMLElement>('[data-dv2-menu="mais"]'); if (!m) return;
-  m.innerHTML = `<p class="ak-menu-t">Colunas</p>
+  m.innerHTML = `${c.maisTopo ?? ''}<p class="ak-menu-t">Colunas</p>
     <div class="lf2-cols">${e.cols.map((k, i, xs) => { const x = colDe(c, k); return `<div class="ak-col-i"><label><input type="checkbox" data-dv2-ver="${k}"${e.ocultas.has(k) ? '' : ' checked'}${x.presa ? ' disabled' : ''}>${esc(x.t)}${x.antiga ? '' : ' <small>(nova)</small>'}</label><button type="button" data-dv2-mover="${k}:-1" aria-label="Subir ${esc(x.t)}"${i > 1 ? '' : ' disabled'}>${L(arrowUp)}</button><button type="button" data-dv2-mover="${k}:1" aria-label="Descer ${esc(x.t)}"${i && i < xs.length - 1 ? '' : ' disabled'}>${L(arrowDown)}</button></div>`; }).join('')}</div>
     <button type="button" role="menuitem" data-dv2-acao="todas-colunas"><span>${L(check)} Repor as colunas iniciais</span></button>
     <p class="ak-menu-t">Linhas</p>
@@ -284,9 +289,11 @@ const janelasDe = new WeakMap<EstDoc, JanDoc[]>();
 const jds = (e: EstDoc) => { let j = janelasDe.get(e); if (!j) { j = []; janelasDe.set(e, j); } return j; };
 let zTopo = 10;
 const comJanelas = (r: HTMLElement) => !!cfgDe(r).janelas;
-const docDe = (r: HTMLElement, e: EstDoc, id: string) => e.fase === 'ok' || e.fase === 'atualizar' ? cfgDe(r).linhas(e).find((d) => d.id === id) : undefined;
+export const docDe = (r: HTMLElement, e: EstDoc, id: string) => e.fase === 'ok' || e.fase === 'atualizar' ? cfgDe(r).linhas(e).find((d) => d.id === id) : undefined;
 function corpoJan(r: HTMLElement, e: EstDoc, j: JanDoc): string {
-  const c = cfgDe(r), d = docDe(r, e, j.id);
+  const c = cfgDe(r);
+  if (j.id === 'rel' && c.relacao) return c.relacao.corpo(r, e, String(e.extra.rel ?? ''));
+  const d = docDe(r, e, j.id);
   if (!d) return `<p class="lf2-sem">${L(paperclip)}${e.fase === 'ok' || e.fase === 'atualizar' ? `Est${c.o === 'a' ? 'a' : 'e'} ${c.um} já não está na lista.` : 'Sem dados enquanto a lista não carregar.'}</p>`;
   const n = anexosDe(c.docAnexo(d)).length;
   return `<div class="lf2-insp-art dv2-jan-alvo">${c.painel(e, d, '_alvo')}</div>
@@ -294,18 +301,19 @@ function corpoJan(r: HTMLElement, e: EstDoc, j: JanDoc): string {
     <div class="dv2-painel dv2-jan-p" role="tabpanel">${j.tab === 'anexos' ? painelAnexos(r, e, d) : c.painel(e, d, j.tab)}</div>`;
 }
 function janHtml(r: HTMLElement, e: EstDoc, j: JanDoc): string {
-  const c = cfgDe(r), d = docDe(r, e, j.id), id = `dv2-jan-${c.k}-${r.dataset.dv2Cenario}-${j.id.replace(/\W+/g, '-')}`;
-  const nome = d ? String(d.numero ?? d.ref ?? j.id) : j.id;
-  return `<section class="lf2-jan dv2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-dv2-jan="${esc(j.id)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed ? 'auto' : `${j.h}px`};z-index:${j.z}">
-    <header class="lf2-jan-cab" data-dv2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : c.janelas!.icone)}<h3 id="${id}">${j.ed ? 'A editar' : esc(c.janelas!.titulo)} · <b data-dv2-jan-ref>${esc(nome)}</b>${j.ed && e.ficha?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
+  const c = cfgDe(r), d = docDe(r, e, j.id), id = `dv2-jan-${c.k}-${r.dataset.dv2Cenario}-${j.id.replace(/\W+/g, '-')}`, rel = j.id === 'rel' && !!c.relacao;
+  const nome = rel ? c.relacao!.titulo(r, e, String(e.extra.rel ?? '')) : d ? String(d.numero ?? d.ref ?? j.id) : j.id;
+  return `<section class="lf2-jan dv2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-dv2-jan="${esc(j.id)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed || j.id === 'rel' ? 'auto' : `${j.h}px`};z-index:${j.z}">
+    <header class="lf2-jan-cab" data-dv2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : rel ? c.relacao!.icone : c.janelas!.icone)}<h3 id="${id}">${j.ed ? 'A editar' : rel ? 'Ligações' : esc(c.janelas!.titulo)} · <b data-dv2-jan-ref>${esc(nome)}</b>${j.ed && e.ficha?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
       <span class="lf2-jan-bts"><button type="button" data-dv2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${L(minus)}</button><button type="button" data-dv2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${L(j.max ? minimize : maximize)}</button><button type="button" data-dv2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${L(xIc)}</button></span></header>
     <div class="lf2-jan-corpo" data-dv2-jan-corpo>${j.ed ? '' : corpoJan(r, e, j)}</div>
   </section>`;
 }
 /** Os dados mudaram (filtros, gravar, anular, anexos…): o corpo das janelas abertas volta a desenhar-se. */
-function refrescarJanelas(r: HTMLElement, e: EstDoc): void {
+export function refrescarJanelas(r: HTMLElement, e: EstDoc): void {
   const caixa = r.querySelector<HTMLElement>('[data-dv2-janelas]'); if (!caixa) return;
-  jds(e).forEach((j) => { if (j.ed) return; const x = caixa.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-corpo]`); if (x) x.innerHTML = corpoJan(r, e, j); });
+  jds(e).forEach((j) => { if (j.ed) return; const x = caixa.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-corpo]`); if (x) x.innerHTML = corpoJan(r, e, j);
+    if (j.id === 'rel') { const b = caixa.querySelector<HTMLElement>('[data-dv2-jan="rel"] [data-dv2-jan-ref]'), c = cfgDe(r); if (b && c.relacao) b.textContent = c.relacao.titulo(r, e, String(e.extra.rel ?? '')); } });
 }
 function desenharJanelas(r: HTMLElement, e: EstDoc): void {
   const caixa = r.querySelector<HTMLElement>('[data-dv2-janelas]'); if (!caixa) return;
@@ -492,12 +500,27 @@ export function atualizar(r: HTMLElement, e: EstDoc): void {
   e.fase = 'atualizar'; grelha(r, e); estado(r, e);
   requestAnimationFrame(() => requestAnimationFrame(() => { e.fase = 'ok'; e.erro = undefined; tudo(r, e, true); toast(r, 'Lista atualizada.'); }));
 }
-function mudarVista(r: HTMLElement, e: EstDoc, k: string): void {
+/** Escolher uma linha numa das outras vistas: fica marcada e a janela das ligações (uma só) passa a mostrá-la. */
+export function escolherRel(r: HTMLElement, e: EstDoc, chave: string, focar = true): void {
+  e.extra.rel = chave;
+  r.querySelectorAll('[data-dv2-vista-g] tr.is-ativo, [data-dv2-vista-g] .is-ativo').forEach((x) => x.classList.remove('is-ativo'));
+  const tr = r.querySelector<HTMLElement>(`[data-dv2-vista-g] [data-dv2-vrel="${CSS.escape(chave)}"]`); tr?.classList.add('is-ativo'); if (tr && focar) tr.focus({ preventScroll: true });
+  if (!cfgDe(r).relacao) return;
+  if (jds(e).some((j) => j.id === 'rel')) { refrescarJanelas(r, e); const j = jds(e).find((x) => x.id === 'rel')!; if (j.min) acaoJanelaDoc(r, e, 'rel', 'min'); }
+  else abrirJanelaDoc(r, e, 'rel', undefined, false);
+  const ref = r.querySelector<HTMLElement>('[data-dv2-jan="rel"] [data-dv2-jan-ref]'); if (ref && !quieto()) ref.animate([{ backgroundColor: 'color-mix(in srgb, var(--h-laranja) 30%, transparent)' }, { backgroundColor: 'transparent' }], { duration: 600, easing: 'ease-out' });
+  estado(r, e);
+}
+export function mudarVista(r: HTMLElement, e: EstDoc, k: string): void {
   if (vistaDe(e) === k) return;
+  /* a encomenda escolhida na lista continua ligada nas outras vistas (as linhas dela acendem-se) */
+  if (vistaDe(e) === 'docs' && e.ativo && e.ativo !== '-') e.extra.liga = e.ativo;
   e.extra.vista = k; grelha(r, e, true); resumo(r, e); estado(r, e);
+  const lig = r.querySelector<HTMLElement>('[data-dv2-vista-g] .is-ligada'); if (lig) lig.scrollIntoView({ block: 'nearest' });
   r.querySelector<HTMLElement>(`[data-dv2-vista="${k}"]`)?.focus({ preventScroll: true });
 }
 function mudarModo(r: HTMLElement, e: EstDoc, k: Modo): void {
+  if (e.extra.geral) { e.extra.geral = false; e.q = ''; if (e.modo === k) { filtrosNaPagina(r, e); grelha(r, e, true); resumo(r, e); estado(r, e); } }
   if (e.modo !== k) { e.modo = k; e.ordem = []; e.q = ''; filtrosNaPagina(r, e); const b = r.querySelector<HTMLElement>(`[data-dv2-modo="${k}"]`); if (b && !quieto()) b.animate([{ transform: 'scale(.94)' }, { transform: 'none' }], { duration: 160, easing: 'cubic-bezier(.22, 1, .36, 1)' }); grelha(r, e, true); resumo(r, e); inspetor(r, e); estado(r, e); guardarVista(r, e); }
   const q = r.querySelector<HTMLInputElement>('[data-dv2-q]'); q?.focus();
   if (q && !quieto()) q.animate([{ opacity: .4 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
@@ -539,7 +562,7 @@ function armar(r: HTMLElement): void {
   if (cen === 'anular') dlgAnular(r, e);
   if (cen === 'anexos' || cen === 'anexo-enviar' || cen === 'anexo-falhou') { e.tab = 'anexos'; if (cen === 'anexo-enviar') e.extra.anexoProgresso = .42; if (cen === 'anexo-falhou') e.extra.anexoErro = `«tabela-precos-2027.pdf» tem 4,2 MB; neste protótipo o limite é ${tamanho(MAX_ANEXO)}.`; inspetor(r, e); }
   if (cen === 'imprimir') { e.aviso = 'A preparar a impressão: só a lista, com as colunas à vista.'; estado(r, e); }
-  if (c.janelas && e.ativo && (c.janelas.estados.includes(cen) || e.tab === 'anexos') && docDe(r, e, e.ativo)) { abrirJanelaDoc(r, e, e.ativo, e.tab === 'anexos' ? 'anexos' : c.tabs[0].k, false); r.querySelectorAll<HTMLElement>('[data-dv2-jan]').forEach((x) => x.getAnimations().forEach((a) => a.finish())); }
+  if (c.janelas && e.ativo && (c.janelas.estados.includes(cen) || e.tab === 'anexos') && docDe(r, e, e.ativo)) { abrirJanelaDoc(r, e, e.ativo, c.tabs.some((t) => t.k === e.tab) ? e.tab : c.tabs[0].k, false); r.querySelectorAll<HTMLElement>('[data-dv2-jan]').forEach((x) => x.getAnimations().forEach((a) => a.finish())); }
   if (!e.editor && cen === 'normal' && aVista && !quieto()) r.classList.add('lf2-entra');
   if (!e.editor && cen === 'normal' && aVista && (emSeparador() || location.hash.includes('so=ecra'))) requestAnimationFrame(() => r.querySelector<HTMLElement>('[data-dv2-q]')?.focus({ preventScroll: true }));
 }
@@ -622,6 +645,7 @@ export function iniciar(): void {
       }
     }
     if ((b = t.closest('[data-dv2-vista]'))) { mudarVista(r, e, b.dataset.dv2Vista!); return; }
+    if ((b = t.closest('[data-dv2-vrel]')) && !t.closest('button')) { escolherRel(r, e, b.dataset.dv2Vrel!); return; }
     if ((b = t.closest('[data-dv2-vjan]'))) { const [id, tab] = b.dataset.dv2Vjan!.split('|'); if (!docDe(r, e, id)) { toast(r, b.dataset.dv2Vsem || 'Sem documento.'); return; } escolher(r, e, id, false); abrirJanelaDoc(r, e, id, tab || undefined); return; }
     if ((b = t.closest('[data-dv2-jan-acao]'))) { acaoJanelaDoc(r, e, b.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!, b.dataset.dv2JanAcao!); return; }
     if ((b = t.closest('[data-dv2-jan-tab]'))) { const j = jds(e).find((x) => x.id === b!.closest<HTMLElement>('[data-dv2-jan]')?.dataset.dv2Jan); if (j) { j.tab = b.dataset.dv2JanTab!; refrescarJanelas(r, e); r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-tab="${j.tab}"]`)?.focus(); } return; }
@@ -631,6 +655,7 @@ export function iniciar(): void {
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
     if (t.matches('[data-dv2-ficheiro]')) { const fs = (t as HTMLInputElement).files; if (fs?.length) void carregarAnexos(r, e, fs); (t as HTMLInputElement).value = ''; return; }
+    if (t.matches('[data-dv2-modo-sel]')) { const v = (t as HTMLSelectElement).value; if (v === 'geral') { if (!e.extra.geral) { e.extra.geral = true; e.q = ''; filtrosNaPagina(r, e); grelha(r, e, true); resumo(r, e); estado(r, e); } r.querySelector<HTMLElement>('[data-dv2-q]')?.focus(); } else mudarModo(r, e, v as Modo); return; }
     if (t.matches('[data-dv2-f]')) { (e.f as unknown as Record<string, string>)[t.dataset.dv2F!] = (t as HTMLInputElement).value; filtrosNaPagina(r, e); grelha(r, e, true); resumo(r, e); inspetor(r, e); estado(r, e); guardarVista(r, e); }
   });
   let espera = 0;
@@ -664,6 +689,8 @@ export function iniciar(): void {
     if (c.vistas && ev.altKey && !ev.ctrlKey) { const v = c.vistas.find((x) => x.tecla === `Alt+${ev.key}`); if (v) { ev.preventDefault(); if (!e.ficha || e.ficha.modo === 'editar') mudarVista(r, e, v.k); return; } }
     if (t.matches('[data-dv2-vista]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const ks = c.vistas!.map((x) => x.k), i = ks.indexOf(t.dataset.dv2Vista!); mudarVista(r, e, ks[(i + (ev.key === 'ArrowRight' ? 1 : ks.length - 1)) % ks.length]); return; }
     if (t.matches('[data-dv2-vjan]') && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); t.click(); return; }
+    if (t.matches('[data-dv2-vrel]') && ev.key === 'Enter') { ev.preventDefault(); escolherRel(r, e, t.dataset.dv2Vrel!); r.querySelector<HTMLElement>('[data-dv2-jan="rel"] [data-dv2-rel-principal]')?.click(); return; }
+    if (t.matches('[data-dv2-vrel]') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) { ev.preventDefault(); const ls = [...r.querySelectorAll<HTMLElement>('[data-dv2-vista-g] [data-dv2-vrel]')], i = ls.indexOf(t), n = ls[Math.max(0, Math.min(ls.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]; if (n) escolherRel(r, e, n.dataset.dv2Vrel!); return; }
     if (t.matches('[data-dv2-vjan]') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) { ev.preventDefault(); const ls = [...r.querySelectorAll<HTMLElement>('[data-dv2-vista-g] [data-dv2-vjan]')], i = ls.indexOf(t); ls[Math.max(0, Math.min(ls.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]?.focus(); return; }
     if (ev.key === 'Escape') {
       if (fecharMenus(r)) { ev.preventDefault(); return; }

@@ -219,6 +219,8 @@ export type Banner = '' | 'offline' | 'restaurada' | 'primeira' | 'sem-permissao
 /** Um ecrã aberto de verdade (V6): o que «Recentes» mostra; nada inventado. */
 export interface Hist { rota: string; titulo: string; quando: number }
 export interface Estado {
+  /** 27 out. (briefing V3): os separadores fechados há pouco, para os reabrir (os mais recentes primeiro) */
+  fechados?: { rota: string; titulo: string; modo?: string }[];
   perfil: IdPerfil; seps: Sep[]; ativo: string; pasta: string; sel: string; vista: 'grelha' | 'lista'; fixados: string[]; arvore: Record<string, boolean>;
   janelas: Janela[]; banner: Banner; bannerTexto?: string; dialogo: string; carga?: 'pasta' | 'espaco'; rail?: boolean; trabalho?: 'recentes' | 'curso'; casa?: number; semCasa?: boolean; presos?: string[]; v6?: boolean; historico?: Hist[]; semCurso?: boolean; menu?: string; semModulos?: boolean; semRecentes?: boolean; primeira?: boolean; pastaVazia?: boolean; largura: number;
   /** v6 (23 out.): o menu lateral; nav = a navegação ainda a chegar da API ou falhada */
