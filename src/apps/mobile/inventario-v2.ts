@@ -62,7 +62,7 @@ const CONTADOS: [string, string, string, string][] = [['SKF VKBA 6556', 'Kit de 
 export interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string; /** outra pessoa e outra função (a demonstração das funções, 27 out.) */ quem?: { nome: string; iniciais: string }; funcao?: string }
 export function ecra(corpo: string, o: Opcoes = {}): string {
   const rede = o.rede !== false, quem = o.quem ?? (o.gestor ? GESTORA : OPERADOR);
-  return `<div class="gp gpi" data-gpi>
+  return `<div class="gp gpi" data-gpi data-ir-ultima>
   <header class="gp-topo">
     ${o.voltar ? `<button type="button" class="gp-voltar" data-ir="${o.voltar}" aria-label="Voltar">${L(arrowLeft)}</button>` : ''}
     <div class="gp-marca"><span class="romafe gp-romafe">ROMAFE</span><i aria-hidden="true"></i><b>Pick</b></div>

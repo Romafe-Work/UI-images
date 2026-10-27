@@ -1,0 +1,84 @@
+/* =========================================================
+   PICK — o Gestor v2 e a Arrumação (27 out. 2026). Ver gestor-v2.ts e arrumacao.ts.
+   As cores do Gestor (--g-*); só transform e opacity nas animações; com «reduzir movimento», nada (regra do .gp).
+   ========================================================= */
+.gi-ola-peq h1 { font-size: 21px; } .gi-ola-peq p { font-size: 13px; }
+.gpi .gi-seta { width: 18px; height: 18px; color: var(--g-tinta-3); }
+.gpi .gp-item { grid-template-columns: auto minmax(0, 1fr) auto; }
+.gpi .gp-tag--erro { background: color-mix(in srgb, var(--g-erro) 20%, transparent); color: var(--g-erro); }
+
+/* a faixa de estado: números pequenos e verdadeiros, lado a lado */
+.gi-faixa { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; border: 1px solid var(--g-borda); border-radius: 12px; overflow: hidden; }
+.gi-faixa div { display: grid; padding: 7px 10px; background: rgba(0, 0, 0, .18); }
+.gi-faixa div + div { border-left: 1px solid var(--g-borda); }
+.gi-faixa dd { margin: 0; font-family: var(--f-titulo); font-size: 21px; font-weight: 800; line-height: 1.05; } .gi-faixa dt { font-size: 11.5px; font-weight: 700; color: var(--g-tinta-2); }
+.gi-faixa .is-aviso dd { color: var(--g-aviso); } .gi-faixa .is-erro dd { color: var(--g-erro); }
+
+/* 60 v2 · os dois módulos */
+.gi-mod { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--g-borda); border-radius: 16px; background: linear-gradient(170deg, var(--g-elev), var(--g-sup) 60%); animation: gi-mod-ent .3s var(--curva) both; }
+.gi-mod--inv { border-top: 3px solid var(--g-laranja); } .gi-mod--arr { border-top: 3px solid var(--g-azul-t); animation-delay: 60ms; }
+@keyframes gi-mod-ent { from { opacity: 0; transform: translateY(10px); } }
+.gi-mod__cab { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.gi-mod__cab h2 { margin: 0; font-family: var(--f-titulo); font-size: 20px; font-weight: 800; } .gi-mod__cab p { margin: 2px 0 0; font-size: 13px; line-height: 1.35; color: var(--g-tinta-2); }
+.gi-mod__ic { display: grid; place-items: center; width: 56px; height: 48px; } .gi-mod__ic .pk-caixa-viva { width: 50px; height: auto; }
+.gi-mod__ic--arr { width: 72px; }
+.gi-mod__agora { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--g-tinta-2); } .gpi .gi-mod__agora svg { width: 16px; height: 16px; color: var(--g-azul-t); } .gi-mod__agora b { font-family: var(--f-mono); color: var(--g-tinta); }
+
+/* o cartão que se abre no sítio (61 v2, 53 v3, as guias) */
+.gi-exp { border: 1px solid var(--g-borda); border-radius: 14px; background: var(--g-sup); }
+.gi-exp + .gi-exp { margin-top: 8px; }
+.gi-exp__s { display: grid; gap: 6px; padding: 12px; list-style: none; cursor: pointer; border-radius: 14px; }
+.gi-exp__s::-webkit-details-marker { display: none; } .gi-exp__s::marker { content: ''; }
+.gi-exp__s:focus-visible { outline: 3px solid var(--g-azul-t); outline-offset: 2px; }
+.gi-exp__topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .gi-exp__topo b { font-family: var(--f-mono); font-size: 15px; }
+.gi-exp__s > small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-exp__quem { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--g-tinta-2); } .gpi .gi-exp__quem > svg:first-child { width: 15px; height: 15px; }
+.gpi .gi-exp__seta { width: 18px; height: 18px; margin-left: auto; transition: transform .2s var(--curva); } .gi-exp[open] .gi-exp__seta { transform: rotate(180deg); }
+.gi-exp__c { display: grid; gap: 10px; padding: 0 12px 12px; }
+/* fechado, o conteúdo sai mesmo (o Chrome só o esconde, e ele continuava a ocupar o sítio para quem mede) */
+.gi-exp:not([open]) > .gi-exp__c { display: none; }
+.gi-exp[open] > .gi-exp__c { animation: gi-revela .22s var(--curva) 1; } @keyframes gi-revela { from { opacity: 0; transform: translateY(-6px); } }
+.gi-exp[open] { border-color: color-mix(in srgb, var(--g-laranja) 45%, var(--g-borda)); }
+.gi-exp__c > .gp-btn { justify-self: start; }
+.gi-sep { display: grid; gap: 8px; } .gi-sep[hidden] { display: none; }
+details.gi-div { padding: 0; } details.gi-div > .gi-exp__s { gap: 8px; }
+
+/* 61.1 v3 · os passos, a revisão */
+.gi-passos--criar li span { font-size: 11px; }
+.gi-revisao { display: grid; gap: 6px; margin: 0; }
+.gi-revisao div { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--g-sup); } .gi-revisao dt { font-size: 12px; font-weight: 700; color: var(--g-tinta-3); } .gi-revisao dd { margin: 0; font-size: 14.5px; }
+
+/* 53 v3 · o histórico das contagens */
+.gi-hist { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.gi-hist li { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0, 0, 0, .2); }
+.gi-hist b { font-family: var(--f-mono); font-size: 18px; } .gi-hist span { font-size: 12.5px; color: var(--g-tinta-2); }
+
+/* ---------- a Arrumação ---------- */
+.gi-arr-cab { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.gi-percurso { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+.gi-percurso > span:not(.gi-pos) { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 8px; background: rgba(0, 0, 0, .22); font-size: 13px; font-weight: 700; } .gpi .gi-percurso > span:not(.gi-pos) svg { width: 16px; height: 16px; color: var(--g-azul-t); }
+.gpi .gi-percurso__seta { width: 16px; height: 16px; color: var(--g-laranja); }
+.gi-guia--atribuir { border-left: 3px solid var(--g-tinta-3); } .gi-guia--curso { border-left: 3px solid var(--g-azul-t); } .gi-guia--excecao { border-left: 3px solid var(--g-erro); } .gi-guia--feita { border-left: 3px solid var(--g-ok); }
+.gi-guia__mot { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; color: var(--g-tinta); } .gpi .gi-guia__mot svg { width: 16px; height: 16px; color: var(--g-erro); }
+.gpi .gp-op.gi-dest { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; } .gi-dest > :not(input) { grid-column: 2; } .gi-dest > .gi-pos { justify-self: start; } .gi-dest em { justify-self: start; } .gpi .gi-dest em svg { width: 13px; height: 13px; vertical-align: -2px; margin-right: 3px; }
+.gi-mini-r { font-size: 12.5px; font-weight: 700; color: var(--g-tinta-3); }
+.gi-exc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; align-items: start; padding: 12px; border: 1px solid var(--g-borda); border-left: 3px solid var(--g-erro); border-radius: 14px; background: var(--g-sup); }
+.gi-exc__ic { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--g-elev); color: var(--g-erro); }
+.gi-exc > div { display: grid; gap: 2px; } .gi-exc b { font-size: 14.5px; } .gi-exc small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-exc .gp-btn { grid-column: 1 / -1; justify-self: start; }
+.gi-movido { display: grid; justify-items: center; gap: 10px; padding: 18px 12px; border: 1px solid color-mix(in srgb, var(--g-ok) 50%, var(--g-borda)); border-radius: 16px; background: var(--g-sup); text-align: center; }
+.gi-movido .gi-cena { width: min(220px, 80%); } .gi-movido h1 { font-family: var(--f-titulo); font-size: 20px; font-weight: 800; } .gi-movido p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--g-tinta-2); }
+
+/* a cena: a caixa sai do cais e vai à prateleira, uma vez (≈1,1 s); o alvo acende a verde no fim */
+.gpi svg.gi-cena { display: block; width: 100%; height: auto; overflow: visible; }
+.gi-cena__chao { stroke: var(--g-borda); stroke-width: 2; }
+.gi-cena__cais { stroke: var(--g-tinta-3); stroke-width: 2; }
+.gi-cena__seta { stroke: var(--g-laranja); stroke-width: 2; stroke-dasharray: 3 3; }
+.gi-cena__estante { stroke: var(--g-azul-t); stroke-width: 2; stroke-linecap: round; }
+.gi-cena__alvo { stroke: var(--g-azul-t); stroke-width: 1.5; stroke-dasharray: 2 2; animation: gi-alvo 1.1s ease-out 1 both; }
+@keyframes gi-alvo { 0%, 80% { stroke: var(--g-azul-t); } 100% { stroke: var(--g-ok); fill: color-mix(in srgb, var(--g-ok) 25%, transparent); } }
+.gi-cena__caixa rect { fill: var(--g-laranja); stroke: #c46410; stroke-width: 1; } .gi-cena__caixa path { stroke: #c46410; stroke-width: 1; }
+.gi-cena__caixa { transform-box: fill-box; animation: gi-caixa 1.1s cubic-bezier(.45, 0, .2, 1) 1 both; }
+@keyframes gi-caixa { 0% { transform: translate(0, 0); } 45% { transform: translate(40px, 0); } 85%, 100% { transform: translate(86px, -11px) scale(.72); } }
+.gi-cena--mini .gi-cena__seta { display: none; }
+@media (prefers-reduced-motion: reduce) { .gi-cena__caixa { animation: none; transform: translate(86px, -11px) scale(.72); } .gi-cena__alvo { animation: none; stroke: var(--g-ok); } }

@@ -39,6 +39,13 @@ function abrir(origem: HTMLElement): void {
 }
 
 export function iniciar(): void {
+  /* os separadores das páginas v2 (Inventário e Arrumação do gestor): mostram o painel da mesma página */
+  document.addEventListener('click', (ev) => {
+    const b = (ev.target as Element).closest?.<HTMLElement>('.gpi [data-gi-sep]'); if (!b || editando()) return;
+    const r = b.closest('.gpi')!;
+    r.querySelectorAll<HTMLElement>('[data-gi-sep]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    r.querySelectorAll<HTMLElement>('[data-gi-painel]').forEach((p) => { p.hidden = p.dataset.giPainel !== b.dataset.giSep; });
+  });
   document.addEventListener('click', (ev) => {
     const b = (ev.target as Element).closest?.<HTMLElement>('.gp .gp-conta');
     if (!b || editando()) return;

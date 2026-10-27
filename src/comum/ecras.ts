@@ -229,7 +229,10 @@ export function iniciar(): void {
     ev.preventDefault();
     ev.stopPropagation();
     const destino = peca.dataset.ir;
-    transitar(() => { mostrar(destino); }, 'frente');
+    /* 27 out.: data-ir-v leva a uma versão concreta; dentro de [data-ir-ultima] (as páginas novas da Pick), à mais
+       recente do destino — quem anda pelo desenho novo não cai numa versão antiga só porque o número era outro */
+    const versao = peca.dataset.irV ?? (peca.closest('[data-ir-ultima]') ? '' : undefined);
+    transitar(() => { mostrar(destino); if (versao !== undefined) mostrarVersao(versao); }, 'frente');
   }, true);
 
   if (so === 'fluxo') fluxo.ligar({});

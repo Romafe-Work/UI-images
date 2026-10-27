@@ -142,15 +142,15 @@ function criar(): string {
 /* ---------- 61.2 · Atribuir v2: por secções, sem dupla atribuição ---------- */
 function atribuir(): string {
   const SEC: [string, number, string, string][] = [['Colunas 01–06', 15, 'Inês Rocha', 'ines'], ['Colunas 07–12', 15, '', '']];
-  const OP: [string, string, string, string][] = [['Inês Rocha', 'IR', 'Conta as colunas 01–06 desta', ''], ['Tiago Lopes', 'TL', 'Separação · tarefas do motor', ''], ['Joana Silva', 'JS', 'Já conta o INV-2026-014', 'ocupada']];
+  const OP: [string, string, string, string][] = [['Inês Rocha', 'IR', 'Já tem as 01–06 · leva estas a seguir', ''], ['Joana Silva', 'JS', 'Já conta o INV-2026-014', 'ocupada'], ['Tiago Lopes', 'TL', 'Separação · não conta', 'ocupada']];
   return ecra(`<h1 class="gp-titulo">Atribuir contagem</h1>
     <div class="gp-cartao"><b>INV-2026-015</b><small>Cíclica · zona 10 · rolamentos · 30 posições</small></div>
     ${h2('Secções')}
     <ul class="gi-secoes" role="list">${SEC.map(([t, n, quem]) => `<li class="gi-secao${quem ? ' is-feita' : ' is-atual'}"><span><b>${t}</b><small>${n} posições</small></span>${quem ? `<span class="gi-secao__quem"><i class="gp-av">IR</i>${quem}</span>` : `<span class="gp-tag gp-tag--planeada">Por atribuir</span>`}</li>`).join('')}</ul>
     ${h2('Colunas 07–12 para')}
-    <ul class="gp-escolha" role="radiogroup" aria-label="Operador">${OP.map(([n, ini, t, k], i) => `<li><label class="gp-op${k ? ' is-ocupada' : ''}"><input type="radio" name="gi-op"${i === 1 ? ' checked' : ''}${k ? ' disabled' : ''}><span class="gp-av">${ini}</span><span><b>${n}</b><small>${t}</small></span>${i === 0 ? '<em>Já tem 01–06</em>' : k ? '<em class="is-nao">Ocupada</em>' : ''}</label></li>`).join('')}</ul>
+    <ul class="gp-escolha" role="radiogroup" aria-label="Operador">${OP.map(([n, ini, t, k], i) => `<li><label class="gp-op${k ? ' is-ocupada' : ''}"><input type="radio" name="gi-op"${i === 0 ? ' checked' : ''}${k ? ' disabled' : ''}><span class="gp-av">${ini}</span><span><b>${n}</b><small>${t}</small></span>${k ? `<em class="is-nao">${n.startsWith('Tiago') ? 'Não conta' : 'Ocupada'}</em>` : ''}</label></li>`).join('')}</ul>
     ${nota('Uma posição só tem uma pessoa. A tarefa chega ao PDA de quem a recebe quando entrar ou acabar a que tem.')}`,
-  { voltar: 'gestor-inventario', titulo: 'Atribuir', gestor: true, pe: acao('Atribuir colunas 07–12', userPlus, ' data-ir="gestor-acompanhar"') });
+  { voltar: 'gestor-inventario', titulo: 'Atribuir', gestor: true, pe: acao('Atribuir 07–12 à Inês', userPlus, ' data-ir="gestor-acompanhar"') });
 }
 
 /* ---------- 62 · Acompanhar o inventário ---------- */
@@ -198,7 +198,7 @@ function validar(e: E63 = 'normal'): string {
 
 /* ---------- 64 · Histórico ---------- */
 function historico(): string {
-  const H: [string, string, string, string, number, number][] = [['INV-2026-011', 'Por posição · zona 21', 'Joana Silva', 'Fechado hoje', 1, 16], ['INV-2026-009', 'Cíclica · zona 12 · retentores', 'Tiago Lopes', 'Fechado a 14/10', 2, 24]];
+  const H: [string, string, string, string, number, number][] = [['INV-2026-011', 'Por posição · zona 21', 'Joana Silva', 'Fechado hoje', 1, 16], ['INV-2026-009', 'Cíclica · zona 12 · retentores', 'Inês Rocha', 'Fechado a 14/10', 2, 24]];
   return ecra(`<h1 class="gp-titulo">Histórico</h1>
     <ul class="gp-lista" role="list">${H.map(([r, t, q, d, aj, n], i) => `<li style="--i:${i}"><div class="gp-inv-card"><p><b>${r}</b><span class="gp-tag gp-tag--ok">Fechado</span></p><small>${t} · ${n} posições · ${q}</small><small>${d} · ${aj} ${aj === 1 ? 'ajuste' : 'ajustes'} enviados ao ERP</small>
       <div class="gp-inv-acoes"><button type="button" class="gp-btn gp-btn--sec" data-ir="inv-contados">${L(list)}<span>Ver as contagens</span></button></div></div></li>`).join('')}</ul>
@@ -210,7 +210,7 @@ function historico(): string {
    Os ecrãs
    ========================================================= */
 /** Os ecrãs e estados novos do Inventário (este ficheiro e inventario-estados.ts). */
-export type IdInvCompleto = `op-${string}` | `inv-${string}` | `gestor-${string}`;
+export type IdInvCompleto = `op-${string}` | `inv-${string}` | `gestor-${string}` | `arr-${string}`;
 const NOTA = 'Do briefing «ROMAFE Warehouse — Android PDA Inventory System» (27 out.), só com rede (ela: «apenas com rede») e na Pick do editor (ela: «no figma»), no desenho da v2.';
 const um = (html: string): Ecra['versoes'] => [{ id: 'v1', nota: NOTA, html }];
 export function ecrasInventarioCompleto(): Ecra<string>[] {

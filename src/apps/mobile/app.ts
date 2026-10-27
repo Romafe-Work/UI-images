@@ -5,6 +5,8 @@ import { ecrasInventario, DESCRICAO_INVENTARIO } from './inventario';
 import { comInventarioV2 } from './inventario-v2';
 import { ecrasInventarioCompleto, comGestorV2 } from './inventario-completo';
 import { ecrasEstadosPick } from './inventario-estados';
+import { comGestorV2b, ecrasGestorV2 } from './gestor-v2';
+import { ecrasArrumacao } from './arrumacao';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import type { Ecra } from '../../comum/tipos';
 
@@ -14,6 +16,9 @@ const DESCRICAO_GESTOR = 'O Gestor de Armazém: o Inventário como ação domina
 const COMPLETO = ecrasInventarioCompleto() as Ecra<IdMobile>[];
 /* 27 out. (ela: «permite na demonstração mudar a role e quero todos os estados possíveis»): inventario-estados.ts */
 const ESTADOS_PICK = ecrasEstadosPick() as Ecra<IdMobile>[];
+/* 27 out. (briefing «Manager Inventory & Putaway», no Figma e só com rede): gestor-v2.ts e arrumacao.ts */
+const GESTOR_V2 = ecrasGestorV2() as Ecra<IdMobile>[], ARRUMACAO = ecrasArrumacao() as Ecra<IdMobile>[];
+const DESCRICAO_ARRUMACAO = 'A Arrumação: das chegadas registadas pela arrumação às posições — as guias, os destinos propostos (fora das zonas em contagem), quem arruma (o motor, ou o gestor com motivo) e o PDA de quem arruma.';
 export const mobile: App<IdMobile> = {
   id: 'mobile',
   nome: 'Pick',
@@ -23,13 +28,13 @@ export const mobile: App<IdMobile> = {
   /* o ecrã do Honeywell EDA61K: 4", 480 × 800 píxeis físicos a densidade
      1,5 (hdpi), o que dá 320 × 533 píxeis CSS (dp) */
   tela: { l: 320, a: 533 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR_PK, 'Gestor': DESCRICAO_GESTOR, 'Inventário': DESCRICAO_INVENTARIO, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
+  fluxos: { 'Entrar': DESCRICAO_ENTRAR_PK, 'Gestor': DESCRICAO_GESTOR, 'Inventário': DESCRICAO_INVENTARIO, 'Arrumação': DESCRICAO_ARRUMACAO, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
   /* 21 out. 2026: ela, «só quero uma versão: a v5, mas mais bonita e mais profissional» e «falta uma abertura» —
      a abertura, a entrada industrial e a ajuda, uma versão cada; saíram as v1–v4, a palavra-passe à parte e o
      cliente federado (o código fica em entrar.ts e no comum) */
   /* 27 out. (o briefing da app Kotlin, «apenas com rede», «no figma»): o Gestor ganha o 62–64 e a v2 do 61.1 e do 61.2;
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
-  ecras: [...ecrasEntrarPick(), ...comGestorV2(ecrasGestor()), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.id.startsWith('op-')), ...comInventarioV2(ecrasInventario()), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...ESTADOS_PICK, ...ecrasCarregarPick(), ...ecrasErroPick()],
+  ecras: [...ecrasEntrarPick(), ...comGestorV2b(comGestorV2(ecrasGestor())), ...GESTOR_V2, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...ARRUMACAO, ...COMPLETO.filter((e) => e.id.startsWith('op-')), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...ESTADOS_PICK, ...ecrasCarregarPick(), ...ecrasErroPick()],
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

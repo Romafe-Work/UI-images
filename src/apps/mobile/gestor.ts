@@ -48,7 +48,7 @@ export const INVENTARIOS: Inv[] = [
   { ref: 'INV-2026-014', tipo: 'Por posição', area: 'Zona 30 · colunas 01–12', estado: 'curso', feitas: 18, total: 46, quem: 'Joana Silva', data: '21/10' },
   { ref: 'INV-2026-015', tipo: 'Cíclica', area: 'Zona 10 · rolamentos', estado: 'planeada', feitas: 0, total: 30, quem: '', data: '22/10' },
   { ref: 'INV-2026-011', tipo: 'Por posição', area: 'Zona 21 · colunas 01–04', estado: 'submetida', feitas: 16, total: 16, quem: 'Joana Silva', data: '18/10' },
-  { ref: 'INV-2026-009', tipo: 'Cíclica', area: 'Zona 12 · retentores', estado: 'concluida', feitas: 24, total: 24, quem: 'Tiago Lopes', data: '14/10' },
+  { ref: 'INV-2026-009', tipo: 'Cíclica', area: 'Zona 12 · retentores', estado: 'concluida', feitas: 24, total: 24, quem: 'Inês Rocha', data: '14/10' },
 ];
 const ATENCAO: [string, string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   // ícone, título, referência, estado, ação → ecrã
