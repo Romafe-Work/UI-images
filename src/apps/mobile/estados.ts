@@ -54,7 +54,7 @@ export function pick(corpo: string, o: { pe?: string; rede?: boolean; classe?: s
     <span class="pk__quem" aria-label="Joana Silva">JS</span>
   </header>
   <main class="pk__corpo">${corpo}</main>
-  ${o.pe ? `<footer class="pk__pe">${o.pe}</footer>` : ''}
+  ${o.pe ? `<footer class="pk__pe" data-por-cima>${o.pe}</footer>` : ''}
 </div>`;
 }
 const guiaTopo = (linha = 7) => `<p class="pk-guia"><span>Guia ${GUIA}</span><span>Linha ${linha} de 12</span></p>`;

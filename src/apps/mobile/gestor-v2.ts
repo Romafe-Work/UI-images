@@ -50,7 +50,7 @@ const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   [lock, 'Destino em contagem', 'GA-2026-0329 → 60300104 · zona 30 às cegas', 'arr-guia-bloqueada', 'erro'],
   [userPlus, 'GA-2026-0331 sem pessoa', 'Ninguém da arrumação livre · 2 paletes', 'arr-guia', 'info'],
 ];
-export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal'): string {
+export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: string): string {
   const c = INVENTARIOS[0], at = cen === 'sem-atencao' ? [] : ATENCAO;
   return ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1><p>O armazém 60 agora.</p></div>
     <section class="gp-sec">${h2('Precisa da tua atenção', at.length || undefined)}
@@ -68,7 +68,7 @@ export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal'): string {
       ${faixa([['Por arrumar', RESUMO_ARRUMACAO.porArrumar], ['Em execução', RESUMO_ARRUMACAO.emCurso], ['Com problemas', RESUMO_ARRUMACAO.problemas, 'erro']])}
       <p class="gi-mod__agora">${L(pkg)}<span><b>CH-2026-0412</b> · 3 paletes no cais 1 desde as 08:40</span></p>
       ${acao('Abrir a Arrumação', arrowRight, ' data-ir="arr-inicio"')}
-    </section>`, { titulo: 'Início', ...G });
+    </section>`, { titulo: 'Início', ...G, barra });
 }
 
 /* =========================================================
@@ -81,7 +81,7 @@ const TAREFAS: Record<string, [string, string, number, number][]> = {
 };
 const PROXIMA: Record<string, [string, string, string]> = { curso: ['Acompanhar', 'gestor-acompanhar', list], planeada: ['Atribuir', 'gestor-atribuir', userPlus], submetida: ['Validar', 'gestor-validar', shieldCheck], concluida: ['Ver no histórico', 'gestor-historico', history] };
 const ROTULO: Record<string, [string, string]> = { curso: ['Em curso', 'curso'], planeada: ['Por iniciar', 'planeada'], submetida: ['Por validar', 'validar'], concluida: ['Concluído', 'ok'] };
-export function inventarioV2(): string {
+export function inventarioV2(barra?: string): string {
   const grupos: [string, string, string[]][] = [['curso', 'Em curso', ['curso', 'planeada']], ['validar', 'Por validar', ['submetida']], ['concluidos', 'Concluídos', ['concluida']]];
   const cartao = (i: number) => { const v = INVENTARIOS[i], [t, k] = ROTULO[v.estado], [pt, pir, pic] = PROXIMA[v.estado], ts = TAREFAS[v.ref] ?? [];
     return `<details class="gi-exp"${i === 0 ? ' open' : ''}><summary class="gi-exp__s"><span class="gi-exp__topo"><b>${v.ref}</b><span class="gp-tag gp-tag--${k}">${t}</span></span>
@@ -94,7 +94,7 @@ export function inventarioV2(): string {
     <div class="gp-filtros" role="tablist" aria-label="Estado">${grupos.map(([k, t, es], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-gi-sep="${k}">${t} <span>${INVENTARIOS.filter((v) => es.includes(v.estado)).length}</span></button>`).join('')}</div>
     ${grupos.map(([k, , es], i) => `<div class="gi-sep" data-gi-painel="${k}"${i ? ' hidden' : ''}>${INVENTARIOS.map((v, j) => es.includes(v.estado) ? cartao(j) : '').join('')}</div>`).join('')}
     <button type="button" class="gp-ligacao" data-ir="inv-divergencias">${L(triangle)}Rever as 2 divergências</button>`,
-  { voltar: 'gestor-inicio', titulo: 'Inventário', ...G });
+  { voltar: barra ? undefined : 'gestor-inicio', titulo: 'Inventário', ...G, barra });
 }
 
 /* =========================================================

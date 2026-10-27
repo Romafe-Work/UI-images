@@ -61,13 +61,13 @@ const semPermissao = (o: Opcoes, texto: string, volta: string) => ecra(aviso('er
 const vazio = (o: Opcoes, ic: string, t: string, x: string, pe = '') => ecra(`<section class="gi-vazio">${L(ic)}<p><b>${t}</b> ${x}</p></section>`, { ...o, pe });
 
 /* ---------- as páginas da Separação e da Expedição (sem o Inventário) ---------- */
-const paginaSemInventario = (k: 'separacao' | 'expedicao') => {
+export const paginaSemInventario = (k: 'separacao' | 'expedicao', barra?: string) => {
   const f = FUNCOES.find((x) => x.k === k)!, sep = k === 'separacao';
   return ecra(`<div class="gp-ola"><h1>Bom dia, ${f.nome.split(' ')[0]}</h1><p>${f.t} · armazém 60</p></div>
     <section class="gi-aviso gi-aviso--info" role="status"><span class="gi-aviso__ic">${L(sep ? shoppingCart : truck)}</span><h1>O módulo ${f.t} ainda não está na Pick</h1><p>Aparece aqui quando estiver feito e autorizado. Até lá, ${sep ? 'as guias de separação' : 'as cargas'} fazem-se como hoje.</p></section>
     <section class="gp-sec">${h2('Inventário')}<div class="gi-funcao-nao">${L(lock)}<p><b>A ${f.t} não tem o Inventário.</b> ${sep ? 'Quando falta quantidade numa posição, corrige-se na própria guia de separação — não se cria contagem.' : 'O Inventário é do gestor e da arrumação.'}</p></div></section>
     <section class="gp-sec">${h2('Módulos')}<p class="gi-vazio-l">Ainda não tem módulos ativos na Pick. Só aparecem os que estão feitos e autorizados para a sua função.</p></section>`,
-  { titulo: 'Início', quem: quem(k), funcao: f.t });
+  { titulo: 'Início', quem: quem(k), funcao: f.t, barra });
 };
 
 /* =========================================================

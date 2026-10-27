@@ -5,14 +5,14 @@
    Inventário — e escolher uma leva à página dela. No produto a função vem das permissões da conta e não se escolhe:
    o diálogo di-lo. Um <dialog> nativo (Esc fecha, o foco fica lá dentro e volta às iniciais).
    ========================================================= */
-import { mostrar } from '../../../comum/ecras';
+import { mostrar, mostrarVersao } from '../../../comum/ecras';
 import { FUNCOES } from '../inventario-estados';
 
 const editando = () => document.body.classList.contains('editando') || document.body.classList.contains('com-fluxo');
 const ICONE = { sim: '<path d="M20 6 9 17l-5-5"/>', nao: '<path d="M18 6 6 18M6 6l12 12"/>' };
 const svg = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 /** A função de quem está no ecrã, pelas iniciais do cabeçalho. */
-const atual = (b: HTMLElement) => FUNCOES.find((f) => f.iniciais === b.textContent?.trim())?.k ?? 'arrumacao';
+const atual = (b: HTMLElement) => FUNCOES.find((f) => f.iniciais === (b.closest('.gp')?.querySelector('.gp-conta')?.textContent ?? b.textContent)?.trim())?.k ?? 'arrumacao';
 
 function abrir(origem: HTMLElement): void {
   document.querySelector('dialog.gi-funcoes')?.remove();
@@ -32,13 +32,37 @@ function abrir(origem: HTMLElement): void {
   d.addEventListener('click', (ev) => {
     if (ev.target === d) { d.close(); return; }
     const b = (ev.target as Element).closest<HTMLElement>('[data-funcao]'); if (!b) return;
-    d.close(); mostrar(b.dataset.funcao!);
+    /* a versão mais recente da página da função (como as ligações do desenho novo, data-ir-ultima) */
+    d.close(); mostrar(b.dataset.funcao!); mostrarVersao('');
   });
   d.showModal();
   d.querySelector<HTMLElement>('.gi-funcao.is-atual')?.focus();
 }
 
+/* as Tarefas do gestor: o tipo (Tudo · Inventário · Arrumação) e a pessoa filtram as linhas da página */
+function filtrarTarefas(r: Element): void {
+  const tipo = r.querySelector<HTMLElement>('[data-gi-tipo][aria-pressed="true"]')?.dataset.giTipo ?? '', quem = r.querySelector<HTMLSelectElement>('[data-gi-quem]')?.value ?? '';
+  r.querySelectorAll<HTMLElement>('[data-gi-tipo-l]').forEach((li) => { li.hidden = (!!tipo && li.dataset.giTipoL !== tipo) || (!!quem && li.dataset.giQuemL !== quem); });
+}
+/* a barra: o indicador desliza do destino de onde se veio; o ícone do destino faz o seu gesto (uma vez) */
+const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function barraChegou(): void {
+  let de: { f: string; k: number } | null = null;
+  try { de = JSON.parse(sessionStorage.getItem('pick:barra') ?? 'null'); sessionStorage.removeItem('pick:barra'); } catch { /* sem sessão */ }
+  const b = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-gi-barra]'); if (!b || !de || de.f !== b.dataset.giBarra || quieto()) return;
+  const i = Number(getComputedStyle(b).getPropertyValue('--i')) || 0, ind = b.querySelector<HTMLElement>('.gi-barra__ind');
+  if (ind && de.k !== i) ind.animate([{ transform: `translateX(${de.k * 100}%)` }, { transform: `translateX(${i * 100}%)` }], { duration: 220, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+  b.querySelector('.gi-barra__b.is-ativo')?.classList.add('is-gesto');
+}
+
 export function iniciar(): void {
+  document.addEventListener('click', (ev) => {
+    const t = ev.target as Element;
+    const bb = t.closest?.<HTMLElement>('.gi-barra__b'); if (bb && !editando()) { try { sessionStorage.setItem('pick:barra', JSON.stringify({ f: bb.closest<HTMLElement>('[data-gi-barra]')?.dataset.giBarra, k: Number(bb.closest<HTMLElement>('[data-gi-barra]')?.querySelector('.is-ativo')?.getAttribute('data-gi-k') ?? 0) })); } catch { /* sem sessão */ } }
+    const tp = t.closest?.<HTMLElement>('.gpi [data-gi-tipo]'); if (tp && !editando()) { const r = tp.closest('.gpi')!; r.querySelectorAll('[data-gi-tipo]').forEach((x) => x.setAttribute('aria-pressed', String(x === tp))); filtrarTarefas(r); }
+  }, true);
+  document.addEventListener('change', (ev) => { const s = (ev.target as Element).closest?.('.gpi [data-gi-quem]'); if (s) filtrarTarefas(s.closest('.gpi')!); });
+  document.addEventListener('romafe:versao', () => requestAnimationFrame(barraChegou));
   /* os separadores das páginas v2 (Inventário e Arrumação do gestor): mostram o painel da mesma página */
   document.addEventListener('click', (ev) => {
     const b = (ev.target as Element).closest?.<HTMLElement>('.gpi [data-gi-sep]'); if (!b || editando()) return;
@@ -47,7 +71,7 @@ export function iniciar(): void {
     r.querySelectorAll<HTMLElement>('[data-gi-painel]').forEach((p) => { p.hidden = p.dataset.giPainel !== b.dataset.giSep; });
   });
   document.addEventListener('click', (ev) => {
-    const b = (ev.target as Element).closest?.<HTMLElement>('.gp .gp-conta');
+    const b = (ev.target as Element).closest?.<HTMLElement>('.gp .gp-conta, .gp [data-gi-ver-como]');
     if (!b || editando()) return;
     ev.preventDefault(); abrir(b);
   });

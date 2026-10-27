@@ -12,7 +12,7 @@
   --g-ok: #168a60; --g-aviso: #a86d0c; --g-erro: #c73e3e; --g-tinta: #102333; --g-tinta-2: #4a5d70; --g-tinta-3: #66788a; --curva: cubic-bezier(.22, 1, .36, 1);
   --g-barra: #ffffff; --g-inset: #eef2f6; --g-trilho: #dde4eb; --g-palco-1: #f7fafc; --g-palco-2: #e3eaf0; --g-esquema: light;
   position: relative; display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-height: 100%; min-height: 100vh; min-height: 100svh;
-  background: var(--g-fundo); color: var(--g-tinta); font-family: var(--f-base); font-size: 15px; color-scheme: var(--g-esquema); overflow-x: hidden;
+  background: var(--g-fundo); color: var(--g-tinta); font-family: var(--f-base); font-size: 15px; color-scheme: var(--g-esquema); overflow-x: clip; /* clip e não hidden: hidden fazia do .gp o contentor do sticky, e o pé e a barra não ficavam presos ao fundo */
 }
 /* o escuro: o do briefing do Gestor (22 out.), com o botão Escuro ou o sistema escuro */
 [data-theme="dark"] .gp {
@@ -134,7 +134,7 @@
 .gp-tag--validar { background: color-mix(in srgb, var(--g-aviso) 20%, transparent); color: var(--g-aviso); } .gp-tag--ok { background: color-mix(in srgb, var(--g-ok) 18%, transparent); color: var(--g-ok); }
 .gp-form { display: grid; gap: 12px; }
 .gp-campo { display: grid; gap: 4px; font-size: 13px; font-weight: 700; color: var(--g-tinta-2); }
-.gp-campo select, .gp-campo input { min-height: 48px; padding: 0 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; font-size: 16px; }
+.gp-campo select, .gp-campo input { width: 100%; min-width: 0; max-width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; font-size: 16px; }
 .gp-cartao { display: grid; gap: 2px; padding: 12px; border-radius: var(--r-md); background: var(--g-sup); } .gp-cartao b { font-family: var(--f-mono); } .gp-cartao small { color: var(--g-tinta-2); font-size: 12.5px; }
 .gp-escolha { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .gp-op { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); cursor: pointer; }

@@ -59,7 +59,7 @@ export const GESTORA = { nome: 'Ana Ferreira', iniciais: 'AF' };
 const CONTADOS: [string, string, string, string][] = [['SKF VKBA 6556', 'Kit de rolamento de roda', '4 un.', '10:42'], ['SKF VKMV 6PK1873', 'Correia poli-V', '12 un.', '10:40']];
 
 /* ---------- o ecrã: cabeçalho, corpo e o pé com as ações ---------- */
-export interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string; /** outra pessoa e outra função (a demonstração das funções, 27 out.) */ quem?: { nome: string; iniciais: string }; funcao?: string }
+export interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string; /** outra pessoa e outra função (a demonstração das funções, 27 out.) */ quem?: { nome: string; iniciais: string }; funcao?: string; /** a barra de navegação inferior (navegacao.ts) */ barra?: string }
 export function ecra(corpo: string, o: Opcoes = {}): string {
   const rede = o.rede !== false, quem = o.quem ?? (o.gestor ? GESTORA : OPERADOR);
   return `<div class="gp gpi" data-gpi data-ir-ultima>
@@ -72,7 +72,7 @@ export function ecra(corpo: string, o: Opcoes = {}): string {
   </header>
   ${rede ? '' : `<p class="gp-faixa" role="status">${L(wifiOff)}<span><b>Sem rede.</b> A Pick precisa de rede para registar. Continua quando houver sinal.</span></p>`}${o.faixa ?? ''}
   <main class="gp-corpo gi-corpo">${corpo}</main>
-  ${o.pe ? `<footer class="gi-pe">${o.pe}</footer>` : ''}
+  ${o.pe ? `<footer class="gi-pe" data-por-cima>${o.pe}</footer>` : ''}${o.barra ?? ''}
 </div>`;
 }
 export const acao = (t: string, ic: string, extra = '') => `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande"${extra}>${L(ic)}<span data-rotulo>${t}</span></button>`;

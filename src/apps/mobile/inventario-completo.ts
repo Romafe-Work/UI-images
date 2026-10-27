@@ -103,7 +103,7 @@ function lerContar(e: E43 = 'pronto'): string {
 
 /* ---------- 57 · Início do Operador ---------- */
 type E57 = 'normal' | 'nova' | 'sem';
-function inicioOperador(e: E57 = 'normal'): string {
+export function inicioOperador(e: E57 = 'normal', barra?: string): string {
   const tarefa = e === 'sem' ? `<section class="gi-vazio">${L(clock)}<p><b>Não tem tarefas agora.</b> Quando o gestor lhe atribuir uma contagem, o sistema entrega-a aqui. Não precisa de fazer nada.</p></section>`
     : `<section class="gi-dom gi-tarefa" aria-labelledby="gi-t57">
       <p class="gi-tarefa__rot">${L(listChecks)}A minha próxima tarefa</p>
@@ -123,7 +123,7 @@ function inicioOperador(e: E57 = 'normal'): string {
       </div>
     </section>
     <section class="gp-sec">${h2('Módulos')}<div class="gp-modulos"><button type="button" class="gp-pasta" data-ir="inv-inicio"><span class="gp-pasta-g">${L(folder)}${L(pkg)}</span><b>Inventário</b></button></div></section>`,
-  { titulo: 'Início' });
+  { titulo: 'Início', barra });
 }
 
 /* ---------- 61.1 · Criar inventário v2: o âmbito ---------- */

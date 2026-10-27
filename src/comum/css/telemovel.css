@@ -26,6 +26,10 @@
   .tela-telemovel body > .ecra {
     width: auto; height: auto; min-height: 100vh;
     margin: 0; border: 0; border-radius: 0; box-shadow: none;
+    /* 27 out.: no telemóvel quem rola é a página; com overflow: auto o ecrã virava o contentor do sticky sem rolar, e
+       os pés e as barras de baixo nunca ficavam presos ao fundo. Visible (e não clip): o que sair para o lado vê-se
+       e o medidor apanha-o. */
+    overflow: visible;
   }
   .tela-telemovel body > .ecra > .versao > .entrada { min-height: 100vh; }
 }

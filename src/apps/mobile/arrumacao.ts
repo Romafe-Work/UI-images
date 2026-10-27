@@ -88,7 +88,7 @@ const G = (titulo: string, voltar = 'arr-inicio'): Opcoes => ({ titulo, voltar, 
    70 · Arrumação (Gestor)
    ========================================================= */
 const SEPS: [EstGuia, string][] = [['atribuir', 'Por atribuir'], ['curso', 'Em curso'], ['excecao', 'Exceções'], ['feita', 'Concluídas']];
-function inicio(cen: 'normal' | 'vazia' = 'normal'): string {
+export function arrumacaoInicio(cen: 'normal' | 'vazia' = 'normal', barra?: string): string {
   const gs = cen === 'vazia' ? [] : GUIAS;
   return ecra(`<header class="gi-arr-cab"><div class="gi-arr-cab__cena">${cenaArrumacao()}</div><div><h1 class="gp-titulo">Arrumação</h1><p class="gp-nota">Das chegadas registadas às posições.</p></div></header>
     ${cen === 'vazia' ? `<section class="gi-vazio">${L(inbox)}<p><b>Nada por arrumar.</b> Quando a arrumação registar uma chegada no PDA, as guias aparecem aqui. O sistema não sabe o que vem antes disso.</p></section>`
@@ -96,7 +96,7 @@ function inicio(cen: 'normal' | 'vazia' = 'normal'): string {
     <div class="gp-filtros" role="tablist" aria-label="Estado">${SEPS.map(([k, t], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-gi-sep="${k}">${t} <span>${gs.filter((g) => g.est === k).length}</span></button>`).join('')}</div>
     ${SEPS.map(([k], i) => `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${i ? ' hidden' : ''}>${gs.filter((g) => g.est === k).map((g, j) => cartao(g, j, j === 0)).join('')}</ul>`).join('')}
     ${nota('O motor entrega cada guia a quem está livre. «Por atribuir» quer dizer que ninguém da arrumação está livre agora.')}`}`,
-  { ...G('Arrumação', 'gestor-inicio'), pe: `${sec('Exceções', triangle, ' data-ir="arr-excecoes"')}${sec('Histórico', history, ' data-ir="arr-historico"')}` });
+  barra ? { ...G('Arrumação'), voltar: undefined, barra, faixa: '' } : { ...G('Arrumação', 'gestor-inicio'), pe: `${sec('Exceções', triangle, ' data-ir="arr-excecoes"')}${sec('Histórico', history, ' data-ir="arr-historico"')}` });
 }
 
 /* =========================================================
@@ -218,8 +218,8 @@ export function ecrasArrumacao(): Ecra<string>[] {
   const servidor = (o: Opcoes) => ecra(aviso('erro', serverOff, 'O servidor não respondeu', 'Não foi possível ler as guias. Nada mudou.') + '<p class="gi-ref">Referência <code>PK-2710-A7E0</code></p>', { ...o, pe: acao('Tentar outra vez', refresh) });
   const semPerm = (o: Opcoes) => ecra(aviso('erro', userRound, 'Sem permissão', 'Gerir a arrumação é do gestor. A arrumação recebe as guias pelo motor, no início.'), { ...o, pe: acao('Voltar ao início', arrowLeft, ' data-ir="op-inicio"') });
   return [
-    e('arr-inicio', '70 · Arrumação (Gestor)', 'O espaço de trabalho da arrumação: a caixa que vai da entrada à prateleira, a faixa (por arrumar · em execução · com problemas), os separadores e as guias que se abrem no sítio (origem → destino, artigos, quem, ação).', inicio()),
-    e('arr-vazia', '70.1 · Nada por arrumar', 'Sem guias: diz-se que aparecem quando a arrumação registar uma chegada.', inicio('vazia'), 'arr-inicio'),
+    e('arr-inicio', '70 · Arrumação (Gestor)', 'O espaço de trabalho da arrumação: a caixa que vai da entrada à prateleira, a faixa (por arrumar · em execução · com problemas), os separadores e as guias que se abrem no sítio (origem → destino, artigos, quem, ação).', arrumacaoInicio()),
+    e('arr-vazia', '70.1 · Nada por arrumar', 'Sem guias: diz-se que aparecem quando a arrumação registar uma chegada.', arrumacaoInicio('vazia'), 'arr-inicio'),
     e('arr-carregar', '70.2 · A carregar', 'As guias a chegar.', carga(G('Arrumação', 'gestor-inicio')), 'arr-inicio'),
     e('arr-sem-rede', '70.3 · Sem rede', 'A Pick para e espera.', semRede(G('Arrumação', 'gestor-inicio')), 'arr-inicio'),
     e('arr-erro', '70.4 · Não carregou', 'O servidor não respondeu.', servidor(G('Arrumação', 'gestor-inicio')), 'arr-inicio'),

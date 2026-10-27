@@ -1,0 +1,56 @@
+/* =========================================================
+   PICK — a barra de navegação inferior (27 out. 2026). Ver navegacao.ts.
+   Plana, com uma linha em cima; o indicador laranja desliza para o destino (transform); o destino escolhido tem o
+   ícone laranja e o rótulo mais forte — não só a cor. O destaque (Tarefas no Gestor, Ler no Operador) tem o ícone
+   num quadrado laranja; o Ler sobe ao centro. Alvos ≥ 56 px, rótulos de 12,5 px. Os cantos são md.
+   ========================================================= */
+.gi-barra { position: sticky; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); padding: 0 0 env(safe-area-inset-bottom); background: var(--g-barra); border-top: 1px solid var(--g-borda); }
+.gi-barra__ind { position: absolute; top: -1px; left: 0; width: calc(100% / var(--n)); height: 3px; transform: translateX(calc(var(--i) * 100%)); }
+.gi-barra__ind::before { content: ''; position: absolute; inset: 0 22%; border-radius: var(--r-md); background: var(--g-laranja); }
+.gi-barra__b { position: relative; display: grid; justify-items: center; align-content: center; gap: 3px; min-width: 0; min-height: 58px; padding: 6px 0 5px; border: 0; background: none; color: var(--g-tinta-2); font: inherit; cursor: pointer; }
+.gi-barra__b:focus-visible { outline: 3px solid var(--g-azul-t); outline-offset: -3px; border-radius: var(--r-md); }
+.gi-barra__ic { position: relative; display: grid; place-items: center; width: 40px; height: 32px; border-radius: var(--r-md); transition: transform .1s ease; }
+.gpi .gi-barra__ic svg { width: 24px; height: 24px; }
+.gi-barra__b:active .gi-barra__ic { transform: scale(.92); }
+.gi-barra__t { font-size: 12px; font-weight: 600; line-height: 1.1; letter-spacing: -.01em; white-space: nowrap; }
+.gi-barra__b.is-ativo { color: var(--g-tinta); } .gi-barra__b.is-ativo .gi-barra__t { font-weight: 800; } .gi-barra__b.is-ativo .gi-barra__ic { color: var(--g-laranja-t); }
+/* o destaque: o ícone num quadrado laranja; o Ler (ao centro) sobe e é maior */
+.gi-barra__b.is-destaque .gi-barra__ic { width: 44px; height: 32px; background: var(--g-laranja); color: #fff; }
+.gi-barra__b.is-destaque.is-ativo .gi-barra__ic { color: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--g-laranja) 28%, transparent); }
+.gi-barra--5 .gi-barra__b.is-destaque:nth-of-type(3) .gi-barra__ic { width: 56px; height: 48px; margin-top: -18px; border: 3px solid var(--g-barra); }
+.gpi .gi-barra--5 .gi-barra__b.is-destaque:nth-of-type(3) .gi-barra__ic svg { width: 28px; height: 28px; }
+/* os números verdadeiros */
+.gi-barra__n { position: absolute; top: -7px; right: -9px; min-width: 16px; height: 16px; padding: 0 4px; line-height: 16px !important; border-radius: var(--r-md); background: var(--g-erro); color: #fff; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; border: 2px solid var(--g-barra); box-sizing: content-box; }
+/* os gestos: uma vez, ao chegar pela barra */
+.gi-barra__b.is-gesto[data-gesto="ler"] .gi-barra__ic::after { content: ''; position: absolute; left: 6px; right: 6px; top: 4px; height: 2px; border-radius: var(--r-md); background: currentColor; opacity: .9; animation: gi-ler-g .38s ease-out 1 both; }
+@keyframes gi-ler-g { from { transform: translateY(0); } to { transform: translateY(20px); opacity: 0; } }
+.gi-barra__b.is-gesto[data-gesto="caixa"] .gi-barra__ic svg { animation: gi-caixa-g .32s cubic-bezier(.22, 1, .36, 1) 1; }
+@keyframes gi-caixa-g { from { transform: translate(-6px, 6px) scale(.8); opacity: .4; } }
+.gi-barra__b.is-gesto[data-gesto="tarefas"] .gi-barra__ic { animation: gi-tarefas-g .26s cubic-bezier(.22, 1, .36, 1) 1; }
+@keyframes gi-tarefas-g { 40% { transform: scale(1.12); } }
+/* a carregar e o aviso do menu */
+.gi-barra.is-carregar { padding-block: 8px; } .gi-barra__esq { display: grid; justify-items: center; gap: 6px; }
+.gi-barra__esq i { display: block; width: 28px; height: 22px; border-radius: var(--r-md); background: var(--g-elev); animation: gp-esq 1.2s linear infinite; } .gi-barra__esq i + i { width: 44px; height: 10px; }
+.gi-barra-aviso { position: sticky; bottom: 58px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0; padding: 8px 12px; background: color-mix(in srgb, var(--g-erro) 12%, var(--g-barra)); border-top: 1px solid var(--g-borda); font-size: 13px; }
+.gpi .gi-barra-aviso > svg { width: 17px; height: 17px; color: var(--g-erro); } .gi-barra-aviso .gp-ligacao { min-height: 36px; }
+
+/* 65 · Tarefas: o tipo, a pessoa e as linhas */
+.gi-tipos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); }
+.gi-tipo { min-height: 42px; border: 0; border-radius: var(--r-md); background: none; color: var(--g-tinta-2); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.gi-tipo[aria-pressed="true"] { background: var(--g-elev); color: var(--g-tinta); box-shadow: inset 0 -2px 0 var(--g-laranja); }
+.gi-quem select { min-height: 44px; }
+.gi-tarefa-l { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 10px; padding: 10px 12px; border: 1px solid var(--g-borda); border-left-width: 3px; border-radius: var(--r-md); background: var(--g-sup); }
+.gi-tarefa-l--atribuir { border-left-color: var(--g-tinta-3); } .gi-tarefa-l--curso { border-left-color: var(--g-azul-t); } .gi-tarefa-l--atencao { border-left-color: var(--g-erro); }
+.gi-tarefa-l__ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-md); background: var(--g-elev); }
+.gi-tarefa-l__ic--inventario { color: var(--g-laranja-t); } .gi-tarefa-l__ic--arrumacao { color: var(--g-azul-t); }
+.gi-tarefa-l__t { display: grid; gap: 3px; min-width: 0; } .gi-tarefa-l__t > b { font-family: var(--f-mono); font-size: 14px; } .gi-tarefa-l__t > small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-tarefa-l__quem { display: flex; align-items: center; gap: 5px; } .gpi .gi-tarefa-l__quem svg { width: 14px; height: 14px; }
+.gi-tarefa-l > .gp-btn { grid-column: 2; justify-self: start; }
+li[data-gi-tipo-l][hidden] { display: none; }
+
+/* 66 e 68 · Mais */
+.gi-mais-l { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.gi-mais { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 58px; padding: 8px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: transform .1s ease; }
+.gi-mais:active { transform: scale(.98); } .gi-mais > span:nth-child(2) { display: grid; } .gi-mais b { font-size: 14.5px; } .gi-mais small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-mais__ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-md); background: var(--g-elev); color: var(--g-azul-t); }
+.gpi .gi-linha[data-ir] { cursor: pointer; }
