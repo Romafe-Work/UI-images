@@ -209,7 +209,8 @@ function historico(): string {
 /* =========================================================
    Os ecrãs
    ========================================================= */
-export type IdInvCompleto = 'op-inicio' | 'op-nova' | 'op-sem' | 'inv-ler' | `inv-ler-${string}` | 'gestor-acompanhar' | 'gestor-acompanhar-sem-rede' | 'gestor-validar' | `gestor-validar-${string}` | 'gestor-historico';
+/** Os ecrãs e estados novos do Inventário (este ficheiro e inventario-estados.ts). */
+export type IdInvCompleto = `op-${string}` | `inv-${string}` | `gestor-${string}`;
 const NOTA = 'Do briefing «ROMAFE Warehouse — Android PDA Inventory System» (27 out.), só com rede (ela: «apenas com rede») e na Pick do editor (ela: «no figma»), no desenho da v2.';
 const um = (html: string): Ecra['versoes'] => [{ id: 'v1', nota: NOTA, html }];
 export function ecrasInventarioCompleto(): Ecra<string>[] {

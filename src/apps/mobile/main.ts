@@ -20,5 +20,6 @@ import { iniciar as entrarIndustrial } from './comportamento/entrar-industrial';
 import { iniciar as navegar } from './comportamento/navegar';
 import { iniciar as aberturaPick } from './comportamento/abertura-pick';
 import { iniciar as gestor } from './comportamento/gestor';
+import { iniciar as funcoes } from './comportamento/funcoes';
 
-montar(mobile, [navegar, entrar, inventario, entrarIndustrial, aberturaPick, gestor]);
+montar(mobile, [navegar, entrar, inventario, entrarIndustrial, aberturaPick, gestor, funcoes]);

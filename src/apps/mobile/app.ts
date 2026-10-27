@@ -4,6 +4,7 @@ import { ecrasCarregarPick, ecrasErroPick, DESCRICAO_CARREGAR_PICK, DESCRICAO_ER
 import { ecrasInventario, DESCRICAO_INVENTARIO } from './inventario';
 import { comInventarioV2 } from './inventario-v2';
 import { ecrasInventarioCompleto, comGestorV2 } from './inventario-completo';
+import { ecrasEstadosPick } from './inventario-estados';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import type { Ecra } from '../../comum/tipos';
 
@@ -11,6 +12,8 @@ const DESCRICAO_ENTRAR_PK = 'Como o ERP e o Peça A Peça: o início de sessão 
 const DESCRICAO_GESTOR = 'O Gestor de Armazém: o Inventário como ação dominante, o que pede atenção, os inventários em curso, a equipa, o acesso rápido e os módulos.';
 
 const COMPLETO = ecrasInventarioCompleto() as Ecra<IdMobile>[];
+/* 27 out. (ela: «permite na demonstração mudar a role e quero todos os estados possíveis»): inventario-estados.ts */
+const ESTADOS_PICK = ecrasEstadosPick() as Ecra<IdMobile>[];
 export const mobile: App<IdMobile> = {
   id: 'mobile',
   nome: 'Pick',
@@ -26,7 +29,7 @@ export const mobile: App<IdMobile> = {
      cliente federado (o código fica em entrar.ts e no comum) */
   /* 27 out. (o briefing da app Kotlin, «apenas com rede», «no figma»): o Gestor ganha o 62–64 e a v2 do 61.1 e do 61.2;
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
-  ecras: [...ecrasEntrarPick(), ...comGestorV2(ecrasGestor()), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.id.startsWith('op-')), ...comInventarioV2(ecrasInventario()), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...ecrasCarregarPick(), ...ecrasErroPick()],
+  ecras: [...ecrasEntrarPick(), ...comGestorV2(ecrasGestor()), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.id.startsWith('op-')), ...comInventarioV2(ecrasInventario()), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...ESTADOS_PICK, ...ecrasCarregarPick(), ...ecrasErroPick()],
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

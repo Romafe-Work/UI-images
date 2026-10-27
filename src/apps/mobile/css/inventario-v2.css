@@ -250,3 +250,27 @@
 .gi-acomp-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .gi-div__acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .gi-porque { margin: -2px 0 0; font-size: 12.5px; color: var(--g-tinta-2); text-align: center; }
+
+/* =========================================================
+   27 out. — «Ver como» (comportamento/funcoes.ts) e as páginas das funções sem o Inventário
+   ========================================================= */
+.gi-funcoes { width: min(100% - 16px, 420px); max-height: calc(100% - 24px); margin: auto; padding: 0; border: 1px solid var(--g-borda); border-radius: 18px; background: var(--g-fundo); color: var(--g-tinta); }
+.gi-funcoes::backdrop { background: rgba(5, 10, 15, .72); }
+.gi-funcoes[open] { animation: gi-sobe .22s var(--curva) 1; } @keyframes gi-sobe { from { opacity: 0; transform: translateY(14px); } }
+.gi-funcoes__c { display: grid; gap: 12px; padding: 14px; }
+.gi-funcoes header h2 { margin: 0; font-family: var(--f-titulo); font-size: 20px; font-weight: 800; } .gi-funcoes header p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: var(--g-tinta-2); }
+.gi-funcoes ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gi-funcao { display: grid; gap: 8px; width: 100%; padding: 10px 12px; border: 1px solid var(--g-borda); border-radius: 14px; background: var(--g-sup); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: transform .1s ease, border-color .12s ease; }
+.gi-funcao:active { transform: scale(.98); } .gi-funcao:focus-visible { outline: 3px solid var(--g-azul-t); outline-offset: 2px; }
+.gi-funcao.is-atual { border-color: var(--g-laranja); }
+.gi-funcao__cab { display: flex; align-items: center; gap: 10px; } .gi-funcao__cab > span { display: grid; flex: 1; } .gi-funcao__cab b { font-size: 15.5px; } .gi-funcao__cab small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-funcao__cab .gp-av { font-style: normal; } .gi-funcao__cab em { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--g-laranja); }
+.gi-funcao__l { display: grid; gap: 4px; }
+.gi-funcao__l span { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; line-height: 1.35; }
+.gi-funcao__l svg { width: 15px; height: 15px; margin-top: 1px; flex: none; }
+.gi-funcao__l .is-sim svg { color: var(--g-ok); } .gi-funcao__l .is-nao { color: var(--g-tinta-2); } .gi-funcao__l .is-nao svg { color: var(--g-erro); }
+.gi-funcoes__fechar { width: 100%; }
+.gpi .gp-conta { cursor: pointer; }
+.gi-funcao-nao { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 12px; border: 1px dashed var(--g-borda); border-radius: 12px; }
+.gpi .gi-funcao-nao svg { color: var(--g-tinta-3); } .gi-funcao-nao p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--g-tinta-2); } .gi-funcao-nao b { color: var(--g-tinta); }
+.gi-vazio-l { margin: 0; padding: 12px; border: 1px dashed var(--g-borda); border-radius: 12px; font-size: 14px; line-height: 1.45; color: var(--g-tinta-2); }
