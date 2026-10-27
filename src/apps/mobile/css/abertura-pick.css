@@ -17,7 +17,7 @@
 
 /* em cima: o leitor, a rede e o servidor — confirmam-se um a um */
 .pkb-estado { display: flex; gap: 6px; padding: 10px 12px 0; }
-.pkb-pilula { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 6px; border: 1px solid var(--pkb-borda); border-radius: 999px; font-size: 12.5px; font-weight: 700; color: var(--pkb-tinta-3); }
+.pkb-pilula { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 6px; border: 1px solid var(--pkb-borda); border-radius: var(--r-md); font-size: 12.5px; font-weight: 700; color: var(--pkb-tinta-3); }
 .pkb-pilula i { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--pkb-sup-2); }
 .pkb-pilula i svg { width: 11px; height: 11px; stroke-width: 3; opacity: 0; transform: scale(.4); transition: opacity .15s ease, transform .25s var(--curva); }
 .pkb-pilula.is-ok, .pkb-pilula.is-mal { transition: color .2s ease calc(var(--i) * 150ms), border-color .2s ease calc(var(--i) * 150ms); }
@@ -66,14 +66,14 @@
 .pkb-quem { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13.5px; color: var(--pkb-tinta-3); }
 .pkb-quem svg { width: 15px; height: 15px; } .pkb-quem b { color: var(--pkb-tinta); font-weight: 700; }
 .pkb-atalhos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
-.pkb-atalho { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 68px; padding: 6px 4px; border: 1px solid var(--pkb-borda); border-radius: 10px; background: var(--pkb-sup); color: var(--pkb-tinta); font: inherit; cursor: pointer; transition: background-color .12s ease, transform .1s ease; }
+.pkb-atalho { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 68px; padding: 6px 4px; border: 1px solid var(--pkb-borda); border-radius: var(--r-md); background: var(--pkb-sup); color: var(--pkb-tinta); font: inherit; cursor: pointer; transition: background-color .12s ease, transform .1s ease; }
 .pkb-atalho svg { width: 24px; height: 24px; color: #4fa3dc; margin-bottom: 2px; }
 .pkb-atalho b { font-size: 14px; font-weight: 700; } .pkb-atalho small { font-size: 12px; color: var(--pkb-tinta-3); }
 .pkb-atalho:active { transform: scale(.96); background: var(--pkb-sup-2); }
 .pkb-atalho:focus-visible, .pkb-entrar:focus-visible { outline: 3px solid #4fa3dc; outline-offset: 2px; }
-.pkb-aviso { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--pkb-sup); font-size: 14px; font-weight: 600; }
+.pkb-aviso { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: var(--r-md); background: var(--pkb-sup); font-size: 14px; font-weight: 600; }
 .pkb-aviso svg { width: 18px; height: 18px; flex: none; } .pkb-aviso--mal svg { color: var(--pkb-mal); }
-.pkb-entrar { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; margin-top: 2px; border: 0; border-radius: 12px; background: var(--pkb-laranja); color: #fff; font: inherit; font-size: 19px; font-weight: 800; cursor: pointer; transition: transform .1s ease, background-color .12s ease; }
+.pkb-entrar { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; margin-top: 2px; border: 0; border-radius: var(--r-md); background: var(--pkb-laranja); color: #fff; font: inherit; font-size: 19px; font-weight: 800; cursor: pointer; transition: transform .1s ease, background-color .12s ease; }
 .pkb-entrar svg { width: 22px; height: 22px; stroke-width: 2.5; }
 .pkb-entrar:active:not(:disabled) { transform: scale(.98); background: #e07610; }
 .pkb-entrar:disabled { background: var(--pkb-sup-2); color: var(--pkb-tinta-3); cursor: default; }

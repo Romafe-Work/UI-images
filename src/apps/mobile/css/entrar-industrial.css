@@ -23,7 +23,7 @@
 /* ---------- a marca da família ---------- */
 .pki-marca { position: relative; display: flex; align-items: center; gap: 10px; }
 .pki-romafe { font-size: 24px; line-height: 1; color: var(--c-logotipo); }
-.pki-risco { width: 3px; height: 26px; border-radius: 2px; background: var(--k-laranja); }
+.pki-risco { width: 3px; height: 26px; border-radius: var(--r-md); background: var(--k-laranja); }
 .pki-produto { display: grid; margin: 0; line-height: 1.1; }
 .pki-produto b { font-family: var(--f-titulo); font-size: 19px; letter-spacing: -.01em; color: var(--k-tinta); }
 .pki-produto span { font-size: 11.5px; letter-spacing: .02em; color: var(--k-tinta-2); }
@@ -49,14 +49,14 @@
 .pka-centro { position: relative; display: grid; align-content: center; justify-items: center; gap: 18px; padding: 24px 28px 8px; }
 .pka-centro .pki-estante-svg { max-width: 230px; }
 .pka-verificar { position: relative; display: grid; gap: 10px; padding: 0 20px; }
-.pka-passos { list-style: none; display: grid; gap: 2px; margin: 0; padding: 8px 12px; border: 1px solid var(--k-borda); border-radius: 12px; background: var(--k-sup); }
+.pka-passos { list-style: none; display: grid; gap: 2px; margin: 0; padding: 8px 12px; border: 1px solid var(--k-borda); border-radius: var(--r-md); background: var(--k-sup); }
 .pka-passo { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 34px; font-size: 14px; }
 .pka-passo b { font-size: 12.5px; color: var(--k-ok); }
 .pka-passo__marca { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--k-ok) 16%, transparent); color: var(--k-ok); }
 .pka-passo__marca svg { width: 13px; height: 13px; }
 .pka-passo.is-mal b { color: var(--k-erro); } .pka-passo.is-mal .pka-passo__marca { background: color-mix(in srgb, var(--k-erro) 16%, transparent); color: var(--k-erro); }
 .pka-passo.is-espera b { color: var(--k-tinta-2); } .pka-passo.is-espera .pka-passo__marca { background: none; }
-.pka-entrar, .pki-entrar { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; border: 0; border-radius: 12px; background: var(--k-laranja); color: #fff; font: inherit; font-size: 17px; font-weight: 700; letter-spacing: .01em; cursor: pointer; transition: transform 100ms ease, filter 120ms ease; }
+.pka-entrar, .pki-entrar { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; border: 0; border-radius: var(--r-md); background: var(--k-laranja); color: #fff; font: inherit; font-size: 17px; font-weight: 700; letter-spacing: .01em; cursor: pointer; transition: transform 100ms ease, filter 120ms ease; }
 .pka-entrar svg, .pki-entrar svg { width: 20px; height: 20px; }
 .pka-entrar:active:not(:disabled), .pki-entrar:active:not(:disabled) { transform: scale(.98); filter: brightness(.95); }
 .pka-entrar:disabled, .pki-entrar:disabled { opacity: .5; cursor: default; }
@@ -81,7 +81,7 @@
 /* ---------- 01 · Entrar ---------- */
 .pki { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
 .pki-estado { position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; background: var(--k-fundo-2); border-bottom: 1px solid var(--k-borda); font-size: 11px; font-weight: 700; color: var(--k-tinta-2); }
-.pki-pilula { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; background: var(--k-sup); border: 1px solid var(--k-borda); }
+.pki-pilula { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: var(--r-md); background: var(--k-sup); border: 1px solid var(--k-borda); }
 .pki-pilula i { width: 7px; height: 7px; border-radius: 50%; background: var(--k-ok); }
 .pki-pilula.is-mal { color: var(--k-erro); } .pki-pilula.is-mal i { background: var(--k-erro); }
 .pki-estado__pda { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
@@ -89,7 +89,7 @@
 .pki-topo--curto { grid-template-rows: auto; padding-bottom: 14px; }
 .pki-desenho { position: relative; display: grid; place-items: center; min-height: 0; }
 .pki-desenho .pki-estante-svg { max-width: 150px; }
-.pki-form { position: relative; display: grid; gap: 8px; padding: 14px 18px calc(8px + env(safe-area-inset-bottom)); background: var(--k-sup); border-top: 1px solid var(--k-borda); border-radius: 18px 18px 0 0; box-shadow: 0 -8px 24px -18px rgba(0, 0, 0, .35); }
+.pki-form { position: relative; display: grid; gap: 8px; padding: 14px 18px calc(8px + env(safe-area-inset-bottom)); background: var(--k-sup); border-top: 1px solid var(--k-borda); border-radius: var(--r-md) var(--r-md) 0 0; box-shadow: 0 -8px 24px -18px rgba(0, 0, 0, .35); }
 .pki.is-abrir .pki-form > * { animation: pki-entra 200ms ease both; }
 .pki-ola h1 { margin: 0; font-family: var(--f-titulo); font-size: 19px; line-height: 1.2; letter-spacing: -.01em; }
 .pki-ola p { margin: 2px 0 0; font-size: 13px; color: var(--k-tinta-2); }
@@ -98,14 +98,14 @@
 .pki-caixa { position: relative; display: flex; align-items: center; }
 .pki-caixa__icone { position: absolute; left: 12px; display: grid; color: var(--k-tinta-2); pointer-events: none; transition: color 150ms ease; }
 .pki-caixa__icone svg { width: 18px; height: 18px; }
-.pki-caixa input { width: 100%; min-height: 46px; padding: 0 12px 0 40px; border: 1.5px solid var(--k-borda); border-radius: 10px; background: var(--k-fundo); color: var(--k-tinta); font: inherit; font-size: 16px; transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease; }
+.pki-caixa input { width: 100%; min-height: 46px; padding: 0 12px 0 40px; border: 1.5px solid var(--k-borda); border-radius: var(--r-md); background: var(--k-fundo); color: var(--k-tinta); font: inherit; font-size: 16px; transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease; }
 .pki-caixa input::placeholder { color: var(--k-tinta-2); opacity: .8; }
 .pki-caixa input:focus { outline: 0; border-color: var(--k-azul); background: var(--k-sup); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k-azul) 22%, transparent); }
 .pki-caixa:focus-within .pki-caixa__icone { color: var(--k-azul); }
 .pki-caixa input[aria-invalid="true"] { border-color: var(--k-erro); }
 .pki-caixa input.is-valido:not(:focus) { border-color: color-mix(in srgb, var(--k-ok) 55%, var(--k-borda)); }
 .pki-caixa input[name="p"] { padding-right: 50px; }
-.pki-ver { position: absolute; right: 2px; top: 2px; bottom: 2px; display: grid; place-items: center; width: 46px; border: 0; border-radius: 8px; background: none; color: var(--k-tinta-2); cursor: pointer; }
+.pki-ver { position: absolute; right: 2px; top: 2px; bottom: 2px; display: grid; place-items: center; width: 46px; border: 0; border-radius: var(--r-md); background: none; color: var(--k-tinta-2); cursor: pointer; }
 .pki-ver svg { width: 19px; height: 19px; }
 .pki-ver[aria-pressed="true"] { color: var(--k-azul); }
 .pki-erro-campo { margin: 0; font-size: 13px; color: var(--k-erro); }
@@ -121,7 +121,7 @@
 .pki-rodape svg { width: 12px; height: 12px; }
 
 /* os avisos */
-.pki-aviso { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; padding: 9px 10px; border: 1px solid var(--k-borda); border-left: 3px solid var(--k-azul); border-radius: 10px; background: var(--k-fundo); animation: pki-entra 160ms ease both; }
+.pki-aviso { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; padding: 9px 10px; border: 1px solid var(--k-borda); border-left: 3px solid var(--k-azul); border-radius: var(--r-md); background: var(--k-fundo); animation: pki-entra 160ms ease both; }
 .pki-aviso > span svg { width: 19px; height: 19px; color: var(--k-azul); }
 .pki-aviso b { font-size: 14px; } .pki-aviso p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--k-tinta-2); }
 .pki-aviso--erro { border-left-color: var(--k-erro); } .pki-aviso--erro > span svg { color: var(--k-erro); }
@@ -142,8 +142,8 @@
 /* ---------- 02 · Ajuda ---------- */
 .pkj .pki-form { align-self: end; }
 .pkj-lista { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
-.pkj-item { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; padding: 10px; border: 1px solid var(--k-borda); border-radius: 10px; background: var(--k-fundo); }
-.pkj-item > span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: color-mix(in srgb, var(--k-azul) 14%, transparent); color: var(--k-azul); }
+.pkj-item { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; padding: 10px; border: 1px solid var(--k-borda); border-radius: var(--r-md); background: var(--k-fundo); }
+.pkj-item > span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-md); background: color-mix(in srgb, var(--k-azul) 14%, transparent); color: var(--k-azul); }
 .pkj-item svg { width: 17px; height: 17px; }
 .pkj-item b { font-size: 14px; } .pkj-item p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--k-tinta-2); }
 .pkj-apoio { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; color: var(--k-tinta-2); }

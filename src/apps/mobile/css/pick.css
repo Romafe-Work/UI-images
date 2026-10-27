@@ -21,11 +21,11 @@
   background: var(--c-superficie); border-bottom: 1px solid var(--c-borda);
 }
 .pk__nome { font-family: var(--f-titulo); font-weight: 700; font-size: 20px; color: var(--c-logotipo); }
-.pk__funcao { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: var(--r-full); background: var(--c-marca-suave); color: var(--c-marca); }
+.pk__funcao { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: var(--r-md); background: var(--c-marca-suave); color: var(--c-marca); }
 .pk__rede { margin-left: auto; display: grid; place-items: center; color: var(--c-ok); }
 .pk__rede svg { width: 20px; height: 20px; }
 .pk__rede--sem { color: var(--c-erro); }
-.pk__quem { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--r-full); background: var(--c-logotipo); color: #fff; font-size: 12px; font-weight: 700; }
+.pk__quem { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--c-logotipo); color: #fff; font-size: 12px; font-weight: 700; }
 
 /* ---------- o meio e o pé ---------- */
 .pk__corpo {
@@ -65,7 +65,7 @@
 .pk-aviso--erro { border-top-color: var(--c-erro); }
 .pk-aviso--aviso { border-top-color: var(--c-aviso); }
 .pk-aviso--azul { border-top-color: var(--c-logotipo); }
-.pk-aviso__icone { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--r-full); }
+.pk-aviso__icone { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; }
 .pk-aviso__icone svg { width: 28px; height: 28px; }
 .pk-aviso--erro .pk-aviso__icone { background: var(--c-erro-suave); color: var(--c-erro); }
 .pk-aviso--aviso .pk-aviso__icone { background: var(--c-aviso-suave); color: var(--c-aviso); }
@@ -83,7 +83,7 @@
 /* ---------- a abrir: a tela toda ---------- */
 .pk--cheio { display: grid; place-content: center; justify-items: center; gap: var(--e-2); padding: var(--e-5); background: var(--c-superficie); text-align: center; }
 .pk-abrir__romafe { font-size: 44px; }
-.pk-abrir__risco { width: 44px; height: 4px; border-radius: 2px; background: var(--c-acao); }
+.pk-abrir__risco { width: 44px; height: 4px; border-radius: var(--r-md); background: var(--c-acao); }
 .pk-abrir__nome { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 22px; }
 .pk-abrir__barra { width: 180px; margin-top: var(--e-4); }
 .pk-abrir__texto { margin: 0; font-size: 13px; color: var(--c-texto-2); }
@@ -92,3 +92,8 @@
 .pk-abrir__carro { position: absolute; bottom: 2px; left: 0; width: 34px; animation: pk-via 1.6s cubic-bezier(.45, 0, .55, 1) infinite; }
 @keyframes pk-via { from { transform: translateX(-36px); } to { transform: translateX(184px); } }
 @media (prefers-reduced-motion: reduce) { .pk-abrir__carro { animation: none; left: 73px; } }
+
+/* 27 out. (ela: «borders de tudo sempre md»): dentro da Pick, todos os cantos são md (10 px) — também os dos componentes
+   comuns (botões, campos, cartões), que usam --r-sm, --r-lg e --r-full. Os círculos de propósito (as iniciais, os ícones
+   redondos) continuam a 50 %. Os rx dos desenhos em SVG são da ilustração e não mudam. */
+:is(.pka, .pki, .pk, .pkb, .gp) { --r-sm: var(--r-md); --r-lg: var(--r-md); --r-full: var(--r-md); }
