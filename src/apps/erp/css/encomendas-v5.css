@@ -4,15 +4,7 @@
    estrutura (ícones, grupos), laranja na ação principal e no que está escolhido/ligado, verde só no que está feito,
    âmbar no que espera, vermelho no que está atrasado. Movimento só em transform/opacity e curto.
    ========================================================= */
-/* ---- a zona de cima: título + ações ---- */
-.dv2c-cab { position: sticky; top: 0; z-index: 9; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; padding: 8px clamp(16px, 2vw, 28px); border-bottom: 1px solid var(--h-borda); background: var(--h-sup); }
-.dv2c-tit { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.dv2c-tit .ak-cab-ic { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: rgb(0, 99, 170); color: #fff; }
-.dv2c-tit .ak-cab-ic svg { width: 18px; height: 18px; color: #fff; }
-.dv2c-tit h1 { margin: 0; font-size: 18px; line-height: 1.2; }
-.dv2c-tit p { margin: 1px 0 0; font-size: 12.5px; color: var(--h-tinta-2); }
-.dv2c .dv2c-barra { position: static; flex: 1 1 520px; justify-content: flex-end; min-height: 0; padding: 0; border: 0; background: none; box-shadow: none; }
-.dv2c .dv2c-barra .ak2-esp { flex: 0 0 4px; }
+/* ---- a cabeça e a barra são as da Lista de Faltas (27 out.: «os botões devem ser consistentes») ---- */
 .dv2c .dv2c-edi { display: inline-flex; align-items: center; }
 /* a barra mostra só o que serve a vista escolhida */
 .dv2c[data-dv2-vista-atual="docs"] [data-so]:not([data-so~="docs"]),

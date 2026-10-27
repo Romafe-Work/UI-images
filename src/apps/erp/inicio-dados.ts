@@ -46,7 +46,7 @@ export const MODULOS: { id: Modulo; nome: string; icone: string; grupo: 'Trabalh
     { id: 'compras-cotacoes', nome: 'Cotações', modulo: 'compras', ecra: 'compras-cotacoes' },
     { id: 'compras-encomendas', nome: 'Encomendas a fornecedor', modulo: 'compras', ecra: 'compras' },
     { id: 'compras-faltas', nome: 'Lista de faltas', modulo: 'compras', ecra: 'compras-faltas' },
-    { id: 'compras-rececoes', nome: 'Receções', modulo: 'compras', ecra: 'compras-rececoes' },
+    { id: 'compras-rececoes', nome: 'Receção de encomendas', modulo: 'compras', ecra: 'compras-rececoes' },
     { id: 'compras-fornecedores', nome: 'Fornecedores', modulo: 'compras', ecra: 'compras-fornecedores' },
   ] },
   { id: 'vendas', nome: 'Vendas', icone: 'trending-up', grupo: 'Trabalho', subs: [

@@ -110,7 +110,7 @@ function lista(e: Estado, v = vistaPadrao()): Pagina {
 export interface Edicao { enc: Encomenda; versao: number; sujo: boolean; erros: string[]; conflito: boolean; nova?: string }
 const ICONE_ACAO: Partial<Record<Acao, string>> = { submeter: 'send', aprovar: 'check', rejeitar: 'undo-2', emitir: 'file-text', receber: 'package-check', lembrar: 'bell', fechar: 'circle-check', cancelar: 'x', duplicar: 'file-plus-2' };
 /** O percurso do documento: só o que aconteceu fica feito; o próximo passo fica à espera, e nada à frente se pinta. */
-function percurso(x: Encomenda): string {
+export function percurso(x: Encomenda): string {
   const h = x.historico;
   const quando = (re: RegExp) => h.find((v) => re.test(v.acao))?.quando.slice(0, 10);
   const recs = rececoesDe(x.ref);

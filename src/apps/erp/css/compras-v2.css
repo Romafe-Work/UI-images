@@ -351,3 +351,29 @@ textarea.cp-input { resize: vertical; line-height: 1.45; }
 .cp-esq i:first-child { height: 40px; }
 @keyframes cp-brilho { from { background-position: 100% 0; } to { background-position: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .cp-esq i { animation: none; } }
+/* 27 out.: Receções v2 — a encomenda e a receção em janelas (compras/rececoes-v2.ts); a caixa traz os tokens da casa */
+.hm.ws.rc2-caixa { position: fixed; inset: 0; z-index: 50; display: block; min-height: 0; background: none; pointer-events: none; }
+.rc2-jan .lf2-jan-corpo { padding-bottom: 6px; }
+.rc2-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 12px 14px 0; font-size: 14px; }
+.rc2-fraco { font-size: 12.5px; color: var(--h-tinta-3); }
+.rc2-percurso { padding: 6px 8px 0; overflow-x: auto; }
+.rc2-percurso .cp-percurso { min-width: 520px; margin: 0; }
+.rc2-ir { padding: 0; border: 0; background: none; color: rgb(0, 99, 170); font: inherit; font-family: var(--f-mono); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.rc2-ir:hover { color: var(--h-laranja); }
+.rc2-rolo { overflow-x: auto; }
+.rc2-t { width: 100%; }
+.rc2-t td small { display: block; font-size: 11.5px; color: var(--h-tinta-3); }
+.rc2-t .is-num { text-align: right; white-space: nowrap; }
+.rc2-t .is-neg { color: var(--h-erro); }
+.rc2-l { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.rc2-l li { display: flex; flex-wrap: wrap; gap: 4px 10px; } .rc2-l span { color: var(--h-tinta-2); }
+.rc2-nums { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 12px; }
+.rc2-notas { margin: 0; font-size: 13px; }
+.rc2-jan .lf2-jan-dl dd .cp-est { margin-right: 4px; }
+/* Guias de entrada v2: sem o painel ao lado (o detalhe abre em janela); a receção e a encomenda da linha parecem ligações */
+.fx.fx--janelas .fx-corpo { grid-template-columns: minmax(0, 1fr); }
+.fx.fx--janelas .fx-det { display: none; }
+.fx.fx--janelas .fx-tab tbody tr { cursor: pointer; }
+.fx.fx--janelas .fx-tab tbody td:nth-child(3), .fx.fx--janelas .fx-tab tbody td:nth-child(4) { color: rgb(0, 99, 170); text-decoration: underline; text-underline-offset: 2px; }
+.fx.fx--janelas .fx-tab tbody td:nth-child(3):hover, .fx.fx--janelas .fx-tab tbody td:nth-child(4):hover { color: var(--h-laranja); }
+.rc2-nums--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }

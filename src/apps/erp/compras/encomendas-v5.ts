@@ -202,21 +202,28 @@ function pagina(c: CfgDoc, cen: string): string {
   const so = (v: string) => ` data-so="${v}"`;
   return `<div class="hm ak lf2 dv2 dv2--${c.k} dv2c" data-hm data-dv2="${c.k}" data-dv2-vista-atual="docs" data-dv2-cenario="${cen}" data-teclas="F1 F2 F4 F5 F6 F8 F9 F10 F11 F12 Escape ${c.teclasExtra}">
   ${topoErp(c.caminho)}
-  <header class="dv2c-cab">
-    <div class="dv2c-tit"><span class="ak-cab-ic">${L(c.icone)}</span><div><h1>${esc(c.titulo)}</h1><p>${esc(c.sub)}</p></div><nav class="dv2-trilho" data-dv2-trilho aria-label="Onde estou" hidden></nav><span class="lf2-restaurada" data-dv2-restaurada hidden></span></div>
-    <div class="ak-barra lf2-barra dv2-barra dv2c-barra" role="toolbar" aria-label="Ações">
-      ${BTN('novo', plus, 'Novo', 'F5', so('docs'), 'ak-btn--acao')}
-      ${BTN('abrir-sel', openIc, 'Abrir encomenda', 'Enter', `${so('agenda clientes')} title="Abrir a encomenda da linha escolhida (Enter)"`, 'ak-btn--acao')}
+  <!-- 27 out. (ela: «os botões devem ser consistentes… seguir o padrão da Lista de Faltas»): a cabeça e a barra da casa -->
+  <header class="ak-cab lf2-cab">
+    <span class="ak-cab-ic">${L(c.icone)}</span>
+    <div><h1>${esc(c.titulo)}</h1><p>${esc(c.sub)}</p></div>
+    <nav class="dv2-trilho" data-dv2-trilho aria-label="Onde estou" hidden></nav>
+    <span class="lf2-restaurada" data-dv2-restaurada hidden></span>
+  </header>
+    <div class="ak-barra lf2-barra dv2-barra" role="toolbar" aria-label="Ações">
+      ${BTN('novo', plus, 'Novo', 'F5', so('docs'))}
+      ${BTN('abrir-sel', openIc, 'Abrir encomenda', 'Enter', `${so('agenda clientes')} title="Abrir a encomenda da linha escolhida (Enter)"`)}
       ${BTN('editar', pencil, 'Editar', 'F6', so('docs'))}
       ${BTN('anular', ban, 'Anular', 'F8', so('docs'))}
       <i class="ak-sep" aria-hidden="true"${so('docs')}></i>
       ${BTN('atualizar', refresh, 'Atualizar', 'F9')}
+      ${BTN('imprimir', printer, 'Imprimir', 'F11')}
+      <i class="ak-sep" aria-hidden="true"${so('docs')}></i>
       <span class="dv2c-edi"${so('docs')}>${c.barra}</span>
+      ${BTN('anexos', paperclip, 'Anexos', '', so('docs'))}
       <span class="ak2-esp"></span>
       <span class="ak-menu-c">${BTN('mais', ellipsis, 'Mais ações', '', ' aria-haspopup="menu" aria-expanded="false"')}
         <div class="ak-menu ak-menu--dir lf2-menu-mais" role="menu" data-dv2-menu="mais" data-por-cima hidden></div></span>
     </div>
-  </header>
 
   <div class="dv2-lista-vista" data-dv2-lista>
   <!-- 27 out. (ela: «deve ficar acima e fora do card»): as três vistas por cima dos filtros, na página -->
@@ -273,9 +280,6 @@ const CFG5 = registar({
     { k: 'clientes', t: 'Pedidos de clientes', ic: userStar, tecla: 'Alt+3', titulo: 'Pedidos de clientes', tabela: tabelaPedidos, resumo: resumoPedidos },
   ],
   relacao: { icone: route, titulo: tituloRel, corpo: corpoRel },
-  maisTopo: `<p class="ak-menu-t">Documento</p>
-    <button type="button" role="menuitem" data-dv2-acao="imprimir"><span>${L(printer)} Imprimir</span><kbd>F11</kbd></button>
-    <button type="button" role="menuitem" data-dv2-acao="anexos" data-so="docs"><span>${L(paperclip)} Anexos da encomenda</span></button>`,
   acao(r, x, k, b) {
     if (k === '_barra') { CFG.acao(r, x, k, b); barraContexto(r, x); return true; }
     if (k === 'abrir-sel') { const cad = cadeia(String(x.extra.rel ?? '')); if (cad?.enc) abrirEnc(r, x, cad.enc, cad.ref); return true; }

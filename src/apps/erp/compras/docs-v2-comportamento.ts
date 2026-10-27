@@ -302,9 +302,9 @@ function corpoJan(r: HTMLElement, e: EstDoc, j: JanDoc): string {
 }
 function janHtml(r: HTMLElement, e: EstDoc, j: JanDoc): string {
   const c = cfgDe(r), d = docDe(r, e, j.id), id = `dv2-jan-${c.k}-${r.dataset.dv2Cenario}-${j.id.replace(/\W+/g, '-')}`, rel = j.id === 'rel' && !!c.relacao;
-  const nome = rel ? c.relacao!.titulo(r, e, String(e.extra.rel ?? '')) : d ? String(d.numero ?? d.ref ?? j.id) : j.id;
+  const nome = rel ? c.relacao!.titulo(r, e, String(e.extra.rel ?? '')) : j.id === 'novo' ? `${c.o === 'a' ? 'Nova' : 'Novo'} ${c.um}` : d ? String(d.numero ?? d.ref ?? j.id) : j.id;
   return `<section class="lf2-jan dv2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-dv2-jan="${esc(j.id)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed || j.id === 'rel' ? 'auto' : `${j.h}px`};z-index:${j.z}">
-    <header class="lf2-jan-cab" data-dv2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : rel ? c.relacao!.icone : c.janelas!.icone)}<h3 id="${id}">${j.ed ? 'A editar' : rel ? 'Ligações' : esc(c.janelas!.titulo)} · <b data-dv2-jan-ref>${esc(nome)}</b>${j.ed && e.ficha?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
+    <header class="lf2-jan-cab" data-dv2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : rel ? c.relacao!.icone : c.janelas!.icone)}<h3 id="${id}">${j.ed ? (j.id === 'novo' ? 'A criar' : 'A editar') : rel ? 'Ligações' : esc(c.janelas!.titulo)} · <b data-dv2-jan-ref>${esc(nome)}</b>${j.ed && e.ficha?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
       <span class="lf2-jan-bts"><button type="button" data-dv2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${L(minus)}</button><button type="button" data-dv2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${L(j.max ? minimize : maximize)}</button><button type="button" data-dv2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${L(xIc)}</button></span></header>
     <div class="lf2-jan-corpo" data-dv2-jan-corpo>${j.ed ? '' : corpoJan(r, e, j)}</div>
   </section>`;
@@ -329,19 +329,21 @@ export function cabecaJanelaEd(r: HTMLElement, e: EstDoc): void {
   if (sujo && !ponto) h.insertAdjacentHTML('beforeend', ' <span class="dv2-sujo" title="Alterações por gravar">●</span>'); else if (!sujo) ponto?.remove();
 }
 /** Editar com janelas: a ficha vai para a janela do documento (a que já estava aberta, se havia; senão, uma nova). */
-function fichaNaJanela(r: HTMLElement, e: EstDoc, d: Doc, fx: HTMLElement): void {
+function fichaNaJanela(r: HTMLElement, e: EstDoc, id: string, fx: HTMLElement): void {
   if (!lugarFicha.has(r)) lugarFicha.set(r, { pai: fx.parentElement!, depois: fx.nextSibling });
-  abrirJanelaDoc(r, e, d.id, undefined, false);
-  const j = jds(e).find((x) => x.id === d.id)!; jds(e).forEach((x) => { x.ed = x === j; }); j.min = false;
+  abrirJanelaDoc(r, e, id, undefined, false);
+  const j = jds(e).find((x) => x.id === id)!; jds(e).forEach((x) => { x.ed = x === j; }); j.min = false;
   /* a ficha precisa de mais largura do que os detalhes: a janela alarga-se para dentro da janela do navegador */
   if (!j.max) { const w = Math.min(780, innerWidth - 32); if (j.w < w) { j.antes = [j.x, j.w]; j.w = w; j.x = Math.max(16, Math.min(j.x, innerWidth - w - 16)); } }
   desenharJanelas(r, e);
-  r.querySelector(`[data-dv2-jan="${CSS.escape(d.id)}"] [data-dv2-jan-corpo]`)?.appendChild(fx);
+  r.querySelector(`[data-dv2-jan="${CSS.escape(id)}"] [data-dv2-jan-corpo]`)?.appendChild(fx);
 }
 /** Ao fechar a ficha: volta ao seu lugar na página e a janela volta a mostrar os detalhes. */
 function fichaDaJanela(r: HTMLElement, e: EstDoc, fx: HTMLElement): void {
   const j = jds(e).find((x) => x.ed); if (j) { j.ed = false; if (j.antes) { [j.x, j.w] = j.antes; j.antes = undefined; } }
   const l = lugarFicha.get(r); if (l && fx.closest('[data-dv2-janelas]')) l.pai.insertBefore(fx, l.depois);
+  /* a janela do Novo não tem documento por trás: fecha-se com a ficha (o documento criado abre-se na sua janela) */
+  if (j?.id === 'novo') jds(e).splice(jds(e).indexOf(j), 1);
   desenharJanelas(r, e);
 }
 const lugarFicha = new WeakMap<HTMLElement, { pai: HTMLElement; depois: ChildNode | null }>();
@@ -415,7 +417,7 @@ function verAnexo(r: HTMLElement, id: string): void {
 function trilho(r: HTMLElement, e: EstDoc): void {
   const c = cfgDe(r), t = r.querySelector<HTMLElement>('[data-dv2-trilho]')!;
   /* a editar numa janela, o título da janela já diz o que se edita */
-  t.hidden = !e.ficha || (e.ficha.modo === 'editar' && comJanelas(r));
+  t.hidden = !e.ficha || comJanelas(r);
   t.innerHTML = e.ficha ? `<button type="button" class="hm-caminho-ir" data-dv2-acao="fechar-ficha">${L(arrowLeft)}${esc(c.titulo)}</button><i>›</i><b>${e.ficha.modo === 'criar' ? `Novo ${c.um}` : esc(e.ficha.ref)}</b>${e.ficha.sujo ? '<span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}` : '';
 }
 export function abrirFicha(r: HTMLElement, e: EstDoc, modo: Ficha['modo'], d?: Doc): void {
@@ -423,8 +425,9 @@ export function abrirFicha(r: HTMLElement, e: EstDoc, modo: Ficha['modo'], d?: D
   const origem = d ? r.querySelector<HTMLElement>(`tr[data-dv2-id="${CSS.escape(d.id)}"]`) : r.querySelector<HTMLElement>('.dv2-barra [data-dv2-acao="novo"]');
   const de_ = origem?.getBoundingClientRect();
   e.ficha = { modo, ref: d ? String(d.numero) : '', sujo: false, erro: '', campo: '', id: d?.id };
-  if (comJanelas(r) && modo === 'editar' && d) {
-    fx.innerHTML = c.ficha(e, e.ficha, d); fx.hidden = false; fichaNaJanela(r, e, d, fx); estado(r, e);
+  /* com janelas (26–27 out., ela: «o novo e o editar devem ser em windows»): a ficha vai para uma janela — a do documento ao editar, uma nova ao criar */
+  if (comJanelas(r) && ((modo === 'editar' && d) || modo === 'criar')) {
+    fx.innerHTML = c.ficha(e, e.ficha, d); fx.hidden = false; fichaNaJanela(r, e, d?.id ?? 'novo', fx); estado(r, e);
     c.acao(r, e, '_ficha-aberta', fx);
     requestAnimationFrame(() => (fx.querySelector<HTMLElement>('[data-dv2-ff]:not([disabled]):not([readonly])') ?? fx.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true }));
     return;
@@ -446,7 +449,9 @@ export function fecharFicha(r: HTMLElement, e: EstDoc, forcar = false, ref = '')
   }
   const lista = r.querySelector<HTMLElement>('[data-dv2-lista]')!, fx = r.querySelector<HTMLElement>('[data-dv2-ficha]')!;
   e.ficha = undefined; fx.hidden = true; fx.innerHTML = ''; lista.hidden = false; trilho(r, e);
+  const eraNovo = !!fx.closest('[data-dv2-jan="novo"]');
   if (fx.closest('[data-dv2-janelas]')) fichaDaJanela(r, e, fx);
+  if (eraNovo && ref) requestAnimationFrame(() => { if (docDe(r, e, ref)) abrirJanelaDoc(r, e, ref, undefined, false); });
   if (ref) e.ativo = ref;
   tudo(r, e);
   const tr = r.querySelector<HTMLElement>(`tr[data-dv2-id="${CSS.escape(e.ativo)}"]`);

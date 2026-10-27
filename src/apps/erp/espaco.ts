@@ -118,7 +118,7 @@ export const MENU_ERP: LinhaMenu[] = [
   S('compras-fornecedores', 'Fornecedores', 'users', 'compras.fornecedores', 30),
   S('compras-requisicoes', 'Requisições', 'clipboard-list', 'compras.requisicoes', 40),
   S('compras-cotacoes', 'Orçamentos', 'scale', 'compras.cotacoes', 50),
-  S('compras-rececoes', 'Receções', 'package-check', 'compras.rececoes', 60, ['compras', 'armazem', 'admin']),
+  S('compras-rececoes', 'Receção de encomendas', 'package-check', 'compras.rececoes', 60, ['compras', 'armazem', 'admin']),
   S('compras-devolucoes', 'Devoluções a fornecedor', 'undo-2', 'compras.devolucoes', 70),
   /* o menu Compras do ERP antigo (22 out., ela mostrou-o): a mesma ordem, os separadores e os mapas em submenus; o que ainda não tem ecrã novo fica desligado */
   /* 27 out. (ela: «coloca isto num só ecrã»): Agendamento e Clientes — encomendas especiais são vistas das Encomendas (v4); saem do menu */
@@ -161,7 +161,7 @@ export const ROTAS: Record<string, Rota> = {
   'compras.requisicoes': { ecra: 'compras-requisicoes', titulo: 'Requisições', icone: 'clipboard-list', acoes: ['novo', 'editar', 'eliminar', 'atualizar'], novo: ['compras-requisicao', 'Nova requisição'], editar: ['compras-requisicao', 'Requisição'] },
   /* 26 out.: os Orçamentos v2 têm a barra do ERP antigo dentro do ecrã */
   'compras.cotacoes': { ecra: 'compras-cotacoes', titulo: 'Orçamentos', icone: 'scale', acoes: ['atualizar', 'imprimir'], novo: ['compras-cotacao', 'Nova cotação'] },
-  'compras.rececoes': { ecra: 'compras-rececoes', titulo: 'Receções', icone: 'package-check', acoes: ['novo', 'atualizar', 'imprimir'], novo: ['compras-rececao', 'Nova receção'] },
+  'compras.rececoes': { ecra: 'compras-rececoes', titulo: 'Receção de encomendas', icone: 'package-check', acoes: ['novo', 'atualizar', 'imprimir'], novo: ['compras-rececao', 'Nova receção'] },
   /* Ficheiros (23 out., Início v6): só consulta — o que não existe (novo, editar) não aparece na barra */
   'ficheiros.artigos': { ecra: 'ficheiros-artigos', titulo: 'Artigos', icone: 'package', acoes: ['atualizar', 'imprimir'] },
   'ficheiros.armazens': { ecra: 'ficheiros-armazens', titulo: 'Armazéns', icone: 'warehouse', acoes: ['atualizar', 'imprimir'] },
