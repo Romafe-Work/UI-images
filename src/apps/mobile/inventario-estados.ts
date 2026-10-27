@@ -53,12 +53,12 @@ export const FUNCOES: Funcao[] = [
 const quem = (k: Funcao['k']) => { const f = FUNCOES.find((x) => x.k === k)!; return { nome: f.nome, iniciais: f.iniciais }; };
 
 /* ---------- os estados comuns ---------- */
-const carregar = (o: Opcoes, linhas = 3) => ecra(`<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A carregar…</p><div class="gp-esq">${'<i></i>'.repeat(linhas)}</div>`, o);
-const semRede = (o: Opcoes) => ecra(aviso('erro', wifiOff, 'Sem rede', 'A Pick precisa de rede: não mostra dados velhos como se fossem de agora, e nada fica à espera no PDA. Continua quando houver sinal.') + '<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>', { ...o, rede: false, pe: acao('Tentar de novo', refresh) });
-const servidor = (o: Opcoes, ref: string) => ecra(aviso('erro', serverOff, 'O servidor não respondeu', 'Não foi possível ler os dados. Nada mudou.') + `<p class="gi-ref">Referência <code>${ref}</code></p>${nota('Se repetir, avise o gestor do turno com a referência.')}`, { ...o, pe: acao('Tentar outra vez', refresh) });
-const sessao = (o: Opcoes) => ecra(aviso('aviso', clock, 'A sessão terminou', 'Por segurança, entre outra vez pelo início de sessão comum (ROMAFE Identity). Volta a este ecrã.'), { ...o, pe: acao('Entrar outra vez', logIn, ' data-login') });
-const semPermissao = (o: Opcoes, texto: string, volta: string) => ecra(aviso('erro', userRound, 'Sem permissão', texto), { ...o, pe: acao('Voltar ao início', arrowLeft, ` data-ir="${volta}"`) });
-const vazio = (o: Opcoes, ic: string, t: string, x: string, pe = '') => ecra(`<section class="gi-vazio">${L(ic)}<p><b>${t}</b> ${x}</p></section>`, { ...o, pe });
+export const carregar = (o: Opcoes, linhas = 3) => ecra(`<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A carregar…</p><div class="gp-esq">${'<i></i>'.repeat(linhas)}</div>`, o);
+export const semRede = (o: Opcoes) => ecra(aviso('erro', wifiOff, 'Sem rede', 'A Pick precisa de rede: não mostra dados velhos como se fossem de agora, e nada fica à espera no PDA. Continua quando houver sinal.') + '<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>', { ...o, rede: false, pe: acao('Tentar de novo', refresh) });
+export const servidor = (o: Opcoes, ref: string) => ecra(aviso('erro', serverOff, 'O servidor não respondeu', 'Não foi possível ler os dados. Nada mudou.') + `<p class="gi-ref">Referência <code>${ref}</code></p>${nota('Se repetir, avise o gestor do turno com a referência.')}`, { ...o, pe: acao('Tentar outra vez', refresh) });
+export const sessao = (o: Opcoes) => ecra(aviso('aviso', clock, 'A sessão terminou', 'Por segurança, entre outra vez pelo início de sessão comum (ROMAFE Identity). Volta a este ecrã.'), { ...o, pe: acao('Entrar outra vez', logIn, ' data-login') });
+export const semPermissao = (o: Opcoes, texto: string, volta: string) => ecra(aviso('erro', userRound, 'Sem permissão', texto), { ...o, pe: acao('Voltar ao início', arrowLeft, ` data-ir="${volta}"`) });
+export const vazio = (o: Opcoes, ic: string, t: string, x: string, pe = '') => ecra(`<section class="gi-vazio">${L(ic)}<p><b>${t}</b> ${x}</p></section>`, { ...o, pe });
 
 /* ---------- as páginas da Separação e da Expedição (sem o Inventário) ---------- */
 export const paginaSemInventario = (k: 'separacao' | 'expedicao', barra?: string) => {

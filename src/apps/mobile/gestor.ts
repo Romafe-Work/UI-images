@@ -175,8 +175,9 @@ export function gestorInventario(cen: CenarioGInv = 'normal'): string {
 
 /* ---------- 00 · Abertura: por cima do Início do Gestor ---------- */
 export type CenarioAbertura = 'normal' | 'sem-rede' | 'sem-acesso';
-export function aberturaGestor(cen: CenarioAbertura = 'normal'): string {
-  const camada = `<div class="gpa${cen === 'normal' ? '' : ' is-a is-b is-c is-d is-fim'}" data-gpa data-gpa-cenario="${cen}" data-por-cima role="status" aria-label="A abrir a Pick">
+/** A camada da abertura (o armazém, o porta-paletes, a marca), para pôr por cima da página do papel. */
+export function camadaAbertura(cen: CenarioAbertura = 'normal'): string {
+  return `<div class="gpa${cen === 'normal' ? '' : ' is-a is-b is-c is-d is-fim'}" data-gpa data-gpa-cenario="${cen}" data-por-cima role="status" aria-label="A abrir a Pick">
     <div class="gpa-palco" aria-hidden="true">
       ${ARMAZEM}
       <div class="gpa-posicao">${POSICAO}<i class="gpa-feixe"></i><span class="gpa-ok">${I(IC2.validar)}</span></div>
@@ -189,5 +190,8 @@ export function aberturaGestor(cen: CenarioAbertura = 'normal'): string {
     </div>
     <button type="button" class="gpa-saltar" data-gpa-saltar>Saltar</button>
   </div>`;
+}
+export function aberturaGestor(cen: CenarioAbertura = 'normal'): string {
+  const camada = camadaAbertura(cen);
   return gestorInicio('normal', camada).replace('<div class="gp" data-gp data-gp-cenario="normal">', '<div class="gp is-abertura" data-gp data-gp-cenario="normal" data-gp-abertura>').replace('<main class="gp-corpo">', '<main class="gp-corpo" aria-hidden="true" inert>');
 }

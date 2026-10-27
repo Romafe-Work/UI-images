@@ -7,7 +7,7 @@ import { ecrasInventarioCompleto, comGestorV2 } from './inventario-completo';
 import { ecrasEstadosPick } from './inventario-estados';
 import { comGestorV2b, ecrasGestorV2 } from './gestor-v2';
 import { ecrasArrumacao } from './arrumacao';
-import { comBarra, ecrasNavegacao } from './navegacao';
+import { comBarra, ecrasNavegacao, soUltima } from './navegacao';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import type { Ecra } from '../../comum/tipos';
 
@@ -37,7 +37,8 @@ export const mobile: App<IdMobile> = {
      cliente federado (o código fica em entrar.ts e no comum) */
   /* 27 out. (o briefing da app Kotlin, «apenas com rede», «no figma»): o Gestor ganha o 62–64 e a v2 do 61.1 e do 61.2;
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
-  ecras: [...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...ARRUMACAO, ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()],
+  /* 27 out. (ela: «só quero a última versão, não todos»): cada ecrã só com a última versão (navegacao.ts, soUltima) */
+  ecras: soUltima([...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...ARRUMACAO, ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()]),
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

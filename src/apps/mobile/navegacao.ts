@@ -25,7 +25,8 @@ import { inicioV2, inventarioV2 } from './gestor-v2';
 import { arrumacaoInicio, RESUMO_ARRUMACAO } from './arrumacao';
 import { inicioOperador } from './inventario-completo';
 import { paginaSemInventario } from './inventario-estados';
-import { INVENTARIOS } from './gestor';
+import { INVENTARIOS, camadaAbertura, type CenarioAbertura } from './gestor';
+import { carregar as eCarregar, semRede as eSemRede, servidor as eServidor, sessao as eSessao } from './inventario-estados';
 import { INV, POS } from './inventario';
 import home from 'lucide-static/icons/house.svg?raw';
 import listTodo from 'lucide-static/icons/list-todo.svg?raw';
@@ -226,4 +227,45 @@ export function ecrasNavegacao(): Ecra<string>[] {
     e('op-mais-expedicao', '68.2 · Mais (Expedição)', 'Inventário', 'A Expedição só tem a conta.', maisOperador('expedicao'), 'op-mais'),
     ...estadosNav().map(([id, de, nome, objetivo, html, v]) => e(id, nome, de.startsWith('gestor') ? 'Gestor' : 'Inventário', objetivo, html, de, v)),
   ];
+}
+
+/* =========================================================
+   27 out. (ela: «só quero a última versão, não todos»): na Pick cada ecrã fica só com a última versão. Para isso:
+     - a abertura passa a desenhar-se por cima do Início do Gestor v3 (com a barra), e não da v1;
+     - os estados do Início do Gestor que eram da v1 (60.1–60.10) passam a ser da v3;
+     - o «Nada pede atenção» da v2 (60.11) sai: é o mesmo que o 60.3.
+   ========================================================= */
+/** A abertura por cima do Início v3: as mesmas marcas que o comportamento da abertura procura (data-gp…). */
+export function aberturaV3(cen: CenarioAbertura = 'normal'): string {
+  return inicioV2('normal', barra('gestor', 'inicio'))
+    .replace('<div class="gp gpi" data-gpi data-ir-ultima>', `<div class="gp gpi is-abertura" data-gpi data-ir-ultima data-gp data-gp-cenario="normal" data-gp-abertura>`)
+    .replace('<div class="gp-marca">', '<div class="gp-marca" data-gp-marca>')
+    .replace('<span class="gi-mod__ic">', '<span class="gi-mod__ic" data-gp-alvo>')
+    .replace('<main class="gp-corpo gi-corpo">', '<main class="gp-corpo gi-corpo" aria-hidden="true" inert>')
+    .replace(/<\/div>\s*$/, `${camadaAbertura(cen)}</div>`);
+}
+const GI: Opcoes = { titulo: 'Início', gestor: true };
+const comB = (o: Opcoes): Opcoes => ({ ...o, barra: barra('gestor', 'inicio') });
+/** Os estados do Início do Gestor, agora na v3. */
+export const ESTADOS_GESTOR_V3: Record<string, () => string> = {
+  'gestor-carregar': () => eCarregar(comB(GI), 4),
+  'gestor-sem-inventarios': () => ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1><p>O armazém 60 agora.</p></div><section class="gi-vazio">${L(pkg)}<p><b>Não há inventários em curso.</b> Crie um no Inventário: escolhe o âmbito e quem conta.</p></section>${acao('Novo inventário', userPlus, ' data-ir="gestor-inv-novo"')}`, comB(GI)),
+  'gestor-sem-tarefas': () => inicioV2('sem-atencao', barra('gestor', 'inicio')),
+  'gestor-erro': () => eServidor(comB(GI), 'PK-2710-0C17'),
+  'gestor-sem-rede': () => eSemRede(comB(GI)),
+  'gestor-menus': () => inicioV2('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`),
+  'gestor-permissao': () => ecra(aviso('info', userRound, 'As suas permissões mudaram', 'Agora vê só o que é da <b>Arrumação</b>. Entre outra vez para as atualizar.'), { ...GI, pe: acao('Entrar outra vez', refresh, ' data-login') }),
+  'gestor-sessao': () => eSessao(GI),
+  'gestor-sem-acesso': () => ecra(aviso('erro', lock, 'A sua conta não tem acesso à Pick', 'Peça o acesso ao administrador da sua empresa.'), GI),
+  'gestor-sem-armazem': () => ecra(aviso('erro', mapPin, 'Ainda não tem um armazém atribuído', 'O administrador atribui-lhe o armazém 60 na sua conta ROMAFE.'), GI),
+};
+/** Só a última versão de cada ecrã; os estados do Início do Gestor na v3; a abertura por cima da v3. */
+export function soUltima<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const ABERTURA: Record<string, CenarioAbertura> = { abertura: 'normal', 'abertura-pk-sem-rede': 'sem-rede', 'abertura-pk-sem-acesso': 'sem-acesso' };
+  return ecras.filter((e) => e.id !== 'gestor-inicio-sem-atencao').map((e) => {
+    const ultima = e.versoes[e.versoes.length - 1];
+    if (ABERTURA[e.id]) return { ...e, versoes: [{ ...ultima, id: 'v3', nota: `${ultima.nota} — por cima do Início do Gestor v3, com a barra (27 out.).`, html: aberturaV3(ABERTURA[e.id]) }] as Ecra<T>['versoes'] };
+    if (ESTADOS_GESTOR_V3[e.id]) return { ...e, versoes: [{ id: 'v3', nota: NOTA, html: ESTADOS_GESTOR_V3[e.id]() }] as Ecra<T>['versoes'] };
+    return { ...e, versoes: [ultima] };
+  });
 }
