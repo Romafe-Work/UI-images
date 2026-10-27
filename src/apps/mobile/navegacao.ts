@@ -61,7 +61,8 @@ interface Destino { id: string; funcao: Funcao; rotulo: string; icone: string; e
 const ICONES: Record<string, string> = { inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
 export const MENU_BARRA: Destino[] = [
   { id: 'inicio', funcao: 'gestor', rotulo: 'Início', icone: 'inicio', ecra: 'gestor-inicio', ordem: 10, ativo: true },
-  { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, destaque: true, ativo: true, gesto: 'tarefas' },
+  /* 27 out. (ela: «remove o bg das tarefas»): sem o quadrado laranja; fica como os outros destinos */
+  { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
   { id: 'inventario', funcao: 'gestor', rotulo: 'Inventário', icone: 'inventario', ecra: 'gestor-inventario', ordem: 30, ativo: true, gesto: 'ler' },
   { id: 'arrumacao', funcao: 'gestor', rotulo: 'Arrumação', icone: 'arrumacao', ecra: 'arr-inicio', ordem: 40, ativo: ARRUMACAO_ATIVA, gesto: 'caixa' },
   { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
