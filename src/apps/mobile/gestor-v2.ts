@@ -36,6 +36,9 @@ import eyeOff from 'lucide-static/icons/eye-off.svg?raw';
 import userRound from 'lucide-static/icons/user-round.svg?raw';
 
 const G = { gestor: true } as const;
+/** 27 out. (ela: «por agora no menu mostra só inventário»): a Arrumação fica desligada no menu — como o «ativo» do menu
+ *  central. Os ecrãs dela continuam no editor; com true, voltam à barra, ao Início, às Tarefas e ao Mais. */
+export const ARRUMACAO_ATIVA = false;
 
 /* ---------- a faixa de estado de um módulo: números verdadeiros, pequenos, lado a lado ---------- */
 const faixa = (xs: [string, number, ('aviso' | 'erro' | '')?][]) => `<dl class="gi-faixa">${xs.map(([t, n, tom]) => `<div${tom ? ` class="is-${tom}"` : ''}><dd>${n}</dd><dt>${t}</dt></div>`).join('')}</dl>`;
@@ -49,7 +52,7 @@ const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   [userPlus, 'GA-2026-0331 sem pessoa', 'Ninguém da arrumação livre · 2 paletes', 'arr-guia', 'info'],
 ];
 export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: string): string {
-  const at = cen === 'sem-atencao' ? [] : ATENCAO;
+  const at = cen === 'sem-atencao' ? [] : ATENCAO.filter(([, , , ir]) => ARRUMACAO_ATIVA || !ir.startsWith('arr-'));
   return ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1></div>
     <section class="gp-sec">${h2('Precisa da tua atenção', at.length || undefined)}
       ${at.length ? `<ul class="gp-lista" role="list">${at.map(([ic, t, x, ir, tom], i) => `<li style="--i:${i}"><button type="button" class="gp-item gp-item--${tom}" data-ir="${ir}"><span class="gp-item-ic">${L(ic)}</span><span class="gp-item-t"><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`).join('')}</ul>`
@@ -59,10 +62,11 @@ export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: strin
       <span class="gi-mod__cab"><span class="gi-mod__ic">${CAIXA()}</span><b>Inventário</b>${L(arrowRight, 'gi-seta')}</span>
       ${faixa([['Em curso', 1], ['Por validar', 1, 'aviso'], ['Divergências', 2, 'erro']])}
     </button>
-    <button type="button" class="gi-mod gi-mod--arr" data-ir="arr-inicio" aria-label="Abrir a Arrumação">
+    ${ARRUMACAO_ATIVA ? `    <button type="button" class="gi-mod gi-mod--arr" data-ir="arr-inicio" aria-label="Abrir a Arrumação">
       <span class="gi-mod__cab"><span class="gi-mod__ic gi-mod__ic--arr">${cenaArrumacao(true)}</span><b>Arrumação</b>${L(arrowRight, 'gi-seta')}</span>
       ${faixa([['Por arrumar', RESUMO_ARRUMACAO.porArrumar], ['Em curso', RESUMO_ARRUMACAO.emCurso], ['Problemas', RESUMO_ARRUMACAO.problemas, 'erro']])}
-    </button>`, { titulo: 'Início', ...G, barra });
+    </button>` : ''}
+  `, { titulo: 'Início', ...G, barra });
 }
 
 /* =========================================================
