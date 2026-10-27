@@ -2,6 +2,7 @@ import type { App } from '../../comum/tipos';
 import type { IdMobile } from './ids';
 import { ecrasCarregarPick, ecrasErroPick, DESCRICAO_CARREGAR_PICK, DESCRICAO_ERROS_PICK } from './estados';
 import { ecrasInventario, DESCRICAO_INVENTARIO } from './inventario';
+import { comInventarioV2 } from './inventario-v2';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import type { Ecra } from '../../comum/tipos';
 
@@ -21,7 +22,7 @@ export const mobile: App<IdMobile> = {
   /* 21 out. 2026: ela, «só quero uma versão: a v5, mas mais bonita e mais profissional» e «falta uma abertura» —
      a abertura, a entrada industrial e a ajuda, uma versão cada; saíram as v1–v4, a palavra-passe à parte e o
      cliente federado (o código fica em entrar.ts e no comum) */
-  ecras: [...ecrasEntrarPick(), ...ecrasGestor(), ...ecrasInventario(), ...ecrasCarregarPick(), ...ecrasErroPick()],
+  ecras: [...ecrasEntrarPick(), ...ecrasGestor(), ...comInventarioV2(ecrasInventario()), ...ecrasCarregarPick(), ...ecrasErroPick()],
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

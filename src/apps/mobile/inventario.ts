@@ -34,9 +34,9 @@ const IC2 = {
 };
 
 /* ---------- os dados de exemplo ---------- */
-const INV = 'INV-2026-014';
-const POS = '60300102', POS_PARTES = 'Armazém 60 · Zona 30 · Coluna 01 · Prateleira 02';
-const ART = { ref: 'SKF02553', desc: 'Autocolante', marca: 'SKF', un: 'un.', ean: '7316200025531' };
+export const INV = 'INV-2026-014';
+export const POS = '60300102', POS_PARTES = 'Armazém 60 · Zona 30 · Coluna 01 · Prateleira 02';
+export const ART = { ref: 'SKF02553', desc: 'Autocolante', marca: 'SKF', un: 'un.', ean: '7316200025531' };
 
 /* ---------- peças ---------- */
 /** A barra da contagem ativa: o inventário e a posição, sempre à vista; «Mudar» volta a ler a posição. */
@@ -104,7 +104,7 @@ const inicio = (sem = false) => pick(`
     </div>`, { funcao: FUNCAO });
 
 /* 41 · as contagens atribuídas: número, tipo, área, data, estado e progresso (em posições) */
-const CONTAGENS: [string, string, string, string, string, string, number, number][] = [
+export const CONTAGENS: [string, string, string, string, string, string, number, number][] = [
   [INV, 'Por posição', 'Zona 30 · colunas 01–12', '21/10/2026', 'Em curso', 'curso', 18, 46],
   ['INV-2026-015', 'Cíclica', 'Zona 10 · rolamentos', '22/10/2026', 'Planeada', 'planeada', 0, 30],
   ['INV-2026-011', 'Por posição', 'Zona 21 · colunas 01–04', '18/10/2026', 'Submetida', 'submetida', 16, 16],
@@ -174,7 +174,7 @@ const contados = () => pick(`<h1 class="iv-titulo">O que já contei</h1><p class
   { funcao: FUNCAO, pe: BOTAO('Corrigir uma contagem', IC.corrigir, 'btn--ghost', ' data-ir="inv-corrigir"') + BOTAO('Voltar à contagem', IC.voltar, 'btn--acao', ' data-ir="inv-artigo"') });
 
 /* 50 · corrigir: a nova quantidade e o motivo; a anterior não se apaga */
-const MOTIVOS = ['Contei mal', 'Encontrei mais unidades', 'Artigo noutra posição', 'Outro motivo'];
+export const MOTIVOS = ['Contei mal', 'Encontrei mais unidades', 'Artigo noutra posição', 'Outro motivo'];
 const corrigir = () => pick(`${contagemTopo()}
     <p class="iv-antes"><span>Registado às 10:44</span><b>${ART.ref} · 12 ${ART.un}</b></p>
     ${quantidade('14', { unidades: true })}
@@ -198,7 +198,7 @@ const submeter = (feita = false) => pick(feita
   { funcao: FUNCAO, pe: feita ? BOTAO('Voltar ao Inventário', IC.voltar, 'btn--acao', ' data-ir="inv-inicio"') : BOTAO('Submeter para conferência', IC2.enviar, 'btn--acao', ' data-ir="inv-submetida"') + BOTAO('Voltar', IC.voltar, 'btn--ghost', ' data-ir="inv-contados"') });
 
 /* 53 · divergências (gestor): contado, sistema, diferença e pedir recontagem */
-const DIV: [string, string, number, number, string][] = [['60300102', 'SKF02553 · Autocolante', 14, 18, ''], ['60300101', 'SKF VKPC 88618 · Bomba de água', 5, 5, 'ok'], ['60300107', 'INA 530 0089 10 · Kit de distribuição', 0, 3, 'recontar']];
+export const DIV: [string, string, number, number, string][] = [['60300102', 'SKF02553 · Autocolante', 14, 18, ''], ['60300101', 'SKF VKPC 88618 · Bomba de água', 5, 5, 'ok'], ['60300107', 'INA 530 0089 10 · Kit de distribuição', 0, 3, 'recontar']];
 const divergencias = () => pick(`<h1 class="iv-titulo">Divergências</h1><p class="pk-nota">${INV} · em conferência · só o gestor vê o stock do sistema</p>
     <ul class="iv-div" role="list">${DIV.map(([p, a, c, s, k]) => { const d = c - s; return `<li class="iv-div__li${k ? ` iv-div__li--${k}` : ''}"><p class="iv-div__pos">${p}</p><p class="iv-div__art">${a}</p>
       <dl><div><dt>Contado</dt><dd>${c}</dd></div><div><dt>Sistema</dt><dd>${s}</dd></div><div><dt>Diferença</dt><dd class="${d < 0 ? 'is-menos' : d > 0 ? 'is-mais' : ''}">${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d)}</dd></div></dl>

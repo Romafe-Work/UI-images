@@ -9,6 +9,7 @@ import './css/entrar-industrial.css';
 import './css/cena.css';
 import './css/abertura-pick.css';
 import './css/gestor.css';
+import './css/inventario-v2.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
