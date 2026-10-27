@@ -4,13 +4,14 @@
    dos Ficheiros (procurar, ordenar, detalhe ao lado). Os números saem todos das encomendas e das receções do
    protótipo (compras/dominio.ts) — nada se inventa:
      - o que o protótipo ainda não tem (faturas, linhas rejeitadas, o ano anterior) diz-se na nota e no vazio;
-     - «Clientes — encomendas especiais» e o «automático» vêm da Lista de faltas (o cliente e o mínimo de exemplo).
+     - o «automático» vem da Lista de faltas (o mínimo de exemplo); o Agendamento e as Encomendas especiais de
+       clientes são, desde 27 out., vistas das Encomendas (compras/encomendas-v4.ts).
    Ecrãs 40–67 (cm-<id da linha do menu>); as rotas registam-se em espaco.ts (MENU_ANTIGO).
    ========================================================= */
 import type { Ecra } from '../../../comum/tipos';
 import type { IdErp } from '../ids';
 import { paginaTabela, estadosTabela, familiaDe, det, type Tabela, type Linha, type Col } from '../ficheiros/ecras';
-import { encomendas, rececoes, FORNECEDORES, ARTIGOS, linhaLiquida, totais, euros, dia, atrasada, pendente, diasAtraso, HOJE, type Encomenda } from './dominio';
+import { encomendas, rececoes, FORNECEDORES, ARTIGOS, linhaLiquida, totais, euros, dia, atrasada, diasAtraso, type Encomenda } from './dominio';
 import { faltas } from './faltas';
 import { MENU_ANTIGO } from './menu-antigo-ids';
 import { ecrasAutomatico } from './automatico';
@@ -46,13 +47,6 @@ const VAZIO_REJ: [string, string] = ['Nada rejeitado.', 'Nenhuma receção teve 
 
 type Def = Omit<Tabela, 'id' | 'num' | 'caminho'>;
 const D: Record<typeof MENU_ANTIGO[number], Def> = {
-  'compras-agendamento': { titulo: 'Agendamento de encomendas', ic: 'calendar-clock', um: 'entrega', varios: 'entregas', procura: 'Encomenda, fornecedor ou artigo', nota: 'O que falta receber das encomendas emitidas, pela data de entrega.',
-    cols: [C('data', 'Entrega'), C('enc', 'Encomenda', { mono: true }), C('forn', 'Fornecedor'), C('ref', 'Artigo', { mono: true }), C('qtd', 'Por receber', { num: true }), C('est', 'Situação')],
-    linhas: () => encomendas().filter((e) => ['Aprovada', 'Emitida', 'Parcialmente recebida'].includes(e.estado)).flatMap((e) => e.linhas.filter((l) => pendente(l) > 0).map((l): Linha => ({
-      v: { data: dia(l.entrega), enc: e.ref, forn: fNome(e.forn), ref: l.ref, qtd: n(pendente(l)), est: l.entrega < HOJE ? `Atrasada ${diasAtraso(l.entrega)} dias` : 'No prazo' }, ord: { data: l.entrega, qtd: pendente(l) } }))) },
-  'compras-especiais': { titulo: 'Clientes — encomendas especiais', ic: 'user-star', um: 'pedido', varios: 'pedidos', procura: 'Cliente ou artigo', nota: 'Os artigos em falta pedidos por clientes (da Lista de faltas; o cliente é de exemplo).',
-    cols: [C('cli', 'Cliente'), C('ref', 'Artigo', { mono: true }), C('desc', 'Descrição'), C('qtd', 'Pedida', { num: true }), C('stock', 'Stock', { num: true }), C('forn', 'Fornecedor')],
-    linhas: () => faltas().filter((f) => f.cliente !== '—').map((f) => ({ v: { cli: f.cliente, ref: f.ref, desc: f.desc, qtd: n(f.pedida), stock: n(f.stock), forn: f.fornNome }, ord: { qtd: f.pedida, stock: f.stock } })) },
   'compras-guias-entrada': { titulo: 'Guias de entrada', ic: 'file-input', um: 'guia', varios: 'guias', procura: 'Guia, receção, encomenda ou fornecedor', nota: 'As guias dos fornecedores registadas nas receções do armazém 60.',
     cols: [C('guia', 'Guia', { mono: true }), C('data', 'Data'), C('rec', 'Receção', { mono: true }), C('enc', 'Encomenda', { mono: true }), C('forn', 'Fornecedor'), C('qtd', 'Aceite', { num: true }), C('rej', 'Rejeitada', { num: true })],
     linhas: () => rececoes().map((r) => { const e = encDe(r.enc), q = r.linhas.reduce((s, l) => s + l.aceite, 0), j = r.linhas.reduce((s, l) => s + l.rejeitada, 0); return {
@@ -138,12 +132,13 @@ comparativo('comp-familia', (_, r) => `${familiaDe(art(r)?.desc ?? '')} · ${art
 comparativo('comp-forn', (e) => fNome(e.forn), 'Fornecedor');
 
 const NOTA = 'Do menu Compras do ERP antigo (23 out., ela: «no figma coloca tudo available»): consulta com os números das encomendas e das receções do protótipo; o que ainda não existe diz-se na nota.';
-export const DESCRICAO_MENU_ANTIGO = 'Os itens do menu Compras do ERP antigo (agendamento, guias, faturas, créditos, verificação e os mapas), cada um num ecrã de consulta.';
+export const DESCRICAO_MENU_ANTIGO = 'Os itens do menu Compras do ERP antigo (guias, faturas, créditos, verificação e os mapas), cada um num ecrã de consulta.';
 export function ecrasMenuAntigo(): Ecra<IdErp>[] {
+  /* os números ficam os de 23 out. (o 40 e o 41 eram o Agendamento e as Encomendas especiais) */
   return MENU_ANTIGO.flatMap((id, i): Ecra<IdErp>[] => {
     /* Artigos/Compras Automático tem ecrã próprio (o briefing de 23 out.) */
-    if (id === 'mapas-automatico') return ecrasAutomatico(String(40 + i));
-    const t: Tabela = { ...D[id], id: `cm-${id}`, num: String(40 + i), caminho: 'Compras' };
+    if (id === 'mapas-automatico') return ecrasAutomatico(String(42 + i));
+    const t: Tabela = { ...D[id], id: `cm-${id}`, num: String(42 + i), caminho: 'Compras' };
     const base: Ecra<IdErp> = { id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] };
     /* Comparativo por fornecedor (variação anual): a v2 do briefing de 23 out., com os seus estados */
     const dim = ({ 'comp-forn-var': 'forn', 'comp-geral-var': 'geral', 'comp-artigo-var': 'artigo', 'comp-familia-var': 'familia', 'analise-artigo': 'analise' } as const)[id as string];

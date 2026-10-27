@@ -4,7 +4,8 @@
    (cm-<id>). Fica num ficheiro sem dependências para espaco.ts o poder ler sem ciclos.
    ========================================================= */
 export const MENU_ANTIGO = [
-  'compras-agendamento', 'compras-especiais', 'compras-guias-entrada', 'compras-guias-transporte', 'compras-devolucoes',
+  /* 27 out.: o Agendamento e as Encomendas especiais de clientes passaram a vistas das Encomendas (v4) */
+  'compras-guias-entrada', 'compras-guias-transporte', 'compras-devolucoes',
   'compras-faturas', 'compras-notas-credito', 'compras-pendentes', 'compras-verificacao',
   'mapas-tot-enc', 'mapas-det-enc', 'mapas-tot-ge', 'mapas-det-ge', 'mapas-recap',
   'analise-artigo', 'analise-artigo-forn', 'analise-familia', 'analise-familia-forn',
