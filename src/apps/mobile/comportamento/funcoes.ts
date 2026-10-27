@@ -62,6 +62,11 @@ export function iniciar(): void {
     const tp = t.closest?.<HTMLElement>('.gpi [data-gi-tipo]'); if (tp && !editando()) { const r = tp.closest('.gpi')!; r.querySelectorAll('[data-gi-tipo]').forEach((x) => x.setAttribute('aria-pressed', String(x === tp))); filtrarTarefas(r); }
   }, true);
   document.addEventListener('change', (ev) => { const s = (ev.target as Element).closest?.('.gpi [data-gi-quem]'); if (s) filtrarTarefas(s.closest('.gpi')!); });
+  /* o select do estado (61 · Inventário): mostra o painel escolhido da mesma página */
+  document.addEventListener('change', (ev) => {
+    const s = (ev.target as Element).closest?.<HTMLSelectElement>('.gpi [data-gi-sel]'); if (!s || editando()) return;
+    s.closest('.gpi')!.querySelectorAll<HTMLElement>('[data-gi-painel]').forEach((p) => { p.hidden = p.dataset.giPainel !== s.value; });
+  });
   document.addEventListener('romafe:versao', () => requestAnimationFrame(barraChegou));
   /* os separadores das páginas v2 (Inventário e Arrumação do gestor): mostram o painel da mesma página */
   document.addEventListener('click', (ev) => {

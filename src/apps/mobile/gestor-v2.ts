@@ -18,7 +18,7 @@ import type { Ecra } from '../../comum/tipos';
 import { ecra, acao, sec, aviso, nota, prog, posicao, h2, L } from './inventario-v2';
 import { INVENTARIOS } from './gestor';
 import { CAIXA } from './cena';
-import { RESUMO_ARRUMACAO, cenaArrumacao } from './arrumacao';
+import { RESUMO_ARRUMACAO } from './arrumacao';
 import check from 'lucide-static/icons/check.svg?raw';
 import triangle from 'lucide-static/icons/triangle-alert.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
@@ -63,7 +63,7 @@ export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: strin
       ${faixa([['Em curso', 1], ['Por validar', 1, 'aviso'], ['Divergências', 2, 'erro']])}
     </button>
     ${ARRUMACAO_ATIVA ? `    <button type="button" class="gi-mod gi-mod--arr" data-ir="arr-inicio" aria-label="Abrir a Arrumação">
-      <span class="gi-mod__cab"><span class="gi-mod__ic gi-mod__ic--arr">${cenaArrumacao(true)}</span><b>Arrumação</b>${L(arrowRight, 'gi-seta')}</span>
+      <span class="gi-mod__cab"><b>Arrumação</b>${L(arrowRight, 'gi-seta')}</span>
       ${faixa([['Por arrumar', RESUMO_ARRUMACAO.porArrumar], ['Em curso', RESUMO_ARRUMACAO.emCurso], ['Problemas', RESUMO_ARRUMACAO.problemas, 'erro']])}
     </button>` : ''}
   `, { titulo: 'Início', ...G, barra });
@@ -79,18 +79,25 @@ const TAREFAS: Record<string, [string, string, number, number][]> = {
 };
 const PROXIMA: Record<string, [string, string, string]> = { curso: ['Acompanhar', 'gestor-acompanhar', list], planeada: ['Atribuir', 'gestor-atribuir', userPlus], submetida: ['Validar', 'gestor-validar', shieldCheck], concluida: ['Ver no histórico', 'gestor-historico', history] };
 const ROTULO: Record<string, [string, string]> = { curso: ['Em curso', 'curso'], planeada: ['Por iniciar', 'planeada'], submetida: ['Por validar', 'validar'], concluida: ['Concluído', 'ok'] };
-export function inventarioV2(barra?: string): string {
-  const grupos: [string, string, string[]][] = [['curso', 'Em curso', ['curso', 'planeada']], ['validar', 'Por validar', ['submetida']], ['concluidos', 'Concluídos', ['concluida']]];
-  const cartao = (i: number) => { const v = INVENTARIOS[i], [t, k] = ROTULO[v.estado], [pt, pir, pic] = PROXIMA[v.estado], ts = TAREFAS[v.ref] ?? [];
-    return `<details class="gi-exp"${i === 0 ? ' open' : ''}><summary class="gi-exp__s"><span class="gi-exp__topo"><b>${v.ref}</b><span class="gp-tag gp-tag--${k}">${t}</span></span>
+/** As variantes do 61 para os estados (27 out., ela: «faz todos os possíveis estados do screen»). */
+export interface OInv { sep?: 'curso' | 'planeada' | 'validar' | 'concluidos'; fechados?: boolean; vazio?: boolean; semCriar?: boolean; aviso?: string }
+export function inventarioV2(barra?: string, o: OInv = {}): string {
+  /* 27 out. (ela: «select»): o estado escolhe-se num select, e não em separadores que saíam da tela; os números estão na faixa */
+  const grupos: [NonNullable<OInv['sep']>, string, string[]][] = [['curso', 'Em curso', ['curso']], ['planeada', 'Por iniciar', ['planeada']], ['validar', 'Por validar', ['submetida']], ['concluidos', 'Concluídos', ['concluida']]];
+  const sel = o.sep ?? 'curso';
+  const cartao = (i: number, aberto: boolean) => { const v = INVENTARIOS[i], [t, k] = ROTULO[v.estado], [pt, pir, pic] = PROXIMA[v.estado], ts = TAREFAS[v.ref] ?? [];
+    return `<details class="gi-exp"${aberto ? ' open' : ''}><summary class="gi-exp__s"><span class="gi-exp__topo"><b>${v.ref}</b><span class="gp-tag gp-tag--${k}">${t}</span></span>
       <small>${v.tipo} · ${v.area}</small>${v.total ? prog(v.feitas, v.total) : ''}<span class="gi-exp__quem">${L(userRound)}${v.quem || 'Sem operador'}${L(chevronDown, 'gi-exp__seta')}</span></summary>
-      <div class="gi-exp__c">${ts.length ? `<ul class="gi-secoes" role="list">${ts.map(([s, q, f, n]) => `<li class="gi-secao ${f === n ? 'is-feita' : 'is-atual'}"><span><b>${s}</b><small>${f} de ${n} posições</small></span><span class="gi-secao__quem"><i class="gp-av">${q.split(' ').map((p) => p[0]).join('')}</i>${q}</span></li>`).join('')}</ul>` : `<p class="gp-nota">Ainda sem tarefas: atribua quem conta.</p>`}
+      <div class="gi-exp__c">${ts.length ? `<ul class="gi-secoes" role="list">${ts.map(([s, q, f, n]) => `<li class="gi-secao ${f === n ? 'is-feita' : 'is-atual'}"><span><b>${s}</b><small>${f} de ${n} posições</small></span><span class="gi-secao__quem"><i class="gp-av">${q.split(' ').map((p) => p[0]).join('')}</i>${q}</span></li>`).join('')}</ul>` : `<p class="gp-nota">Ainda sem quem conte.</p>`}
         <button type="button" class="gp-btn gp-btn--acao" data-ir="${pir}">${L(pic)}<span>${pt}</span></button></div></details>`; };
+  const painel = (k: string, es: string[]) => { const xs = o.vazio && k === sel ? [] : INVENTARIOS.map((v, j) => es.includes(v.estado) ? j : -1).filter((j) => j >= 0);
+    return xs.length ? xs.map((j, n) => cartao(j, !o.fechados && n === 0)).join('') : `<p class="gp-vazio">${L(check)}Nenhum inventário ${grupos.find((g) => g[0] === k)![1].toLowerCase()}.</p>`; };
   return ecra(`<div class="gi-acomp-cab"><h1 class="gp-titulo">Inventário</h1></div>
+    ${o.aviso ?? ''}
     ${faixa([['Em curso', 1], ['Por validar', 1, 'aviso'], ['Divergências', 2, 'erro']])}
-    ${acao('Novo inventário', plus, ' data-ir="gestor-inv-novo"')}
-    <div class="gp-filtros" role="tablist" aria-label="Estado">${grupos.map(([k, t, es], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-gi-sep="${k}">${t} <span>${INVENTARIOS.filter((v) => es.includes(v.estado)).length}</span></button>`).join('')}</div>
-    ${grupos.map(([k, , es], i) => `<div class="gi-sep" data-gi-painel="${k}"${i ? ' hidden' : ''}>${INVENTARIOS.map((v, j) => es.includes(v.estado) ? cartao(j) : '').join('')}</div>`).join('')}
+    ${o.semCriar ? `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande" disabled aria-describedby="gi-sem-criar">${L(lock)}<span>Novo inventário</span></button><p class="gi-porque" id="gi-sem-criar">A sua conta só consulta: criar é do gestor com essa permissão.</p>` : acao('Novo inventário', plus, ' data-ir="gestor-inv-novo"')}
+    <label class="gp-campo gi-sel"><span>Mostrar</span><select data-gi-sel aria-label="Mostrar os inventários">${grupos.map(([k, t]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+    ${grupos.map(([k, , es]) => `<div class="gi-sep" data-gi-painel="${k}"${k === sel ? '' : ' hidden'}>${painel(k, es)}</div>`).join('')}
     <button type="button" class="gp-ligacao" data-ir="inv-divergencias">${L(triangle)}Rever as 2 divergências</button>`,
   { voltar: barra ? undefined : 'gestor-inicio', titulo: 'Inventário', ...G, barra });
 }

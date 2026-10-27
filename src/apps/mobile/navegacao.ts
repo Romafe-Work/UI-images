@@ -26,7 +26,7 @@ import { arrumacaoInicio, RESUMO_ARRUMACAO } from './arrumacao';
 import { inicioOperador } from './inventario-completo';
 import { paginaSemInventario } from './inventario-estados';
 import { INVENTARIOS, camadaAbertura, type CenarioAbertura } from './gestor';
-import { carregar as eCarregar, semRede as eSemRede, servidor as eServidor, sessao as eSessao } from './inventario-estados';
+import { carregar as eCarregar, semRede as eSemRede, servidor as eServidor, sessao as eSessao, semPermissao as eSemPermissao, vazio as eVazio } from './inventario-estados';
 import { INV, POS } from './inventario';
 import home from 'lucide-static/icons/house.svg?raw';
 import listTodo from 'lucide-static/icons/list-todo.svg?raw';
@@ -54,20 +54,23 @@ import lock from 'lucide-static/icons/lock.svg?raw';
 import repeat from 'lucide-static/icons/repeat.svg?raw';
 import userRound from 'lucide-static/icons/user-round.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
+import inboxIc from 'lucide-static/icons/inbox.svg?raw';
 
 /* ---------- o menu da barra, como viria do menu central ---------- */
 type Funcao = 'gestor' | 'arrumacao' | 'separacao' | 'expedicao';
 interface Destino { id: string; funcao: Funcao; rotulo: string; icone: string; ecra: string; ordem: number; destaque?: boolean; ativo: boolean; gesto?: 'ler' | 'caixa' | 'tarefas' }
 const ICONES: Record<string, string> = { inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
+/** 27 out. (ela: «para já remove as tarefas»): as Tarefas saem da barra do Gestor e da Arrumação; os ecrãs ficam no editor. */
+export const TAREFAS_ATIVAS = false;
 export const MENU_BARRA: Destino[] = [
   { id: 'inicio', funcao: 'gestor', rotulo: 'Início', icone: 'inicio', ecra: 'gestor-inicio', ordem: 10, ativo: true },
   /* 27 out. (ela: «remove o bg das tarefas»): sem o quadrado laranja; fica como os outros destinos */
-  { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
+  { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
   { id: 'inventario', funcao: 'gestor', rotulo: 'Inventário', icone: 'inventario', ecra: 'gestor-inventario', ordem: 30, ativo: true, gesto: 'ler' },
   { id: 'arrumacao', funcao: 'gestor', rotulo: 'Arrumação', icone: 'arrumacao', ecra: 'arr-inicio', ordem: 40, ativo: ARRUMACAO_ATIVA, gesto: 'caixa' },
   { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-inicio', ordem: 10, ativo: true },
-  { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
+  { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
   { id: 'ler', funcao: 'arrumacao', rotulo: 'Ler', icone: 'ler', ecra: 'op-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
   { id: 'historico', funcao: 'arrumacao', rotulo: 'Histórico', icone: 'historico', ecra: 'op-historico', ordem: 40, ativo: true },
   { id: 'mais', funcao: 'arrumacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais', ordem: 90, ativo: true },
@@ -228,6 +231,8 @@ export function ecrasNavegacao(): Ecra<string>[] {
     e('op-mais-separacao', '68.1 · Mais (Separação)', 'Inventário', 'A Separação só tem a conta: os módulos dela ainda não estão na Pick.', maisOperador('separacao'), 'op-mais'),
     e('op-mais-expedicao', '68.2 · Mais (Expedição)', 'Inventário', 'A Expedição só tem a conta.', maisOperador('expedicao'), 'op-mais'),
     ...estadosNav().map(([id, de, nome, objetivo, html, v]) => e(id, nome, de.startsWith('gestor') ? 'Gestor' : 'Inventário', objetivo, html, de, v)),
+    /* os estados novos do 61 (os que já existiam ganham a versão nova em soUltima) */
+    ...ESTADOS_INVENTARIO_GESTOR.filter(([id]) => !['gestor-inventario-carregar', 'gestor-inventario-vazio', 'gestor-inventario-erro', 'gestor-inventario-sem-rede', 'gestor-inventario-operador'].includes(id)).map(([id, nome, objetivo, html]) => e(id, nome, 'Gestor', objetivo, html(), 'gestor-inventario', 'v3')),
   ];
 }
 
@@ -261,6 +266,25 @@ export const ESTADOS_GESTOR_V3: Record<string, () => string> = {
   'gestor-sem-acesso': () => ecra(aviso('erro', lock, 'A sua conta não tem acesso à Pick', 'Peça o acesso ao administrador da sua empresa.'), GI),
   'gestor-sem-armazem': () => ecra(aviso('erro', mapPin, 'Ainda não tem um armazém atribuído', 'O administrador atribui-lhe o armazém 60 na sua conta ROMAFE.'), GI),
 };
+/* 27 out. (ela: «faz todos os possíveis estados do screen»): o 61 · Inventário, todos com a barra e o select */
+const GINV: Opcoes = { titulo: 'Inventário', gestor: true };
+const bInv = () => barra('gestor', 'inventario');
+export const ESTADOS_INVENTARIO_GESTOR: [string, string, string, () => string][] = [
+  ['gestor-inventario-carregar', '61.3 · A carregar', 'Os inventários a chegar; a faixa e a lista em esqueleto, a barra já está.', () => eCarregar({ ...GINV, barra: bInv() }, 4)],
+  ['gestor-inventario-vazio', '61.4 · Sem inventários', 'Ainda nenhum: Novo inventário.', () => eVazio({ ...GINV, barra: bInv() }, inboxIc, 'Ainda não há inventários.', 'Crie o primeiro: o âmbito, as regras e quem conta.', acao('Novo inventário', userPlus, ' data-ir="gestor-inv-novo"'))],
+  ['gestor-inventario-erro', '61.5 · Não carregou', 'O servidor não respondeu: tentar outra vez, com a referência.', () => eServidor({ ...GINV, barra: bInv() }, 'PK-2710-1B9D')],
+  ['gestor-inventario-sem-rede', '61.6 · Sem rede', 'A Pick para e espera; não mostra a lista velha como se fosse de agora.', () => eSemRede({ ...GINV, barra: bInv() })],
+  ['gestor-inventario-operador', '61.7 · Aberto pela Arrumação', 'Criar, atribuir e validar é do gestor: a Arrumação vai para o seu Inventário.', () => eSemPermissao({ titulo: 'Inventário', funcao: 'Arrumação', barra: barra('arrumacao', 'inicio') }, 'Criar, atribuir e validar inventários é do gestor. O seu Inventário é o de contar.', 'op-inicio')],
+  ['gestor-inventario-iniciar', '61.8 · Por iniciar', 'O select em «Por iniciar»: o INV-2026-015, à espera de quem conte.', () => inventarioV2(bInv(), { sep: 'planeada' })],
+  ['gestor-inventario-validar', '61.9 · Por validar', 'O select em «Por validar»: o INV-2026-011 submetido, com Validar.', () => inventarioV2(bInv(), { sep: 'validar' })],
+  ['gestor-inventario-concluidos', '61.10 · Concluídos', 'O select em «Concluídos»: o INV-2026-009, com o histórico.', () => inventarioV2(bInv(), { sep: 'concluidos' })],
+  ['gestor-inventario-fechados', '61.11 · Cartões fechados', 'Nenhum cartão aberto: tocar num abre-o no sítio, com as tarefas e a ação.', () => inventarioV2(bInv(), { fechados: true })],
+  ['gestor-inventario-grupo-vazio', '61.12 · Nada neste estado', 'O estado escolhido não tem inventários: diz-se, sem lista vazia.', () => inventarioV2(bInv(), { sep: 'validar', vazio: true })],
+  ['gestor-inventario-so-consulta', '61.13 · Só consulta', 'A conta vê os inventários mas não os cria: Novo inventário desligado, com o porquê.', () => inventarioV2(bInv(), { semCriar: true })],
+  ['gestor-inventario-mudou', '61.14 · Mudou entretanto', 'Outro gestor validou um inventário enquanto se via a lista: diz-se quem e quando, e a lista já está atualizada.', () => inventarioV2(bInv(), { aviso: aviso('info', refresh, 'A lista foi atualizada', 'O Luís Costa validou o INV-2026-010 às 11:52. Passou para Concluídos.') })],
+  ['gestor-inventario-sessao', '61.15 · Sessão terminada', 'Entrar outra vez; volta-se a esta lista.', () => eSessao(GINV)],
+];
+
 /** Só a última versão de cada ecrã; os estados do Início do Gestor na v3; a abertura por cima da v3. */
 export function soUltima<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const ABERTURA: Record<string, CenarioAbertura> = { abertura: 'normal', 'abertura-pk-sem-rede': 'sem-rede', 'abertura-pk-sem-acesso': 'sem-acesso' };
@@ -268,6 +292,7 @@ export function soUltima<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
     const ultima = e.versoes[e.versoes.length - 1];
     if (ABERTURA[e.id]) return { ...e, versoes: [{ ...ultima, id: 'v3', nota: `${ultima.nota} — por cima do Início do Gestor v3, com a barra (27 out.).`, html: aberturaV3(ABERTURA[e.id]) }] as Ecra<T>['versoes'] };
     if (ESTADOS_GESTOR_V3[e.id]) return { ...e, versoes: [{ id: 'v3', nota: NOTA, html: ESTADOS_GESTOR_V3[e.id]() }] as Ecra<T>['versoes'] };
+    const ei = ESTADOS_INVENTARIO_GESTOR.find(([id]) => id === e.id); if (ei) return { ...e, nome: ei[1], objetivo: ei[2], versoes: [{ id: 'v3', nota: NOTA, html: ei[3]() }] as Ecra<T>['versoes'] };
     return { ...e, versoes: [ultima] };
   });
 }
