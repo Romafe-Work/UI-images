@@ -15,6 +15,8 @@ import './css/navegacao.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
+/* o roteiro da demonstração com o rato regista-se antes de a página montar (demo.ts procura-o) */
+import './roteiro';
 import { iniciar as entrar } from '../../comum/entrar/comportamento';
 import { mobile } from './app';
 import { iniciar as inventario } from './comportamento/inventario';

@@ -189,3 +189,18 @@ body.demo::after { content: ''; display: block; height: 120px; }
   .demo-barra__anim > span, .demo-barra__dica { display: none; }
   .demo-barra__onde { min-width: 0; flex-basis: 100%; }
 }
+
+/* =========================================================
+   27 out. — a demonstração com o rato (demo-rato.ts): o rato desenhado, o clique e a legenda
+   ========================================================= */
+.demo-rato { position: fixed; inset: 0 auto auto 0; margin: 0; padding: 0; border: 0; background: none; overflow: visible; width: 30px; height: 30px; pointer-events: none; z-index: 2147483647; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35)); }
+.demo-rato > svg { position: absolute; left: -4px; top: -2px; }
+.demo-rato__clique { position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; border-radius: 50%; border: 3px solid #f58214; opacity: 0; }
+.demo-rato.is-clique .demo-rato__clique { animation: demo-clique .45s ease-out 1; }
+@keyframes demo-clique { 0% { opacity: .9; transform: scale(.3); } 100% { opacity: 0; transform: scale(1.6); } }
+.demo-alvo { outline: 3px solid #f58214 !important; outline-offset: 2px; }
+.demo-legenda { position: fixed; inset: auto auto 108px 50%; transform: translateX(-50%); width: min(92vw, 380px); margin: 0; padding: 12px 14px; border: 0; border-radius: var(--r-md); background: #102333; color: #f5f8fa; font-family: var(--f-base); box-shadow: 0 8px 24px rgba(0, 0, 0, .3); z-index: 2147483646; }
+.demo-legenda__passo { margin: 0 0 4px; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #f58214; }
+.demo-legenda__t { margin: 0; font-size: 15px; line-height: 1.4; }
+.demo-legenda__parar { margin-top: 10px; min-height: 36px; padding: 0 12px; border: 1px solid rgba(255, 255, 255, .3); border-radius: var(--r-md); background: none; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+body.demo-a-tocar .ecra { cursor: default; }
