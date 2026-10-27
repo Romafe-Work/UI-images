@@ -79,7 +79,11 @@ export interface CfgDoc {
   /** 26 out. (ela: «faz como na Lista de Faltas, a cena das windows»): os detalhes abrem numa janela flutuante por
    *  documento, em vez do painel por baixo da lista; `estados` são os cenários do editor que já a mostram aberta */
   janelas?: { titulo: string; icone: string; estados: string[] };
+  /** 27 out. (ela: «coloca isto num só ecrã»): outras vistas no mesmo ecrã, ao lado da lista dos documentos (a primeira,
+   *  `docs`, é a lista); cada uma desenha a sua tabela com os filtros e a pesquisa de cima, e abre a janela do documento */
+  vistas?: Vista[];
 }
+export interface Vista { k: string; t: string; ic: string; tecla: string; titulo: string; tabela?(r: HTMLElement, e: EstDoc): string; resumo?(e: EstDoc): string }
 export const CFGS = new Map<string, CfgDoc>();
 export const registar = (c: CfgDoc) => { CFGS.set(c.k, c); return c; };
 
@@ -148,8 +152,10 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
   </section>
 
   <section class="lf2-lista dv2-lista" aria-labelledby="${id('lista-t')}">
-    <div class="lf2-lista-cab"><h2 id="${id('lista-t')}">${esc(c.titulo)}</h2><p class="lf2-resumo" data-dv2-resumo></p></div>
+    ${c.vistas ? `<div class="dv2-vistas" role="tablist" aria-label="Ver">${c.vistas.map((v, i) => `<button type="button" role="tab" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-dv2-vista="${v.k}" aria-keyshortcuts="${v.tecla}" title="${esc(v.t)} (${v.tecla.replace('+', ' ')})">${L(v.ic)}<span>${esc(v.t)}</span><small data-dv2-vista-n="${v.k}"></small></button>`).join('')}</div>` : ''}
+    <div class="lf2-lista-cab"><h2 id="${id('lista-t')}" data-dv2-lista-t>${esc(c.titulo)}</h2><p class="lf2-resumo" data-dv2-resumo></p></div>
     <div class="lf2-grelha" data-dv2-grelha></div>
+    ${c.vistas ? '<div class="lf2-grelha dv2-vista-g" data-dv2-vista-g hidden></div>' : ''}
   </section>
 
   ${c.janelas ? '<div class="lf2-janelas" data-dv2-janelas data-por-cima></div>' : `  <div class="lf2-div" role="separator" aria-orientation="horizontal" aria-label="Altura da lista (↑ ↓)" aria-valuemin="200" aria-valuemax="900" aria-valuenow="340" tabindex="0" data-dv2-div>${L(gripH)}</div>

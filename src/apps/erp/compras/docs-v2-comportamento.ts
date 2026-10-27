@@ -155,8 +155,25 @@ const BT = (acao: string, ic: string, t: string, cls = '') => `<button type="but
 /* 26 out. (ela: «não quero dois scrolls!»): a grelha já não rola sozinha, por isso desenha todas as linhas */
 const VLIM = Number.POSITIVE_INFINITY;
 const vis = (c: CfgDoc, e: EstDoc) => e.cols.filter((k) => !e.ocultas.has(k)).map((k) => colDe(c, k));
+/** A vista de agora (com `vistas` na configuração); `docs` é a lista dos documentos. */
+export const vistaDe = (e: EstDoc) => String(e.extra.vista ?? 'docs');
+function vistas(r: HTMLElement, e: EstDoc): boolean {
+  const c = cfgDe(r); if (!c.vistas) return false;
+  const k = vistaDe(e), v = c.vistas.find((x) => x.k === k) ?? c.vistas[0], ok = e.fase === 'ok' || e.fase === 'atualizar';
+  r.querySelectorAll<HTMLElement>('[data-dv2-vista]').forEach((b) => { const s = b.dataset.dv2Vista === v.k; b.setAttribute('aria-selected', String(s)); b.tabIndex = s ? 0 : -1; });
+  c.vistas.forEach((x) => { const n = r.querySelector<HTMLElement>(`[data-dv2-vista-n="${x.k}"]`); if (n) n.textContent = ok && x.resumo ? (x.resumo(e).replace(/<[^>]+>/g, '').match(/\d+/)?.[0] ?? '') : ''; });
+  const t = r.querySelector<HTMLElement>('[data-dv2-lista-t]'); if (t) t.textContent = v.titulo;
+  const g = r.querySelector<HTMLElement>('[data-dv2-grelha]')!, vg = r.querySelector<HTMLElement>('[data-dv2-vista-g]')!;
+  const outra = v.k !== 'docs' && !!v.tabela && ok;
+  g.hidden = outra; vg.hidden = !outra; r.dataset.dv2VistaAtual = v.k;
+  if (outra) vg.innerHTML = v.tabela!(r, e);
+  /* nas outras vistas a pesquisa procura em toda a linha */
+  const q = r.querySelector<HTMLInputElement>('[data-dv2-q]'); if (q) { q.dataset.dv2Ph ??= q.placeholder; q.placeholder = outra ? 'Procura em toda a linha: encomenda, fornecedor, artigo, cliente…' : q.dataset.dv2Ph; }
+  return outra;
+}
 export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
   const c = cfgDe(r), g = r.querySelector<HTMLElement>('[data-dv2-grelha]')!;
+  if (vistas(r, e)) return;
   r.classList.toggle('is-compacta', e.dens === 'compacta'); r.classList.toggle('is-ocupada', e.fase === 'atualizar');
   if (e.fase === 'carregar') { g.innerHTML = `<div class="lf2-esq" aria-label="A carregar">${Array.from({ length: 9 }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div>`; return; }
   if (e.fase === 'erro') {
@@ -197,14 +214,14 @@ export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
   });
 }
 function resumo(r: HTMLElement, e: EstDoc): void {
-  const p = r.querySelector<HTMLElement>('[data-dv2-resumo]')!;
-  p.innerHTML = e.fase === 'ok' || e.fase === 'atualizar' ? cfgDe(r).resumo(filtradas(r, e)) : '';
+  const p = r.querySelector<HTMLElement>('[data-dv2-resumo]')!, v = cfgDe(r).vistas?.find((x) => x.k === vistaDe(e));
+  p.innerHTML = e.fase === 'ok' || e.fase === 'atualizar' ? (v?.resumo && v.k !== 'docs' ? v.resumo(e) : cfgDe(r).resumo(filtradas(r, e))) : '';
 }
 function estado(r: HTMLElement, e: EstDoc): void {
   const c = cfgDe(r), ok = e.fase === 'ok' || e.fase === 'atualizar', ls = ok ? filtradas(r, e) : [], todas = ok && !e.vazia ? c.linhas(e).length : 0, m = MODOS.find((x) => x.k === e.modo)!, d = ativoDe(r, e);
   const fase = e.fase === 'carregar' ? 'A carregar…' : e.fase === 'atualizar' ? 'A atualizar…' : e.fase === 'erro' ? 'Sem dados' : e.ocupado ? String(e.extra.ocupadoTexto ?? 'A gravar…') : e.ficha?.sujo ? 'Alterações por gravar' : 'Pronto';
   const livre = e.fase === 'ok' && !e.ocupado;
-  r.querySelector<HTMLElement>('[data-dv2-estado]')!.innerHTML = `<span>${c.um[0].toUpperCase()}${c.um.slice(1)}s <b>${nf(ls.length)}</b>${todas && todas !== ls.length ? ` de ${nf(todas)}` : ''}</span><span>Escolhidos <b>${nf(e.sel.size)}</b></span><span>Pesquisar por <b>${esc(m.t)}</b> · ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}</span><span>Utilizador <b>${esc(PERFIS[e.perfil].pessoa)}</b></span><span class="ak-estado-f is-${livre && !e.ficha?.sujo ? 'ok' : 'a-gerar'}">${livre ? '' : L(loader)}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
+  r.querySelector<HTMLElement>('[data-dv2-estado]')!.innerHTML = `<span>${c.um[0].toUpperCase()}${c.um.slice(1)}s <b>${nf(ls.length)}</b>${todas && todas !== ls.length ? ` de ${nf(todas)}` : ''}</span><span>Escolhidos <b>${nf(e.sel.size)}</b></span><span>${c.vistas && vistaDe(e) !== 'docs' ? 'Procura em <b>toda a linha</b>' : `Pesquisar por <b>${esc(m.t)}</b> · ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`}</span><span>Utilizador <b>${esc(PERFIS[e.perfil].pessoa)}</b></span><span class="ak-estado-f is-${livre && !e.ficha?.sujo ? 'ok' : 'a-gerar'}">${livre ? '' : L(loader)}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
   const porque: Record<string, string> = {
     novo: e.ficha ? 'Já há uma ficha aberta.' : c.porque.novo(e),
     editar: e.ficha?.modo === 'editar' ? (comJanelas(r) ? `Já estás a editar ${e.ficha.ref} numa janela: grava ou fecha primeiro.` : 'A ficha já está em edição.') : c.porque.editar(e, d),
@@ -475,6 +492,11 @@ export function atualizar(r: HTMLElement, e: EstDoc): void {
   e.fase = 'atualizar'; grelha(r, e); estado(r, e);
   requestAnimationFrame(() => requestAnimationFrame(() => { e.fase = 'ok'; e.erro = undefined; tudo(r, e, true); toast(r, 'Lista atualizada.'); }));
 }
+function mudarVista(r: HTMLElement, e: EstDoc, k: string): void {
+  if (vistaDe(e) === k) return;
+  e.extra.vista = k; grelha(r, e, true); resumo(r, e); estado(r, e);
+  r.querySelector<HTMLElement>(`[data-dv2-vista="${k}"]`)?.focus({ preventScroll: true });
+}
 function mudarModo(r: HTMLElement, e: EstDoc, k: Modo): void {
   if (e.modo !== k) { e.modo = k; e.ordem = []; e.q = ''; filtrosNaPagina(r, e); const b = r.querySelector<HTMLElement>(`[data-dv2-modo="${k}"]`); if (b && !quieto()) b.animate([{ transform: 'scale(.94)' }, { transform: 'none' }], { duration: 160, easing: 'cubic-bezier(.22, 1, .36, 1)' }); grelha(r, e, true); resumo(r, e); inspetor(r, e); estado(r, e); guardarVista(r, e); }
   const q = r.querySelector<HTMLInputElement>('[data-dv2-q]'); q?.focus();
@@ -486,6 +508,9 @@ function mudarComp(r: HTMLElement, e: EstDoc, k: 'inicio' | 'contem'): void { e.
 function armar(r: HTMLElement): void {
   if (estados.has(r) || !CFGS.get(r.dataset.dv2!)) return;
   const c = cfgDe(r), e = de(r), cen = r.dataset.dv2Cenario ?? 'normal', aVista = !!r.closest('.ecra:not([hidden]) > .versao:not([hidden])');
+  /* outro item do menu que abre este mesmo ecrã (Agendamento, Clientes — encomendas especiais): vem na vista dele */
+  const modo = new URLSearchParams(location.hash.slice(1)).get('modo'); if (c.vistas?.some((v) => v.k === modo)) e.extra.vista = modo;
+  if (cen.startsWith('vista-')) e.extra.vista = cen.slice(6);
   if (cen === 'normal' && !e.editor) {
     const q = repor(r, e);
     /* outro ecrã pediu este documento (abrirDoc grava a referência na sessão): fica escolhido */
@@ -596,6 +621,8 @@ export function iniciar(): void {
         default: return;
       }
     }
+    if ((b = t.closest('[data-dv2-vista]'))) { mudarVista(r, e, b.dataset.dv2Vista!); return; }
+    if ((b = t.closest('[data-dv2-vjan]'))) { const [id, tab] = b.dataset.dv2Vjan!.split('|'); if (!docDe(r, e, id)) { toast(r, b.dataset.dv2Vsem || 'Sem documento.'); return; } escolher(r, e, id, false); abrirJanelaDoc(r, e, id, tab || undefined); return; }
     if ((b = t.closest('[data-dv2-jan-acao]'))) { acaoJanelaDoc(r, e, b.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!, b.dataset.dv2JanAcao!); return; }
     if ((b = t.closest('[data-dv2-jan-tab]'))) { const j = jds(e).find((x) => x.id === b!.closest<HTMLElement>('[data-dv2-jan]')?.dataset.dv2Jan); if (j) { j.tab = b.dataset.dv2JanTab!; refrescarJanelas(r, e); r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-tab="${j.tab}"]`)?.focus(); } return; }
     if ((b = t.closest('tr[data-dv2-id]')) && !t.closest('input, a, button')) { escolher(r, e, b.dataset.dv2Id!, !comJanelas(r)); if (comJanelas(r)) abrirJanelaDoc(r, e, b.dataset.dv2Id!); }
@@ -634,6 +661,10 @@ export function iniciar(): void {
       return;
     }
     const tecla = `${ev.ctrlKey ? 'Ctrl+' : ''}${ev.shiftKey ? 'Shift+' : ''}${ev.key}`;
+    if (c.vistas && ev.altKey && !ev.ctrlKey) { const v = c.vistas.find((x) => x.tecla === `Alt+${ev.key}`); if (v) { ev.preventDefault(); if (!e.ficha || e.ficha.modo === 'editar') mudarVista(r, e, v.k); return; } }
+    if (t.matches('[data-dv2-vista]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const ks = c.vistas!.map((x) => x.k), i = ks.indexOf(t.dataset.dv2Vista!); mudarVista(r, e, ks[(i + (ev.key === 'ArrowRight' ? 1 : ks.length - 1)) % ks.length]); return; }
+    if (t.matches('[data-dv2-vjan]') && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); t.click(); return; }
+    if (t.matches('[data-dv2-vjan]') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) { ev.preventDefault(); const ls = [...r.querySelectorAll<HTMLElement>('[data-dv2-vista-g] [data-dv2-vjan]')], i = ls.indexOf(t); ls[Math.max(0, Math.min(ls.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]?.focus(); return; }
     if (ev.key === 'Escape') {
       if (fecharMenus(r)) { ev.preventDefault(); return; }
       if (e.ficha) { ev.preventDefault(); fecharFicha(r, e); return; }

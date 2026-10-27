@@ -12,6 +12,7 @@ import { versaoInicioV7, versaoEstadoVivo, estadosVivo } from './espaco-vivo';
 import { ecrasFaltasV2 } from './compras/faltas-v2';
 import { comOrcamentosV2 } from './compras/orcamentos-v2';
 import { comEncomendasV3 } from './compras/encomendas-v3';
+import { comEncomendasV4 } from './compras/encomendas-v4';
 import { comFaturasV2 } from './compras/faturas-v2';
 import { comRecapV2 } from './compras/recap-v2';
 import { comEstadosCp } from './compras/estados-cp';
@@ -55,5 +56,5 @@ export const erp: App<IdErp> = {
   /* 22 out. 2026: o login é o comum a todas as apps (ROMAFE Identity): saem os ecrãs de entrar do ERP (01–04, as
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
-  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comEncomendasV3(comV2(ecrasCompras())), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comRecapV2(comFaturasV2(ecrasMenuAntigo())), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()],
+  ecras: [soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comEncomendasV4(comEncomendasV3(comV2(ecrasCompras()))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comRecapV2(comFaturasV2(ecrasMenuAntigo())), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()],
 };

@@ -260,3 +260,25 @@
 .dv2-jan .dv2-ficha { margin: 0; }
 .dv2-jan .dv2-ficha-c { padding: 12px 14px 14px; border: 0; border-radius: 0; background: none; box-shadow: none; }
 .dv2-jan .dv2-ficha-g { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+/* 27 out. (ela: «coloca isto num só ecrã»): as vistas do mesmo ecrã (Encomendas · Agendamento · Pedidos de clientes) */
+.dv2-vistas { display: flex; flex-wrap: wrap; gap: 2px; margin: 10px 12px 0; padding: 3px; width: fit-content; max-width: calc(100% - 24px); border: 1px solid var(--h-borda); border-radius: 8px; background: var(--h-sup-2); }
+.dv2-vistas button { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background-color .1s ease, color .1s ease; }
+.dv2-vistas button svg { width: 16px; height: 16px; color: rgb(0, 99, 170); }
+.dv2-vistas button:hover { color: var(--h-tinta); background: color-mix(in srgb, var(--h-azul) 7%, transparent); }
+.dv2-vistas button[aria-selected="true"] { background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 1px 2px rgba(10, 20, 30, .12), inset 0 -2px 0 var(--h-laranja); }
+.dv2-vistas button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.dv2-vistas small:not(:empty) { display: grid; place-items: center; min-width: 19px; height: 18px; padding: 0 5px; border-radius: 9px; background: color-mix(in srgb, var(--h-azul) 12%, var(--h-sup)); font-size: 11px; font-weight: 800; color: var(--h-tinta); }
+.dv2-vt thead th > span { display: flex; align-items: center; height: 100%; padding: 0 10px; font-size: 12px; font-weight: 700; color: var(--h-tinta-2); }
+.dv2-vt thead th.is-num > span { justify-content: flex-end; }
+.dv2-vt tbody tr[data-dv2-vjan] { cursor: pointer; }
+.dv2-vt tbody tr[data-dv2-vjan] td { transition: background-color .1s ease; }
+.dv2-vt tbody tr[data-dv2-vjan]:hover td { background: color-mix(in srgb, var(--h-azul) 5%, var(--h-sup)); }
+.dv2-vt tbody tr[data-dv2-vjan]:focus { outline: none; } .dv2-vt tbody tr[data-dv2-vjan]:focus-visible td { box-shadow: inset 0 1px 0 var(--h-azul), inset 0 -1px 0 var(--h-azul); }
+.dv2-vt tr.dv2-vt-grupo th { position: static; height: 30px; padding: 0 10px; background: var(--h-sup-2); font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-2); text-align: left; }
+.dv2-vt tr.dv2-vt-grupo small { margin-left: 6px; font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--h-tinta-3); }
+.dv2-vt-ir { display: inline-flex; align-items: center; gap: 4px; height: 24px; margin-left: 4px; padding: 0 7px; border: 1px solid var(--h-borda-forte); border-radius: 5px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.dv2-vt-ir svg { width: 13px; height: 13px; color: var(--h-laranja); }
+.dv2-vt-ir:hover { border-color: var(--h-azul); }
+/* nas outras vistas, a Série, o Estado e os modos de pesquisa (Número, Data…) são da lista das encomendas: saem */
+.dv2[data-dv2-vista-atual="agenda"] :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"]), .dv2-modos, .lf2-comp),
+.dv2[data-dv2-vista-atual="clientes"] :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"]), .dv2-modos, .lf2-comp) { display: none; }

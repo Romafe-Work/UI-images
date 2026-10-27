@@ -305,7 +305,7 @@ function passar(r: HTMLElement, x: EstDoc, a: Acao, motivo = ''): void {
 }
 
 /* ---------- registar ---------- */
-const CFG = registar({
+export const CFG = registar({
   k: 'enc', titulo: 'Encomendas a Fornecedores', sub: 'Consulta, cria e acompanha as encomendas aos fornecedores.', icone: fileText, um: 'encomenda', o: 'a',
   caminho: [['ERP', 'inicio'], ['Compras', 'compras'], ['Encomendas', '']],
   cols: COLS, verIniciais: ['numero', 'data', 'tipo', 'docForn', 'despCli', 'forn', 'fornNome', 'desc', 'estado', 'emRececao', 'fechada', 'anulado', 'moeda', 'valor'],
@@ -358,14 +358,14 @@ const CFG = registar({
 void CFG;
 /* passar por uma receção acende as linhas que ela cobriu (a ligação entre a encomenda e a receção) */
 ['mouseover', 'focusin'].forEach((t) => document.addEventListener(t, (ev) => {
-  const c = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dv2-rec]'), r = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dv2="enc"]'); if (!r) return;
+  const c = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dv2-rec]'), r = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-dv2="enc"], [data-dv2="enc4"]'); if (!r) return;
   const refs = new Set(c?.dataset.dv2Rec?.split('|') ?? []);
   r.querySelectorAll<HTMLElement>('[data-dv2-linha-ref]').forEach((li) => li.classList.toggle('is-realce', refs.has(li.dataset.dv2LinhaRef!)));
 }));
 
 /* ---------- os ecrãs ---------- */
 const NOTA = 'Encomendas a Fornecedores v3 (26 out., briefing «Gestão de Encomendas a Fornecedores V2» e o print do ERP antigo): as colunas do antigo, Pesquisar por Número/Data/Código/Descrição (F1 F2 F10 F12) com Iniciado por/Contendo (Shift+F1/F2), Série (F4), o painel (detalhes com as passagens de estado, linhas, receções, EDI, anexos), a ficha do rascunho, Anular (F8) e o EDI do antigo com as mesmas teclas — só gera ficheiros; nunca diz «enviado».';
-const ESTADOS: [string, string, string][] = [
+export const ESTADOS: [string, string, string][] = [
   ['carregar', '10.31 · A carregar', 'A lista em esqueleto; a pesquisa e os filtros já servem.'],
   ['vazia', '10.32 · Sem encomendas', 'Ainda não há encomendas: Novo (F5).'],
   ['sem-resultados', '10.33 · Pesquisa sem resultados', 'Diz em que modo se procurou e como se compara.'],
@@ -396,7 +396,7 @@ const ESTADOS: [string, string, string][] = [
   ['servidor', '10.58 · Servidor indisponível', 'O servidor das compras não respondeu: Tentar outra vez.'],
   ['restaurada', '10.59 · Área de trabalho reposta', 'Ao voltar: a pesquisa, os filtros e a encomenda escolhida como estavam.'],
 ];
-const fornecedoresDaLista = (): [string, string][] => [...new Set(encomendas().map((e) => e.forn))].map((f) => [f, nomeF(f)] as [string, string]).sort((a, b) => a[1].localeCompare(b[1], 'pt'));
+export const fornecedoresDaLista = (): [string, string][] => [...new Set(encomendas().map((e) => e.forn))].map((f) => [f, nomeF(f)] as [string, string]).sort((a, b) => a[1].localeCompare(b[1], 'pt'));
 const versao = (cen = 'normal') => ({ id: 'v3', nota: NOTA, html: paginaDoc(CFG, cen, fornecedoresDaLista()) });
 /** O 10 ganha a v3 (abre por omissão) e os estados só da v3. */
 export function comEncomendasV3(ecras: Ecra<IdErp>[]): Ecra<IdErp>[] {
