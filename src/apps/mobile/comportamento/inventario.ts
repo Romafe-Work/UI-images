@@ -51,7 +51,7 @@ export function iniciar(): void {
   document.addEventListener('click', (ev) => {
     if (editando()) return;
     const t = ev.target as Element;
-    const leitor = t.closest?.<HTMLElement>('.iv-leitor, .gi-leitor');
+    const leitor = t.closest?.<HTMLElement>('.iv-leitor, .gi-leitor, .gi-faixa-ler');
     if (leitor) {
       ev.preventDefault();
       if (leitor.classList.contains('is-parado')) { apitar(false); return; }

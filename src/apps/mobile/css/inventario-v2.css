@@ -189,3 +189,64 @@
 .gi-enche__cx { stroke: var(--g-azul-t); stroke-width: 2; fill: color-mix(in srgb, var(--g-azul) 22%, transparent); opacity: 0; animation: gi-cx 2.4s ease-out infinite; animation-delay: calc(var(--i) * 160ms); }
 @keyframes gi-cx { 0% { opacity: 0; transform: translateY(-6px); } 20%, 70% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 .gi-enche p { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; color: var(--g-tinta-2); }
+
+/* =========================================================
+   27 out. — o Inventário completo (inventario-completo.ts): 43 · Ler e contar, 57 · Início do Operador,
+   61.1 e 61.2 v2, 62 · Acompanhar, 63 · Validar e fechar, 64 · Histórico
+   ========================================================= */
+/* 43 · a faixa do estado da leitura: grande, em cima; tocar faz de tecla */
+.gi-ler-inv { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 8px; margin: 0; font-size: 12.5px; color: var(--g-tinta-2); } .gi-ler-inv b { font-family: var(--f-mono); font-size: 14px; color: var(--g-tinta); white-space: nowrap; }
+.gi-faixa-ler { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; min-height: 72px; padding: 10px 14px; overflow: hidden; border: 2px solid var(--g-borda); border-radius: 16px; background: var(--g-sup); color: var(--g-tinta); text-align: left; cursor: pointer; transition: transform .1s ease, border-color .12s ease; }
+.gi-faixa-ler:active:not(:disabled) { transform: scale(.985); } .gi-faixa-ler:disabled { cursor: default; }
+.gi-faixa-ler__ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--g-elev); }
+.gpi .gi-faixa-ler__ic svg { width: 28px; height: 28px; }
+.gi-faixa-ler b { display: block; font-family: var(--f-titulo); font-size: 19px; font-weight: 800; line-height: 1.15; } .gi-faixa-ler small { display: block; font-size: 13px; color: var(--g-tinta-2); }
+.gi-faixa-ler--pronto { border-color: var(--g-laranja); } .gi-faixa-ler--pronto .gi-faixa-ler__ic { color: var(--g-laranja); }
+.gi-faixa-ler__varre { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--g-laranja); opacity: .6; animation: gi-varre-x 1.6s ease-in-out infinite alternate; }
+@keyframes gi-varre-x { from { transform: translateX(70px); } to { transform: translateX(min(300px, 80vw)); } }
+.gi-faixa-ler--lido { border-color: var(--g-azul-t); } .gi-faixa-ler--lido .gi-faixa-ler__ic { color: var(--g-azul-t); }
+.gi-faixa-ler--ok { border-color: var(--g-ok); background: color-mix(in srgb, var(--g-ok) 14%, var(--g-sup)); } .gi-faixa-ler--ok .gi-faixa-ler__ic { color: var(--g-ok); }
+.gi-faixa-ler--aviso { border-color: var(--g-aviso); } .gi-faixa-ler--aviso .gi-faixa-ler__ic { color: var(--g-aviso); }
+.gi-faixa-ler--erro { border-color: var(--g-erro); } .gi-faixa-ler--erro .gi-faixa-ler__ic { color: var(--g-erro); }
+.gi-faixa-ler.is-mudou .gi-faixa-ler__ic { animation: gi-lido .14s ease-out 1; }
+.gi-ler-pos { display: flex; align-items: center; gap: 8px; } .gpi .gi-ler-pos > svg { width: 18px; height: 18px; color: var(--g-laranja); } .gi-ler-pos .gi-mudar { margin-left: auto; }
+.gi-artigo--vazio { border-style: dashed; } .gi-artigo--vazio .gi-artigo__ic { background: var(--g-elev); color: var(--g-tinta-3); }
+.gi-artigo--erro { border-color: color-mix(in srgb, var(--g-erro) 55%, var(--g-borda)); } .gi-artigo--erro .gi-artigo__ic { color: var(--g-erro); background: color-mix(in srgb, var(--g-erro) 14%, transparent); }
+.gi-ultimo { display: flex; align-items: center; gap: 10px; margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(0, 0, 0, .2); }
+.gpi .gi-ultimo svg { color: var(--g-ok); } .gi-ultimo span { display: grid; } .gi-ultimo small { font-size: 12px; color: var(--g-tinta-3); } .gi-ultimo b { font-family: var(--f-mono); font-size: 14px; }
+
+/* 57 · a próxima tarefa e as três contagens */
+.gi-tarefa__rot { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--g-laranja); } .gpi .gi-tarefa__rot svg { width: 17px; height: 17px; }
+.gi-tarefa__cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .gi-tarefa__cab b { font-family: var(--f-mono); font-size: 20px; }
+.gi-tres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.gi-num { display: grid; justify-items: start; gap: 2px; min-height: 64px; padding: 10px; border: 1px solid var(--g-borda); border-radius: 12px; background: var(--g-sup); color: var(--g-tinta); cursor: pointer; text-align: left; transition: transform .1s ease; }
+.gi-num:active { transform: scale(.97); } .gi-num b { font-family: var(--f-titulo); font-size: 24px; font-weight: 800; line-height: 1; } .gi-num span { font-size: 12.5px; color: var(--g-tinta-2); }
+
+/* 61.1 · o âmbito, as zonas e às cegas */
+.gi-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 0; padding: 4px; border: 1px solid var(--g-borda); border-radius: 12px; background: var(--g-sup); }
+.gi-seg legend, .gi-zonas legend { margin-bottom: 6px; padding: 0; font-size: 12.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--g-tinta-3); }
+.gi-seg label { position: relative; display: grid; place-items: center; min-height: 44px; border-radius: 9px; font-size: 14px; font-weight: 700; color: var(--g-tinta-2); cursor: pointer; }
+.gi-seg input { position: absolute; opacity: 0; } .gi-seg label:has(input:checked) { background: var(--g-elev); color: var(--g-tinta); box-shadow: inset 0 -2px 0 var(--g-laranja); }
+.gi-seg label:has(input:focus-visible) { outline: 3px solid var(--g-azul-t); }
+.gi-zonas { display: grid; gap: 6px; margin: 0; padding: 0; border: 0; }
+.gi-zona { display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 6px 12px; border: 1px solid var(--g-borda); border-radius: 12px; background: var(--g-sup); cursor: pointer; }
+.gi-zona input { width: 20px; height: 20px; accent-color: var(--g-laranja); } .gi-zona > span { display: grid; flex: 1; } .gi-zona small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-zona:has(input:checked) { border-color: var(--g-laranja); } .gi-zona.is-ocupada { opacity: .6; cursor: default; }
+.gi-zona em { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--g-aviso); }
+.gi-mini { margin: -8px 0 0; font-size: 12.5px; color: var(--g-tinta-3); }
+.gi-interruptor { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 12px; border: 1px solid var(--g-borda); border-radius: 12px; background: var(--g-sup); cursor: pointer; }
+.gi-interruptor input { width: 22px; height: 22px; accent-color: var(--g-laranja); } .gi-interruptor > span { display: grid; } .gi-interruptor small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-resumo-l { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin: 0; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--g-azul) 14%, var(--g-sup)); font-size: 13.5px; color: var(--g-tinta-2); } .gi-resumo-l b { font-size: 16px; color: var(--g-tinta); }
+
+/* 61.2 e 62 · as secções e quem as conta */
+.gi-secoes { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.gi-secao { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--g-borda); border-left-width: 3px; border-radius: 12px; background: var(--g-sup); }
+.gi-secao > span:first-child { display: grid; } .gi-secao b { font-size: 14.5px; } .gi-secao small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-secao.is-feita { border-left-color: var(--g-ok); } .gi-secao.is-atual { border-left-color: var(--g-laranja); }
+.gi-secao__quem { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; } .gi-secao__quem .gp-av { width: 28px; height: 28px; font-size: 11px; font-style: normal; }
+.gpi .gp-op.is-ocupada { opacity: .55; cursor: default; } .gpi .gp-op em.is-nao { color: var(--g-tinta-3); }
+
+/* 62 e 63 · o cabeçalho, as decisões e o porquê do botão desligado */
+.gi-acomp-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.gi-div__acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gi-porque { margin: -2px 0 0; font-size: 12.5px; color: var(--g-tinta-2); text-align: center; }

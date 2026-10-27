@@ -3,12 +3,14 @@ import type { IdMobile } from './ids';
 import { ecrasCarregarPick, ecrasErroPick, DESCRICAO_CARREGAR_PICK, DESCRICAO_ERROS_PICK } from './estados';
 import { ecrasInventario, DESCRICAO_INVENTARIO } from './inventario';
 import { comInventarioV2 } from './inventario-v2';
+import { ecrasInventarioCompleto, comGestorV2 } from './inventario-completo';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import type { Ecra } from '../../comum/tipos';
 
 const DESCRICAO_ENTRAR_PK = 'Como o ERP e o Peça A Peça: o início de sessão comum (ROMAFE Identity, no PDA) → a abertura → a página do papel (o Gestor, ou o Inventário do operador).';
 const DESCRICAO_GESTOR = 'O Gestor de Armazém: o Inventário como ação dominante, o que pede atenção, os inventários em curso, a equipa, o acesso rápido e os módulos.';
 
+const COMPLETO = ecrasInventarioCompleto() as Ecra<IdMobile>[];
 export const mobile: App<IdMobile> = {
   id: 'mobile',
   nome: 'Pick',
@@ -22,7 +24,9 @@ export const mobile: App<IdMobile> = {
   /* 21 out. 2026: ela, «só quero uma versão: a v5, mas mais bonita e mais profissional» e «falta uma abertura» —
      a abertura, a entrada industrial e a ajuda, uma versão cada; saíram as v1–v4, a palavra-passe à parte e o
      cliente federado (o código fica em entrar.ts e no comum) */
-  ecras: [...ecrasEntrarPick(), ...ecrasGestor(), ...comInventarioV2(ecrasInventario()), ...ecrasCarregarPick(), ...ecrasErroPick()],
+  /* 27 out. (o briefing da app Kotlin, «apenas com rede», «no figma»): o Gestor ganha o 62–64 e a v2 do 61.1 e do 61.2;
+     o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
+  ecras: [...ecrasEntrarPick(), ...comGestorV2(ecrasGestor()), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.id.startsWith('op-')), ...comInventarioV2(ecrasInventario()), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...ecrasCarregarPick(), ...ecrasErroPick()],
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

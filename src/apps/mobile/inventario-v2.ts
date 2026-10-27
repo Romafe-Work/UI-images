@@ -53,14 +53,14 @@ import xIc from 'lucide-static/icons/x.svg?raw';
 import radio from 'lucide-static/icons/radio.svg?raw';
 
 /** O ícone do Lucide, sem a classe dele e com o nome em data-lucide. */
-const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
-const OPERADOR = { nome: 'Joana Silva', primeiro: 'Joana', iniciais: 'JS' };
-const GESTORA = { nome: 'Ana Ferreira', iniciais: 'AF' };
+export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
+export const OPERADOR = { nome: 'Joana Silva', primeiro: 'Joana', iniciais: 'JS' };
+export const GESTORA = { nome: 'Ana Ferreira', iniciais: 'AF' };
 const CONTADOS: [string, string, string, string][] = [['SKF VKBA 6556', 'Kit de rolamento de roda', '4 un.', '10:42'], ['SKF VKMV 6PK1873', 'Correia poli-V', '12 un.', '10:40']];
 
 /* ---------- o ecrã: cabeçalho, corpo e o pé com as ações ---------- */
-interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string }
-function ecra(corpo: string, o: Opcoes = {}): string {
+export interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string }
+export function ecra(corpo: string, o: Opcoes = {}): string {
   const rede = o.rede !== false, quem = o.gestor ? GESTORA : OPERADOR;
   return `<div class="gp gpi" data-gpi>
   <header class="gp-topo">
@@ -75,21 +75,21 @@ function ecra(corpo: string, o: Opcoes = {}): string {
   ${o.pe ? `<footer class="gi-pe">${o.pe}</footer>` : ''}
 </div>`;
 }
-const acao = (t: string, ic: string, extra = '') => `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande"${extra}>${L(ic)}<span data-rotulo>${t}</span></button>`;
-const sec = (t: string, ic: string, extra = '') => `<button type="button" class="gp-btn gi-btn-sec"${extra}>${L(ic)}<span>${t}</span></button>`;
-const esperar = (t: string) => `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande is-a-carregar" disabled aria-busy="true"><span class="girador girador--claro" aria-hidden="true"></span><span>${t}</span></button>`;
-const aviso = (tom: 'erro' | 'aviso' | 'info' | 'ok', ic: string, titulo: string, texto: string) => `<section class="gi-aviso gi-aviso--${tom}" role="${tom === 'erro' ? 'alert' : 'status'}"><span class="gi-aviso__ic">${L(ic)}</span><h1>${titulo}</h1><p>${texto}</p></section>`;
-const nota = (t: string) => `<p class="gp-nota">${t}</p>`;
-const prog = (f: number, t: number, rot = 'Posições contadas') => `<div class="gi-prog"><p><span>${rot}</span><b>${f} de ${t}</b></p><span class="gp-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${t}" aria-valuenow="${f}" aria-label="${rot}: ${f} de ${t}"><i style="--p:${t ? (f / t).toFixed(3) : 0}"></i></span></div>`;
+export const acao = (t: string, ic: string, extra = '') => `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande"${extra}>${L(ic)}<span data-rotulo>${t}</span></button>`;
+export const sec = (t: string, ic: string, extra = '') => `<button type="button" class="gp-btn gi-btn-sec"${extra}>${L(ic)}<span>${t}</span></button>`;
+export const esperar = (t: string) => `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande is-a-carregar" disabled aria-busy="true"><span class="girador girador--claro" aria-hidden="true"></span><span>${t}</span></button>`;
+export const aviso = (tom: 'erro' | 'aviso' | 'info' | 'ok', ic: string, titulo: string, texto: string) => `<section class="gi-aviso gi-aviso--${tom}" role="${tom === 'erro' ? 'alert' : 'status'}"><span class="gi-aviso__ic">${L(ic)}</span><h1>${titulo}</h1><p>${texto}</p></section>`;
+export const nota = (t: string) => `<p class="gp-nota">${t}</p>`;
+export const prog = (f: number, t: number, rot = 'Posições contadas') => `<div class="gi-prog"><p><span>${rot}</span><b>${f} de ${t}</b></p><span class="gp-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${t}" aria-valuenow="${f}" aria-label="${rot}: ${f} de ${t}"><i style="--p:${t ? (f / t).toFixed(3) : 0}"></i></span></div>`;
 
 /* ---------- a posição: os oito algarismos partidos (armazém · zona · coluna · prateleira) ---------- */
-const PARTES = ['Arm.', 'Zona', 'Col.', 'Prat.'];
-const posicao = (p: string, cls = '') => `<span class="gi-pos${cls ? ` ${cls}` : ''}" role="img" aria-label="Posição ${p}: armazém ${p.slice(0, 2)}, zona ${p.slice(2, 4)}, coluna ${p.slice(4, 6)}, prateleira ${p.slice(6, 8)}">${PARTES.map((t, i) => `<span><b>${p.slice(i * 2, i * 2 + 2)}</b><small>${t}</small></span>`).join('')}</span>`;
+export const PARTES = ['Arm.', 'Zona', 'Col.', 'Prat.'];
+export const posicao = (p: string, cls = '') => `<span class="gi-pos${cls ? ` ${cls}` : ''}" role="img" aria-label="Posição ${p}: armazém ${p.slice(0, 2)}, zona ${p.slice(2, 4)}, coluna ${p.slice(4, 6)}, prateleira ${p.slice(6, 8)}">${PARTES.map((t, i) => `<span><b>${p.slice(i * 2, i * 2 + 2)}</b><small>${t}</small></span>`).join('')}</span>`;
 
 /* ---------- a contagem ativa: o inventário, a posição e os passos ---------- */
 const PASSOS = ['Posição', 'Artigo', 'Quant.', 'Registo'];
-const passos = (feitos: number) => `<ol class="gi-passos" aria-label="Passos desta contagem">${PASSOS.map((p, i) => `<li class="${i < feitos ? 'is-feito' : i === feitos ? 'is-atual' : ''}"${i === feitos ? ' aria-current="step"' : ''}><i aria-hidden="true"></i><span>${p}</span></li>`).join('')}</ol>`;
-const ativa = (o: { pos?: string; mudar?: boolean; passo?: number } = {}) => `<section class="gi-ativa" aria-label="Contagem ativa">
+export const passos = (feitos: number) => `<ol class="gi-passos" aria-label="Passos desta contagem">${PASSOS.map((p, i) => `<li class="${i < feitos ? 'is-feito' : i === feitos ? 'is-atual' : ''}"${i === feitos ? ' aria-current="step"' : ''}><i aria-hidden="true"></i><span>${p}</span></li>`).join('')}</ol>`;
+export const ativa = (o: { pos?: string; mudar?: boolean; passo?: number } = {}) => `<section class="gi-ativa" aria-label="Contagem ativa">
     <p class="gi-ativa__inv"><b>${INV}</b><span>Zona 30 · às cegas</span></p>
     ${o.pos ? `<div class="gi-ativa__pos">${posicao(o.pos)}${o.mudar !== false ? `<button type="button" class="gi-mudar" data-ir="inv-posicao">${L(mapPin)}<span>Mudar</span></button>` : ''}</div>` : ''}
     ${o.passo !== undefined ? passos(o.passo) : ''}
@@ -97,16 +97,16 @@ const ativa = (o: { pos?: string; mudar?: boolean; passo?: number } = {}) => `<s
 
 /* ---------- o leitor: a mira (o feixe da abertura); tocar faz de tecla física do EDA61K ---------- */
 interface Leitor { titulo: string; texto: string; codigo?: string; ir?: string; tipo?: string; estado?: '' | 'ok' | 'erro' | 'parado' }
-const leitor = (o: Leitor) => `<button type="button" class="gi-leitor${o.estado ? ` is-${o.estado}` : ''}" data-ler="${o.codigo ?? ''}" data-tipo-leitura="${o.tipo ?? ''}"${o.ir ? ` data-depois="${o.ir}"` : ''}>
+export const leitor = (o: Leitor) => `<button type="button" class="gi-leitor${o.estado ? ` is-${o.estado}` : ''}" data-ler="${o.codigo ?? ''}" data-tipo-leitura="${o.tipo ?? ''}"${o.ir ? ` data-depois="${o.ir}"` : ''}>
     <span class="gi-mira" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="gi-mira__linha"></span>${L(o.estado === 'ok' ? circleCheck : o.estado === 'erro' || o.estado === 'parado' ? triangle : scanBarcode, 'gi-mira__ic')}</span>
     <b class="gi-leitor__t">${o.titulo}</b><small class="gi-leitor__x">${o.texto}</small>
     <span class="gi-leitor__tecla">${L(radio)}${o.estado === 'parado' ? 'A tecla de leitura não está a enviar' : 'Prima a tecla de leitura'}</span>
   </button>`;
 
 /* ---------- o artigo, a quantidade e as linhas contadas ---------- */
-const artigo = (novo = false) => `<section class="gi-artigo${novo ? ' is-novo' : ''}"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${ART.ref}</p><p class="gi-artigo__desc">${ART.desc} · ${ART.marca}</p><p class="gi-artigo__meta">EAN ${ART.ean} · ${ART.un}</p></div></section>`;
+export const artigo = (novo = false) => `<section class="gi-artigo${novo ? ' is-novo' : ''}"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${ART.ref}</p><p class="gi-artigo__desc">${ART.desc} · ${ART.marca}</p><p class="gi-artigo__meta">EAN ${ART.ean} · ${ART.un}</p></div></section>`;
 const TECLAS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const quantidade = (valor = '12', o: { erro?: string; teclado?: boolean; rotulo?: string } = {}) => `<div class="gi-qtd${o.erro ? ' is-erro' : ''}" data-qtd>
+export const quantidade = (valor = '12', o: { erro?: string; teclado?: boolean; rotulo?: string } = {}) => `<div class="gi-qtd${o.erro ? ' is-erro' : ''}" data-qtd>
     <label class="gi-qtd__rot" for="gi-qtd-n">${o.rotulo ?? 'Quantas estão aqui?'} <span>(${ART.un})</span></label>
     <div class="gi-qtd__linha">
       <button type="button" class="gi-qtd__bt" data-qtd-passo="-1" aria-label="Menos 1">${L(minus)}</button>
@@ -116,9 +116,9 @@ const quantidade = (valor = '12', o: { erro?: string; teclado?: boolean; rotulo?
     ${o.erro ? `<p class="gi-qtd__erro" id="gi-qtd-erro" role="alert">${L(triangle)}${o.erro}</p>` : ''}
     ${o.teclado === false ? '' : `<div class="gi-teclado" role="group" aria-label="Teclado numérico">${TECLAS.map((k) => `<button type="button" class="gi-tecla" data-tecla="${k}">${k}</button>`).join('')}<button type="button" class="gi-tecla gi-tecla--leve" data-tecla="limpar" aria-label="Limpar">${L(xIc)}</button><button type="button" class="gi-tecla" data-tecla="0">0</button><button type="button" class="gi-tecla gi-tecla--leve" data-tecla="apagar" aria-label="Apagar um algarismo">${L(del)}</button></div>`}
   </div>`;
-const linha = ([ref, desc, q, quando]: [string, string, string, string], extra = '') => `<li class="gi-linha${extra}"><div><b>${ref}</b><span>${desc}</span></div><div class="gi-linha__q"><b>${q}</b><span>${extra.includes('is-corrigida') ? 'corrigida · ' : ''}${quando}</span></div></li>`;
+export const linha = ([ref, desc, q, quando]: [string, string, string, string], extra = '') => `<li class="gi-linha${extra}"><div><b>${ref}</b><span>${desc}</span></div><div class="gi-linha__q"><b>${q}</b><span>${extra.includes('is-corrigida') ? 'corrigida · ' : ''}${quando}</span></div></li>`;
 const contados = (extra: [string, string, string, string][] = []) => `<ul class="gi-linhas" role="list">${extra.map((l) => linha(l, ' is-nova')).join('')}${CONTADOS.map((l) => linha(l)).join('')}</ul>`;
-const h2 = (t: string, n?: number) => `<h2 class="gp-h">${t}${n !== undefined ? ` <span class="gi-n">${n}</span>` : ''}</h2>`;
+export const h2 = (t: string, n?: number) => `<h2 class="gp-h">${t}${n !== undefined ? ` <span class="gi-n">${n}</span>` : ''}</h2>`;
 
 /* =========================================================
    Os ecrãs
