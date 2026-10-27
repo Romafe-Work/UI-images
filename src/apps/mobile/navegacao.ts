@@ -78,7 +78,8 @@ export const MENU_BARRA: Destino[] = [
 /** Os números verdadeiros, os mesmos das faixas: contados uma vez. */
 const POR_ATRIBUIR = 2; // GA-2026-0331 e as colunas 07–12 do INV-2026-015
 const NUMEROS: Partial<Record<string, [number, string]>> = {
-  'gestor:tarefas': [POR_ATRIBUIR, 'por atribuir'], 'gestor:inventario': [2, 'divergências por rever'], 'gestor:arrumacao': [RESUMO_ARRUMACAO.problemas, 'com problemas'],
+  /* 27 out. (ela: «não quero muita confusão na UI»): um número só, o das Tarefas — os outros repetiam as faixas */
+  'gestor:tarefas': [POR_ATRIBUIR, 'por atribuir'],
 };
 
 /* ---------- a barra ---------- */
@@ -113,12 +114,10 @@ function tarefasGestor(): string {
       <span class="gi-tarefa-l__ic gi-tarefa-l__ic--${x.tipo}">${L(x.tipo === 'inventario' ? pkg : boxes)}</span>
       <div class="gi-tarefa-l__t"><b>${x.ref}</b><small>${x.t}</small>${x.p ? prog(x.p[0], x.p[1], x.tipo === 'inventario' ? 'Posições' : 'Artigos') : ''}<small class="gi-tarefa-l__quem">${L(userRound)}${x.quem || 'Sem pessoa'} · ${x.zona}</small></div>
       <button type="button" class="gp-btn ${x.est === 'curso' ? 'gp-btn--sec' : 'gp-btn--acao'}" data-ir="${x.acao[1]}">${L(x.acao[2])}<span>${x.acao[0]}</span></button></div></li>`;
-  return ecra(`<h1 class="gp-titulo">Tarefas</h1><p class="gp-nota">Inventário e Arrumação num só sítio. O motor entrega o trabalho; aqui atribui-se, acompanha-se e resolve-se.</p>
+  return ecra(`<h1 class="gp-titulo">Tarefas</h1>
     <div class="gi-tipos" role="group" aria-label="Tipo">${[['', 'Tudo'], ['inventario', 'Inventário'], ['arrumacao', 'Arrumação']].map(([k, t], i) => `<button type="button" class="gi-tipo" data-gi-tipo="${k}" aria-pressed="${i === 0}">${t}</button>`).join('')}</div>
-    <label class="gp-campo gi-quem"><span>Pessoa</span><select data-gi-quem><option value="">Todas</option><option>Joana Silva</option><option>Inês Rocha</option><option value="-">Sem pessoa</option></select></label>
     <div class="gp-filtros" role="tablist" aria-label="Estado">${SEP.map(([k, t], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-gi-sep="${k}">${t} <span>${TAREFAS.filter((x) => x.est === k).length}</span></button>`).join('')}</div>
-    ${SEP.map(([k], i) => `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${i ? ' hidden' : ''}>${TAREFAS.filter((x) => x.est === k).map(linha).join('')}</ul>`).join('')}
-    ${nota('Atribuir à mão pede motivo; o motor aprende com isso.')}`,
+    ${SEP.map(([k], i) => `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${i ? ' hidden' : ''}>${TAREFAS.filter((x) => x.est === k).map(linha).join('')}</ul>`).join('')}`,
   { titulo: 'Tarefas', gestor: true, barra: barra('gestor', 'tarefas') });
 }
 
@@ -129,7 +128,7 @@ function maisGestor(): string {
     <section class="gp-sec">${h2('Inventário')}<ul class="gi-mais-l" role="list">${itemMais(triangle, 'Divergências', '2 por rever no INV-2026-014', 'inv-divergencias')}${itemMais(history, 'Histórico do inventário', 'Os inventários fechados e os ajustes enviados ao ERP', 'gestor-historico')}</ul></section>
     <section class="gp-sec">${h2('Arrumação')}<ul class="gi-mais-l" role="list">${itemMais(triangle, 'Exceções da arrumação', `${RESUMO_ARRUMACAO.problemas} por resolver`, 'arr-excecoes')}${itemMais(history, 'Histórico da arrumação', 'Os movimentos confirmados', 'arr-historico')}</ul></section>
     <section class="gp-sec">${h2('A conta')}<ul class="gi-mais-l" role="list">${itemMais(users, 'Ver como (demonstração)', 'Gestor, Arrumação, Separação, Expedição', '', ' data-gi-ver-como')}${itemMais(logOut, 'Terminar sessão', 'Ana Ferreira · volta ao início de sessão comum', 'gestor-sessao')}</ul></section>
-    ${nota('Só aparece o que a Pick já tem e a sua conta pode usar. Só há o armazém 60, por isso não há «Alterar armazém».')}`,
+`,
   { titulo: 'Mais', gestor: true, barra: barra('gestor', 'mais') });
 }
 
@@ -141,7 +140,7 @@ function tarefasOperador(): string {
   return ecra(`<h1 class="gp-titulo">Tarefas</h1>
     <section class="gi-dom"><p class="gi-tarefa__rot">${L(play)}Em mãos</p><div class="gi-tarefa__cab"><b>${INV}</b><span class="gp-tag gp-tag--curso">A meio</span></div><p class="gi-dom__meta">Contagem · zona 30 · às cegas</p><p class="gi-dom__onde">${L(mapPin)}<span>Parou em</span>${posicao(POS, 'gi-pos--peq')}</p>${prog(18, 46)}${acao('Continuar', play, ' data-ir="inv-ler"')}</section>
     <section class="gp-sec">${h2('Contagens atribuídas', 1)}<ul class="gi-mais-l" role="list">${itemMais(listTodo, 'INV-2026-015', 'Cíclica · zona 10 · 30 posições · a seguir', 'inv-lista')}</ul></section>
-    ${nota('As guias de arrumação não se escolhem: o motor entrega a seguinte quando acabar a que tem em mãos.')}`,
+`,
   { ...OP, titulo: 'Tarefas', barra: barra('arrumacao', 'tarefas') });
 }
 type ELer = 'normal' | 'lido' | 'sem-contexto';
@@ -176,7 +175,7 @@ function maisOperador(k: Funcao = 'arrumacao'): string {
   return ecra(`<h1 class="gp-titulo">Mais</h1>
     ${k === 'arrumacao' ? `<section class="gp-sec">${h2('Inventário')}<ul class="gi-mais-l" role="list">${itemMais(list, 'Contagens atribuídas', 'As suas contagens e o estado', 'inv-lista')}${itemMais(search, 'Consultar stock', 'Ler um artigo ou uma posição', 'inv-consultar')}</ul></section>` : ''}
     <section class="gp-sec">${h2('A conta')}<ul class="gi-mais-l" role="list">${itemMais(users, 'Ver como (demonstração)', 'Mudar de função', '', ' data-gi-ver-como')}${itemMais(logOut, 'Terminar sessão', `${nome} · volta ao início de sessão comum`, 'op-sessao')}</ul></section>
-    ${nota('Só aparece o que a Pick já tem e a sua função pode usar.')}`,
+`,
   { titulo: 'Mais', funcao: { arrumacao: 'Arrumação', separacao: 'Separação', expedicao: 'Expedição', gestor: 'Gestor' }[k], quem, barra: barra(k, 'mais') });
 }
 

@@ -113,7 +113,7 @@ export function inicioOperador(e: E57 = 'normal', barra?: string): string {
       ${acao(e === 'nova' ? 'Iniciar contagem' : 'Continuar contagem', e === 'nova' ? scanBarcode : play, ' data-ir="inv-ler"')}
     </section>`;
   const n = e === 'sem' ? [0, 0, 1] : e === 'nova' ? [1, 0, 1] : [2, 1, 1];
-  return ecra(`<div class="gp-ola"><h1>Bom dia, ${OPERADOR.primeiro}</h1><p>Arrumação · armazém 60</p></div>
+  return ecra(`<div class="gp-ola"><h1>Bom dia, ${OPERADOR.primeiro}</h1></div>
     ${tarefa}
     <section class="gp-sec">${h2('As minhas contagens')}
       <div class="gi-tres">
@@ -122,7 +122,7 @@ export function inicioOperador(e: E57 = 'normal', barra?: string): string {
         <button type="button" class="gi-num" data-ir="inv-lista"><b>${n[2]}</b><span>Concluídas</span></button>
       </div>
     </section>
-    <section class="gp-sec">${h2('Módulos')}<div class="gp-modulos"><button type="button" class="gp-pasta" data-ir="inv-inicio"><span class="gp-pasta-g">${L(folder)}${L(pkg)}</span><b>Inventário</b></button></div></section>`,
+    ${barra ? '' : `<section class="gp-sec">${h2('Módulos')}<div class="gp-modulos"><button type="button" class="gp-pasta" data-ir="inv-inicio"><span class="gp-pasta-g">${L(folder)}${L(pkg)}</span><b>Inventário</b></button></div></section>`}`,
   { titulo: 'Início', barra });
 }
 

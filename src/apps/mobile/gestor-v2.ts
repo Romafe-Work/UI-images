@@ -19,7 +19,6 @@ import { ecra, acao, sec, aviso, nota, prog, posicao, h2, L } from './inventario
 import { INVENTARIOS } from './gestor';
 import { CAIXA } from './cena';
 import { RESUMO_ARRUMACAO, cenaArrumacao } from './arrumacao';
-import pkg from 'lucide-static/icons/package.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
 import triangle from 'lucide-static/icons/triangle-alert.svg?raw';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
@@ -31,7 +30,6 @@ import userPlus from 'lucide-static/icons/user-plus.svg?raw';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import list from 'lucide-static/icons/list.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
-import clock from 'lucide-static/icons/clock.svg?raw';
 import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
 import send from 'lucide-static/icons/send.svg?raw';
 import eyeOff from 'lucide-static/icons/eye-off.svg?raw';
@@ -51,24 +49,20 @@ const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   [userPlus, 'GA-2026-0331 sem pessoa', 'Ninguém da arrumação livre · 2 paletes', 'arr-guia', 'info'],
 ];
 export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: string): string {
-  const c = INVENTARIOS[0], at = cen === 'sem-atencao' ? [] : ATENCAO;
-  return ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1><p>O armazém 60 agora.</p></div>
+  const at = cen === 'sem-atencao' ? [] : ATENCAO;
+  return ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1></div>
     <section class="gp-sec">${h2('Precisa da tua atenção', at.length || undefined)}
       ${at.length ? `<ul class="gp-lista" role="list">${at.map(([ic, t, x, ir, tom], i) => `<li style="--i:${i}"><button type="button" class="gp-item gp-item--${tom}" data-ir="${ir}"><span class="gp-item-ic">${L(ic)}</span><span class="gp-item-t"><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`).join('')}</ul>`
       : `<p class="gp-vazio">${L(check)}Nada pede a tua atenção agora.</p>`}
     </section>
-    <section class="gi-mod gi-mod--inv" aria-labelledby="gi-m-inv">
-      <header class="gi-mod__cab"><span class="gi-mod__ic">${CAIXA()}</span><div><h2 id="gi-m-inv">Inventário</h2><p>Controla contagens, divergências e validações.</p></div></header>
+    <button type="button" class="gi-mod gi-mod--inv" data-ir="gestor-inventario" aria-label="Abrir o Inventário">
+      <span class="gi-mod__cab"><span class="gi-mod__ic">${CAIXA()}</span><b>Inventário</b>${L(arrowRight, 'gi-seta')}</span>
       ${faixa([['Em curso', 1], ['Por validar', 1, 'aviso'], ['Divergências', 2, 'erro']])}
-      <p class="gi-mod__agora">${L(clock)}<span><b>${c.ref}</b> · ${c.area}</span></p>${prog(c.feitas, c.total)}
-      ${acao('Abrir o Inventário', arrowRight, ' data-ir="gestor-inventario"')}
-    </section>
-    <section class="gi-mod gi-mod--arr" aria-labelledby="gi-m-arr">
-      <header class="gi-mod__cab"><span class="gi-mod__ic gi-mod__ic--arr">${cenaArrumacao(true)}</span><div><h2 id="gi-m-arr">Arrumação</h2><p>Organiza entradas, localizações e tarefas de arrumação.</p></div></header>
-      ${faixa([['Por arrumar', RESUMO_ARRUMACAO.porArrumar], ['Em execução', RESUMO_ARRUMACAO.emCurso], ['Com problemas', RESUMO_ARRUMACAO.problemas, 'erro']])}
-      <p class="gi-mod__agora">${L(pkg)}<span><b>CH-2026-0412</b> · 3 paletes no cais 1 desde as 08:40</span></p>
-      ${acao('Abrir a Arrumação', arrowRight, ' data-ir="arr-inicio"')}
-    </section>`, { titulo: 'Início', ...G, barra });
+    </button>
+    <button type="button" class="gi-mod gi-mod--arr" data-ir="arr-inicio" aria-label="Abrir a Arrumação">
+      <span class="gi-mod__cab"><span class="gi-mod__ic gi-mod__ic--arr">${cenaArrumacao(true)}</span><b>Arrumação</b>${L(arrowRight, 'gi-seta')}</span>
+      ${faixa([['Por arrumar', RESUMO_ARRUMACAO.porArrumar], ['Em curso', RESUMO_ARRUMACAO.emCurso], ['Problemas', RESUMO_ARRUMACAO.problemas, 'erro']])}
+    </button>`, { titulo: 'Início', ...G, barra });
 }
 
 /* =========================================================

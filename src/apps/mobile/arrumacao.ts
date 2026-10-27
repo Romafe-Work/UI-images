@@ -90,12 +90,12 @@ const G = (titulo: string, voltar = 'arr-inicio'): Opcoes => ({ titulo, voltar, 
 const SEPS: [EstGuia, string][] = [['atribuir', 'Por atribuir'], ['curso', 'Em curso'], ['excecao', 'Exceções'], ['feita', 'Concluídas']];
 export function arrumacaoInicio(cen: 'normal' | 'vazia' = 'normal', barra?: string): string {
   const gs = cen === 'vazia' ? [] : GUIAS;
-  return ecra(`<header class="gi-arr-cab"><div class="gi-arr-cab__cena">${cenaArrumacao()}</div><div><h1 class="gp-titulo">Arrumação</h1><p class="gp-nota">Das chegadas registadas às posições.</p></div></header>
+  return ecra(`<header class="gi-arr-cab"><div class="gi-arr-cab__cena">${cenaArrumacao()}</div><div><h1 class="gp-titulo">Arrumação</h1></div></header>
     ${cen === 'vazia' ? `<section class="gi-vazio">${L(inbox)}<p><b>Nada por arrumar.</b> Quando a arrumação registar uma chegada no PDA, as guias aparecem aqui. O sistema não sabe o que vem antes disso.</p></section>`
     : `${faixa()}
     <div class="gp-filtros" role="tablist" aria-label="Estado">${SEPS.map(([k, t], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-gi-sep="${k}">${t} <span>${gs.filter((g) => g.est === k).length}</span></button>`).join('')}</div>
     ${SEPS.map(([k], i) => `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${i ? ' hidden' : ''}>${gs.filter((g) => g.est === k).map((g, j) => cartao(g, j, j === 0)).join('')}</ul>`).join('')}
-    ${nota('O motor entrega cada guia a quem está livre. «Por atribuir» quer dizer que ninguém da arrumação está livre agora.')}`}`,
+`}`,
   barra ? { ...G('Arrumação'), voltar: undefined, barra, faixa: '' } : { ...G('Arrumação', 'gestor-inicio'), pe: `${sec('Exceções', triangle, ' data-ir="arr-excecoes"')}${sec('Histórico', history, ' data-ir="arr-historico"')}` });
 }
 
