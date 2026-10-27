@@ -219,9 +219,10 @@ function pagina(c: CfgDoc, cen: string): string {
   </header>
 
   <div class="dv2-lista-vista" data-dv2-lista>
+  <!-- 27 out. (ela: «deve ficar acima e fora do card»): as três vistas por cima dos filtros, na página -->
+  <nav class="dv2c-vistas-zona" aria-label="Vistas"><div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${c.vistas!.map((v, i) => `<button type="button" role="tab" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-dv2-vista="${v.k}" aria-keyshortcuts="${v.tecla}" title="${esc(v.t)} (${v.tecla.replace('+', ' ')})">${L(v.ic)}<span>${esc(v.t)}</span><small data-dv2-vista-n="${v.k}"></small></button>`).join('')}<i class="dv2c-vistas-ind" data-dv2-vistas-ind aria-hidden="true"></i></div></nav>
   <section class="lf2-filtros dv2-filtros dv2c-filtros" aria-label="Pesquisa e filtros">
     <div class="dv2c-linha">
-      <div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${c.vistas!.map((v, i) => `<button type="button" role="tab" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-dv2-vista="${v.k}" aria-keyshortcuts="${v.tecla}" title="${esc(v.t)} (${v.tecla.replace('+', ' ')})">${L(v.ic)}<span>${esc(v.t)}</span><small data-dv2-vista-n="${v.k}"></small></button>`).join('')}<i class="dv2c-vistas-ind" data-dv2-vistas-ind aria-hidden="true"></i></div>
       <label class="ak-campo dv2c-forn" for="${id('forn')}"><span class="sr">Fornecedor</span><select id="${id('forn')}" data-dv2-f="forn" data-dv2-campo>${op('', 'Todos os fornecedores')}${fornecedoresDaLista().map(([v, t]) => op(v, t)).join('')}</select></label>
       <div class="dv2c-pq" role="group" aria-label="Pesquisar">
         <label class="dv2c-pq-modo"${so('docs')}><span class="sr">Pesquisar por</span><select data-dv2-modo-sel aria-label="Pesquisar por (F1 F2 F10 F12)">${MODO_SEL.map(([k, t]) => op(k, t)).join('')}</select></label>

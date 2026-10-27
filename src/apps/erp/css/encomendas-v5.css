@@ -125,3 +125,13 @@
 .dv2c .lf2-jan tr.is-ligada-linha td, .dv2c .lf2-jan li.is-ligada-linha { background: color-mix(in srgb, var(--h-laranja) 14%, var(--h-sup)); }
 @media (prefers-reduced-motion: reduce) { .dv2c-vistas-ind { transition: none; } }
 .dv2c-pq .lf2-pq-in { min-width: 110px; }
+/* 27 out. (ela: «acima e fora do card»): as vistas ficam na página, por cima do cartão dos filtros */
+.dv2c-vistas-zona { display: flex; align-items: center; margin: 10px clamp(16px, 2vw, 28px) 0; }
+.dv2c-vistas-zona .dv2c-vistas { background: color-mix(in srgb, rgb(0, 99, 170) 6%, var(--h-sup-2)); }
+.dv2c-vistas-zona .dv2c-vistas button { height: 34px; padding: 0 14px; font-size: 13.5px; }
+.dv2c .dv2c-filtros { margin-top: 8px; }
+/* sem o seletor do modo (Agendamento e Pedidos), a pesquisa precisa de menos largura */
+.dv2c:not([data-dv2-vista-atual="docs"]) .dv2c-pq { min-width: 280px; }
+/* 27 out. (ela: «não estou a gostar» da barra de estado): sai — o resumo da lista já diz quantas há, a janela em edição
+   tem o ● e o que se grava diz-se no aviso; o elemento fica (o motor escreve nele), escondido */
+.dv2c .lf2-estado { display: none; }
