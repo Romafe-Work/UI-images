@@ -1,15 +1,31 @@
 /* =========================================================
    PICK — o Gestor de Armazém (22 out. 2026). Ver gestor.ts.
    Paleta do briefing: fundo #101820, superfície #1A2938, elevada #243548, azul #0876BD, laranja #F58214, ok #16A873,
-   aviso #E9A23B, erro #E65358, texto #F5F8FA / #ACBBC9. Sempre escura (o armazém, o ecrã a brilhar). Alvos de
+   aviso #E9A23B, erro #E65358, texto #F5F8FA / #ACBBC9. 27 out. (ela: «quero os dois modos»): claro e escuro, como o
+   resto do protótipo — claro por omissão (a paleta do briefing V2: #F3F6F8, navy #102333, azul #1178BE), escuro com
+   o botão Escuro ou quando o sistema está escuro. O texto laranja tem a sua cor (--g-laranja-t), mais escura no claro,
+   para se ler no branco; o ROMAFE fica RGB(0, 99, 170) nos dois. Alvos de
    toque ≥ 44 px, letra ≥ 13 px. A abertura (.gpa) desenha-se por cima da página e passa-lhe a caixa e a marca.
    ========================================================= */
 .gp {
-  --g-fundo: #101820; --g-sup: #1a2938; --g-elev: #243548; --g-borda: #2e4358; --g-azul: #0876bd; --g-azul-t: #4fa3dc; --g-laranja: #f58214;
-  --g-ok: #16a873; --g-aviso: #e9a23b; --g-erro: #e65358; --g-tinta: #f5f8fa; --g-tinta-2: #acbbc9; --g-tinta-3: #8597a8; --curva: cubic-bezier(.22, 1, .36, 1);
-  --pkp-metal: #6b7d91; --pkp-metal-2: #8a9bae; --pkp-borracha: #0b1118; --pkp-sombra: rgba(0, 0, 0, .45); --pkq-traco: #2495db; --pkq-traco-2: rgba(36, 149, 219, .35); --pka-traco: rgba(36, 149, 219, .2); --pka-chao: rgba(36, 149, 219, .05);
+  --g-fundo: #f3f6f8; --g-sup: #ffffff; --g-elev: #e9eff4; --g-borda: #d3dde6; --g-azul: #1178be; --g-azul-t: #0f6aa8; --g-laranja: #f58214; --g-laranja-t: #b25a05;
+  --g-ok: #168a60; --g-aviso: #a86d0c; --g-erro: #c73e3e; --g-tinta: #102333; --g-tinta-2: #4a5d70; --g-tinta-3: #66788a; --curva: cubic-bezier(.22, 1, .36, 1);
+  --g-barra: #ffffff; --g-inset: #eef2f6; --g-trilho: #dde4eb; --g-palco-1: #f7fafc; --g-palco-2: #e3eaf0; --g-esquema: light;
   position: relative; display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-height: 100%; min-height: 100vh; min-height: 100svh;
-  background: var(--g-fundo); color: var(--g-tinta); font-family: var(--f-base); font-size: 15px; color-scheme: dark; overflow-x: hidden;
+  background: var(--g-fundo); color: var(--g-tinta); font-family: var(--f-base); font-size: 15px; color-scheme: var(--g-esquema); overflow-x: hidden;
+}
+/* o escuro: o do briefing do Gestor (22 out.), com o botão Escuro ou o sistema escuro */
+[data-theme="dark"] .gp {
+  --g-fundo: #101820; --g-sup: #1a2938; --g-elev: #243548; --g-borda: #2e4358; --g-azul: #0876bd; --g-azul-t: #4fa3dc; --g-laranja: #f58214; --g-laranja-t: #f58214;
+  --g-ok: #16a873; --g-aviso: #e9a23b; --g-erro: #e65358; --g-tinta: #f5f8fa; --g-tinta-2: #acbbc9; --g-tinta-3: #8597a8;
+  --g-barra: #0c141c; --g-inset: rgba(0, 0, 0, .2); --g-trilho: rgba(255, 255, 255, .1); --g-palco-1: #142233; --g-palco-2: #0a1219; --g-esquema: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gp {
+    --g-fundo: #101820; --g-sup: #1a2938; --g-elev: #243548; --g-borda: #2e4358; --g-azul: #0876bd; --g-azul-t: #4fa3dc; --g-laranja: #f58214; --g-laranja-t: #f58214;
+    --g-ok: #16a873; --g-aviso: #e9a23b; --g-erro: #e65358; --g-tinta: #f5f8fa; --g-tinta-2: #acbbc9; --g-tinta-3: #8597a8;
+    --g-barra: #0c141c; --g-inset: rgba(0, 0, 0, .2); --g-trilho: rgba(255, 255, 255, .1); --g-palco-1: #142233; --g-palco-2: #0a1219; --g-esquema: dark;
+  }
 }
 .gp *, .gp *::before, .gp *::after { box-sizing: border-box; }
 .gp svg { width: 20px; height: 20px; flex: none; }
@@ -19,7 +35,7 @@
 .gp button:focus-visible, .gp a:focus-visible, .gp input:focus-visible, .gp select:focus-visible { outline: 3px solid var(--g-azul-t); outline-offset: 2px; }
 
 /* ---------- o cabeçalho ---------- */
-.gp-topo { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 2px 10px; padding: 10px 12px 8px; background: #0c141c; border-bottom: 1px solid var(--g-borda); }
+.gp-topo { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 2px 10px; padding: 10px 12px 8px; background: var(--g-barra); border-bottom: 1px solid var(--g-borda); }
 .gp-voltar { grid-row: 1 / 3; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; background: var(--g-sup); color: var(--g-tinta); cursor: pointer; }
 .gp-marca { display: flex; align-items: center; gap: 7px; } .gp-voltar + .gp-marca { grid-column: 2; }
 .gp-romafe { font-size: 19px; line-height: 1; color: rgb(0, 99, 170); }
@@ -45,17 +61,17 @@
 /* o painel dominante: o Inventário */
 .gp-inv { display: grid; gap: 12px; padding: 14px; border: 1px solid color-mix(in srgb, var(--g-laranja) 40%, var(--g-borda)); border-radius: 16px; background: linear-gradient(160deg, var(--g-elev), var(--g-sup)); }
 .gp-inv-cab { display: flex; align-items: center; gap: 12px; }
-.gp-inv-ic { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: color-mix(in srgb, var(--g-laranja) 18%, transparent); color: var(--g-laranja); }
+.gp-inv-ic { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: color-mix(in srgb, var(--g-laranja) 18%, transparent); color: var(--g-laranja-t); }
 .gp-inv-ic svg { width: 26px; height: 26px; }
 .gp-inv h2 { margin: 0; font-family: var(--f-titulo); font-size: 22px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
 .gp-inv-num { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0; }
-.gp-inv-num div { display: grid; padding: 8px; border-radius: 10px; background: rgba(0, 0, 0, .18); }
+.gp-inv-num div { display: grid; padding: 8px; border-radius: 10px; background: var(--g-inset); }
 .gp-inv-num dt { order: 2; font-size: 12px; color: var(--g-tinta-2); } .gp-inv-num dd { order: 1; margin: 0; font-family: var(--f-titulo); font-size: 24px; font-weight: 800; }
 .gp-inv-cur { display: grid; gap: 6px; }
 .gp-inv-cur p { display: flex; justify-content: space-between; gap: 8px; margin: 0; font-size: 13.5px; } .gp-inv-cur p b { font-family: var(--f-mono); } .gp-inv-cur p span { color: var(--g-tinta-2); text-align: right; }
 .gp-inv-cur small, .gp-inv-vazio { font-size: 12.5px; color: var(--g-tinta-2); margin: 0; }
 .gp-inv-erro { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; font-size: 13.5px; color: var(--g-tinta-2); } .gp-inv-erro > svg { color: var(--g-erro); }
-.gp-prog { display: block; height: 8px; border-radius: 8px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.gp-prog { display: block; height: 8px; border-radius: 8px; background: var(--g-trilho); overflow: hidden; }
 .gp-prog i { display: block; height: 100%; width: 100%; border-radius: 8px; background: var(--g-azul-t); transform: scaleX(var(--p)); transform-origin: left; transition: transform .4s var(--curva); }
 
 /* botões */
@@ -90,18 +106,18 @@
 .gp-equipa li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--g-sup); }
 .gp-equipa li > span:last-child { display: grid; } .gp-equipa b { font-size: 14px; } .gp-equipa small { font-size: 12.5px; color: var(--g-tinta-2); }
 .gp-av { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--g-elev); color: var(--g-tinta); font-size: 12px; font-weight: 800; }
-.gp-ligacao { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 4px; border: 0; background: none; color: var(--g-laranja); font-size: 14px; font-weight: 700; cursor: pointer; }
+.gp-ligacao { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 4px; border: 0; background: none; color: var(--g-laranja-t); font-size: 14px; font-weight: 700; cursor: pointer; }
 
 /* acesso rápido e módulos */
 .gp-rapido, .gp-dois { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .gp-rap { display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 12px; border: 1px solid var(--g-borda); border-radius: 12px; background: var(--g-sup); color: var(--g-tinta); font-size: 13.5px; font-weight: 700; text-align: left; cursor: pointer; transition: transform .1s ease; }
-.gp-rap svg { color: var(--g-azul-t); } .gp-rap:active:not(:disabled) { transform: scale(.97); } .gp-rap b { color: var(--g-laranja); margin-left: 4px; }
+.gp-rap svg { color: var(--g-azul-t); } .gp-rap:active:not(:disabled) { transform: scale(.97); } .gp-rap b { color: var(--g-laranja-t); margin-left: 4px; }
 .gp-modulos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .gp-pasta { display: grid; justify-items: start; gap: 8px; padding: 14px; border: 1px solid var(--g-borda); border-radius: 14px; background: var(--g-sup); color: var(--g-tinta); cursor: pointer; transition: transform .12s ease, border-color .15s ease; }
 .gp-pasta:active { transform: scale(.97); border-color: var(--g-laranja); }
 .gp-pasta-g { position: relative; display: block; width: 52px; height: 42px; }
 .gp-pasta-g svg:first-child { width: 52px; height: 42px; color: var(--g-azul-t); fill: color-mix(in srgb, var(--g-azul) 30%, transparent); stroke-width: 1.4; }
-.gp-pasta-g svg:last-child { position: absolute; left: 50%; top: 56%; width: 18px; height: 18px; transform: translate(-50%, -50%); color: var(--g-laranja); }
+.gp-pasta-g svg:last-child { position: absolute; left: 50%; top: 56%; width: 18px; height: 18px; transform: translate(-50%, -50%); color: var(--g-laranja-t); }
 .gp-pasta b { font-size: 15px; }
 
 /* o inventário (gestor) e formulários */
@@ -123,7 +139,7 @@
 .gp-escolha { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .gp-op { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; border: 1px solid var(--g-borda); border-radius: 12px; background: var(--g-sup); cursor: pointer; }
 .gp-op input { width: 20px; height: 20px; accent-color: var(--g-laranja); } .gp-op > span:last-of-type { display: grid; flex: 1; } .gp-op small { font-size: 12.5px; color: var(--g-tinta-2); }
-.gp-op em { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--g-laranja); }
+.gp-op em { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--g-laranja-t); }
 .gp-op:has(input:checked) { border-color: var(--g-laranja); }
 .gp-nota { margin: 0; font-size: 13px; line-height: 1.45; color: var(--g-tinta-2); }
 .gp-estado { display: grid; justify-items: center; gap: 8px; padding: 18px; text-align: center; } .gp-estado > svg { width: 30px; height: 30px; color: var(--g-aviso); } .gp-estado p { margin: 0; color: var(--g-tinta-2); }
@@ -138,7 +154,7 @@
 /* =========================================================
    00 · Abertura: o armazém, o porta-paletes, a palete e a passagem
    ========================================================= */
-.gpa { position: absolute; inset: 0; z-index: 50; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: radial-gradient(90% 60% at 50% 35%, #142233, #0a1219 75%); transition: background-color .35s ease, opacity .35s ease; }
+.gpa { position: absolute; inset: 0; z-index: 50; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: radial-gradient(90% 60% at 50% 35%, var(--g-palco-1), var(--g-palco-2) 75%); transition: background-color .35s ease, opacity .35s ease; }
 .gpa-palco { position: relative; container-type: inline-size; margin-top: 12%; height: 52%; align-self: start; }
 .gpa .pk-armazem { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .2s linear; }
 .gpa.is-a .pk-armazem { opacity: 1; }
