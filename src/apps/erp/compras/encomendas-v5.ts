@@ -15,10 +15,11 @@
 import type { Ecra } from '../../../comum/tipos';
 import type { IdErp } from '../ids';
 import { registar, BTN, L, esc, MODOS, type EstDoc, type CfgDoc } from './docs-v2';
-import { nf, dialogo, abrirJanelaDoc, escolher, escolherRel, mudarVista, refrescarJanelas, docDe, ativoDe, toast, emSeparador } from './docs-v2-comportamento';
+import { nf, abrirDoc, dialogo, abrirJanelaDoc, escolher, escolherRel, mudarVista, refrescarJanelas, docDe, ativoDe, toast, emSeparador } from './docs-v2-comportamento';
 import { CFG, fornecedoresDaLista } from './encomendas-v3';
 import { entregas, pedidos, passa, nomeF, type Entrega, type Pedido } from './encomendas-v4';
-import { encomendas, rececoesDe, dia, HOJE } from './dominio';
+import { encomendas, rececoesDe, rececoes, dia, HOJE, pendente, type Encomenda } from './dominio';
+import { PERFIS } from '../inicio-dados';
 import { faltas } from './faltas';
 import { topoErp } from '../inicio-v2';
 import fileText from 'lucide-static/icons/file-text.svg?raw';
@@ -129,7 +130,8 @@ function resumoPedidos(e: EstDoc): string {
 
 /* ---------- a janela das ligações: a cadeia real da linha escolhida ---------- */
 interface No { k: string; ic: string; t: string; v: string; d: string; est: 'feito' | 'agora' | 'falta' | 'nada' }
-function cadeia(chave: string): { nos: No[]; enc: string; ref: string; forn: string; outra?: [string, string, string]; rec: boolean; cli?: Pedido } | null {
+function cadeia(chave: string): { nos: No[]; enc: string; ref: string; forn: string; outra?: [string, string, string]; rec: boolean; cli?: Pedido; registar?: boolean } | null {
+  if (chave.startsWith('e:') || chave.startsWith('r:')) return cadeiaRec(chave);
   const a = chave.startsWith('a:') ? deA(chave) : undefined, c = chave.startsWith('c:') ? deC(chave) : undefined; if (!a && !c) return null;
   const ref = a?.ref ?? c!.ref, enc = a?.enc ?? c!.enc, x = encomendas().find((y) => y.ref === enc), l = x?.linhas.find((y) => y.ref === ref);
   const cli = c ?? pedidos().find((p) => p.ref === ref && p.enc === enc);
@@ -148,6 +150,42 @@ function cadeia(chave: string): { nos: No[]; enc: string; ref: string; forn: str
   const outra: [string, string, string] | undefined = a && cli ? ['clientes', chaveC(cli), 'Ver nos Pedidos de clientes'] : c && ent ? ['agenda', chaveA(ent), 'Ver no Agendamento'] : undefined;
   return { nos, enc: x ? x.ref : '', ref, forn: x?.forn ?? cli?.forn ?? '', outra, rec: recs.length > 0, cli };
 }
+/* ---------- a vista das Receções (27 out., ela: «Encomendas e Receção de encomendas num só ecrã»): por encomenda e por receção ---------- */
+const recDe = (ref: string) => rececoes().find((y) => y.ref === ref);
+const porReceber = (x: Encomenda) => x.estado === 'Emitida' || x.estado === 'Parcialmente recebida';
+function cadeiaRec(chave: string): ReturnType<typeof cadeia> {
+  const rc = chave.startsWith('r:') ? recDe(chave.slice(2)) : undefined, enc = rc?.enc ?? (chave.startsWith('e:') ? chave.slice(2) : ''), x = encomendas().find((y) => y.ref === enc); if (!x || (chave.startsWith('r:') && !rc)) return null;
+  const recs = rececoesDe(x.ref), q = x.linhas.reduce((s, l) => s + l.qtd, 0), rec = x.linhas.reduce((s, l) => s + l.recebida, 0), falta = x.linhas.reduce((s, l) => s + pendente(l), 0), clis = pedidos().filter((p) => p.enc === x.ref);
+  const [sc, st] = situacao(x.entrega);
+  const nos: No[] = [
+    clis.length ? { k: 'cli', ic: userStar, t: 'Pedidos de clientes', v: clis.map((p) => p.cli).join(', '), d: `${clis.length} ${clis.length === 1 ? 'pedido coberto' : 'pedidos cobertos'} por esta encomenda`, est: 'feito' } : { k: 'cli', ic: userStar, t: 'Pedidos de clientes', v: 'Para stock', d: 'Nenhum pedido de cliente depende desta encomenda.', est: 'nada' },
+    { k: 'enc', ic: fileText, t: 'Encomenda ao fornecedor', v: x.ref, d: `${nomeF(x.forn)} · ${x.estado} · ${dia(x.data)}`, est: 'feito' },
+    falta ? { k: 'ent', ic: calendarClock, t: 'Entrega', v: st, d: `Faltam ${nf(falta)} de ${nf(q)} · ${x.linhas.filter((l) => pendente(l) > 0).length} ${x.linhas.filter((l) => pendente(l) > 0).length === 1 ? 'linha' : 'linhas'}`, est: sc === 'is-atr' ? 'falta' : 'agora' } : { k: 'ent', ic: calendarClock, t: 'Entrega', v: 'Tudo recebido', d: `${nf(rec)} de ${nf(q)} recebidos`, est: 'feito' },
+    rc ? { k: 'rec', ic: packageCheck, t: 'Receção', v: rc.ref, d: `${dia(rc.data)} · guia ${rc.guia} · ${nf(rc.linhas.reduce((s, l) => s + l.aceite, 0))} aceites${rc.linhas.some((l) => l.rejeitada) ? ` · ${nf(rc.linhas.reduce((s, l) => s + l.rejeitada, 0))} rejeitados` : ''} · ${PERFIS[rc.por]?.pessoa ?? rc.por}`, est: 'feito' }
+      : recs.length ? { k: 'rec', ic: packageCheck, t: recs.length > 1 ? `Receções (${recs.length})` : 'Receção', v: recs.map((y) => y.ref).join(', '), d: `a última a ${dia(recs[recs.length - 1].data)}`, est: 'feito' } : { k: 'rec', ic: packageCheck, t: 'Receção', v: 'Ainda sem receção', d: porReceber(x) ? 'O armazém ainda não registou nenhuma receção desta encomenda.' : '', est: 'nada' },
+  ];
+  const ent = entregas().find((y) => y.enc === x.ref);
+  return { nos, enc: x.ref, ref: '', forn: x.forn, outra: ent ? ['agenda', chaveA(ent), 'Ver no Agendamento'] : undefined, rec: recs.length > 0, registar: porReceber(x) };
+}
+function tabelaRec(_r: HTMLElement, e: EstDoc): string {
+  const por = encomendas().filter(porReceber).sort((a, b) => a.entrega.localeCompare(b.entrega)).filter((x) => passa(e, x.forn, x.entrega, [x.ref, nomeF(x.forn)]));
+  const recs = rececoes().filter((rc) => { const x = encomendas().find((y) => y.ref === rc.enc); return passa(e, x?.forn ?? '', rc.data, [rc.ref, rc.enc, rc.guia, nomeF(x?.forn ?? '')]); });
+  if (!por.length && !recs.length) return semNada(e, 'documento');
+  const linhaEnc = (x: Encomenda) => { const k = `e:${x.ref}`, q = x.linhas.reduce((s, l) => s + l.qtd, 0), falta = x.linhas.reduce((s, l) => s + pendente(l), 0), [sc, st] = situacao(x.entrega);
+    return `<tr data-dv2-vrel="${esc(k)}" tabindex="${e.extra.rel === k ? 0 : -1}" class="${e.extra.rel === k ? 'is-ativo ' : ''}${x.ref === liga(e) ? 'is-ligada' : ''}"><td class="is-mono"><b class="dv2c-ref">${esc(x.ref)}</b></td><td>${esc(nomeF(x.forn))}</td><td>${dia(x.entrega)}</td><td><span class="dv2c-sit ${sc}">${st}</span></td><td class="is-num"><b>${nf(falta)}</b> <small>de ${nf(q)}</small></td><td>${esc(x.estado)}</td></tr>`; };
+  const linhaRc = (rc: ReturnType<typeof rececoes>[number]) => { const k = `r:${rc.ref}`, x = encomendas().find((y) => y.ref === rc.enc), ace = rc.linhas.reduce((s, l) => s + l.aceite, 0), rej = rc.linhas.reduce((s, l) => s + l.rejeitada, 0);
+    return `<tr data-dv2-vrel="${esc(k)}" tabindex="${e.extra.rel === k ? 0 : -1}" class="${e.extra.rel === k ? 'is-ativo ' : ''}${rc.enc === liga(e) ? 'is-ligada' : ''}"><td class="is-mono"><b>${esc(rc.ref)}</b></td><td class="is-mono"><b class="dv2c-ref">${esc(rc.enc)}</b></td><td>${esc(nomeF(x?.forn ?? ''))}</td><td class="is-mono is-p3">${esc(rc.guia)}</td><td>${dia(rc.data)}</td><td class="is-p3">${esc(PERFIS[rc.por]?.pessoa ?? rc.por)}</td><td class="is-num">${nf(ace)}</td><td class="is-num">${rej ? `<b class="is-rutura">${nf(rej)}</b>` : '0'}</td></tr>`; };
+  const th = (cs: [string, string?][]) => `<thead><tr>${cs.map(([t, c]) => `<th scope="col"${c ? ` class="${c}"` : ''}><span>${t}</span></th>`).join('')}</tr></thead>`;
+  return `<h3 class="dv2c-sub"><i></i>Por receber <small>${nf(por.length)}</small><span>pela entrega prevista</span></h3>
+    ${por.length ? `<table class="lf2-tab dv2-vt dv2c-vt" aria-label="Encomendas por receber">${th([['Encomenda'], ['Fornecedor'], ['Entrega prevista'], ['Situação'], ['Falta', 'is-num'], ['Estado']])}<tbody>${por.map(linhaEnc).join('')}</tbody></table>` : `<p class="dv2c-sub-nada">Nada por receber com estes filtros.</p>`}
+    <h3 class="dv2c-sub is-feito"><i></i>Receções registadas <small>${nf(recs.length)}</small></h3>
+    ${recs.length ? `<table class="lf2-tab dv2-vt dv2c-vt" aria-label="Receções registadas">${th([['Receção'], ['Encomenda'], ['Fornecedor'], ['Guia', 'is-p3'], ['Data'], ['Por', 'is-p3'], ['Aceite', 'is-num'], ['Rejeitado', 'is-num']])}<tbody>${recs.map(linhaRc).join('')}</tbody></table>` : `<p class="dv2c-sub-nada">Nenhuma receção com estes filtros.</p>`}`;
+}
+function resumoRec(e: EstDoc): string {
+  const por = encomendas().filter(porReceber).filter((x) => passa(e, x.forn, x.entrega, [x.ref, nomeF(x.forn)])), atr = por.filter((x) => x.entrega < HOJE).length, recs = rececoes().length;
+  return `<span><b>${nf(por.length)}</b> por receber</span><span class="is-atr"><b>${nf(atr)}</b> ${atr === 1 ? 'atrasada' : 'atrasadas'}</span><span><b>${nf(recs)}</b> ${recs === 1 ? 'receção registada' : 'receções registadas'}</span>`;
+}
+
 function corpoRel(_r: HTMLElement, _e: EstDoc, chave: string): string {
   const k = cadeia(chave);
   if (!k) return `<div class="dv2c-rel"><p class="lf2-sem">${L(circleAlert)}A linha já não existe (a encomenda mudou ou foi recebida). Escolhe outra na lista.</p></div>`;
@@ -158,12 +196,13 @@ function corpoRel(_r: HTMLElement, _e: EstDoc, chave: string): string {
       ${k.enc ? `<button type="button" class="ak-btn ak-btn--acao" data-dv2-acao="rel-enc" data-enc="${esc(k.enc)}" data-ref="${esc(k.ref)}" data-dv2-rel-principal>${L(openIc)}<span>Abrir a encomenda</span><kbd>Enter</kbd></button>` : ''}
       ${sem ? `<button type="button" class="ak-btn ak-btn--acao" data-dv2-acao="abrir-doc" data-rota="compras.faltas" data-titulo="Lista de Faltas" data-ecra="compras-faltas" data-ref="${esc(k.ref)}" data-dv2-rel-principal>${L(listChecks)}<span>Lista de Faltas</span><kbd>Enter</kbd></button>` : ''}
       ${k.outra ? `<button type="button" class="ak-btn" data-dv2-acao="rel-vista" data-v="${k.outra[0]}" data-k="${esc(k.outra[1])}">${L(arrowRL)}<span>${k.outra[2]}</span></button>` : ''}
-      ${k.rec ? `<button type="button" class="ak-btn" data-dv2-acao="rel-enc" data-enc="${esc(k.enc)}" data-ref="${esc(k.ref)}" data-tab="rececoes">${L(truck)}<span>Consultar a receção</span></button>` : ''}
-      <button type="button" class="ak-btn ak-btn--linha" data-dk-janela="artigo:${esc(k.ref)}" data-dv2-acao="rel-fora">${L(box)}<span>Ver o artigo</span></button>
+      ${k.rec ? `<button type="button" class="ak-btn" data-dv2-acao="rel-enc" data-enc="${esc(k.enc)}" data-ref="${esc(k.ref)}" data-tab="rececoes">${L(truck)}<span>${k.ref ? 'Consultar a receção' : 'As receções da encomenda'}</span></button>` : ''}
+      ${k.registar ? `<button type="button" class="ak-btn" data-dv2-acao="abrir-doc" data-rota="compras.rececao" data-titulo="Receção · ${esc(k.enc)}" data-ecra="compras-rececao" data-ref="${esc(k.enc)}">${L(packageCheck)}<span>Registar receção</span></button>` : ''}
+      ${k.ref ? `<button type="button" class="ak-btn ak-btn--linha" data-dk-janela="artigo:${esc(k.ref)}" data-dv2-acao="rel-fora">${L(box)}<span>Ver o artigo</span></button>` : ''}
       ${k.forn ? `<button type="button" class="ak-btn ak-btn--linha" data-dk-janela="fornecedor:${esc(k.forn)}" data-dv2-acao="rel-fora">${L(building)}<span>Fornecedor</span></button>` : ''}
     </div></div>`;
 }
-const tituloRel = (_r: HTMLElement, _e: EstDoc, chave: string) => { const a = chave.startsWith('a:') ? deA(chave) : undefined, c = chave.startsWith('c:') ? deC(chave) : undefined; return a ? `${a.enc} · ${a.ref}` : c ? `${c.cli} · ${c.ref}` : '—'; };
+const tituloRel = (_r: HTMLElement, _e: EstDoc, chave: string) => { if (chave.startsWith('e:') || chave.startsWith('r:')) return chave.slice(2); const a = chave.startsWith('a:') ? deA(chave) : undefined, c = chave.startsWith('c:') ? deC(chave) : undefined; return a ? `${a.enc} · ${a.ref}` : c ? `${c.cli} · ${c.ref}` : '—'; };
 
 /* ---------- a barra conforme a vista ---------- */
 function barraContexto(r: HTMLElement, x: EstDoc): void {
@@ -177,9 +216,11 @@ function barraContexto(r: HTMLElement, x: EstDoc): void {
   const k = String(x.extra.rel ?? ''), cad = k ? cadeia(k) : null;
   const b = r.querySelector<HTMLElement>('.dv2-barra [data-dv2-acao="abrir-sel"]');
   if (b) {
-    const porque = !k || (v === 'agenda' && !k.startsWith('a:')) || (v === 'clientes' && !k.startsWith('c:')) ? `Escolhe uma linha ${v === 'agenda' ? 'do agendamento' : 'dos pedidos'}.` : !cad?.enc ? 'Este pedido ainda não tem encomenda: vê a Lista de Faltas.' : '';
+    const porque = !k || (v === 'agenda' && !k.startsWith('a:')) || (v === 'clientes' && !k.startsWith('c:')) || (v === 'rececoes' && !/^[er]:/.test(k)) ? `Escolhe uma linha ${v === 'agenda' ? 'do agendamento' : v === 'rececoes' ? 'das receções' : 'dos pedidos'}.` : !cad?.enc ? 'Este pedido ainda não tem encomenda: vê a Lista de Faltas.' : '';
     b.setAttribute('aria-disabled', String(!!porque)); b.title = porque || 'Abrir a encomenda da linha escolhida (Enter)';
   }
+  const rg = r.querySelector<HTMLElement>('.dv2-barra [data-dv2-acao="registar"]');
+  if (rg) { const pq = !/^[er]:/.test(k) ? 'Escolhe uma encomenda por receber.' : !cad?.registar ? `A ${cad?.enc ?? ''} já não está por receber.` : ''; rg.setAttribute('aria-disabled', String(!!pq)); rg.title = pq || `Registar a receção da ${cad!.enc}`; }
   /* a encomenda ligada acende-se também na lista das encomendas */
   r.querySelectorAll<HTMLElement>('[data-dv2-grelha] tr[data-dv2-id]').forEach((t) => t.classList.toggle('is-ligada', !!liga(x) && t.dataset.dv2Id === liga(x)));
 }
@@ -211,7 +252,8 @@ function pagina(c: CfgDoc, cen: string): string {
   </header>
     <div class="ak-barra lf2-barra dv2-barra" role="toolbar" aria-label="Ações">
       ${BTN('novo', plus, 'Novo', 'F5', so('docs'))}
-      ${BTN('abrir-sel', openIc, 'Abrir encomenda', 'Enter', `${so('agenda clientes')} title="Abrir a encomenda da linha escolhida (Enter)"`)}
+      ${BTN('abrir-sel', openIc, 'Abrir encomenda', 'Enter', `${so('agenda clientes rececoes')} title="Abrir a encomenda da linha escolhida (Enter)"`)}
+      ${BTN('registar', packageCheck, 'Registar receção', '', so('rececoes'))}
       ${BTN('editar', pencil, 'Editar', 'F6', so('docs'))}
       ${BTN('anular', ban, 'Anular', 'F8', so('docs'))}
       <i class="ak-sep" aria-hidden="true"${so('docs')}></i>
@@ -272,17 +314,19 @@ const CFG5 = registar({
   sub: 'Gestão de encomendas, entregas e necessidades de clientes.',
   cols: [...ORDEM.map((k) => CFG.cols.find((x) => x.k === k)!), ...CFG.cols.filter((x) => !ORDEM.includes(x.k))],
   verIniciais: ORDEM,
-  teclasExtra: `${CFG.teclasExtra ? `${CFG.teclasExtra} ` : ''}Alt+1 Alt+2 Alt+3`,
+  teclasExtra: `${CFG.teclasExtra ? `${CFG.teclasExtra} ` : ''}Alt+1 Alt+2 Alt+3 Alt+4`,
   janelas: { titulo: 'Encomenda', icone: fileText, estados: ['selecionado', 'fechada', 'parcial', 'recebida', 'anulada', 'gravado', 'rececoes-carregar', 'edi-a-enviar', 'edi-confirmado', 'edi-falhou', 'edi-desconhecido'] },
   vistas: [
     { k: 'docs', t: 'Encomendas', ic: fileText, tecla: 'Alt+1', titulo: 'Encomendas' },
     { k: 'agenda', t: 'Agendamento', ic: calendarClock, tecla: 'Alt+2', titulo: 'Agendamento das entregas', tabela: tabelaAgenda, resumo: resumoAgenda },
     { k: 'clientes', t: 'Pedidos de clientes', ic: userStar, tecla: 'Alt+3', titulo: 'Pedidos de clientes', tabela: tabelaPedidos, resumo: resumoPedidos },
+    { k: 'rececoes', t: 'Receções', ic: packageCheck, tecla: 'Alt+4', titulo: 'Receção de encomendas', tabela: tabelaRec, resumo: resumoRec },
   ],
   relacao: { icone: route, titulo: tituloRel, corpo: corpoRel },
   acao(r, x, k, b) {
     if (k === '_barra') { CFG.acao(r, x, k, b); barraContexto(r, x); return true; }
-    if (k === 'abrir-sel') { const cad = cadeia(String(x.extra.rel ?? '')); if (cad?.enc) abrirEnc(r, x, cad.enc, cad.ref); return true; }
+    if (k === 'abrir-sel') { const kk = String(x.extra.rel ?? ''), cad = cadeia(kk); if (cad?.enc) abrirEnc(r, x, cad.enc, cad.ref, kk.startsWith('r:') ? 'rececoes' : 'linhas'); return true; }
+    if (k === 'registar') { const cad = cadeia(String(x.extra.rel ?? '')); if (cad?.registar) abrirDoc(b, 'compras.rececao', `Receção · ${cad.enc}`, 'compras-rececao', cad.enc); return true; }
     if (k === 'rel-enc') { abrirEnc(r, x, b.dataset.enc!, b.dataset.ref!, b.dataset.tab || 'linhas'); return true; }
     if (k === 'rel-vista') { const cad = cadeia(String(x.extra.rel ?? '')); if (cad?.enc) x.extra.liga = cad.enc; x.extra.rel = b.dataset.k; mudarVista(r, x, b.dataset.v!); escolherRel(r, x, b.dataset.k!); r.querySelector<HTMLElement>('[data-dv2-vista-g] .is-ativo')?.scrollIntoView({ block: 'nearest' }); return true; }
     if (k === 'rel-fora') { if (!emSeparador()) toast(r, 'A ficha abre numa janela quando o ecrã está na área de trabalho.'); return true; }
@@ -305,6 +349,8 @@ const CFG5 = registar({
     if (cen === 'relacao-agenda') { const a = entregas().find((y) => y.entrega < HOJE); rel('agenda', a && chaveA(a)); }
     if (cen === 'relacao-sem') { const p = pedidos().find((y) => !y.enc && y.stock < y.qtd); rel('clientes', p && chaveC(p)); }
     if (cen === 'relacao-indisponivel') { x.extra.vista = 'agenda'; requestAnimationFrame(() => { x.extra.rel = 'a:EF 2026/0399|9999|2026-10-01'; abrirJanelaDoc(r, x, 'rel', undefined, false); refrescarJanelas(r, x); }); }
+    if (cen === 'relacao-rececao') { const x = es.find((y) => y.estado === 'Parcialmente recebida') ?? es.find((y) => y.estado === 'Emitida'); rel('rececoes', x && `e:${x.ref}`); }
+    if (cen === 'relacao-registada') { const rc = rececoes()[0]; rel('rececoes', rc && `r:${rc.ref}`); }
     if (cen === 'ligada') { const a = entregas().find((y) => y.entrega < HOJE); if (a) { x.ativo = a.enc; x.extra.liga = a.enc; x.extra.vista = 'agenda'; } }
     if (cen === 'anular-recusado') { x.ativo = por('Parcialmente recebida'); requestAnimationFrame(() => { const d = ativoDe(r, x); dialogo(r, `<h2 id="dv2-dlg-t" class="is-perigo">${L(ban)}Não é possível anular</h2><p>${esc(CFG.porque.anular(x, d) || 'Esta encomenda já tem receções: só se fecha, com motivo.')}</p><div class="lf2-dlg-acoes"><button type="button" class="ak-btn ak-btn--linha" data-dv2-dlg-fechar data-dv2-primeiro>${L(xIc)}<span>Fechar</span><kbd>Esc</kbd></button></div>`); }); }
   },
@@ -347,6 +393,9 @@ const ESTADOS5: [string, string, string][] = [
   ['sessao', '10.92 · Sessão terminada', 'Voltar a entrar pelo login comum; o que estava escrito fica.'],
   ['servidor', '10.93 · Servidor indisponível', 'O servidor das compras não respondeu: Tentar outra vez.'],
   ['restaurada', '10.94 · Área de trabalho reposta', 'Ao voltar: a pesquisa, os filtros e a encomenda escolhida como estavam.'],
+  ['vista-rececoes', '10.99 · Receções', 'A vista das receções (Alt+4): as encomendas por receber, pela entrega prevista, e as receções registadas; Registar receção abre o registo.'],
+  ['relacao-rececao', '10.100 · Ligações de uma encomenda por receber', 'A encomenda parcialmente recebida com a cadeia: os pedidos de clientes que cobre, a entrega (o que falta) e as receções; Registar receção.'],
+  ['relacao-registada', '10.101 · Ligações de uma receção', 'Uma receção registada: a encomenda, a guia, o que se aceitou e quem recebeu; abrir a encomenda vai às Receções dela.'],
   ['janelas', '10.95 · Várias janelas', 'Três encomendas abertas em cascata (uma minimizada, só com o título); as ações aplicam-se à da frente.'],
   ['maximizada', '10.96 · Janela maximizada', 'Duplo clique no cabeçalho enche o ecrã; outra vez, volta ao tamanho que tinha.'],
   ['editar-sujo', '10.97 · A editar, com alterações', 'O rascunho na janela «A editar» com o ● das alterações por gravar; fechar pergunta.'],

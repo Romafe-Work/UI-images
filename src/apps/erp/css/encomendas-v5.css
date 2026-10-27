@@ -9,7 +9,8 @@
 /* a barra mostra só o que serve a vista escolhida */
 .dv2c[data-dv2-vista-atual="docs"] [data-so]:not([data-so~="docs"]),
 .dv2c[data-dv2-vista-atual="agenda"] [data-so]:not([data-so~="agenda"]),
-.dv2c[data-dv2-vista-atual="clientes"] [data-so]:not([data-so~="clientes"]) { display: none !important; }
+.dv2c[data-dv2-vista-atual="clientes"] [data-so]:not([data-so~="clientes"]),
+.dv2c[data-dv2-vista-atual="rececoes"] [data-so]:not([data-so~="rececoes"]) { display: none !important; }
 
 /* ---- os filtros numa linha ---- */
 .dv2c .dv2c-filtros { margin: 10px clamp(16px, 2vw, 28px) 0; padding: 8px; border-radius: 10px; }
@@ -127,3 +128,12 @@
 /* 27 out. (ela: «não estou a gostar» da barra de estado): sai — o resumo da lista já diz quantas há, a janela em edição
    tem o ● e o que se grava diz-se no aviso; o elemento fica (o motor escreve nele), escondido */
 .dv2c .lf2-estado { display: none; }
+/* a vista das Receções: dois blocos (por receber; registadas) na mesma lista */
+.dv2c-sub { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 10px 12px 6px; font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--h-tinta-2); }
+.dv2c-sub + .lf2-tab, .dv2c-sub + .dv2c-sub-nada { margin-bottom: 4px; }
+.dv2c-sub i { align-self: center; width: 8px; height: 8px; border-radius: 50%; background: rgb(0, 99, 170); }
+.dv2c-sub.is-feito i { background: var(--h-ok); }
+.dv2c-sub small { font-size: 12px; letter-spacing: 0; color: var(--h-tinta-3); }
+.dv2c-sub span { margin-left: auto; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--h-tinta-3); }
+.dv2c-sub:not(:first-child) { border-top: 1px solid var(--h-borda); margin-top: 6px; }
+.dv2c-sub-nada { margin: 0; padding: 4px 12px 12px; font-size: 13px; color: var(--h-tinta-3); }

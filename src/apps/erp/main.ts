@@ -48,10 +48,12 @@ import './css/encomendas-v5.css';
 import './css/calmo.css';
 import { iniciar as calmo } from './comportamento/calmo';
 import { iniciar as rececoes2 } from './compras/rececoes-v2';
+import { iniciar as guias3 } from './compras/guias-v3';
 import { iniciar as ficheiros } from './ficheiros/comportamento';
 import { iniciar as automatico } from './compras/automatico-comportamento';
 import { iniciar as comparativo } from './compras/comparativo-comportamento';
 
 calmo();
 rececoes2();
+guias3();
 montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, recap2, selectErp, moldura, espaco, inicio, compras, compras2, ficheiros, automatico, comparativo]);

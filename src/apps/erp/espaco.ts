@@ -118,11 +118,11 @@ export const MENU_ERP: LinhaMenu[] = [
   S('compras-fornecedores', 'Fornecedores', 'users', 'compras.fornecedores', 30),
   S('compras-requisicoes', 'Requisições', 'clipboard-list', 'compras.requisicoes', 40),
   S('compras-cotacoes', 'Orçamentos', 'scale', 'compras.cotacoes', 50),
-  S('compras-rececoes', 'Receção de encomendas', 'package-check', 'compras.rececoes', 60, ['compras', 'armazem', 'admin']),
-  S('compras-devolucoes', 'Devoluções a fornecedor', 'undo-2', 'compras.devolucoes', 70),
+  /* 27 out. (ela: «Encomendas e Receção de encomendas num só ecrã»): a Receção é a vista Receções das Encomendas (v5) */
+  /* 27 out. (ela: «estes três no mesmo ecrã»): as Devoluções e as Guias de transporte são vistas das Guias (v3); saem do menu */
   /* o menu Compras do ERP antigo (22 out., ela mostrou-o): a mesma ordem, os separadores e os mapas em submenus; o que ainda não tem ecrã novo fica desligado */
   /* 27 out. (ela: «coloca isto num só ecrã»): Agendamento e Clientes — encomendas especiais são vistas das Encomendas (v4); saem do menu */
-  A('compras-guias-entrada', 'compras', 'Guias de entrada', 'file-input', 50, true), A('compras-guias-transporte', 'compras', 'Guias de transporte a fornecedor', 'truck', 60, true),
+  A('compras-guias-entrada', 'compras', 'Guias', 'file-input', 50, true),
   A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true), A('compras-notas-credito', 'compras', 'Notas de crédito', 'file-minus', 90),
   A('compras-pendentes', 'compras', 'Pendentes de crédito de fornecedor', 'hourglass', 100, true), A('compras-verificacao', 'compras', 'Verificação de faturas', 'file-check', 110, true),
   A('compras-mapas', 'compras', 'Mapas', 'chart-bar', 200, true),
@@ -182,11 +182,16 @@ MENU_ANTIGO.forEach((id) => {
   ROTAS[rota] = { ecra: `cm-${id}`, titulo: l.rotulo, icone: l.icone || 'chart-bar', acoes: ['atualizar', 'imprimir'] };
 });
 /* 26 out. (ela: «existe redundância»): os ecrãs com barra própria não levam a barra da área de trabalho por cima */
-const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-compras-faturas|cm-mapas-recap|cm-mapas-automatico|cm-comp-.+|cm-analise-artigo)$/;
+const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-compras-guias-entrada|cm-compras-faturas|cm-mapas-recap|cm-mapas-automatico|cm-comp-.+|cm-analise-artigo)$/;
 Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* os dois itens que passaram a vistas das Encomendas: quem os tinha nos favoritos ou nos recentes abre as Encomendas na vista deles */
 ROTAS['compras.compras-agendamento'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'agenda' };
 ROTAS['compras.compras-especiais'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'clientes' };
+ROTAS['compras.compras-guias-entrada'] = { ...ROTAS['compras.compras-guias-entrada'], titulo: 'Guias' };
+ROTAS['compras.compras-guias-transporte'] = { ...ROTAS['compras.compras-guias-entrada'], alias: 'compras.compras-guias-entrada', modo: 'transporte' };
+ROTAS['compras.devolucoes'] = { ...ROTAS['compras.compras-guias-entrada'], alias: 'compras.compras-guias-entrada', modo: 'devolucao' };
+ROTAS['compras.rececoes'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'rececoes' };
+Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* o separador de Artigos/Compras Automático chama-se «Artigos / Compras» (o briefing) */
 ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
 /* 23 out. (ela: «quero num só ecrã»): os comparativos «X» e «X (variação anual)» são um ecrã só. A rota nova (-var) abre
