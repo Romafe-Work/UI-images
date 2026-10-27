@@ -114,6 +114,7 @@ export const ACOES_COMPRA: { k: string; tecla: string; t: string; d: string; per
 export type Cen2 = 'normal' | 'avancados' | 'carregar' | 'sem-resultados' | 'filtros' | 'vazia' | 'erro' | 'offline' | 'sem-ativa'
   /* só na v2 */
   | 'det-carregar' | 'sem-artigo' | 'a-atualizar' | 'gerar' | 'ajuda' | 'a-gravar' | 'confirmado' | 'invalido' | 'rejeitado'
+  | 'janela' | 'janelas' | 'maximizada' | 'editar' | 'editar-sujo' | 'editar-mudou' | 'apagar-em-edicao'
   | 'apagar' | 'permissao' | 'sessao' | 'parcial' | 'restaurada' | 'visualizar' | 'acoes';
 const TECLAS = 'F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Escape';
 const B = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-lf2-acao="${k}"${tecla ? ` aria-keyshortcuts="${tecla}"${extra.includes('title=') ? '' : ` title="${t} (${tecla})"`}` : ''}${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
@@ -222,6 +223,14 @@ const ESTADOS2: [Cen2, string, string][] = [
   ['sessao', '20.24 · Sessão terminada', 'A sessão terminou: voltar a entrar pelo login comum; os filtros ficam.'],
   ['parcial', '20.25 · Dados parciais', 'Rotatividade pedida a 120 dias: só há 12 semanas; mostra-se o que há e diz-se.'],
   ['restaurada', '20.26 · Área de trabalho reposta', 'Ao voltar ao separador: os filtros, a visualização e o artigo escolhido como estavam.'],
+  /* 27 out. (ela: «todos os ecrãs com todos os estados»): as janelas dos artigos e o editar nelas */
+  ['janela', '20.27 · Artigo numa janela', 'Tocar num artigo abre a janela dele: stock, reposição, rotatividade e preços; arrasta-se, redimensiona-se, minimiza-se.'],
+  ['janelas', '20.28 · Várias janelas', 'Três artigos abertos em cascata, um minimizado (só com o título); Esc fecha a de cima.'],
+  ['maximizada', '20.29 · Janela maximizada', 'Duplo clique no cabeçalho enche o ecrã; outra vez, volta ao tamanho que tinha.'],
+  ['editar', '20.30 · Editar na janela', 'Editar (F6) com o artigo aberto: a janela dele passa a «A editar a falta» (não se abre outra).'],
+  ['editar-sujo', '20.31 · Alterações por gravar', 'Cancelar com alterações: a janela pergunta — continuar a editar ou descartar.'],
+  ['editar-mudou', '20.32 · A falta mudou entretanto', 'Outro separador mudou a falta enquanto se editava: diz-se o valor de agora; ver os valores de agora ou gravar por cima.'],
+  ['apagar-em-edicao', '20.33 · Apagar o que se edita', 'Apagar (F8) uma falta que está a ser editada numa janela é recusado: grava ou cancela primeiro.'],
 ];
 /** O 20 com as duas versões (a v2 é a mais nova e abre por omissão) e os estados só da v2. */
 export function ecrasFaltasV2(): Ecra<IdErp>[] {
@@ -229,4 +238,4 @@ export function ecrasFaltasV2(): Ecra<IdErp>[] {
   const base = ecrasFaltas().map((e) => { const c = PARES[e.id as string]; return c ? { ...e, nome: e.nome.replace('Lista de faltas', 'Lista de Faltas'), versoes: [...e.versoes, v2(c)] as Ecra<IdErp>['versoes'] } : e; });
   return [...base, ...ESTADOS2.map(([cen, nome, objetivo]) => ({ id: `faltas2-${cen}` as IdErp, nome, fluxo: 'Compras', estadoDe: 'compras-faltas' as IdErp, objetivo, versoes: [v2(cen)] as Ecra<IdErp>['versoes'] }))];
 }
-export type IdFaltas2 = `faltas2-${'visualizar' | 'acoes' | 'sem-artigo' | 'det-carregar' | 'a-atualizar' | 'gerar' | 'ajuda' | 'a-gravar' | 'confirmado' | 'invalido' | 'rejeitado' | 'apagar' | 'permissao' | 'sessao' | 'parcial' | 'restaurada'}`;
+export type IdFaltas2 = `faltas2-${'visualizar' | 'acoes' | 'sem-artigo' | 'det-carregar' | 'a-atualizar' | 'gerar' | 'ajuda' | 'a-gravar' | 'confirmado' | 'invalido' | 'rejeitado' | 'apagar' | 'permissao' | 'sessao' | 'parcial' | 'restaurada' | 'janela' | 'janelas' | 'maximizada' | 'editar' | 'editar-sujo' | 'editar-mudou' | 'apagar-em-edicao'}`;

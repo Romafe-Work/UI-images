@@ -359,7 +359,7 @@ function corpoEdicao(e: Est, j: Jan, l: L2 | undefined): string {
 }
 function janelaHtml(r: HTMLElement, e: Est, j: Jan): string {
   const id = `lf2-jan-${r.dataset.lf2Cenario}-${j.ref.replace(/\W+/g, '-')}`;
-  return `<section class="lf2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-lf2-jan="${esc(j.ref)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed ? 'auto' : `${j.h}px`};z-index:${j.z}">
+  return `<section data-por-cima class="lf2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-lf2-jan="${esc(j.ref)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed ? 'auto' : `${j.h}px`};z-index:${j.z}">
     <header class="lf2-jan-cab" data-lf2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : box)}<h3 id="${id}">${j.ed ? 'A editar a falta' : 'Artigo'} · <b data-lf2-jan-ref>${esc(j.ref)}</b>${j.ed?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
       <span class="lf2-jan-bts"><button type="button" data-lf2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${IC_MIN}</button><button type="button" data-lf2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${j.max ? IC_RES : IC_MAX}</button><button type="button" data-lf2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${IC_X}</button></span></header>
     <div class="lf2-jan-corpo" data-lf2-jan-corpo>${corpoEdicao(e, j, doArtigo(e, j.ref))}</div>
@@ -648,6 +648,18 @@ function armar(r: HTMLElement): void {
   if ((cen === 'det-carregar' || cen === 'parcial') && e.ativo && e.ativo !== '-') { abrirJanela(r, e, e.ativo); r.querySelector<HTMLElement>('.lf2-jan')?.getAnimations().forEach((a) => a.finish()); }
   if (cen === 'invalido') { e.ativo = ls()[0]?.ref ?? ''; editarNaJanela(r, e, 'A quantidade em rutura é um número inteiro de 0 a 99 999.', '-3'); r.querySelectorAll<HTMLElement>('.lf2-jan').forEach((x) => x.getAnimations().forEach((a) => a.finish())); }
   if (cen === 'apagar') dlgApagar(r, e, true);
+  /* as janelas dos artigos e o editar nelas (os estados de 27 out.) */
+  const pr = ls().map((l) => l.ref), fim = () => r.querySelectorAll<HTMLElement>('.lf2-jan').forEach((x) => x.getAnimations().forEach((a) => a.finish()));
+  if (cen === 'janela' || cen === 'maximizada') { e.ativo = pr[0] ?? ''; abrirJanela(r, e, e.ativo); if (cen === 'maximizada') acaoJanela(r, e, e.ativo, 'max'); fim(); }
+  if (cen === 'janelas') { pr.slice(0, 3).forEach((k) => abrirJanela(r, e, k)); if (pr[0]) acaoJanela(r, e, pr[0], 'min'); fim(); }
+  if (cen === 'editar' || cen === 'editar-sujo' || cen === 'editar-mudou' || cen === 'apagar-em-edicao') {
+    e.ativo = pr[0] ?? ''; abrirJanela(r, e, e.ativo); editarNaJanela(r, e); const j = jans(e).find((x) => x.ref === e.ativo);
+    if (j?.ed && cen !== 'editar') { j.ed.q = String(j.ed.base.pedida + 5); j.ed.sujo = true; }
+    if (j?.ed && cen === 'editar-sujo') j.ed.pergunta = 'cancelar';
+    if (j?.ed && cen === 'editar-mudou') { j.ed.pergunta = 'mudou'; j.ed.base = { pedida: j.ed.base.pedida + 2, tipo: j.ed.base.tipo }; }
+    if (cen === 'apagar-em-edicao') e.aviso = `A falta ${e.ativo} está a ser editada numa janela: grava ou cancela primeiro.`;
+    desenharJanelas(r, e); if (cen === 'apagar-em-edicao') estado(r, e); fim();
+  }
   if (cen === 'confirmado') encomendaAside(r, e, true);
   /* a entrada: curta, só a primeira vez e fora do editor */
   const aVista = !!r.closest('.ecra:not([hidden]) > .versao:not([hidden])');

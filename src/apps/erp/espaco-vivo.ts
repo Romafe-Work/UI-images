@@ -29,12 +29,19 @@ export const versaoInicioV7 = () => ({ ...V7, html: paginaLat(estadoVivo()) });
 /** Os estados da v6 também na v7. */
 export const versaoEstadoVivo = (id: string) => versaoEstadoLat(id, V7);
 
-export type IdVivo = 'dk8-pasta' | 'dk8-janela' | 'dk8-separadores';
+export type IdVivo = 'dk8-pasta' | 'dk8-janela' | 'dk8-separadores' | 'dk8-todos' | 'dk8-todos-procura' | 'dk8-reabrir';
 const S = (id: string, rota: string, titulo: string, sujo = false) => ({ id, rota, titulo, sujo });
+const MUITOS = [S('s1', 'compras.faltas', 'Lista de Faltas'), S('s2', 'compras.encomendas', 'Encomendas'), S('s3', 'compras.cotacoes', 'Orçamentos'), S('s4', 'compras.rececoes', 'Receção de encomendas'),
+  S('s5', 'compras.compras-guias-entrada', 'Guias de entrada'), S('s6', 'compras.encomenda', 'EF 2026/0413', true), S('s7', 'ficheiros.artigos', 'Artigos'), S('s8', 'compras.fornecedores', 'Fornecedores'),
+  S('s9', 'compras.compras-faturas', 'Faturas'), S('s10', 'compras.mapas-recap', 'Mapa recapitulativo de fornecedores'), S('s11', 'compras.requisicoes', 'Requisições'), S('s12', 'ficheiros.marcas', 'Marcas')];
 const NOVOS: [IdVivo, string, string, Partial<Estado>][] = [
   ['dk8-pasta', '05.45 · Pasta Compras aberta', 'O fim da transformação da pasta: o separador «Compras» com o explorador do módulo (os ecrãs como ficheiros); fechar o separador devolve a pasta ao menu.', { seps: [S('p-compras', 'pasta:compras', 'Compras')], ativo: 'p-compras', sel: 'compras.faltas' }],
   ['dk8-janela', '05.46 · Janela a partir de Artigos', 'Em Artigos, «Stock por armazém» abre a janela de contexto a partir do botão; a tabela fica onde estava.', { seps: [S('s1', 'ficheiros.artigos', 'Artigos')], ativo: 's1', janelas: [{ id: 'j1', tipo: 'artigo', chave: '6206-2RSH', x: 300, y: 70, w: 360, h: 300, z: 2 }] }],
   ['dk8-separadores', '05.47 · Vários separadores', 'Artigos, Encomendas e uma encomenda com alterações por guardar (o ponto no separador); o indicador está no ativo.', { seps: [S('s1', 'ficheiros.artigos', 'Artigos'), S('s2', 'compras.encomendas', 'Encomendas de compra'), S('s3', 'compras.encomenda', 'EF 2026/0413', true)], ativo: 's2' }],
+  /* 27 out. (briefing V3 e ela: «todos os ecrãs com todos os estados»): a barra cheia e a lista de todos os separadores */
+  ['dk8-todos', '05.48 · Todos os separadores', 'Muitos separadores: a barra rola (roda do rato) e o botão no fim abre a lista de todos, com o ativo marcado e o ● das alterações por guardar (Ctrl+Shift+E).', { seps: MUITOS, ativo: 's9', todos: '' }],
+  ['dk8-todos-procura', '05.49 · Procurar nos separadores', 'A lista com a procura «enc»: só os separadores que a têm no nome; Enter vai para o primeiro.', { seps: MUITOS, ativo: 's2', todos: 'enc' }],
+  ['dk8-reabrir', '05.50 · Fechados há pouco', 'Os separadores fechados há pouco ficam na lista para os reabrir (nada se perde ao fechar sem querer).', { seps: MUITOS.slice(0, 7), ativo: 's3', todos: '', fechados: [{ rota: 'compras.compras-faturas', titulo: 'Faturas' }, { rota: 'compras.rececoes', titulo: 'Receção de encomendas' }] }],
 ];
 export function estadosVivo(): Ecra<IdErp>[] {
   return NOVOS.map(([id, nome, objetivo, o]) => ({ id: id as IdErp, nome, fluxo: 'Início', estadoDe: 'inicio' as IdErp, objetivo, versoes: [{ ...V7, html: paginaLat(estadoVivo(o), '', id) }] }));

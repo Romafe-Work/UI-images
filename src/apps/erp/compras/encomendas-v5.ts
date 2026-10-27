@@ -328,7 +328,7 @@ const ESTADOS5: [string, string, string][] = [
   ['relacao-agenda', '10.73 · Ligações de uma entrega atrasada', 'A entrega atrasada com a encomenda, o pedido do cliente (se houver) e a receção.'],
   ['relacao-sem', '10.74 · Pedido por cobrir', 'Sem encomenda: diz-se, com a sugestão da Lista de Faltas e o caminho para lá.'],
   ['relacao-indisponivel', '10.75 · Ligação indisponível', 'A linha já não existe (a encomenda mudou ou foi recebida): diz-se, sem inventar.'],
-  ['criar', '10.76 · Nova encomenda', 'A ficha nasce do botão Novo, na página.'],
+  ['criar', '10.76 · Nova encomenda', 'Novo (F5) abre a ficha numa janela «A criar»; a lista fica à vista.'],
   ['editar', '10.77 · Editar o rascunho', 'A ficha na janela da encomenda (a que estava aberta passa a «A editar»).'],
   ['por-gravar', '10.78 · Alterações por gravar', 'Fechar com alterações: continuar a editar ou descartar.'],
   ['a-gravar', '10.79 · A gravar', 'O botão espera; nada se diz antes de o domínio aceitar.'],
@@ -347,6 +347,10 @@ const ESTADOS5: [string, string, string][] = [
   ['sessao', '10.92 · Sessão terminada', 'Voltar a entrar pelo login comum; o que estava escrito fica.'],
   ['servidor', '10.93 · Servidor indisponível', 'O servidor das compras não respondeu: Tentar outra vez.'],
   ['restaurada', '10.94 · Área de trabalho reposta', 'Ao voltar: a pesquisa, os filtros e a encomenda escolhida como estavam.'],
+  ['janelas', '10.95 · Várias janelas', 'Três encomendas abertas em cascata (uma minimizada, só com o título); as ações aplicam-se à da frente.'],
+  ['maximizada', '10.96 · Janela maximizada', 'Duplo clique no cabeçalho enche o ecrã; outra vez, volta ao tamanho que tinha.'],
+  ['editar-sujo', '10.97 · A editar, com alterações', 'O rascunho na janela «A editar» com o ● das alterações por gravar; fechar pergunta.'],
+  ['novo-sujo', '10.98 · Nova encomenda por gravar', 'A janela «A criar» com alterações: fechar pergunta se se descarta.'],
 ];
 export function comEncomendasV5(ecras: Ecra<IdErp>[]): Ecra<IdErp>[] {
   return [...ecras.map((e) => e.id === 'compras' ? { ...e, versoes: [...e.versoes, versao5()] as Ecra<IdErp>['versoes'] } : e),

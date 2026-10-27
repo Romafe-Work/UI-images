@@ -320,7 +320,7 @@ export const ESTADOS_ORC: [string, string, string][] = [
   ['carregar', '18.11 · A carregar', 'A lista em esqueleto; a pesquisa e os filtros já servem.'],
   ['vazia', '18.12 · Sem orçamentos', 'Ainda não há orçamentos: Novo (F5).'],
   ['sem-resultados', '18.13 · Pesquisa sem resultados', 'Diz em que modo se procurou e como se compara; oferece Contendo e Limpar.'],
-  ['criar', '18.14 · Novo orçamento', 'A ficha nasce do botão Novo: fornecedor, prazos, descrição e artigos.'],
+  ['criar', '18.14 · Novo orçamento', 'Novo (F5) abre a ficha numa janela «A criar»: fornecedor, prazos, descrição e artigos; a lista fica à vista.'],
   ['editar', '18.15 · Registar a resposta', 'Um orçamento enviado: preços, descontos, mínimos, validade, prazo e portes; o total recalcula-se.'],
   ['por-gravar', '18.16 · Alterações por gravar', 'Fechar a ficha com alterações: continuar a editar ou descartar.'],
   ['a-gravar', '18.17 · A gravar', 'O botão espera; nada se diz antes de as regras aceitarem.'],
@@ -343,6 +343,10 @@ export const ESTADOS_ORC: [string, string, string][] = [
   ['offline', '18.34 · Sem ligação', 'Sem rede: a pesquisa e os filtros ficam.'],
   ['servidor', '18.35 · Servidor indisponível', 'O servidor das compras não respondeu: Tentar outra vez.'],
   ['restaurada', '18.36 · Área de trabalho reposta', 'Ao voltar: a pesquisa, os filtros e o orçamento escolhido como estavam.'],
+  ['janela', '18.37 · Orçamento numa janela', 'Tocar num orçamento abre-o numa janela flutuante: Detalhes, Linhas, Documentos e Anexos lá dentro; a lista fica à vista.'],
+  ['janelas', '18.38 · Várias janelas', 'Três orçamentos abertos em cascata (um minimizado, só com o título); a da frente é a última tocada e é a ela que as ações se aplicam.'],
+  ['maximizada', '18.39 · Janela maximizada', 'Duplo clique no cabeçalho (ou o botão) enche o ecrã; outra vez, volta ao tamanho que tinha.'],
+  ['editar-sujo', '18.40 · A editar, com alterações', 'Editar na janela do orçamento: o ● no título diz que há alterações por gravar; fechar pergunta.'],
 ];
 const fornecedoresDaLista = (): [string, string][] => [...new Set(cotacoes().flatMap((c: Cotacao) => c.fornecedores))].map((f) => [f, nomeF(f)] as [string, string]).sort((a, b) => a[1].localeCompare(b[1], 'pt'));
 export function versaoOrcamentos(cen = 'normal') { return { id: 'v2', nota: NOTA, html: paginaDoc(CFG, cen, fornecedoresDaLista()) }; }

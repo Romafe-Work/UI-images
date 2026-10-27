@@ -303,7 +303,7 @@ function corpoJan(r: HTMLElement, e: EstDoc, j: JanDoc): string {
 function janHtml(r: HTMLElement, e: EstDoc, j: JanDoc): string {
   const c = cfgDe(r), d = docDe(r, e, j.id), id = `dv2-jan-${c.k}-${r.dataset.dv2Cenario}-${j.id.replace(/\W+/g, '-')}`, rel = j.id === 'rel' && !!c.relacao;
   const nome = rel ? c.relacao!.titulo(r, e, String(e.extra.rel ?? '')) : j.id === 'novo' ? `${c.o === 'a' ? 'Nova' : 'Novo'} ${c.um}` : d ? String(d.numero ?? d.ref ?? j.id) : j.id;
-  return `<section class="lf2-jan dv2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-dv2-jan="${esc(j.id)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed || j.id === 'rel' ? 'auto' : `${j.h}px`};z-index:${j.z}">
+  return `<section data-por-cima class="lf2-jan dv2-jan${j.min ? ' is-min' : ''}${j.max ? ' is-max' : ''}" data-dv2-jan="${esc(j.id)}" role="dialog" aria-labelledby="${id}" tabindex="-1" style="left:${j.x}px;top:${j.y}px;width:${j.w}px;height:${j.ed || j.id === 'rel' ? 'auto' : `${j.h}px`};z-index:${j.z}">
     <header class="lf2-jan-cab" data-dv2-jan-arrastar title="Arrasta para mudar de sítio; duplo clique maximiza">${L(j.ed ? pencil : rel ? c.relacao!.icone : c.janelas!.icone)}<h3 id="${id}">${j.ed ? (j.id === 'novo' ? 'A criar' : 'A editar') : rel ? 'Ligações' : esc(c.janelas!.titulo)} · <b data-dv2-jan-ref>${esc(nome)}</b>${j.ed && e.ficha?.sujo ? ' <span class="dv2-sujo" title="Alterações por gravar">●</span>' : ''}</h3>
       <span class="lf2-jan-bts"><button type="button" data-dv2-jan-acao="min" aria-label="${j.min ? 'Restaurar' : 'Minimizar'}" title="${j.min ? 'Restaurar' : 'Minimizar'}">${L(minus)}</button><button type="button" data-dv2-jan-acao="max" aria-label="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}" title="${j.max ? 'Restaurar o tamanho' : 'Maximizar'}">${L(j.max ? minimize : maximize)}</button><button type="button" data-dv2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${L(xIc)}</button></span></header>
     <div class="lf2-jan-corpo" data-dv2-jan-corpo>${j.ed ? '' : corpoJan(r, e, j)}</div>
@@ -557,10 +557,20 @@ function armar(r: HTMLElement): void {
     default: break;
   }
   c.cenario(r, e, cen);
+  if (cen === 'editar-sujo') c.cenario(r, e, 'editar');
   tudo(r, e);
-  if (cen === 'criar' || cen === 'por-gravar' || cen === 'gravar-falhou' || cen === 'a-gravar') { abrirFicha(r, e, 'criar'); if (cen !== 'criar') { e.ficha!.sujo = true; trilho(r, e); } }
+  if (cen === 'criar' || cen === 'por-gravar' || cen === 'gravar-falhou' || cen === 'a-gravar' || cen === 'novo-sujo') { abrirFicha(r, e, 'criar'); if (cen !== 'criar') { e.ficha!.sujo = true; trilho(r, e); cabecaJanelaEd(r, e); } }
   if (cen === 'editar') { const d = ativoDe(r, e); if (d) abrirFicha(r, e, 'editar', d); }
   if (cen === 'por-gravar') fecharFicha(r, e);
+  /* 27 out. (ela: «todos os ecrãs com todos os estados»): as janelas — uma, várias (uma minimizada), maximizada, e a editar com alterações */
+  if (c.janelas && ['janela', 'janelas', 'maximizada'].includes(cen)) {
+    const ls = filtradas(r, e), ids = cen === 'janelas' ? ls.slice(0, 3).map((d) => d.id) : [e.ativo && e.ativo !== '-' ? e.ativo : ls[0]?.id].filter(Boolean) as string[];
+    ids.forEach((id, i) => { abrirJanelaDoc(r, e, id, i === 1 ? (c.tabs[1]?.k ?? c.tabs[0].k) : c.tabs[0].k, false); });
+    if (cen === 'janelas' && ids[2]) acaoJanelaDoc(r, e, ids[2], 'min');
+    if (cen === 'maximizada' && ids[0]) acaoJanelaDoc(r, e, ids[0], 'max');
+    r.querySelectorAll<HTMLElement>('[data-dv2-jan]').forEach((x) => x.getAnimations().forEach((a) => a.finish()));
+  }
+  if (cen === 'editar-sujo') { const d = ativoDe(r, e); if (d) { abrirFicha(r, e, 'editar', d); if (e.ficha) { e.ficha.sujo = true; trilho(r, e); estado(r, e); cabecaJanelaEd(r, e); } r.querySelectorAll<HTMLElement>('[data-dv2-jan]').forEach((x) => x.getAnimations().forEach((a) => a.finish())); } }
   if (cen === 'a-gravar') { e.ocupado = 'gravar'; e.extra.ocupadoTexto = 'A gravar…'; const b = r.querySelector<HTMLElement>('[data-dv2-ficha] [data-dv2-acao="gravar"]'); b?.classList.add('is-carregar'); b?.setAttribute('aria-disabled', 'true'); estado(r, e); }
   if (cen === 'gravar-falhou') { const x = r.querySelector<HTMLElement>('[data-dv2-ficha-erro]'); if (x) { x.hidden = false; x.innerHTML = `${L(circleAlert)}<span>Não foi possível gravar: o servidor não respondeu (ERP-COMP-503). Nada se gravou; as alterações continuam na ficha.</span>`; } }
   if (cen === 'gravado') { e.aviso = `${c.o === 'a' ? 'A' : 'O'} ${c.um} ${String(ativoDe(r, e)?.numero ?? '')} foi ${c.o === 'a' ? 'gravada' : 'gravado'}.`; estado(r, e); }

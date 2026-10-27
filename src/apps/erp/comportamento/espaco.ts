@@ -204,10 +204,10 @@ function pintarTodos(): void {
   if (lista) lista.innerHTML = html;
   else m.innerHTML = `<label class="dk-todos-q">${L(IC.search)}<input type="search" placeholder="Procurar nos separadores" aria-label="Procurar nos separadores" data-dk-todos-q value="${esc(todosQ)}"></label><div class="dk-todos-l" data-dk-todos-l>${html}</div>`;
 }
-function abrirTodos(abrir = true): void {
+function abrirTodos(abrir = true, q = ''): void {
   const m = $('[data-dk-todos-m]'), b = $('[data-dk-todos]'); if (!m || !b) return;
   if (!abrir) { if (!m.hidden) { m.hidden = true; m.innerHTML = ''; b.setAttribute('aria-expanded', 'false'); } return; }
-  todosQ = ''; m.innerHTML = ''; pintarTodos(); m.hidden = false; b.setAttribute('aria-expanded', 'true');
+  todosQ = q; m.innerHTML = ''; pintarTodos(); m.hidden = false; b.hidden = false; b.setAttribute('aria-expanded', 'true');
   m.querySelector<HTMLInputElement>('[data-dk-todos-q]')?.focus();
 }
 function ativar(id: string): void { if (e.ativo === id) return; e.ativo = id; desenhar({ exp: id === 'inicio' }); }
@@ -493,6 +493,8 @@ function armar(): void {
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
   p.querySelectorAll<HTMLElement>('[data-dk-tema]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dkTema === t)));
   desenhar();
+  /* os estados do editor com a lista de todos os separadores aberta */
+  if (e.todos !== undefined) requestAnimationFrame(() => abrirTodos(true, e.todos));
 }
 
 /** (22 out.) ela: «quero o menu do ERP em todos os ecrãs, no topo, como as janelas do Windows ou do Chrome» — no
