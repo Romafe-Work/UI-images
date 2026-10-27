@@ -62,22 +62,24 @@ interface Destino { id: string; funcao: Funcao; rotulo: string; icone: string; e
 const ICONES: Record<string, string> = { inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
 /** 27 out. (ela: «para já remove as tarefas»): as Tarefas saem da barra do Gestor e da Arrumação; os ecrãs ficam no editor. */
 export const TAREFAS_ATIVAS = false;
+/** 27 out. (ela: «remove o mais por agora»): o Mais sai de todas as barras; os ecrãs dele ficam no editor. */
+export const MAIS_ATIVO = false;
 export const MENU_BARRA: Destino[] = [
   { id: 'inicio', funcao: 'gestor', rotulo: 'Início', icone: 'inicio', ecra: 'gestor-inicio', ordem: 10, ativo: true },
   /* 27 out. (ela: «remove o bg das tarefas»): sem o quadrado laranja; fica como os outros destinos */
   { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
   { id: 'inventario', funcao: 'gestor', rotulo: 'Inventário', icone: 'inventario', ecra: 'gestor-inventario', ordem: 30, ativo: true, gesto: 'ler' },
   { id: 'arrumacao', funcao: 'gestor', rotulo: 'Arrumação', icone: 'arrumacao', ecra: 'arr-inicio', ordem: 40, ativo: ARRUMACAO_ATIVA, gesto: 'caixa' },
-  { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
+  { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: MAIS_ATIVO },
   { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-inicio', ordem: 10, ativo: true },
   { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
   { id: 'ler', funcao: 'arrumacao', rotulo: 'Ler', icone: 'ler', ecra: 'op-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
   { id: 'historico', funcao: 'arrumacao', rotulo: 'Histórico', icone: 'historico', ecra: 'op-historico', ordem: 40, ativo: true },
-  { id: 'mais', funcao: 'arrumacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais', ordem: 90, ativo: true },
+  { id: 'mais', funcao: 'arrumacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais', ordem: 90, ativo: MAIS_ATIVO },
   { id: 'inicio', funcao: 'separacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-separacao', ordem: 10, ativo: true },
-  { id: 'mais', funcao: 'separacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais-separacao', ordem: 90, ativo: true },
+  { id: 'mais', funcao: 'separacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais-separacao', ordem: 90, ativo: MAIS_ATIVO },
   { id: 'inicio', funcao: 'expedicao', rotulo: 'Início', icone: 'inicio', ecra: 'op-expedicao', ordem: 10, ativo: true },
-  { id: 'mais', funcao: 'expedicao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais-expedicao', ordem: 90, ativo: true },
+  { id: 'mais', funcao: 'expedicao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais-expedicao', ordem: 90, ativo: MAIS_ATIVO },
 ];
 /** Os números verdadeiros, os mesmos das faixas: contados uma vez. */
 /* GA-2026-0331 e as colunas 07–12 do INV-2026-015 — com a Arrumação desligada, só as do Inventário */
@@ -90,6 +92,8 @@ const NUMEROS: Partial<Record<string, [number, string]>> = {
 /* ---------- a barra ---------- */
 export function barra(funcao: Funcao, ativo: string, o: { semNumeros?: boolean; so?: string[] } = {}): string {
   const ds = MENU_BARRA.filter((d) => d.funcao === funcao && d.ativo && (!o.so || o.so.includes(d.id))).sort((a, b) => a.ordem - b.ordem).slice(0, 5);
+  /* com um destino só a barra não serve: não se mostra */
+  if (ds.length < 2) return '';
   const i = Math.max(0, ds.findIndex((d) => d.id === ativo));
   return `<nav class="gi-barra gi-barra--${ds.length}" data-por-cima aria-label="Navegação" data-gi-barra="${funcao}" style="--n:${ds.length};--i:${i}">
     <i class="gi-barra__ind" aria-hidden="true"></i>
