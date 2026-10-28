@@ -25,6 +25,8 @@ import './css/comparativo.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
+/* 28 out.: as demonstrações com o rato, sem texto (registam-se antes de a página montar) */
+import './roteiro';
 import { iniciar as entrar } from '../../comum/entrar/comportamento';
 import { erp } from './app';
 import { iniciar as rede } from './comportamento/rede';

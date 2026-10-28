@@ -17,6 +17,8 @@ export interface Passo {
   clicar?: string;
   /** escolher um valor num select em vez de clicar */
   escolher?: [string, string];
+  /** 28 out. (ERP): o alvo está no separador ativo da área de trabalho (um iframe da mesma origem), e não na página de cima */
+  separador?: boolean;
   /** a legenda do passo */
   legenda: string;
   /** espera a mais, depois do passo (ms) */
@@ -51,13 +53,29 @@ function aoCimo(): void {
   [rato, legenda].forEach((el) => { if (!el) return; try { if (el.matches(':popover-open')) el.hidePopover(); el.showPopover(); } catch { /* sem popover: ficam com z-index */ } });
 }
 const visivel = () => document.querySelector<HTMLElement>('.ecra:not([hidden])');
-function alvo(sel: string): HTMLElement | null {
-  const d = document.querySelector<HTMLElement>('dialog[open]');
-  return (d?.querySelector<HTMLElement>(sel)) ?? document.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) ${sel}`);
+/** O documento do separador que se vê (o iframe visível do ecrã), quando o há. */
+function doSeparador(): Document | null {
+  /* o que está mesmo à frente: os separadores escondidos podem continuar com tamanho, por baixo do ativo */
+  const f = [...document.querySelectorAll<HTMLIFrameElement>('.ecra:not([hidden]) iframe')].find((x) => {
+    const r = x.getBoundingClientRect(); if (!r.width || !r.height) return false;
+    return document.elementFromPoint(r.left + r.width / 2, r.top + Math.min(r.height / 2, 200)) === x;
+  });
+  try { return f?.contentDocument ?? null; } catch { return null; }
+}
+function alvo(sel: string, separador = false): HTMLElement | null {
+  const doc = separador ? doSeparador() : document; if (!doc) return null;
+  const d = doc.querySelector<HTMLElement>('dialog[open]');
+  return (d?.querySelector<HTMLElement>(sel)) ?? doc.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) ${sel}`) ?? (separador ? doc.querySelector<HTMLElement>(sel) : null);
+}
+/** Onde o documento do elemento começa na janela de cima (0,0 na própria página; o canto do iframe num separador). */
+function origem(el: HTMLElement): [number, number] {
+  if (el.ownerDocument === document) return [0, 0];
+  const f = [...document.querySelectorAll<HTMLIFrameElement>('iframe')].find((x) => { try { return x.contentDocument === el.ownerDocument; } catch { return false; } });
+  const r = f?.getBoundingClientRect(); return r ? [r.left, r.top] : [0, 0];
 }
 async function mover(el: HTMLElement): Promise<void> {
   el.scrollIntoView({ block: 'center', inline: 'nearest' }); await dormir(quieto() ? 0 : 250);
-  const r = el.getBoundingClientRect(), nx = r.left + Math.min(r.width / 2, 60), ny = r.top + r.height / 2;
+  const r = el.getBoundingClientRect(), [ox, oy] = origem(el), nx = ox + r.left + Math.min(r.width / 2, 60), ny = oy + r.top + r.height / 2;
   const d = Math.hypot(nx - x, ny - y), t = quieto() ? 0 : Math.min(900, 300 + d * 1.1);
   rato!.animate([{ transform: `translate(${x}px, ${y}px)` }, { transform: `translate(${nx}px, ${ny}px)` }], { duration: t, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'forwards' });
   x = nx; y = ny; rato!.style.transform = `translate(${x}px, ${y}px)`;
@@ -84,14 +102,14 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
     for (let i = 0; i < r.passos.length && !parar; i++) {
       const p = r.passos[i];
       if (p.ecra && visivel()?.dataset.ecra !== p.ecra && !document.querySelector('dialog[open]')) { mostrar(p.ecra); mostrarVersao(''); await dormir(500); }
-      escrever(i + 1, r.passos.length, p.legenda, r.titulo); aoCimo();
+      if (!r.semTexto) escrever(i + 1, r.passos.length, p.legenda, r.titulo); aoCimo();
       await dormir(quieto() ? 400 : 900);
       if (parar) break;
       if (p.escolher) {
-        const s = alvo(p.escolher[0]) as HTMLSelectElement | null; if (!s) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        const s = alvo(p.escolher[0], p.separador) as HTMLSelectElement | null; if (!s) { fim('O roteiro parou: este ecrã mudou.'); break; }
         await mover(s); await clicar(s); s.value = p.escolher[1]; s.dispatchEvent(new Event('change', { bubbles: true }));
       } else if (p.clicar) {
-        const el = alvo(p.clicar); if (!el) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        const el = alvo(p.clicar, p.separador); if (!el) { fim('O roteiro parou: este ecrã mudou.'); break; }
         await mover(el); await clicar(el);
       }
       await dormir((quieto() ? 300 : 1000) + (p.pausa ?? 0));
