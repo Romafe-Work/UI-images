@@ -10,7 +10,7 @@
    ========================================================= */
 import type { Ecra } from '../../../comum/tipos';
 import type { IdErp } from '../ids';
-import { paginaTabela, estadosTabela, familiaDe, det, type Tabela, type Linha, type Col } from '../ficheiros/ecras';
+import { paginaTabela, estadosTabela, familiaDe, det, type Tabela, type Linha, type Col, type CenarioTabela } from '../ficheiros/ecras';
 import { encomendas, rececoes, FORNECEDORES, ARTIGOS, linhaLiquida, totais, euros, dia, atrasada, diasAtraso, type Encomenda } from './dominio';
 import { faltas } from './faltas';
 import { MENU_ANTIGO } from './menu-antigo-ids';
@@ -131,6 +131,8 @@ comparativo('comp-artigo', (_, r) => r, 'Artigo', (k) => art(k)?.desc ?? '—');
 comparativo('comp-familia', (_, r) => `${familiaDe(art(r)?.desc ?? '')} · ${art(r)?.desc ?? r}`, 'Família · subfamília');
 comparativo('comp-forn', (e) => fNome(e.forn), 'Fornecedor');
 
+/** os pares Totais + Detalhes que são um ecrã só (o título do ecrã e a tabela dos Detalhes) */
+const PARES: Record<string, [string, typeof MENU_ANTIGO[number]]> = { 'mapas-tot-enc': ['Documentos de encomenda', 'mapas-det-enc'], 'mapas-tot-ge': ['Documentos de guia de entrada', 'mapas-det-ge'] };
 const NOTA = 'Do menu Compras do ERP antigo (23 out., ela: «no figma coloca tudo available»): consulta com os números das encomendas e das receções do protótipo; o que ainda não existe diz-se na nota.';
 export const DESCRICAO_MENU_ANTIGO = 'Os itens do menu Compras do ERP antigo (guias, faturas, créditos, verificação e os mapas), cada um num ecrã de consulta.';
 export function ecrasMenuAntigo(): Ecra<IdErp>[] {
@@ -138,6 +140,17 @@ export function ecrasMenuAntigo(): Ecra<IdErp>[] {
   return MENU_ANTIGO.flatMap((id, i): Ecra<IdErp>[] => {
     /* Artigos/Compras Automático tem ecrã próprio (o briefing de 23 out.) */
     if (id === 'mapas-automatico') return ecrasAutomatico(String(42 + i));
+    /* 28 out. (ela: «junta os ecrãs assim»): os Detalhes vivem no ecrã dos Totais, como segunda vista */
+    if (id === 'mapas-det-enc' || id === 'mapas-det-ge') return [];
+    const par = PARES[id as string];
+    if (par) {
+      const [tit, outro] = par, tot: Tabela = { ...D[id], id: `cm-${id}`, num: String(42 + i), caminho: 'Compras' }, dt: Tabela = { ...D[outro], id: `cm-${id}`, num: tot.num, caminho: 'Compras' };
+      const vistas: [string, string, string][] = [['tot', 'Totais', 'sigma'], ['det', 'Detalhes', 'list']];
+      const html = (cen: CenarioTabela = 'normal') => `<div class="fx-par" data-fx-par>${([['tot', tot], ['det', dt]] as const).map(([k, t]) => `<div data-fx-par-p="${k}"${k === 'tot' ? '' : ' hidden'}>${paginaTabela(t, cen, { k, titulo: tit, ic: 'chart-bar', vistas })}</div>`).join('')}</div>`;
+      const nota = `${NOTA} 28 out. (ela: «junta os ecrãs assim»): Totais e Detalhes num só ecrã, em duas vistas (Alt+1, Alt+2) por cima da lista, como nas Encomendas.`;
+      return [{ id: tot.id as IdErp, nome: `${tot.num} · ${tit}`, fluxo: 'Compras', objetivo: `${tit}: os totais por documento e o detalhe das linhas, num só ecrã.`, versoes: [{ id: 'v1', nota, html: html() }] },
+        ...estadosTabela({ ...tot, titulo: tit }, 'Compras', nota, html)];
+    }
     const t: Tabela = { ...D[id], id: `cm-${id}`, num: String(42 + i), caminho: 'Compras' };
     const base: Ecra<IdErp> = { id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] };
     /* Comparativo por fornecedor (variação anual): a v2 do briefing de 23 out., com os seus estados */

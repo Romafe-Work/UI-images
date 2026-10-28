@@ -56,10 +56,34 @@ function ordenar(r: HTMLElement, b: HTMLElement): void {
   corpo.append(...ls);
 }
 
+/** 28 out.: Totais e Detalhes no mesmo ecrã — mostra a vista k e põe o indicador debaixo do separador dela. */
+function parVista(c: HTMLElement, k: string, foco = false): void {
+  const p = c.querySelector<HTMLElement>(`[data-fx-par-p="${k}"]`); if (!p) return;
+  const q = c.querySelector<HTMLElement>('[data-fx-par-p]:not([hidden]) [data-fx-q]') as HTMLInputElement | null;
+  c.querySelectorAll<HTMLElement>('[data-fx-par-p]').forEach((x) => { x.hidden = x !== p; });
+  /* a procura passa à outra vista */
+  const q2 = p.querySelector<HTMLInputElement>('[data-fx-q]'); const r = p.querySelector<HTMLElement>('[data-fx]');
+  if (q && q2 && q2 !== q && !q2.disabled) { q2.value = q.value; if (r) filtrar(r, q2.value); }
+  const b = p.querySelector<HTMLElement>(`[data-fx-par-vista="${k}"]`), ind = p.querySelector<HTMLElement>('[data-fx-par-ind]');
+  if (b && ind) requestAnimationFrame(() => { const pr = b.parentElement!.getBoundingClientRect(), x = b.getBoundingClientRect(); if (!x.width) return; ind.style.transform = `translateX(${x.left - pr.left}px) scaleX(${x.width / 100})`; ind.classList.add('is-pronto'); });
+  if (foco) b?.focus();
+}
+const parArmar = () => document.querySelectorAll<HTMLElement>('[data-fx-par]').forEach((c) => { const m = new URLSearchParams(location.hash.slice(1)).get('modo'); parVista(c, m === 'det' ? 'det' : (c.querySelector<HTMLElement>('[data-fx-par-p]:not([hidden])')?.dataset.fxParP ?? 'tot')); });
+
 export function iniciar(): void {
   /* o contador do registo escolhido à partida */
   const armar = () => document.querySelectorAll<HTMLElement>('[data-fx]').forEach((r) => { const tr = r.querySelector<HTMLTableRowElement>('[data-fx-linhas] tr[aria-selected="true"]'); if (tr) contar(r, tr); });
   requestAnimationFrame(armar); ['romafe:versao', 'romafe:ecra'].forEach((x) => document.addEventListener(x, () => requestAnimationFrame(armar)));
+  requestAnimationFrame(parArmar); ['romafe:versao', 'romafe:ecra'].forEach((x) => document.addEventListener(x, () => requestAnimationFrame(parArmar)));
+  document.addEventListener('click', (ev) => {
+    const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-fx-par-vista]'), c = b?.closest<HTMLElement>('[data-fx-par]'); if (!b || !c || editando()) return;
+    parVista(c, b.dataset.fxParVista!, true);
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (!ev.altKey || !['1', '2'].includes(ev.key) || editando()) return;
+    const c = document.querySelector<HTMLElement>('.ecra:not([hidden]) [data-fx-par]'); if (!c) return;
+    ev.preventDefault(); parVista(c, ev.key === '1' ? 'tot' : 'det', true);
+  });
   document.addEventListener('input', (ev) => { const t = ev.target as HTMLInputElement, r = raiz(t); if (r && t.matches('[data-fx-q]')) filtrar(r, t.value); });
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return;

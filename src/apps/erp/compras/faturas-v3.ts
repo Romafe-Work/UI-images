@@ -137,6 +137,7 @@ const CFG3 = registar({
   sub: 'Faturas, notas de crédito, crédito por receber e verificação dos fornecedores, num só ecrã.',
   teclasExtra: `${CFG.teclasExtra ? `${CFG.teclasExtra} ` : ''}Alt+1 Alt+2 Alt+3 Alt+4`,
   janelas: { titulo: 'Fatura', icone: receipt, estados: ['bloqueada', 'anulada', 'creditada', 'creditado', 'verificacao', 'documentos-carregar'] },
+  vistasEmCima: true,
   vistas: [
     { k: 'docs', t: 'Faturas', ic: receipt, tecla: 'Alt+1', titulo: 'Faturas de Compra' },
     { k: 'notas', t: 'Notas de crédito', ic: receiptText, tecla: 'Alt+2', titulo: 'Notas de crédito', tabela: tabelaNotas, resumo: resumoNotas },

@@ -46,7 +46,7 @@
 .dk8 .dk7-lista { position: relative; }
 .dk8-g-cab { position: relative; display: flex; align-items: center; }
 .dk8-g-cab .dk7-g-t { flex: 1; min-width: 0; }
-.dk8 .dk7-g-t { height: 30px; gap: 8px; } .dk8 .dk7-g-t > span:not(.dk8-pasta-ic) { text-align: left; }
+.dk8 .dk7-g-t { height: 30px; gap: 8px; } .dk8 .dk7-g--sub .dk7-g-t { height: 34px; gap: 10px; } .dk8 .dk7-g-t > span:not(.dk8-pasta-ic) { text-align: left; }
 .dk8 .dk7-g-t .dk8-pasta-ic { position: relative; display: grid; width: 18px; height: 18px; flex: none; }
 .dk8-pasta-ic svg { position: absolute; inset: 0; width: 18px !important; height: 18px !important; color: var(--k-azul); }
 .dk8-pasta-ic .dk8-aberta { opacity: 0; } .dk7-g.is-aberto .dk8-pasta-ic .dk8-aberta { opacity: 1; } .dk7-g.is-aberto .dk8-pasta-ic .dk8-fechada { opacity: 0; }

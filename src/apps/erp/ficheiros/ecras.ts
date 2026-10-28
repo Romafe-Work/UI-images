@@ -106,7 +106,12 @@ const ERROS_TABELA: Partial<Record<CenarioTabela, [string, string, string, strin
   permissao: [lockIc, 'Sem permissão.', 'O teu perfil não tem acesso a esta consulta. Pede-o a quem gere os acessos do ERP.', ''],
   sessao: [logIn, 'A sessão terminou.', 'Volta a entrar para continuar; voltas a este ecrã.', 'login'],
 };
-export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal'): string {
+/** 28 out. (ela: «junta os ecrãs assim»): duas consultas no mesmo ecrã (Totais e Detalhes), em vistas por cima da lista,
+ *  como nas Encomendas v5; `k` é a vista desta tabela. Cada vista é a sua consulta inteira; mudar só mostra a outra. */
+export interface Par { k: string; titulo: string; ic: string; vistas: [string, string, string][] }
+const vistasPar = (p: Par) => `<nav class="dv2c-vistas-zona fx-par-zona" aria-label="Vistas"><div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${p.vistas.map(([k, t, ic], i) => `<button type="button" role="tab" aria-selected="${k === p.k}"${k === p.k ? '' : ' tabindex="-1"'} data-fx-par-vista="${k}" aria-keyshortcuts="Alt+${i + 1}" title="${esc(t)} (Alt ${i + 1})">${icone(ic)}<span>${esc(t)}</span></button>`).join('')}<i class="dv2c-vistas-ind" data-fx-par-ind aria-hidden="true"></i></div></nav>`;
+export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal', par?: Par): string {
+  const tit = par?.titulo ?? t.titulo, ic = par?.ic ?? t.ic, zona = par ? vistasPar(par) : '';
   let ls = cen === 'vazia' ? [] : t.linhas().map((l) => ({ ...l, det: l.det ?? det(l.v[t.cols[0].k], t.cols.slice(1).map((c): [string, string] => [c.t, l.v[c.k]])) }));
   if (cen === 'ordenado') ls = ls.slice().reverse();
   const escolhida = cen === 'linha' ? Math.min(2, ls.length - 1) : 0;
@@ -115,12 +120,13 @@ export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal'): string {
     const corpo = cen === 'carregar' ? `<div class="fx-caixa"><div class="fx-esq" aria-label="A carregar">${Array.from({ length: 8 }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div></div><aside class="fx-det"><div class="fx-esq fx-esq--det"><i></i><i></i><i></i><i></i></div></aside>`
       : `<div class="fx-caixa fx-caixa--erro"><div class="fx-nada fx-nada--erro" role="alert">${L(erro![0])}<p><b>${esc(erro![1])}</b>${esc(erro![2])}</p>${erro![3] === 'repetir' ? `<button type="button" class="fx-btn fx-btn--acao" data-fx-repetir="${esc(t.id)}">${L(refreshCw)}<span>Tentar outra vez</span></button>` : erro![3] === 'login' ? `<button type="button" class="fx-btn fx-btn--acao" data-login>${L(logIn)}<span>Voltar a entrar</span></button>` : ''}</div></div>`;
     return `<div class="hm fx" data-hm data-fx data-fx-cenario="${cen}">
-  ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [t.titulo, '']])}
+  ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [tit, '']])}
   <header class="fx-cab">
-    <span class="fx-ic">${icone(t.ic)}</span>
-    <div><h1>${esc(t.titulo)}</h1><p class="fx-sub">${cen === 'carregar' ? 'A carregar…' : esc(t.nota)}</p></div>
+    <span class="fx-ic">${icone(ic)}</span>
+    <div><h1>${esc(tit)}</h1><p class="fx-sub">${cen === 'carregar' ? 'A carregar…' : esc(t.nota)}</p></div>
     <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off"${cen === 'carregar' ? '' : ' disabled'}><kbd>Enter</kbd></label>
   </header>
+  ${zona}
   <div class="fx-corpo${cen === 'carregar' ? '' : ' fx-corpo--erro'}">${corpo}</div>
   <p class="hm-aviso" data-hm-aviso role="status" aria-live="polite"></p>
 </div>`;
@@ -130,12 +136,13 @@ export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal'): string {
   const tr = ls.map((l, i) => `<tr tabindex="${i === escolhida ? 0 : -1}" aria-selected="${i === escolhida}" data-fx-i="${i}" data-fx-texto="${esc(norm(Object.values(l.v).join(' ')))}" ${t.cols.map((c) => `data-fx-v-${c.k}="${esc(String(l.ord[c.k] ?? norm(l.v[c.k])))}"`).join(' ')}>${t.cols.map((c) => `<td${c.num ? ' class="is-num"' : c.mono ? ' class="is-mono"' : ''}>${esc(l.v[c.k])}</td>`).join('')}</tr>`).join('');
   const q = cen === 'sem-resultados' ? 'XPTO-999' : '';
   return `<div class="hm fx" data-hm data-fx data-fx-cenario="${cen}">
-  ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [t.titulo, '']])}
+  ${topoErp([['ERP', 'inicio'], [t.caminho ?? 'Ficheiros', ''], [tit, '']])}
   <header class="fx-cab">
-    <span class="fx-ic">${icone(t.ic)}</span>
-    <div><h1>${esc(t.titulo)}</h1><p class="fx-sub"><b data-fx-n>${ls.length}</b> <span data-fx-um="${esc(t.um)}" data-fx-varios="${esc(t.varios)}">${ls.length === 1 ? t.um : t.varios}</span> · ${esc(t.nota)}</p></div>
+    <span class="fx-ic">${icone(ic)}</span>
+    <div><h1>${esc(tit)}</h1><p class="fx-sub"><b data-fx-n>${ls.length}</b> <span data-fx-um="${esc(t.um)}" data-fx-varios="${esc(t.varios)}">${ls.length === 1 ? t.um : t.varios}</span> · ${esc(t.nota)}</p></div>
     <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off" value="${q}"><kbd>Enter</kbd></label>
   </header>
+  ${zona}
   <div class="fx-corpo">
     <div class="fx-caixa">
       ${!ls.length ? `<div class="fx-nada fx-nada--vazio">${L(inbox)}<p><b>${esc(vazio[0])}</b>${esc(vazio[1])}</p></div>` : ''}
@@ -163,8 +170,8 @@ const ESTADOS_TABELA: [CenarioTabela, string, string][] = [
   ['permissao', 'Sem permissão', 'O perfil não tem acesso: diz a quem pedir; não se mostram dados.'],
   ['sessao', 'Sessão terminada', 'Voltar a entrar pelo login comum; volta-se a este ecrã.'],
 ];
-export function estadosTabela(t: Tabela, fluxo: string, nota: string): Ecra<IdErp>[] {
-  return ESTADOS_TABELA.map(([cen, nome, objetivo], i) => ({ id: `${t.id}-est-${cen}` as IdErp, nome: `${t.num}.${i + 1} · ${nome}`, fluxo, estadoDe: t.id as IdErp, objetivo, versoes: [{ id: 'v1', nota, html: paginaTabela(t, cen) }] }) as Ecra<IdErp>);
+export function estadosTabela(t: Tabela, fluxo: string, nota: string, html = (cen: CenarioTabela) => paginaTabela(t, cen)): Ecra<IdErp>[] {
+  return ESTADOS_TABELA.map(([cen, nome, objetivo], i) => ({ id: `${t.id}-est-${cen}` as IdErp, nome: `${t.num}.${i + 1} · ${nome}`, fluxo, estadoDe: t.id as IdErp, objetivo, versoes: [{ id: 'v1', nota, html: html(cen) }] }) as Ecra<IdErp>);
 }
 export type IdEstados = `${string}-est-${string}`;
 export function ecrasFicheiros(): Ecra<IdErp>[] {

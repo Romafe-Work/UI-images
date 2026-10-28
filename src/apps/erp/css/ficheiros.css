@@ -86,3 +86,5 @@
 .fx-nada--erro > svg { color: var(--h-erro); }
 .fx-btn--acao { border-color: var(--h-laranja) !important; background: var(--h-laranja) !important; color: #fff !important; } .fx-btn--acao svg { color: #fff !important; }
 @media (prefers-reduced-motion: reduce) { .fx-esq i { animation: none; } }
+/* 28 out.: as vistas Totais · Detalhes, alinhadas com a lista */
+.fx .fx-par-zona { margin: 0 clamp(16px, 2.5vw, 32px) 10px; }

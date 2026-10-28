@@ -15,9 +15,9 @@
 /* ---- os filtros numa linha ---- */
 .dv2c .dv2c-filtros { margin: 10px clamp(16px, 2vw, 28px) 0; padding: 8px; border-radius: 10px; }
 .dv2c-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.dv2c .dv2c-vistas { position: relative; margin: 0; flex: none; }
-.dv2c .dv2c-vistas button { position: relative; z-index: 1; height: 30px; padding: 0 11px; font-size: 13px; }
-.dv2c .dv2c-vistas button[aria-selected="true"] { background: none; box-shadow: none; color: var(--h-tinta); }
+:is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas { position: relative; margin: 0; flex: none; }
+:is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas button { position: relative; z-index: 1; height: 30px; padding: 0 11px; font-size: 13px; }
+:is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas button[aria-selected="true"] { background: none; box-shadow: none; color: var(--h-tinta); }
 .dv2c-vistas-ind { position: absolute; left: 0; top: 3px; bottom: 3px; width: 100px; border-radius: 6px; background: var(--h-sup); box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-laranja); transform-origin: 0 50%; opacity: 0; pointer-events: none; transition: transform .2s cubic-bezier(.22, 1, .36, 1), opacity .12s ease; }
 .dv2c-vistas-ind.is-pronto { opacity: 1; }
 .dv2c-forn { flex: 0 1 190px; min-width: 150px; }

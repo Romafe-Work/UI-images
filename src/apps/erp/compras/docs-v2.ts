@@ -82,6 +82,8 @@ export interface CfgDoc {
   /** 27 out. (ela: «coloca isto num só ecrã»): outras vistas no mesmo ecrã, ao lado da lista dos documentos (a primeira,
    *  `docs`, é a lista); cada uma desenha a sua tabela com os filtros e a pesquisa de cima, e abre a janela do documento */
   vistas?: Vista[];
+  /** 28 out. (ela: «tal como nas encomendas o menu está em cima»): as vistas por cima dos filtros, fora do cartão da lista */
+  vistasEmCima?: boolean;
   /** 27 out. (briefing V3 das Encomendas): a janela das ligações — um só «inspetor» que segue a linha escolhida nas
    *  outras vistas e mostra a cadeia real (pedido → encomenda → entrega → receção); `chave` é a da linha */
   relacao?: { icone: string; titulo(r: HTMLElement, e: EstDoc, chave: string): string; corpo(r: HTMLElement, e: EstDoc, chave: string): string };
@@ -90,6 +92,7 @@ export interface CfgDoc {
 }
 export interface Vista { k: string; t: string; ic: string; tecla: string; titulo: string; tabela?(r: HTMLElement, e: EstDoc): string; resumo?(e: EstDoc): string }
 export const CFGS = new Map<string, CfgDoc>();
+const botoesVista = (vs: Vista[]) => vs.map((v, i) => `<button type="button" role="tab" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-dv2-vista="${v.k}" aria-keyshortcuts="${v.tecla}" title="${esc(v.t)} (${v.tecla.replace('+', ' ')})">${L(v.ic)}<span>${esc(v.t)}</span><small data-dv2-vista-n="${v.k}"></small></button>`).join('');
 export const registar = (c: CfgDoc) => { CFGS.set(c.k, c); return c; };
 
 export const BTN = (k: string, ic: string, t: string, tecla: string, extra = '', cls = '') => `<button type="button" class="ak-btn${cls ? ` ${cls}` : ''}" data-dv2-acao="${k}"${tecla ? ` aria-keyshortcuts="${tecla}"${extra.includes('title=') ? '' : ` title="${t} (${tecla})"`}` : ''}${extra}>${L(ic)}<span>${t}</span>${tecla ? `<kbd>${tecla}</kbd>` : ''}</button>`;
@@ -139,6 +142,7 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
   </div>
 
   <div class="dv2-lista-vista" data-dv2-lista>
+  ${c.vistas && c.vistasEmCima ? `<nav class="dv2c-vistas-zona" aria-label="Vistas"><div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${botoesVista(c.vistas)}<i class="dv2c-vistas-ind" data-dv2-vistas-ind aria-hidden="true"></i></div></nav>` : ''}
   <section class="lf-filtros lf2-filtros dv2-filtros" aria-label="Pesquisa e filtros">
     <div class="dv2-rapidos">
       ${campo('serie', 'Série <kbd>F4</kbd>', `<select id="${id('serie')}" data-dv2-f="serie" data-dv2-campo>${op('', 'Todas')}${c.series().map((s) => op(s, s)).join('')}</select>`)}
@@ -157,7 +161,7 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
   </section>
 
   <section class="lf2-lista dv2-lista" aria-labelledby="${id('lista-t')}">
-    ${c.vistas ? `<div class="dv2-vistas" role="tablist" aria-label="Ver">${c.vistas.map((v, i) => `<button type="button" role="tab" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-dv2-vista="${v.k}" aria-keyshortcuts="${v.tecla}" title="${esc(v.t)} (${v.tecla.replace('+', ' ')})">${L(v.ic)}<span>${esc(v.t)}</span><small data-dv2-vista-n="${v.k}"></small></button>`).join('')}</div>` : ''}
+    ${c.vistas && !c.vistasEmCima ? `<div class="dv2-vistas" role="tablist" aria-label="Ver">${botoesVista(c.vistas)}</div>` : ''}
     <div class="lf2-lista-cab"><h2 id="${id('lista-t')}" data-dv2-lista-t>${esc(c.titulo)}</h2><p class="lf2-resumo" data-dv2-resumo></p></div>
     <div class="lf2-grelha" data-dv2-grelha></div>
     ${c.vistas ? '<div class="lf2-grelha dv2-vista-g" data-dv2-vista-g hidden></div>' : ''}

@@ -78,6 +78,8 @@ import monitor from 'lucide-static/icons/monitor.svg?raw';
 import logOut from 'lucide-static/icons/log-out.svg?raw';
 import command from 'lucide-static/icons/command.svg?raw';
 import chartBar from 'lucide-static/icons/chart-bar.svg?raw';
+import sigma from 'lucide-static/icons/sigma.svg?raw';
+import listIc from 'lucide-static/icons/list.svg?raw';
 import fileCheck from 'lucide-static/icons/file-check.svg?raw';
 import hourglass from 'lucide-static/icons/hourglass.svg?raw';
 import fileMinus from 'lucide-static/icons/file-minus.svg?raw';
@@ -126,8 +128,9 @@ export const MENU_ERP: LinhaMenu[] = [
   /* 27 out. (ela: «coloca esses 4 no mesmo ecrã»): as Notas de crédito, os Pendentes de crédito de fornecedor e a Verificação de faturas são vistas das Faturas (v3); saem do menu */
   A('compras-faturas', 'compras', 'Faturas', 'receipt', 80, true),
   A('compras-mapas', 'compras', 'Mapas', 'chart-bar', 200, true),
-  A('mapas-tot-enc', 'compras-mapas', 'Totais de documentos de encomenda', '', 10), A('mapas-det-enc', 'compras-mapas', 'Detalhes por documentos de encomenda', '', 20),
-  A('mapas-tot-ge', 'compras-mapas', 'Totais de documentos de guia de entrada', '', 30, true), A('mapas-det-ge', 'compras-mapas', 'Detalhes por documentos de guia de entrada', '', 40),
+  /* 28 out. (ela: «junta os ecrãs assim»): Totais e Detalhes de cada documento são um ecrã só, com duas vistas; os Detalhes saem do menu */
+  A('mapas-tot-enc', 'compras-mapas', 'Documentos de encomenda', '', 10),
+  A('mapas-tot-ge', 'compras-mapas', 'Documentos de guia de entrada', '', 30, true),
   A('mapas-recap', 'compras-mapas', 'Mapa recapitulativo de fornecedores', '', 50, true),
   /* 23 out. (briefing «Unified Purchasing Analysis»): os quatro «Mapa de compras por …» são um ecrã só, com quatro modos */
   A('analise-artigo', 'compras-mapas', 'Análise de compras', '', 60, true), A('mapas-comparativos', 'compras-mapas', 'Comparativos de compras', '', 70),
@@ -142,7 +145,7 @@ export const MENU_ERP: LinhaMenu[] = [
    crédito; Fornecedores e Requisições não estão no ERP antigo e vão para depois dos Mapas */
 const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, false], 'compras-fornecedores': [210, true], 'compras-requisicoes': [220, false] };
 MENU_ERP.forEach((l) => { const o = OM[l.id]; if (o) { l.om = o[0]; l.sep = o[1]; } });
-const ICONES: Record<string, string> = { 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
+const ICONES: Record<string, string> = { sigma, list: listIc, 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
   /* Ficheiros (23 out., Início v6) */
   package: packageIc, warehouse, 'folder-tree': folderTree, tag, ruler, house, keyboard: keyboardIc };
 export const icone = (n: string, cls = '') => L(ICONES[n] ?? file, cls);
@@ -206,6 +209,9 @@ ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
   ROTAS[alvo].titulo = t;
   ROTAS[`compras.${v}`] = { ...ROTAS[alvo], alias: alvo, modo: 'mensal' };
 });
+/* os Detalhes (favoritos e recentes antigos) abrem o ecrã dos Totais na vista deles */
+ROTAS['compras.mapas-det-enc'] = { ...ROTAS['compras.mapas-tot-enc'], alias: 'compras.mapas-tot-enc', modo: 'det' };
+ROTAS['compras.mapas-det-ge'] = { ...ROTAS['compras.mapas-tot-ge'], alias: 'compras.mapas-tot-ge', modo: 'det' };
 /* a Análise de compras: os quatro mapas antigos abrem o mesmo separador, cada um no seu modo */
 if (ROTAS['compras.analise-artigo']) {
   ROTAS['compras.analise-artigo'].titulo = 'Análise de Compras';
