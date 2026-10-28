@@ -135,7 +135,7 @@ const artigo = (est: '' | 'desconhecido' | 'repetido' | 'sem-rede' = '') => pick
     : leitor({ titulo: 'Leia o código do artigo', texto: 'Um artigo de cada vez. Depois escreve a quantidade.', codigo: ART.ean, tipo: 'artigo', ir: 'inv-quantidade' })}
     ${est ? '' : `<h2 class="iv-subtitulo">Contados nesta posição <span>2</span></h2><ul class="iv-linhas" role="list">${CONTADOS}</ul>`}`,
   { funcao: FUNCAO, rede: est !== 'sem-rede', pe: est === 'repetido' ? BOTAO('Somar mais unidades', IC2.mais, 'btn--acao', ' data-ir="inv-quantidade"') + BOTAO('Corrigir a contagem', IC.corrigir, 'btn--ghost', ' data-ir="inv-corrigir"')
-    : est === 'sem-rede' ? BOTAO('Tentar de novo', IC.denovo) : est === 'desconhecido' ? BOTAO('Ler outra vez', IC.ler, 'btn--acao', ' data-ir="inv-artigo"') : BOTAO('Acabei esta posição', IC.fechar, 'btn--ghost', ' data-ir="inv-fim-posicao"') });
+    : est === 'sem-rede' ? BOTAO('Tentar outra vez', IC.denovo) : est === 'desconhecido' ? BOTAO('Ler outra vez', IC.ler, 'btn--acao', ' data-ir="inv-artigo"') : BOTAO('Acabei esta posição', IC.fechar, 'btn--ghost', ' data-ir="inv-fim-posicao"') });
 
 /* 45 · o artigo lido e a quantidade (às cegas: nunca se mostra a do sistema) */
 const qtdEcra = (est: '' | 'invalida' | 'a-guardar' | 'nao-guardou' = '') => pick(`${contagemTopo()}${jornada(2)}

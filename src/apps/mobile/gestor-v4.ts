@@ -18,7 +18,7 @@
    de âmbito incompleto. Os números são de exemplo e saem todos das mesmas listas (gestor-v3.ts), para baterem certo.
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
-import { ecra, acao, sec, esperar, aviso, nota, prog, h2, L, type Opcoes } from './inventario-v2';
+import { ecra, acao, sec, esperar, aviso, prog, h2, L, type Opcoes } from './inventario-v2';
 import { barra } from './navegacao';
 import { carregar as eCarregar, semRede as eSemRede, servidor as eServidor, sessao as eSessao } from './inventario-estados';
 import { TAREFAS, MODULOS, ICONE_MOD, type TarefaG, type TipoT, type Modulo } from './gestor-v3';
@@ -51,6 +51,8 @@ import inbox from 'lucide-static/icons/inbox.svg?raw';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import chartColumn from 'lucide-static/icons/chart-column.svg?raw';
 import list from 'lucide-static/icons/list.svg?raw';
+import slidersH from 'lucide-static/icons/sliders-horizontal.svg?raw';
+import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
 
 const AGORA = '10:45';
 const G = (titulo: string, ativo: string, o: Opcoes = {}): Opcoes => ({ titulo, gestor: true, funcao: 'Gestor', barra: barra('gestor', ativo), ...o });
@@ -87,7 +89,7 @@ export function centro(e: ECentro = 'normal', b = barra('gestor', 'inicio')): st
   const sug = e === 'zero' ? [] : e === 'sem-atencao' ? [['Separar a GS13454212', 'Por separar desde as 09:58; ninguém da separação está livre.', 'Sem exceções, vêm primeiro as guias de cliente sem pessoa.', 'Separar eu', 'g-sep-guia', 'basket'] as typeof AGORA_FAZER[number]] : AGORA_FAZER;
   return ecra(`${e === 'desatualizado' ? `<p class="gx-velho" role="status">${L(clock)}<span><b>Dados das 10:31.</b> O servidor não respondeu às duas últimas atualizações.</span><button type="button" class="gp-ligacao">${L(refresh)}Atualizar</button></p>` : ''}
     ${estado({ zero: e === 'zero', carregar: e === 'carregar-parcial' })}
-    <section class="gp-sec">${h2('Operações')}<ul class="gx-mods" role="list">${MODULOS.map((m, i) => tile(m, i, e === 'zero')).join('')}</ul></section>
+    <section class="gp-sec">${h2('Operações')}<ul class="gx-mods gx-mods--compacto" role="list">${MODULOS.map((m, i) => tile(m, i, e === 'zero')).join('')}</ul></section>
     <section class="gp-sec">${h2('Requer atenção', at.length || undefined)}
       ${e === 'carregar-parcial' ? '<div class="gp-esq"><i></i><i></i></div>' : at.length ? `<ul class="gp-lista" role="list">${at.slice(0, 3).map((x) => linhaItem(IC_T[x.tipo], `${x.ref} · ${NOME_T[x.tipo]}`, x.t, x.acao[1], 'erro')).join('')}</ul>${at.length > 3 ? `<button type="button" class="gp-ligacao" data-ir="g-tarefas-atencao">${L(list)}Ver as ${at.length} exceções</button>` : ''}`
       : `<p class="gp-vazio">${L(check)}Nada pede a sua atenção agora.</p>`}</section>
@@ -122,14 +124,14 @@ export function todasTarefas(o: ETarefas = {}): string {
   const pessoas = [...new Set(TAREFAS.map((x) => x.quem).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt'));
   const vazio = (k: string) => o.filtro ? `<li><section class="gi-vazio">${L(searchX)}<p><b>Nada com estes filtros.</b> A Zona 30 não tem nada ${k === 'curso' ? 'em curso' : 'por fazer'} da Separação. Mude a zona ou a operação.</p></section></li>` : `<li><p class="gp-vazio">${L(check)}Nenhuma tarefa ${SEPS.find((s) => s[0] === k)![1].toLowerCase()}.</p></li>`;
   return ecra(`<h1 class="gp-titulo">Todas as tarefas</h1>${o.aviso ?? ''}
-    <div class="gx-filtros gx-filtros--3">
+    <div class="gp-filtros gx-tres" role="tablist" aria-label="Estado">${SEPS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === sel}" data-gi-sep="${k}">${t} <span>${o.vazio ? 0 : n(k)}</span></button>`).join('')}</div>
+    <details class="gx-filtrar"${o.filtro ? ' open' : ''}><summary>${L(slidersH)}<span>Filtrar</span>${o.filtro ? '<i class="gx-filtrar__n">2</i>' : ''}${L(chevronDown, 'gx-filtrar__seta')}</summary><div class="gx-filtros gx-filtros--3">
       <label class="gp-campo"><span>Operação</span><select data-gi-tipo-sel>${[['', 'Todas'], ['inventario', 'Inventário'], ['arrumacao', 'Arrumação'], ['separacao', 'Separação'], ['expedicao', 'Expedição']].map(([k, t]) => `<option value="${k}"${o.filtro && k === 'separacao' ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
       <label class="gp-campo"><span>Zona</span><select data-gi-zona><option value="">Todas</option>${ZONAS.map(([k, t]) => `<option value="${k}"${o.filtro && k === '30' ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
       <label class="gp-campo"><span>Responsável</span><select data-gi-quem><option value="">Todos</option><option value="-">Sem pessoa</option>${pessoas.map((p) => `<option>${p}</option>`).join('')}</select></label>
-    </div>
-    <div class="gp-filtros" role="tablist" aria-label="Estado">${SEPS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === sel}" data-gi-sep="${k}">${t} <span>${o.vazio ? 0 : n(k)}</span></button>`).join('')}</div>
+    </div></details>
     ${SEPS.map(([k]) => { const xs = o.vazio || o.filtro ? [] : TAREFAS.filter((x) => x.est === k); return `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${k === sel ? '' : ' hidden'}>${xs.length ? xs.map(linha).join('') : vazio(k)}</ul>`; }).join('')}
-    ${nota('Armazém 60 · hoje. Cada tarefa mostra só a ação que o estado e as suas permissões permitem.')}`, G('Tarefas', 'tarefas'));
+    ${''}`, G('Tarefas', 'tarefas'));
 }
 
 /* =========================================================
@@ -146,13 +148,13 @@ const EQUIPA: Pessoa[] = [
 type EEquipa = 'normal' | 'vazia' | 'sem-tarefas';
 function equipa(e: EEquipa = 'normal'): string {
   const ps = e === 'vazia' ? [] : e === 'sem-tarefas' ? EQUIPA.map((p) => ({ ...p, agora: null, maos: 0, feitas: '—', exc: 0 })) : EQUIPA;
-  return ecra(`<h1 class="gp-titulo">Equipa</h1><p class="gp-nota">Armazém 60 · hoje · pelo que está atribuído e pelo que o servidor confirmou</p>
+  return ecra(`<h1 class="gp-titulo">Equipa</h1>
     ${ps.length ? `<ul class="gp-lista" role="list">${ps.map((p, i) => `<li style="--i:${i}"><button type="button" class="gx-pessoa" data-ir="${p.k === 'tiago' ? 'g-equipa-tiago' : p.k === 'luis' || !p.agora ? 'g-equipa-livre' : p.agora[2]}" aria-label="${p.k === 'tiago' || !p.agora ? `Ver ${p.nome}` : `Ver a tarefa de ${p.nome}: ${p.agora[0]}`}">
       <span class="gp-av">${p.ini}</span><span class="gx-pessoa__t"><b>${p.nome}</b><small>${p.funcao}</small>
       <span class="gx-pessoa__agora">${p.agora ? `${L(clock)}<span><b>${p.agora[0]}</b> · ${p.agora[1]}</span>` : `${L(check)}<span>Sem tarefa em mãos</span>`}</span>
       <span class="gx-pessoa__n"><span><b>${p.maos}</b> em mãos</span><span><b>${p.feitas}</b> hoje</span>${p.exc ? `<span class="is-erro"><b>${p.exc}</b> ${p.exc === 1 ? 'exceção' : 'exceções'}</span>` : ''}</span></span>${L(arrowRight, 'gi-seta')}</button></li>`).join('')}</ul>`
     : `<section class="gi-vazio">${L(users)}<p><b>Ninguém atribuído ao armazém 60.</b> O administrador atribui as pessoas na conta ROMAFE de cada uma.</p></section>`}
-    ${nota('Não há presença nem localização: «em mãos» é o que está atribuído, e «hoje» o que o servidor confirmou.')}`, G('Equipa', 'mais', { voltar: 'g-mais' }));
+    ${''}`, G('Equipa', 'mais', { voltar: 'g-mais' }));
 }
 type EPessoa = 'normal' | 'livre' | 'reatribuir' | 'a-reatribuir' | 'reatribuida' | 'conflito';
 function pessoa(e: EPessoa = 'normal'): string {
@@ -165,7 +167,7 @@ function pessoa(e: EPessoa = 'normal'): string {
   if (e === 'reatribuir' || e === 'a-reatribuir') return ecra(`<h1 class="gp-titulo">Reatribuir GS13454211</h1><p class="gp-nota">Garagem Central de Braga · 2 de 3 linhas · com o Tiago desde as 10:12</p>
     <ul class="gp-escolha" role="radiogroup" aria-label="Para quem">${[['Eu (Ana Ferreira)', 'AF', 'Continuo no meu PDA, na linha 3', ''], ['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', ''], ['Luís Costa', 'LC', 'Gestor, sem tarefa em mãos', ''], ['Paulo Reis', 'PR', 'Expedição: não separa', 'o']].map(([q, ini, x, k], i) => `<li><label class="gp-op${k ? ' is-ocupada' : ''}"><input type="radio" name="gx-reat"${i === 0 ? ' checked' : ''}${k ? ' disabled' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${x}</small></span></label></li>`).join('')}</ul>
     <label class="gp-campo"><span>Motivo (obrigatório)</span><input value="O Tiago foi para a receção do cais 2"></label>
-    ${nota('O que já se separou fica com quem o fez; a auditoria guarda quem reatribuiu, quando e porquê.')}`,
+    ${''}`,
   G('Reatribuir', 'mais', { voltar: 'g-equipa-tiago', pe: e === 'a-reatribuir' ? esperar('A reatribuir…') : acao('Reatribuir a mim', repeat, ' data-confirmar data-ir="g-equipa-reatribuida"') }));
   const p = EQUIPA[4];
   return ecra(`<div class="gx-pessoa-cab"><span class="gp-av">${p.ini}</span><span><h1 class="gp-titulo">${p.nome}</h1><small>${p.funcao} · armazém 60</small></span></div>
@@ -220,7 +222,7 @@ export function insights(o: EInsights = {}): string {
   const p = o.p ?? 'hoje', vista = o.vista ?? 'geral', d = D[p === 'outro' ? '7d' : p];
   const per = `<nav class="gx-per" aria-label="Período">${([['hoje', 'Hoje', 'g-insights'], ['7d', '7 dias', 'g-insights-7d'], ['30d', '30 dias', 'g-insights-30d'], ['outro', 'Outro', 'g-insights-outro']] as const).map(([k, t, ir]) => `<button type="button" data-ir="${ir}"${k === p ? ' aria-current="page"' : ''}>${t}</button>`).join('')}</nav>`;
   const cab = `<div class="gi-acomp-cab"><h1 class="gp-titulo">Insights</h1><span class="gx-chip">${L(warehouse)}Armazém 60</span></div>${per}`;
-  const datas = p === 'outro' ? `<div class="gx-datas"><label class="gp-campo"><span>De</span><input type="date" value="${o.estado === 'invalido' ? '2026-10-28' : '2026-10-22'}"${o.estado === 'invalido' ? ' aria-invalid="true" aria-describedby="gx-datas-e"' : ''}></label><label class="gp-campo"><span>Até</span><input type="date" value="${o.estado === 'invalido' ? '2026-10-20' : '2026-10-28'}"></label></div>${o.estado === 'invalido' ? `<p class="gi-porque is-erro" id="gx-datas-e">${L(triangle)}O início não pode ser depois do fim.</p>` : ''}` : '';
+  const datas = p === 'outro' ? `<div class="gx-datas"><label class="gp-campo"><span>De</span><input type="text" inputmode="numeric" autocomplete="off" placeholder="dd/mm/aaaa" maxlength="10" value="${o.estado === 'invalido' ? '28/10/2026' : '22/10/2026'}"${o.estado === 'invalido' ? ' aria-invalid="true" aria-describedby="gx-datas-e"' : ''}></label><label class="gp-campo"><span>Até</span><input type="text" inputmode="numeric" autocomplete="off" placeholder="dd/mm/aaaa" maxlength="10" value="${o.estado === 'invalido' ? '20/10/2026' : '28/10/2026'}"></label></div>${o.estado === 'invalido' ? `<p class="gi-porque is-erro" id="gx-datas-e">${L(triangle)}O início não pode ser depois do fim.</p>` : ''}` : '';
   const op = (o2: Opcoes = {}) => G('Insights', 'insights', o2);
   if (o.estado === 'carregar') return ecra(`${cab}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A calcular as medidas…</p><div class="gx-met is-esq">${'<div><i class="gx-esq"></i></div>'.repeat(4)}</div><div class="gp-esq"><i></i><i></i><i></i></div>`, op());
   if (o.estado === 'indisponivel') return ecra(`${cab}${aviso('erro', serverOff, 'Os insights não estão disponíveis', 'O serviço das medidas não respondeu. As operações continuam: as tarefas e as exceções estão no Início e em Tarefas.')}<p class="gi-ref">Referência <code>PK-2810-INS4</code></p>`, op({ pe: `${acao('Tentar outra vez', refresh)}${sec('Ver as tarefas', list, ' data-ir="g-tarefas"')}` }));
@@ -230,7 +232,7 @@ export function insights(o: EInsights = {}): string {
   const paineis = VISTAS.map(([k]) => {
     const corpo = k === 'geral' ? `${metricas(d.geral)}${grafico(d.graf)}<section class="gp-sec">${h2('Onde está a parar', 4)}<ul class="gp-lista gx-ins-l" role="list">${INS.inv}${INS.exp}${INS.arr}${INS.sep}</ul></section>`
       : k === 'equipa' ? `<ul class="gx-eq" role="list">${d.equipa.map(([nome, f, feitas, exc, dur]) => `<li><p><b>${nome}</b><small>${f}</small></p><dl><div><dt>Concluídas</dt><dd>${feitas}</dd></div><div><dt>Duração média</dt><dd>${dur}</dd></div><div${exc ? ' class="is-erro"' : ''}><dt>Exceções</dt><dd>${exc}</dd></div></dl></li>`).join('')}</ul>
-        ${nota('Por ordem alfabética, sem classificação: uma contagem de 46 posições não se compara com uma guia de 2 linhas, e o número de tarefas não mede esforço nem qualidade.')}<button type="button" class="gp-ligacao" data-ir="g-equipa">${L(users)}Ver a equipa e o que tem em mãos</button>`
+        ${''}<button type="button" class="gp-ligacao" data-ir="g-equipa">${L(users)}Ver a equipa e o que tem em mãos</button>`
       : `${metricas(d.mods[k as Modulo])}<ul class="gp-lista gx-ins-l" role="list">${INS[k as Modulo]}</ul>`;
     return `<div class="gi-sep" data-gi-painel="${k}"${k === vista ? '' : ' hidden'}>${corpo}</div>`;
   }).join('');
@@ -247,8 +249,7 @@ export function insights(o: EInsights = {}): string {
 const itemMais = (ic: string, t: string, x: string, ir: string) => `<li><button type="button" class="gi-mais"${ir ? ` data-ir="${ir}"` : ''}><span class="gi-mais__ic">${L(ic)}</span><span><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`;
 function maisV3(): string {
   return ecra(`<h1 class="gp-titulo">Mais</h1>
-    <section class="gp-sec">${h2('Operações')}<ul class="gi-mais-l" role="list">${MODULOS.map(([k, t, ir, x]) => itemMais(ICONE_MOD[k], t, x, ir)).join('')}${itemMais(layoutGrid, 'As quatro lado a lado', 'Os números e Acompanhar ou Executar', 'g-operacoes')}</ul></section>
-    <section class="gp-sec">${h2('Pessoas e histórico')}<ul class="gi-mais-l" role="list">${itemMais(users, 'Equipa', 'Quem tem o quê em mãos, e o que fez hoje', 'g-equipa')}${itemMais(history, 'Histórico', 'Inventários fechados, movimentos e expedições', 'gestor-historico')}</ul></section>
+    <section class="gp-sec">${h2('Operações e pessoas')}<ul class="gi-mais-l" role="list">${itemMais(layoutGrid, 'Operações', 'Acompanhar ou executar cada uma', 'g-operacoes')}${itemMais(users, 'Equipa', 'Quem tem o quê em mãos, e o que fez hoje', 'g-equipa')}${itemMais(history, 'Histórico', 'Inventários fechados, movimentos e expedições', 'gestor-historico')}</ul></section>
     <section class="gp-sec">${h2('O armazém e a conta')}<div class="gx-armazem">${L(warehouse)}<span><b>Armazém 60</b><small>O único da sua conta</small></span></div>
       <ul class="gi-mais-l" role="list">${itemMais(lifeBuoy, 'Ajuda', 'O leitor, a rede e a quem pedir', 'g-ajuda')}${itemMais(logOut, 'Terminar sessão', 'Ana Ferreira · volta ao início de sessão comum', 'gestor-sessao')}</ul></section>`,
   G('Mais', 'mais'));
@@ -264,7 +265,7 @@ export function comGestorV4<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const OBJ: Record<string, string> = {
     'gestor-inicio': 'A Ana, gestora, vê num relance o que está a acontecer no armazém hoje (em curso, por fazer, exceções, concluídas), as quatro operações com o que têm por fazer, o que pede a atenção dela e o que deve fazer agora — cada sugestão com o porquê.',
     'g-tarefas': 'Todas as tarefas das quatro operações: filtra-se por operação, zona e responsável; cada uma diz desde quando está assim e a ação seguinte que o estado permite.',
-    'g-mais': 'As quatro operações, a equipa, o histórico, o armazém, a ajuda e terminar sessão.',
+    'g-mais': 'As operações (uma entrada: as quatro já estão no Centro), a equipa, o histórico, o armazém, a ajuda e terminar sessão.',
   };
   return ecras.map((e) => V[e.id] ? { ...e, objetivo: OBJ[e.id] ?? e.objetivo, nome: e.id === 'gestor-inicio' ? '60 · Centro de operações' : e.id === 'g-tarefas' ? '65 · Todas as tarefas' : e.nome, versoes: [...e.versoes, { id: V[e.id][0], nota: NOTA, html: V[e.id][1]() }] as Ecra<T>['versoes'] } : e);
 }

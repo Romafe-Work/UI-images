@@ -190,6 +190,8 @@ export function mostrar(nome: string): boolean {
   escreverEndereco('ecra', nome);
   mostrarVersao(ler('v'));
   window.scrollTo(0, 0);
+  /* 28 out.: a barra da demonstração e o painel ao lado acompanham também as mudanças feitas pela app (o fim da abertura) */
+  document.dispatchEvent(new CustomEvent('romafe:mostrado', { detail: nome }));
   return true;
 }
 

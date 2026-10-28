@@ -153,7 +153,7 @@ const lista = () => ecra(`<h1 class="gp-titulo">Contagens atribuídas</h1>
     <ul class="gp-lista" role="list">${CONTAGENS.map(([n, tipo, area, data, est, k, f, t], i) => `<li style="--i:${i}"><div class="gp-inv-card gi-card--${k}">
       <p><b>${n}</b><span class="gp-tag gp-tag--${TAG[k]}">${est}</span></p><small>${tipo} · ${area} · ${data}</small>${prog(f, t)}
       <div class="gp-inv-acoes">${k === 'submetida' ? `<span class="gi-espera">${L(clock)}À espera da conferência</span>` : `<button type="button" class="gp-btn gp-btn--acao" data-ir="inv-posicao">${L(k === 'curso' ? play : scanBarcode)}<span>${k === 'curso' ? 'Continuar' : 'Iniciar'}</span></button>`}</div></div></li>`).join('')}</ul>
-    ${nota('O gestor planeia as contagens. As submetidas esperam pela conferência; se for preciso recontar, aparece aqui.')}`, { voltar: 'inv-inicio', titulo: 'Contagens' });
+    ${''}`, { voltar: 'inv-inicio', titulo: 'Contagens' });
 
 /* 42 · ler a posição */
 const lerPosicao = (est: '' | 'ok' | 'fora' = '') => ecra(`${ativa({ passo: 0 })}
@@ -171,7 +171,7 @@ const lerArtigo = (est: '' | 'desconhecido' | 'repetido' | 'sem-rede' = '') => e
     : `${leitor({ titulo: 'Leia o código do artigo', texto: 'Um artigo de cada vez; depois diz quantos há.', codigo: ART.ean, tipo: 'artigo', ir: 'inv-quantidade' })}
       ${h2('Contados nesta posição', 2)}${contados()}`}`,
   { rede: est !== 'sem-rede', pe: est === 'repetido' ? `${acao('Somar mais unidades', plus, ' data-ir="inv-quantidade"')}${sec('Corrigir a contagem', pencil, ' data-ir="inv-corrigir"')}`
-    : est === 'sem-rede' ? acao('Tentar de novo', refresh) : est === 'desconhecido' ? `${acao('Ler outra vez', scanBarcode, ' data-ir="inv-artigo"')}${sec('Registar por identificar', pkgX, ' data-ir="inv-artigo"')}`
+    : est === 'sem-rede' ? acao('Tentar outra vez', refresh) : est === 'desconhecido' ? `${acao('Ler outra vez', scanBarcode, ' data-ir="inv-artigo"')}${sec('Registar por identificar', pkgX, ' data-ir="inv-artigo"')}`
     : sec('Acabei esta posição', check, ' data-ir="inv-fim-posicao"') });
 
 /* 45 · a quantidade (às cegas: nunca se mostra a do sistema) */
@@ -206,7 +206,7 @@ const fimPosicao = () => ecra(`${ativa({ pos: POS, mudar: false, passo: 4 })}
 const jaContei = () => ecra(`<h1 class="gp-titulo">O que já contei</h1>${nota(`${INV} · 19 posições · tudo no servidor`)}
     <section class="gi-grupo"><h2 class="gi-grupo__pos">${posicao(POS, 'gi-pos--peq')}</h2>${contados([[ART.ref, ART.desc, `12 ${ART.un}`, '10:44']])}</section>
     <section class="gi-grupo"><h2 class="gi-grupo__pos">${posicao('60300101', 'gi-pos--peq')}</h2><ul class="gi-linhas" role="list">${linha(['INA 530 0089 10', 'Kit de distribuição', '2 un.', '10:31'])}${linha(['SKF VKPC 88618', 'Bomba de água', '5 un.', '10:29'], ' is-corrigida')}</ul></section>
-    ${nota('«Corrigida» quer dizer que há uma contagem anterior guardada, com o motivo e quem corrigiu.')}`,
+    ${''}`,
   { voltar: 'inv-artigo', titulo: 'Contados', pe: `${acao('Voltar à contagem', arrowLeft, ' data-ir="inv-artigo"')}${sec('Corrigir uma contagem', pencil, ' data-ir="inv-corrigir"')}` });
 
 /* 50 · corrigir uma contagem: a nova e o motivo; a anterior fica */
@@ -221,7 +221,7 @@ const corrigir = () => ecra(`${ativa({ pos: POS })}
 const pausar = (retomada = false) => ecra(retomada
   ? `${aviso('ok', play, 'Contagem retomada', `Voltou ao ${INV} onde parou às 10:46. O que já contou está no servidor.`)}${ativa({ pos: POS, mudar: false })}`
   : `${aviso('info', pause, 'Pausar a contagem?', `O ${INV} fica parado nesta posição. Volta exatamente aqui, neste ou noutro PDA.`)}${ativa({ pos: POS, mudar: false })}${prog(18, 46)}
-    ${nota('Nada se perde: cada contagem é registada no servidor quando a confirma.')}`,
+    ${''}`,
   { pe: retomada ? acao('Continuar a contar', scanBarcode, ' data-ir="inv-artigo"') : `${acao('Pausar', pause, ' data-ir="inv-inicio"')}${sec('Continuar a contar', play, ' data-ir="inv-artigo"')}` });
 
 /* 52 · submeter / submetida */
@@ -237,7 +237,7 @@ const divergencias = () => ecra(`<h1 class="gp-titulo">Divergências</h1>${nota(
     <ul class="gp-lista" role="list">${DIV.map(([p, a, c, s, k], i) => { const d = c - s; return `<li style="--i:${i}"><div class="gi-div${k ? ` gi-div--${k}` : ''}">${posicao(p, 'gi-pos--peq')}<p class="gi-div__art">${a}</p>
       <dl><div><dt>Contado</dt><dd>${c}</dd></div><div><dt>Sistema</dt><dd>${s}</dd></div><div><dt>Diferença</dt><dd class="${d < 0 ? 'is-menos' : d > 0 ? 'is-mais' : ''}">${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d)}</dd></div></dl>
       ${k === 'recontar' ? `<span class="gp-tag gp-tag--planeada">${L(rotate)}Recontagem pedida</span>` : k === 'ok' ? `<span class="gp-tag gp-tag--ok">${L(check)}Sem diferença</span>` : `<button type="button" class="gp-btn gp-btn--acao" data-ir="inv-recontar">${L(rotate)}<span>Pedir recontagem</span></button>`}</div></li>`; }).join('')}</ul>
-    ${nota('Ajustar o stock é outra operação, do gestor, depois da conferência. Recontar não apaga as contagens anteriores.')}`,
+    ${''}`,
   { voltar: 'gestor-inventario', titulo: 'Divergências', gestor: true });
 
 /* 54 · recontagem pedida (o operador): às cegas outra vez */
@@ -251,7 +251,7 @@ const corrigirPosicao = () => ecra(`<h1 class="gp-titulo">Corrigir posição</h1
     <section class="gi-cartao gi-cartao--linha"><span>Posição</span>${posicao('60300105', 'gi-pos--peq')}</section>
     ${artigo()}
     ${quantidade('7', { teclado: false, rotulo: 'Na posição estão' })}
-    ${nota('A correção vai para o motor de correções e conta para o limite de correções abertas da posição.')}`,
+    ${''}`,
   { voltar: 'inv-inicio', titulo: 'Corrigir posição', pe: `${acao('Corrigir a posição', pencil, ' data-ir="inv-inicio"')}${sec('Cancelar', xIc, ' data-ir="inv-inicio"')}` });
 
 /* 56 · consultar stock / fechada durante uma contagem às cegas da mesma zona */

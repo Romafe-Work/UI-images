@@ -207,6 +207,7 @@ export function iniciar(): void {
     dica.textContent = (a ? a.descricao + ' ' : '') + 'Clique nas ligações do ecrã, ou use ← e →.';
   }
   pintar();
+  document.addEventListener('romafe:mostrado', () => pintar());
   /* 27 out.: o rato que clica nos botões (demo-rato.ts); &rato=1 começa sozinho */
   iniciarRato();
 }

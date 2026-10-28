@@ -18,7 +18,7 @@
    entrar e quando o servidor confirma o movimento, nunca antes.
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
-import { ecra, acao, sec, esperar, aviso, nota, prog, posicao, quantidade, h2, L, trocarIr, type Opcoes } from './inventario-v2';
+import { ecra, acao, sec, esperar, aviso, prog, posicao, quantidade, h2, L, trocarIr, type Opcoes } from './inventario-v2';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
 import pkg from 'lucide-static/icons/package.svg?raw';
 import pkgX from 'lucide-static/icons/package-x.svg?raw';
@@ -120,7 +120,7 @@ function guia(cen: E71 = 'normal'): string {
     <section class="gp-sec">${h2('Destino')}
       ${destinos.length ? `<ul class="gp-escolha" role="radiogroup" aria-label="Destino">${destinos.map(([p, t, k], i) => `<li><label class="gp-op gi-dest${k !== 'ok' ? ' is-ocupada' : ''}"><input type="radio" name="gi-dest"${(cen === 'bloqueada' ? i === 2 : i === 0) ? ' checked' : ''}${k !== 'ok' ? ' disabled' : ''}>${posicao(p, 'gi-pos--peq')}<span><small>${t}</small></span>${k === 'bloq' ? `<em class="is-nao">${L(lock)}Em contagem</em>` : k === 'inativa' ? '<em class="is-nao">Inativa</em>' : ''}</label></li>`).join('')}</ul>`
       : aviso('aviso', mapPin, 'Sem destino proposto', 'O motor não encontrou uma posição ativa da família destes artigos fora das zonas em contagem. Escreva a posição de destino.') + '<label class="gp-campo"><span>Posição de destino</span><input inputmode="numeric" placeholder="8 algarismos"></label>'}
-      ${nota('Só se propõem posições ativas do armazém 60, fora das zonas em contagem. Capacidade não se mostra: não há medida.')}</section>
+      ${''}</section>
     <section class="gp-sec">${h2('Quem arruma')}
       <ul class="gp-escolha" role="radiogroup" aria-label="Quem arruma">${[['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', ''], ['Inês Rocha', 'IR', 'A seguir à GA-2026-0330, que acaba agora', ''], ['Joana Silva', 'JS', 'Na contagem INV-2026-014', 'o']].map(([q, ini, t, k], i) => `<li><label class="gp-op${k ? ' is-ocupada' : ''}"><input type="radio" name="gi-quem"${i === 1 ? ' checked' : ''}${k ? ' disabled' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${t}</small></span></label></li>`).join('')}</ul>
       <label class="gp-campo"><span>Motivo (obrigatório ao escolher a pessoa)</span><input value="Cais 1 cheio: a Inês leva-a a seguir à que tem"></label></section>`,
@@ -139,7 +139,7 @@ function acompanhar(cen: 'normal' | 'parcial' | 'concluida-outro' = 'normal'): s
     ${prog(g.feitas, g.linhas.length, 'Artigos arrumados')}
     <ul class="gi-secoes" role="list">${g.linhas.map((l, i) => `<li class="gi-secao ${i < g.feitas ? 'is-feita' : 'is-atual'}"><span><b>${l.ref}</b><small>${l.desc} · ${l.q} un.</small></span>${i < g.feitas ? `<span class="gp-tag gp-tag--ok">${L(check)}${cen === 'parcial' && i === 0 ? '14 de 20 · parcial' : 'Arrumado'}</span>` : '<span class="gp-tag gp-tag--planeada">Por arrumar</span>'}</li>`).join('')}</ul>
     ${cen === 'parcial' ? aviso('aviso', triangle, 'Arrumação parcial', 'Couberam 14 de 20 na 60120401. As 6 que faltam ficam na guia, no cais 2; o motor propõe outro destino para elas.') : ''}
-    ${nota('Só o que o servidor confirmou aparece como arrumado.')}`,
+    ${''}`,
   { ...G('Acompanhar'), pe: `${sec('Reatribuir', repeat, ' data-ir="arr-guia"')}${sec('Ver a guia', list, ' data-ir="arr-inicio"')}` });
 }
 
@@ -155,12 +155,12 @@ function excecoes(cen: 'normal' | 'vazia' = 'normal'): string {
   return ecra(`<h1 class="gp-titulo">Exceções</h1>
     ${xs.length ? `<ul class="gp-lista" role="list">${xs.map(([ic, t, x, b, ir], i) => `<li style="--i:${i}"><div class="gi-exc"><span class="gi-exc__ic">${L(ic)}</span><div><b>${t}</b><small>${x}</small></div><button type="button" class="gp-btn gp-btn--acao" data-ir="${ir}">${L(arrowRight)}<span>${b}</span></button></div></li>`).join('')}</ul>`
     : `<p class="gp-vazio">${L(check)}Sem exceções na arrumação.</p>`}
-    ${nota('Cada exceção fica na auditoria: quem, quando e o que se decidiu.')}`, G('Exceções'));
+    ${''}`, G('Exceções'));
 }
 function historico(): string {
   return ecra(`<h1 class="gp-titulo">Histórico</h1>
     <ul class="gp-lista" role="list">${[GUIAS[4], { ...GUIAS[1], ref: 'GA-2026-0325', est: 'feita' as const, hora: '07:50', feitas: 2 }].map((g, i) => `<li style="--i:${i}"><div class="gp-inv-card"><p><b>${g.ref}</b><span class="gp-tag gp-tag--ok">Concluída</span></p><small>${g.linhas.length} artigos · ${un(g)} un. · ${g.quem} · às ${g.hora}</small>${percurso(g)}</div></li>`).join('')}</ul>
-    ${nota('Os movimentos confirmados pelo servidor. O stock das posições muda pelo movimento, nunca pelo PDA.')}`, G('Histórico'));
+    ${''}`, G('Histórico'));
 }
 
 /* =========================================================
@@ -191,7 +191,7 @@ export function arrumar(e: E80 = 'origem', op: Opcoes = {}, ids: Record<string, 
     desconhecida: () => [`${faixaLer('erro', pkgX, 'Posição desconhecida', 'Leu 60999999')}${aviso('erro', mapPin, 'Esta posição não existe no armazém 60', 'Leia a etiqueta da posição de destino; se estiver estragada, avise o gestor.')}`, acao('Ler outra vez', scanBarcode, ' data-ir="arr-op-destino"')],
     recusado: () => [`${aviso('erro', serverOff, 'O servidor recusou o movimento', 'A posição 60120401 foi desativada há instantes. Nada se moveu; o motor propõe outro destino.')}${art}`, acao('Pedir outro destino', refresh, ' data-ir="arr-op-destino"')],
     'sem-leitor': () => [`${faixaLer('erro', radio, 'Leitor indisponível', 'A tecla de leitura não envia códigos')}`, `${acao('Reiniciar o leitor', refresh)}${sec('Escrever à mão', keyboard)}`],
-    'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se confirma e nada fica à espera no PDA. A palete fica onde está.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar de novo', refresh)],
+    'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se confirma e nada fica à espera no PDA. A palete fica onde está.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar outra vez', refresh)],
     sessao: () => [aviso('aviso', clock, 'A sessão terminou', 'Entre outra vez; a guia continua sua, no mesmo artigo.'), acao('Entrar outra vez', logIn, ' data-login')],
     'concluida-outro': () => [aviso('info', circleCheck, 'Esta guia já foi concluída', 'Foi acabada noutro PDA às 10:58. Não há nada a arrumar aqui.'), acao('Começar a tarefa seguinte', arrowRight, ' data-ir="op-inicio"')],
   };
@@ -217,7 +217,7 @@ export function ecrasArrumacao(): Ecra<string>[] {
     ['concluida-outro', '80.15 · Concluída noutro PDA', 'A guia já foi acabada: segue-se para a tarefa seguinte.'],
   ];
   const carga = (o: Opcoes) => ecra(`<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A carregar…</p><div class="gp-esq"><i></i><i></i><i></i></div>`, o);
-  const semRede = (o: Opcoes) => ecra(aviso('erro', wifiOff, 'Sem rede', 'A Pick precisa de rede: não mostra guias velhas como se fossem de agora. Continua quando houver sinal.'), { ...o, rede: false, pe: acao('Tentar de novo', refresh) });
+  const semRede = (o: Opcoes) => ecra(aviso('erro', wifiOff, 'Sem rede', 'A Pick precisa de rede: não mostra guias velhas como se fossem de agora. Continua quando houver sinal.'), { ...o, rede: false, pe: acao('Tentar outra vez', refresh) });
   const servidor = (o: Opcoes) => ecra(aviso('erro', serverOff, 'O servidor não respondeu', 'Não foi possível ler as guias. Nada mudou.') + '<p class="gi-ref">Referência <code>PK-2710-A7E0</code></p>', { ...o, pe: acao('Tentar outra vez', refresh) });
   const semPerm = (o: Opcoes) => ecra(aviso('erro', userRound, 'Sem permissão', 'Gerir a arrumação é do gestor. A arrumação recebe as guias pelo motor, no início.'), { ...o, pe: acao('Voltar ao início', arrowLeft, ' data-ir="op-inicio"') });
   return [

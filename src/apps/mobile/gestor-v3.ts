@@ -189,7 +189,7 @@ function contarGestor(e: E76 = 'lista'): string {
       ${tarefaCartao(pkg, 'INV-2026-015 · zona 10', 'Cíclica · rolamentos · 30 posições · às cegas · sem quem conte', 'Contar eu', play, 'g-inv-ficou', 0)}
       ${tarefaCartao(pkg, 'INV-2026-014 · colunas 13–24', 'Zona 30 · às cegas · a Joana conta as colunas 01–12', 'Atribuir', userPlus, 'gestor-atribuir', 1)}
     </ul></section>
-    ${nota('Conta-se às cegas também quando é o gestor a contar: a quantidade do sistema só aparece na validação. Uma posição nunca fica com duas pessoas.')}`, comBarra('Inventário'));
+    ${''}`, comBarra('Inventário'));
   if (e === 'ficou') return ecra(`${aviso('ok', userRound, 'A INV-2026-015 ficou consigo', 'O servidor atribuiu-lhe as 30 posições da zona 10. Comece pela primeira: a Pick diz qual é.')}
     <dl class="gi-revisao"><div><dt>Âmbito</dt><dd>Zona 10 · rolamentos · 30 posições</dd></div><div><dt>Regras</dt><dd>Às cegas · uma contagem · recontar divergências</dd></div><div><dt>Começa em</dt><dd>${posicao('60100305', 'gi-pos--peq')}</dd></div></dl>`,
   G('Contar', { voltar: 'g-inv-exec', pe: acao('Começar a contagem', play, ' data-ir="g-inv-pos"') }));
@@ -231,7 +231,7 @@ function arrumarGestor(): string {
       ${tarefaCartao(pkgOpen, g.ref, `${g.linhas[0].ref} · ${g.linhas[0].q} un. · ${g.origem} → ${g.destino}`, 'Arrumar eu', play, 'g-arr-op', 0)}
       ${tarefaCartao(pkgOpen, 'GA-2026-0331', '2 paletes · 3 artigos · cais 1 → 60101203 · ninguém livre', 'Arrumar eu', play, 'arr-guia', 1)}
     </ul></section>
-    ${nota('Uma guia de cada vez: só o destino da guia aceita o movimento, e o stock muda pelo servidor, nunca pelo PDA.')}`, comBarra('Arrumação'));
+    ${''}`, comBarra('Arrumação'));
 }
 
 /* =========================================================
@@ -273,7 +273,7 @@ function guiaSep(e: E91 = 'normal'): string {
     ${e === 'normal' ? `<section class="gp-sec">${h2('Quem separa')}
       <ul class="gp-escolha" role="radiogroup" aria-label="Quem separa">${[['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', ''], ['Tiago Lopes', 'TL', 'A seguir à GS13454211, que está a meio', ''], ['Eu (Ana Ferreira)', 'AF', 'Separo agora, no meu PDA', '']].map(([q, ini, x], i) => `<li><label class="gp-op"><input type="radio" name="gx-sep-quem"${i === 0 ? ' checked' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${x}</small></span></label></li>`).join('')}</ul>
       <label class="gp-campo"><span>Motivo (obrigatório ao escolher a pessoa)</span><input placeholder="Ex.: cliente à espera ao balcão"></label></section>` : ''}
-    ${nota('Uma tarefa é uma guia: não se juntam guias em lotes.')}`,
+    ${''}`,
   G('Guia de separação', { voltar: 'g-sep-acomp', pe: e === 'normal' ? `${acao('Separar eu', play, ' data-ir="g-sep-pos"')}${sec('Atribuir ao Tiago', userPlus, ' data-ir="g-sep-atribuida"')}` : e === 'curso' ? sec('Reatribuir', repeat, ' data-ir="g-sep-guia"') : '' }));
 }
 /* 92 · Separar: ler a posição → ler o artigo → a quantidade → a linha seguinte; a falta na posição; os preparados */
@@ -284,7 +284,7 @@ function separar(e: E92 = 'lista'): string {
   const o = (titulo: string, x: Opcoes = {}) => G(titulo, { voltar: 'g-sep', ...x });
   if (e === 'lista') return ecra(`<h1 class="gp-titulo">Separação</h1>${modo('sep', true)}
     <section class="gp-sec">${h2('Guias que pode separar', 1)}<ul class="gp-lista" role="list">${tarefaCartao(basket, g.ref, `${g.cli} · ${g.linhas.length} linhas · ${un(g)} un. · ninguém livre`, 'Separar', play, 'g-sep-pos', 0)}</ul></section>
-    ${nota('A guia vem inteira, pela ordem do percurso. A pessoa não vê a fila: o motor entrega uma guia de cada vez.')}`, comBarra('Separação'));
+    ${''}`, comBarra('Separação'));
   const topo = (i: number, n?: number) => `<p class="gi-ler-inv"><b>${g.ref}</b><span>${g.cli} · linha ${i + 1} de ${g.linhas.length}</span></p>${n !== undefined ? passosDe(PASSOS92, n, 'Passos desta linha') : ''}`;
   const pedido = (x: LinhaS) => `<section class="gi-artigo"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${x.ref}</p><p class="gi-artigo__desc">${x.desc}</p><p class="gi-artigo__meta">A guia pede ${x.q} un.</p></div></section>`;
   /* «há menos» junto da quantidade, e não no pé: no EDA61K o pé com dois botões tapava a quantidade */
@@ -302,12 +302,12 @@ function separar(e: E92 = 'lista'): string {
     fim: () => [`<h1 class="gp-titulo">${g.ref} separada</h1><p class="gp-nota">${g.cli} · as ${g.linhas.length} linhas confirmadas pelo servidor</p>
       <ul class="gi-linhas" role="list">${g.linhas.map((x, i) => linhaArt(x.ref, `${x.desc} · ${x.pos}`, i === 1 ? `1 de ${x.q}` : `${x.q} un.`, i === 1 ? ' is-falta' : '')).join('')}</ul>
       ${aviso('aviso', pkgX, '1 linha com falta', 'A falta está registada na posição 60100802. A guia não fica à espera da reposição: segue para os preparados com o que se tirou, e o ERP vê a linha em falta.')}`, acao('Levar aos preparados', arrowRight, ' data-ir="g-sep-entregar"')],
-    entregar: () => [`<p class="gi-ler-inv"><b>${g.ref}</b><span>Separada · 4 linhas</span></p>${faixaLer('pronto', pkgCheck, `Leia a posição ${PREP}`, 'A prateleira de preparados, onde pousa a guia', 'g-sep-pronta', 'posicao')}<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Preparados</span>${posicao(PREP, 'gi-pos--peq')}</div>${nota('A guia só fica pronta para expedir quando o servidor confirma onde ficou.')}`, sec('Escrever à mão', keyboard)],
+    entregar: () => [`<p class="gi-ler-inv"><b>${g.ref}</b><span>Separada · 4 linhas</span></p>${faixaLer('pronto', pkgCheck, `Leia a posição ${PREP}`, 'A prateleira de preparados, onde pousa a guia', 'g-sep-pronta', 'posicao')}<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Preparados</span>${posicao(PREP, 'gi-pos--peq')}</div>${''}`, sec('Escrever à mão', keyboard)],
     pronta: () => [`<section class="gi-movido" role="status">${cenaSeparacao()}<h1>${g.ref} pronta</h1><p>Pousada nos preparados, na ${PREP}. O servidor confirmou; a Expedição já a vê nas prontas.</p></section>`, `${acao('Separar outra guia', basket, ' data-ir="g-sep"')}${sec('Ver na Expedição', truck, ' data-ir="g-exp-acomp"')}`],
     'pos-errada': () => [`${topo(0, 0)}${faixaLer('erro', mapPin, 'Esta não é a posição da linha', 'Leu 60100306')}${aviso('erro', mapPin, 'Não se tira daqui', `A linha 1 é na <b>${l.pos}</b>. Um artigo igual noutra posição não conta para esta guia.`)}${onde(l)}`, acao('Ler a posição certa', scanBarcode, ' data-ir="g-sep-pos"')],
     'art-errado': () => [`${topo(0, 1)}${faixaLer('erro', pkgX, 'Este artigo não é da linha', 'Leu SKF 6206-2Z')}${aviso('erro', pkgX, 'Não está nesta linha', `A linha 1 pede <b>${l.ref}</b>. Deixe este na prateleira.`)}`, acao('Ler outro artigo', scanBarcode, ' data-ir="g-sep-art"')],
     'prat-errada': () => [`${faixaLer('erro', pkgX, 'Esta não é a posição de preparados', 'Leu 60100305')}${aviso('erro', pkgCheck, 'A guia não pousa aqui', `A 60100305 é uma posição de arrumação. Uma guia separada só fica pronta nos preparados, na <b>${PREP}</b>.`)}<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Preparados</span>${posicao(PREP, 'gi-pos--peq')}</div>`, acao('Ler outra vez', scanBarcode, ' data-ir="g-sep-entregar"')],
-    'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se confirma e nada fica à espera no PDA. As linhas já confirmadas estão no servidor.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar de novo', refresh), 'sem-rede'],
+    'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se confirma e nada fica à espera no PDA. As linhas já confirmadas estão no servidor.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar outra vez', refresh), 'sem-rede'],
     outro: () => [aviso('info', repeat, `${g.ref} passou para o Tiago`, 'Outro gestor reatribuiu-a há instantes. A linha que confirmou fica registada com o seu nome; o resto já não é consigo.'), acao('Voltar à Separação', arrowLeft, ' data-ir="g-sep"')],
   };
   const [corpo, pe, k] = C[e]();
@@ -333,7 +333,7 @@ function expedicaoAcomp(o: { sel?: EstExp; vazio?: boolean } = {}): string {
     ${faixa([['Prontas', conta(EXP, 'pronta')], ['Em expedição', conta(EXP, 'expedicao')], ['Exceções', conta(EXP, 'excecao'), 'erro'], ['Expedidas', conta(EXP, 'expedida'), 'ok']])}
     <label class="gp-campo gi-sel"><span>Mostrar</span><select data-gi-sel aria-label="Mostrar as guias">${GRUPOS_E.map(([k, t]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
     ${GRUPOS_E.map(([k, t]) => { const xs = o.vazio && k === sel ? [] : EXP.filter((g) => g.est === k); return `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${k === sel ? '' : ' hidden'}>${xs.length ? xs.map(cartaoE).join('') : `<li><p class="gp-vazio">${L(check)}Nenhuma guia ${t.toLowerCase()}.</p></li>`}</ul>`; }).join('')}
-    ${nota('A expedição recolhe as guias que a separação pousou na prateleira de preparados.')}`,
+    ${''}`,
   comBarra('Expedição'));
 }
 type E96 = 'lista' | 'prat' | 'guia' | 'verificar' | 'recolhida' | 'a-confirmar' | 'expedida' | 'nao-pronta' | 'outra' | 'ja' | 'sem-rede' | 'excecao';
@@ -356,7 +356,7 @@ function expedir(e: E96 = 'lista'): string {
     'nao-pronta': () => [`${faixaLer('erro', lock, 'Esta guia ainda não está pronta', 'Leu GS13454211')}${aviso('erro', lock, 'A GS13454211 está em separação', 'O Tiago está a separá-la (2 de 3 linhas). Só se recolhe depois de pousada na prateleira de preparados.')}`, acao('Ler outra guia', scanBarcode, ' data-ir="g-exp-guia"')],
     outra: () => [`${faixaLer('aviso', triangle, 'Leu outra guia pronta', 'GS13454208, não a GS13454209')}${aviso('aviso', triangle, 'Recolher a GS13454208?', 'Também está pronta (Auto Peças Viana · 5 linhas · 1 com falta). Se a recolher, a GS13454209 fica na prateleira.')}`, `${acao('Recolher a GS13454208', check, ' data-ir="g-exp-recolhida"')}${sec('Ler a GS13454209', scanBarcode, ' data-ir="g-exp-guia"')}`],
     ja: () => [`${faixaLer('erro', repeat, 'Já recolhida', 'GS13454207')}${aviso('erro', repeat, 'O Paulo já a recolheu', 'A GS13454207 saiu da prateleira com o Paulo Reis às 10:05. Não se recolhe duas vezes.')}`, acao('Ler outra guia', scanBarcode, ' data-ir="g-exp-guia"')],
-    'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se recolhe nem se expede, e nada fica à espera no PDA. A guia fica onde está.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar de novo', refresh), 'sem-rede'],
+    'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se recolhe nem se expede, e nada fica à espera no PDA. A guia fica onde está.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar outra vez', refresh), 'sem-rede'],
     excecao: () => [`<div class="gi-acomp-cab"><h1 class="gp-titulo">GS13454206</h1><span class="gp-tag gp-tag--erro">Exceção</span></div>
       ${aviso('erro', triangle, 'Não está na prateleira de preparados', `O Paulo leu a ${PREP} às 09:55 e a guia não estava lá. A separação deu-a como pousada às 09:31 (Tiago Lopes).`)}
       <dl class="gi-revisao"><div><dt>Cliente</dt><dd>Oficina Moreira &amp; Filhos</dd></div><div><dt>Linhas</dt><dd>3</dd></div><div><dt>Pousada por</dt><dd>Tiago Lopes · 09:31</dd></div></dl>
@@ -381,10 +381,10 @@ function lerGestor(e: E75 = 'normal'): string {
     <ul class="gi-mais-l" role="list">${itemMais(truck, 'Recolher para expedir', 'Verifica e confirma a recolha', 'g-exp-verificar')}${itemMais(list, 'Ver a guia', 'As linhas e quem as separou', 'g-exp-acomp')}</ul>`, o());
   if (e === 'artigo') return ecra(`${aviso('info', scanBarcode, 'Leu 7316201250277', 'É um artigo (SKF VKBA 6556). Nenhuma operação sua o pede agora: o que quer fazer?')}
     <ul class="gi-mais-l" role="list">${itemMais(search, 'Consultar o stock', 'Onde está e quanto o sistema diz que há', 'inv-consultar')}${itemMais(pencil, 'Corrigir uma posição', 'Lê primeiro a posição', 'inv-cp-ler')}</ul>
-    ${nota('O leitor nunca adivinha pelo formato do código: um código só vale dentro da operação escolhida.')}`, o());
+    ${''}`, o());
   if (e === 'desconhecido') return ecra(`${aviso('erro', pkgX, 'Código desconhecido', 'Leu <b>5601234000017</b>: não é posição, artigo, palete nem guia do armazém 60.')}`, o({ pe: acao('Ler outra vez', scanBarcode, ' data-ir="g-ler"') }));
   if (e === 'sem-leitor') return ecra(`${leitor({ titulo: 'O leitor não responde', texto: 'Prima a tecla de leitura de novo. Se não ler, reinicie o leitor; até lá pode escrever o código à mão — fica marcado como escrito.', estado: 'parado' })}`, o({ pe: `${acao('Reiniciar o leitor', refresh)}${sec('Escrever à mão', keyboard)}` }));
-  if (e === 'sem-rede') return ecra(aviso('erro', wifiOff, 'Sem rede', 'O leitor lê, mas sem rede a Pick não sabe o que o código é: nada se faz até voltar.'), o({ rede: false, pe: acao('Tentar de novo', refresh) }));
+  if (e === 'sem-rede') return ecra(aviso('erro', wifiOff, 'Sem rede', 'O leitor lê, mas sem rede a Pick não sabe o que o código é: nada se faz até voltar.'), o({ rede: false, pe: acao('Tentar outra vez', refresh) }));
   return ecra(`${leitor({ titulo: 'Leia uma etiqueta', texto: 'Posição, artigo, palete ou guia. A Pick diz o que pode fazer com ela.', codigo: '60100305', tipo: 'contexto', ir: 'g-ler-posicao' })}
     <section class="gp-sec">${h2('Ou escolha primeiro')}<div class="gp-dois">
       <button type="button" class="gp-rap" data-ir="g-inv-exec">${L(pkg)}<span>Contar</span></button>
@@ -431,7 +431,7 @@ function tarefasV2(): string {
     </div>
     <div class="gp-filtros" role="tablist" aria-label="Estado">${SEPS.map(([k, t], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-gi-sep="${k}">${t} <span>${TAREFAS.filter((x) => x.est === k).length}</span></button>`).join('')}</div>
     ${SEPS.map(([k], i) => `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${i ? ' hidden' : ''}>${TAREFAS.filter((x) => x.est === k).map(linha).join('')}</ul>`).join('')}
-    ${nota('Armazém 60. Cada tarefa mostra só a ação que o estado dela permite.')}`, comBarra('Tarefas', 'tarefas'));
+    ${''}`, comBarra('Tarefas', 'tarefas'));
 }
 function maisV2(): string {
   return ecra(`<h1 class="gp-titulo">Mais</h1>

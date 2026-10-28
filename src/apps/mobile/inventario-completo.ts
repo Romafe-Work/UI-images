@@ -94,7 +94,7 @@ export function lerContar(e: E43 = 'pronto', o: Opcoes = {}, ids: Record<string,
     : e === 'fora' || e === 'desconhecido' ? `${acao('Ler outro artigo', scanBarcode, ' data-ir="inv-ler"')}${e === 'desconhecido' ? sec('Separar por identificar', pkgX, ' data-ir="inv-ler"') : ''}`
     : e === 'repetido' ? `${acao('Somar unidades', plus, ' data-ir="inv-ler-lido"')}${sec('Corrigir', rotate, ' data-ir="inv-corrigir"')}`
     : e === 'sem-leitor' ? `${acao('Reiniciar o leitor', refresh)}${sec('Escrever à mão', keyboard)}`
-    : e === 'sem-rede' ? acao('Tentar de novo', refresh) : e === 'bloqueado' || e === 'concluida' ? acao('Voltar ao início', arrowLeft, ' data-ir="op-inicio"')
+    : e === 'sem-rede' ? acao('Tentar outra vez', refresh) : e === 'bloqueado' || e === 'concluida' ? acao('Voltar ao início', arrowLeft, ' data-ir="op-inicio"')
     : sec('Acabei esta posição', check, ' data-ir="inv-fim-posicao"');
   const html = ecra(`<p class="gi-ler-inv"><b>${c.inv}</b><span>${c.linha}</span></p>
     ${faixaLeitura(e)}

@@ -20,7 +20,7 @@
    e o do Inventário e o da Arrumação fazem o seu gesto (o leitor varre; a caixa sobe à prateleira) — uma vez.
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
-import { ecra, acao, sec, aviso, nota, prog, posicao, h2, L, type Opcoes } from './inventario-v2';
+import { ecra, acao, sec, aviso, prog, posicao, h2, L, type Opcoes } from './inventario-v2';
 import { inicioV2, inventarioV2, ARRUMACAO_ATIVA } from './gestor-v2';
 import { inicioV4 } from './gestor-v3';
 import { centro, ESTADOS_CENTRO } from './gestor-v4';
@@ -93,9 +93,10 @@ export const MENU_BARRA: Destino[] = [
 /* 28 out. (Gestor v3): as tarefas «por fazer» das quatro operações (gestor-v3.ts, POR_FAZER) */
 const POR_ATRIBUIR = ARRUMACAO_ATIVA ? 6 : 1;
 const NUMEROS: Partial<Record<string, [number, string]>> = {
-  /* 27 out. (ela: «não quero muita confusão na UI»): um número só, o das Tarefas — os outros repetiam as faixas */
-  'gestor:tarefas': [POR_ATRIBUIR, 'por fazer'],
+  /* 27 out. (ela: «não quero muita confusão na UI»): um número só, o das Tarefas — os outros repetiam as faixas.
+     28 out. (ponto 2): nem esse — o «6 Por fazer» já está no Centro de operações, e a barra repetia-o */
 };
+void POR_ATRIBUIR;
 
 /* ---------- a barra ---------- */
 export function barra(funcao: Funcao, ativo: string, o: { semNumeros?: boolean; so?: string[] } = {}): string {
@@ -173,7 +174,7 @@ function ler(e: ELer = 'normal'): string {
   { ...OP, titulo: 'Ler', barra: barra('arrumacao', 'ler') });
   if (e === 'sem-contexto') return ecra(`${aviso('info', scanBarcode, 'Leu 7316201250277', 'É um artigo (SKF VKBA 6556). Não tem nenhuma tarefa em mãos que o peça: o que quer fazer?')}
     <ul class="gi-mais-l" role="list">${itemMais(search, 'Consultar o stock', 'Onde está e quanto o sistema diz que há', 'inv-consultar')}${itemMais(pencil, 'Corrigir uma posição', 'Lê primeiro a posição', 'inv-cp-ler')}</ul>
-    ${nota('O leitor nunca adivinha: um código só vale dentro da tarefa ou da operação escolhida.')}`,
+    ${''}`,
   { ...OP, titulo: 'Ler', barra: barra('arrumacao', 'ler') });
   return ecra(`<button type="button" class="gi-leitor" data-ler="60300102" data-tipo-leitura="contexto" data-depois="op-ler-lido">
       <span class="gi-mira" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="gi-mira__linha"></span>${L(scanBarcode, 'gi-mira__ic')}</span>
@@ -268,7 +269,7 @@ export function aberturaV3(cen: CenarioAbertura = 'normal'): string {
     .replace('<main class="gp-corpo gi-corpo">', '<main class="gp-corpo gi-corpo" aria-hidden="true" inert>')
     .replace(/<\/div>\s*$/, `${camadaAbertura(cen)}</div>`);
 }
-const GI: Opcoes = { titulo: 'Início', gestor: true };
+const GI: Opcoes = { titulo: 'Centro de operações', gestor: true, funcao: 'Gestor' };
 const comB = (o: Opcoes): Opcoes => ({ ...o, barra: barra('gestor', 'inicio') });
 /** Os estados do Início do Gestor, agora na v3. */
 export const ESTADOS_GESTOR_V3: Record<string, () => string> = {
@@ -292,9 +293,9 @@ export const ESTADOS_INVENTARIO_GESTOR: [string, string, string, () => string][]
   ['gestor-inventario-erro', '61.5 · Não carregou', 'O servidor não respondeu: tentar outra vez, com a referência.', () => eServidor({ ...GINV, barra: bInv() }, 'PK-2710-1B9D')],
   ['gestor-inventario-sem-rede', '61.6 · Sem rede', 'A Pick para e espera; não mostra a lista velha como se fosse de agora.', () => eSemRede({ ...GINV, barra: bInv() })],
   ['gestor-inventario-operador', '61.7 · Aberto pela Arrumação', 'Criar, atribuir e validar é do gestor: a Arrumação vai para o seu Inventário.', () => eSemPermissao({ titulo: 'Inventário', funcao: 'Arrumação', barra: barra('arrumacao', 'inicio') }, 'Criar, atribuir e validar inventários é do gestor. O seu Inventário é o de contar.', 'op-inicio')],
-  ['gestor-inventario-iniciar', '61.8 · Por iniciar', 'O select em «Por iniciar»: o INV-2026-015, à espera de quem conte.', () => inventarioV2(bInv(), { sep: 'planeada' })],
-  ['gestor-inventario-validar', '61.9 · Por validar', 'O select em «Por validar»: o INV-2026-011 submetido, com Validar.', () => inventarioV2(bInv(), { sep: 'validar' })],
-  ['gestor-inventario-concluidos', '61.10 · Concluídos', 'O select em «Concluídos»: o INV-2026-009, com o histórico.', () => inventarioV2(bInv(), { sep: 'concluidos' })],
+  ['gestor-inventario-iniciar', '61.8 · Por iniciar', 'Tocar em «Por iniciar»: o INV-2026-015, à espera de quem conte.', () => inventarioV2(bInv(), { sep: 'planeada' })],
+  ['gestor-inventario-validar', '61.9 · Por validar', 'Tocar em «Por validar»: o INV-2026-011 submetido, com Validar.', () => inventarioV2(bInv(), { sep: 'validar' })],
+  ['gestor-inventario-concluidos', '61.10 · Concluídos', 'Tocar em «Concluídos»: o INV-2026-009, com o histórico.', () => inventarioV2(bInv(), { sep: 'concluidos' })],
   ['gestor-inventario-fechados', '61.11 · Cartões fechados', 'Nenhum cartão aberto: tocar num abre-o no sítio, com as tarefas e a ação.', () => inventarioV2(bInv(), { fechados: true })],
   ['gestor-inventario-grupo-vazio', '61.12 · Nada neste estado', 'O estado escolhido não tem inventários: diz-se, sem lista vazia.', () => inventarioV2(bInv(), { sep: 'validar', vazio: true })],
   ['gestor-inventario-so-consulta', '61.13 · Só consulta', 'A conta vê os inventários mas não os cria: Novo inventário desligado, com o porquê.', () => inventarioV2(bInv(), { semCriar: true })],
@@ -305,12 +306,28 @@ export const ESTADOS_INVENTARIO_GESTOR: [string, string, string, () => string][]
 /** Só a última versão de cada ecrã; os estados do Início do Gestor na v3; a abertura por cima da v3. */
 export function soUltima<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const ABERTURA: Record<string, CenarioAbertura> = { abertura: 'normal', 'abertura-pk-sem-rede': 'sem-rede', 'abertura-pk-sem-acesso': 'sem-acesso' };
-  return ecras.filter((e) => e.id !== 'gestor-inicio-sem-atencao').map((e) => {
+  return semRepetidos(ecras.filter((e) => e.id !== 'gestor-inicio-sem-atencao' && e.id !== 'gestor-sem-inventarios').map((e) => {
     const ultima = e.versoes[e.versoes.length - 1];
     if (ABERTURA[e.id]) return { ...e, versoes: [{ ...ultima, id: 'v3', nota: `${ultima.nota} — por cima do Início do Gestor v3, com a barra (27 out.).`, html: aberturaV3(ABERTURA[e.id]) }] as Ecra<T>['versoes'] };
     if (ESTADOS_CENTRO[e.id]) return { ...e, versoes: [{ id: 'v5', nota: NOTA, html: ESTADOS_CENTRO[e.id]() }] as Ecra<T>['versoes'] };
     if (ESTADOS_GESTOR_V3[e.id]) return { ...e, versoes: [{ id: 'v3', nota: NOTA, html: ESTADOS_GESTOR_V3[e.id]() }] as Ecra<T>['versoes'] };
     const ei = ESTADOS_INVENTARIO_GESTOR.find(([id]) => id === e.id); if (ei) return { ...e, nome: ei[1], objetivo: ei[2], versoes: [{ id: 'v3', nota: NOTA, html: ei[3]() }] as Ecra<T>['versoes'] };
     return { ...e, versoes: [ultima] };
-  });
+  }));
+}
+/* 28 out. (ela: «sim» ao que eu mudaria na app do Gestor, ponto 5): o mesmo «Sem rede», «A carregar», «Não carregou» e
+   «Sessão terminada» repetidos em cada ecrã (mais de 40) saem. Ficam os do Centro de operações (60.x), os do fluxo Erros
+   (30–36), e os que são mesmo diferentes: a falta de rede a meio de uma operação (a linha fica onde estava), o «A calcular»
+   das Insights (o período já serve). O 60.2 «Sem inventários» sai também: é o 60.16 «Nada a acontecer» só com o Inventário. */
+const GENERICOS = ['não mostra dados velhos como se fossem de agora', 'Não foi possível ler os dados. Nada mudou.', 'Por segurança, entre outra vez pelo início de sessão comum'];
+function semRepetidos<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const generico = (e: Ecra<T>) => {
+    if (!e.estadoDe || e.estadoDe === 'gestor-inicio') return false;
+    const h = e.versoes[e.versoes.length - 1].html;
+    return GENERICOS.some((g) => h.includes(g)) || (/· A carregar$/.test(e.nome) && h.includes('girador girador--pequeno'));
+  };
+  /* um que outro ecrã abre por uma ligação fica (o «Terminar sessão» do Mais leva ao 57.8) */
+  const ligados = new Set(ecras.flatMap((e) => [...e.versoes[e.versoes.length - 1].html.matchAll(/data-(?:ir|depois)="([^"]+)"/g)].map((m) => m[1])));
+  const fora = new Set(ecras.filter((e) => generico(e) && !ligados.has(e.id)).map((e) => e.id));
+  return ecras.filter((e) => !fora.has(e.id));
 }

@@ -92,3 +92,29 @@ li[data-gi-zona-l][hidden] { display: none; }
 .gx-eq dl { display: grid; grid-template-columns: 1.3fr 1fr .8fr; gap: 6px; margin: 0; } .gx-eq dt { font-size: 11.5px; font-weight: 700; color: var(--g-tinta-2); } .gx-eq dd { margin: 0; font-size: 13.5px; font-weight: 700; } .gx-eq .is-erro dd { color: var(--g-erro); }
 
 @media (prefers-reduced-motion: reduce) { .gx-agora > li, .gx-graf__b path { animation: none; } .gx-mod--inv, .gx-mod--arr, .gx-mod--sep, .gx-mod--exp, [class*='gx-vt-'] { view-transition-name: none; } }
+/* 28 out. (ponto 4): as quatro operações cabem no Centro sem rolar — cartões baixos, o ícone ao lado do nome */
+.gx-mods--compacto { gap: 6px; }
+.gx-mods--compacto .gx-mod { grid-template-columns: 30px minmax(0, 1fr); align-items: center; column-gap: 8px; row-gap: 0; min-height: 0; padding: 8px 10px 9px; }
+.gx-mods--compacto .gx-mod .gi-mod__ic { grid-row: span 3; align-self: start; width: 30px; height: 30px; margin: 2px 0 0; }
+.gx-mods--compacto .gx-mod .gi-mod__ic .pk-caixa-viva { width: 30px; }
+.gpi .gx-mods--compacto .gx-mod .gi-mod__ic > svg { width: 24px; height: 24px; }
+.gx-mods--compacto .gx-mod b { font-size: 15px; }
+.gx-mods--compacto .gx-mod__n { margin: 0; font-size: 12px; } .gx-mods--compacto .gx-mod__n strong { font-size: 15px; }
+.gx-mods--compacto .gx-mod small { font-size: 11.5px; line-height: 1.3; }
+.gx-mods--compacto > li { display: grid; } .gx-mods--compacto .gx-mod { height: 100%; }
+/* 28 out. (ponto 7): os números do Inventário são o filtro — o escolhido fica marcado, como um separador */
+.gi-contas { margin: 2px 0 4px; } .gi-contas .gx-num { min-height: 52px; }
+.gi-contas .gx-num[aria-selected="true"] { background: color-mix(in srgb, var(--g-laranja, #f58214) 12%, var(--g-sup)); box-shadow: inset 0 -3px 0 var(--g-laranja, #f58214); }
+.gi-contas .gx-num[aria-selected="true"] span { color: var(--g-tinta); }
+/* 28 out. (ponto 8): nas Tarefas ficam os três estados; operação, zona e responsável abrem-se em «Filtrar» */
+.gx-filtrar { margin: 0; }
+.gx-filtrar > summary { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 2px; list-style: none; font-weight: 700; color: var(--g-azul); cursor: pointer; }
+.gx-filtrar > summary::-webkit-details-marker { display: none; }
+.gpi .gx-filtrar > summary svg { width: 16px; height: 16px; } .gx-filtrar__seta { margin-left: auto; transition: rotate .2s ease; } .gx-filtrar[open] .gx-filtrar__seta { rotate: 180deg; }
+.gx-filtrar__n { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--g-laranja); color: #fff; font-size: 12px; font-style: normal; }
+.gx-filtrar > .gx-filtros { padding-bottom: 8px; }
+/* os três estados das Tarefas cabem lado a lado, sem «Exceções» cortado na borda */
+.gp-filtros.gx-tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+.gp-filtros.gx-tres button { padding: 0 4px; white-space: nowrap; font-size: 13px; }
+.gi-contas .gx-num { padding: 8px 6px; } .gi-contas .gx-num span { font-size: 11px; white-space: nowrap; }
+.gx-filtrar:not([open]) > .gx-filtros { display: none; }

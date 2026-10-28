@@ -110,7 +110,7 @@ const fechar = () => pick(`<p class="pk-guia"><span>Guia ${GUIA}</span><span>12 
 const rede = () => pick(aviso('aviso', IC.semrede, 'Sem rede', 'A Pick precisa de rede para trabalhar. Aproxime-se de uma zona com sinal; a guia continua sua.')
     + `<p class="pk-nota">O que já confirmou está guardado até à linha 6. A linha 7 fica por confirmar.</p>
     <p class="pk-estado" role="status">${GIRADOR('girador--pequeno')}A procurar rede…</p>`,
-  { rede: false, pe: BOTAO('Tentar de novo', IC.denovo) });
+  { rede: false, pe: BOTAO('Tentar outra vez', IC.denovo) });
 
 const codigo = () => pick(`${guiaTopo()}` + aviso('erro', IC.codigo, 'Código não reconhecido', 'O código lido não é de nenhum artigo nem de nenhuma posição: <strong>5600998877</strong>.')
     + `<p class="pk-nota">Leia a etiqueta da posição ou a do artigo.</p>`,
@@ -137,7 +137,7 @@ const sessao = () => pick(aviso('aviso', IC.relogio, 'A sua sessão terminou', `
 const servidor = () => pick(aviso('erro', IC.servidor, 'O servidor não respondeu', 'A leitura não ficou registada. Leia outra vez dentro de um minuto.')
     + `<p class="pk-ref">Referência: <code>PK-1012-9A2C</code></p>
     <p class="pk-nota pk-nota--apoio">${I(IC.gestor)}Se repetir, avise o gestor do turno.</p>`,
-  { pe: BOTAO('Tentar de novo', IC.denovo) });
+  { pe: BOTAO('Tentar outra vez', IC.denovo) });
 
 const semTarefa = () => pick(aviso('azul', IC.cafe, 'Não há guias para si agora', 'Assim que houver uma guia de separação, o sistema entrega-a aqui. Não precisa de fazer nada.')
     + `<div class="pk-numeros"><div><strong>0</strong><span>guias por fazer</span></div><div><strong>14</strong><span>feitas hoje</span></div></div>

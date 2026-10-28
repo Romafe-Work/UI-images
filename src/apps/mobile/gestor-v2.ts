@@ -83,7 +83,8 @@ const ROTULO: Record<string, [string, string]> = { curso: ['Em curso', 'curso'],
 /** As variantes do 61 para os estados (27 out., ela: «faz todos os possíveis estados do screen»). */
 export interface OInv { sep?: 'curso' | 'planeada' | 'validar' | 'concluidos'; fechados?: boolean; vazio?: boolean; semCriar?: boolean; aviso?: string }
 export function inventarioV2(barra?: string, o: OInv = {}): string {
-  /* 27 out. (ela: «select»): o estado escolhe-se num select, e não em separadores que saíam da tela; os números estão na faixa */
+  /* 27 out. (ela: «select»): o estado escolhe-se num select, e não em separadores que saíam da tela; os números estão na faixa.
+     28 out. (ponto 7): os números e o select filtravam a mesma lista — agora tocar no número filtra, e o select sai */
   const grupos: [NonNullable<OInv['sep']>, string, string[]][] = [['curso', 'Em curso', ['curso']], ['planeada', 'Por iniciar', ['planeada']], ['validar', 'Por validar', ['submetida']], ['concluidos', 'Concluídos', ['concluida']]];
   const sel = o.sep ?? 'curso';
   const cartao = (i: number, aberto: boolean) => { const v = INVENTARIOS[i], [t, k] = ROTULO[v.estado], [pt, pir, pic] = PROXIMA[v.estado], ts = TAREFAS[v.ref] ?? [];
@@ -95,9 +96,8 @@ export function inventarioV2(barra?: string, o: OInv = {}): string {
     return xs.length ? xs.map((j, n) => cartao(j, !o.fechados && n === 0)).join('') : `<p class="gp-vazio">${L(check)}Nenhum inventário ${grupos.find((g) => g[0] === k)![1].toLowerCase()}.</p>`; };
   return ecra(`<div class="gi-acomp-cab"><h1 class="gp-titulo">Inventário</h1></div>
     ${o.aviso ?? ''}
-    ${faixa([['Em curso', 1], ['Por validar', 1, 'aviso'], ['Divergências', 2, 'erro']])}
     ${o.semCriar ? `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande" disabled aria-describedby="gi-sem-criar">${L(lock)}<span>Novo inventário</span></button><p class="gi-porque" id="gi-sem-criar">A sua conta só consulta: criar é do gestor com essa permissão.</p>` : acao('Novo inventário', plus, ' data-ir="gestor-inv-novo"')}
-    <label class="gp-campo gi-sel"><span>Mostrar</span><select data-gi-sel aria-label="Mostrar os inventários">${grupos.map(([k, t]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+    <div class="gx-estado__l gi-contas" role="tablist" aria-label="Mostrar os inventários">${grupos.map(([k, t, es]) => `<button type="button" role="tab" class="gx-num" aria-selected="${k === sel}" data-gi-sep="${k}"><b>${o.vazio && k === sel ? 0 : INVENTARIOS.filter((v) => es.includes(v.estado)).length}</b><span>${t}</span></button>`).join('')}</div>
     ${grupos.map(([k, , es]) => `<div class="gi-sep" data-gi-painel="${k}"${k === sel ? '' : ' hidden'}>${painel(k, es)}</div>`).join('')}
     <button type="button" class="gp-ligacao" data-ir="inv-divergencias">${L(triangle)}Rever as 2 divergências</button>`,
   { voltar: barra ? undefined : 'gestor-inicio', titulo: 'Inventário', ...G, barra });
@@ -116,9 +116,9 @@ export function criarPasso(n: 1 | 2 | 3 | 4 | 5): string {
     : n === 2 ? `<label class="gi-interruptor"><input type="checkbox" checked><span><b>Às cegas</b><small>Quem conta não vê o stock do sistema.</small></span></label>
       <fieldset class="gi-seg"><legend>Contagens por posição</legend><label><input type="radio" name="gi-c2" checked><span>Uma</span></label><label><input type="radio" name="gi-c2"><span>Duas</span></label></fieldset>
       <label class="gi-interruptor"><input type="checkbox" checked><span><b>Recontar as divergências</b><small>Uma diferença pede recontagem antes de se decidir.</small></span></label>
-      ${nota('As regras vêm da configuração do armazém; aqui só se escolhe entre as que ela permite. Fechar pede sempre o gestor.')}`
+      ${''}`
     : n === 3 ? `<ul class="gp-escolha" role="radiogroup" aria-label="Quem conta">${[['Inês Rocha', 'IR', 'Sem contagem', ''], ['Joana Silva', 'JS', 'Já conta o INV-2026-014', 'o'], ['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', '']].map(([q, ini, t, k], i) => `<li><label class="gp-op${k ? ' is-ocupada' : ''}"><input type="radio" name="gi-c3"${i === 0 ? ' checked' : ''}${k ? ' disabled' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${t}</small></span></label></li>`).join('')}</ul>`
-    : `<dl class="gi-revisao"><div><dt>Âmbito</dt><dd>Zona 12 · retentores · 24 posições</dd></div><div><dt>Regras</dt><dd>Às cegas · uma contagem · recontar divergências</dd></div><div><dt>Quem conta</dt><dd>Inês Rocha</dd></div></dl>${nota('Nada se cria antes de o servidor confirmar. Se a zona entrar noutra contagem entretanto, diz-se e não se cria.')}`;
+    : `<dl class="gi-revisao"><div><dt>Âmbito</dt><dd>Zona 12 · retentores · 24 posições</dd></div><div><dt>Regras</dt><dd>Às cegas · uma contagem · recontar divergências</dd></div><div><dt>Quem conta</dt><dd>Inês Rocha</dd></div></dl>${''}`;
   return ecra(`<h1 class="gp-titulo">Novo inventário</h1>${passos(n - 1)}${corpo}`, { ...o, pe: n === 4 ? acao('Criar inventário', send, ' data-ir="gestor-criar-5"') : acao('Seguinte', arrowRight, ` data-ir="gestor-criar-${n + 1}"`) });
 }
 
