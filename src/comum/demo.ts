@@ -84,6 +84,14 @@ const I = (d: string) => `<svg viewBox="0 0 24 24" width="18" height="18" fill="
 
 let relogio: number | undefined;
 
+/* 28 out. (ela: «reproduzir fluxo no erp está mal no menu»): uma app pode trocar o que «Reproduzir o fluxo» percorre.
+   Sem registo, anda pelos ecrãs do fluxo que se vê (como sempre); o ERP regista o menu lateral — o Início e cada ecrã do
+   menu Compras, abertos pelo menu como faria quem trabalha (apps/erp/roteiro.ts). Cada passo traz o nome para a barra. */
+export interface PassoReproducao { nome: string; fazer: () => void }
+let reproducao: (() => PassoReproducao[]) | null = null;
+export function registarReproducao(passos: () => PassoReproducao[]): void { reproducao = passos; }
+let emCurso = '';
+
 export function iniciar(): void {
   if (ler('demo') !== '1') return;
   document.body.classList.add('demo');
@@ -157,6 +165,7 @@ export function iniciar(): void {
   }
   function parar(): void {
     window.clearInterval(relogio); relogio = undefined;
+    if (emCurso) { emCurso = ''; pintar(); }
     const b = barra.querySelector<HTMLElement>('[data-demo="tocar"]')!;
     b.innerHTML = `${I('<polygon points="6 4 20 12 6 20 6 4"/>')}<span>Reproduzir o fluxo</span>`;
   }
@@ -170,6 +179,14 @@ export function iniciar(): void {
     else if (o === 'tocar') {
       if (relogio) { parar(); return; }
       b.innerHTML = `${I('<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>')}<span>Parar</span>`;
+      const lista = reproducao?.() ?? [];
+      if (lista.length) {
+        let i = 0;
+        const dar = () => { const p = lista[i]; emCurso = `${p.nome} · ${i + 1} de ${lista.length}`; i = (i + 1) % lista.length; p.fazer(); pintar(); };
+        dar();
+        relogio = window.setInterval(dar, 2600);
+        return;
+      }
       passo(1);
       relogio = window.setInterval(() => passo(1), 2600);
     } else if (o === 'copiar') {
@@ -202,7 +219,7 @@ export function iniciar(): void {
     const e = ecraVisivel();
     pintarLado(e);
     const onde = barra.querySelector<HTMLElement>('.demo-barra__onde')!;
-    onde.textContent = e ? `${e.dataset.nome || e.dataset.ecra} · ${lista.indexOf(e) + 1} de ${lista.length}` : '';
+    onde.textContent = emCurso || (e ? `${e.dataset.nome || e.dataset.ecra} · ${lista.indexOf(e) + 1} de ${lista.length}` : '');
     const a = ANIMACOES.find((x) => x.id === raiz.dataset.anim);
     dica.textContent = (a ? a.descricao + ' ' : '') + 'Clique nas ligações do ecrã, ou use ← e →.';
   }

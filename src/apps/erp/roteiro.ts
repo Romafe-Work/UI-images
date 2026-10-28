@@ -6,6 +6,8 @@
    Link para mandar: …/erp/#so=ecra&demo=1&anim=dissolver&ecra=inicio&rato=<id>
    ========================================================= */
 import { registarRoteiro, type Passo } from '../../comum/demo-rato';
+import { registarReproducao, type PassoReproducao } from '../../comum/demo';
+import { mostrar, mostrarVersao } from '../../comum/ecras';
 
 const SEM = { semTexto: true };
 /** Abre um item do menu lateral (no Início) e espera que o separador carregue. */
@@ -82,3 +84,44 @@ registarRoteiro('erp-mapas', 'Mapas: documentos e análise', [
   sep('[data-cf-acao="gerar"]', 1200),
   { legenda: '' },
 ], SEM);
+
+/* 28 out. (ela: «reproduzir fluxo no erp está mal no menu»): «Reproduzir o fluxo» andava pelos 31 estados do Início
+   (menu recolhido, em esqueleto, sem módulos, sessão expirada…) e nunca passava pelo menu Compras. Agora segue o menu
+   lateral: começa no Início limpo (menu aberto, Compras desdobrado) e abre, pela ordem do menu, cada ecrã do menu
+   Compras no separador da área de trabalho — com o clique verdadeiro, por isso o item fica marcado a laranja. Os
+   estados do Início continuam no seletor de estados (e em Anterior / Seguinte). */
+const casa = () => document.querySelector<HTMLElement>('.ecra[data-ecra="inicio"]');
+/** Os itens do menu Compras que abrem ecrã, pela ordem do menu (os do ERP antigo, a cinzento, não). */
+const itensCompras = () => [...(casa()?.querySelectorAll<HTMLElement>('[data-dk8-g="compras"] .dk7-i[data-dk-atalho]') ?? [])];
+/** O nome do item com as pastas de dentro do Compras («Mapas · Comparação · Geral»). */
+function nomeItem(el: HTMLElement): string {
+  const pastas: string[] = [];
+  for (let g = el.closest<HTMLElement>('.dk7-g--sub'); g; g = g.parentElement?.closest<HTMLElement>('.dk7-g--sub') ?? null) pastas.unshift(g.querySelector(':scope > .dk8-g-cab .dk7-g-t > span:not([aria-hidden])')?.textContent?.trim() ?? '');
+  return [...pastas.filter(Boolean), el.textContent?.trim() ?? ''].join(' · ');
+}
+/** Abre um item pelo menu: primeiro as pastas fechadas que o escondem (cada clique redesenha o menu), depois o item. */
+function abrirPeloMenu(rota: string): void {
+  if (casa()?.hidden) { mostrar('inicio'); mostrarVersao(''); }
+  for (let k = 0; k < 4; k++) {
+    const el = casa()?.querySelector<HTMLElement>(`.dk7-i[data-dk-atalho="${rota}"]`);
+    if (!el) return;
+    const fechada = [...casa()!.querySelectorAll<HTMLElement>('.dk7-g:not(.is-aberto)')].find((g) => g.contains(el));
+    if (!fechada) { el.click(); requestAnimationFrame(aVista); return; }
+    fechada.querySelector<HTMLElement>(':scope > .dk8-g-cab [data-dk7-grupo]')?.click();
+  }
+}
+/** O item marcado fica à vista: os últimos mapas ficavam por baixo da barra da demonstração. Só rola a caixa do menu. */
+function aVista(): void {
+  const el = casa()?.querySelector<HTMLElement>('[data-dk7-lado] .dk7-i.is-ativo'); if (!el) return;
+  const fundo = Math.min(document.querySelector('.demo-barra')?.getBoundingClientRect().top ?? innerHeight, innerHeight) - 12;
+  for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+    if (!/(auto|scroll)/.test(getComputedStyle(p).overflowY) || p.scrollHeight <= p.clientHeight + 1) continue;
+    const r = el.getBoundingClientRect(), q = p.getBoundingClientRect(), baixo = Math.min(q.bottom, fundo);
+    if (r.top < q.top + 4 || r.bottom > baixo - 4) p.scrollBy({ top: r.top - q.top - (baixo - q.top - r.height) / 2 });
+    return;
+  }
+}
+registarReproducao((): PassoReproducao[] => [
+  { nome: '05 · Início', fazer: () => { mostrar('inicio'); mostrarVersao(''); document.dispatchEvent(new CustomEvent('romafe:rato-inicio', { detail: 'reproduzir' })); } },
+  ...itensCompras().map((el) => ({ nome: nomeItem(el), fazer: () => abrirPeloMenu(el.dataset.dkAtalho!) })),
+]);
