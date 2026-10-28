@@ -1131,7 +1131,7 @@ function montar(): void {
   let grupo: HTMLOptGroupElement | null = null;
   for (let i = 0; i < ecras.length; i++) {
     /* os estados escolhem-se na secção «Estados», por baixo das versões */
-    if (ecras[i].dataset.estadoDe) continue;
+    if (ecras[i].dataset.estadoDe || ecras[i].dataset.foraDaLista) continue;
     const fl = ecras[i].dataset.fluxo || '';
     if (!grupo || grupo.label !== fl) {
       grupo = el('optgroup');

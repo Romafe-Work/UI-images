@@ -64,5 +64,34 @@ export const erp: App<IdErp> = {
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
   /* 27 out. (ela: «sim», tirar): a Receção de encomendas, as Guias de transporte e as Devoluções passaram a vistas das Encomendas e das Guias */
-  ecras: semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()]),
+  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
 };
+
+/* 28 out. 2026 (ela: «no erp tenho ecrãs diferentes, não fazem sentido; por agora no menu lateral só quero início e as
+   compras com as suas opções de menu»): o seletor e o mapa mostram só o Início e os itens do menu Compras, pela ordem do
+   menu e com os nomes dele. O resto (a abertura, os Ficheiros, as fichas que abrem dos ecrãs — encomenda, fornecedor,
+   requisição, cotação —, os modos que já vivem noutro ecrã, o carregamento e os erros) continua a existir e a abrir,
+   fora da lista. Os estados ficam por baixo do seu ecrã. */
+/* uma função e não uma constante: o objeto erp, mais acima, usa-a ao ser criado */
+function menuCompras(): [string, string | null][] {
+  return [
+  ['inicio', null],
+  ['compras-faltas', '20 · Lista de Faltas'], ['compras-cotacoes', '18 · Orçamentos'], ['compras', '10 · Encomendas'],
+  ['cm-compras-guias-entrada', '42 · Guias'], ['cm-compras-faturas', '45 · Faturas'],
+  ['cm-mapas-tot-enc', '49 · Documentos de encomenda'], ['cm-mapas-tot-ge', '51 · Documentos de guia de entrada'], ['cm-mapas-recap', '53 · Mapa recapitulativo de fornecedores'],
+  ['cm-analise-artigo', '54 · Análise de compras'], ['cm-comp-geral-var', '59 · Comparativo geral'], ['cm-comp-artigo-var', '61 · Comparativo por artigo'],
+  ['cm-comp-familia-var', '63 · Comparativo por família/subfamília'], ['cm-comp-forn-var', '65 · Comparativo por fornecedor'],
+  ['cm-mapas-analise-forn', '66 · Análise de fornecedores'], ['cm-mapas-automatico', '67 · Artigos / compras automático'],
+  ['compras-fornecedores', '14 · Fornecedores'], ['compras-requisicoes', '16 · Requisições'],
+  ];
+}
+function soInicioECompras<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const MENU = menuCompras(), fica = new Map(MENU);
+  const raiz = (e: Ecra<T>) => !e.estadoDe;
+  const listados = MENU.flatMap(([id, nome]) => {
+    const e = ecras.find((x) => x.id === id && raiz(x)); if (!e) return [];
+    return [{ ...e, nome: nome ?? e.nome, fluxo: id === 'inicio' ? 'Início' : 'Compras' }, ...ecras.filter((x) => x.estadoDe === id)];
+  });
+  const resto = ecras.filter((x) => !(raiz(x) ? fica.has(x.id) : fica.has(x.estadoDe!))).map((x) => raiz(x) ? { ...x, foraDaLista: true } : x);
+  return [...listados, ...resto];
+}

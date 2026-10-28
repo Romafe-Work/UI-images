@@ -32,6 +32,9 @@ export interface Ecra<Id extends string = string> {
   /** (15 out. 2026, ela: «no fluxo quero que mostres exemplos de diálogos abertos») um estado que, mesmo assim, aparece no
       mapa, logo a seguir ao seu ecrã, com esta etiqueta (ex.: «Diálogo aberto»). */
   noFluxo?: string;
+  /** (28 out. 2026, ela: «no menu lateral só quero início e as compras») um ecrã que existe e abre (por uma ligação, um
+      separador da área de trabalho) mas não aparece no seletor nem no mapa. */
+  foraDaLista?: boolean;
 }
 
 export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile' | 'identidade';

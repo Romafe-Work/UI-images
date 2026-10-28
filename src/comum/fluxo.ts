@@ -84,7 +84,7 @@ function ligar(o?: Opcoes): void {
   ecras.forEach((ecra) => {
     /* os estados não são ecrãs do mapa: escolhem-se no próprio ecrã — menos os exemplos de diálogos abertos
        (data-no-fluxo), que ficam logo a seguir ao seu ecrã, com a etiqueta */
-    if (ecra.dataset.estadoDe && !ecra.dataset.noFluxo) return;
+    if ((ecra.dataset.estadoDe && !ecra.dataset.noFluxo) || ecra.dataset.foraDaLista) return;
     const marcador = document.createComment('ecra:' + ecra.dataset.ecra);
     ecra.parentNode?.insertBefore(marcador, ecra);
     lugares.push({ ecra, marcador, hidden: ecra.hidden === true });
