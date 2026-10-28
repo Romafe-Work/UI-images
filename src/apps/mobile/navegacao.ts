@@ -23,6 +23,7 @@ import type { Ecra } from '../../comum/tipos';
 import { ecra, acao, sec, aviso, nota, prog, posicao, h2, L, type Opcoes } from './inventario-v2';
 import { inicioV2, inventarioV2, ARRUMACAO_ATIVA } from './gestor-v2';
 import { inicioV4 } from './gestor-v3';
+import { centro, ESTADOS_CENTRO } from './gestor-v4';
 import { arrumacaoInicio, RESUMO_ARRUMACAO } from './arrumacao';
 import { inicioOperador } from './inventario-completo';
 import { paginaSemInventario } from './inventario-estados';
@@ -31,6 +32,7 @@ import { carregar as eCarregar, semRede as eSemRede, servidor as eServidor, sess
 import { INV, POS } from './inventario';
 import home from 'lucide-static/icons/house.svg?raw';
 import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
+import chartColumn from 'lucide-static/icons/chart-column.svg?raw';
 import listTodo from 'lucide-static/icons/list-todo.svg?raw';
 import pkg from 'lucide-static/icons/package.svg?raw';
 import boxes from 'lucide-static/icons/package-open.svg?raw';
@@ -61,7 +63,7 @@ import inboxIc from 'lucide-static/icons/inbox.svg?raw';
 /* ---------- o menu da barra, como viria do menu central ---------- */
 type Funcao = 'gestor' | 'arrumacao' | 'separacao' | 'expedicao';
 interface Destino { id: string; funcao: Funcao; rotulo: string; icone: string; ecra: string; ordem: number; destaque?: boolean; ativo: boolean; gesto?: 'ler' | 'caixa' | 'tarefas' }
-const ICONES: Record<string, string> = { operacoes: layoutGrid, inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
+const ICONES: Record<string, string> = { insights: chartColumn, operacoes: layoutGrid, inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
 /** 27 out. (ela: «para já remove as tarefas»): as Tarefas saem da barra do Gestor e da Arrumação; os ecrãs ficam no editor. */
 export const TAREFAS_ATIVAS = false;
 /** 27 out. (ela: «remove o mais por agora»): o Mais sai de todas as barras; os ecrãs dele ficam no editor. */
@@ -72,7 +74,9 @@ export const MENU_BARRA: Destino[] = [
   { id: 'inicio', funcao: 'gestor', rotulo: 'Início', icone: 'inicio', ecra: 'gestor-inicio', ordem: 10, ativo: true },
   { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
   { id: 'ler', funcao: 'gestor', rotulo: 'Ler', icone: 'ler', ecra: 'g-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
-  { id: 'operacoes', funcao: 'gestor', rotulo: 'Operações', icone: 'operacoes', ecra: 'g-operacoes', ordem: 40, ativo: true, gesto: 'caixa' },
+  /* 28 out. (briefing «Ultimate Manager»): Insights no lugar de Operações; os quatro módulos ficam nos cartões do Início
+     e em Mais › Operações */
+  { id: 'insights', funcao: 'gestor', rotulo: 'Insights', icone: 'insights', ecra: 'g-insights', ordem: 40, ativo: true },
   { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-inicio', ordem: 10, ativo: true },
   { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
@@ -99,7 +103,9 @@ export function barra(funcao: Funcao, ativo: string, o: { semNumeros?: boolean; 
   /* com um destino só a barra não serve: não se mostra */
   if (ds.length < 2) return '';
   /* os módulos (Inventário, Arrumação, Separação, Expedição) estão em Operações */
-  const alvo = ds.some((d) => d.id === ativo) ? ativo : ['inventario', 'arrumacao', 'separacao', 'expedicao'].includes(ativo) ? 'operacoes' : ativo;
+  const MOD = ['inventario', 'arrumacao', 'separacao', 'expedicao'], tem = (k: string) => ds.some((d) => d.id === k);
+  /* sem Operações na barra (28 out.): os módulos abrem-se do Início, e as Operações vivem no Mais */
+  const alvo = tem(ativo) ? ativo : MOD.includes(ativo) ? (tem('operacoes') ? 'operacoes' : 'inicio') : ativo === 'operacoes' ? 'mais' : ativo;
   const i = Math.max(0, ds.findIndex((d) => d.id === alvo));
   return `<nav class="gi-barra gi-barra--${ds.length}" data-por-cima aria-label="Navegação" data-gi-barra="${funcao}" style="--n:${ds.length};--i:${i}">
     <i class="gi-barra__ind" aria-hidden="true"></i>
@@ -200,8 +206,8 @@ function maisOperador(k: Funcao = 'arrumacao'): string {
    ========================================================= */
 const barraCarregar = (n: number) => `<nav class="gi-barra gi-barra--${n} is-carregar" data-por-cima aria-label="Navegação a carregar" style="--n:${n};--i:0">${'<span class="gi-barra__esq"><i></i><i></i></span>'.repeat(n)}</nav>`;
 const estadosNav = (): [string, string, string, string, string, string][] => [
-  ['gestor-nav-carregar', 'gestor-inicio', '60.12 · A barra a carregar', 'O menu central ainda não respondeu: a barra em esqueleto, o Início já está.', inicioV4('normal', barraCarregar(5)), 'v3'],
-  ['gestor-nav-falhou', 'gestor-inicio', '60.13 · O menu não carregou', 'O menu central não respondeu: ficam Início e Mais, e diz-se; tentar outra vez.', inicioV4('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`), 'v3'],
+  ['gestor-nav-carregar', 'gestor-inicio', '60.12 · A barra a carregar', 'O menu central ainda não respondeu: a barra em esqueleto, o Início já está.', centro('normal', barraCarregar(5)), 'v3'],
+  ['gestor-nav-falhou', 'gestor-inicio', '60.13 · O menu não carregou', 'O menu central não respondeu: ficam Início e Mais, e diz-se; tentar outra vez.', centro('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`), 'v3'],
   ['gestor-nav-indisponivel', 'gestor-inicio', '60.14 · Destino indisponível', 'A Arrumação foi desligada no menu central a meio do dia: sai das Operações, e quem estava lá vê porquê.', ecra(aviso('info', lock, 'A Arrumação deixou de estar disponível', 'O administrador desligou o módulo. O que estava atribuído continua no servidor; não se perde nada.'), { titulo: 'Arrumação', gestor: true, barra: barra('gestor', 'operacoes') }), 'v3'],
   ['op-nav-sem-destinos', 'op-inicio', '57.10 · Sem destinos autorizados', 'A conta entrou mas não tem nenhum módulo da Pick: só Mais (a conta e terminar sessão).', ecra(aviso('erro', lock, 'Ainda não tem módulos na Pick', 'A sua conta não tem permissões para nenhum módulo do armazém 60. Peça-as ao gestor do turno.'), { ...OP, titulo: 'Início', barra: barra('arrumacao', 'mais', { so: ['mais'] }) }), 'v2'],
   ['op-por-confirmar', 'op-inicio', '57.11 · Uma contagem por confirmar', 'Tocou noutro destino com a quantidade escrita e por confirmar: pergunta antes de sair; nada se perde sem querer.', ecra(`${aviso('aviso', triangle, 'Tem uma contagem por confirmar', 'SKF VKBA 6556 · 4 un. na 60300102 ainda não foi registada. Se sair, o número não fica.')}`, { ...OP, titulo: 'Ler e contar', pe: `${acao('Voltar e confirmar', check, ' data-ir="inv-ler-lido"')}${sec('Sair sem registar', arrowLeft, ' data-ir="op-tarefas"')}` }), 'v2'],
@@ -255,7 +261,7 @@ export function ecrasNavegacao(): Ecra<string>[] {
 /** A abertura por cima do Início v3: as mesmas marcas que o comportamento da abertura procura (data-gp…). */
 export function aberturaV3(cen: CenarioAbertura = 'normal'): string {
   /* 28 out.: por cima do Início v4 (o Gestor faz tudo); a caixa voa para o ícone do Inventário */
-  return inicioV4()
+  return centro()
     .replace('<div class="gp gpi" data-gpi data-ir-ultima>', `<div class="gp gpi is-abertura" data-gpi data-ir-ultima data-gp data-gp-cenario="normal" data-gp-abertura>`)
     .replace('<div class="gp-marca">', '<div class="gp-marca" data-gp-marca>')
     .replace('<span class="gi-mod__ic">', '<span class="gi-mod__ic" data-gp-alvo>')
@@ -271,7 +277,7 @@ export const ESTADOS_GESTOR_V3: Record<string, () => string> = {
   'gestor-sem-tarefas': () => inicioV4('sem-atencao'),
   'gestor-erro': () => eServidor(comB(GI), 'PK-2710-0C17'),
   'gestor-sem-rede': () => eSemRede(comB(GI)),
-  'gestor-menus': () => inicioV4('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`),
+  'gestor-menus': () => centro('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`),
   'gestor-permissao': () => ecra(aviso('info', userRound, 'As suas permissões mudaram', 'Agora vê só o que é da <b>Arrumação</b>. Entre outra vez para as atualizar.'), { ...GI, pe: acao('Entrar outra vez', refresh, ' data-login') }),
   'gestor-sessao': () => eSessao(GI),
   'gestor-sem-acesso': () => ecra(aviso('erro', lock, 'A sua conta não tem acesso à Pick', 'Peça o acesso ao administrador da sua empresa.'), GI),
@@ -302,6 +308,7 @@ export function soUltima<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   return ecras.filter((e) => e.id !== 'gestor-inicio-sem-atencao').map((e) => {
     const ultima = e.versoes[e.versoes.length - 1];
     if (ABERTURA[e.id]) return { ...e, versoes: [{ ...ultima, id: 'v3', nota: `${ultima.nota} — por cima do Início do Gestor v3, com a barra (27 out.).`, html: aberturaV3(ABERTURA[e.id]) }] as Ecra<T>['versoes'] };
+    if (ESTADOS_CENTRO[e.id]) return { ...e, versoes: [{ id: 'v5', nota: NOTA, html: ESTADOS_CENTRO[e.id]() }] as Ecra<T>['versoes'] };
     if (ESTADOS_GESTOR_V3[e.id]) return { ...e, versoes: [{ id: 'v3', nota: NOTA, html: ESTADOS_GESTOR_V3[e.id]() }] as Ecra<T>['versoes'] };
     const ei = ESTADOS_INVENTARIO_GESTOR.find(([id]) => id === e.id); if (ei) return { ...e, nome: ei[1], objetivo: ei[2], versoes: [{ id: 'v3', nota: NOTA, html: ei[3]() }] as Ecra<T>['versoes'] };
     return { ...e, versoes: [ultima] };

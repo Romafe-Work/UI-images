@@ -63,24 +63,24 @@ import minus from 'lucide-static/icons/minus.svg?raw';
 /* =========================================================
    Os dados de exemplo da Separação e da Expedição (uma guia = uma tarefa)
    ========================================================= */
-type EstSep = 'separar' | 'curso' | 'falta' | 'feita';
-interface LinhaS { pos: string; ref: string; desc: string; q: number; tirada?: number }
-interface GuiaS { ref: string; cli: string; quem: string; est: EstSep; linhas: LinhaS[]; feitas: number; hora?: string; falta?: string }
+export type EstSep = 'separar' | 'curso' | 'falta' | 'feita';
+export interface LinhaS { pos: string; ref: string; desc: string; q: number; tirada?: number }
+export interface GuiaS { ref: string; cli: string; quem: string; est: EstSep; linhas: LinhaS[]; feitas: number; hora?: string; falta?: string }
 const L1187: LinhaS[] = [
   { pos: '60100305', ref: 'SKF 6205-2Z', desc: 'Rolamento rígido de esferas', q: 6 },
   { pos: '60100802', ref: 'SKF VKMV 6PK1873', desc: 'Correia poli-V', q: 2 },
   { pos: '60120401', ref: 'CR 30x47x7', desc: 'Retentor de cambota', q: 4 },
   { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 8 },
 ];
-const SEP: GuiaS[] = [
+export const SEP: GuiaS[] = [
   { ref: 'GS13454212', cli: 'Auto Reparadora Silva', quem: '', est: 'separar', feitas: 0, linhas: L1187 },
   { ref: 'GS13454211', cli: 'Garagem Central de Braga', quem: 'Tiago Lopes', est: 'curso', feitas: 2, linhas: [{ pos: '60100802', ref: 'SKF 6204-2RSH', desc: 'Rolamento rígido de esferas', q: 10 }, { pos: '60120401', ref: 'CR 35x52x7', desc: 'Retentor de cambota', q: 2 }, { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 4 }] },
   { ref: 'GS13454210', cli: 'Oficina Moreira & Filhos', quem: 'Tiago Lopes', est: 'falta', feitas: 2, falta: 'P 85 020 na 60210305: a guia pede 4, havia 2', linhas: [{ pos: '60101203', ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 2 }, { pos: '60210305', ref: 'P 85 020', desc: 'Pastilhas de travão', q: 4, tirada: 2 }] },
   { ref: 'GS13454209', cli: 'Pneus e Travões do Minho', quem: 'Tiago Lopes', est: 'feita', feitas: 3, hora: '09:40', linhas: [{ pos: '60100305', ref: 'SKF 6205-2Z', desc: 'Rolamento rígido de esferas', q: 4 }, { pos: '60101203', ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 2 }, { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 4 }] },
 ];
-type EstExp = 'pronta' | 'expedicao' | 'expedida' | 'excecao';
-interface GuiaE { ref: string; cli: string; est: EstExp; linhas: number; desde: string; quem: string; nota?: string }
-const EXP: GuiaE[] = [
+export type EstExp = 'pronta' | 'expedicao' | 'expedida' | 'excecao';
+export interface GuiaE { ref: string; cli: string; est: EstExp; linhas: number; desde: string; quem: string; nota?: string }
+export const EXP: GuiaE[] = [
   { ref: 'GS13454209', cli: 'Pneus e Travões do Minho', est: 'pronta', linhas: 3, desde: '09:40', quem: 'Separada por Tiago Lopes' },
   { ref: 'GS13454208', cli: 'Auto Peças Viana', est: 'pronta', linhas: 5, desde: '09:12', quem: 'Separada por Tiago Lopes', nota: '1 linha com falta, registada na posição' },
   { ref: 'GS13454207', cli: 'Garagem Central de Braga', est: 'expedicao', linhas: 2, desde: '10:05', quem: 'Recolhida por Paulo Reis' },
@@ -96,10 +96,10 @@ const un = (g: GuiaS) => g.linhas.reduce((s, l) => s + l.q, 0);
    Peças
    ========================================================= */
 const G = (titulo: string, o: Opcoes = {}): Opcoes => ({ titulo, gestor: true, funcao: 'Gestor', ...o });
-const comBarra = (titulo: string, ativo = 'operacoes', o: Opcoes = {}): Opcoes => G(titulo, { barra: barra('gestor', ativo), ...o });
+const comBarra = (titulo: string, ativo = 'inventario', o: Opcoes = {}): Opcoes => G(titulo, { barra: barra('gestor', ativo), ...o });
 const faixa = (xs: [string, number, ('aviso' | 'erro' | 'ok' | '')?][]) => `<dl class="gi-faixa gx-faixa">${xs.map(([t, n, tom]) => `<div${tom ? ` class="is-${tom}"` : ''}><dd>${n}</dd><dt>${t}</dt></div>`).join('')}</dl>`;
 /** «Acompanhar | Executar»: um interruptor no topo de cada módulo, em vez de dois botões em cada cartão. */
-type Modulo = 'inv' | 'arr' | 'sep' | 'exp';
+export type Modulo = 'inv' | 'arr' | 'sep' | 'exp';
 const MODO: Record<Modulo, [string, string]> = { inv: ['gestor-inventario', 'g-inv-exec'], arr: ['arr-inicio', 'g-arr-exec'], sep: ['g-sep-acomp', 'g-sep'], exp: ['g-exp-acomp', 'g-exp'] };
 const modo = (m: Modulo, exec: boolean) => `<nav class="gx-modo" aria-label="Modo"><button type="button" data-ir="${MODO[m][0]}"${exec ? '' : ' aria-current="page"'}>${L(eye)}<span>Acompanhar</span></button><button type="button" data-ir="${MODO[m][1]}"${exec ? ' aria-current="page"' : ''}>${L(play)}<span>Executar</span></button></nav>`;
 const linhaArt = (ref: string, desc: string, q: string, extra = '') => `<li class="gi-linha${extra}"><div><b>${ref}</b><span>${desc}</span></div><div class="gi-linha__q"><b>${q}</b></div></li>`;
@@ -125,18 +125,18 @@ const cenaExpedicao = () => `<svg class="gi-cena gx-cena-exp" viewBox="0 0 120 5
 /* =========================================================
    60 · Início do Gestor v4: atenção + as quatro operações
    ========================================================= */
-const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
+export const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   [shieldCheck, 'INV-2026-011 por validar', '16 posições · 2 divergências', 'gestor-validar', 'aviso'],
   [pkgX, 'Falta na GS13454210', 'P 85 020 · havia 2 de 4 na 60210305', 'g-sep-guia-falta', 'erro'],
   [lock, 'Destino em contagem', 'GA-2026-0329 → 60300104 · zona 30 às cegas', 'arr-guia-bloqueada', 'erro'],
 ];
-const MODULOS: [Modulo, string, string, string, string][] = [
+export const MODULOS: [Modulo, string, string, string, string][] = [
   ['inv', 'Inventário', 'gestor-inventario', 'Contar e validar', '1 por validar'],
   ['arr', 'Arrumação', 'arr-inicio', 'Localizar e arrumar', `${RESUMO_ARRUMACAO.porArrumar} por arrumar`],
   ['sep', 'Separação', 'g-sep-acomp', 'Preparar guias', `${conta(SEP, 'separar')} por separar`],
   ['exp', 'Expedição', 'g-exp-acomp', 'Confirmar saídas', `${conta(EXP, 'pronta')} prontas`],
 ];
-const ICONE_MOD: Record<Modulo, string> = { inv: scanBarcode, arr: pkgOpen, sep: basket, exp: truck };
+export const ICONE_MOD: Record<Modulo, string> = { inv: scanBarcode, arr: pkgOpen, sep: basket, exp: truck };
 const modCartao = ([k, t, ir, x, n]: typeof MODULOS[number], i: number) => `<li style="--i:${i}"><button type="button" class="gx-mod gx-mod--${k}" data-ir="${ir}" aria-label="Abrir ${t}: ${n}">
     <span class="gi-mod__ic">${k === 'inv' ? CAIXA() : L(ICONE_MOD[k])}</span><b>${t}</b><small>${x}</small><em>${n}</em></button></li>`;
 export function inicioV4(cen: 'normal' | 'sem-atencao' = 'normal', b = barra('gestor', 'inicio')): string {
@@ -165,15 +165,16 @@ function operacoes(): string {
       <header><span class="gx-op__ic">${L(ICONE_MOD[k])}</span><span><h2 id="gx-op-${k}">${t}</h2><small>${x}</small></span></header>
       ${faixa(F[k])}
       <div class="gx-op__b"><button type="button" class="gp-btn gi-btn-sec" data-ir="${MODO[k][0]}">${L(eye)}<span>Acompanhar</span></button><button type="button" class="gp-btn gp-btn--acao" data-ir="${MODO[k][1]}">${L(play)}<span>Executar</span></button></div>
-    </section></li>`).join('')}</ul>`, comBarra('Operações'));
+    </section></li>`).join('')}</ul>`, comBarra('Operações', 'operacoes', { voltar: 'g-mais' }));
 }
 
 /* =========================================================
    Os módulos que já existiam, com o interruptor no topo
    ========================================================= */
-const comModo = (html: string, m: Modulo, titulo: string) => html.replace(new RegExp(`(<h1 class="gp-titulo">${titulo}</h1>(?:</div>)?)`), `$1${modo(m, false)}`);
-export const inventarioV4 = () => comModo(inventarioV2(barra('gestor', 'operacoes')), 'inv', 'Inventário');
-export const arrumacaoV3 = () => comModo(arrumacaoInicio('normal', barra('gestor', 'operacoes')), 'arr', 'Arrumação');
+/* o cartão do Início passa a título do módulo (View Transitions: o mesmo nome nos dois ecrãs) */
+export const comModo = (html: string, m: Modulo, titulo: string) => html.replace(new RegExp(`<h1 class="gp-titulo">${titulo}</h1>((?:</div>)?)`), `<h1 class="gp-titulo gx-vt-${m}">${titulo}</h1>$1${modo(m, false)}`);
+export const inventarioV4 = () => comModo(inventarioV2(barra('gestor', 'inventario')), 'inv', 'Inventário');
+export const arrumacaoV3 = () => comModo(arrumacaoInicio('normal', barra('gestor', 'arrumacao')), 'arr', 'Arrumação');
 
 /* =========================================================
    76 · Contar (Gestor): o mesmo 43 · Ler e contar do operador
@@ -252,7 +253,7 @@ function cartaoS(g: GuiaS, i: number, aberta: boolean): string {
 const GRUPOS_S: [EstSep, string][] = [['separar', 'Por separar'], ['curso', 'Em separação'], ['falta', 'Com faltas'], ['feita', 'Concluídas']];
 function separacaoAcomp(o: { sel?: EstSep; vazio?: boolean } = {}): string {
   const sel = o.sel ?? 'separar';
-  return ecra(`<h1 class="gp-titulo">Separação</h1>${modo('sep', false)}
+  return ecra(`<h1 class="gp-titulo gx-vt-sep">Separação</h1>${modo('sep', false)}
     ${faixa([['Por separar', conta(SEP, 'separar')], ['Em separação', conta(SEP, 'curso')], ['Com faltas', conta(SEP, 'falta'), 'erro'], ['Concluídas', conta(SEP, 'feita'), 'ok']])}
     <label class="gp-campo gi-sel"><span>Mostrar</span><select data-gi-sel aria-label="Mostrar as guias">${GRUPOS_S.map(([k, t]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
     ${GRUPOS_S.map(([k, t]) => { const xs = o.vazio && k === sel ? [] : SEP.filter((g) => g.est === k); return `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${k === sel ? '' : ' hidden'}>${xs.length ? xs.map((g, j) => cartaoS(g, j, j === 0)).join('') : `<li><p class="gp-vazio">${L(check)}Nenhuma guia ${t.toLowerCase()}.</p></li>`}</ul>`; }).join('')}`,
@@ -328,7 +329,7 @@ function cartaoE(g: GuiaE, i: number): string {
 }
 function expedicaoAcomp(o: { sel?: EstExp; vazio?: boolean } = {}): string {
   const sel = o.sel ?? 'pronta';
-  return ecra(`<h1 class="gp-titulo">Expedição</h1>${modo('exp', false)}
+  return ecra(`<h1 class="gp-titulo gx-vt-exp">Expedição</h1>${modo('exp', false)}
     ${faixa([['Prontas', conta(EXP, 'pronta')], ['Em expedição', conta(EXP, 'expedicao')], ['Exceções', conta(EXP, 'excecao'), 'erro'], ['Expedidas', conta(EXP, 'expedida'), 'ok']])}
     <label class="gp-campo gi-sel"><span>Mostrar</span><select data-gi-sel aria-label="Mostrar as guias">${GRUPOS_E.map(([k, t]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
     ${GRUPOS_E.map(([k, t]) => { const xs = o.vazio && k === sel ? [] : EXP.filter((g) => g.est === k); return `<ul class="gp-lista gi-sep" role="list" data-gi-painel="${k}"${k === sel ? '' : ' hidden'}>${xs.length ? xs.map(cartaoE).join('') : `<li><p class="gp-vazio">${L(check)}Nenhuma guia ${t.toLowerCase()}.</p></li>`}</ul>`; }).join('')}
@@ -395,9 +396,9 @@ function lerGestor(e: E75 = 'normal'): string {
 /* =========================================================
    65 · Tarefas v2 · 66 · Mais v2 · 66.1 · Ajuda
    ========================================================= */
-type TipoT = 'inventario' | 'arrumacao' | 'separacao' | 'expedicao';
-interface TarefaG { tipo: TipoT; ref: string; t: string; quem: string; est: 'fazer' | 'curso' | 'atencao'; acao: [string, string, string]; p?: [number, number, string] }
-const TAREFAS: TarefaG[] = [
+export type TipoT = 'inventario' | 'arrumacao' | 'separacao' | 'expedicao';
+export interface TarefaG { tipo: TipoT; ref: string; t: string; quem: string; est: 'fazer' | 'curso' | 'atencao'; acao: [string, string, string]; p?: [number, number, string] }
+export const TAREFAS: TarefaG[] = [
   { tipo: 'separacao', ref: 'GS13454212', t: 'Auto Reparadora Silva · 4 linhas · ninguém livre', quem: '', est: 'fazer', acao: ['Iniciar', 'g-sep-guia', play] },
   { tipo: 'arrumacao', ref: 'GA-2026-0332', t: '30 un. · cais 1 → 60100305', quem: '', est: 'fazer', acao: ['Iniciar', 'g-arr-op', play] },
   { tipo: 'arrumacao', ref: 'GA-2026-0331', t: '2 paletes · cais 1 → 60101203', quem: '', est: 'fazer', acao: ['Atribuir', 'arr-guia', userPlus] },

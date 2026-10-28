@@ -13,6 +13,7 @@ import './css/inventario-v2.css';
 import './css/arrumacao.css';
 import './css/navegacao.css';
 import './css/gestor-v3.css';
+import './css/gestor-v4.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';
