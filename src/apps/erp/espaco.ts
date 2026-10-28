@@ -412,7 +412,8 @@ function menuDaPasta(pasta: string, perfil: IdPerfil): [ItemPasta[], [string, It
   return [linhas.filter((l) => !tem(l)).map((l) => item(l)), linhas.filter(tem).map((l) => [l.rotulo, achatar(l)])];
 }
 function grelhaEcras(fs: ItemPasta[], e: Estado): string {
-  return `<div class="dk-grelha dk-grelha--ecras">${fs.map((f, i) => { const est = !f.registada ? 'sem-rota' : !f.permitido ? 'sem-permissao' : ''; const [tipo, d] = TIPO[f.rota!] ?? ['Ecrã', '']; return `<button type="button" class="dk-ecra${est ? ` is-${est}` : ''}" data-dk-abrir="${f.rota}" aria-selected="${e.sel === f.rota}" style="--i:${i}"${est ? ' aria-disabled="true"' : ''}><span class="dk-ecra-ic">${icone(f.icone)}</span><span class="dk-ecra-t"><small>${est === 'sem-rota' ? 'No ERP antigo' : est ? 'Sem permissão' : tipo}</small><b>${esc(f.rotulo)}</b><span>${esc(est === 'sem-rota' ? 'Ainda sem ecrã no ERP novo' : d)}</span></span>${est ? L(lock, 'dk-ecra-cad') : L(chevronRight, 'dk-ecra-seta')}</button>`; }).join('')}</div>`;
+  /* 28 out. (ela: «remove»): os do ERP antigo não aparecem na pasta */
+  return `<div class="dk-grelha dk-grelha--ecras">${fs.filter((f) => f.registada).map((f, i) => { const est = !f.registada ? 'sem-rota' : !f.permitido ? 'sem-permissao' : ''; const [tipo, d] = TIPO[f.rota!] ?? ['Ecrã', '']; return `<button type="button" class="dk-ecra${est ? ` is-${est}` : ''}" data-dk-abrir="${f.rota}" aria-selected="${e.sel === f.rota}" style="--i:${i}"${est ? ' aria-disabled="true"' : ''}><span class="dk-ecra-ic">${icone(f.icone)}</span><span class="dk-ecra-t"><small>${est === 'sem-rota' ? 'No ERP antigo' : est ? 'Sem permissão' : tipo}</small><b>${esc(f.rotulo)}</b><span>${esc(est === 'sem-rota' ? 'Ainda sem ecrã no ERP novo' : d)}</span></span>${est ? L(lock, 'dk-ecra-cad') : L(chevronRight, 'dk-ecra-seta')}</button>`; }).join('')}</div>`;
 }
 export function explorador(e: Estado): string {
   const p = PERFIS[e.perfil];
