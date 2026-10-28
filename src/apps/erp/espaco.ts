@@ -344,10 +344,16 @@ export function acoes(e: Estado): string {
 
 /* ---------- o explorador (V5) ---------- */
 /** O que cada módulo faz (uma linha) e o tipo de cada ecrã — para não serem todos o mesmo ícone de ficheiro. */
-export const DESCR: Record<string, string> = { compras: 'Encomendas a fornecedor, receções, fornecedores, requisições, cotações e a lista de faltas.' };
+export const DESCR: Record<string, string> = { compras: 'O menu Compras: lista de faltas, orçamentos, encomendas, guias, faturas e os mapas.' };
 export const TIPO: Record<string, [string, string]> = {
   'compras.faltas': ['Análise', 'O que está em rutura e o que comprar'], 'compras.encomendas': ['Lista', 'Encomendas a fornecedor, por estado'], 'compras.fornecedores': ['Registos', 'Fichas, condições e desempenho'],
-  'compras.requisicoes': ['Lista', 'Pedidos internos de compra'], 'compras.cotacoes': ['Comparação', 'Propostas lado a lado'], 'compras.rececoes': ['Operação', 'O que chegou ao armazém'], 'compras.devolucoes': ['Lista', 'Ainda no ERP antigo'],
+  'compras.requisicoes': ['Lista', 'Pedidos internos de compra'],
+  /* 28 out. (ela: «muda este screen, já temos o menu das compras construído»): os ecrãs do menu Compras de agora */
+  'compras.compras-guias-entrada': ['Lista', 'Entrada, transporte a fornecedor e devolução'], 'compras.compras-faturas': ['Lista', 'Faturas, notas de crédito e verificação'],
+  'compras.mapas-tot-enc': ['Mapa', 'Totais e detalhes por encomenda'], 'compras.mapas-tot-ge': ['Mapa', 'Totais e detalhes por guia de entrada'], 'compras.mapas-recap': ['Mapa', 'Por fornecedor: encomendado, recebido, em aberto'],
+  'compras.analise-artigo': ['Análise', 'Por artigo, fornecedor e família'], 'compras.comp-geral-var': ['Comparativo', 'Ano a ano, ou mês a mês'], 'compras.comp-artigo-var': ['Comparativo', 'Cada artigo, ano a ano'],
+  'compras.comp-familia-var': ['Comparativo', 'Cada família e subfamília, ano a ano'], 'compras.comp-forn-var': ['Comparativo', 'Cada fornecedor, ano a ano'], 'compras.mapas-analise-forn': ['Análise', 'Prazos e atrasos por fornecedor'],
+  'compras.mapas-automatico': ['Sugestão', 'O que encomendar a cada fornecedor'], 'compras.cotacoes': ['Comparação', 'Propostas lado a lado'], 'compras.rececoes': ['Operação', 'O que chegou ao armazém'], 'compras.devolucoes': ['Lista', 'Ainda no ERP antigo'],
 };
 /** A pasta grande (V5): o fundo com a aba, as folhas que espreitam e a frente que se levanta. */
 export function pastaArte(ic: string, cls = ''): string {
@@ -394,6 +400,20 @@ function rapido(e: Estado): string {
     : `<p class="dk-vazio">${L(pin)}Fixa aqui os ecrãs que usas mais: abre a pasta, escolhe um e «Fixar».</p>`}
   </section>`;
 }
+type ItemPasta = { rota: string | null; rotulo: string; icone: string; registada: boolean; permitido: boolean };
+/** Os itens do menu de uma pasta, pela ordem do menu (om), e os submenus à parte. */
+function menuDaPasta(pasta: string, perfil: IdPerfil): [ItemPasta[], [string, ItemPasta[]][]] {
+  const pode = (l: LinhaMenu) => l.permissoes === '*' || l.permissoes.includes(perfil);
+  const de = (pai: string) => MENU_ERP.filter((l) => l.pai === pai && l.ativo).sort((a, b) => (a.om ?? a.ordem) - (b.om ?? b.ordem));
+  const item = (l: LinhaMenu, prefixo = ''): ItemPasta => ({ rota: l.rota, rotulo: prefixo ? `${prefixo} ${l.rotulo.toLowerCase()}` : l.rotulo, icone: l.icone || 'chart-bar', registada: !!(l.rota && ROTAS[l.rota]), permitido: pode(l) });
+  const tem = (l: LinhaMenu) => MENU_ERP.some((m) => m.pai === l.id);
+  const achatar = (l: LinhaMenu): ItemPasta[] => de(l.id).flatMap((f) => tem(f) ? de(f.id).map((g) => item(g, f.rotulo.replace(/s de compras$/, '').replace(/s$/, ''))) : [item(f)]);
+  const linhas = de(pasta);
+  return [linhas.filter((l) => !tem(l)).map((l) => item(l)), linhas.filter(tem).map((l) => [l.rotulo, achatar(l)])];
+}
+function grelhaEcras(fs: ItemPasta[], e: Estado): string {
+  return `<div class="dk-grelha dk-grelha--ecras">${fs.map((f, i) => { const est = !f.registada ? 'sem-rota' : !f.permitido ? 'sem-permissao' : ''; const [tipo, d] = TIPO[f.rota!] ?? ['Ecrã', '']; return `<button type="button" class="dk-ecra${est ? ` is-${est}` : ''}" data-dk-abrir="${f.rota}" aria-selected="${e.sel === f.rota}" style="--i:${i}"${est ? ' aria-disabled="true"' : ''}><span class="dk-ecra-ic">${icone(f.icone)}</span><span class="dk-ecra-t"><small>${est === 'sem-rota' ? 'No ERP antigo' : est ? 'Sem permissão' : tipo}</small><b>${esc(f.rotulo)}</b><span>${esc(est === 'sem-rota' ? 'Ainda sem ecrã no ERP novo' : d)}</span></span>${est ? L(lock, 'dk-ecra-cad') : L(chevronRight, 'dk-ecra-seta')}</button>`; }).join('')}</div>`;
+}
 export function explorador(e: Estado): string {
   const p = PERFIS[e.perfil];
   const raiz = e.pasta === 'raiz';
@@ -416,14 +436,16 @@ export function explorador(e: Estado): string {
     <button type="button" class="dk-voltar" data-dk-acao="voltar" aria-label="Voltar à área de trabalho">${L(arrowLeft)}</button>
     <nav class="dk-migalhas" aria-label="Onde estou"><button type="button" data-dk-ir="raiz">Área de trabalho</button>${L(chevronRight)}<span aria-current="page">${esc(mod?.rotulo ?? e.pasta)}</span></nav>
   </header>`;
-  const fs = e.pastaVazia ? [] : filhos(e.pasta, e.perfil);
-  const sel = fs.find((f) => f.rota === e.sel);
+  /* 28 out.: a pasta mostra o menu do módulo como ele está (o mesmo do menu lateral): os itens pela ordem do menu, e cada
+     submenu (Mapas) numa secção própria, com os seus sub-submenus achatados (Comparativos › Geral → «Comparativo geral») */
+  const [fs, grupos] = e.pastaVazia ? [[], []] : menuDaPasta(e.pasta, e.perfil);
+  const sel = [...fs, ...grupos.flatMap((g) => g[1])].find((f) => f.rota === e.sel);
   const docs = e.pastaVazia || e.carga ? [] : encomendas().slice(0, 4);
   const vistas = e.v6 ? [] : (RECENTES[e.perfil] ?? []).filter((r) => r.tipo === 'espaco');
   return `${cab}<div class="dk-exp dk-exp--pasta" data-vista="${e.vista}">
-    <div class="dk-titulo dk-titulo--pasta">${pastaArte(mod?.icone ?? 'file', 'is-aberta')}<div><h1>${esc(mod?.rotulo ?? e.pasta)}</h1><p>${e.carga === 'pasta' ? 'A abrir a pasta…' : `${fs.filter((f) => f.registada && f.permitido).length} ecrãs disponíveis · ${esc(DESCR[e.pasta] ?? '')}`}</p></div></div>
+    <div class="dk-titulo dk-titulo--pasta">${pastaArte(mod?.icone ?? 'file', 'is-aberta')}<div><h1>${esc(mod?.rotulo ?? e.pasta)}</h1><p>${e.carga === 'pasta' ? 'A abrir a pasta…' : `${[...fs, ...grupos.flatMap((g) => g[1])].filter((f) => f.registada && f.permitido).length} ecrãs disponíveis · ${esc(DESCR[e.pasta] ?? '')}`}</p></div></div>
     ${e.carga === 'pasta' ? `<div class="dk-grelha dk-grelha--ecras">${Array.from({ length: 6 }, () => '<span class="dk-esq"></span>').join('')}</div>`
-    : fs.length ? `<section class="dk-sec"><div class="dk-sec-cab"><h2>Ecrãs</h2></div><div class="dk-grelha dk-grelha--ecras">${fs.map((f, i) => { const est = !f.registada ? 'sem-rota' : !f.permitido ? 'sem-permissao' : ''; const [tipo, d] = TIPO[f.rota!] ?? ['Ecrã', '']; return `<button type="button" class="dk-ecra${est ? ` is-${est}` : ''}" data-dk-abrir="${f.rota}" aria-selected="${e.sel === f.rota}" style="--i:${i}"${est ? ' aria-disabled="true"' : ''}><span class="dk-ecra-ic">${icone(f.icone)}</span><span class="dk-ecra-t"><small>${est === 'sem-rota' ? 'Ainda sem ecrã' : est ? 'Sem permissão' : tipo}</small><b>${esc(f.rotulo)}</b><span>${esc(d)}</span></span>${est ? L(lock, 'dk-ecra-cad') : L(chevronRight, 'dk-ecra-seta')}</button>`; }).join('')}</div></section>
+    : fs.length ? `<section class="dk-sec"><div class="dk-sec-cab"><h2>Ecrãs</h2></div>${grelhaEcras(fs, e)}</section>${grupos.map(([t, xs]) => `<section class="dk-sec"><div class="dk-sec-cab"><h2>${esc(t)}</h2></div>${grelhaEcras(xs, e)}</section>`).join('')}
       <p class="dk-detalhe" aria-live="polite">${sel ? `${icone(sel.icone)}<b>${esc(sel.rotulo)}</b><span>${sel.registada && sel.permitido ? (e.v6 ? 'Um clique abre num separador' : 'Enter ou duplo clique abre num separador') : sel.registada ? 'A tua conta não tem acesso a este ecrã' : 'Este ecrã ainda não existe no ERP novo'}</span>` : `${L(folderOpen)}<span>${e.v6 ? 'Um clique num ecrã abre-o num separador.' : 'Escolhe um ecrã. Enter ou duplo clique abre-o num separador.'}</span>`}</p>
       <div class="dk-duas">
         ${vistas.length ? `<section class="dk-sec"><div class="dk-sec-cab"><h2>Vistas guardadas</h2></div><ul class="dk-tls">${vistas.map((v, i) => `<li style="--i:${i}"><button type="button" class="dk-tl" data-dk-atalho="compras.encomendas">${L(pin, 'dk-tl-ic')}<span class="dk-tl-ref">${esc(v.titulo.split(' · ')[1] ?? v.titulo)}</span><span class="dk-tl-ent">${esc(v.titulo.split(' · ')[0])}</span><span class="dk-tl-est">Vista</span><span class="dk-tl-q">${esc(v.quando)}</span><span class="dk-tl-acao">Abrir${L(chevronRight)}</span></button></li>`).join('')}</ul></section>` : ''}
