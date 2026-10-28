@@ -73,8 +73,24 @@ function origem(el: HTMLElement): [number, number] {
   const f = [...document.querySelectorAll<HTMLIFrameElement>('iframe')].find((x) => { try { return x.contentDocument === el.ownerDocument; } catch { return false; } });
   const r = f?.getBoundingClientRect(); return r ? [r.left, r.top] : [0, 0];
 }
+/** 28 out. (ela: «melhora o fluxo no erp!!!»): o scrollIntoView rolava também a página de cima (o cabeçalho do ERP fugia
+    a meio do fluxo). Agora só rola a caixa que tem o elemento, e só se ele estiver tapado (pela caixa ou pela barra). */
+function aVista(el: HTMLElement): boolean {
+  const [, oy] = origem(el), barra = document.querySelector('.demo-barra')?.getBoundingClientRect().top ?? innerHeight;
+  const r = el.getBoundingClientRect(), fundo = Math.min(barra - oy - 12, el.ownerDocument.defaultView?.innerHeight ?? innerHeight);
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    const cs = getComputedStyle(p), raiz = p === el.ownerDocument.documentElement;
+    if (!raiz && !/(auto|scroll)/.test(cs.overflowY)) continue;
+    if (p.scrollHeight <= p.clientHeight + 1) { if (raiz) break; continue; }
+    const q = raiz ? { top: 0, bottom: fundo } : p.getBoundingClientRect(), baixo = Math.min(q.bottom, fundo);
+    if (r.top >= q.top + 4 && r.bottom <= baixo - 4) return false;
+    p.scrollBy({ top: r.top - q.top - (baixo - q.top - r.height) / 2, behavior: quieto() ? 'auto' : 'smooth' });
+    return true;
+  }
+  return false;
+}
 async function mover(el: HTMLElement): Promise<void> {
-  el.scrollIntoView({ block: 'center', inline: 'nearest' }); await dormir(quieto() ? 0 : 250);
+  if (aVista(el)) await dormir(quieto() ? 0 : 450);
   const r = el.getBoundingClientRect(), [ox, oy] = origem(el), nx = ox + r.left + Math.min(r.width / 2, 60), ny = oy + r.top + r.height / 2;
   const d = Math.hypot(nx - x, ny - y), t = quieto() ? 0 : Math.min(900, 300 + d * 1.1);
   rato!.animate([{ transform: `translate(${x}px, ${y}px)` }, { transform: `translate(${nx}px, ${ny}px)` }], { duration: t, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'forwards' });

@@ -13,47 +13,63 @@ const menu = (rota: string): Passo => ({ legenda: '', clicar: `.dk7-i[data-dk-at
 /** Um clique dentro do separador ativo. */
 const sep = (clicar: string, pausa = 0): Passo => ({ legenda: '', clicar, separador: true, pausa });
 
+/* 28 out. (ela: «melhora o fluxo no erp!!!»): cada caso acaba no resultado à vista — a encomenda com as linhas novas,
+   a ficha com as receções — e as janelas fecham-se antes de passar ao seguinte, como faria quem trabalha */
 registarRoteiro('erp-faltas', 'Lista de Faltas: da falta à encomenda', [
   { ecra: 'inicio', ...menu('compras.faltas') },
-  sep('tr[data-lf2-ref="30205"]'),
-  sep('[data-lf2-comp="contem"]'),
-  sep('tr[data-lf2-ref="GDB1330"]'),
-  sep('[data-lf2-acao="para-encomenda"]', 800),
-  sep('[data-lf2-acao="encomenda"]', 1500),
+  sep('tr[data-lf2-ref="0 986 424 797"]', 1200),
+  sep('[data-lf2-jan-acao="fechar"]'),
+  sep('tr[data-lf2-ref="0 986 424 797"] [data-lf2-escolher]'),
+  sep('tr[data-lf2-ref="0 986 494 524"] [data-lf2-escolher]'),
+  sep('[data-lf2-acao="para-encomenda"]', 1600),
+  sep('[data-lf2-acao="encomenda"]', 1800),
+  sep('[data-dv2-jan-tab="linhas"]', 600),
+  sep('[data-dv2-jan-acao="max"]', 2200),
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-encomendas', 'Encomendas: as quatro vistas e uma encomenda', [
+registarRoteiro('erp-encomendas', 'Encomendas: uma encomenda e as quatro vistas', [
   { ecra: 'inicio', ...menu('compras.encomendas') },
-  sep('tr[data-dv2-id="EF 2026/0411"]', 600),
-  sep('[data-dv2-vista="agenda"]'),
-  sep('[data-dv2-acao="ag-modo"][data-m="cal"]'),
-  sep('[data-dv2-vista="clientes"]'),
-  sep('[data-dv2-vista="rececoes"]'),
+  sep('tr[data-dv2-id="EF 2026/0411"]', 1000),
+  sep('[data-dv2-jan-tab="linhas"]', 900),
+  sep('[data-dv2-jan-tab="rececoes"]', 1200),
+  sep('[data-dv2-jan-acao="fechar"]'),
+  sep('[data-dv2-vista="agenda"]', 900),
+  sep('[data-dv2-acao="ag-modo"][data-m="cal"]', 1200),
+  sep('[data-dv2-vista="clientes"]', 1000),
+  sep('[data-dv2-vista="rececoes"]', 1000),
   sep('[data-dv2-vista="docs"]'),
-  sep('[data-dv2-acao="novo"]', 600),
+  sep('[data-dv2-acao="novo"]', 1500),
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-orcamentos', 'Orçamentos: comparar e transferir', [
+registarRoteiro('erp-orcamentos', 'Orçamentos: da proposta à encomenda', [
   { ecra: 'inicio', ...menu('compras.cotacoes') },
-  sep('tr[data-dv2-id="PC 2026/0017|skf"]', 600),
-  sep('[data-dv2-modo="data"]'),
-  sep('tr[data-dv2-id="PC 2026/0016|gates"]', 600),
-  sep('[data-dv2-acao="transferir"]', 800),
+  sep('[data-dv2-modo="data"]', 600),
+  sep('tr[data-dv2-id="PC 2026/0016|gates"]', 1200),
+  sep('[data-dv2-jan-acao="fechar"]'),
+  sep('tr[data-dv2-id="PC 2026/0017|skf"]', 900),
+  sep('[data-dv2-jan-tab="linhas"]', 1200),
+  sep('[data-dv2-acao="transferir"]', 700),
+  sep('[data-dv2-acao="transferir-sim"]', 1500),
+  sep('[data-dv2-acao="abrir-doc"][data-rota="compras.encomenda"]', 1800),
+  sep('[data-dv2-jan-tab="linhas"]', 2200),
   { legenda: '' },
 ], SEM);
 
 registarRoteiro('erp-guias-faturas', 'Guias e faturas', [
   { ecra: 'inicio', ...menu('compras.compras-guias-entrada') },
-  sep('tr[data-rc2-abrir="gui:GR 88213"]', 600),
-  sep('[data-gv3-vista="transporte"]'),
-  sep('[data-gv3-vista="devolucao"]'),
+  sep('tr[data-rc2-abrir="gui:GR 88213"]', 1800),
+  sep('[data-rc2-acao="fechar"]'),
+  sep('[data-gv3-vista="transporte"]', 900),
+  sep('[data-gv3-vista="devolucao"]', 900),
   menu('compras.compras-faturas'),
-  sep('tr[data-dv2-id="FC 2026/00122"]', 600),
-  sep('[data-dv2-vista="notas"]'),
-  sep('[data-dv2-vista="pendentes"]'),
-  sep('[data-dv2-vista="verificar"]'),
+  sep('tr[data-dv2-id="FC 2026/00122"]', 1000),
+  sep('[data-dv2-jan-tab="linhas"]', 1200),
+  sep('[data-dv2-jan-acao="fechar"]'),
+  sep('[data-dv2-vista="notas"]', 900),
+  sep('[data-dv2-vista="pendentes"]', 900),
+  sep('[data-dv2-vista="verificar"]', 1500),
   { legenda: '' },
 ], SEM);
 

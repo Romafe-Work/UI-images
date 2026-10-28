@@ -579,6 +579,9 @@ function armar(r: HTMLElement): void {
   if (cen === 'anexos' || cen === 'anexo-enviar' || cen === 'anexo-falhou') { e.tab = 'anexos'; if (cen === 'anexo-enviar') e.extra.anexoProgresso = .42; if (cen === 'anexo-falhou') e.extra.anexoErro = `«tabela-precos-2027.pdf» tem 4,2 MB; neste protótipo o limite é ${tamanho(MAX_ANEXO)}.`; inspetor(r, e); }
   if (cen === 'imprimir') { e.aviso = 'A preparar a impressão: só a lista, com as colunas à vista.'; estado(r, e); }
   if (c.janelas && e.ativo && (c.janelas.estados.includes(cen) || e.tab === 'anexos') && docDe(r, e, e.ativo)) { abrirJanelaDoc(r, e, e.ativo, c.tabs.some((t) => t.k === e.tab) ? e.tab : c.tabs[0].k, false); r.querySelectorAll<HTMLElement>('[data-dv2-jan]').forEach((x) => x.getAnimations().forEach((a) => a.finish())); }
+  /* 28 out.: um separador aberto para um documento (…&doc=EF 2026/0413, de «Abrir» na Lista de Faltas) abre logo a janela dele */
+  const pedido = new URLSearchParams(location.hash.slice(1)).get('doc');
+  if (c.janelas && cen === 'normal' && pedido && docDe(r, e, pedido)) { e.ativo = pedido; tudo(r, e); abrirJanelaDoc(r, e, pedido); }
   if (!e.editor && cen === 'normal' && aVista && !quieto()) r.classList.add('lf2-entra');
   if (!e.editor && cen === 'normal' && aVista && (emSeparador() || location.hash.includes('so=ecra'))) requestAnimationFrame(() => r.querySelector<HTMLElement>('[data-dv2-q]')?.focus({ preventScroll: true }));
 }

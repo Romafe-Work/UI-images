@@ -112,7 +112,7 @@ function carregar(id: string, p: HTMLElement): void {
   const s = e.seps.find((x) => x.id === id); if (!s) return;
   if (!ROTAS[s.rota]) { p.innerHTML = `<div class="dk-carga dk-carga--erro">${L(IC.lock)}Este ecrã ainda não existe no ERP novo.</div>`; return; }
   const f = document.createElement('iframe');
-  f.className = 'dk-frame'; f.title = s.titulo; f.src = endereco(s.rota, true, s.modo);
+  f.className = 'dk-frame'; f.title = s.titulo; f.src = endereco(s.rota, true, s.modo) + (ROTAS[s.rota].titulo !== s.titulo && /\d{4}\/\d+/.test(s.titulo) ? `&doc=${encodeURIComponent(s.titulo)}` : '');
   let primeira = true;
   f.addEventListener('load', () => {
     p.querySelector('.dk-carga')?.remove();
@@ -515,7 +515,12 @@ export function iniciar(): void {
   /* 28 out. (ela: «na demonstração com rato no erp o menu lateral tem de aparecer!!»): a demonstração não herda a área
      de trabalho guardada (grupos dobrados, menu recolhido, separadores antigos); começa limpa, com o menu aberto */
   document.addEventListener('romafe:rato-inicio', () => {
-    try { localStorage.removeItem(CHAVE); } catch { /* */ }
+    /* e os dados das Compras voltam ao início (encomendas, faturas, vistas…), para cada roteiro dar sempre o mesmo; a sessão fica */
+    try {
+      const fica = ['erp:sessao', 'erp:empresa', 'erp:perfil', 'erp:sem-entrada'];
+      Object.keys(localStorage).filter((k) => k.startsWith('erp:') && !fica.includes(k)).forEach((k) => localStorage.removeItem(k));
+      Object.keys(sessionStorage).filter((k) => k.startsWith('erp:')).forEach((k) => sessionStorage.removeItem(k));
+    } catch { /* */ }
     pg = null; armar();
     if (pg && e) { e.rail = false; Object.keys(e.arvore).forEach((k) => { if (!k.includes('-')) e.arvore[k] = true; }); e.arvore.compras = true; desenhar(); }
   });
