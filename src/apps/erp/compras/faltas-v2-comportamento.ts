@@ -523,7 +523,7 @@ function abrirEncomenda(r: HTMLElement, e: Est, b?: HTMLElement): void {
   /* dentro da área de trabalho, o separador nasce do botão (data-dk-doc); sozinho, abre o ecrã da encomenda */
   try { sessionStorage.setItem('erp:ref:compras-encomenda', JSON.stringify(enc.ref)); } catch { /* sem sessão */ }
   if (emSeparador()) { const a = b ?? r.querySelector<HTMLElement>('[data-lf2-doc]'); if (a) { a.dataset.dkDoc = 'compras.encomenda'; a.dataset.dkTitulo = enc.ref; if (!b) a.click(); } return; }
-  mostrar('compras-encomenda');
+  mostrar('compras');
 }
 async function paraEncomenda(r: HTMLElement, e: Est): Promise<void> {
   if (e.gravar) { toast(r, 'Já está a gravar na encomenda.'); return; }

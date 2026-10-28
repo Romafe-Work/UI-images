@@ -68,7 +68,7 @@ async function clicar(el: HTMLElement): Promise<void> {
 function escrever(i: number, n: number, t: string, titulo: string): void {
   legenda!.querySelector('.demo-legenda__passo')!.textContent = `${titulo} · ${i} de ${n}`;
   legenda!.querySelector('.demo-legenda__t')!.textContent = t;
-  if (!quieto()) legenda!.animate([{ opacity: .4, transform: 'translate(-50%, 6px)' }, { opacity: 1, transform: 'translate(-50%, 0)' }], { duration: 200, easing: 'ease-out' });
+  if (!quieto()) legenda!.animate([{ opacity: .4, translate: '0 6px' }, { opacity: 1, translate: '0 0' }], { duration: 200, easing: 'ease-out' });
 }
 
 export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {

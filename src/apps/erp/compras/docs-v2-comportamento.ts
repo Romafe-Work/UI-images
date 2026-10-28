@@ -13,6 +13,7 @@
      - Guarda-se neste computador o que se estava a ver (filtros, pesquisa, colunas, documento) — nunca os dados.
    Movimento só em transform/opacity; com «reduzir movimento», muda logo.
    ========================================================= */
+import { FICHA_PARA } from '../espaco';
 import { CFGS, MODOS, F0, L, esc, type CfgDoc, type Doc, type EstDoc, type Ficha, type Modo, type ColDoc } from './docs-v2';
 import { anexosDe, anexar, removerAnexo, anexo, tamanho, podeVer, MAX_ANEXO } from './anexos';
 import { dia, pode, Recusa } from './dominio';
@@ -118,7 +119,7 @@ export function abrirDoc(b: HTMLElement | null, rota: string, titulo: string, ec
   /* o ecrã do documento lê a referência da sessão (compras/comportamento.ts, refDe) */
   try { sessionStorage.setItem(`erp:ref:${ecra}`, JSON.stringify(ref)); } catch { /* sem sessão: abre o de omissão */ }
   if (emSeparador() && b) { b.dataset.dkDoc = rota; b.dataset.dkTitulo = titulo; b.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: -1 })); delete b.dataset.dkDoc; delete b.dataset.dkTitulo; return; }
-  mostrar(ecra as never);
+  mostrar((FICHA_PARA[ecra] ?? ecra) as never);
 }
 
 /* ---------- desenhar ---------- */

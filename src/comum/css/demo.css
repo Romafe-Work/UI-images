@@ -204,3 +204,14 @@ body.demo::after { content: ''; display: block; height: 120px; }
 .demo-legenda__t { margin: 0; font-size: 15px; line-height: 1.4; }
 .demo-legenda__parar { margin-top: 10px; min-height: 36px; padding: 0 12px; border: 1px solid rgba(255, 255, 255, .3); border-radius: var(--r-md); background: none; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
 body.demo-a-tocar .ecra { cursor: default; }
+
+/* 28 out.: ao lado da moldura do telemóvel, o que está a acontecer — o ecrã que se vê e para que serve; com o rato a
+   tocar, a legenda do roteiro fica no mesmo lugar e o painel esconde-se. Sem espaço ao lado (janela estreita), sai. */
+.demo-lado { position: fixed; top: 66px; left: calc(50% + var(--tela-l, 320px) / 2 + 40px); width: min(360px, calc(50vw - var(--tela-l, 320px) / 2 - 64px)); display: grid; gap: 6px; padding: 16px 18px; border-radius: var(--r-md); background: #102333; color: #f5f8fa; font-family: var(--f-base); box-shadow: 0 8px 24px rgba(0, 0, 0, .25); z-index: 40; }
+.demo-lado__fluxo { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #f58214; }
+.demo-lado__t { margin: 0; font-family: var(--f-titulo); font-size: 19px; font-weight: 800; line-height: 1.25; }
+.demo-lado__de { margin: 0; font-size: 13px; color: #acbbc9; }
+.demo-lado__o { margin: 0; font-size: 15px; line-height: 1.5; color: #dfe7ee; }
+.tela-telemovel body.demo-a-tocar .demo-lado { display: none; }
+.tela-telemovel .demo-legenda { inset: 66px auto auto calc(50% + var(--tela-l, 320px) / 2 + 40px); transform: none; width: min(360px, calc(50vw - var(--tela-l, 320px) / 2 - 64px)); }
+@media (max-width: 1000px) { .demo-lado { display: none; } .tela-telemovel .demo-legenda { inset: auto auto 108px 50%; transform: translateX(-50%); width: min(92vw, 380px); } }

@@ -217,6 +217,15 @@ if (ROTAS['compras.analise-artigo']) {
   ROTAS['compras.analise-artigo'].titulo = 'Análise de Compras';
   ([['analise-artigo-forn', 'artigo-forn'], ['analise-familia', 'familia'], ['analise-familia-forn', 'familia-forn']] as const).forEach(([v, m]) => { ROTAS[`compras.${v}`] = { ...ROTAS['compras.analise-artigo'], alias: 'compras.analise-artigo', modo: m }; });
 }
+/* 28 out. (ela: «remove todos estes últimos do erp»): as fichas no desenho antigo saíram. Uma encomenda abre nas Encomendas
+   (onde cada documento abre numa janela), a receção na vista Receções, a cotação nos Orçamentos; Fornecedores, Fornecedor,
+   Requisições e Requisição ainda não têm desenho novo e ficam «no ERP antigo». */
+ROTAS['compras.encomenda'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomenda' };
+ROTAS['compras.rececao'] = { ...ROTAS['compras.encomendas'], titulo: 'Receção', modo: 'rececoes' };
+ROTAS['compras.cotacao'] = { ...ROTAS['compras.cotacoes'], titulo: 'Cotação' };
+['compras.fornecedores', 'compras.fornecedor', 'compras.requisicoes', 'compras.requisicao'].forEach((r) => { delete ROTAS[r]; });
+/** O ecrã novo de cada ficha antiga (para quem a abre fora da área de trabalho). */
+export const FICHA_PARA: Record<string, string> = { 'compras-encomenda': 'compras', 'compras-rececao': 'compras', 'compras-cotacao': 'compras-cotacoes' };
 export const rotaDoEcra = (ecra: string) => Object.keys(ROTAS).find((k) => ROTAS[k].ecra === ecra);
 const pode = (l: LinhaMenu, p: IdPerfil) => l.permissoes === '*' || l.permissoes.includes(p);
 /** Os módulos do perfil, pela ordem da base; os inativos vêm marcados (referência), não como se funcionassem. */

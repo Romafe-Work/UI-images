@@ -85,7 +85,18 @@ function menuCompras(): [string, string | null][] {
   ['compras-fornecedores', '14 · Fornecedores'], ['compras-requisicoes', '16 · Requisições'],
   ];
 }
-function soInicioECompras<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+/* 28 out. (ela: «quero os ecrãs assim, e não assim — remove todos estes últimos do erp»): saem todas as versões e
+   estados no desenho antigo (o espaço «ws» de 19 out., com «As minhas prioridades», e o «erp» de antes), o carregamento e os
+   erros antigos; um ecrã que fica sem nenhuma versão sai, com os seus estados. Fornecedores e Requisições ainda não têm
+   desenho novo: no menu passam a «no ERP antigo» (espaco.ts). */
+function semDesenhoAntigo<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const DESENHO_ANTIGO = /^\s*(?:<!--[\s\S]*?-->\s*)*<[a-z]+[^>]*\bclass="(?:ws|erp|carga-pagina|er-manutencao)[\s"]/;
+  const novos = ecras.filter((e) => !/^(carga|erro)-/.test(e.id)).map((e) => ({ ...e, versoes: e.versoes.filter((v) => !DESENHO_ANTIGO.test(v.html)) as Ecra<T>['versoes'] })).filter((e) => e.versoes.length > 0);
+  const ids = new Set(novos.map((e) => e.id));
+  return novos.filter((e) => !e.estadoDe || ids.has(e.estadoDe));
+}
+function soInicioECompras<T extends string>(todos: Ecra<T>[]): Ecra<T>[] {
+  const ecras = semDesenhoAntigo(todos);
   const MENU = menuCompras(), fica = new Map(MENU);
   const raiz = (e: Ecra<T>) => !e.estadoDe;
   const listados = MENU.flatMap(([id, nome]) => {

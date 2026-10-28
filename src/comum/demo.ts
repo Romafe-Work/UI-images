@@ -182,9 +182,24 @@ export function iniciar(): void {
     if (ev.key === 'ArrowLeft' || ev.key === 'PageUp') { parar(); passo(-1); }
   });
 
+  /* 28 out. (ela: «na simulação do fluxo da app do gestor diz ao lado o que está a acontecer, em pt»): nas apps de
+     telemóvel, um painel ao lado da moldura diz o ecrã que se vê e para que serve (o objetivo dele, ou o do estado);
+     com o rato a tocar, a legenda do roteiro ocupa o mesmo lugar (css/demo.css). */
+  const lado = raiz.classList.contains('tela-telemovel') ? document.createElement('aside') : null;
+  if (lado) { lado.className = 'demo-lado'; lado.setAttribute('aria-live', 'polite'); lado.setAttribute('aria-label', 'O que está a acontecer'); document.body.appendChild(lado); }
+  const escapar = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  function pintarLado(e: HTMLElement | null): void {
+    if (!lado || !e) return;
+    const pai = e.dataset.estadoDe ? document.querySelector<HTMLElement>(`.ecra[data-ecra="${e.dataset.estadoDe}"]`) : null;
+    lado.innerHTML = `<p class="demo-lado__fluxo">${escapar(e.dataset.fluxo || '')}</p><h2 class="demo-lado__t">${escapar(e.dataset.nome || e.dataset.ecra || '')}</h2>
+      ${pai ? `<p class="demo-lado__de">Um estado de ${escapar(pai.dataset.nome || '')}</p>` : ''}<p class="demo-lado__o">${escapar(e.dataset.objetivo || '')}</p>`;
+    if (!quieto()) lado.animate([{ opacity: .4, translate: '0 6px' }, { opacity: 1, translate: '0 0' }], { duration: 200, easing: 'ease-out' });
+  }
+
   function pintar(): void {
     const lista = doFluxo();
     const e = ecraVisivel();
+    pintarLado(e);
     const onde = barra.querySelector<HTMLElement>('.demo-barra__onde')!;
     onde.textContent = e ? `${e.dataset.nome || e.dataset.ecra} · ${lista.indexOf(e) + 1} de ${lista.length}` : '';
     const a = ANIMACOES.find((x) => x.id === raiz.dataset.anim);

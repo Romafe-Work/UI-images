@@ -261,7 +261,12 @@ const NOTA = 'Do briefing «ROMAFE Warehouse — Ultimate Manager Experience» (
 /** As versões novas: 60 v5, 65 v3 e 66 v3. */
 export function comGestorV4<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const V: Record<string, [string, () => string]> = { 'gestor-inicio': ['v5', () => centro()], 'g-tarefas': ['v3', () => todasTarefas()], 'g-mais': ['v3', maisV3] };
-  return ecras.map((e) => V[e.id] ? { ...e, nome: e.id === 'gestor-inicio' ? '60 · Centro de operações' : e.id === 'g-tarefas' ? '65 · Todas as tarefas' : e.nome, versoes: [...e.versoes, { id: V[e.id][0], nota: NOTA, html: V[e.id][1]() }] as Ecra<T>['versoes'] } : e);
+  const OBJ: Record<string, string> = {
+    'gestor-inicio': 'A Ana, gestora, vê num relance o que está a acontecer no armazém hoje (em curso, por fazer, exceções, concluídas), as quatro operações com o que têm por fazer, o que pede a atenção dela e o que deve fazer agora — cada sugestão com o porquê.',
+    'g-tarefas': 'Todas as tarefas das quatro operações: filtra-se por operação, zona e responsável; cada uma diz desde quando está assim e a ação seguinte que o estado permite.',
+    'g-mais': 'As quatro operações, a equipa, o histórico, o armazém, a ajuda e terminar sessão.',
+  };
+  return ecras.map((e) => V[e.id] ? { ...e, objetivo: OBJ[e.id] ?? e.objetivo, nome: e.id === 'gestor-inicio' ? '60 · Centro de operações' : e.id === 'g-tarefas' ? '65 · Todas as tarefas' : e.nome, versoes: [...e.versoes, { id: V[e.id][0], nota: NOTA, html: V[e.id][1]() }] as Ecra<T>['versoes'] } : e);
 }
 /** Os estados do Início que já existiam (60.1–60.14) passam a desenhar-se no Centro de operações. */
 export const ESTADOS_CENTRO: Record<string, () => string> = {
