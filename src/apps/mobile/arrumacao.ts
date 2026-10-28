@@ -18,7 +18,7 @@
    entrar e quando o servidor confirma o movimento, nunca antes.
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
-import { ecra, acao, sec, esperar, aviso, nota, prog, posicao, quantidade, h2, L, type Opcoes } from './inventario-v2';
+import { ecra, acao, sec, esperar, aviso, nota, prog, posicao, quantidade, h2, L, trocarIr, type Opcoes } from './inventario-v2';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
 import pkg from 'lucide-static/icons/package.svg?raw';
 import pkgX from 'lucide-static/icons/package-x.svg?raw';
@@ -49,12 +49,14 @@ import repeat from 'lucide-static/icons/repeat.svg?raw';
 type EstGuia = 'atribuir' | 'curso' | 'excecao' | 'feita';
 interface Linha { ref: string; desc: string; q: number }
 interface Guia { ref: string; ch: string; paletes: number; origem: string; destino: string; quem: string; est: EstGuia; linhas: Linha[]; feitas: number; motivo?: string; hora?: string }
-const GUIAS: Guia[] = [
+export const GUIAS: Guia[] = [
   { ref: 'GA-2026-0331', ch: 'CH-2026-0412', paletes: 2, origem: 'Cais 1', destino: '60101203', quem: '', est: 'atribuir', feitas: 0, linhas: [{ ref: 'SKF 6205-2RSH', desc: 'Rolamento rígido de esferas', q: 40 }, { ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 12 }, { ref: 'SKF 6206-2Z', desc: 'Rolamento rígido de esferas', q: 30 }] },
   { ref: 'GA-2026-0330', ch: 'CH-2026-0411', paletes: 1, origem: 'Cais 2', destino: '60120401', quem: 'Inês Rocha', est: 'curso', feitas: 1, linhas: [{ ref: 'CR 30x47x7', desc: 'Retentor de cambota', q: 20 }, { ref: 'CR 35x52x7', desc: 'Retentor de cambota', q: 16 }] },
   { ref: 'GA-2026-0329', ch: 'CH-2026-0411', paletes: 1, origem: 'Cais 2', destino: '60300104', quem: '', est: 'excecao', feitas: 0, motivo: 'Destino em contagem: zona 30 (INV-2026-014)', linhas: [{ ref: 'TRW GDB1330', desc: 'Pastilhas de travão', q: 24 }] },
   { ref: 'GA-2026-0328', ch: 'CH-2026-0410', paletes: 1, origem: 'Cais 1', destino: '60210302', quem: 'Inês Rocha', est: 'excecao', feitas: 0, motivo: 'Quantidade diferente: 12 na guia, 10 arrumadas', linhas: [{ ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 12 }] },
   { ref: 'GA-2026-0327', ch: 'CH-2026-0410', paletes: 1, origem: 'Cais 1', destino: '60100802', quem: 'Inês Rocha', est: 'feita', feitas: 2, hora: '08:12', linhas: [{ ref: 'SKF 6204-2RSH', desc: 'Rolamento rígido de esferas', q: 50 }, { ref: 'SKF VKMV 6PK1873', desc: 'Correia poli-V', q: 10 }] },
+  /* 28 out. (Gestor v3): uma guia de um artigo, por atribuir — a que o Gestor arruma ele próprio no 81 */
+  { ref: 'GA-2026-0332', ch: 'CH-2026-0412', paletes: 1, origem: 'Cais 1', destino: '60100305', quem: '', est: 'atribuir', feitas: 0, linhas: [{ ref: 'SKF 6205-2Z', desc: 'Rolamento rígido de esferas', q: 30 }] },
 ];
 export const RESUMO_ARRUMACAO = { porArrumar: GUIAS.filter((g) => g.est === 'atribuir').length, emCurso: GUIAS.filter((g) => g.est === 'curso').length, problemas: GUIAS.filter((g) => g.est === 'excecao').length };
 const un = (g: Guia) => g.linhas.reduce((s, l) => s + l.q, 0);
@@ -168,19 +170,20 @@ type E80 = 'origem' | 'artigo' | 'destino' | 'quantidade' | 'a-confirmar' | 'con
 const PASSOS80 = ['Origem', 'Artigo', 'Destino', 'Quant.'];
 const passos80 = (n: number) => `<ol class="gi-passos" aria-label="Passos da arrumação">${PASSOS80.map((p, i) => `<li class="${i < n ? 'is-feito' : i === n ? 'is-atual' : ''}"${i === n ? ' aria-current="step"' : ''}><i aria-hidden="true"></i><span>${p}</span></li>`).join('')}</ol>`;
 const PASSO: Partial<Record<E80, number>> = { origem: 0, artigo: 1, destino: 2, quantidade: 3, 'a-confirmar': 3, 'destino-errado': 2, 'artigo-errado': 1, bloqueada: 2, parcial: 3, desconhecida: 2 };
-function arrumar(e: E80 = 'origem'): string {
-  const g = GUIAS[1], l = g.linhas[1], o: Opcoes = { titulo: 'Arrumar', funcao: 'Arrumação', quem: { nome: 'Inês Rocha', iniciais: 'IR' } };
+/** 28 out. (Gestor v3): o Gestor arruma com o MESMO ecrã — `op` muda a conta, `ids` as ligações, `gi`/`li` a guia e o artigo. */
+export function arrumar(e: E80 = 'origem', op: Opcoes = {}, ids: Record<string, string> = {}, gi = 1, li = 1): string {
+  const g = GUIAS[gi], l = g.linhas[li], o: Opcoes = { titulo: 'Arrumar', funcao: 'Arrumação', quem: { nome: 'Inês Rocha', iniciais: 'IR' }, ...op }, ultimo = li === g.linhas.length - 1;
   const faixaLer = (tom: string, ic: string, t: string, x: string, ir = '') => `<button type="button" class="gi-faixa-ler gi-faixa-ler--${tom}" data-ler="1" data-tipo-leitura="arrumar"${ir ? ` data-depois="${ir}"` : ''}><span class="gi-faixa-ler__ic">${L(ic)}</span><span><b>${t}</b><small>${x}</small></span>${tom === 'pronto' ? '<i class="gi-faixa-ler__varre" aria-hidden="true"></i>' : ''}</button>`;
-  const topo = `<p class="gi-ler-inv"><b>${g.ref}</b><span>${g.origem} → ${g.destino.slice(0, 4)}… · artigo 2 de 2</span></p>${PASSO[e] !== undefined ? passos80(PASSO[e]!) : ''}`;
+  const topo = `<p class="gi-ler-inv"><b>${g.ref}</b><span>${g.origem} → ${g.destino.slice(0, 4)}… · artigo ${li + 1} de ${g.linhas.length}</span></p>${PASSO[e] !== undefined ? passos80(PASSO[e]!) : ''}`;
   const art = `<section class="gi-artigo"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${l.ref}</p><p class="gi-artigo__desc">${l.desc}</p><p class="gi-artigo__meta">${l.q} un. na guia</p></div></section>`;
   const dest = `<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Destino</span>${posicao(g.destino, 'gi-pos--peq')}</div>`;
   const C: Record<E80, () => [string, string]> = {
-    origem: () => [`${faixaLer('pronto', scanBarcode, 'Leia a palete no cais 2', 'A etiqueta da palete da CH-2026-0411', 'arr-op-artigo')}${dest}`, sec('Escrever à mão', keyboard)],
+    origem: () => [`${faixaLer('pronto', scanBarcode, `Leia a palete no ${g.origem.toLowerCase()}`, `A etiqueta da palete da ${g.ch}`, 'arr-op-artigo')}${dest}`, sec('Escrever à mão', keyboard)],
     artigo: () => [`${faixaLer('pronto', scanBarcode, 'Leia o artigo', `Na palete: ${l.ref}`, 'arr-op-destino')}${dest}`, sec('Escrever à mão', keyboard)],
     destino: () => [`${art}${faixaLer('pronto', mapPin, 'Leia a posição de destino', 'Só a posição desta guia aceita o movimento', 'arr-op-quantidade')}${dest}`, sec('O destino está cheio', triangle, ' data-ir="arr-op-parcial"')],
-    quantidade: () => [`${faixaLer('lido', circleCheck, 'Destino certo', '60120401 lida')}${art}${quantidade('16', { teclado: false, rotulo: 'Quantas arrumou aqui?' })}`, acao('Confirmar o movimento', check, ' data-confirmar data-ir="arr-op-confirmado"')],
-    'a-confirmar': () => [`${art}${quantidade('16', { teclado: false, rotulo: 'Quantas arrumou aqui?' })}`, esperar('A confirmar…')],
-    confirmado: () => [`<section class="gi-movido" role="status">${cenaArrumacao()}<h1>Movimento confirmado</h1><p>16 un. de ${l.ref} na 60120401. O servidor confirmou; a guia está concluída.</p></section>`, acao('Começar a tarefa seguinte', arrowRight, ' data-ir="op-inicio"')],
+    quantidade: () => [`${faixaLer('lido', circleCheck, 'Destino certo', `${g.destino} lida`)}${art}${quantidade(String(l.q), { teclado: false, rotulo: 'Quantas arrumou aqui?' })}`, acao('Confirmar o movimento', check, ' data-confirmar data-ir="arr-op-confirmado"')],
+    'a-confirmar': () => [`${art}${quantidade(String(l.q), { teclado: false, rotulo: 'Quantas arrumou aqui?' })}`, esperar('A confirmar…')],
+    confirmado: () => [`<section class="gi-movido" role="status">${cenaArrumacao()}<h1>Movimento confirmado</h1><p>${l.q} un. de ${l.ref} na ${g.destino}. O servidor confirmou; ${ultimo ? 'a guia está concluída' : `falta${g.linhas.length - li - 1 === 1 ? '' : 'm'} ${g.linhas.length - li - 1} ${g.linhas.length - li - 1 === 1 ? 'artigo' : 'artigos'} desta guia`}.</p></section>`, (ultimo ? acao('Começar a tarefa seguinte', arrowRight, ' data-ir="op-inicio"') : acao('Artigo seguinte', arrowRight, ' data-ir="arr-op-artigo"'))],
     'destino-errado': () => [`${faixaLer('erro', mapPin, 'Este não é o destino da guia', 'Leu 60120403')}${aviso('erro', mapPin, 'O movimento não se confirma aqui', `A guia pede a <b>${g.destino}</b>. Não se arruma numa posição que a guia não autoriza.`)}${dest}`, acao('Ler o destino certo', scanBarcode, ' data-ir="arr-op-destino"')],
     'artigo-errado': () => [`${faixaLer('erro', pkgX, 'Este artigo não é da guia', 'Leu SKF 6205-2RSH')}${aviso('erro', pkgX, 'Não está nesta guia', `A GA-2026-0330 tem ${g.linhas.map((x) => x.ref).join(' e ')}. Deixe este na palete.`)}`, acao('Ler outro artigo', scanBarcode, ' data-ir="arr-op-artigo"')],
     bloqueada: () => [`${faixaLer('erro', lock, 'Destino em contagem', 'Zona 30 · INV-2026-014')}${aviso('erro', lock, 'Não se arruma numa zona em contagem', 'A 60300104 está a ser contada às cegas. O gestor foi avisado e o motor propõe outro destino.')}`, acao('Pedir outro destino', refresh, ' data-ir="arr-op-destino"')],
@@ -193,7 +196,7 @@ function arrumar(e: E80 = 'origem'): string {
     'concluida-outro': () => [aviso('info', circleCheck, 'Esta guia já foi concluída', 'Foi acabada noutro PDA às 10:58. Não há nada a arrumar aqui.'), acao('Começar a tarefa seguinte', arrowRight, ' data-ir="op-inicio"')],
   };
   const [corpo, pe] = C[e]();
-  return ecra(`${e === 'confirmado' || e === 'sem-rede' || e === 'sessao' || e === 'concluida-outro' ? '' : topo}${corpo}`, { ...o, rede: e !== 'sem-rede', pe });
+  return trocarIr(ecra(`${e === 'confirmado' || e === 'sem-rede' || e === 'sessao' || e === 'concluida-outro' ? '' : topo}${corpo}`, { ...o, rede: e !== 'sem-rede', pe }), ids);
 }
 
 /* =========================================================

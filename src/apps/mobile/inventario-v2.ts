@@ -79,6 +79,8 @@ export const acao = (t: string, ic: string, extra = '') => `<button type="button
 export const sec = (t: string, ic: string, extra = '') => `<button type="button" class="gp-btn gi-btn-sec"${extra}>${L(ic)}<span>${t}</span></button>`;
 export const esperar = (t: string) => `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande is-a-carregar" disabled aria-busy="true"><span class="girador girador--claro" aria-hidden="true"></span><span>${t}</span></button>`;
 export const aviso = (tom: 'erro' | 'aviso' | 'info' | 'ok', ic: string, titulo: string, texto: string) => `<section class="gi-aviso gi-aviso--${tom}" role="${tom === 'erro' ? 'alert' : 'status'}"><span class="gi-aviso__ic">${L(ic)}</span><h1>${titulo}</h1><p>${texto}</p></section>`;
+/** 28 out. (Gestor v3): o mesmo ecrã noutro percurso — troca os destinos das ligações (data-ir e data-depois). */
+export const trocarIr = (html: string, mapa: Record<string, string>) => html.replace(/data-(ir|depois)="([^"]+)"/g, (m, k, v) => mapa[v] ? `data-${k}="${mapa[v]}"` : m);
 export const nota = (t: string) => `<p class="gp-nota">${t}</p>`;
 export const prog = (f: number, t: number, rot = 'Posições contadas') => `<div class="gi-prog"><p><span>${rot}</span><b>${f} de ${t}</b></p><span class="gp-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${t}" aria-valuenow="${f}" aria-label="${rot}: ${f} de ${t}"><i style="--p:${t ? (f / t).toFixed(3) : 0}"></i></span></div>`;
 

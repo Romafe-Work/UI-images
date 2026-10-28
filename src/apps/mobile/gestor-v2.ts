@@ -38,7 +38,8 @@ import userRound from 'lucide-static/icons/user-round.svg?raw';
 const G = { gestor: true } as const;
 /** 27 out. (ela: «por agora no menu mostra só inventário»): a Arrumação fica desligada no menu — como o «ativo» do menu
  *  central. Os ecrãs dela continuam no editor; com true, voltam à barra, ao Início, às Tarefas e ao Mais. */
-export const ARRUMACAO_ATIVA = false;
+export const ARRUMACAO_ATIVA = true;
+/* 28 out. (briefing «Gestor V1»): ligada outra vez — o Gestor acompanha e executa as quatro operações */
 
 /* ---------- a faixa de estado de um módulo: números verdadeiros, pequenos, lado a lado ---------- */
 const faixa = (xs: [string, number, ('aviso' | 'erro' | '')?][]) => `<dl class="gi-faixa">${xs.map(([t, n, tom]) => `<div${tom ? ` class="is-${tom}"` : ''}><dd>${n}</dd><dt>${t}</dt></div>`).join('')}</dl>`;

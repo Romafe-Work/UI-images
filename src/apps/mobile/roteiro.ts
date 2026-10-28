@@ -7,8 +7,33 @@
    ========================================================= */
 import { registarRoteiro } from '../../comum/demo-rato';
 
+/* 28 out. (briefing «Gestor V1»): o primeiro roteiro é o do Gestor que faz tudo — separa uma guia, regista a falta na
+   posição, pousa-a nos preparados e expede outra. É o que «Ver o fluxo com o rato» toca. */
+registarRoteiro('gestor', 'O Gestor separa e expede', [
+  { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, vê o que pede a atenção dela e as quatro operações. Abre a Separação.', clicar: '.gx-mod--sep' },
+  { legenda: 'Em «Acompanhar» vê as guias por estado. Passa a «Executar»: vai separar ela própria, sem mudar de função.', clicar: '.gx-modo [data-ir="g-sep"]' },
+  { legenda: 'Uma guia por separar. Uma tarefa é uma guia inteira, pela ordem do percurso.', clicar: '.gx-exec .gp-btn--acao' },
+  { legenda: 'Linha 1: vai à posição 60100305 e prime a tecla de leitura na etiqueta.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Posição certa. Lê o artigo na prateleira.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Artigo certo. Tirou as 6 que a guia pede: confirma.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'O servidor confirmou a linha. Segue para a linha 2.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'A guia pede 2 correias, mas só há 1 na posição.', clicar: '.gp-ligacao[data-ir="g-sep-falta"]' },
+  { legenda: 'Diz quantas há DE FACTO na posição: a falta fica registada ali, e o servidor corrige o stock da posição.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Falta registada. As outras linhas fazem-se como a primeira.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'A guia separada, com a falta à vista. Leva-a à prateleira de preparados.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê a etiqueta da prateleira de preparados.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Pronta: o servidor confirmou onde ficou. Agora a Expedição.', clicar: '.gi-pe [data-ir="g-exp-acomp"]' },
+  { legenda: 'As guias prontas na prateleira de preparados. Passa a «Executar».', clicar: '.gx-modo [data-ir="g-exp"]' },
+  { legenda: 'Recolhe a GS-2026-1184, pronta há mais tempo.', clicar: '.gx-exec .gp-btn--acao' },
+  { legenda: 'Lê a prateleira de preparados…', clicar: '.gi-faixa-ler' },
+  { legenda: '…e a etiqueta da guia.', clicar: '.gi-faixa-ler' },
+  { legenda: 'A guia está pronta e sem faltas. Confirma a recolha.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Recolhida. Confirma a saída: só fica expedida quando o servidor confirmar.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Expedida. A mesma pessoa acompanhou e executou duas operações, sem mudar de função; o stock nunca mudou pelo PDA.' },
+]);
+
 registarRoteiro('inventario', 'Inventário de ponta a ponta', [
-  { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, entra na Pick e vê logo o que precisa da atenção dela. Vai ao Inventário.', clicar: '.gi-barra__b[data-ir="gestor-inventario"]' },
+  { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, entra na Pick e vê logo o que precisa da atenção dela. Vai ao Inventário.', clicar: '.gx-mod--inv' },
   { legenda: 'No Inventário vê o que está em curso, por validar e as divergências. Cria um inventário novo.', clicar: '.gp-btn--acao[data-ir="gestor-inv-novo"]' },
   { legenda: '1 · O âmbito: o que se conta. Escolhe a zona 12, retentores.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: '2 · As regras: às cegas (quem conta não vê o stock) e recontar as divergências.', clicar: '.gi-pe .gp-btn--acao' },

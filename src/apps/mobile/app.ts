@@ -9,6 +9,7 @@ import { comGestorV2b, ecrasGestorV2 } from './gestor-v2';
 import { ecrasArrumacao } from './arrumacao';
 import { comBarra, ecrasNavegacao, soUltima } from './navegacao';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
+import { comGestorV3, ecrasGestorV3 } from './gestor-v3';
 import type { Ecra } from '../../comum/tipos';
 
 const DESCRICAO_ENTRAR_PK = 'Como o ERP e o Peça A Peça: o início de sessão comum (ROMAFE Identity, no PDA) → a abertura → a página do papel (o Gestor, ou o Inventário do operador).';
@@ -21,6 +22,10 @@ const ESTADOS_PICK = ecrasEstadosPick() as Ecra<IdMobile>[];
 const GESTOR_V2 = ecrasGestorV2() as Ecra<IdMobile>[], ARRUMACAO = comBarra(ecrasArrumacao()) as Ecra<IdMobile>[];
 /* 27 out. (briefing «Role-Based Bottom Navigation»): a barra por função — navegacao.ts */
 const NAV = ecrasNavegacao() as Ecra<IdMobile>[];
+/* 28 out. (ela: «vamos começar pelo gestor que pode fazer tudo», e o briefing «Gestor V1»): gestor-v3.ts */
+const GV3 = ecrasGestorV3() as Ecra<IdMobile>[];
+const DESCRICAO_SEPARACAO = 'A Separação: uma guia é uma tarefa; as linhas pelo percurso (posição → artigo → quantidade); a falta corrige-se na posição; a guia acaba na prateleira de preparados.';
+const DESCRICAO_EXPEDICAO = 'A Expedição: recolhe as guias prontas na prateleira de preparados (prateleira → guia → verificar), confirma a recolha e a saída; nada se dá como expedido sem o servidor.';
 const DESCRICAO_ARRUMACAO = 'A Arrumação: das chegadas registadas pela arrumação às posições — as guias, os destinos propostos (fora das zonas em contagem), quem arruma (o motor, ou o gestor com motivo) e o PDA de quem arruma.';
 export const mobile: App<IdMobile> = {
   id: 'mobile',
@@ -31,14 +36,14 @@ export const mobile: App<IdMobile> = {
   /* o ecrã do Honeywell EDA61K: 4", 480 × 800 píxeis físicos a densidade
      1,5 (hdpi), o que dá 320 × 533 píxeis CSS (dp) */
   tela: { l: 320, a: 533 },
-  fluxos: { 'Entrar': DESCRICAO_ENTRAR_PK, 'Gestor': DESCRICAO_GESTOR, 'Inventário': DESCRICAO_INVENTARIO, 'Arrumação': DESCRICAO_ARRUMACAO, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
+  fluxos: { 'Entrar': DESCRICAO_ENTRAR_PK, 'Gestor': DESCRICAO_GESTOR, 'Inventário': DESCRICAO_INVENTARIO, 'Arrumação': DESCRICAO_ARRUMACAO, 'Separação': DESCRICAO_SEPARACAO, 'Expedição': DESCRICAO_EXPEDICAO, 'Carregamento': DESCRICAO_CARREGAR_PICK, 'Erros': DESCRICAO_ERROS_PICK },
   /* 21 out. 2026: ela, «só quero uma versão: a v5, mas mais bonita e mais profissional» e «falta uma abertura» —
      a abertura, a entrada industrial e a ajuda, uma versão cada; saíram as v1–v4, a palavra-passe à parte e o
      cliente federado (o código fica em entrar.ts e no comum) */
   /* 27 out. (o briefing da app Kotlin, «apenas com rede», «no figma»): o Gestor ganha o 62–64 e a v2 do 61.1 e do 61.2;
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
   /* 27 out. (ela: «só quero a última versão, não todos»): cada ecrã só com a última versão (navegacao.ts, soUltima) */
-  ecras: soUltima([...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...ARRUMACAO, ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()]),
+  ecras: soUltima(comGestorV3([...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()])),
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

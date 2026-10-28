@@ -1,0 +1,92 @@
+/* =========================================================
+   PICK — o Gestor faz tudo (28 out. 2026). Ver gestor-v3.ts.
+   Os quatro módulos: Inventário (laranja), Arrumação (azul), Separação (verde), Expedição (navy/tinta).
+   O movimento: os cartões entram em sequência curta (≈50 ms entre eles), cada ícone faz o seu gesto uma vez;
+   as cenas da separação e da expedição correm uma vez quando o servidor confirma. «Reduzir movimento»: tudo parado.
+   ========================================================= */
+.gp { --gx-inv: var(--g-laranja-t); --gx-arr: var(--g-azul-t); --gx-sep: var(--g-ok); --gx-exp: var(--g-tinta); }
+
+/* ---------- 60 · as quatro operações, 2 × 2 ---------- */
+.gx-mods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gx-mod { display: grid; justify-items: start; align-content: start; gap: 2px; width: 100%; min-height: 128px; padding: 12px; border: 1px solid var(--g-borda); border-top: 3px solid var(--gx-c); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; text-align: left; cursor: pointer; animation: gx-entra .26s var(--curva) both; animation-delay: calc(var(--i, 0) * 50ms); transition: transform .1s ease, border-color .12s ease; }
+.gx-mod:active { transform: scale(.97); } .gx-mod:focus-visible { outline: 3px solid var(--g-azul-t); outline-offset: 2px; }
+.gx-mod .gi-mod__ic { width: 44px; height: 40px; margin-bottom: 6px; place-items: start; color: var(--gx-c); }
+.gx-mod .gi-mod__ic .pk-caixa-viva { width: 42px; }
+.gpi .gx-mod .gi-mod__ic > svg { width: 30px; height: 30px; }
+.gx-mod b { font-family: var(--f-titulo); font-size: 17px; font-weight: 800; line-height: 1.15; }
+.gx-mod small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gx-mod em { margin-top: 6px; font-size: 13px; font-style: normal; font-weight: 700; color: var(--gx-c); }
+.gx-mod--inv, .gx-op--inv { --gx-c: var(--gx-inv); } .gx-mod--arr, .gx-op--arr { --gx-c: var(--gx-arr); }
+.gx-mod--sep, .gx-op--sep { --gx-c: var(--gx-sep); } .gx-mod--exp, .gx-op--exp { --gx-c: var(--gx-exp); }
+@keyframes gx-entra { from { opacity: 0; transform: translateY(8px); } }
+/* o gesto de cada ícone, uma vez, a seguir à entrada */
+.gx-mod--arr .gi-mod__ic svg { animation: gx-sobe .42s var(--curva) .28s 1 both; }
+.gx-mod--sep .gi-mod__ic svg { transform-origin: 50% 90%; animation: gx-cai .42s var(--curva) .34s 1 both; }
+.gx-mod--exp .gi-mod__ic svg { animation: gx-sai .5s var(--curva) .4s 1 both; }
+@keyframes gx-sobe { 0% { transform: translateY(4px); } 60% { transform: translateY(-3px); } 100% { transform: none; } }
+@keyframes gx-cai { 0% { transform: rotate(0); } 40% { transform: rotate(-8deg); } 100% { transform: none; } }
+@keyframes gx-sai { 0% { transform: translateX(-4px); opacity: .5; } 100% { transform: none; opacity: 1; } }
+
+/* ---------- Acompanhar | Executar ---------- */
+.gx-modo { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); }
+.gx-modo button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 0; border-radius: var(--r-md); background: none; color: var(--g-tinta-2); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
+.gpi .gx-modo svg { width: 18px; height: 18px; color: var(--g-laranja-t); }
+.gx-modo [aria-current="page"] { background: var(--g-elev); color: var(--g-tinta); box-shadow: inset 0 -2px 0 var(--g-laranja); }
+.gx-modo button:focus-visible { outline: 3px solid var(--g-azul-t); outline-offset: -3px; }
+.gx-modo button:active { transform: scale(.98); }
+
+/* ---------- a faixa com quatro números ---------- */
+.gi-faixa.gx-faixa { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.gx-faixa div { padding-inline: 8px; } .gx-faixa dt { line-height: 1.2; }
+.gi-faixa .is-ok dd { color: var(--g-ok); }
+
+/* ---------- 69 · Operações ---------- */
+.gx-ops { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.gx-ops > li { animation: gx-entra .26s var(--curva) both; animation-delay: calc(var(--i, 0) * 50ms); }
+.gx-op { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--g-borda); border-left: 3px solid var(--gx-c); border-radius: var(--r-md); background: var(--g-sup); }
+.gx-op header { display: flex; align-items: center; gap: 10px; }
+.gx-op__ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-md); background: var(--g-elev); color: var(--gx-c); }
+.gpi .gx-op__ic svg { width: 22px; height: 22px; }
+.gx-op h2 { margin: 0; font-family: var(--f-titulo); font-size: 18px; font-weight: 800; } .gx-op small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gx-op__b { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .gx-op__b .gp-btn { min-height: 46px; justify-content: center; }
+
+/* ---------- Executar: o que o Gestor pode fazer ele próprio ---------- */
+.gx-exec { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; align-items: start; padding: 12px; border: 1px solid var(--g-borda); border-left: 3px solid var(--g-laranja); border-radius: var(--r-md); background: var(--g-sup); }
+.gx-exec__ic { display: grid; place-items: center; width: 38px; height: 38px; border-radius: var(--r-md); background: var(--g-elev); color: var(--g-laranja-t); }
+.gx-exec > div { display: grid; gap: 2px; } .gx-exec b { font-size: 15px; } .gx-exec small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gx-exec .gp-btn { grid-column: 1 / -1; justify-self: stretch; justify-content: center; min-height: 46px; }
+
+/* ---------- Separação e Expedição ---------- */
+.gx-guia--separar { border-left: 3px solid var(--g-tinta-3); } .gx-guia--curso { border-left: 3px solid var(--g-azul-t); } .gx-guia--falta { border-left: 3px solid var(--g-erro); } .gx-guia--feita { border-left: 3px solid var(--g-ok); }
+.gi-secao.is-falta { border-left-color: var(--g-erro); }
+.gi-linha.is-falta { border-color: color-mix(in srgb, var(--g-erro) 50%, var(--g-borda)); } .gi-linha.is-falta .gi-linha__q b { color: var(--g-erro); }
+.gx-guia-e { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--g-borda); border-left: 3px solid var(--g-tinta-3); border-radius: var(--r-md); background: var(--g-sup); }
+.gx-guia-e p:first-child { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; } .gx-guia-e small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gx-guia-e .gp-btn { justify-self: start; margin-top: 6px; }
+.gx-guia-e--pronta { border-left-color: var(--g-laranja); } .gx-guia-e--expedicao { border-left-color: var(--g-azul-t); } .gx-guia-e--expedida { border-left-color: var(--g-ok); } .gx-guia-e--excecao { border-left-color: var(--g-erro); }
+
+/* ---------- 65 · Tarefas: os filtros e a cor de cada operação ---------- */
+.gx-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gx-tarefa-ic--inventario { color: var(--gx-inv); } .gx-tarefa-ic--arrumacao { color: var(--gx-arr); } .gx-tarefa-ic--separacao { color: var(--gx-sep); } .gx-tarefa-ic--expedicao { color: var(--gx-exp); }
+
+/* ---------- 66 · Mais ---------- */
+.gx-armazem { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-inset); }
+.gpi .gx-armazem svg { width: 22px; height: 22px; color: var(--g-azul-t); } .gx-armazem span { display: grid; } .gx-armazem small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gi-mais.gx-ajuda { grid-template-columns: auto minmax(0, 1fr); cursor: default; } .gi-mais.gx-ajuda:active { transform: none; }
+
+/* ---------- as cenas: separação (o artigo cai na caixa) e expedição (a guia vai ao cais) ---------- */
+.gx-cena__caixa path { stroke: var(--g-ok); stroke-width: 2; stroke-linejoin: round; }
+.gx-cena__item { fill: var(--g-laranja); stroke: #c46410; stroke-width: 1; transform-box: fill-box; animation: gx-item 1s cubic-bezier(.45, 0, .2, 1) 1 both; }
+@keyframes gx-item { 0% { transform: translate(0, 0); } 55% { transform: translate(44px, -8px); } 100% { transform: translate(67px, 24px) scale(.9); } }
+.gx-cena-sep .gx-cena__caixa { animation: gx-caixa-ok .3s ease-out .95s 1 both; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes gx-caixa-ok { 0% { transform: scale(1); } 50% { transform: scale(1.06, .94); } 100% { transform: none; } }
+.gx-cena__porta { stroke: var(--g-tinta-3); stroke-width: 2; }
+.gx-cena__guia rect { fill: var(--g-sup); stroke: var(--g-azul-t); stroke-width: 1.5; } .gx-cena__guia path { stroke: var(--g-azul-t); stroke-width: 1.5; }
+.gx-cena__guia { transform-box: fill-box; animation: gx-guia 1.1s cubic-bezier(.45, 0, .2, 1) 1 both; }
+@keyframes gx-guia { 0% { transform: translate(0, 0); opacity: 1; } 80% { transform: translate(84px, 0); opacity: 1; } 100% { transform: translate(92px, 0); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gx-mod, .gx-ops > li, .gx-mod .gi-mod__ic svg { animation: none; }
+  .gx-cena__item { animation: none; transform: translate(67px, 24px) scale(.9); } .gx-cena-sep .gx-cena__caixa { animation: none; }
+  .gx-cena__guia { animation: none; transform: translate(84px, 0); }
+}

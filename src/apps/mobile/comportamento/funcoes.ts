@@ -39,9 +39,9 @@ function abrir(origem: HTMLElement): void {
   d.querySelector<HTMLElement>('.gi-funcao.is-atual')?.focus();
 }
 
-/* as Tarefas do gestor: o tipo (Tudo · Inventário · Arrumação) e a pessoa filtram as linhas da página */
+/* as Tarefas do gestor: a operação (botões, ou o select da v2 de 28 out.) e a pessoa filtram as linhas da página */
 function filtrarTarefas(r: Element): void {
-  const tipo = r.querySelector<HTMLElement>('[data-gi-tipo][aria-pressed="true"]')?.dataset.giTipo ?? '', quem = r.querySelector<HTMLSelectElement>('[data-gi-quem]')?.value ?? '';
+  const tipo = r.querySelector<HTMLSelectElement>('[data-gi-tipo-sel]')?.value ?? r.querySelector<HTMLElement>('[data-gi-tipo][aria-pressed="true"]')?.dataset.giTipo ?? '', quem = r.querySelector<HTMLSelectElement>('[data-gi-quem]')?.value ?? '';
   r.querySelectorAll<HTMLElement>('[data-gi-tipo-l]').forEach((li) => { li.hidden = (!!tipo && li.dataset.giTipoL !== tipo) || (!!quem && li.dataset.giQuemL !== quem); });
 }
 /* a barra: o indicador desliza do destino de onde se veio; o ícone do destino faz o seu gesto (uma vez) */
@@ -61,7 +61,7 @@ export function iniciar(): void {
     const bb = t.closest?.<HTMLElement>('.gi-barra__b'); if (bb && !editando()) { try { sessionStorage.setItem('pick:barra', JSON.stringify({ f: bb.closest<HTMLElement>('[data-gi-barra]')?.dataset.giBarra, k: Number(bb.closest<HTMLElement>('[data-gi-barra]')?.querySelector('.is-ativo')?.getAttribute('data-gi-k') ?? 0) })); } catch { /* sem sessão */ } }
     const tp = t.closest?.<HTMLElement>('.gpi [data-gi-tipo]'); if (tp && !editando()) { const r = tp.closest('.gpi')!; r.querySelectorAll('[data-gi-tipo]').forEach((x) => x.setAttribute('aria-pressed', String(x === tp))); filtrarTarefas(r); }
   }, true);
-  document.addEventListener('change', (ev) => { const s = (ev.target as Element).closest?.('.gpi [data-gi-quem]'); if (s) filtrarTarefas(s.closest('.gpi')!); });
+  document.addEventListener('change', (ev) => { const s = (ev.target as Element).closest?.('.gpi :is([data-gi-quem], [data-gi-tipo-sel])'); if (s) filtrarTarefas(s.closest('.gpi')!); });
   /* o select do estado (61 · Inventário): mostra o painel escolhido da mesma página */
   document.addEventListener('change', (ev) => {
     const s = (ev.target as Element).closest?.<HTMLSelectElement>('.gpi [data-gi-sel]'); if (!s || editando()) return;

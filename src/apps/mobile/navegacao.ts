@@ -22,6 +22,7 @@
 import type { Ecra } from '../../comum/tipos';
 import { ecra, acao, sec, aviso, nota, prog, posicao, h2, L, type Opcoes } from './inventario-v2';
 import { inicioV2, inventarioV2, ARRUMACAO_ATIVA } from './gestor-v2';
+import { inicioV4 } from './gestor-v3';
 import { arrumacaoInicio, RESUMO_ARRUMACAO } from './arrumacao';
 import { inicioOperador } from './inventario-completo';
 import { paginaSemInventario } from './inventario-estados';
@@ -29,6 +30,7 @@ import { INVENTARIOS, camadaAbertura, type CenarioAbertura } from './gestor';
 import { carregar as eCarregar, semRede as eSemRede, servidor as eServidor, sessao as eSessao, semPermissao as eSemPermissao, vazio as eVazio } from './inventario-estados';
 import { INV, POS } from './inventario';
 import home from 'lucide-static/icons/house.svg?raw';
+import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
 import listTodo from 'lucide-static/icons/list-todo.svg?raw';
 import pkg from 'lucide-static/icons/package.svg?raw';
 import boxes from 'lucide-static/icons/package-open.svg?raw';
@@ -59,18 +61,19 @@ import inboxIc from 'lucide-static/icons/inbox.svg?raw';
 /* ---------- o menu da barra, como viria do menu central ---------- */
 type Funcao = 'gestor' | 'arrumacao' | 'separacao' | 'expedicao';
 interface Destino { id: string; funcao: Funcao; rotulo: string; icone: string; ecra: string; ordem: number; destaque?: boolean; ativo: boolean; gesto?: 'ler' | 'caixa' | 'tarefas' }
-const ICONES: Record<string, string> = { inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
+const ICONES: Record<string, string> = { operacoes: layoutGrid, inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
 /** 27 out. (ela: «para já remove as tarefas»): as Tarefas saem da barra do Gestor e da Arrumação; os ecrãs ficam no editor. */
 export const TAREFAS_ATIVAS = false;
 /** 27 out. (ela: «remove o mais por agora»): o Mais sai de todas as barras; os ecrãs dele ficam no editor. */
 export const MAIS_ATIVO = false;
 export const MENU_BARRA: Destino[] = [
+  /* 28 out. (briefing «Gestor V1 — Four Warehouse Operations»: o Gestor acompanha e executa tudo): Início · Tarefas · Ler
+     (ao centro, em destaque) · Operações · Mais; o Inventário e a Arrumação passam para Operações, com a Separação e a Expedição */
   { id: 'inicio', funcao: 'gestor', rotulo: 'Início', icone: 'inicio', ecra: 'gestor-inicio', ordem: 10, ativo: true },
-  /* 27 out. (ela: «remove o bg das tarefas»): sem o quadrado laranja; fica como os outros destinos */
-  { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
-  { id: 'inventario', funcao: 'gestor', rotulo: 'Inventário', icone: 'inventario', ecra: 'gestor-inventario', ordem: 30, ativo: true, gesto: 'ler' },
-  { id: 'arrumacao', funcao: 'gestor', rotulo: 'Arrumação', icone: 'arrumacao', ecra: 'arr-inicio', ordem: 40, ativo: ARRUMACAO_ATIVA, gesto: 'caixa' },
-  { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: MAIS_ATIVO },
+  { id: 'tarefas', funcao: 'gestor', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'g-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
+  { id: 'ler', funcao: 'gestor', rotulo: 'Ler', icone: 'ler', ecra: 'g-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
+  { id: 'operacoes', funcao: 'gestor', rotulo: 'Operações', icone: 'operacoes', ecra: 'g-operacoes', ordem: 40, ativo: true, gesto: 'caixa' },
+  { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-inicio', ordem: 10, ativo: true },
   { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
   { id: 'ler', funcao: 'arrumacao', rotulo: 'Ler', icone: 'ler', ecra: 'op-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
@@ -83,10 +86,11 @@ export const MENU_BARRA: Destino[] = [
 ];
 /** Os números verdadeiros, os mesmos das faixas: contados uma vez. */
 /* GA-2026-0331 e as colunas 07–12 do INV-2026-015 — com a Arrumação desligada, só as do Inventário */
-const POR_ATRIBUIR = ARRUMACAO_ATIVA ? 2 : 1;
+/* 28 out. (Gestor v3): as tarefas «por fazer» das quatro operações (gestor-v3.ts, POR_FAZER) */
+const POR_ATRIBUIR = ARRUMACAO_ATIVA ? 6 : 1;
 const NUMEROS: Partial<Record<string, [number, string]>> = {
   /* 27 out. (ela: «não quero muita confusão na UI»): um número só, o das Tarefas — os outros repetiam as faixas */
-  'gestor:tarefas': [POR_ATRIBUIR, 'por atribuir'],
+  'gestor:tarefas': [POR_ATRIBUIR, 'por fazer'],
 };
 
 /* ---------- a barra ---------- */
@@ -94,7 +98,9 @@ export function barra(funcao: Funcao, ativo: string, o: { semNumeros?: boolean; 
   const ds = MENU_BARRA.filter((d) => d.funcao === funcao && d.ativo && (!o.so || o.so.includes(d.id))).sort((a, b) => a.ordem - b.ordem).slice(0, 5);
   /* com um destino só a barra não serve: não se mostra */
   if (ds.length < 2) return '';
-  const i = Math.max(0, ds.findIndex((d) => d.id === ativo));
+  /* os módulos (Inventário, Arrumação, Separação, Expedição) estão em Operações */
+  const alvo = ds.some((d) => d.id === ativo) ? ativo : ['inventario', 'arrumacao', 'separacao', 'expedicao'].includes(ativo) ? 'operacoes' : ativo;
+  const i = Math.max(0, ds.findIndex((d) => d.id === alvo));
   return `<nav class="gi-barra gi-barra--${ds.length}" data-por-cima aria-label="Navegação" data-gi-barra="${funcao}" style="--n:${ds.length};--i:${i}">
     <i class="gi-barra__ind" aria-hidden="true"></i>
     ${ds.map((d, k) => { const n = o.semNumeros ? undefined : NUMEROS[`${funcao}:${d.id}`], at = k === i;
@@ -194,9 +200,9 @@ function maisOperador(k: Funcao = 'arrumacao'): string {
    ========================================================= */
 const barraCarregar = (n: number) => `<nav class="gi-barra gi-barra--${n} is-carregar" data-por-cima aria-label="Navegação a carregar" style="--n:${n};--i:0">${'<span class="gi-barra__esq"><i></i><i></i></span>'.repeat(n)}</nav>`;
 const estadosNav = (): [string, string, string, string, string, string][] => [
-  ['gestor-nav-carregar', 'gestor-inicio', '60.12 · A barra a carregar', 'O menu central ainda não respondeu: a barra em esqueleto, o Início já está.', inicioV2('normal', barraCarregar(5)), 'v3'],
-  ['gestor-nav-falhou', 'gestor-inicio', '60.13 · O menu não carregou', 'O menu central não respondeu: ficam Início e Mais, e diz-se; tentar outra vez.', inicioV2('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`), 'v3'],
-  ['gestor-nav-indisponivel', 'gestor-inicio', '60.14 · Destino indisponível', 'A Arrumação foi desligada no menu central a meio do dia: sai da barra, e quem estava lá vê porquê.', ecra(aviso('info', lock, 'A Arrumação deixou de estar disponível', 'O administrador desligou o módulo. O que estava atribuído continua no servidor; não se perde nada.'), { titulo: 'Arrumação', gestor: true, barra: barra('gestor', 'inicio', { so: ['inicio', 'tarefas', 'inventario', 'mais'] }) }), 'v3'],
+  ['gestor-nav-carregar', 'gestor-inicio', '60.12 · A barra a carregar', 'O menu central ainda não respondeu: a barra em esqueleto, o Início já está.', inicioV4('normal', barraCarregar(5)), 'v3'],
+  ['gestor-nav-falhou', 'gestor-inicio', '60.13 · O menu não carregou', 'O menu central não respondeu: ficam Início e Mais, e diz-se; tentar outra vez.', inicioV4('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`), 'v3'],
+  ['gestor-nav-indisponivel', 'gestor-inicio', '60.14 · Destino indisponível', 'A Arrumação foi desligada no menu central a meio do dia: sai das Operações, e quem estava lá vê porquê.', ecra(aviso('info', lock, 'A Arrumação deixou de estar disponível', 'O administrador desligou o módulo. O que estava atribuído continua no servidor; não se perde nada.'), { titulo: 'Arrumação', gestor: true, barra: barra('gestor', 'operacoes') }), 'v3'],
   ['op-nav-sem-destinos', 'op-inicio', '57.10 · Sem destinos autorizados', 'A conta entrou mas não tem nenhum módulo da Pick: só Mais (a conta e terminar sessão).', ecra(aviso('erro', lock, 'Ainda não tem módulos na Pick', 'A sua conta não tem permissões para nenhum módulo do armazém 60. Peça-as ao gestor do turno.'), { ...OP, titulo: 'Início', barra: barra('arrumacao', 'mais', { so: ['mais'] }) }), 'v2'],
   ['op-por-confirmar', 'op-inicio', '57.11 · Uma contagem por confirmar', 'Tocou noutro destino com a quantidade escrita e por confirmar: pergunta antes de sair; nada se perde sem querer.', ecra(`${aviso('aviso', triangle, 'Tem uma contagem por confirmar', 'SKF VKBA 6556 · 4 un. na 60300102 ainda não foi registada. Se sair, o número não fica.')}`, { ...OP, titulo: 'Ler e contar', pe: `${acao('Voltar e confirmar', check, ' data-ir="inv-ler-lido"')}${sec('Sair sem registar', arrowLeft, ' data-ir="op-tarefas"')}` }), 'v2'],
   ['op-reatribuida', 'op-inicio', '57.12 · Tarefa reatribuída', 'O gestor passou a contagem para outra pessoa: sai das Tarefas e diz-se; o que contou fica.', ecra(aviso('info', repeat, 'A contagem passou para a Inês', `O gestor reatribuiu o ${INV}. As 18 posições que contou ficam registadas com o seu nome.`), { ...OP, titulo: 'Tarefas', barra: barra('arrumacao', 'tarefas') }), 'v2'],
@@ -248,7 +254,8 @@ export function ecrasNavegacao(): Ecra<string>[] {
    ========================================================= */
 /** A abertura por cima do Início v3: as mesmas marcas que o comportamento da abertura procura (data-gp…). */
 export function aberturaV3(cen: CenarioAbertura = 'normal'): string {
-  return inicioV2('normal', barra('gestor', 'inicio'))
+  /* 28 out.: por cima do Início v4 (o Gestor faz tudo); a caixa voa para o ícone do Inventário */
+  return inicioV4()
     .replace('<div class="gp gpi" data-gpi data-ir-ultima>', `<div class="gp gpi is-abertura" data-gpi data-ir-ultima data-gp data-gp-cenario="normal" data-gp-abertura>`)
     .replace('<div class="gp-marca">', '<div class="gp-marca" data-gp-marca>')
     .replace('<span class="gi-mod__ic">', '<span class="gi-mod__ic" data-gp-alvo>')
@@ -261,10 +268,10 @@ const comB = (o: Opcoes): Opcoes => ({ ...o, barra: barra('gestor', 'inicio') })
 export const ESTADOS_GESTOR_V3: Record<string, () => string> = {
   'gestor-carregar': () => eCarregar(comB(GI), 4),
   'gestor-sem-inventarios': () => ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1><p>O armazém 60 agora.</p></div><section class="gi-vazio">${L(pkg)}<p><b>Não há inventários em curso.</b> Crie um no Inventário: escolhe o âmbito e quem conta.</p></section>${acao('Novo inventário', userPlus, ' data-ir="gestor-inv-novo"')}`, comB(GI)),
-  'gestor-sem-tarefas': () => inicioV2('sem-atencao', barra('gestor', 'inicio')),
+  'gestor-sem-tarefas': () => inicioV4('sem-atencao'),
   'gestor-erro': () => eServidor(comB(GI), 'PK-2710-0C17'),
   'gestor-sem-rede': () => eSemRede(comB(GI)),
-  'gestor-menus': () => inicioV2('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`),
+  'gestor-menus': () => inicioV4('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`),
   'gestor-permissao': () => ecra(aviso('info', userRound, 'As suas permissões mudaram', 'Agora vê só o que é da <b>Arrumação</b>. Entre outra vez para as atualizar.'), { ...GI, pe: acao('Entrar outra vez', refresh, ' data-login') }),
   'gestor-sessao': () => eSessao(GI),
   'gestor-sem-acesso': () => ecra(aviso('erro', lock, 'A sua conta não tem acesso à Pick', 'Peça o acesso ao administrador da sua empresa.'), GI),

@@ -20,7 +20,7 @@
    Os dados são os de exemplo da Pick (inventario.ts e gestor.ts).
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
-import { ecra, acao, sec, esperar, aviso, nota, prog, posicao, quantidade, h2, L, OPERADOR } from './inventario-v2';
+import { ecra, acao, sec, esperar, aviso, nota, prog, posicao, quantidade, h2, L, OPERADOR, trocarIr, type Opcoes } from './inventario-v2';
 import { INV, POS } from './inventario';
 import { INVENTARIOS } from './gestor';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
@@ -75,16 +75,19 @@ const ESTADO_LEITURA: Record<E43, [string, string, string]> = {
 const faixaLeitura = (e: E43) => { const [tom, t, x] = ESTADO_LEITURA[e]; return `<button type="button" class="gi-faixa-ler gi-faixa-ler--${tom}" data-ler="${A1.ean}" data-tipo-leitura="artigo"${e === 'pronto' || e === 'registado' ? ' data-depois="inv-ler-lido"' : ''}${['sem-leitor', 'sem-rede', 'bloqueado', 'concluida'].includes(e) ? ' disabled' : ''} aria-live="polite">
     <span class="gi-faixa-ler__ic">${L(tom === 'ok' ? circleCheck : tom === 'erro' ? (e === 'sem-rede' ? wifiOff : e === 'bloqueado' ? lock : triangle) : tom === 'aviso' ? triangle : scanBarcode)}</span>
     <span><b>${t}</b><small>${x}</small></span>${tom === 'pronto' ? '<i class="gi-faixa-ler__varre" aria-hidden="true"></i>' : ''}</button>`; };
-const posLinha = () => `<div class="gi-ler-pos">${L(mapPin)}${posicao(POS, 'gi-pos--peq')}<button type="button" class="gi-mudar" data-ir="inv-posicao">${L(mapPin)}<span>Mudar</span></button></div>`;
-function lerContar(e: E43 = 'pronto'): string {
+const posLinha = (pos = POS) => `<div class="gi-ler-pos">${L(mapPin)}${posicao(pos, 'gi-pos--peq')}<button type="button" class="gi-mudar" data-ir="inv-posicao">${L(mapPin)}<span>Mudar</span></button></div>`;
+/** 28 out. (Gestor v3): o Gestor conta com o MESMO ecrã — `o` muda a conta e o cabeçalho, `ids` os destinos das ligações. */
+export interface Contagem { inv: string; linha: string; pos: string; ambito: string }
+const C14: Contagem = { inv: INV, linha: 'Zona 30 · às cegas · 18 de 46 posições', pos: POS, ambito: 'zona 30, colunas 01 a 12' };
+export function lerContar(e: E43 = 'pronto', o: Opcoes = {}, ids: Record<string, string> = {}, c: Contagem = C14): string {
   const parado = ['sem-leitor', 'sem-rede', 'bloqueado', 'concluida'].includes(e);
   const meio = e === 'lido' ? `${artigoLido(A1, 'is-novo')}${quantidade('', { rotulo: 'Quantas estão aqui?' }).replace('id="gi-qtd-n" value=""', 'id="gi-qtd-n" value="" placeholder="0"')}`
-    : e === 'fora' ? `${artigoLido(A0, 'gi-artigo--erro')}${aviso('erro', pkgX, 'Este artigo não é desta contagem', `O ${INV} conta os artigos da <b>zona 30, colunas 01 a 12</b>. A correia não fica registada aqui.`)}`
+    : e === 'fora' ? `${artigoLido(A0, 'gi-artigo--erro')}${aviso('erro', pkgX, 'Este artigo não é desta contagem', `O ${c.inv} conta os artigos da <b>${c.ambito}</b>. A correia não fica registada aqui.`)}`
     : e === 'repetido' ? `${artigoLido(A1)}${aviso('aviso', triangle, 'Já contou este artigo aqui', 'Registou <b>4 un.</b> às 10:42. Se encontrou mais, some; se a primeira estava errada, corrija — a anterior fica guardada.')}`
     : e === 'desconhecido' ? aviso('erro', pkgX, 'O código não é de nenhum artigo', 'Leu <b>5601234000017</b>. Não está no catálogo nem nesta contagem. Leia outra etiqueta, ou separe o artigo como por identificar.')
     : e === 'sem-leitor' ? aviso('erro', radio, 'O leitor não está a enviar códigos', 'Prima a tecla de novo. Se não ler, reinicie o leitor; até lá pode escrever o código à mão — fica marcado como escrito.')
     : e === 'sem-rede' ? `${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se regista, e nada fica à espera no PDA. O que já confirmou está no servidor.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`
-    : e === 'bloqueado' ? aviso('erro', lock, 'O gestor bloqueou esta contagem', `O ${INV} está a ser validado. O que contou até agora fica como está; se for preciso recontar, a tarefa volta-lhe.`)
+    : e === 'bloqueado' ? aviso('erro', lock, 'O gestor bloqueou esta contagem', `O ${c.inv} está a ser validado. O que contou até agora fica como está; se for preciso recontar, a tarefa volta-lhe.`)
     : e === 'concluida' ? aviso('ok', send, 'Esta contagem já foi submetida', 'Já não se conta nem se corrige. Se o gestor pedir recontagem, a tarefa aparece-lhe no início.')
     : porLer;
   const pe = e === 'lido' ? acao('Confirmar contagem', check, ' data-confirmar data-ir="inv-ler-registado"')
@@ -93,12 +96,13 @@ function lerContar(e: E43 = 'pronto'): string {
     : e === 'sem-leitor' ? `${acao('Reiniciar o leitor', refresh)}${sec('Escrever à mão', keyboard)}`
     : e === 'sem-rede' ? acao('Tentar de novo', refresh) : e === 'bloqueado' || e === 'concluida' ? acao('Voltar ao início', arrowLeft, ' data-ir="op-inicio"')
     : sec('Acabei esta posição', check, ' data-ir="inv-fim-posicao"');
-  return ecra(`<p class="gi-ler-inv"><b>${INV}</b><span>Zona 30 · às cegas · 18 de 46 posições</span></p>
+  const html = ecra(`<p class="gi-ler-inv"><b>${c.inv}</b><span>${c.linha}</span></p>
     ${faixaLeitura(e)}
-    ${parado && e !== 'sem-leitor' ? '' : posLinha()}
+    ${parado && e !== 'sem-leitor' ? '' : posLinha(c.pos)}
     ${meio}
     ${e === 'registado' ? ultimo(A1, '4 un.', 'agora') : e === 'pronto' || e === 'lido' ? ultimo(A0, '12 un.', '10:40') : ''}`,
-  { rede: e !== 'sem-rede', titulo: 'Ler e contar', pe });
+  { rede: e !== 'sem-rede', titulo: 'Ler e contar', pe, ...o });
+  return trocarIr(html, ids);
 }
 
 /* ---------- 57 · Início do Operador ---------- */
