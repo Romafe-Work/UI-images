@@ -22,8 +22,11 @@ export interface Passo {
   /** espera a mais, depois do passo (ms) */
   pausa?: number;
 }
-const ROTEIROS = new Map<string, { titulo: string; passos: Passo[] }>();
-export function registarRoteiro(id: string, titulo: string, passos: Passo[]): void { ROTEIROS.set(id, { titulo, passos }); }
+const ROTEIROS = new Map<string, { titulo: string; passos: Passo[]; semTexto?: boolean }>();
+/** 28 out.: `semTexto` — só o rato e os cliques, sem a legenda (ela: «no erp com rato mas sem texto»). */
+export function registarRoteiro(id: string, titulo: string, passos: Passo[], o: { semTexto?: boolean } = {}): void { ROTEIROS.set(id, { titulo, passos, ...o }); }
+/** Os roteiros registados, pela ordem do registo: [id, título]. */
+export const roteiros = (): [string, string][] => [...ROTEIROS].map(([id, r]) => [id, r.titulo]);
 export const temRoteiro = () => ROTEIROS.size > 0;
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -75,7 +78,7 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
   const r = ROTEIROS.get(id); if (!r || ativo) return;
   ativo = true; parar = false;
   if (!rato) montar();
-  aoCimo(); document.body.classList.add('demo-a-tocar');
+  aoCimo(); document.body.classList.add('demo-a-tocar'); document.body.classList.toggle('demo-sem-texto', !!r.semTexto);
   const fim = (t: string) => { escrever(r.passos.length, r.passos.length, t, r.titulo); };
   try {
     for (let i = 0; i < r.passos.length && !parar; i++) {
@@ -96,12 +99,14 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
     }
     if (!parar) await dormir(1800);
   } finally {
-    ativo = false; document.body.classList.remove('demo-a-tocar');
+    ativo = false; document.body.classList.remove('demo-a-tocar', 'demo-sem-texto');
     try { rato?.hidePopover(); legenda?.hidePopover(); } catch { /* sem popover */ }
   }
 }
 
 export function iniciar(): void {
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && ativo) parar = true; }, true);
-  if (/(?:^|[#&])rato=1(?:&|$)/.test(location.hash) && temRoteiro()) window.setTimeout(() => { void tocar(); }, 1200);
+  /* &rato=1 toca o primeiro; &rato=<id> toca esse */
+  const m = /(?:^|[#&])rato=([^&]+)/.exec(location.hash);
+  if (m && temRoteiro()) window.setTimeout(() => { void tocar(ROTEIROS.has(m[1]) ? m[1] : undefined); }, 1200);
 }

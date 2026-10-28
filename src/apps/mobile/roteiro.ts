@@ -1,11 +1,53 @@
 /* =========================================================
-   PICK — o roteiro da demonstração com o rato (27 out. 2026)
-   Ela: «quero que na demonstração apareça um rato a clicar nos botões para o meu chefe ver e perceber o flow».
-   O Inventário de ponta a ponta: o gestor cria um inventário; a Joana (Arrumação) recebe a tarefa, lê, conta e
-   confirma; o gestor aceita a divergência e fecha — o ajuste segue para o ERP. Cada passo clica no botão verdadeiro.
-   Link para mandar: …/mobile/#so=ecra&demo=1&anim=dissolver&ecra=gestor-inicio&rato=1
+   PICK — as demonstrações com o rato (27–28 out. 2026)
+   Ela: «quero que na demonstração apareça um rato a clicar nos botões para o meu chefe ver e perceber o flow», e (28 out.)
+   «sim» a cinco demonstrações curtas do Gestor, cada uma com a explicação ao lado: Inventário, Arrumação, Separar e
+   expedir, Supervisionar, Quando algo corre mal. Escolhe-se na barra da demonstração; cada passo clica no botão verdadeiro.
+   Link para mandar: …/mobile/#so=ecra&demo=1&anim=dissolver&ecra=gestor-inicio&rato=<id> (inventario, arrumacao,
+   gestor, supervisionar, erros; rato=1 é o primeiro)
    ========================================================= */
 import { registarRoteiro } from '../../comum/demo-rato';
+
+registarRoteiro('inventario', 'Inventário: criar, contar e fechar', [
+  { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, abre o Inventário a partir do Centro de operações.', clicar: '.gx-mod--inv' },
+  { legenda: 'Em «Acompanhar» vê os inventários por estado. Cria um novo.', clicar: '.gp-btn--acao[data-ir="gestor-inv-novo"]' },
+  { legenda: '1 · O âmbito: a zona 12, retentores.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: '2 · As regras: às cegas e recontar as divergências.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: '3 · Quem conta: quem está livre, ou o motor.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: '4 · Revê e cria. Só existe quando o servidor confirmar.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Criado. Agora a Ana vai contar ela própria outro inventário, sem mudar de função.', clicar: '.gi-pe [data-ir="gestor-inventario"]' },
+  { legenda: 'Passa de «Acompanhar» a «Executar».', clicar: '.gx-modo [data-ir="g-inv-exec"]' },
+  { legenda: 'O INV-2026-015 não tem quem conte. Fica com ele.', clicar: '.gx-exec .gp-btn--acao' },
+  { legenda: 'O servidor atribuiu-lho: 30 posições da zona 10, às cegas. Começa.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Na prateleira, prime a tecla de leitura na etiqueta da posição.', clicar: '.gi-leitor' },
+  { legenda: 'É o mesmo ecrã de contar que a equipa usa. Lê o artigo.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Conta às cegas: não vê o stock do sistema. Escreve 4.', clicar: '[data-tecla="4"]' },
+  { legenda: 'Confirma. Só fica registado quando o servidor responde.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Registado, e o leitor já está pronto para o artigo seguinte. Acaba a posição.', clicar: '.gi-pe .gi-btn-sec' },
+  { legenda: 'Posição contada. (As outras 29 fazem-se igual.) Submete a contagem.', clicar: '.gi-pe .gi-btn-sec' },
+  { legenda: 'O resumo antes de submeter: depois já não se corrige.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Submetido. Como foi a Ana a contar, quem valida é outro gestor.', clicar: '.gi-pe .gi-btn-sec' },
+  { legenda: 'Ela vê o resumo, mas não decide as próprias divergências nem fecha.' },
+  { ecra: 'gestor-validar', legenda: 'Noutro inventário, contado pela Joana, a Ana valida: só o gestor vê o stock do sistema. Aceita a divergência.', clicar: '[data-ir="gestor-validar-decidido"]' },
+  { legenda: 'Tudo decidido. Fecha o inventário.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Fechado. O ajuste segue para o ERP numa transação do servidor, com auditoria. A Pick nunca ajusta stock sozinha.' },
+]);
+
+registarRoteiro('arrumacao', 'Arrumação: atribuir, desbloquear e arrumar', [
+  { ecra: 'gestor-inicio', legenda: 'A Ana abre a Arrumação.', clicar: '.gx-mod--arr' },
+  { legenda: 'Uma guia por atribuir: ninguém da arrumação está livre. Abre-a.', clicar: '.gi-sep:not([hidden]) .gp-btn--acao[data-ir="arr-guia"]' },
+  { legenda: 'Os artigos, o destino proposto e quem arruma. Escolher a pessoa pede motivo, e o motor aprende com ele.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Atribuída à Inês: o servidor confirmou e a caixa vai à prateleira. Volta à Arrumação.', clicar: '.gi-pe [data-ir="arr-inicio"]' },
+  { legenda: 'Vê as exceções.', clicar: '[data-gi-sep="excecao"]' },
+  { legenda: 'Um destino ficou numa zona que está a ser contada às cegas: não se arruma lá.', clicar: '.gi-sep:not([hidden]) .gp-btn--acao[data-ir="arr-guia-bloqueada"]' },
+  { legenda: 'Escolhe outro destino, fora das zonas em contagem.', clicar: '.gi-pe .gp-btn--acao' },
+  { ecra: 'g-arr-exec', legenda: 'Agora arruma ela própria: «Executar» na Arrumação. Uma guia de um artigo.', clicar: '.gx-exec .gp-btn--acao' },
+  { legenda: 'No cais 1, lê a palete.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Lê o artigo na palete.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Na prateleira, lê a posição de destino: só a da guia aceita o movimento.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Destino certo. Confirma as 30 unidades.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Movimento confirmado pelo servidor; a guia fecha. O stock mudou pelo movimento, não pelo PDA.' },
+]);
 
 /* 28 out. (briefing «Gestor V1»): o primeiro roteiro é o do Gestor que faz tudo — separa uma guia, regista a falta na
    posição, pousa-a nos preparados e expede outra. É o que «Ver o fluxo com o rato» toca. */
@@ -32,23 +74,29 @@ registarRoteiro('gestor', 'O Gestor separa e expede', [
   { legenda: 'Expedida. A mesma pessoa acompanhou e executou duas operações, sem mudar de função; o stock nunca mudou pelo PDA.' },
 ]);
 
-registarRoteiro('inventario', 'Inventário de ponta a ponta', [
-  { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, entra na Pick e vê logo o que precisa da atenção dela. Vai ao Inventário.', clicar: '.gx-mod--inv' },
-  { legenda: 'No Inventário vê o que está em curso, por validar e as divergências. Cria um inventário novo.', clicar: '.gp-btn--acao[data-ir="gestor-inv-novo"]' },
-  { legenda: '1 · O âmbito: o que se conta. Escolhe a zona 12, retentores.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: '2 · As regras: às cegas (quem conta não vê o stock) e recontar as divergências.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: '3 · Quem conta: a Inês, que está livre. Quem já está a contar não se pode escolher.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: '4 · Revê e cria. Nada se cria antes de o servidor confirmar.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Criado. A tarefa vai para o PDA de quem conta. Vamos ver a Pick do lado da Arrumação.', clicar: '.gp-conta' },
-  { legenda: '(Na demonstração muda-se de função; na Pick a sério a função vem da conta.)', clicar: '[data-funcao="op-inicio"]' },
-  { ecra: 'op-inicio', legenda: 'A Joana, da Arrumação, entra e a Pick entrega-lhe a próxima tarefa: a contagem que tem a meio.', clicar: '[data-ir="inv-ler"]' },
-  { legenda: 'Está na posição. Prime a tecla de leitura do PDA no artigo.', clicar: '.gi-faixa-ler' },
-  { legenda: 'O artigo aparece. Conta às cegas e escreve a quantidade: 4.', clicar: '[data-tecla="4"]' },
-  { legenda: 'Confirma. Só fica registado quando o servidor responde.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Registado. A Pick fica logo pronta para o artigo seguinte, na mesma posição. Voltamos ao gestor.', clicar: '.gp-conta' },
-  { legenda: '(De novo como a Ana, gestora.)', clicar: '[data-funcao="gestor-inicio"]' },
-  { ecra: 'gestor-inicio', legenda: 'Um inventário foi submetido e está por validar. A Ana abre-o.', clicar: '.gp-item' },
-  { legenda: 'Só o gestor vê o stock do sistema: contado 2, sistema 5. Aceita a contagem.', clicar: '[data-ir="gestor-validar-decidido"]' },
-  { legenda: 'Tudo decidido. Fecha o inventário.', clicar: '[data-ir="gestor-validar-fechado"]' },
-  { legenda: 'Fechado. O ajuste de stock segue para o ERP numa transação do servidor, com auditoria. A Pick nunca ajusta stock sozinha.' },
+registarRoteiro('supervisionar', 'Supervisionar: tarefas, equipa e insights', [
+  { ecra: 'gestor-inicio', legenda: 'O estado do armazém, hoje: em curso, por fazer, exceções e concluídas. A Ana toca nas exceções.', clicar: '.gx-num.is-erro' },
+  { legenda: 'Todas as tarefas com exceção, das quatro operações. Filtra pela Separação.', escolher: ['[data-gi-tipo-sel]', 'separacao'] },
+  { legenda: 'Fica só a guia com falta. Agora a equipa: vai ao Mais.', clicar: '.gi-barra__b[data-ir="g-mais"]' },
+  { legenda: 'Abre a Equipa.', clicar: '.gi-mais[data-ir="g-equipa"]' },
+  { legenda: 'Cada pessoa: o que tem em mãos e o que fez hoje. Sem presença, sem localização, sem ranking. Abre o Tiago.', clicar: '.gx-pessoa[data-ir="g-equipa-tiago"]' },
+  { legenda: 'A guia em mãos e o que o servidor confirmou hoje. O Tiago foi para o cais: a Ana reatribui a guia.', clicar: '[data-ir="g-equipa-reatribuir"]' },
+  { legenda: 'Fica com ela, com motivo. O que o Tiago separou fica com o nome dele.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Reatribuída. Agora os Insights.', clicar: '.gi-barra__b[data-ir="g-insights"]' },
+  { legenda: 'Hoje: criadas, concluídas, exceções, duração média, e onde está a parar. Vê a Expedição.', escolher: ['[data-gi-sel]', 'exp'] },
+  { legenda: 'Uma guia pronta há 1 h 33 sem recolha. O insight diz porquê, a regra, e leva à ação.', clicar: '.gi-sep:not([hidden]) .gx-ins .gp-btn--acao' },
+  { legenda: 'Da análise à tarefa num toque: a Ana pode recolher a guia já.' },
+]);
+
+registarRoteiro('erros', 'Quando algo corre mal', [
+  { ecra: 'g-sep-pos-errada', legenda: 'Na separação, leu a posição ao lado. Não se tira daqui: a Pick diz qual é a certa.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Volta a ler, agora a posição certa, e segue.', clicar: '.gi-faixa-ler' },
+  { ecra: 'g-exp-nao-pronta', legenda: 'Na expedição, leu uma guia que ainda está a ser separada. Não se recolhe.', clicar: '.gi-pe .gp-btn--acao' },
+  { ecra: 'g-exp-ja', legenda: 'Outra guia já tinha sido recolhida pelo Paulo. Não se recolhe duas vezes.', clicar: '.gi-pe .gp-btn--acao' },
+  { ecra: 'g-equipa-conflito', legenda: 'Ao reatribuir, o Tiago acabou a guia um segundo antes. O servidor decide e a Pick diz o que aconteceu.', clicar: '.gi-pe .gp-btn--acao' },
+  { ecra: 'g-ler-desconhecido', legenda: 'Um código que não é nada do armazém 60: diz-se e lê-se outra vez.', clicar: '.gi-pe .gp-btn--acao' },
+  { ecra: 'g-ler-sem-leitor', legenda: 'O leitor não envia códigos: reiniciar, ou escrever à mão (fica marcado como escrito).' },
+  { ecra: 'g-sep-sem-rede-op', legenda: 'Sem rede, a Pick para: nada se confirma e nada fica à espera no PDA. Continua quando houver sinal.' },
+  { ecra: 'g-insights-indisponivel', legenda: 'Os insights não carregam, mas as operações continuam. Vai às tarefas.', clicar: '.gi-pe [data-ir="g-tarefas"]' },
+  { ecra: 'gestor-sessao', legenda: 'A sessão terminou: entra outra vez pelo login comum e volta ao mesmo sítio.' },
 ]);

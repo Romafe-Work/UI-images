@@ -215,3 +215,7 @@ body.demo-a-tocar .ecra { cursor: default; }
 .tela-telemovel body.demo-a-tocar .demo-lado { display: none; }
 .tela-telemovel .demo-legenda { inset: 66px auto auto calc(50% + var(--tela-l, 320px) / 2 + 40px); transform: none; width: min(360px, calc(50vw - var(--tela-l, 320px) / 2 - 64px)); }
 @media (max-width: 1000px) { .demo-lado { display: none; } .tela-telemovel .demo-legenda { inset: auto auto 108px 50%; transform: translateX(-50%); width: min(92vw, 380px); } }
+
+/* 28 out.: um roteiro sem texto — só o rato; a legenda não aparece (Esc continua a parar) */
+body.demo-sem-texto .demo-legenda { display: none !important; }
+.demo-barra__roteiro { max-width: 230px; }

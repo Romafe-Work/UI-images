@@ -16,7 +16,7 @@
    ========================================================= */
 import { ler, mostrar, mostrarVersao, definirTransicao, transitar, type Sentido } from './ecras';
 import './css/demo.css';
-import { temRoteiro, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
+import { temRoteiro, roteiros, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
 
 export interface Animacao { id: string; nome: string; descricao: string; grupo: string }
 export const ANIMACOES: Animacao[] = [
@@ -134,6 +134,7 @@ export function iniciar(): void {
     <span class="demo-barra__onde" aria-live="polite"></span>
     <button type="button" class="demo-barra__botao" data-demo="seg"><span>Seguinte</span>${I('<path d="m9 5 7 7-7 7"/>')}</button>
     <button type="button" class="demo-barra__botao demo-barra__botao--acao" data-demo="tocar">${I('<polygon points="6 4 20 12 6 20 6 4"/>')}<span>Reproduzir o fluxo</span></button>
+    ${roteiros().length > 1 ? `<label class="demo-barra__anim"><span>Com o rato</span><select class="demo-barra__select demo-barra__roteiro" aria-label="Que demonstração ver com o rato">${roteiros().map(([id, t]) => `<option value="${id}">${t}</option>`).join('')}</select></label>` : ''}
     ${temRoteiro() ? `<button type="button" class="demo-barra__botao demo-barra__botao--acao" data-demo="rato">${I('<path d="M4 2v17l4.6-4.2 3 6.6 3-1.4-3-6.4H18Z"/>')}<span>Ver o fluxo com o rato</span></button>` : ''}
     <button type="button" class="demo-barra__botao" data-demo="copiar">${I('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>')}<span>Copiar o link</span></button>
     <p class="demo-barra__dica"></p>`;
@@ -165,7 +166,7 @@ export function iniciar(): void {
     const o = b.dataset.demo;
     if (o === 'ant') { parar(); passo(-1); }
     else if (o === 'seg') { parar(); passo(1); }
-    else if (o === 'rato') { parar(); void tocarRato(); }
+    else if (o === 'rato') { parar(); void tocarRato(barra.querySelector<HTMLSelectElement>('.demo-barra__roteiro')?.value || undefined); }
     else if (o === 'tocar') {
       if (relogio) { parar(); return; }
       b.innerHTML = `${I('<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>')}<span>Parar</span>`;
