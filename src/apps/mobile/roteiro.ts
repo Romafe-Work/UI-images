@@ -6,7 +6,7 @@
    Link para mandar: …/mobile/#so=ecra&demo=1&anim=dissolver&ecra=gestor-inicio&rato=<id> (inventario, arrumacao,
    gestor, supervisionar, erros; rato=1 é o primeiro)
    ========================================================= */
-import { registarRoteiro } from '../../comum/demo-rato';
+import { registarRoteiro, percurso } from '../../comum/demo-rato';
 
 registarRoteiro('inventario', 'Inventário: criar, contar e fechar', [
   { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, abre o Inventário a partir do Centro de operações.', clicar: '.gx-mod--inv' },
@@ -100,3 +100,18 @@ registarRoteiro('erros', 'Quando algo corre mal', [
   { ecra: 'g-insights-indisponivel', legenda: 'Os insights não carregam, mas as operações continuam. Vai às tarefas.', clicar: '.gi-pe [data-ir="g-tarefas"]' },
   { ecra: 'gestor-sessao', legenda: 'A sessão terminou: entra outra vez pelo login comum e volta ao mesmo sítio.' },
 ]);
+
+/* 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): sete percursos
+   que passam por TODOS os ecrãs e estados da Pick, pela ordem do número; o rato toca na ligação verdadeira quando o ecrã a
+   tem, e ao lado diz-se o que é cada um. Os cinco de cima são os casos contados; estes são o inventário completo. */
+const n0 = (e: HTMLElement) => Number(/^\d+/.exec(e.dataset.nome ?? '')?.[0] ?? -1);
+const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some(([a, b]) => n0(e) >= a && n0(e) <= b);
+([
+  ['todos-entrar', 'Todos os ecrãs · Entrar, carregar e erros', entre([0, 0], [20, 39])],
+  ['todos-centro', 'Todos os ecrãs · Centro de operações, tarefas e Mais', entre([60, 60], [65, 66], [69, 69])],
+  ['todos-inv-gestor', 'Todos os ecrãs · Inventário do Gestor', entre([61, 64])],
+  ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
+  ['todos-ler', 'Todos os ecrãs · Ler, equipa e insights', entre([75, 75], [77, 78])],
+  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [80, 89])],
+  ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99])],
+] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));

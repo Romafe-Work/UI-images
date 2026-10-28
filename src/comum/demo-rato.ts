@@ -23,10 +23,14 @@ export interface Passo {
   legenda: string;
   /** espera a mais, depois do passo (ms) */
   pausa?: number;
+  /** 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): vai a este
+      ecrã — clica a ligação verdadeira (data-ir / data-depois) quando o ecrã que se vê a tem; senão mostra-o, como um estado */
+  ir?: string;
 }
-const ROTEIROS = new Map<string, { titulo: string; passos: Passo[]; semTexto?: boolean }>();
+type Fonte = Passo[] | (() => Passo[]);
+const ROTEIROS = new Map<string, { titulo: string; passos: Fonte; semTexto?: boolean }>();
 /** 28 out.: `semTexto` — só o rato e os cliques, sem a legenda (ela: «no erp com rato mas sem texto»). */
-export function registarRoteiro(id: string, titulo: string, passos: Passo[], o: { semTexto?: boolean } = {}): void { ROTEIROS.set(id, { titulo, passos, ...o }); }
+export function registarRoteiro(id: string, titulo: string, passos: Fonte, o: { semTexto?: boolean } = {}): void { ROTEIROS.set(id, { titulo, passos, ...o }); }
 /** Os roteiros registados, pela ordem do registo: [id, título]. */
 export const roteiros = (): [string, string][] => [...ROTEIROS].map(([id, r]) => [id, r.titulo]);
 export const temRoteiro = () => ROTEIROS.size > 0;
@@ -115,12 +119,14 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
   /* a app pode repor o ecrã para o roteiro começar sempre igual (o ERP: área de trabalho limpa, menu lateral aberto) */
   document.dispatchEvent(new CustomEvent('romafe:rato-inicio', { detail: id }));
   aoCimo(); document.body.classList.add('demo-a-tocar'); document.body.classList.toggle('demo-sem-texto', !!r.semTexto);
-  const fim = (t: string) => { escrever(r.passos.length, r.passos.length, t, r.titulo); };
+  const passos = typeof r.passos === 'function' ? r.passos() : r.passos;
+  const fim = (t: string) => { escrever(passos.length, passos.length, t, r.titulo); };
   try {
-    for (let i = 0; i < r.passos.length && !parar; i++) {
-      const p = r.passos[i];
+    for (let i = 0; i < passos.length && !parar; i++) {
+      const p = passos[i];
+      if (p.ir) { await irPara(p.ir, i + 1, passos.length, r.titulo, p.legenda); continue; }
       if (p.ecra && visivel()?.dataset.ecra !== p.ecra && !document.querySelector('dialog[open]')) { mostrar(p.ecra); mostrarVersao(''); await dormir(500); }
-      if (!r.semTexto) escrever(i + 1, r.passos.length, p.legenda, r.titulo); aoCimo();
+      if (!r.semTexto) escrever(i + 1, passos.length, p.legenda, r.titulo); aoCimo();
       await dormir(quieto() ? 400 : 900);
       if (parar) break;
       if (p.escolher) {
@@ -138,6 +144,33 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
     ativo = false; document.body.classList.remove('demo-a-tocar', 'demo-sem-texto');
     try { rato?.hidePopover(); legenda?.hidePopover(); } catch { /* sem popover */ }
   }
+}
+
+/** Vai a um ecrã: com a ligação verdadeira, se o ecrã que se vê a tiver; senão diretamente (um estado escolhe-se assim). */
+async function irPara(id: string, i: number, n: number, titulo: string, legenda: string): Promise<void> {
+  const aqui = visivel(), destino = document.querySelector<HTMLElement>(`.ecra[data-ecra="${id}"]`);
+  if (!destino || aqui?.dataset.ecra === id) return;
+  const lig = [...(aqui?.querySelectorAll<HTMLElement>(`.versao:not([hidden]) :is([data-ir="${id}"], [data-depois="${id}"])`) ?? [])].find((l) => l.getClientRects().length > 0 && !l.closest('[hidden]'));
+  const nome = destino.dataset.nome ?? id;
+  const toque = lig ? (lig.getAttribute('aria-label') || lig.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40) : '';
+  const como = lig ? `Toca em «${toque || 'aqui'}» → ` : destino.dataset.estadoDe ? 'Estado · ' : '';
+  escrever(i, n, legenda || `${como}${nome}. ${destino.dataset.objetivo ?? ''}`, titulo); aoCimo();
+  if (lig) {
+    await dormir(quieto() ? 200 : 500); if (parar) return;
+    await mover(lig); await clicar(lig); await dormir(quieto() ? 150 : 450);
+  }
+  if (visivel()?.dataset.ecra !== id) { mostrar(id); mostrarVersao(''); }
+  aoCimo();
+  const o = destino.dataset.objetivo ?? '';
+  await dormir(quieto() ? 700 : Math.min(5200, 1700 + o.length * 22));
+}
+/** 28 out.: todos os ecrãs e estados de uma app (ou de um fluxo), pela ordem do número (60, 60.1, 60.2… 61, 61.1, 61.1.5…),
+    cada um com a ligação verdadeira quando a há. A explicação de cada ecrã é a que está ao lado (nome e objetivo). */
+export function percurso(filtro: (e: HTMLElement) => boolean = () => true): Passo[] {
+  const num = (e: HTMLElement) => (/^[\d.]+/.exec(e.dataset.nome ?? '')?.[0] ?? '999').split('.').filter(Boolean).map(Number);
+  const cmp = (a: number[], b: number[]) => { for (let k = 0; k < Math.max(a.length, b.length); k++) { const d = (a[k] ?? -1) - (b[k] ?? -1); if (d) return d; } return 0; };
+  return [...document.querySelectorAll<HTMLElement>('.ecra[data-ecra]')].filter((e) => !e.hasAttribute('data-fora-da-lista') && filtro(e))
+    .sort((a, b) => cmp(num(a), num(b))).map((e) => ({ ir: e.dataset.ecra!, legenda: '' }));
 }
 
 export function iniciar(): void {
