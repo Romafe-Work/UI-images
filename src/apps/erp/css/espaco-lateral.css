@@ -184,3 +184,6 @@
 .dk-todos-i.is-fechado small { color: rgb(0, 99, 170); font-weight: 700; }
 .dk-todos-nada { margin: 10px; font-size: 13px; color: var(--k-tinta-3, var(--k-tinta)); }
 @media (prefers-reduced-motion: reduce) { .dk-todos-m { animation: none; } }
+/* a pasta do módulo aberta num separador marca o grupo, como um item ativo */
+.dk7-g-t.is-ativo, .dk7-g-t.is-ativo:hover { position: relative; background: color-mix(in srgb, var(--k-laranja) 14%, transparent); color: var(--k-laranja); }
+.dk7-g-t.is-ativo svg, .dk8 .dk7-g-t.is-ativo .dk8-pasta-ic svg { color: var(--k-laranja) !important; }

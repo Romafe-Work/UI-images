@@ -63,9 +63,11 @@ function grupoNav(g: NoNav, e: Estado, nivel = 0): string {
   /* v7 (vivo): cada grupo é uma pasta que abre e fecha; a de um módulo (Compras) também se abre como espaço de trabalho */
   const pastaIc = e.vivo ? `<span class="dk8-pasta-ic" aria-hidden="true">${L(folder, 'dk8-fechada')}${L(folderOpen, 'dk8-aberta')}</span>` : nivel ? icone(g.icone) : '';
   const modulo = e.vivo && !nivel && MENU_ERP.some((m) => m.id === g.id && !m.pai && m.ativo);
+  /* 28 out. (ela: «se estou no screen do menu compras, no menu devia estar selecionado a laranja»): o separador da pasta marca o grupo */
+  const pastaAtiva = !nivel && rotaAtiva(e) === `pasta:${g.id}`;
   const abrirPasta = modulo && !e.rail ? `<button type="button" class="dk8-abrir" data-dk8-pasta="${g.id}" aria-label="Abrir a pasta ${esc(g.rotulo)} na área de trabalho" title="Abrir a pasta ${esc(g.rotulo)}">${L(abrirFora)}</button>` : '';
   return `<section class="dk7-g${nivel ? ' dk7-g--sub' : ''}${aberto ? ' is-aberto' : ''}${!aberto && temAtivo(g) ? ' tem-ativo' : ''}" data-dk8-g="${g.id}">
-    <div class="dk8-g-cab"><button type="button" class="dk7-g-t" data-dk7-grupo="${g.id}" aria-expanded="${aberto}" aria-controls="dk7-g-${g.id}"${e.rail ? ' tabindex="-1" aria-hidden="true"' : ''}>${pastaIc}<span>${esc(g.rotulo)}</span>${L(chevronDown, 'dk7-g-seta')}</button>${abrirPasta}</div>
+    <div class="dk8-g-cab"><button type="button" class="dk7-g-t${pastaAtiva ? ' is-ativo' : ''}"${pastaAtiva ? ' aria-current="page"' : ''} data-dk7-grupo="${g.id}" aria-expanded="${aberto}" aria-controls="dk7-g-${g.id}"${e.rail ? ' tabindex="-1" aria-hidden="true"' : ''}>${pastaIc}<span>${esc(g.rotulo)}</span>${L(chevronDown, 'dk7-g-seta')}</button>${abrirPasta}</div>
     <ul class="dk7-l" id="dk7-g-${g.id}"${aberto || e.rail ? '' : ' hidden'}>${corpo}</ul>
   </section>`;
 }

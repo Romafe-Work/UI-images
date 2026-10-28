@@ -40,7 +40,7 @@ export function antes(pg: HTMLElement, e: Estado): Foto {
   pg.querySelectorAll<HTMLElement>('[data-dk8-g]').forEach((g) => { const ul = g.querySelector<HTMLElement>(':scope > .dk7-l'); grupos.set(g.dataset.dk8G!, { aberto: g.classList.contains('is-aberto'), ul: ul && !ul.hidden ? ul.cloneNode(true) as HTMLElement : null, r: ul && !ul.hidden ? ul.getBoundingClientRect() : null }); });
   const jans = new Map<string, { el: HTMLElement; r: DOMRect }>();
   pg.querySelectorAll<HTMLElement>('[data-dk-jan]:not([hidden])').forEach((j) => jans.set(j.dataset.dkJan!, { el: j.cloneNode(true) as HTMLElement, r: j.getBoundingClientRect() }));
-  return { seps, ativo: pg.querySelector<HTMLElement>('[data-dk-seps] .is-ativo')?.dataset.dkSep ?? 'inicio', area: pg.querySelector('.dk7-area')?.getBoundingClientRect() ?? null, rail: pg.classList.contains('is-rail'), lado, ind: pg.querySelector('[data-dk7-lado] .dk7-i.is-ativo')?.getBoundingClientRect() ?? null, grupos, jans };
+  return { seps, ativo: pg.querySelector<HTMLElement>('[data-dk-seps] .is-ativo')?.dataset.dkSep ?? 'inicio', area: pg.querySelector('.dk7-area')?.getBoundingClientRect() ?? null, rail: pg.classList.contains('is-rail'), lado, ind: pg.querySelector('[data-dk7-lado] :is(.dk7-i, .dk7-g-t).is-ativo')?.getBoundingClientRect() ?? null, grupos, jans };
 }
 
 /* ---------- peças voadoras ---------- */
@@ -231,7 +231,7 @@ export function indicadores(pg: HTMLElement, f?: Foto): void {
       indAntes = novo;
     }
   }
-  const lista = pg.querySelector<HTMLElement>('[data-dk7-lado] .dk7-lista'), i = lista?.querySelector<HTMLElement>('.dk7-i.is-ativo');
+  const lista = pg.querySelector<HTMLElement>('[data-dk7-lado] .dk7-lista'), i = lista?.querySelector<HTMLElement>(':is(.dk7-i, .dk7-g-t).is-ativo');
   if (!lista || !i || i.offsetParent === null) return;
   const bar = document.createElement('i'); bar.className = 'dk8-ind-lado'; bar.setAttribute('aria-hidden', 'true');
   const rl = lista.getBoundingClientRect(), ri = i.getBoundingClientRect();
