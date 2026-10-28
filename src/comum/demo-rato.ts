@@ -96,6 +96,8 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
   const r = ROTEIROS.get(id); if (!r || ativo) return;
   ativo = true; parar = false;
   if (!rato) montar();
+  /* a app pode repor o ecrã para o roteiro começar sempre igual (o ERP: área de trabalho limpa, menu lateral aberto) */
+  document.dispatchEvent(new CustomEvent('romafe:rato-inicio', { detail: id }));
   aoCimo(); document.body.classList.add('demo-a-tocar'); document.body.classList.toggle('demo-sem-texto', !!r.semTexto);
   const fim = (t: string) => { escrever(r.passos.length, r.passos.length, t, r.titulo); };
   try {

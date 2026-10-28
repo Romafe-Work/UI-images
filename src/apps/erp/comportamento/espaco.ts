@@ -512,6 +512,13 @@ export function iniciar(): void {
   requestAnimationFrame(armar);
   ['romafe:versao', 'romafe:ecra'].forEach((x) => document.addEventListener(x, () => { pg = null; requestAnimationFrame(() => { paraSeparador(); armar(); }); }));
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
+  /* 28 out. (ela: «na demonstração com rato no erp o menu lateral tem de aparecer!!»): a demonstração não herda a área
+     de trabalho guardada (grupos dobrados, menu recolhido, separadores antigos); começa limpa, com o menu aberto */
+  document.addEventListener('romafe:rato-inicio', () => {
+    try { localStorage.removeItem(CHAVE); } catch { /* */ }
+    pg = null; armar();
+    if (pg && e) { e.rail = false; Object.keys(e.arvore).forEach((k) => { if (!k.includes('-')) e.arvore[k] = true; }); e.arvore.compras = true; desenhar(); }
+  });
   window.addEventListener('resize', indicador);
   /* v2: o indicador do separador volta a medir-se quando a janela ou as letras mudam */
   const medir = () => { if (vivo.ligado(pg)) vivo.indicadores(pg); };
