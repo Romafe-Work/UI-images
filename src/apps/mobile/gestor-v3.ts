@@ -11,7 +11,9 @@
        corrige-se na posição (21 out.); a expedição levanta as guias na prateleira de preparados (16 set.).
    O que fica de fora de propósito, e porquê: escolher o armazém (só há o 60), sincronização (a Pick não trabalha sem
    rede), mapa (é da v2), transportadora, viatura, rota e prova de entrega (ninguém os pediu ao processo real).
-   As guias de separação (GS-…) e os clientes são de exemplo.
+   28 out. (ela): a prateleira de preparados é uma posição de 8 algarismos, como as outras (a 60400101 é de exemplo); as
+   guias têm o formato GS + 8 algarismos (GS13454212); a linha em falta não prende a guia — segue com o que se tirou, e
+   o ERP vê a falta; o Gestor não valida a contagem que ele próprio fez — fecha-a outro gestor. Os clientes são de exemplo.
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
 import { ecra, acao, sec, esperar, aviso, nota, prog, posicao, quantidade, h2, leitor, L, type Opcoes } from './inventario-v2';
@@ -71,20 +73,22 @@ const L1187: LinhaS[] = [
   { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 8 },
 ];
 const SEP: GuiaS[] = [
-  { ref: 'GS-2026-1187', cli: 'Auto Reparadora Silva', quem: '', est: 'separar', feitas: 0, linhas: L1187 },
-  { ref: 'GS-2026-1186', cli: 'Garagem Central de Braga', quem: 'Tiago Lopes', est: 'curso', feitas: 2, linhas: [{ pos: '60100802', ref: 'SKF 6204-2RSH', desc: 'Rolamento rígido de esferas', q: 10 }, { pos: '60120401', ref: 'CR 35x52x7', desc: 'Retentor de cambota', q: 2 }, { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 4 }] },
-  { ref: 'GS-2026-1185', cli: 'Oficina Moreira & Filhos', quem: 'Tiago Lopes', est: 'falta', feitas: 2, falta: 'P 85 020 na 60210305: a guia pede 4, havia 2', linhas: [{ pos: '60101203', ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 2 }, { pos: '60210305', ref: 'P 85 020', desc: 'Pastilhas de travão', q: 4, tirada: 2 }] },
-  { ref: 'GS-2026-1184', cli: 'Pneus e Travões do Minho', quem: 'Tiago Lopes', est: 'feita', feitas: 3, hora: '09:40', linhas: [{ pos: '60100305', ref: 'SKF 6205-2Z', desc: 'Rolamento rígido de esferas', q: 4 }, { pos: '60101203', ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 2 }, { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 4 }] },
+  { ref: 'GS13454212', cli: 'Auto Reparadora Silva', quem: '', est: 'separar', feitas: 0, linhas: L1187 },
+  { ref: 'GS13454211', cli: 'Garagem Central de Braga', quem: 'Tiago Lopes', est: 'curso', feitas: 2, linhas: [{ pos: '60100802', ref: 'SKF 6204-2RSH', desc: 'Rolamento rígido de esferas', q: 10 }, { pos: '60120401', ref: 'CR 35x52x7', desc: 'Retentor de cambota', q: 2 }, { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 4 }] },
+  { ref: 'GS13454210', cli: 'Oficina Moreira & Filhos', quem: 'Tiago Lopes', est: 'falta', feitas: 2, falta: 'P 85 020 na 60210305: a guia pede 4, havia 2', linhas: [{ pos: '60101203', ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 2 }, { pos: '60210305', ref: 'P 85 020', desc: 'Pastilhas de travão', q: 4, tirada: 2 }] },
+  { ref: 'GS13454209', cli: 'Pneus e Travões do Minho', quem: 'Tiago Lopes', est: 'feita', feitas: 3, hora: '09:40', linhas: [{ pos: '60100305', ref: 'SKF 6205-2Z', desc: 'Rolamento rígido de esferas', q: 4 }, { pos: '60101203', ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 2 }, { pos: '60210302', ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 4 }] },
 ];
 type EstExp = 'pronta' | 'expedicao' | 'expedida' | 'excecao';
 interface GuiaE { ref: string; cli: string; est: EstExp; linhas: number; desde: string; quem: string; nota?: string }
 const EXP: GuiaE[] = [
-  { ref: 'GS-2026-1184', cli: 'Pneus e Travões do Minho', est: 'pronta', linhas: 3, desde: '09:40', quem: 'Separada por Tiago Lopes' },
-  { ref: 'GS-2026-1183', cli: 'Auto Peças Viana', est: 'pronta', linhas: 5, desde: '09:12', quem: 'Separada por Tiago Lopes', nota: '1 linha com falta, registada na posição' },
-  { ref: 'GS-2026-1182', cli: 'Garagem Central de Braga', est: 'expedicao', linhas: 2, desde: '10:05', quem: 'Recolhida por Paulo Reis' },
-  { ref: 'GS-2026-1181', cli: 'Oficina Moreira & Filhos', est: 'excecao', linhas: 3, desde: '09:55', quem: 'Paulo Reis', nota: 'Não está na prateleira de preparados' },
-  { ref: 'GS-2026-1180', cli: 'Auto Reparadora Silva', est: 'expedida', linhas: 4, desde: '08:30', quem: 'Expedida por Paulo Reis' },
+  { ref: 'GS13454209', cli: 'Pneus e Travões do Minho', est: 'pronta', linhas: 3, desde: '09:40', quem: 'Separada por Tiago Lopes' },
+  { ref: 'GS13454208', cli: 'Auto Peças Viana', est: 'pronta', linhas: 5, desde: '09:12', quem: 'Separada por Tiago Lopes', nota: '1 linha com falta, registada na posição' },
+  { ref: 'GS13454207', cli: 'Garagem Central de Braga', est: 'expedicao', linhas: 2, desde: '10:05', quem: 'Recolhida por Paulo Reis' },
+  { ref: 'GS13454206', cli: 'Oficina Moreira & Filhos', est: 'excecao', linhas: 3, desde: '09:55', quem: 'Paulo Reis', nota: 'Não está na prateleira de preparados' },
+  { ref: 'GS13454205', cli: 'Auto Reparadora Silva', est: 'expedida', linhas: 4, desde: '08:30', quem: 'Expedida por Paulo Reis' },
 ];
+/** A posição da prateleira de preparados (28 out., ela: «sim», é uma posição de 8 algarismos; esta é de exemplo). */
+const PREP = '60400101';
 const conta = <T extends { est: string }>(xs: T[], k: string) => xs.filter((x) => x.est === k).length;
 const un = (g: GuiaS) => g.linhas.reduce((s, l) => s + l.q, 0);
 
@@ -123,7 +127,7 @@ const cenaExpedicao = () => `<svg class="gi-cena gx-cena-exp" viewBox="0 0 120 5
    ========================================================= */
 const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   [shieldCheck, 'INV-2026-011 por validar', '16 posições · 2 divergências', 'gestor-validar', 'aviso'],
-  [pkgX, 'Falta na GS-2026-1185', 'P 85 020 · havia 2 de 4 na 60210305', 'g-sep-guia-falta', 'erro'],
+  [pkgX, 'Falta na GS13454210', 'P 85 020 · havia 2 de 4 na 60210305', 'g-sep-guia-falta', 'erro'],
   [lock, 'Destino em contagem', 'GA-2026-0329 → 60300104 · zona 30 às cegas', 'arr-guia-bloqueada', 'erro'],
 ];
 const MODULOS: [Modulo, string, string, string, string][] = [
@@ -196,12 +200,21 @@ function contarGestor(e: E76 = 'lista'): string {
     ${prog(1, 30)}
     <ul class="gi-linhas" role="list">${linhaArt('SKF VKBA 6556', 'Kit de rolamento de roda', '4 un.')}${linhaArt('SKF 6205-2Z', 'Rolamento rígido de esferas', '36 un.')}${linhaArt('SKF 6206-2Z', 'Rolamento rígido de esferas', '12 un.')}</ul>`,
   G('Posição contada', { pe: `${acao('Ler a posição seguinte', mapPin, ' data-ir="g-inv-pos"')}${sec('Submeter a contagem', send, ' data-ir="g-inv-submeter"')}` }));
-  if (e === 'submetida') return ecra(`${aviso('ok', send, 'INV-2026-015 submetido', 'O servidor recebeu as 30 posições. Fica por validar no Inventário: é aí que se veem as divergências e se fecha.')}`,
-  G('Submetido', { pe: `${acao('Validar no Inventário', shieldCheck, ' data-ir="gestor-inventario-validar"')}${sec('Voltar ao Inventário', arrowLeft, ' data-ir="gestor-inventario"')}` }));
+  if (e === 'submetida') return ecra(`${aviso('ok', send, 'INV-2026-015 submetido', 'O servidor recebeu as 30 posições. Como foi a Ana a contar, valida e fecha outro gestor: quem conta não decide as divergências da própria contagem.')}`,
+  G('Submetido', { pe: `${acao('Voltar ao Inventário', arrowLeft, ' data-ir="gestor-inventario"')}${sec('Ver a validação', shieldCheck, ' data-ir="g-inv-validar-propria"')}` }));
   return ecra(`<h1 class="gp-titulo">Submeter a contagem</h1>
     <dl class="gi-resumo"><div><dt>Posições</dt><dd>30</dd></div><div><dt>Contadas</dt><dd>30</dd></div><div><dt>Escritas à mão</dt><dd>0</dd></div><div><dt>Correções</dt><dd>1</dd></div></dl>
     ${nota('Depois de submeter já não se conta nem se corrige; uma recontagem volta como tarefa nova.')}`,
   G('Submeter', { voltar: 'g-inv-fim', pe: e === 'a-submeter' ? esperar('A submeter…') : acao('Submeter a contagem', send, ' data-confirmar data-ir="g-inv-submetida"') }));
+}
+
+/** 63.5 · A contagem é sua: o Gestor vê, mas não decide nem fecha (28 out., ela: «o que achares melhor»). */
+function validarPropria(): string {
+  return ecra(`<div class="gi-acomp-cab"><h1 class="gp-titulo">Validar INV-2026-015</h1><span class="gp-tag gp-tag--validar">Por validar</span></div>
+    <p class="gp-nota">Cíclica · zona 10 · rolamentos · submetido por Ana Ferreira hoje</p>
+    ${aviso('info', lock, 'Esta contagem é sua', 'Foi a Ana a contar a zona 10. As divergências e o fecho são de outro gestor (o Luís Costa, de turno): quem conta não aceita as próprias diferenças nem ajusta o stock com elas.')}
+    <dl class="gi-resumo"><div><dt>Posições</dt><dd>30</dd></div><div><dt>Sem diferença</dt><dd>28</dd></div><div class="is-aviso"><dt>Divergências</dt><dd>2</dd></div><div><dt>Por decidir</dt><dd>2</dd></div></dl>`,
+  G('Validar', { voltar: 'gestor-inventario', pe: `<button type="button" class="gp-btn gp-btn--acao gp-btn--grande" disabled aria-describedby="gx-propria">${L(lock)}<span>Fechar o inventário</span></button><p class="gi-porque" id="gx-propria">Fecha outro gestor: a contagem é sua.</p>` }));
 }
 
 /* =========================================================
@@ -248,7 +261,7 @@ function separacaoAcomp(o: { sel?: EstSep; vazio?: boolean } = {}): string {
 type E91 = 'normal' | 'atribuida' | 'curso' | 'falta';
 function guiaSep(e: E91 = 'normal'): string {
   const g = e === 'curso' ? SEP[1] : e === 'falta' ? SEP[2] : SEP[0];
-  if (e === 'atribuida') return ecra(`<section class="gi-movido" role="status">${cenaSeparacao()}<h1>${g.ref} na fila do Tiago</h1><p>O servidor confirmou. A guia chega ao PDA dele quando acabar a GS-2026-1186; o motor regista a atribuição e o motivo.</p></section>`,
+  if (e === 'atribuida') return ecra(`<section class="gi-movido" role="status">${cenaSeparacao()}<h1>${g.ref} na fila do Tiago</h1><p>O servidor confirmou. A guia chega ao PDA dele quando acabar a GS13454211; o motor regista a atribuição e o motivo.</p></section>`,
     G('Guia', { voltar: 'g-sep-acomp', pe: `${acao('Voltar à Separação', arrowLeft, ' data-ir="g-sep-acomp"')}` }));
   const [t, k] = TAG_S[g.est];
   return ecra(`<div class="gi-acomp-cab"><h1 class="gp-titulo">${g.ref}</h1><span class="gp-tag gp-tag--${k}">${t}</span></div>
@@ -257,7 +270,7 @@ function guiaSep(e: E91 = 'normal'): string {
     ${e === 'curso' ? prog(g.feitas, g.linhas.length, 'Linhas separadas') : ''}
     <section class="gp-sec">${h2('Linhas, pelo percurso', g.linhas.length)}<ul class="gi-secoes" role="list">${g.linhas.map((l, i) => `<li class="gi-secao ${l.tirada !== undefined ? 'is-falta' : i < g.feitas ? 'is-feita' : 'is-atual'}"><span><b>${l.ref}</b><small>${l.desc} · ${l.tirada !== undefined ? `${l.tirada} de ${l.q}` : `${l.q} un.`}</small></span>${posicao(l.pos, 'gi-pos--peq')}</li>`).join('')}</ul></section>
     ${e === 'normal' ? `<section class="gp-sec">${h2('Quem separa')}
-      <ul class="gp-escolha" role="radiogroup" aria-label="Quem separa">${[['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', ''], ['Tiago Lopes', 'TL', 'A seguir à GS-2026-1186, que está a meio', ''], ['Eu (Ana Ferreira)', 'AF', 'Separo agora, no meu PDA', '']].map(([q, ini, x], i) => `<li><label class="gp-op"><input type="radio" name="gx-sep-quem"${i === 0 ? ' checked' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${x}</small></span></label></li>`).join('')}</ul>
+      <ul class="gp-escolha" role="radiogroup" aria-label="Quem separa">${[['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', ''], ['Tiago Lopes', 'TL', 'A seguir à GS13454211, que está a meio', ''], ['Eu (Ana Ferreira)', 'AF', 'Separo agora, no meu PDA', '']].map(([q, ini, x], i) => `<li><label class="gp-op"><input type="radio" name="gx-sep-quem"${i === 0 ? ' checked' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${x}</small></span></label></li>`).join('')}</ul>
       <label class="gp-campo"><span>Motivo (obrigatório ao escolher a pessoa)</span><input placeholder="Ex.: cliente à espera ao balcão"></label></section>` : ''}
     ${nota('Uma tarefa é uma guia: não se juntam guias em lotes.')}`,
   G('Guia de separação', { voltar: 'g-sep-acomp', pe: e === 'normal' ? `${acao('Separar eu', play, ' data-ir="g-sep-pos"')}${sec('Atribuir ao Tiago', userPlus, ' data-ir="g-sep-atribuida"')}` : e === 'curso' ? sec('Reatribuir', repeat, ' data-ir="g-sep-guia"') : '' }));
@@ -287,12 +300,12 @@ function separar(e: E92 = 'lista'): string {
     'falta-ok': () => [`${aviso('ok', circleCheck, 'Falta registada na 60100802', `Tirou 1 de ${l2.q}. O servidor corrigiu o stock da posição e a linha fica com 1; o gestor e o ERP veem a falta.`)}${h2('A seguir')}${onde(g.linhas[2])}${pedido(g.linhas[2])}`, acao('Ir à linha seguinte', arrowRight, ' data-ir="g-sep-fim"')],
     fim: () => [`<h1 class="gp-titulo">${g.ref} separada</h1><p class="gp-nota">${g.cli} · as ${g.linhas.length} linhas confirmadas pelo servidor</p>
       <ul class="gi-linhas" role="list">${g.linhas.map((x, i) => linhaArt(x.ref, `${x.desc} · ${x.pos}`, i === 1 ? `1 de ${x.q}` : `${x.q} un.`, i === 1 ? ' is-falta' : '')).join('')}</ul>
-      ${aviso('aviso', pkgX, '1 linha com falta', 'A falta está registada na posição 60100802; a guia segue para os preparados com o que se tirou.')}`, acao('Levar aos preparados', arrowRight, ' data-ir="g-sep-entregar"')],
-    entregar: () => [`<p class="gi-ler-inv"><b>${g.ref}</b><span>Separada · 4 linhas</span></p>${faixaLer('pronto', pkgCheck, 'Leia a prateleira de preparados', 'A etiqueta da prateleira onde pousa a guia', 'g-sep-pronta', 'preparados')}${nota('A guia só fica pronta para expedir quando o servidor confirma onde ficou.')}`, sec('Escrever à mão', keyboard)],
-    pronta: () => [`<section class="gi-movido" role="status">${cenaSeparacao()}<h1>${g.ref} pronta</h1><p>Pousada na prateleira de preparados. O servidor confirmou; a Expedição já a vê nas prontas.</p></section>`, `${acao('Separar outra guia', basket, ' data-ir="g-sep"')}${sec('Ver na Expedição', truck, ' data-ir="g-exp-acomp"')}`],
+      ${aviso('aviso', pkgX, '1 linha com falta', 'A falta está registada na posição 60100802. A guia não fica à espera da reposição: segue para os preparados com o que se tirou, e o ERP vê a linha em falta.')}`, acao('Levar aos preparados', arrowRight, ' data-ir="g-sep-entregar"')],
+    entregar: () => [`<p class="gi-ler-inv"><b>${g.ref}</b><span>Separada · 4 linhas</span></p>${faixaLer('pronto', pkgCheck, `Leia a posição ${PREP}`, 'A prateleira de preparados, onde pousa a guia', 'g-sep-pronta', 'posicao')}<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Preparados</span>${posicao(PREP, 'gi-pos--peq')}</div>${nota('A guia só fica pronta para expedir quando o servidor confirma onde ficou.')}`, sec('Escrever à mão', keyboard)],
+    pronta: () => [`<section class="gi-movido" role="status">${cenaSeparacao()}<h1>${g.ref} pronta</h1><p>Pousada nos preparados, na ${PREP}. O servidor confirmou; a Expedição já a vê nas prontas.</p></section>`, `${acao('Separar outra guia', basket, ' data-ir="g-sep"')}${sec('Ver na Expedição', truck, ' data-ir="g-exp-acomp"')}`],
     'pos-errada': () => [`${topo(0, 0)}${faixaLer('erro', mapPin, 'Esta não é a posição da linha', 'Leu 60100306')}${aviso('erro', mapPin, 'Não se tira daqui', `A linha 1 é na <b>${l.pos}</b>. Um artigo igual noutra posição não conta para esta guia.`)}${onde(l)}`, acao('Ler a posição certa', scanBarcode, ' data-ir="g-sep-pos"')],
     'art-errado': () => [`${topo(0, 1)}${faixaLer('erro', pkgX, 'Este artigo não é da linha', 'Leu SKF 6206-2Z')}${aviso('erro', pkgX, 'Não está nesta linha', `A linha 1 pede <b>${l.ref}</b>. Deixe este na prateleira.`)}`, acao('Ler outro artigo', scanBarcode, ' data-ir="g-sep-art"')],
-    'prat-errada': () => [`${faixaLer('erro', pkgX, 'Isto não é a prateleira de preparados', 'Leu a posição 60100305')}${aviso('erro', pkgCheck, 'A guia não pousa aqui', 'Uma guia separada só fica pronta na prateleira de preparados. Leia a etiqueta dela.')}`, acao('Ler outra vez', scanBarcode, ' data-ir="g-sep-entregar"')],
+    'prat-errada': () => [`${faixaLer('erro', pkgX, 'Esta não é a posição de preparados', 'Leu 60100305')}${aviso('erro', pkgCheck, 'A guia não pousa aqui', `A 60100305 é uma posição de arrumação. Uma guia separada só fica pronta nos preparados, na <b>${PREP}</b>.`)}<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Preparados</span>${posicao(PREP, 'gi-pos--peq')}</div>`, acao('Ler outra vez', scanBarcode, ' data-ir="g-sep-entregar"')],
     'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se confirma e nada fica à espera no PDA. As linhas já confirmadas estão no servidor.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar de novo', refresh), 'sem-rede'],
     outro: () => [aviso('info', repeat, `${g.ref} passou para o Tiago`, 'Outro gestor reatribuiu-a há instantes. A linha que confirmou fica registada com o seu nome; o resto já não é consigo.'), acao('Voltar à Separação', arrowLeft, ' data-ir="g-sep"')],
   };
@@ -332,19 +345,19 @@ function expedir(e: E96 = 'lista'): string {
   const o = (titulo: string, x: Opcoes = {}) => G(titulo, { voltar: 'g-exp', ...x });
   const topo = (n: number) => `<p class="gi-ler-inv"><b>${g.ref}</b><span>${g.cli} · ${g.linhas} linhas</span></p>${passosDe(['Prateleira', 'Guia', 'Verificar'], n, 'Passos da recolha')}`;
   const C: Record<Exclude<E96, 'lista'>, () => [string, string, string?]> = {
-    prat: () => [`${topo(0)}${faixaLer('pronto', pkgCheck, 'Leia a prateleira de preparados', 'Onde a separação pousou a guia', 'g-exp-guia', 'preparados')}`, sec('Escrever à mão', keyboard)],
+    prat: () => [`${topo(0)}${faixaLer('pronto', pkgCheck, `Leia a posição ${PREP}`, 'A prateleira de preparados, onde a separação pousou a guia', 'g-exp-guia', 'posicao')}<div class="gi-ler-pos">${L(mapPin)}<span class="gi-mini-r">Preparados</span>${posicao(PREP, 'gi-pos--peq')}</div>`, sec('Escrever à mão', keyboard)],
     guia: () => [`${topo(1)}${faixaLer('pronto', scanBarcode, 'Leia a etiqueta da guia', `A ${g.ref}, na prateleira`, 'g-exp-verificar', 'guia')}`, sec('Escrever à mão', keyboard)],
     verificar: () => [`${topo(2)}${faixaLer('lido', circleCheck, 'Guia certa', `${g.ref} · pronta`)}
       <dl class="gi-revisao"><div><dt>Separação</dt><dd>${g.quem} · às ${g.desde}</dd></div><div><dt>Linhas</dt><dd>${g.linhas} · sem faltas</dd></div></dl>`, acao('Confirmar a recolha', check, ' data-ir="g-exp-recolhida"')],
     recolhida: () => [`${aviso('ok', circleCheck, `${g.ref} recolhida`, 'O servidor registou que saiu da prateleira de preparados consigo, às 10:41. Falta confirmar a saída.')}`, acao('Confirmar a saída', send, ' data-confirmar data-ir="g-exp-expedida"')],
     'a-confirmar': () => [`${aviso('info', truck, `${g.ref} a sair`, 'Só fica expedida quando o servidor confirmar.')}`, esperar('A confirmar a saída…')],
     expedida: () => [`<section class="gi-movido" role="status">${cenaExpedicao()}<h1>${g.ref} expedida</h1><p>O servidor confirmou a saída às 10:42. Fica no histórico da Expedição, com quem e quando.</p></section>`, `${acao('Recolher a seguinte', truck, ' data-ir="g-exp"')}${sec('Ver as expedidas', history, ' data-ir="g-exp-acomp-expedidas"')}`],
-    'nao-pronta': () => [`${faixaLer('erro', lock, 'Esta guia ainda não está pronta', 'Leu GS-2026-1186')}${aviso('erro', lock, 'A GS-2026-1186 está em separação', 'O Tiago está a separá-la (2 de 3 linhas). Só se recolhe depois de pousada na prateleira de preparados.')}`, acao('Ler outra guia', scanBarcode, ' data-ir="g-exp-guia"')],
-    outra: () => [`${faixaLer('aviso', triangle, 'Leu outra guia pronta', 'GS-2026-1183, não a GS-2026-1184')}${aviso('aviso', triangle, 'Recolher a GS-2026-1183?', 'Também está pronta (Auto Peças Viana · 5 linhas · 1 com falta). Se a recolher, a GS-2026-1184 fica na prateleira.')}`, `${acao('Recolher a GS-2026-1183', check, ' data-ir="g-exp-recolhida"')}${sec('Ler a GS-2026-1184', scanBarcode, ' data-ir="g-exp-guia"')}`],
-    ja: () => [`${faixaLer('erro', repeat, 'Já recolhida', 'GS-2026-1182')}${aviso('erro', repeat, 'O Paulo já a recolheu', 'A GS-2026-1182 saiu da prateleira com o Paulo Reis às 10:05. Não se recolhe duas vezes.')}`, acao('Ler outra guia', scanBarcode, ' data-ir="g-exp-guia"')],
+    'nao-pronta': () => [`${faixaLer('erro', lock, 'Esta guia ainda não está pronta', 'Leu GS13454211')}${aviso('erro', lock, 'A GS13454211 está em separação', 'O Tiago está a separá-la (2 de 3 linhas). Só se recolhe depois de pousada na prateleira de preparados.')}`, acao('Ler outra guia', scanBarcode, ' data-ir="g-exp-guia"')],
+    outra: () => [`${faixaLer('aviso', triangle, 'Leu outra guia pronta', 'GS13454208, não a GS13454209')}${aviso('aviso', triangle, 'Recolher a GS13454208?', 'Também está pronta (Auto Peças Viana · 5 linhas · 1 com falta). Se a recolher, a GS13454209 fica na prateleira.')}`, `${acao('Recolher a GS13454208', check, ' data-ir="g-exp-recolhida"')}${sec('Ler a GS13454209', scanBarcode, ' data-ir="g-exp-guia"')}`],
+    ja: () => [`${faixaLer('erro', repeat, 'Já recolhida', 'GS13454207')}${aviso('erro', repeat, 'O Paulo já a recolheu', 'A GS13454207 saiu da prateleira com o Paulo Reis às 10:05. Não se recolhe duas vezes.')}`, acao('Ler outra guia', scanBarcode, ' data-ir="g-exp-guia"')],
     'sem-rede': () => [`${aviso('erro', wifiOff, 'A Pick parou: sem rede', 'Sem rede nada se recolhe nem se expede, e nada fica à espera no PDA. A guia fica onde está.')}<p class="gi-estado" role="status"><span class="girador girador--pequeno" aria-hidden="true"></span>A procurar rede…</p>`, acao('Tentar de novo', refresh), 'sem-rede'],
-    excecao: () => [`<div class="gi-acomp-cab"><h1 class="gp-titulo">GS-2026-1181</h1><span class="gp-tag gp-tag--erro">Exceção</span></div>
-      ${aviso('erro', triangle, 'Não está na prateleira de preparados', 'O Paulo leu a prateleira às 09:55 e a guia não estava lá. A separação deu-a como pousada às 09:31 (Tiago Lopes).')}
+    excecao: () => [`<div class="gi-acomp-cab"><h1 class="gp-titulo">GS13454206</h1><span class="gp-tag gp-tag--erro">Exceção</span></div>
+      ${aviso('erro', triangle, 'Não está na prateleira de preparados', `O Paulo leu a ${PREP} às 09:55 e a guia não estava lá. A separação deu-a como pousada às 09:31 (Tiago Lopes).`)}
       <dl class="gi-revisao"><div><dt>Cliente</dt><dd>Oficina Moreira &amp; Filhos</dd></div><div><dt>Linhas</dt><dd>3</dd></div><div><dt>Pousada por</dt><dd>Tiago Lopes · 09:31</dd></div></dl>
       ${nota('Procura-se primeiro na prateleira; se apareceu, lê-se e segue. Nada se dá como expedido sem a guia na mão.')}`, `${acao('Encontrei: ler a guia', scanBarcode, ' data-ir="g-exp-guia"')}${sec('Pedir ao Tiago que a procure', userRound)}`],
   };
@@ -361,8 +374,8 @@ function lerGestor(e: E75 = 'normal'): string {
   const o = (x: Opcoes = {}) => comBarra('Ler', 'ler', x);
   if (e === 'posicao') return ecra(`<h1 class="gp-titulo">Leu 60100305</h1>
     <section class="gi-cartao">${posicao('60100305', 'gi-pos--grande')}<p>Zona 10 · rolamentos. Está em três operações:</p></section>
-    <ul class="gi-mais-l" role="list">${itemMais(pkgOpen, 'Arrumar aqui', 'GA-2026-0332 · 30 un. de SKF 6205-2Z têm este destino', 'g-arr-op')}${itemMais(basket, 'Separar daqui', 'GS-2026-1187 · linha 1 · 6 un.', 'g-sep-pos')}${itemMais(pkg, 'Contar esta posição', 'INV-2026-015 · zona 10 · por iniciar', 'g-inv-ficou')}${itemMais(search, 'Consultar o stock', 'O que o sistema diz que há', 'inv-consultar')}</ul>`, o());
-  if (e === 'guia') return ecra(`<h1 class="gp-titulo">Leu GS-2026-1184</h1>
+    <ul class="gi-mais-l" role="list">${itemMais(pkgOpen, 'Arrumar aqui', 'GA-2026-0332 · 30 un. de SKF 6205-2Z têm este destino', 'g-arr-op')}${itemMais(basket, 'Separar daqui', 'GS13454212 · linha 1 · 6 un.', 'g-sep-pos')}${itemMais(pkg, 'Contar esta posição', 'INV-2026-015 · zona 10 · por iniciar', 'g-inv-ficou')}${itemMais(search, 'Consultar o stock', 'O que o sistema diz que há', 'inv-consultar')}</ul>`, o());
+  if (e === 'guia') return ecra(`<h1 class="gp-titulo">Leu GS13454209</h1>
     ${aviso('info', pkgCheck, 'Guia pronta na prateleira de preparados', 'Pneus e Travões do Minho · 3 linhas · separada pelo Tiago às 09:40.')}
     <ul class="gi-mais-l" role="list">${itemMais(truck, 'Recolher para expedir', 'Verifica e confirma a recolha', 'g-exp-verificar')}${itemMais(list, 'Ver a guia', 'As linhas e quem as separou', 'g-exp-acomp')}</ul>`, o());
   if (e === 'artigo') return ecra(`${aviso('info', scanBarcode, 'Leu 7316201250277', 'É um artigo (SKF VKBA 6556). Nenhuma operação sua o pede agora: o que quer fazer?')}
@@ -385,20 +398,20 @@ function lerGestor(e: E75 = 'normal'): string {
 type TipoT = 'inventario' | 'arrumacao' | 'separacao' | 'expedicao';
 interface TarefaG { tipo: TipoT; ref: string; t: string; quem: string; est: 'fazer' | 'curso' | 'atencao'; acao: [string, string, string]; p?: [number, number, string] }
 const TAREFAS: TarefaG[] = [
-  { tipo: 'separacao', ref: 'GS-2026-1187', t: 'Auto Reparadora Silva · 4 linhas · ninguém livre', quem: '', est: 'fazer', acao: ['Iniciar', 'g-sep-guia', play] },
+  { tipo: 'separacao', ref: 'GS13454212', t: 'Auto Reparadora Silva · 4 linhas · ninguém livre', quem: '', est: 'fazer', acao: ['Iniciar', 'g-sep-guia', play] },
   { tipo: 'arrumacao', ref: 'GA-2026-0332', t: '30 un. · cais 1 → 60100305', quem: '', est: 'fazer', acao: ['Iniciar', 'g-arr-op', play] },
   { tipo: 'arrumacao', ref: 'GA-2026-0331', t: '2 paletes · cais 1 → 60101203', quem: '', est: 'fazer', acao: ['Atribuir', 'arr-guia', userPlus] },
   { tipo: 'inventario', ref: 'INV-2026-015', t: 'Cíclica · zona 10 · 30 posições', quem: '', est: 'fazer', acao: ['Atribuir', 'gestor-atribuir', userPlus] },
-  { tipo: 'expedicao', ref: 'GS-2026-1184', t: 'Pronta desde as 09:40 · 3 linhas', quem: '', est: 'fazer', acao: ['Recolher', 'g-exp-prat', truck] },
-  { tipo: 'expedicao', ref: 'GS-2026-1183', t: 'Pronta desde as 09:12 · 5 linhas', quem: '', est: 'fazer', acao: ['Recolher', 'g-exp-outra', truck] },
+  { tipo: 'expedicao', ref: 'GS13454209', t: 'Pronta desde as 09:40 · 3 linhas', quem: '', est: 'fazer', acao: ['Recolher', 'g-exp-prat', truck] },
+  { tipo: 'expedicao', ref: 'GS13454208', t: 'Pronta desde as 09:12 · 5 linhas', quem: '', est: 'fazer', acao: ['Recolher', 'g-exp-outra', truck] },
   { tipo: 'inventario', ref: INVENTARIOS[0].ref, t: `${INVENTARIOS[0].area} · às cegas`, quem: 'Joana Silva', est: 'curso', acao: ['Acompanhar', 'gestor-acompanhar', list], p: [INVENTARIOS[0].feitas, INVENTARIOS[0].total, 'Posições'] },
   { tipo: 'arrumacao', ref: 'GA-2026-0330', t: '2 artigos · cais 2 → 60120401', quem: 'Inês Rocha', est: 'curso', acao: ['Acompanhar', 'arr-acompanhar', list], p: [1, 2, 'Artigos'] },
-  { tipo: 'separacao', ref: 'GS-2026-1186', t: 'Garagem Central de Braga', quem: 'Tiago Lopes', est: 'curso', acao: ['Acompanhar', 'g-sep-guia-curso', list], p: [2, 3, 'Linhas'] },
-  { tipo: 'expedicao', ref: 'GS-2026-1182', t: 'Recolhida às 10:05', quem: 'Paulo Reis', est: 'curso', acao: ['Acompanhar', 'g-exp-acomp-curso', list] },
+  { tipo: 'separacao', ref: 'GS13454211', t: 'Garagem Central de Braga', quem: 'Tiago Lopes', est: 'curso', acao: ['Acompanhar', 'g-sep-guia-curso', list], p: [2, 3, 'Linhas'] },
+  { tipo: 'expedicao', ref: 'GS13454207', t: 'Recolhida às 10:05', quem: 'Paulo Reis', est: 'curso', acao: ['Acompanhar', 'g-exp-acomp-curso', list] },
   { tipo: 'inventario', ref: 'INV-2026-011', t: 'Submetido · 2 divergências', quem: 'Joana Silva', est: 'atencao', acao: ['Validar', 'gestor-validar', shieldCheck] },
-  { tipo: 'separacao', ref: 'GS-2026-1185', t: 'Falta: P 85 020 · 2 de 4', quem: 'Tiago Lopes', est: 'atencao', acao: ['Rever', 'g-sep-guia-falta', triangle] },
+  { tipo: 'separacao', ref: 'GS13454210', t: 'Falta: P 85 020 · 2 de 4', quem: 'Tiago Lopes', est: 'atencao', acao: ['Rever', 'g-sep-guia-falta', triangle] },
   { tipo: 'arrumacao', ref: 'GA-2026-0329', t: 'Destino em contagem: 60300104', quem: '', est: 'atencao', acao: ['Mudar o destino', 'arr-guia-bloqueada', mapPin] },
-  { tipo: 'expedicao', ref: 'GS-2026-1181', t: 'Não está na prateleira de preparados', quem: 'Paulo Reis', est: 'atencao', acao: ['Rever', 'g-exp-excecao', triangle] },
+  { tipo: 'expedicao', ref: 'GS13454206', t: 'Não está na prateleira de preparados', quem: 'Paulo Reis', est: 'atencao', acao: ['Rever', 'g-exp-excecao', triangle] },
 ];
 /** As que se fazem já: o número da barra (navegacao.ts, «por fazer»). */
 export const POR_FAZER = TAREFAS.filter((x) => x.est === 'fazer').length;
@@ -470,7 +483,8 @@ export function ecrasGestorV3(): Ecra<string>[] {
     est('g-inv-fim', 'g-inv-exec', '76.6 · Posição contada', 'Inventário', 'A posição acabada: a seguinte ou submeter.', contarGestor('fim')),
     est('g-inv-submeter', 'g-inv-exec', '76.7 · Submeter', 'Inventário', 'O resumo antes de submeter; depois já não se corrige.', contarGestor('submeter')),
     est('g-inv-a-submeter', 'g-inv-exec', '76.8 · A submeter', 'Inventário', 'Só o botão espera.', contarGestor('a-submeter')),
-    est('g-inv-submetida', 'g-inv-exec', '76.9 · Submetido', 'Inventário', 'Fica por validar no Inventário.', contarGestor('submetida')),
+    est('g-inv-submetida', 'g-inv-exec', '76.9 · Submetido', 'Inventário', 'Fica por validar por outro gestor: quem conta não valida a própria contagem.', contarGestor('submetida')),
+    est('g-inv-validar-propria', 'g-inv-exec', '76.10 · A contagem é sua', 'Inventário', 'O Gestor abre a validação de uma contagem que ele próprio fez: vê o resumo, mas as divergências e o fecho são de outro gestor.', validarPropria()),
     /* Arrumação: o Gestor arruma */
     e('g-arr-exec', '81 · Arrumar (Gestor)', 'Arrumação', 'Arrumação em «Executar»: as guias que o Gestor pode arrumar ele próprio.', arrumarGestor()),
     est('g-arr-op', 'g-arr-exec', '81.1 · Ler a palete (o 80)', 'Arrumação', 'O mesmo 80 · Arrumar do operador, com a conta do Gestor: a palete no cais.', arrumarG('origem')),
