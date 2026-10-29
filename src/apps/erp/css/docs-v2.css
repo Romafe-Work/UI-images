@@ -284,3 +284,6 @@
 .dv2[data-dv2-vista-atual="clientes"] :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"]), .dv2-modos, .lf2-comp) { display: none; }
 /* 27 out. (Faturas v3): nas Notas de crédito, no Crédito por receber e na Verificação, a Série e o Estado são da lista das faturas: saem */
 .dv2[data-dv2="fat3"]:not([data-dv2-vista-atual="docs"]) :is(.ak-campo:has([data-dv2-f="serie"]), .ak-campo:has([data-dv2-f="estado"])) { display: none; }
+/* 29 out. (Orçamentos): a proposta mais barata de cada pedido, ao lado do valor */
+.dv2-barata { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; padding: 1px 6px; border-radius: var(--r-md); background: color-mix(in srgb, var(--h-ok) 12%, transparent); color: var(--h-ok); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+.dv2-barata svg { width: 12px; height: 12px; }

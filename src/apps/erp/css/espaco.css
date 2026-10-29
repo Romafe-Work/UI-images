@@ -486,3 +486,12 @@
 :is(.dk-trab, .dk6-sec--trab) { animation: dk-ent .4s var(--curva) .5s both; }
 :is(.dk-titulo--raiz, .dk6-cab) { animation: dk-ent .4s var(--curva) both; }
 @media (prefers-reduced-motion: reduce) { :is(.dk-cartao, .dk-cartao-ic, .dk-hoje, .dk-hoje-i, .dk-rapido, .dk6-sec--rapido, .dk-trab, .dk6-sec--trab, .dk-titulo--raiz, .dk6-cab) { animation: none !important; transition: none !important; } }
+/* 29 out. (ela: «faz uma espécie de folders aqui»): as pastas dentro do módulo, antes dos ecrãs */
+.dk-grelha--pastas { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.dk-subpasta { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 86px; padding: 12px 16px 12px 12px; border: 1px solid var(--k-borda); border-radius: var(--r-md, 14px); background: var(--k-sup); color: var(--k-tinta); font: inherit; text-align: left; cursor: pointer; transition: border-color .14s ease, box-shadow .14s ease; animation: dk-ent .3s var(--curva) calc(var(--i) * 30ms) both; }
+.dk-subpasta:hover { border-color: color-mix(in srgb, var(--k-azul) 40%, var(--k-borda)); box-shadow: 0 4px 14px -8px rgb(0 0 0 / .25); }
+.dk-subpasta:focus-visible { outline: 2px solid var(--k-azul); outline-offset: 2px; }
+.dk-subpasta .dk-arte { width: 64px; }
+.dk-subpasta .dk-arte-ic { width: 20px !important; height: 20px !important; }
+.dk-subpasta:hover .dk-arte { translate: 0 -1px; } .dk-subpasta .dk-arte { transition: translate .14s ease; }
+@media (prefers-reduced-motion: reduce) { .dk-subpasta { animation: none; } }

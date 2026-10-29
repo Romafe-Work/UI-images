@@ -70,6 +70,9 @@ const EXTRA: Record<string, Omit<Extra, 'custo'>> = {
   '0 986 494 524': E('A', 'Auto', 'Travagem', 'Pastilhas', 24, 12, 'Normal', 'TRW GDB2042', [], '—', 'Pneus Beira', '2026-10-22', 4, 0, 'F00031', '2026-09-22'),
   '30205': E('B', 'Indústria', 'Rolamentos', 'Rolos cónicos', 30, 10, 'Normal', 'FAG 30205-A', ['Consig.'], '—', 'Metalúrgica Lis', '2026-10-21', 10, 6, 'F00002', '2026-09-12'),
 };
+/** O tipo de encomenda de um artigo (Normal, Urgente, Consignação), quando o protótipo o sabe. Os Orçamentos usam-no (29 out.). */
+export const tipoDoArtigo = (ref: string): Extra['tipo'] | undefined => EXTRA[ref]?.tipo;
+
 
 export interface Falta extends Extra { ref: string; desc: string; marca: string; forn: string; fornNome: string; preco: number | null; stock: number; encomendada: number; sugestao: number; estado: 'rutura' | 'baixo'; refForn: string }
 /** As faltas: os artigos do protótipo com o stock abaixo do mínimo (de exemplo), com o que já está encomendado. */

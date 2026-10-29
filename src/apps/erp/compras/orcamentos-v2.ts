@@ -10,7 +10,9 @@
      - Editar (F6): no rascunho, os artigos, os prazos e a descrição; enviado, registar ou corrigir a resposta do
        fornecedor (preços, descontos, validade, prazo, portes); decidido ou anulado, só se vê;
      - Anular (F8) = cancelar o pedido, com o motivo; no protótipo anula-se o pedido inteiro, e diz-se;
-     - O tipo de encomenda não existe no protótipo: a coluna fica, com «—».
+     - O tipo de encomenda (T.Enc.) vem dos artigos do pedido: Urgente se algum o for, senão o tipo deles; Normal sem dados.
+     29 out. (ela, com o print do antigo: «vê o que falta e adiciona ou melhora»): o tipo deixa de estar vazio, e o
+     Valor marca a proposta mais barata de cada pedido (só entre as respondidas e não caducadas, com duas ou mais).
    Motor: compras/docs-v2.ts e docs-v2-comportamento.ts.
    ========================================================= */
 import type { Ecra } from '../../../comum/tipos';
@@ -20,6 +22,7 @@ import { toast, dialogo, fecharDialogo, tudo, abrirDoc, ativoDe, quieto, nf, emS
 import { cotacoes, cotacao, acoesPc, avaliar, caducada, criarPc, guardarPc, responderPc, cancelarPc, escolher, problemasPc, pode2, type Cotacao, type Oferta } from './dominio2';
 import { ARTIGOS, FORNECEDORES, fornecedor, artigo, euros, dia, pct, lerEuros, lerPercentagem, somarDias, HOJE, Recusa } from './dominio';
 import { PERFIS } from '../inicio-dados';
+import { tipoDoArtigo } from './faltas';
 import scale from 'lucide-static/icons/scale.svg?raw';
 import arrowRL from 'lucide-static/icons/arrow-right-left.svg?raw';
 import info from 'lucide-static/icons/info.svg?raw';
@@ -40,19 +43,28 @@ import ban from 'lucide-static/icons/ban.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import fileText from 'lucide-static/icons/file-text.svg?raw';
 import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
+import zap from 'lucide-static/icons/zap.svg?raw';
+import trendingDown from 'lucide-static/icons/trending-down.svg?raw';
 
 /* ---------- as linhas: um orçamento por fornecedor de cada pedido ---------- */
 const nomeF = (id: string) => fornecedor(id)?.nome ?? id;
 const pessoa = (p: string) => PERFIS[p as keyof typeof PERFIS]?.pessoa ?? p;
+/** Urgente se algum artigo do pedido o for; senão o tipo do primeiro que se conhece; Normal sem dados. */
+const tipoDoPedido = (c: Cotacao) => { const ts = c.linhas.map((l) => tipoDoArtigo(l.ref)).filter(Boolean); return ts.includes('Urgente') ? 'Urgente' : ts[0] ?? 'Normal'; };
+/** A proposta mais barata de cada pedido: só entre as respondidas e não caducadas, e só quando há duas ou mais para comparar. */
+function maisBarata(c: Cotacao): string | undefined {
+  const vs = c.ofertas.filter((o) => !caducada(o)).map((o) => [o.forn, avaliar(c, o).total] as const);
+  return vs.length > 1 ? [...vs].sort((a, b) => a[1] - b[1])[0][0] : undefined;
+}
 function linhas(e: EstDoc): Doc[] {
-  return cotacoes().flatMap((c) => c.fornecedores.map((f): Doc => {
+  return cotacoes().flatMap((c) => { const barata = maisBarata(c); return c.fornecedores.map((f): Doc => {
     const o = c.ofertas.find((x) => x.forn === f), a = o ? avaliar(c, o) : undefined, ultimo = c.historico[c.historico.length - 1];
     const anulado = c.estado === 'Cancelado' || e.extra.anuladoSim === `${c.ref}|${f}`;
-    return { id: `${c.ref}|${f}`, ref: c.ref, numero: c.ref, n: c.ref.split(' ')[1] ?? c.ref, serie: c.ref.split('/')[0], data: c.data, tipo: '', forn: f, fornNome: nomeF(f),
+    return { id: `${c.ref}|${f}`, ref: c.ref, numero: c.ref, n: c.ref.split(' ')[1] ?? c.ref, serie: c.ref.split('/')[0], data: c.data, tipo: tipoDoPedido(c), forn: f, fornNome: nomeF(f),
       desc: c.notas || (c.origem.length ? `Da ${c.origem.join(', ')} · ${c.linhas.length} ${c.linhas.length === 1 ? 'artigo' : 'artigos'}` : `${c.linhas.length} ${c.linhas.length === 1 ? 'artigo' : 'artigos'}`),
       transferido: c.escolhido === f && !!c.encomenda, enc: c.escolhido === f ? c.encomenda ?? '' : '', anulado, moeda: 'EUR', valor: a ? a.total : null,
-      resposta: !o ? 'sem' : caducada(o) ? 'caducada' : 'ok', estadoPc: c.estado, uIns: pessoa(c.comprador), uAlt: ultimo ? ultimo.quem : pessoa(c.comprador) };
-  }));
+      resposta: !o ? 'sem' : caducada(o) ? 'caducada' : 'ok', estadoPc: c.estado, uIns: pessoa(c.comprador), uAlt: ultimo ? ultimo.quem : pessoa(c.comprador), barata: barata === f };
+  }); });
 }
 const c_ = (d: Doc) => cotacao(String(d.ref))!;
 const oferta = (d: Doc) => c_(d)?.ofertas.find((o) => o.forn === d.forn);
@@ -78,11 +90,11 @@ function celula(d: Doc, k: string): string {
   switch (k) {
     case 'numero': return `<span class="lf2-art"><b>${esc(String(d.numero))}</b></span>`;
     case 'data': return dia(String(d.data));
-    case 'tipo': return '<span class="is-nada" title="O protótipo ainda não tem tipos de encomenda">—</span>';
+    case 'tipo': return d.tipo === 'Urgente' ? badge('lf2-b--rutura', zap, 'Urgente') : esc(String(d.tipo));
     case 'estado': return `<span class="lf2-badges">${d.anulado ? badge('lf2-b--rutura', ban, 'Anulado') : d.transferido ? badge('lf2-b--pend', circleCheck, 'Transferido') : badge('lf2-b--enc', arrowRL, 'Por transferir')}${d.resposta === 'sem' ? badge('lf2-b--baixo', clock, 'Sem resposta') : d.resposta === 'caducada' ? badge('lf2-b--baixo', circleAlert, 'Proposta caducada') : ''}</span>`;
     case 'transferido': return d.transferido ? `<span class="dv2-sim">${L(check)}<b>Sim</b> <small class="is-mono">${esc(String(d.enc))}</small></span>` : '<span class="is-nada">—</span>';
     case 'anulado': return d.anulado ? `<span class="dv2-sim dv2-sim--nao">${L(ban)}<b>Sim</b></span>` : '<span class="is-nada">—</span>';
-    case 'valor': return d.valor === null ? '<span class="is-nada" title="O fornecedor ainda não respondeu">sem resposta</span>' : `${euros(d.valor as number)}`;
+    case 'valor': return d.valor === null ? '<span class="is-nada" title="O fornecedor ainda não respondeu">sem resposta</span>' : `${d.barata ? `<span class="dv2-barata" title="A proposta mais barata deste pedido">${L(trendingDown)}Mais barata</span>` : ''}${euros(d.valor as number)}`;
     default: return esc(String(d[k] ?? '')) || '<span class="is-nada">—</span>';
   }
 }

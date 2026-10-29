@@ -643,6 +643,8 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dk-acao]'))) { acao(b.dataset.dkAcao!, b); return; }
     if ((b = t.closest('[data-dk-vista]'))) { e.vista = b.dataset.dkVista as Estado['vista']; desenhar(); return; }
     if ((b = t.closest('[data-dk-dobrar]'))) { ev.stopPropagation(); const id = b.dataset.dkDobrar!; e.arvore[id] = !e.arvore[id]; desenhar({ exp: false }); return; }
+    /* 29 out. (ela: «faz uma espécie de folders aqui»): entrar e sair das pastas dentro do módulo (Mapas, Comparativos) */
+    if ((b = t.closest('[data-dk-sub]'))) { const mod = b.closest<HTMLElement>('[data-dk-exp-pasta]')?.dataset.dkExpPasta ?? e.pasta; e.sub = { ...e.sub, [mod]: b.dataset.dkSub || mod }; e.sel = ''; desenhar(); return; }
     if ((b = t.closest('[data-dk-ir]'))) { const id = b.dataset.dkIr!; pg.classList.remove('is-menu-aberto'); if (id === 'raiz') abrirCasa(); else abrirPasta(id); return; }
     if ((b = t.closest('[data-dk-atalho]'))) { pg.classList.remove('is-menu-aberto'); abrirRota(b.dataset.dkAtalho!); return; }
     if ((b = t.closest('[data-dk-desafixar]'))) { const r = b.dataset.dkDesafixar!; e.fixados = e.fixados.filter((x) => x !== r); dizer(`«${ROTAS[r]?.titulo ?? r}» saiu do acesso rápido.`); desenhar(); return; }
