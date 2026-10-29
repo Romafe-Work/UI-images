@@ -33,3 +33,13 @@
   }
   .tela-telemovel body > .ecra > .versao > .entrada { min-height: 100vh; }
 }
+
+/* 29 out. (ela: «coloca um screen maior para conseguir ver tudo na demonstração sem ter de fazer scroll»): na
+   demonstração o ecrã cresce para a altura da janela (a largura fica a da tela: o desenho é o mesmo); só por baixo
+   fica o lugar da barra da demonstração. */
+@media (min-width: 600.02px) {
+  .tela-telemovel body.demo > .ecra { height: max(var(--tela-a), calc(100vh - 196px)); margin: 24px auto 152px; }
+  /* dentro da moldura, as páginas medem-se pela moldura e não pela janela (o 100vh delas fazia rolar ecrãs curtos) */
+  .tela-telemovel body > .ecra > .versao > .gp, .tela-telemovel body > .ecra > .versao > .gpk-login { min-height: 100%; }
+  .tela-telemovel body > .ecra > .versao > .gp[data-gp-abertura] { height: 100%; }
+}
