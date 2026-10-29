@@ -133,12 +133,10 @@ export const MENU_ERP: LinhaMenu[] = [
   A('mapas-tot-ge', 'compras-mapas', 'Documentos de guia de entrada', '', 30, true),
   A('mapas-recap', 'compras-mapas', 'Mapa recapitulativo de fornecedores', '', 50, true),
   /* 23 out. (briefing «Unified Purchasing Analysis»): os quatro «Mapa de compras por …» são um ecrã só, com quatro modos */
-  A('analise-artigo', 'compras-mapas', 'Análise de compras', '', 60, true), A('mapas-comparativos', 'compras-mapas', 'Comparativos de compras', '', 70),
+  A('analise-artigo', 'compras-mapas', 'Análise de compras', '', 60, true),
+  /* 29 out. (ela: «coloca tudo num só screen»): os quatro comparativos são um ecrã só, com quatro vistas; o submenu sai */
+  A('comp-geral-var', 'compras-mapas', 'Comparativos de compras', '', 70),
   A('mapas-analise-forn', 'compras-mapas', 'Análise de fornecedores', '', 80, true), A('mapas-automatico', 'compras-mapas', 'Artigos/compras automático', '', 90, true),
-  /* 23 out. (ela: «quero num só ecrã»): cada par «X» e «X (variação anual)» é agora um ecrã só (Variação anual ou Mês a mês) */
-  A('comp-geral-var', 'mapas-comparativos', 'Geral', '', 10), A('comp-artigo-var', 'mapas-comparativos', 'Por artigo', '', 30, true),
-  A('comp-familia-var', 'mapas-comparativos', 'Por família/subfamília', '', 50, true),
-  A('comp-forn-var', 'mapas-comparativos', 'Por fornecedor', '', 70, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
 /* 26 out. (ela mandou outra vez o print do menu): sem linha entre as Guias de transporte e as de devolução, nem entre as Faturas e as Notas de
@@ -209,6 +207,10 @@ ROTAS['compras.mapas-automatico'].titulo = 'Artigos / Compras';
   ROTAS[alvo].titulo = t;
   ROTAS[`compras.${v}`] = { ...ROTAS[alvo], alias: alvo, modo: 'mensal' };
 });
+/* 29 out.: os comparativos por artigo, família e fornecedor são vistas dos Comparativos de compras; quem os tinha nos
+   favoritos ou nos recentes abre o mesmo separador na vista deles */
+ROTAS['compras.comp-geral-var'].titulo = 'Comparativos de compras';
+(['artigo', 'familia', 'forn'] as const).forEach((v) => { ROTAS[`compras.comp-${v}-var`] = { ...ROTAS['compras.comp-geral-var'], alias: 'compras.comp-geral-var', modo: v }; });
 /* os Detalhes (favoritos e recentes antigos) abrem o ecrã dos Totais na vista deles */
 ROTAS['compras.mapas-det-enc'] = { ...ROTAS['compras.mapas-tot-enc'], alias: 'compras.mapas-tot-enc', modo: 'det' };
 ROTAS['compras.mapas-det-ge'] = { ...ROTAS['compras.mapas-tot-ge'], alias: 'compras.mapas-tot-ge', modo: 'det' };
@@ -344,14 +346,14 @@ export function acoes(e: Estado): string {
 
 /* ---------- o explorador (V5) ---------- */
 /** O que cada módulo faz (uma linha) e o tipo de cada ecrã — para não serem todos o mesmo ícone de ficheiro. */
-export const DESCR: Record<string, string> = { compras: 'O menu Compras: lista de faltas, orçamentos, encomendas, guias, faturas e os mapas.', 'compras-mapas': 'Os mapas das compras: documentos, análises e comparativos.', 'mapas-comparativos': 'O mesmo período comparado ano a ano: geral, por artigo, por família e por fornecedor.' };
+export const DESCR: Record<string, string> = { compras: 'O menu Compras: lista de faltas, orçamentos, encomendas, guias, faturas e os mapas.', 'compras-mapas': 'Os mapas das compras: documentos, análises e comparativos.' };
 export const TIPO: Record<string, [string, string]> = {
   'compras.faltas': ['Análise', 'O que está em rutura e o que comprar'], 'compras.encomendas': ['Lista', 'Encomendas a fornecedor, por estado'], 'compras.fornecedores': ['Registos', 'Fichas, condições e desempenho'],
   'compras.requisicoes': ['Lista', 'Pedidos internos de compra'],
   /* 28 out. (ela: «muda este screen, já temos o menu das compras construído»): os ecrãs do menu Compras de agora */
   'compras.compras-guias-entrada': ['Lista', 'Entrada, transporte a fornecedor e devolução'], 'compras.compras-faturas': ['Lista', 'Faturas, notas de crédito e verificação'],
   'compras.mapas-tot-enc': ['Mapa', 'Totais e detalhes por encomenda'], 'compras.mapas-tot-ge': ['Mapa', 'Totais e detalhes por guia de entrada'], 'compras.mapas-recap': ['Mapa', 'Por fornecedor: encomendado, recebido, em aberto'],
-  'compras.analise-artigo': ['Análise', 'Por artigo, fornecedor e família'], 'compras.comp-geral-var': ['Comparativo', 'Ano a ano, ou mês a mês'], 'compras.comp-artigo-var': ['Comparativo', 'Cada artigo, ano a ano'],
+  'compras.analise-artigo': ['Análise', 'Por artigo, fornecedor e família'], 'compras.comp-geral-var': ['Comparativo', 'Geral, por artigo, família e fornecedor, ano a ano'], 'compras.comp-artigo-var': ['Comparativo', 'Cada artigo, ano a ano'],
   'compras.comp-familia-var': ['Comparativo', 'Cada família e subfamília, ano a ano'], 'compras.comp-forn-var': ['Comparativo', 'Cada fornecedor, ano a ano'], 'compras.mapas-analise-forn': ['Análise', 'Prazos e atrasos por fornecedor'],
   'compras.mapas-automatico': ['Sugestão', 'O que encomendar a cada fornecedor'], 'compras.cotacoes': ['Comparação', 'Propostas lado a lado'], 'compras.rececoes': ['Operação', 'O que chegou ao armazém'], 'compras.devolucoes': ['Lista', 'Ainda no ERP antigo'],
 };

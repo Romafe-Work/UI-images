@@ -109,7 +109,7 @@ export interface Encomenda {
   comprador: IdPerfil; criador: IdPerfil; notas: string; estado: EstadoEnc; portes: number; linhas: LinhaEnc[]; historico: Evento[]; versao: number; lembrada?: string;
 }
 export interface LinhaRec { linha: string; ref: string; aceite: number; rejeitada: number; motivo: string }
-export interface Rececao { ref: string; chave: string; enc: string; guia: string; armazem: string; data: string; por: IdPerfil; linhas: LinhaRec[]; notas: string }
+export interface Rececao { ref: string; chave: string; enc: string; guia: string; armazem: string; data: string; por: IdPerfil; linhas: LinhaRec[]; notas: string; anulada?: { quando: string; por: IdPerfil; motivo: string } }
 export interface Movimento { quando: string; ref: string; qtd: number; armazem: string; origem: string; chave: string }
 
 const L = (id: string, ref: string, qtd: number, preco: number | null, entrega: string, recebida = 0, desc = 0): LinhaEnc => ({ id, ref, qtd, preco, desc, iva: 2300, entrega, recebida, rejeitada: 0 });
@@ -207,7 +207,7 @@ export function totais(e: Pick<Encomenda, 'linhas' | 'portes'>): Totais {
 }
 
 /* ---------- permissões por ação ---------- */
-export type Acao = 'ver' | 'criar' | 'editar' | 'submeter' | 'aprovar' | 'rejeitar' | 'emitir' | 'cancelar' | 'fechar' | 'duplicar' | 'receber' | 'lembrar' | 'fornecedores';
+export type Acao = 'ver' | 'criar' | 'editar' | 'submeter' | 'aprovar' | 'rejeitar' | 'emitir' | 'cancelar' | 'fechar' | 'duplicar' | 'receber' | 'lembrar' | 'fornecedores' | 'guias';
 export const PODE: Record<Acao, IdPerfil[]> = {
   ver: ['compras', 'armazem', 'financeiro', 'admin'],
   criar: ['compras', 'admin'], editar: ['compras', 'admin'], submeter: ['compras', 'admin'], duplicar: ['compras', 'admin'],
@@ -215,6 +215,8 @@ export const PODE: Record<Acao, IdPerfil[]> = {
   emitir: ['compras', 'admin'], cancelar: ['compras', 'admin'], fechar: ['compras', 'admin'], lembrar: ['compras', 'admin'],
   receber: ['armazem', 'admin'],
   fornecedores: ['compras', 'armazem', 'financeiro', 'admin'],
+  /* 29 out.: as guias (Compras ▸ Guias: Novo, Editar, Anular), como no ERP antigo — as Compras também as registam */
+  guias: ['compras', 'armazem', 'admin'],
 };
 export const pode = (p: IdPerfil, a: Acao) => PODE[a].includes(p);
 
@@ -330,7 +332,7 @@ export function transitar(p: IdPerfil, ref: string, acao: Acao, motivo = ''): En
 }
 export const NOME_ACAO: Record<Acao, string> = {
   ver: 'Ver', criar: 'Criar', editar: 'Alterar', submeter: 'Submeter', aprovar: 'Aprovar', rejeitar: 'Rejeitar', emitir: 'Emitir', cancelar: 'Cancelar',
-  fechar: 'Fechar', duplicar: 'Duplicar', receber: 'Registar receção', lembrar: 'Lembrar fornecedor', fornecedores: 'Ver fornecedores',
+  fechar: 'Fechar', duplicar: 'Duplicar', receber: 'Registar receção', lembrar: 'Lembrar fornecedor', fornecedores: 'Ver fornecedores', guias: 'Registar guias',
 };
 
 /** Uma nota no histórico de uma encomenda (outro documento que a criou ou a refere). */
@@ -351,10 +353,10 @@ export function duplicar(p: IdPerfil, ref: string): Encomenda {
 
 /* ---------- a receção ---------- */
 /** Regista uma receção. Mesma chave → a mesma receção (um segundo clique, ou repetir o pedido, não duplica). */
-export function receber(p: IdPerfil, o: { chave: string; enc: string; guia: string; notas: string; linhas: { linha: string; aceite: number; rejeitada: number; motivo: string }[] }): { rec: Rececao; repetida: boolean } {
+export function receber(p: IdPerfil, o: { chave: string; enc: string; guia: string; notas: string; linhas: { linha: string; aceite: number; rejeitada: number; motivo: string }[] }, acao: Acao = 'receber'): { rec: Rececao; repetida: boolean } {
   recarregar();
   const ja = db().rec.find((r) => r.chave === o.chave); if (ja) return { rec: ja, repetida: true };
-  if (!pode(p, 'receber')) throw new Recusa('O teu perfil não regista receções.', 'permissao');
+  if (!pode(p, acao)) throw new Recusa(acao === 'guias' ? 'O teu perfil não regista guias.' : 'O teu perfil não regista receções.', 'permissao');
   const e = encomenda(o.enc); if (!e) throw new Recusa('A encomenda já não existe.', 'estado');
   if (!['Emitida', 'Parcialmente recebida'].includes(e.estado)) throw new Recusa(`A encomenda está «${e.estado}»: não recebe mercadoria.`, 'estado');
   if (!o.guia.trim()) throw new Recusa('Escreve o número da guia do fornecedor.');
@@ -381,6 +383,37 @@ export function receber(p: IdPerfil, o: { chave: string; enc: string; guia: stri
   e.versao++;
   db().rec.push(rec); gravar();
   return { rec, repetida: false };
+}
+/** 29 out. (Guias: Editar F6): o número da guia do fornecedor e as notas corrigem-se; as quantidades não — para isso anula-se. */
+export function corrigirGuia(p: IdPerfil, ref: string, guia: string, notas: string): Rececao {
+  recarregar();
+  if (!pode(p, 'guias')) throw new Recusa('O teu perfil não altera guias.', 'permissao');
+  const r = db().rec.find((x) => x.ref === ref); if (!r) throw new Recusa('A guia já não existe.', 'estado');
+  if (r.anulada) throw new Recusa(`A guia ${r.guia} está anulada: não se altera.`, 'estado');
+  if (!guia.trim()) throw new Recusa('Escreve o número da guia do fornecedor.');
+  const antes = r.guia; r.guia = guia.trim(); r.notas = notas;
+  const e = encomenda(r.enc); if (e) { e.historico.push(ev(agora(), p, 'Corrigiu a guia', antes !== r.guia ? `${antes} → ${r.guia}` : 'As notas', r.ref)); e.versao++; }
+  gravar(); return r;
+}
+/** 29 out. (Guias: Anular F8): desfaz a guia inteira — as quantidades saem da encomenda, o stock sai pelo inventário
+    (movimentos de sentido contrário, idempotentes pela chave) e a encomenda volta ao estado certo. A guia fica, anulada. */
+export function anularGuia(p: IdPerfil, ref: string, motivo: string): Rececao {
+  recarregar();
+  if (!pode(p, 'guias')) throw new Recusa('O teu perfil não anula guias.', 'permissao');
+  const r = db().rec.find((x) => x.ref === ref); if (!r) throw new Recusa('A guia já não existe.', 'estado');
+  if (r.anulada) throw new Recusa(`A guia ${r.guia} já foi anulada.`, 'estado');
+  if (!motivo.trim()) throw new Recusa('Diz porque se anula: fica no histórico.');
+  const e = encomenda(r.enc); if (!e) throw new Recusa('A encomenda desta guia já não existe.', 'estado');
+  for (const x of r.linhas) {
+    const l = e.linhas.find((y) => y.id === x.linha); if (!l) continue;
+    l.recebida = Math.max(0, l.recebida - x.aceite); l.rejeitada = Math.max(0, l.rejeitada - x.rejeitada);
+    if (x.aceite) inventarioEntrada(l.ref, -x.aceite, r.armazem, r.ref, `${r.chave}:anular:${x.linha}`);
+  }
+  const antes = e.estado;
+  e.estado = e.linhas.every((l) => pendente(l) === 0) ? 'Recebida' : e.linhas.some((l) => l.recebida > 0) ? 'Parcialmente recebida' : 'Emitida';
+  e.historico.push(ev(agora(), p, 'Anulou a guia', `${r.guia} · ${motivo.trim()} · ${antes} → ${e.estado}`, r.ref)); e.versao++;
+  r.anulada = { quando: agora(), por: p, motivo: motivo.trim() };
+  gravar(); return r;
 }
 /** O inventário: o único sítio que mexe no stock. Idempotente pela chave. */
 function inventarioEntrada(ref: string, qtd: number, armazem: string, origem: string, chave: string): void {

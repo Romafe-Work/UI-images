@@ -29,16 +29,15 @@ export const versaoInicioV7 = () => ({ ...V7, html: paginaLat(estadoVivo()) });
 /** Os estados da v6 também na v7. */
 export const versaoEstadoVivo = (id: string) => versaoEstadoLat(id, V7);
 
-export type IdVivo = 'dk8-pasta' | 'dk8-pasta-mapas' | 'dk8-pasta-comparativos' | 'dk8-janela' | 'dk8-separadores' | 'dk8-todos' | 'dk8-todos-procura' | 'dk8-reabrir';
+export type IdVivo = 'dk8-pasta' | 'dk8-pasta-mapas' | 'dk8-janela' | 'dk8-separadores' | 'dk8-todos' | 'dk8-todos-procura' | 'dk8-reabrir';
 const S = (id: string, rota: string, titulo: string, sujo = false) => ({ id, rota, titulo, sujo });
 const MUITOS = [S('s1', 'compras.faltas', 'Lista de Faltas'), S('s2', 'compras.encomendas', 'Encomendas'), S('s3', 'compras.cotacoes', 'Orçamentos'), S('s4', 'compras.rececoes', 'Receção de encomendas'),
   S('s5', 'compras.compras-guias-entrada', 'Guias de entrada'), S('s6', 'compras.encomenda', 'EF 2026/0413', true), S('s7', 'ficheiros.artigos', 'Artigos'), S('s8', 'compras.fornecedores', 'Fornecedores'),
   S('s9', 'compras.compras-faturas', 'Faturas'), S('s10', 'compras.mapas-recap', 'Mapa recapitulativo de fornecedores'), S('s11', 'compras.requisicoes', 'Requisições'), S('s12', 'ficheiros.marcas', 'Marcas')];
 const NOVOS: [IdVivo, string, string, Partial<Estado>][] = [
   ['dk8-pasta', '05.45 · Pasta Compras aberta', 'O fim da transformação da pasta: o separador «Compras» com o explorador do módulo (os ecrãs como ficheiros); fechar o separador devolve a pasta ao menu.', { seps: [S('p-compras', 'pasta:compras', 'Compras')], ativo: 'p-compras', sel: 'compras.faltas' }],
-  /* 29 out. (ela: «faz uma espécie de folders aqui»): dentro da pasta Compras, Mapas e Comparativos são pastas que se abrem */
-  ['dk8-pasta-mapas', '05.51 · Pasta Mapas aberta', 'Dentro de Compras, a pasta Mapas: a pasta Comparativos de compras e os mapas como ficheiros; o caminho em cima (Área de trabalho › Compras › Mapas) e a seta voltam a Compras.', { seps: [S('p-compras', 'pasta:compras', 'Compras')], ativo: 'p-compras', sub: { compras: 'compras-mapas' } }],
-  ['dk8-pasta-comparativos', '05.52 · Pasta Comparativos aberta', 'Mapas › Comparativos de compras: os quatro comparativos (geral, por artigo, por família/subfamília, por fornecedor).', { seps: [S('p-compras', 'pasta:compras', 'Compras')], ativo: 'p-compras', sub: { compras: 'mapas-comparativos' } }],
+  /* 29 out. (ela: «faz uma espécie de folders aqui»): dentro da pasta Compras, Mapas é uma pasta que se abre */
+  ['dk8-pasta-mapas', '05.51 · Pasta Mapas aberta', 'Dentro de Compras, a pasta Mapas: os mapas como ficheiros (os Comparativos de compras num só); o caminho em cima (Área de trabalho › Compras › Mapas) e a seta voltam a Compras.', { seps: [S('p-compras', 'pasta:compras', 'Compras')], ativo: 'p-compras', sub: { compras: 'compras-mapas' } }],
   ['dk8-janela', '05.46 · Janela a partir de Artigos', 'Em Artigos, «Stock por armazém» abre a janela de contexto a partir do botão; a tabela fica onde estava.', { seps: [S('s1', 'ficheiros.artigos', 'Artigos')], ativo: 's1', janelas: [{ id: 'j1', tipo: 'artigo', chave: '6206-2RSH', x: 300, y: 70, w: 360, h: 300, z: 2 }] }],
   ['dk8-separadores', '05.47 · Vários separadores', 'Artigos, Encomendas e uma encomenda com alterações por guardar (o ponto no separador); o indicador está no ativo.', { seps: [S('s1', 'ficheiros.artigos', 'Artigos'), S('s2', 'compras.encomendas', 'Encomendas de compra'), S('s3', 'compras.encomenda', 'EF 2026/0413', true)], ativo: 's2' }],
   /* 27 out. (briefing V3 e ela: «todos os ecrãs com todos os estados»): a barra cheia e a lista de todos os separadores */

@@ -896,7 +896,8 @@ export function iniciar(): void {
 
   document.addEventListener('keydown', (ev) => {
     const t = ev.target as HTMLElement;
-    const r = raiz(t) ?? document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-cf]');
+    /* 29 out.: com os quatro comparativos num ecrã, só conta o da vista que se vê */
+    const r = raiz(t) ?? [...document.querySelectorAll<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-cf]')].find((x) => !x.closest('[hidden]')) ?? null;
     if (!r || editando() || r.closest('[hidden]')) return;
     const e = de(r);
     if (['F2', 'F3', 'F4', 'F9', 'F10', 'F12'].includes(ev.key) && !ev.ctrlKey && !ev.altKey && !ev.metaKey && !ev.shiftKey) {

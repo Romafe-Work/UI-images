@@ -16,6 +16,7 @@ import { faltas } from './faltas';
 import { MENU_ANTIGO } from './menu-antigo-ids';
 import { ecrasAutomatico } from './automatico';
 import { versaoComparativo, estadosComparativo } from './comparativo';
+import { icone } from '../espaco';
 
 const n = (k: number) => k.toLocaleString('pt-PT');
 const eur = (c: number | null) => (c === null ? '—' : euros(c));
@@ -132,6 +133,8 @@ comparativo('comp-familia', (_, r) => `${familiaDe(art(r)?.desc ?? '')} · ${art
 comparativo('comp-forn', (e) => fNome(e.forn), 'Fornecedor');
 
 /** os pares Totais + Detalhes que são um ecrã só (o título do ecrã e a tabela dos Detalhes) */
+/** As vistas dos Comparativos de compras: [dimensão, nome, ícone]. */
+const COMPARATIVOS: [string, string, string][] = [['geral', 'Geral', 'trending-up'], ['artigo', 'Por artigo', 'package'], ['familia', 'Por família/subfamília', 'folder-tree'], ['forn', 'Por fornecedor', 'users']];
 const PARES: Record<string, [string, typeof MENU_ANTIGO[number]]> = { 'mapas-tot-enc': ['Documentos de encomenda', 'mapas-det-enc'], 'mapas-tot-ge': ['Documentos de guia de entrada', 'mapas-det-ge'] };
 const NOTA = 'Do menu Compras do ERP antigo (23 out., ela: «no figma coloca tudo available»): consulta com os números das encomendas e das receções do protótipo; o que ainda não existe diz-se na nota.';
 export const DESCRICAO_MENU_ANTIGO = 'Os itens do menu Compras do ERP antigo (guias, faturas, créditos, verificação e os mapas), cada um num ecrã de consulta.';
@@ -155,6 +158,18 @@ export function ecrasMenuAntigo(): Ecra<IdErp>[] {
     const base: Ecra<IdErp> = { id: t.id as IdErp, nome: `${t.num} · ${t.titulo}`, fluxo: 'Compras', objetivo: `${t.titulo}: ${t.nota}`, versoes: [{ id: 'v1', nota: NOTA, html: paginaTabela(t) }] };
     /* Comparativo por fornecedor (variação anual): a v2 do briefing de 23 out., com os seus estados */
     const dim = ({ 'comp-forn-var': 'forn', 'comp-geral-var': 'geral', 'comp-artigo-var': 'artigo', 'comp-familia-var': 'familia', 'analise-artigo': 'analise' } as const)[id as string];
+    /* 29 out. (ela: «coloca tudo num só screen»): os quatro comparativos num ecrã só, com quatro vistas (Alt+1…Alt+4) por
+       cima de cada relatório; os estados de cada um ficam neste ecrã, com o nome da vista */
+    if (dim && COMPARATIVOS.some(([d]) => d === dim)) {
+      const num = '59', pai = 'cm-comp-geral-var' as IdErp;
+      const estados = estadosComparativo(dim, num).map((x) => ({ ...x, estadoDe: pai, nome: x.nome.replace(/^(\d+)\.(\d+) · /, (_m, a, b) => `${a}.${COMPARATIVOS.findIndex(([d]) => d === dim) * 20 + Number(b)} · ${COMPARATIVOS.find(([d]) => d === dim)![1]} · `) }));
+      if (dim !== 'geral') return estados;
+      const v = (k: string) => versaoComparativo(k as 'geral').html;
+      const zona = (k: string) => `<nav class="dv2c-vistas-zona fx-par-zona cf-vistas" aria-label="Vistas"><div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${COMPARATIVOS.map(([d, tt, ic], i) => `<button type="button" role="tab" aria-selected="${d === k}"${d === k ? '' : ' tabindex="-1"'} data-fx-par-vista="${d}" aria-keyshortcuts="Alt+${i + 1}" title="${tt} (Alt ${i + 1})">${icone(ic)}<span>${tt}</span></button>`).join('')}<i class="dv2c-vistas-ind" data-fx-par-ind aria-hidden="true"></i></div></nav>`;
+      const html = `<div class="fx-par" data-fx-par>${COMPARATIVOS.map(([d], i) => `<div data-fx-par-p="${d}"${i ? ' hidden' : ''}>${v(d).replace(/(<\/header>)/, `$1${zona(d)}`)}</div>`).join('')}</div>`;
+      const nota = 'Comparativos de compras (29 out., ela: «coloca tudo num só screen»): o geral, por artigo, por família/subfamília e por fornecedor num só ecrã, em quatro vistas (Alt+1…Alt+4); cada vista é o relatório dela, com a variação anual ou mês a mês.';
+      return [{ ...base, nome: `${num} · Comparativos de compras`, objetivo: 'As compras do mesmo período comparadas ano a ano (ou mês a mês): no geral, por artigo, por família/subfamília e por fornecedor, num só ecrã.', versoes: [{ id: 'v3', nota, html }] }, ...estados];
+    }
     if (dim) return [{ ...base, versoes: [...base.versoes, versaoComparativo(dim)] }, ...estadosComparativo(dim, t.num)];
     /* 26 out. (ela: «coloca todos os estados por screen»): os estados da consulta; as Faturas e o Mapa recapitulativo têm os da v2 */
     if (id === 'compras-faturas' || id === 'mapas-recap') return [base];

@@ -79,8 +79,7 @@ function menuCompras(): [string, string | null][] {
   ['compras-faltas', '20 · Lista de Faltas'], ['compras-cotacoes', '18 · Orçamentos'], ['compras', '10 · Encomendas'],
   ['cm-compras-guias-entrada', '42 · Guias'], ['cm-compras-faturas', '45 · Faturas'],
   ['cm-mapas-tot-enc', '49 · Documentos de encomenda'], ['cm-mapas-tot-ge', '51 · Documentos de guia de entrada'], ['cm-mapas-recap', '53 · Mapa recapitulativo de fornecedores'],
-  ['cm-analise-artigo', '54 · Análise de compras'], ['cm-comp-geral-var', '59 · Comparativo geral'], ['cm-comp-artigo-var', '61 · Comparativo por artigo'],
-  ['cm-comp-familia-var', '63 · Comparativo por família/subfamília'], ['cm-comp-forn-var', '65 · Comparativo por fornecedor'],
+  ['cm-analise-artigo', '54 · Análise de compras'], ['cm-comp-geral-var', '59 · Comparativos de compras'],
   ['cm-mapas-analise-forn', '66 · Análise de fornecedores'], ['cm-mapas-automatico', '67 · Artigos / compras automático'],
   ['compras-fornecedores', '14 · Fornecedores'], ['compras-requisicoes', '16 · Requisições'],
   ];

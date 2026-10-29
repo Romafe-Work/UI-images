@@ -68,7 +68,7 @@ function parVista(c: HTMLElement, k: string, foco = false): void {
   if (b && ind) requestAnimationFrame(() => { const pr = b.parentElement!.getBoundingClientRect(), x = b.getBoundingClientRect(); if (!x.width) return; ind.style.transform = `translateX(${x.left - pr.left}px) scaleX(${x.width / 100})`; ind.classList.add('is-pronto'); });
   if (foco) b?.focus();
 }
-const parArmar = () => document.querySelectorAll<HTMLElement>('[data-fx-par]').forEach((c) => { const m = new URLSearchParams(location.hash.slice(1)).get('modo'); parVista(c, m === 'det' ? 'det' : (c.querySelector<HTMLElement>('[data-fx-par-p]:not([hidden])')?.dataset.fxParP ?? 'tot')); });
+const parArmar = () => document.querySelectorAll<HTMLElement>('[data-fx-par]').forEach((c) => { const m = new URLSearchParams(location.hash.slice(1)).get('modo'); parVista(c, m && c.querySelector(`[data-fx-par-p="${CSS.escape(m)}"]`) ? m : (c.querySelector<HTMLElement>('[data-fx-par-p]:not([hidden])')?.dataset.fxParP ?? 'tot')); });
 
 export function iniciar(): void {
   /* o contador do registo escolhido à partida */
@@ -80,9 +80,11 @@ export function iniciar(): void {
     parVista(c, b.dataset.fxParVista!, true);
   });
   document.addEventListener('keydown', (ev) => {
-    if (!ev.altKey || !['1', '2'].includes(ev.key) || editando()) return;
+    if (!ev.altKey || !/^[1-9]$/.test(ev.key) || editando()) return;
     const c = document.querySelector<HTMLElement>('.ecra:not([hidden]) [data-fx-par]'); if (!c) return;
-    ev.preventDefault(); parVista(c, ev.key === '1' ? 'tot' : 'det', true);
+    /* 29 out.: Alt+1…Alt+n, pela ordem das vistas (Totais/Detalhes; os quatro Comparativos) */
+    const ks = [...c.querySelectorAll<HTMLElement>('[data-fx-par-p]')].map((x) => x.dataset.fxParP!), k = ks[Number(ev.key) - 1]; if (!k) return;
+    ev.preventDefault(); parVista(c, k, true);
   });
   document.addEventListener('input', (ev) => { const t = ev.target as HTMLInputElement, r = raiz(t); if (r && t.matches('[data-fx-q]')) filtrar(r, t.value); });
   document.addEventListener('click', (ev) => {
