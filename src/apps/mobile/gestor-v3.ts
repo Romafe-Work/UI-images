@@ -97,10 +97,10 @@ const un = (g: GuiaS) => g.linhas.reduce((s, l) => s + l.q, 0);
    ========================================================= */
 const G = (titulo: string, o: Opcoes = {}): Opcoes => ({ titulo, gestor: true, funcao: 'Gestor', ...o });
 const comBarra = (titulo: string, ativo = 'inventario', o: Opcoes = {}): Opcoes => G(titulo, { barra: barra('gestor', ativo), ...o });
-const faixa = (xs: [string, number, ('aviso' | 'erro' | 'ok' | '')?][]) => `<dl class="gi-faixa gx-faixa">${xs.map(([t, n, tom]) => `<div${tom ? ` class="is-${tom}"` : ''}><dd>${n}</dd><dt>${t}</dt></div>`).join('')}</dl>`;
+export const faixa = (xs: [string, number, ('aviso' | 'erro' | 'ok' | '')?][]) => `<dl class="gi-faixa gx-faixa">${xs.map(([t, n, tom]) => `<div${tom ? ` class="is-${tom}"` : ''}><dd>${n}</dd><dt>${t}</dt></div>`).join('')}</dl>`;
 /** «Acompanhar | Executar»: um interruptor no topo de cada módulo, em vez de dois botões em cada cartão. */
 export type Modulo = 'inv' | 'arr' | 'sep' | 'exp';
-const MODO: Record<Modulo, [string, string]> = { inv: ['gestor-inventario', 'g-inv-exec'], arr: ['arr-inicio', 'g-arr-exec'], sep: ['g-sep-acomp', 'g-sep'], exp: ['g-exp-acomp', 'g-exp'] };
+export const MODO: Record<Modulo, [string, string]> = { inv: ['gestor-inventario', 'g-inv-exec'], arr: ['arr-inicio', 'g-arr-exec'], sep: ['g-sep-acomp', 'g-sep'], exp: ['g-exp-acomp', 'g-exp'] };
 const modo = (m: Modulo, exec: boolean) => `<nav class="gx-modo" aria-label="Modo"><button type="button" data-ir="${MODO[m][0]}"${exec ? '' : ' aria-current="page"'}>${L(eye)}<span>Acompanhar</span></button><button type="button" data-ir="${MODO[m][1]}"${exec ? ' aria-current="page"' : ''}>${L(play)}<span>Executar</span></button></nav>`;
 const linhaArt = (ref: string, desc: string, q: string, extra = '') => `<li class="gi-linha${extra}"><div><b>${ref}</b><span>${desc}</span></div><div class="gi-linha__q"><b>${q}</b></div></li>`;
 const faixaLer = (tom: 'pronto' | 'lido' | 'ok' | 'erro' | 'aviso', ic: string, t: string, x: string, ir = '', tipo = '') => `<button type="button" class="gi-faixa-ler gi-faixa-ler--${tom}" data-ler="1" data-tipo-leitura="${tipo}"${ir ? ` data-depois="${ir}"` : ''}><span class="gi-faixa-ler__ic">${L(ic)}</span><span><b>${t}</b><small>${x}</small></span>${tom === 'pronto' ? '<i class="gi-faixa-ler__varre" aria-hidden="true"></i>' : ''}</button>`;
@@ -369,9 +369,9 @@ function expedir(e: E96 = 'lista'): string {
 /* =========================================================
    75 · Ler (Gestor): o leitor ao centro; o código só vale dentro de uma operação
    ========================================================= */
-const itemMais = (ic: string, t: string, x: string, ir: string) => `<li><button type="button" class="gi-mais"${ir ? ` data-ir="${ir}"` : ''}><span class="gi-mais__ic">${L(ic)}</span><span><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`;
+export const itemMais = (ic: string, t: string, x: string, ir: string) => `<li><button type="button" class="gi-mais"${ir ? ` data-ir="${ir}"` : ''}><span class="gi-mais__ic">${L(ic)}</span><span><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`;
 type E75 = 'normal' | 'posicao' | 'guia' | 'artigo' | 'desconhecido' | 'sem-leitor' | 'sem-rede';
-function lerGestor(e: E75 = 'normal'): string {
+export function lerGestor(e: E75 = 'normal'): string {
   const o = (x: Opcoes = {}) => comBarra('Ler', 'ler', x);
   if (e === 'posicao') return ecra(`<h1 class="gp-titulo">Leu 60100305</h1>
     <section class="gi-cartao">${posicao('60100305', 'gi-pos--grande')}<p>Zona 10 · rolamentos. Está em três operações:</p></section>

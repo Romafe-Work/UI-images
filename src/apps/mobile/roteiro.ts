@@ -111,7 +111,7 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-centro', 'Todos os ecrãs · Centro de operações, tarefas e Mais', entre([60, 60], [65, 66], [69, 69])],
   ['todos-inv-gestor', 'Todos os ecrãs · Inventário do Gestor', entre([61, 64])],
   ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
-  ['todos-ler', 'Todos os ecrãs · Ler, equipa e insights', entre([75, 75], [77, 78])],
-  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [80, 89])],
+  ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
+  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [80, 81])],
   ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99])],
 ] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));
