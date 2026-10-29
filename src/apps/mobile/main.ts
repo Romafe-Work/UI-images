@@ -15,6 +15,9 @@ import './css/navegacao.css';
 import './css/gestor-v3.css';
 import './css/gestor-v4.css';
 import './css/gestor-v5.css';
+import '../goparts/css/entrar-3d.css';
+import '../identidade/css/identidade.css';
+import './css/login-pick.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';

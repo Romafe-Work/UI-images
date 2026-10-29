@@ -78,9 +78,13 @@ export function iniciar(): void {
     if (editando()) return;
     if (t.closest?.('[data-gp] [data-login], [data-gpi] [data-login]')) {
       ev.preventDefault(); ev.stopImmediatePropagation();
+      /* 29 out.: a página de início de sessão está na própria Pick (login-pick.ts) */
+      if (document.querySelector('.ecra[data-ecra="pk-login"]')) { mostrar('pk-login'); return; }
       const h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams(); ['so', 'demo', 'anim'].forEach((k) => { const v = h.get(k); if (v) q.set(k, v); }); q.set('ecra', 'entrada');
       location.href = '../identidade/#' + q.toString(); return;
     }
+    const ver = t.closest?.<HTMLButtonElement>('.gpk-login [data-id-ver]');
+    if (ver) { const i = ver.parentElement?.querySelector('input'); if (i) { const v = i.type === 'password'; i.type = v ? 'text' : 'password'; ver.setAttribute('aria-pressed', String(v)); } return; }
     if (!pg || !pg.contains(t)) return;
     if (t.closest('[data-gpa-saltar]') || (ab && ab.contains(t))) { acabar(); return; }
     const f = t.closest<HTMLElement>('[data-gp-filtro]');

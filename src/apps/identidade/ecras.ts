@@ -264,7 +264,7 @@ const PALCO = `<section class="ent3__palco" aria-label="ROMAFE">
   </section>`;
 /** a fase do rolamento de cada ecrã: montar-se no e-mail, completar-se na palavra-passe, desmontado na ajuda */
 const fase = (k: string) => (k.startsWith('passe') || k.startsWith('aplicacoes') ? 'palavra' : k.startsWith('recuperar') ? 'ajuda' : 'entrada');
-function paraV2(html: string): string {
+export function paraV2(html: string): string {
   return html
     .replace(/^<div class="id( id--abrir)?" data-id="([^"]+)">/, (_, ab: string | undefined, k: string) => `<div class="ent3 id id--v2${ab || ''}" data-id="${k}" data-fase="${fase(k)}" data-ciclo>`)
     .replace(/<aside class="id-cena"[\s\S]*?<\/aside>/, PALCO)

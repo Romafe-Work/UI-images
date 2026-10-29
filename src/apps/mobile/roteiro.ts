@@ -107,7 +107,7 @@ registarRoteiro('erros', 'Quando algo corre mal', [
 const n0 = (e: HTMLElement) => Number(/^\d+/.exec(e.dataset.nome ?? '')?.[0] ?? -1);
 const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some(([a, b]) => n0(e) >= a && n0(e) <= b);
 ([
-  ['todos-entrar', 'Todos os ecrãs · Entrar, carregar e erros', entre([0, 0], [20, 39])],
+  ['todos-entrar', 'Todos os ecrãs · Entrar, carregar e erros', entre([0, 3], [20, 39])],
   ['todos-centro', 'Todos os ecrãs · Centro de operações, tarefas e Mais', entre([60, 60], [65, 66], [69, 69])],
   ['todos-inv-gestor', 'Todos os ecrãs · Inventário do Gestor', entre([61, 64])],
   ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
