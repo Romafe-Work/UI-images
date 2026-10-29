@@ -53,8 +53,8 @@ registarRoteiro('erp-orcamentos', 'Orçamentos: da proposta à encomenda', [
   sep('tr[data-dv2-id="PC 2026/0017|skf"]', 900),
   sep('[data-dv2-jan-tab="linhas"]', 1200),
   sep('[data-dv2-acao="transferir"]', 700),
-  sep('[data-dv2-acao="transferir-sim"]', 1500),
-  sep('[data-dv2-acao="abrir-doc"][data-rota="compras.encomenda"]', 1800),
+  /* confirmar abre logo a encomenda criada num separador (29 out.: com os separadores rápidos, já à frente) */
+  sep('[data-dv2-acao="transferir-sim"]', 2200),
   sep('[data-dv2-jan-tab="linhas"]', 2200),
   { legenda: '' },
 ], SEM);

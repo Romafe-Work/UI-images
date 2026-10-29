@@ -6,7 +6,7 @@
    ========================================================= */
 import type { App } from './tipos';
 import { iniciar as iniciarTema } from './tema';
-import { iniciar as iniciarEcras } from './ecras';
+import { iniciar as iniciarEcras, adiar } from './ecras';
 import { iniciar as iniciarDemo } from './demo';
 import { configurar as configurarFluxo } from './fluxo';
 import { iniciar as iniciarEditor } from './editor';
@@ -33,6 +33,9 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
   /* o que se criou no editor (versões, cópias de ecrãs) entra antes de desenhar */
   const locais = juntarExtras(app);
 
+  /* num separador da área de trabalho só se vê o ecrã pedido: os outros constroem-se só se forem mostrados (ecras.ts) */
+  const pedido = new URLSearchParams(location.search).has('separador') ? new URLSearchParams(location.hash.slice(1)).get('ecra') : null;
+  const soUm = !!pedido && app.ecras.some((e) => e.id === pedido);
   const frag = document.createDocumentFragment();
   app.ecras.forEach((e, i) => {
     const div = document.createElement('div');
@@ -54,7 +57,7 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
       dv.dataset.nota = v.nota;
       dv.hidden = j < e.versoes.length - 1;
       if (locais.has(e.id + '|' + v.id)) dv.dataset.local = '1';
-      dv.innerHTML = v.html;
+      if (soUm && e.id !== pedido) adiar(dv, v.html); else dv.innerHTML = v.html;
       div.appendChild(dv);
     });
     frag.appendChild(div);

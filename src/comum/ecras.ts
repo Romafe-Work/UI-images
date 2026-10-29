@@ -181,8 +181,17 @@ export function pintarBarra(): void {
   }
 }
 
+/* 29 out. (ela: «porque a minha demonstração do erp é tão lenta?»): num separador da área de trabalho (?separador=1) só
+   se vê um ecrã; os outros guardam o HTML e só se constroem se forem mostrados (pagina.ts). */
+const adiados = new Map<HTMLElement, string>();
+export function adiar(versao: HTMLElement, html: string): void { adiados.set(versao, html); }
+function construir(ecra: Element | null): void {
+  ecra?.querySelectorAll<HTMLElement>(':scope > .versao').forEach((v) => { const h = adiados.get(v); if (h !== undefined) { v.innerHTML = h; adiados.delete(v); } });
+}
+
 export function mostrar(nome: string): boolean {
   if (!existe(nome)) return false;
+  if (adiados.size) construir(document.querySelector(`.ecra[data-ecra="${CSS.escape(nome)}"]`));
   document.querySelectorAll<HTMLElement>('.ecra').forEach((e) => {
     e.hidden = e.dataset.ecra !== nome;
   });

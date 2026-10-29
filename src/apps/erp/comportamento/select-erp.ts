@@ -39,11 +39,14 @@ function melhorar(sel: HTMLSelectElement): void {
   b.setAttribute('aria-haspopup', 'listbox'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = `<span class="esel__texto"></span>${SETA}`;
   [...sel.attributes].forEach((a) => { if (/^data-(lf2|dv2|rc)-campo$/.test(a.name) || a.name === 'data-ak-primeiro' || a.name === 'data-dv2-primeiro' || a.name === 'data-lf2-primeiro') { b.setAttribute(a.name, a.value); sel.removeAttribute(a.name); } });
-  const rot = sel.getAttribute('aria-label') ?? document.querySelector(`label[for="${CSS.escape(id)}"]`)?.querySelector('span')?.textContent ?? sel.closest('label')?.querySelector('span')?.textContent ?? '';
+  /* 29 out. (ela: «porque a minha demonstração do erp é tão lenta?»): o rótulo procura-se no ecrã do select e não na
+     página inteira — com os 552 ecrãs na página (≈270 mil nós), cada procura no documento custava, e são centenas de selects */
+  const raiz: ParentNode = sel.closest('.ecra') ?? document;
+  const rot = sel.getAttribute('aria-label') ?? raiz.querySelector(`label[for="${CSS.escape(id)}"]`)?.querySelector('span')?.textContent ?? sel.closest('label')?.querySelector('span')?.textContent ?? '';
   if (rot) b.setAttribute('aria-label', rot.trim());
   sel.parentNode!.insertBefore(caixa, sel); caixa.append(sel, b);
   sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true'); sel.classList.add('esel__nativo');
-  document.querySelectorAll<HTMLLabelElement>(`label[for="${CSS.escape(id)}"]`).forEach((l) => { l.htmlFor = b.id; });
+  raiz.querySelectorAll<HTMLLabelElement>(`label[for="${CSS.escape(id)}"]`).forEach((l) => { l.htmlFor = b.id; });
   botoes.set(sel, b); pintar(sel);
   if (document.activeElement === sel) b.focus({ preventScroll: true });
   new MutationObserver(() => pintar(sel)).observe(sel, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'aria-invalid'] });
@@ -113,7 +116,8 @@ function mover(d: number, abs?: number): void {
 export function iniciar(): void {
   const varrer = (r: ParentNode = document) => r.querySelectorAll<HTMLSelectElement>(ALVO).forEach(melhorar);
   requestAnimationFrame(() => varrer());
-  new MutationObserver((ms) => { if (ms.some((m) => [...m.addedNodes].some((x) => x instanceof Element && (x.matches(ALVO) || x.querySelector(ALVO))))) varrer(); }).observe(document.body, { childList: true, subtree: true });
+  /* só o que entrou, e não a página toda de cada vez que um ecrã se redesenha */
+  new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((x) => { if (!(x instanceof Element)) return; if (x.matches(ALVO)) melhorar(x as HTMLSelectElement); else varrer(x); }))).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement;
     const li = t.closest<HTMLElement>('.esel__lista li'); if (li) { escolher(Number(li.dataset.i)); return; }
