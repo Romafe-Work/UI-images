@@ -139,7 +139,9 @@ function html(cen: string): string {
   <form class="ak-crit rc-crit" data-rc-crit aria-labelledby="${id('crit-t')}" novalidate>
     <div class="rc-resumo-crit" data-rc-resumo hidden><h2>Critérios</h2><ul class="ak2-etiquetas" data-rc-etiquetas></ul><button type="button" class="ak-btn ak-btn--linha" data-rc-acao="alterar">${L(pencil)}<span>Alterar critérios</span></button></div>
     <div class="rc-aberto" data-rc-aberto>
-      <h2 id="${id('crit-t')}">Critérios</h2>
+      <!-- 29 out. (ela: «isto está feio»): o mesmo cartão das análises — «Critérios» numa faixa, os campos à esquerda, Gerar e Cancelar numa coluna à direita -->
+      <div class="ak-crit-cab"><h2 id="${id('crit-t')}">Critérios</h2></div>
+      <div class="ak-crit-c rc-c"><div class="rc-campos">
       <div class="rc-g">
         <fieldset class="rc-bloco"><legend>Período</legend><div class="rc-par">
           <label class="ak-campo" for="${id('de')}"><span>Data inicial</span><input type="date" id="${id('de')}" data-rc-f="de" data-rc-campo data-ak-primeiro></label>
@@ -150,10 +152,12 @@ function html(cen: string): string {
         <fieldset class="rc-bloco rc-tipos"><legend>Tipos de documento</legend>
           <div class="rc-tipos-g"><div><small>Débito — aumentam o que se deve</small>${DEBITO.map((t) => tipoCx(t, id('t'))).join('')}</div><div><small>Crédito — diminuem</small>${CREDITO.map((t) => tipoCx(t, id('t'))).join('')}</div></div>
           <div class="rc-tipos-acoes"><button type="button" class="lf2-limpar" data-rc-acao="todos">${L(check)}<span>Selecionar todos</span></button><button type="button" class="lf2-limpar" data-rc-acao="nenhum">${L(xIc)}<span>Limpar seleção</span></button></div></fieldset>
-        <div class="ak-crit-acoes rc-acoes">${B('gerar', play, 'Gerar dados', 'F10', '', 'ak-btn--acao')}${B('cancelar', xIc, 'Cancelar', 'Esc', '', 'ak-btn--linha')}</div>
       </div>
       <p class="ak-erro-campo" data-rc-erro role="alert" hidden></p>
-      <p class="rc-dica">Enter passa ao campo seguinte; nos tipos, Espaço marca e Enter segue; no último, vai a Gerar dados. Os critérios do mapa não são os filtros da tabela (F2).</p>
+      <p class="rc-dica">Enter passa ao campo seguinte; nos tipos, Espaço marca e Enter segue; no último, vai a Gerar dados.</p>
+      </div>
+      <div class="ak-crit-acoes rc-acoes">${B('gerar', play, 'Gerar dados', 'F10', '', 'ak-btn--acao')}${B('cancelar', xIc, 'Cancelar', 'Esc', '', 'ak-btn--linha')}</div>
+      </div>
     </div>
   </form>
 

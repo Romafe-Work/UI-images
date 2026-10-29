@@ -1,0 +1,14 @@
+/* =========================================================
+   ERP — as datas em dd/mm/aaaa (29 out. 2026). Ver comportamento/data-erp.ts. O texto tem a medida dos outros campos;
+   o calendário é um botão dentro do campo, à direita; o campo de data nativo fica por baixo, invisível (é dele o valor).
+   ========================================================= */
+.edata { position: relative; display: block; width: 100%; min-width: 0; }
+.edata__nativo { position: absolute !important; left: 0; bottom: 0; width: 100% !important; height: 100% !important; opacity: 0; pointer-events: none; }
+.edata__texto { width: 100%; padding-right: 32px !important; font-variant-numeric: tabular-nums; }
+.edata__texto[aria-invalid="true"] { border-color: var(--h-erro) !important; }
+.edata__cal { position: absolute; top: 50%; right: 4px; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-3); cursor: pointer; transform: translateY(-50%); }
+.edata__cal svg { width: 15px; height: 15px; }
+.edata__cal:hover { background: color-mix(in srgb, var(--h-azul) 10%, transparent); color: rgb(0, 99, 170); }
+.edata__texto:disabled + .edata__nativo + .edata__cal, .edata__texto:read-only + .edata__nativo + .edata__cal { opacity: .4; pointer-events: none; }
+/* a caixa da data é um <span> dentro do rótulo: não leva a altura do texto do rótulo (.ak-campo > span) */
+.ak-campo > .edata, label > .edata { height: auto !important; line-height: normal !important; }

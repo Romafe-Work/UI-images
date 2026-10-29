@@ -166,7 +166,7 @@ export function ecrasMenuAntigo(): Ecra<IdErp>[] {
       if (dim !== 'geral') return estados;
       const v = (k: string) => versaoComparativo(k as 'geral').html;
       const zona = (k: string) => `<nav class="dv2c-vistas-zona fx-par-zona cf-vistas" aria-label="Vistas"><div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${COMPARATIVOS.map(([d, tt, ic], i) => `<button type="button" role="tab" aria-selected="${d === k}"${d === k ? '' : ' tabindex="-1"'} data-fx-par-vista="${d}" aria-keyshortcuts="Alt+${i + 1}" title="${tt} (Alt ${i + 1})">${icone(ic)}<span>${tt}</span></button>`).join('')}<i class="dv2c-vistas-ind" data-fx-par-ind aria-hidden="true"></i></div></nav>`;
-      const html = `<div class="fx-par" data-fx-par>${COMPARATIVOS.map(([d], i) => `<div data-fx-par-p="${d}"${i ? ' hidden' : ''}>${v(d).replace(/(<\/header>)/, `$1${zona(d)}`)}</div>`).join('')}</div>`;
+      const html = `<div class="fx-par" data-fx-par>${COMPARATIVOS.map(([d], i) => `<div data-fx-par-p="${d}"${i ? ' hidden' : ''}>${v(d).replace('<div class="cf-opcoes" data-cf-opcoes>', `<div class="cf-opcoes" data-cf-opcoes>${zona(d)}`)}</div>`).join('')}</div>`;
       const nota = 'Comparativos de compras (29 out., ela: «coloca tudo num só screen»): o geral, por artigo, por família/subfamília e por fornecedor num só ecrã, em quatro vistas (Alt+1…Alt+4); cada vista é o relatório dela, com a variação anual ou mês a mês.';
       return [{ ...base, nome: `${num} · Comparativos de compras`, objetivo: 'As compras do mesmo período comparadas ano a ano (ou mês a mês): no geral, por artigo, por família/subfamília e por fornecedor, num só ecrã.', versoes: [{ id: 'v3', nota, html }] }, ...estados];
     }

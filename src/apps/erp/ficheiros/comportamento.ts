@@ -70,7 +70,21 @@ function parVista(c: HTMLElement, k: string, foco = false): void {
 }
 const parArmar = () => document.querySelectorAll<HTMLElement>('[data-fx-par]').forEach((c) => { const m = new URLSearchParams(location.hash.slice(1)).get('modo'); parVista(c, m && c.querySelector(`[data-fx-par-p="${CSS.escape(m)}"]`) ? m : (c.querySelector<HTMLElement>('[data-fx-par-p]:not([hidden])')?.dataset.fxParP ?? 'tot')); });
 
+function acaoFx(r: HTMLElement, k: string, b?: HTMLElement | null): void {
+  if (k === 'imprimir') { window.print(); return; }
+  const p = r.querySelector<HTMLElement>('[data-hm-aviso]');
+  b?.classList.add('is-carregar');
+  window.setTimeout(() => {
+    b?.classList.remove('is-carregar');
+    if (p) { p.textContent = `Atualizado às ${new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}.`; p.classList.add('is-visivel'); window.setTimeout(() => p.classList.remove('is-visivel'), 2400); }
+  }, 300);
+}
 export function iniciar(): void {
+  document.addEventListener('keydown', (ev) => {
+    if ((ev.key !== 'F9' && ev.key !== 'F11') || editando()) return;
+    const r = [...document.querySelectorAll<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) [data-fx]')].find((x) => !x.closest('[hidden]')); if (!r) return;
+    ev.preventDefault(); acaoFx(r, ev.key === 'F9' ? 'atualizar' : 'imprimir', r.querySelector<HTMLElement>(`[data-fx-acao="${ev.key === 'F9' ? 'atualizar' : 'imprimir'}"]`));
+  });
   /* o contador do registo escolhido à partida */
   const armar = () => document.querySelectorAll<HTMLElement>('[data-fx]').forEach((r) => { const tr = r.querySelector<HTMLTableRowElement>('[data-fx-linhas] tr[aria-selected="true"]'); if (tr) contar(r, tr); });
   requestAnimationFrame(armar); ['romafe:versao', 'romafe:ecra'].forEach((x) => document.addEventListener(x, () => requestAnimationFrame(armar)));
@@ -91,6 +105,8 @@ export function iniciar(): void {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return;
     let b: HTMLElement | null;
     if ((b = t.closest('[data-fx-repetir]'))) { mostrar(b.dataset.fxRepetir as never); return; }
+    /* 29 out. (ela: «título, subtítulo, atalhos e options»): a barra própria — Atualizar (F9) e Imprimir (F11) */
+    if ((b = t.closest('[data-fx-acao]'))) { acaoFx(r, b.dataset.fxAcao!, b); return; }
     if ((b = t.closest('[data-fx-ord]'))) { ordenar(r, b); return; }
     if (t.closest('[data-fx-limpar]')) { const q = r.querySelector<HTMLInputElement>('[data-fx-q]')!; q.value = ''; filtrar(r, ''); q.focus(); return; }
     const tr = t.closest<HTMLTableRowElement>('[data-fx-linhas] tr'); if (tr) escolher(r, tr);

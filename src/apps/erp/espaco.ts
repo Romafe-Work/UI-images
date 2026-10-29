@@ -183,7 +183,8 @@ MENU_ANTIGO.forEach((id) => {
   ROTAS[rota] = { ecra: `cm-${id}`, titulo: l.rotulo, icone: l.icone || 'chart-bar', acoes: ['atualizar', 'imprimir'] };
 });
 /* 26 out. (ela: «existe redundância»): os ecrãs com barra própria não levam a barra da área de trabalho por cima */
-const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-compras-guias-entrada|cm-compras-faturas|cm-mapas-recap|cm-mapas-automatico|cm-comp-.+|cm-analise-artigo)$/;
+/* 29 out. (ela: «título, subtítulo, atalhos e options»): todos os relatórios em tabela (cm-…) e os Ficheiros têm agora a barra deles, por baixo do título */
+const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-.+|ficheiros-.+)$/;
 Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* os dois itens que passaram a vistas das Encomendas: quem os tinha nos favoritos ou nos recentes abre as Encomendas na vista deles */
 ROTAS['compras.compras-agendamento'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'agenda' };

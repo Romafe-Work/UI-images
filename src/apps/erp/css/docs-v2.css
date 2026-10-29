@@ -294,3 +294,13 @@
 .gv3-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 14px; margin: 4px 0 12px; }
 .gv3-linhas { margin: 0 0 12px; } .gv3-linhas input { width: 100%; min-width: 0; min-height: 32px; padding: 0 8px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 8px); background: var(--h-sup); color: var(--h-tinta); font: inherit; }
 .gv3-linhas input[type="number"] { max-width: 88px; text-align: right; }
+/* 29 out. (ela: «isto está feio»): os critérios do Mapa recapitulativo no cartão das análises (ak-crit-cab / ak-crit-c) */
+.rc-crit { padding: 0; }
+.rc-crit .ak-crit-cab h2 { margin: 0; color: rgb(0, 99, 170); }
+.rc-c { grid-template-columns: minmax(0, 1fr) 200px; }
+.rc-campos { min-width: 0; padding: 12px 14px; }
+.rc-g { grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) minmax(380px, 1.6fr); }
+.rc-acoes { align-self: stretch; align-content: start; gap: 8px; }
+.rc-dica { margin: 8px 0 0; font-size: 12px; color: var(--h-tinta-3); }
+@media (max-width: 1439px) { .rc-g { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rc-tipos { grid-column: 1 / -1; grid-row: 2; } }
+.rc-par > *, .rc-bloco .ak-campo { min-width: 0; } .edata__texto { min-width: 0; box-sizing: border-box; }

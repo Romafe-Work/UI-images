@@ -299,8 +299,6 @@ function html(d: DimDef, cen: CenarioCf): string {
     <div><h1>${d.titulo}</h1><p>${d.sub}</p></div>
     <span class="ak2-vista-ativa" data-cf-vista hidden></span>
   </header>
-  ${d.mapa ? `<div class="cf-modos cf-modos--4" role="radiogroup" aria-label="Tipo de análise" style="--i:${MODOS_MAPA.findIndex(([k]) => k === mm)}"><i class="cf-modos-ind" aria-hidden="true"></i>${MODOS_MAPA.map(([k, t, legado]) => `<button type="button" role="radio" data-cf-modo="${k}" aria-checked="${k === mm}" title="${legado}">${L(k.startsWith('familia') ? folderTree : packageIc)}<span>${t}</span></button>`).join('')}</div>` : ''}
-  ${d.mensal ? `<div class="cf-modos" role="radiogroup" aria-label="Tipo de análise"><i class="cf-modos-ind" aria-hidden="true"></i><button type="button" role="radio" data-cf-modo="mensal" aria-checked="${mensal}">${L(calendarDays)}<span>Mensal</span></button><button type="button" role="radio" data-cf-modo="anual" aria-checked="${!mensal}">${L(calendarRange)}<span>Variações anuais</span></button></div>` : ''}
   <div class="ak-barra ak2-barra" role="toolbar" aria-label="Ações do comparativo">
     ${B('filtrar', funnel, 'Filtrar', 'F2', ' aria-pressed="false"')}
     ${B('limpar', funnelX, 'Remover filtros', 'F3')}
@@ -327,6 +325,11 @@ function html(d: DimDef, cen: CenarioCf): string {
         <div class="ak2-dens" role="group" aria-label="Ordem dos anos"><button type="button" role="menuitemradio" data-cf-anos="antigos" aria-checked="true">Mais antigo primeiro</button><button type="button" role="menuitemradio" data-cf-anos="recentes" aria-checked="false">Mais recente primeiro</button></div>
         <div data-cf-cols></div>
       </div></span>
+  </div>
+  <!-- 29 out. (ela: «título, subtítulo, atalhos e options»): as opções (o tipo de análise, mensal ou anual) por baixo da barra, como as vistas das Faturas -->
+  <div class="cf-opcoes" data-cf-opcoes>
+  ${d.mapa ? `<div class="cf-modos cf-modos--4" role="radiogroup" aria-label="Tipo de análise" style="--i:${MODOS_MAPA.findIndex(([k]) => k === mm)}"><i class="cf-modos-ind" aria-hidden="true"></i>${MODOS_MAPA.map(([k, t, legado]) => `<button type="button" role="radio" data-cf-modo="${k}" aria-checked="${k === mm}" title="${legado}">${L(k.startsWith('familia') ? folderTree : packageIc)}<span>${t}</span></button>`).join('')}</div>` : ''}
+    ${d.mensal ? `<div class="cf-modos" role="radiogroup" aria-label="Tipo de análise"><i class="cf-modos-ind" aria-hidden="true"></i><button type="button" role="radio" data-cf-modo="mensal" aria-checked="${mensal}">${L(calendarDays)}<span>Mensal</span></button><button type="button" role="radio" data-cf-modo="anual" aria-checked="${!mensal}">${L(calendarRange)}<span>Variações anuais</span></button></div>` : ''}
   </div>
 
   <form class="ak-crit ak2-crit cf-crit" data-cf-crit novalidate>

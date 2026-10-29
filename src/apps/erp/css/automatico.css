@@ -218,7 +218,7 @@
 .ak2 .ak-corpo { min-height: 0; }
 .ak2 .ak-grelha, .ak2 .ak-det { max-height: none; height: 100%; }
 .ak2 .ak-estado { margin-top: 8px; }
-.ak2 .ak-cab h1 { color: var(--h-azul); }
+.ak2 .ak-cab h1 { color: var(--h-tinta); } /* 29 out.: o título como nas Faturas (não a azul) */
 .ak2 .ak-cab { padding-block: 12px 10px; }
 .ak2-vista-ativa { display: inline-flex; align-items: baseline; gap: 6px; margin-left: auto; padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--h-azul) 30%, var(--h-borda)); border-radius: 6px; background: color-mix(in srgb, var(--h-azul) 7%, var(--h-sup)); font-size: 13px; }
 .ak2-vista-ativa small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-3); }

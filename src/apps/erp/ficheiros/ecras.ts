@@ -23,6 +23,7 @@ import serverOff from 'lucide-static/icons/server-off.svg?raw';
 import wifiOff from 'lucide-static/icons/wifi-off.svg?raw';
 import lockIc from 'lucide-static/icons/lock.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
+import printer from 'lucide-static/icons/printer.svg?raw';
 import refreshCw from 'lucide-static/icons/refresh-cw.svg?raw';
 import inbox from 'lucide-static/icons/inbox.svg?raw';
 
@@ -124,9 +125,13 @@ export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal', par?: Par
   <header class="fx-cab">
     <span class="fx-ic">${icone(ic)}</span>
     <div><h1>${esc(tit)}</h1><p class="fx-sub">${cen === 'carregar' ? 'A carregar…' : esc(t.nota)}</p></div>
-    <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off"${cen === 'carregar' ? '' : ' disabled'}><kbd>Enter</kbd></label>
   </header>
+  <div class="ak-barra lf2-barra fx-barra" role="toolbar" aria-label="Ações">
+    <button type="button" class="ak-btn" data-fx-acao="atualizar" aria-keyshortcuts="F9" title="Atualizar (F9)">${L(refreshCw)}<span>Atualizar</span><kbd>F9</kbd></button>
+    <button type="button" class="ak-btn" data-fx-acao="imprimir" aria-keyshortcuts="F11" title="Imprimir (F11)">${L(printer)}<span>Imprimir</span><kbd>F11</kbd></button>
+  </div>
   ${zona}
+  <div class="fx-filtros"><label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off"${cen === 'carregar' ? '' : ' disabled'}><kbd>Enter</kbd></label></div>
   <div class="fx-corpo${cen === 'carregar' ? '' : ' fx-corpo--erro'}">${corpo}</div>
   <p class="hm-aviso" data-hm-aviso role="status" aria-live="polite"></p>
 </div>`;
@@ -140,9 +145,13 @@ export function paginaTabela(t: Tabela, cen: CenarioTabela = 'normal', par?: Par
   <header class="fx-cab">
     <span class="fx-ic">${icone(ic)}</span>
     <div><h1>${esc(tit)}</h1><p class="fx-sub"><b data-fx-n>${ls.length}</b> <span data-fx-um="${esc(t.um)}" data-fx-varios="${esc(t.varios)}">${ls.length === 1 ? t.um : t.varios}</span> · ${esc(t.nota)}</p></div>
-    <label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off" value="${q}"><kbd>Enter</kbd></label>
   </header>
+  <div class="ak-barra lf2-barra fx-barra" role="toolbar" aria-label="Ações">
+    <button type="button" class="ak-btn" data-fx-acao="atualizar" aria-keyshortcuts="F9" title="Atualizar (F9)">${L(refreshCw)}<span>Atualizar</span><kbd>F9</kbd></button>
+    <button type="button" class="ak-btn" data-fx-acao="imprimir" aria-keyshortcuts="F11" title="Imprimir (F11)">${L(printer)}<span>Imprimir</span><kbd>F11</kbd></button>
+  </div>
   ${zona}
+  <div class="fx-filtros"><label class="fx-procura">${L(search)}<input type="search" placeholder="${esc(t.procura)}" aria-label="Procurar em ${esc(t.titulo)}" data-fx-q autocomplete="off" value="${q}"><kbd>Enter</kbd></label></div>
   <div class="fx-corpo">
     <div class="fx-caixa">
       ${!ls.length ? `<div class="fx-nada fx-nada--vazio">${L(inbox)}<p><b>${esc(vazio[0])}</b>${esc(vazio[1])}</p></div>` : ''}
