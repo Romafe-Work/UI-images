@@ -41,7 +41,8 @@
   /* (ela: «faz um ecrã de PDA maior em altura e comprimento») na demonstração o ecrã fica mais largo: 412 px, uma das
      larguras que o medidor já verifica (npm run medir), por isso nada se parte */
   .tela-telemovel body.demo { --tela-l: 412px; }
-  .tela-telemovel body.demo > .ecra { height: max(var(--tela-a), calc(100vh - 196px)); margin: 24px auto 32px; transform-origin: top center; }  /* + os 120 px do body.demo::after */
+  .tela-telemovel body.demo > .ecra { height: max(var(--tela-a), calc(100vh - 196px)); margin: 24px auto 32px; }  /* + os 120 px do body.demo::after */
+  /* (ela: «coloca os ecrãs de todos os screens do mesmo tamanho») todos com a mesma moldura; o que não cabe rola por dentro */
   /* dentro da moldura, as páginas medem-se pela moldura e não pela janela (o 100vh delas fazia rolar ecrãs curtos) */
   .tela-telemovel body > .ecra > .versao > .gp, .tela-telemovel body > .ecra > .versao > .gpk-login { min-height: 100%; }
   .tela-telemovel body > .ecra > .versao > .gp[data-gp-abertura] { height: 100%; }

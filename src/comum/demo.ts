@@ -17,7 +17,6 @@
 import { ler, mostrar, mostrarVersao, definirTransicao, transitar, type Sentido } from './ecras';
 import './css/demo.css';
 import { temRoteiro, roteiros, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
-import { iniciarEncaixe } from './demo-encaixar';
 
 export interface Animacao { id: string; nome: string; descricao: string; grupo: string }
 export const ANIMACOES: Animacao[] = [
@@ -96,7 +95,6 @@ let emCurso = '';
 export function iniciar(): void {
   if (ler('demo') !== '1') return;
   document.body.classList.add('demo');
-  iniciarEncaixe();
   const inicial = ANIMACOES.some((a) => a.id === ler('anim')) ? ler('anim') : animacaoGuardada();
   raiz.dataset.anim = inicial;
 
