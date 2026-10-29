@@ -303,17 +303,38 @@ export const ESTADOS_INVENTARIO_GESTOR: [string, string, string, () => string][]
   ['gestor-inventario-sessao', '61.15 · Sessão terminada', 'Entrar outra vez; volta-se a esta lista.', () => eSessao(GINV)],
 ];
 
+/* 29 out. (ela: «na app do gestor faltam backs», «de voltar atrás em todos os screens»): todos os ecrãs com o voltar no
+   cabeçalho. Quem não o tinha leva-o para o ecrã de cima: as páginas da barra para o Centro de operações, os módulos para
+   as Operações, o acompanhar e o executar para o seu módulo; o Centro e a abertura voltam ao início de sessão comum. */
+const LOGIN = '';
+const PAI: [RegExp, string][] = [
+  [/^gestor-inventario/, 'g-operacoes'], [/^gestor-validar/, 'gestor-inventario'], [/^g-inv-fim/, 'g-inv-exec'], [/^g-inv-/, 'gestor-inventario'],
+  [/^arr-inicio/, 'g-operacoes'], [/^(g-arr-|arr-)/, 'arr-inicio'], [/^g-sep-acomp/, 'g-sep'], [/^g-sep/, 'g-operacoes'], [/^g-exp-acomp/, 'g-exp'], [/^g-exp/, 'g-operacoes'],
+  [/^(abertura|gestor-)/, LOGIN], [/^(op-|inv-)/, 'op-inicio'],
+];
+function comVoltar<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const ids = new Set<string>(ecras.map((e) => e.id));
+  return ecras.map((e) => {
+    const base = e.estadoDe ?? e.id;
+    let pai = PAI.find(([r]) => r.test(base))?.[1] ?? 'gestor-inicio';
+    if (pai === base || (pai && !ids.has(pai))) pai = pai === 'op-inicio' || base.startsWith('op-') ? LOGIN : 'gestor-inicio';
+    const botao = `<button type="button" class="gp-voltar" ${pai ? `data-ir="${pai}" aria-label="Voltar"` : 'data-login aria-label="Voltar ao início de sessão"'}>${L(arrowLeft)}</button>`;
+    const versoes = e.versoes.map((v) => v.html.includes('class="gp-topo"') && !v.html.includes('class="gp-voltar"') ? { ...v, html: v.html.replace(/(<header class="gp-topo">)/, `$1\n    ${botao}`) } : v);
+    return { ...e, versoes } as Ecra<T>;
+  });
+}
+
 /** Só a última versão de cada ecrã; os estados do Início do Gestor na v3; a abertura por cima da v3. */
 export function soUltima<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const ABERTURA: Record<string, CenarioAbertura> = { abertura: 'normal', 'abertura-pk-sem-rede': 'sem-rede', 'abertura-pk-sem-acesso': 'sem-acesso' };
-  return semRepetidos(ecras.filter((e) => e.id !== 'gestor-inicio-sem-atencao' && e.id !== 'gestor-sem-inventarios').map((e) => {
+  return comVoltar(semRepetidos(ecras.filter((e) => e.id !== 'gestor-inicio-sem-atencao' && e.id !== 'gestor-sem-inventarios').map((e) => {
     const ultima = e.versoes[e.versoes.length - 1];
     if (ABERTURA[e.id]) return { ...e, versoes: [{ ...ultima, id: 'v3', nota: `${ultima.nota} — por cima do Início do Gestor v3, com a barra (27 out.).`, html: aberturaV3(ABERTURA[e.id]) }] as Ecra<T>['versoes'] };
     if (ESTADOS_CENTRO[e.id]) return { ...e, versoes: [{ id: 'v5', nota: NOTA, html: ESTADOS_CENTRO[e.id]() }] as Ecra<T>['versoes'] };
     if (ESTADOS_GESTOR_V3[e.id]) return { ...e, versoes: [{ id: 'v3', nota: NOTA, html: ESTADOS_GESTOR_V3[e.id]() }] as Ecra<T>['versoes'] };
     const ei = ESTADOS_INVENTARIO_GESTOR.find(([id]) => id === e.id); if (ei) return { ...e, nome: ei[1], objetivo: ei[2], versoes: [{ id: 'v3', nota: NOTA, html: ei[3]() }] as Ecra<T>['versoes'] };
     return { ...e, versoes: [ultima] };
-  }));
+  })));
 }
 /* 28 out. (ela: «sim» ao que eu mudaria na app do Gestor, ponto 5): o mesmo «Sem rede», «A carregar», «Não carregou» e
    «Sessão terminada» repetidos em cada ecrã (mais de 40) saem. Ficam os do Centro de operações (60.x), os do fluxo Erros

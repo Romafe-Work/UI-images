@@ -76,7 +76,7 @@ export function iniciar(): void {
   window.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement;
     if (editando()) return;
-    if (t.closest?.('[data-gp] [data-login]')) {
+    if (t.closest?.('[data-gp] [data-login], [data-gpi] [data-login]')) {
       ev.preventDefault(); ev.stopImmediatePropagation();
       const h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams(); ['so', 'demo', 'anim'].forEach((k) => { const v = h.get(k); if (v) q.set(k, v); }); q.set('ecra', 'entrada');
       location.href = '../identidade/#' + q.toString(); return;
