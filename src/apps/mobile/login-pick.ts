@@ -15,7 +15,9 @@ const ROTAS: [RegExp, string][] = [
   [/no <b>Peça A Peça<\/b>/g, 'na <b>Pick</b>'], [/A abrir o Peça A Peça…/g, 'A abrir a Pick…'],
 ];
 /** A página da Identity, com as ligações para os ecrãs da Pick e sem formulários (no protótipo não se submete). */
-export const paraPick = (html: string) => `<div class="gpk-login">${ROTAS.reduce((h, [r, s]) => h.replace(r, s), paraV2(html))}</div>`;
+/** os pontos finais do lema a laranja (29 out., ela: «melhora» a faixa de cima no PDA) */
+const lema = (h: string) => h.replace(/<p class="ent3__lema"[\s\S]*?<\/p>/, (p) => p.replace(/\.<\/span>/g, '<i class="gpk-ponto">.</i></span>'));
+export const paraPick = (html: string) => `<div class="gpk-login">${lema(ROTAS.reduce((h, [r, s]) => h.replace(r, s), paraV2(html)))}</div>`;
 const enviar = (html: string) => html.replace(/(<button type="button" class="btn btn--acao id__btn id__btn--acao")(>[\s\S]*?Enviar a ligação)/, '$1 data-ir="pk-recuperar-enviado"$2');
 
 export function ecrasLoginPick<T extends string>(): Ecra<T>[] {
