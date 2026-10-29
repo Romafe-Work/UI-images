@@ -116,7 +116,8 @@ export function iniciar(): void {
     const t = ev.target as HTMLElement, v = t.closest?.<HTMLElement>(ESCOPO); if (!v || editando()) return;
     let b: HTMLElement | null;
     if ((b = t.closest('[data-rc2-acao]'))) { ev.preventDefault(); ev.stopImmediatePropagation(); acao(v, b.closest<HTMLElement>('[data-rc2-jan]')!.dataset.rc2Jan!, b.dataset.rc2Acao!); return; }
-    if ((b = t.closest('[data-rc2-abrir]'))) { ev.preventDefault(); ev.stopImmediatePropagation(); abrir(v, b.dataset.rc2Abrir!, b); return; }
+    /* 29 out.: antes de parar o clique, diz-se à página que linha se abriu (as Guias escolhem-na para Editar e Anular) */
+    if ((b = t.closest('[data-rc2-abrir]'))) { ev.preventDefault(); ev.stopImmediatePropagation(); b.closest('tr')?.dispatchEvent(new CustomEvent('rc2:linha', { bubbles: true })); abrir(v, b.dataset.rc2Abrir!, b); return; }
     /* nas Guias de entrada: a receção e a encomenda da linha abrem as delas; o resto da linha abre a guia */
     const tr = t.closest<HTMLElement>('tr[data-fx-i]');
     if (tr && v.closest(GUIAS)) {

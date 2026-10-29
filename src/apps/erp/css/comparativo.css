@@ -250,3 +250,5 @@
 .cf-opcoes .fx-par-zona { flex: none; } .cf-opcoes .dv2c-vistas { flex-wrap: nowrap; white-space: nowrap; }
 /* a barra numa linha só, também nos separadores mais estreitos: as teclas saem dos botões (continuam no título) */
 @media (max-width: 1320px) { .ak2-barra .ak-btn kbd { display: none; } }
+/* 29 out. (ela: «erro»): a caixa das vistas tem a largura das quatro (o «Por fornecedor» colava à borda) */
+.cf-opcoes .dv2c-vistas { display: inline-flex; width: max-content; padding-right: 3px; } .cf-opcoes .dv2c-vistas > button { flex: none; }

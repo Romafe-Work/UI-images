@@ -97,3 +97,4 @@
 .fx-filtros .fx-procura { flex: 1 1 320px; max-width: 520px; margin-left: 0; }
 .fx .dv2c-vistas-zona { margin-top: 10px; }
 .fx-barra kbd { padding: 0 5px; border: 1px solid var(--h-borda); border-radius: 4px; font-family: var(--f-mono); font-size: 10.5px; font-weight: 600; line-height: 16px; color: var(--h-tinta-3); background: var(--h-sup-2); }
+.fx-filtros { margin-bottom: 12px; } /* 29 out. (ela: «demasiado junto»): a procura não cola à tabela */

@@ -227,13 +227,17 @@ export function iniciar(): void {
     if ((b = t.closest('[data-gv3-vista]'))) { vista(r, b.dataset.gv3Vista as Vista); return; }
     if (t.closest('[data-gv3-fechar]') || t.matches('[data-gv3-dlg]')) { fecharDlg(r); return; }
     if ((b = t.closest('[data-gv3-sim]'))) { confirmar(r, b.dataset.gv3Sim!); return; }
-    if ((b = t.closest('tr[data-gv3-rec]'))) { const e = de(r); e.sel = b.dataset.gv3Rec!; r.querySelectorAll<HTMLElement>('tr[data-gv3-rec]').forEach((x) => { const s = x === b; x.classList.toggle('is-ativo', s); x.setAttribute('aria-selected', String(s)); }); }
     if ((b = t.closest('[data-gv3-acao]'))) {
       const k = b.dataset.gv3Acao;
       if (k === 'novo') { abrirNovo(r); return; } if (k === 'editar') { abrirEditar(r); return; } if (k === 'anular') { abrirAnular(r); return; }
       if (k === 'imprimir') { window.print(); return; }
       const e = de(r); e.fase = 'ok'; e.erro = undefined; b.classList.add('is-carregar'); window.setTimeout(() => { b!.classList.remove('is-carregar'); desenhar(r); }, 300);
     }
+  });
+  /* a linha fica escolhida (para Editar e Anular): a janela da guia apanha o clique e avisa com «rc2:linha» */
+  document.addEventListener('rc2:linha', (ev) => {
+    const t = ev.target as HTMLElement, r = t.closest<HTMLElement>('[data-gv3]'), b = t.closest<HTMLElement>('tr[data-gv3-rec]'); if (!r || !b || editando()) return;
+    de(r).sel = b.dataset.gv3Rec!; r.querySelectorAll<HTMLElement>('tr[data-gv3-rec]').forEach((x) => { const s = x === b; x.classList.toggle('is-ativo', s); x.setAttribute('aria-selected', String(s)); });
   });
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLSelectElement, r = t.closest?.<HTMLElement>('[data-gv3]'); if (!r) return;
