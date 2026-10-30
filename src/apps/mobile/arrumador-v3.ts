@@ -3,7 +3,7 @@
    Ela: «na arrumação ninguém atribui nada a ninguém. Na arrumação eles recebem a guia de arrumação e fazem-na, e só
    podem fazer aquilo que deixei nos docs. Nem insights.» Os documentos são o 05-design/07 · O menu da app (30 set.) e os
    ecrãs 02–28, 66, 67, 70 e 71 do Figma do armazém (~/projects/Figma-PDA-Armazem). Fica só isto:
-     - Início (02): «Bom dia», o turno e quanto trabalho espera no armazém (nunca a fila da pessoa); Trabalho com uma
+     - Início (02): «Bom dia», o turno (nada do trabalho que espera: a pessoa só vê a tarefa que lhe foi dada); Trabalho com uma
        opção só, «Começar a arrumar» — a guia que o motor deu; Operações: Chegou um camião, Corrigir posição, Consultar
        artigo, Consultar posição, Chamar o gestor; separadores Tarefa · Início · Sair;
      - a tarefa, palete a palete (10 → 11 → 13 → 14): lê o artigo → vai à proposta 1 de 3 → lê a posição → arrumada;
@@ -69,7 +69,7 @@ function inicio(e: E02 = 'normal'): string {
   const trabalho = e === 'sem' ? `<section class="gi-vazio">${L(box)}<p><b>Não há trabalho para si agora.</b> Quando houver, o motor dá-lho aqui.</p></section>`
     : `<button type="button" class="ta-trabalho" data-ir="arr-op"><span class="ta-trabalho__ic">${L(box)}</span><span><b>Começar a arrumar</b><small>${fim ? 'Palete vazia ao parque · 2 min' : `Guia ${G.ref} · ${G.paletes} paletes`}</small><small>${fim ? 'É o que cabe no que falta' : `${G.origem} · zona 12 · há 2h10`}</small></span>${L(arrowRight)}</button>`;
   const OPS: [string, string, string][] = [[truck, 'Chegou um camião', 'ta-chegada'], [pencil, 'Corrigir posição', 'inv-corrigir-posicao'], [search, 'Consultar artigo', 'ta-consultar-artigo'], [mapPin, 'Consultar posição', 'ta-consultar-posicao'], [phone, 'Chamar o gestor', 'ta-chamar']];
-  return ecra(`<div class="gp-ola"><h1>Bom dia, Inês</h1><p>${fim ? 'Faltam 2 min · o seu turno acaba às 16h30' : 'Turno das 8h · 8 tarefas à espera no armazém'}</p></div>
+  return ecra(`<div class="gp-ola"><h1>Bom dia, Inês</h1><p>${fim ? 'Faltam 2 min · o seu turno acaba às 16h30' : 'Turno das 8h às 16h30'}</p></div>
     <section class="gp-sec"><h2 class="gp-h">Trabalho</h2>${trabalho}${fim ? '<p class="gp-nota">O motor já não dá o que não cabe em 2 min. Uma tarefa começada acaba-se: ninguém é interrompido.</p>' : ''}</section>
     ${fim ? '' : `<section class="gp-sec"><h2 class="gp-h">Operações</h2><div class="ta-ops">${OPS.map(([ic, t, ir], i) => `<button type="button" class="ta-op${i === OPS.length - 1 ? ' ta-op--chamar' : ''}" data-ir="${ir}" style="--i:${i}">${L(ic)}<span>${t}</span></button>`).join('')}</div></section>`}`,
   T('Início', { barra: comBarra('inicio') }));
@@ -247,7 +247,7 @@ export function ecrasArrumadorV3(): Ecra<string>[] {
 /** Versões novas dos ecrãs que ficam, e tira os que saem */
 export function comArrumadorV3<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const V: Record<string, [string, () => string, string?]> = {
-    'ta-inicio': ['85 · Início da Arrumação (02)', () => inicio(), 'O início dos documentos: «Bom dia», o turno e o trabalho à espera no armazém; Trabalho com uma opção só (a guia que o motor deu); Operações: Chegou um camião, Corrigir posição, Consultar artigo, Consultar posição, Chamar o gestor; Tarefa · Início · Sair.'], 'ta-inicio-carregar': ['85.3 · A carregar', () => inicio('carregar')], 'ta-inicio-sem-rede': ['85.4 · Sem ligação (62)', () => inicio('sem-rede'), 'Não há menu: o ecrã diz desde quando, o que ficou gravado e «Tentar de novo».'], 'ta-inicio-sessao': ['85.5 · Sessão terminada', () => inicio('sessao')],
+    'ta-inicio': ['85 · Início da Arrumação (02)', () => inicio(), 'O início dos documentos: «Bom dia» e o turno; Trabalho com uma opção só (a guia que o motor deu); Operações: Chegou um camião, Corrigir posição, Consultar artigo, Consultar posição, Chamar o gestor; Tarefa · Início · Sair.'], 'ta-inicio-carregar': ['85.3 · A carregar', () => inicio('carregar')], 'ta-inicio-sem-rede': ['85.4 · Sem ligação (62)', () => inicio('sem-rede'), 'Não há menu: o ecrã diz desde quando, o que ficou gravado e «Tentar de novo».'], 'ta-inicio-sessao': ['85.5 · Sessão terminada', () => inicio('sessao')],
     'arr-op': ['80 · Arrumar uma palete (10 · Lê o artigo)', () => passo('artigo'), 'A guia que o motor deu, palete a palete: lê-se o artigo da palete que se tem à frente.'],
     'arr-op-artigo-errado': ['80.12 · Não é este artigo', () => passo('artigo-errado')],
     'arr-op-destino': ['80.1 · Vai à proposta (11)', () => passo('proposta'), 'Para onde levar a palete, e porquê: proposta 1 de 3, com o caminho; «Ler a posição», «Está ocupada» ou «Outro problema».'],

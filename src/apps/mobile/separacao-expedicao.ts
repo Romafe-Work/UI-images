@@ -7,8 +7,9 @@
      32 lê a posição, depois o artigo → 34 leva à prateleira de preparados → 35 guia fechada. Desvios: 33 falta
      quantidade (regista-se o que se tirou; a guia fica incompleta e mexer no stock é decisão do gestor), 36 o que se
      passa?, 37 escreve a posição, 18 problema registado. Não tem «Corrigir posição».
-   Expedição (42): Trabalho «Começar a carregar»; Operações Camiões de hoje, Consultar guia, Ver a prateleira de
-     preparados, Chamar o gestor. 43 a tua próxima tarefa → 45 confere volume a volume na prateleira → 46 leva ao cais →
+   Expedição (42): Trabalho «Começar a carregar»; Operações Camiões de hoje, Consultar guia, Chamar o gestor
+     (ela, 30 out.: «só vê a tarefa que lhe é atribuída, não vê as próximas» — saiu o Ver a prateleira, que listava as
+     guias à espera, e os camiões já não dizem quantas guias têm). 43 a sua tarefa → 45 confere volume a volume na prateleira → 46 leva ao cais →
      47 carregar e fechar a saída (63 pergunta antes de fechar incompleta, e diz-se porquê) → 48 saída fechada. Desvios:
      49 o que se passa?, 50 falta um volume, 51 escreve o cais, 18.
    Com os dados da Pick (ela, 28 out.): guias GS + 8 algarismos, a prateleira de preparados é a posição 60400101; o camião,
@@ -71,11 +72,11 @@ const ops = (xs: [string, string, string][]) => `<div class="ta-ops">${xs.map(([
 /* =========================================================
    O que é igual nas duas: o início, o cartão da tarefa, chamar o gestor, problema registado, sair, sem ligação
    ========================================================= */
-interface Fun { k: 'separacao' | 'expedicao'; p: string; t: string; quem: { nome: string; iniciais: string }; primeiro: string; espera: string; verbo: string; trabalho: [string, string]; ops: [string, string, string][]; tarefa: string; continuar: string }
-const FS: Fun = { k: 'separacao', p: 'ts', t: 'Separação', quem: TIAGO, primeiro: 'Tiago', espera: '12 guias à espera no armazém', verbo: 'recolher', trabalho: [`Guia ${GS.ref} · ${PAR.length} linhas`, `Zona 10 · camião ${GS.camiao} às ${GS.fecha}`],
+interface Fun { k: 'separacao' | 'expedicao'; p: string; t: string; quem: { nome: string; iniciais: string }; primeiro: string; verbo: string; trabalho: [string, string]; ops: [string, string, string][]; tarefa: string; continuar: string }
+const FS: Fun = { k: 'separacao', p: 'ts', t: 'Separação', quem: TIAGO, primeiro: 'Tiago', verbo: 'recolher', trabalho: [`Guia ${GS.ref} · ${PAR.length} linhas`, `Zona 10 · camião ${GS.camiao} às ${GS.fecha}`],
   ops: [[list, 'Consultar guia', 'ts-consultar-guia'], [search, 'Consultar artigo', 'ts-consultar-artigo'], [mapPin, 'Consultar posição', 'ts-consultar-posicao'], [phone, 'Chamar o gestor', 'ts-chamar']], tarefa: 'ts-tarefa', continuar: 'ts-paragem' };
-const FX: Fun = { k: 'expedicao', p: 'tx', t: 'Expedição', quem: PAULO, primeiro: 'Paulo', espera: '7 guias à espera no armazém', verbo: 'carregar', trabalho: [`Guia ${GE.ref} · ${GE.vol} volumes`, `Prateleira ${PREP} · ${GS.camiao} às ${GS.fecha}`],
-  ops: [[truck, 'Camiões de hoje', 'tx-camioes'], [list, 'Consultar guia', 'tx-consultar-guia'], [layers, 'Ver a prateleira de preparados', 'tx-prateleira'], [phone, 'Chamar o gestor', 'tx-chamar']], tarefa: 'tx-tarefa', continuar: 'tx-conferir' };
+const FX: Fun = { k: 'expedicao', p: 'tx', t: 'Expedição', quem: PAULO, primeiro: 'Paulo', verbo: 'carregar', trabalho: [`Guia ${GE.ref} · ${GE.vol} volumes`, `Prateleira ${PREP} · ${GS.camiao} às ${GS.fecha}`],
+  ops: [[truck, 'Camiões de hoje', 'tx-camioes'], [list, 'Consultar guia', 'tx-consultar-guia'], [phone, 'Chamar o gestor', 'tx-chamar']], tarefa: 'tx-tarefa', continuar: 'tx-conferir' };
 const O = (f: Fun, titulo: string, extra: Opcoes = {}): Opcoes => ({ titulo, funcao: f.t, quem: f.quem, ...extra });
 
 function inicio(f: Fun, e: 'normal' | 'sem' | 'fim-turno' | 'sem-rede' = 'normal'): string {
@@ -83,21 +84,20 @@ function inicio(f: Fun, e: 'normal' | 'sem' | 'fim-turno' | 'sem-rede' = 'normal
   const fim = e === 'fim-turno';
   const trab = e === 'sem' ? `<section class="gi-vazio">${L(f.k === 'separacao' ? basket : truck)}<p><b>Não há trabalho para si agora.</b> Quando houver, o motor dá-lho aqui.</p></section>`
     : `<button type="button" class="ta-trabalho" data-ir="${f.tarefa}"><span class="ta-trabalho__ic">${L(f.k === 'separacao' ? basket : truck)}</span><span><b>Começar a ${f.verbo}</b><small>${fim ? (f.k === 'separacao' ? 'Uma guia de 1 linha · 2 min' : 'A guia seguinte do mesmo camião · 2 min') : f.trabalho[0]}</small><small>${fim ? 'É o que cabe no que falta' : f.trabalho[1]}</small></span>${L(arrowRight)}</button>`;
-  return ecra(`<div class="gp-ola"><h1>Bom dia, ${f.primeiro}</h1><p>${fim ? 'Faltam 2 min · o seu turno acaba às 16h30' : `Turno das 8h · ${f.espera}`}</p></div>
+  return ecra(`<div class="gp-ola"><h1>Bom dia, ${f.primeiro}</h1><p>${fim ? 'Faltam 2 min · o seu turno acaba às 16h30' : 'Turno das 8h às 16h30'}</p></div>
     <section class="gp-sec"><h2 class="gp-h">Trabalho</h2>${trab}${fim ? '<p class="gp-nota">O motor já não dá o que não cabe em 2 min. Uma tarefa começada acaba-se: ninguém é interrompido.</p>' : ''}</section>
     ${fim ? '' : `<section class="gp-sec"><h2 class="gp-h">Operações</h2>${ops(f.ops)}</section>`}`, O(f, 'Início', { barra: barra(f.k, 'inicio') }));
 }
 /* 30 · 43 — A tua próxima tarefa: o cartão com o porquê (é daqui o único «Voltar» ao menu depois de começar) */
 function cartao(f: Fun): string {
   const sep = f.k === 'separacao';
-  return ecra(`<h1 class="gp-titulo">A sua próxima tarefa</h1><p class="gp-nota">Uma de cada vez. O motor deu-lhe esta guia; quando a ${sep ? 'fechar' : 'carregar'}, dá a seguinte.</p>
+  return ecra(`<h1 class="gp-titulo">A sua tarefa</h1>
     <section class="gi-dom ta-prox"><p class="gi-tarefa__rot">${L(sep ? basket : truck)}Agora</p>
       <div class="gi-tarefa__cab"><b>${sep ? GS.ref : GE.ref}</b></div>
       <p class="gi-dom__meta">${sep ? `${GS.cli} · ${PAR.length} linhas` : `${GE.cli} · ${GE.vol} volumes · camião ${GS.camiao}`}</p>
       ${dl(sep ? [['Porquê', `O camião ${GS.camiao} fecha às ${GS.fecha}`], ['E também', 'As paragens ficam na zona 10, ao pé de onde acabou']] : [['Porquê', `O camião fecha às ${GS.fecha} e já está no cais`], ['E também', 'É a guia seguinte do mesmo camião: já está lá']])}
     </section>
-    <h2 class="gp-h">No armazém</h2>${dl(sep ? [['Guias à espera', '12'], ['A serem recolhidas agora', '3']] : [['Guias à espera', '7'], ['A serem carregadas agora', '2']])}
-    <p class="gp-nota">O motor reparte pela atividade dos PDA. Ninguém escolhe, e ninguém apanha a guia de outro.</p>`,
+    <p class="gp-nota">Só vê esta. Ninguém escolhe, e ninguém apanha a guia de outro.</p>`,
   O(f, 'Tarefa', { voltar: `${f.p}-inicio`, pe: acao('Começar trabalho', play, ` data-ir="${sep ? 'ts-guia' : 'tx-conferir'}"`), barra: barra(f.k, 'tarefa') }));
 }
 function chamar(f: Fun, e: 'escolher' | 'chamado' | 'resposta' = 'escolher'): string {
@@ -172,7 +172,7 @@ function sairS(): string {
 }
 function consultarS(k: 'guia' | 'artigo' | 'posicao'): string {
   const v = sec('Voltar', arrowLeft, ' data-ir="ts-inicio"');
-  if (k === 'guia') return ecra(`${leitor({ titulo: 'Leia a guia ou escreva o número', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<h2 class="gp-h">${GS.ref}</h2>${dl([['Cliente', GS.cli], ['Camião', `${GS.camiao} · ${GS.fecha}`], ['Linhas', `${PAR.length}`], ['Recolhidas', '0'], ['Onde vai ficar', PREP], ['Estado', 'por recolher']])}`, O(FS, 'Consultar guia', { voltar: 'ts-inicio', pe: v }));
+  return ecra(`${leitor({ titulo: 'Leia a guia ou escreva o número', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<h2 class="gp-h">${GS.ref}</h2>${dl([['Cliente', GS.cli], ['Camião', `${GS.camiao} · ${GS.fecha}`], ['Linhas', `${PAR.length}`], ['Recolhidas', '0'], ['Onde vai ficar', PREP], ['Estado', 'por recolher']])}`, O(FS, 'Consultar guia', { voltar: 'ts-inicio', pe: v }));
   if (k === 'artigo') return ecra(`${leitor({ titulo: 'Leia o artigo, ou escreva a referência', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<section class="gi-artigo"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${PAR[0].ref}</p><p class="gi-artigo__desc">${PAR[0].desc} · zona 10</p></div></section><h2 class="gp-h">Onde está</h2>${dl([[PAR[0].pos, '24 un.'], ['60100306', '6 un.'], ['Reservado para guias', '12 un.']])}`, O(FS, 'Consultar artigo', { voltar: 'ts-inicio', pe: v }));
   return ecra(`${leitor({ titulo: 'Leia a posição', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<div class="ta-alvo"><small>Posição</small>${posicao(PAR[0].pos)}</div>${dl([['Artigo', `${PAR[0].ref} · ${PAR[0].desc}`], ['Quantidade', '24 un.'], ['Última saída', '9h40 · Tiago Lopes']])}<p class="gp-nota">A separação não corrige posições: se não bater, diga-o na guia («Falta quantidade») e o gestor decide.</p>`, O(FS, 'Consultar posição', { voltar: 'ts-inicio', pe: v }));
 }
@@ -211,8 +211,8 @@ function fechadaIncompleta(): string {
   O(FX, 'Carregar', { voltar: 'tx-inicio', pe: acao('Próxima tarefa', arrowRight, ' data-ir="tx-tarefa"') }));
 }
 function camioes(): string {
-  const C: [string, string, string, string][] = [['DPD', '11h30', '1 guia na prateleira · 2 no cais', 'Apertado'], ['GLS', '14h00', '1 completa · 1 incompleta na prateleira', ''], ['Transportes Vilar', '17h30', '4 guias por recolher', '']];
-  return ecra(`<h1 class="gp-titulo">Camiões de hoje</h1><p class="gp-nota">Por ordem de fecho. Não é por aqui que se escolhe trabalho.</p>
+  const C: [string, string, string, string][] = [['DPD', '11h30', 'no cais de saída 2 · a carregar', 'Apertado'], ['GLS', '14h00', 'ainda não chegou', ''], ['Transportes Vilar', '17h30', 'ainda não chegou', '']];
+  return ecra(`<h1 class="gp-titulo">Camiões de hoje</h1><p class="gp-nota">Por ordem de fecho.</p>
     <ul class="gp-lista" role="list">${C.map(([c, h, x, t], i) => `<li style="--i:${i}"><div class="ta-linha ta-linha--${t ? 'bloq' : 'curso'}"><span class="ta-linha__cab"><b>${c}</b>${t ? `<span class="gp-tag gp-tag--erro">${t}</span>` : `<small>${h}</small>`}</span><span class="ta-linha__art">${t ? `fecha às ${h} · ` : ''}${x}</span></div></li>`).join('')}</ul>`,
   O(FX, 'Camiões', { voltar: 'tx-inicio', pe: sec('Voltar ao início', arrowLeft, ' data-ir="tx-inicio"') }));
 }
@@ -222,10 +222,9 @@ function sairX(): string {
     <p class="gp-nota">Nenhum volume desce do camião: os que já subiram ficam lá e registados. Quem apanhar a guia continua no volume 3, e o camião espera no cais até a saída fechar. O gestor vê quem saiu com uma guia aberta.</p>`,
   O(FX, 'Sair', { voltar: 'tx-inicio', pe: `${acao('Continuar a carregar', play, ' data-ir="tx-carregar"')}${sec('Sair mesmo', logOut, ' data-login')}` }));
 }
-function consultarX(k: 'guia' | 'prateleira'): string {
+function consultarX(): string {
   const v = sec('Voltar', arrowLeft, ' data-ir="tx-inicio"');
-  if (k === 'guia') return ecra(`${leitor({ titulo: 'Leia a guia ou escreva o número', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<h2 class="gp-h">${GE.ref}</h2>${dl([['Cliente', GE.cli], ['Volumes', `${GE.vol}`], ['Conferidos', '2'], ['Onde está', PREP], ['Prevista sair', `hoje · ${GS.fecha} · ${GS.camiao}`], ['Estado', 'incompleta']])}`, O(FX, 'Consultar guia', { voltar: 'tx-inicio', pe: v }));
-  return ecra(`${leitor({ titulo: 'Leia a posição da prateleira', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<div class="ta-alvo"><small>Prateleira de preparados</small>${posicao(PREP)}</div><p class="gp-nota">Junto ao cais de saída · camião ${GS.camiao} · ${GS.fecha}</p><h2 class="gp-h">Está lá</h2>${dl(NO_CAMIAO.map(([g, , v, l]) => [g, `${l === v ? v : l} volumes`]))}`, O(FX, 'Prateleira', { voltar: 'tx-inicio', pe: v }));
+  return ecra(`${leitor({ titulo: 'Leia a guia ou escreva o número', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<h2 class="gp-h">${GE.ref}</h2>${dl([['Cliente', GE.cli], ['Volumes', `${GE.vol}`], ['Conferidos', '2'], ['Onde está', PREP], ['Prevista sair', `hoje · ${GS.fecha} · ${GS.camiao}`], ['Estado', 'incompleta']])}`, O(FX, 'Consultar guia', { voltar: 'tx-inicio', pe: v }));
 }
 
 /* =========================================================
@@ -236,11 +235,11 @@ export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
   const e = (fluxo: string, id: string, nome: string, objetivo: string, html: string, de?: string): Ecra<string> => ({ id, nome, fluxo, objetivo, ...(de ? { estadoDe: de } : {}), versoes: [{ id: 'v1', nota: NOTA, html }] });
   const S = (...a: [string, string, string, string, string?]) => e('Separação', ...a), X = (...a: [string, string, string, string, string?]) => e('Expedição', ...a);
   return [
-    S('ts-inicio', '110 · Início da Separação (29)', '«Bom dia», o turno e as guias à espera no armazém; Trabalho «Começar a recolher»; Consultar guia, artigo e posição, e Chamar o gestor; Tarefa · Início · Sair.', inicio(FS)),
+    S('ts-inicio', '110 · Início da Separação (29)', '«Bom dia» e o turno; Trabalho «Começar a recolher»; Consultar guia, artigo e posição, e Chamar o gestor; Tarefa · Início · Sair.', inicio(FS)),
     S('ts-inicio-sem', '110.1 · Sem trabalho', 'O motor não tem nada para o Tiago.', inicio(FS, 'sem'), 'ts-inicio'),
     S('ts-inicio-fim-turno', '110.2 · Fim do turno à vista', 'Só o que cabe no que falta; as Operações saem da frente.', inicio(FS, 'fim-turno'), 'ts-inicio'),
     S('ts-inicio-sem-rede', '110.3 · Sem ligação (62)', 'Não há menu: o que ficou gravado e «Tentar de novo».', inicio(FS, 'sem-rede'), 'ts-inicio'),
-    S('ts-tarefa', '111 · A sua próxima tarefa (30)', 'O cartão com o porquê; o único «Voltar» ao menu antes de começar.', cartao(FS)),
+    S('ts-tarefa', '111 · A sua tarefa (30)', 'O cartão com o porquê; o único «Voltar» ao menu antes de começar.', cartao(FS)),
     S('ts-guia', '112 · A sua guia (31)', 'As paragens pela ordem mais curta e a prateleira de preparados reservada.', guiaS()),
     S('ts-paragem', '113 · Paragem: lê a posição (32)', 'Vai a, tira, para que guia; lê a posição e depois o artigo.', sep('paragem')),
     S('ts-artigo', '113.1 · Posição certa: lê o artigo', 'Bip curto; agora o artigo.', sep('artigo'), 'ts-paragem'),
@@ -262,12 +261,12 @@ export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
     S('ts-consultar-guia', '118 · Consultar guia (39)', 'Só de ver.', consultarS('guia')),
     S('ts-consultar-artigo', '119 · Consultar artigo (40)', 'Onde está e quanto está reservado.', consultarS('artigo')),
     S('ts-consultar-posicao', '120 · Consultar posição (41)', 'Sem corrigir: a separação não corrige posições.', consultarS('posicao')),
-    X('tx-inicio', '130 · Início da Expedição (42)', '«Bom dia», o turno e as guias à espera; Trabalho «Começar a carregar»; Camiões de hoje, Consultar guia, Ver a prateleira de preparados, Chamar o gestor; Tarefa · Início · Sair.', inicio(FX)),
+    X('tx-inicio', '130 · Início da Expedição (42)', '«Bom dia» e o turno; Trabalho «Começar a carregar»; Camiões de hoje, Consultar guia, Chamar o gestor; Tarefa · Início · Sair.', inicio(FX)),
     X('tx-inicio-sem', '130.1 · Sem trabalho', 'O motor não tem nada para o Paulo.', inicio(FX, 'sem'), 'tx-inicio'),
     X('tx-inicio-fim-turno', '130.2 · Fim do turno à vista', 'Só o que cabe no que falta.', inicio(FX, 'fim-turno'), 'tx-inicio'),
     X('tx-inicio-sem-rede', '130.3 · Sem ligação (62)', 'O que ficou gravado e «Tentar de novo».', inicio(FX, 'sem-rede'), 'tx-inicio'),
-    X('tx-tarefa', '131 · A sua próxima tarefa (43)', 'O cartão com o porquê.', cartao(FX)),
-    X('tx-camioes', '132 · Camiões de hoje (44)', 'Por hora de fecho e o risco de cada um; não é por aqui que se escolhe trabalho.', camioes()),
+    X('tx-tarefa', '131 · A sua tarefa (43)', 'O cartão com o porquê.', cartao(FX)),
+    X('tx-camioes', '132 · Camiões de hoje (44)', 'Por hora de fecho, onde está cada um e o risco; sem as guias, que não são da pessoa.', camioes()),
     X('tx-conferir', '133 · Confere volume a volume (45)', 'Na prateleira de preparados: lê-se cada volume.', exp('conferir')),
     X('tx-conferir-2', '133.1 · 2 de 3 lidos', 'Falta o último volume.', exp('conferir-2'), 'tx-conferir'),
     X('tx-problema', '133.2 · O que se passa? (49)', 'Falta um volume, danificado, o camião não chegou, etiqueta ilegível, não cabe, outro motivo.', exp('problema'), 'tx-conferir'),
@@ -286,7 +285,6 @@ export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
     X('tx-chamado', '137.1 · O gestor foi chamado (71)', 'A tarefa fica consigo.', chamar(FX, 'chamado'), 'tx-chamar'),
     X('tx-chamado-resposta', '137.2 · O gestor respondeu', 'A resposta e «Continuar a tarefa».', chamar(FX, 'resposta'), 'tx-chamar'),
     X('tx-sair', '138 · Sair com a guia a meio (52)', 'Nenhum volume desce do camião; o resto volta ao motor.', sairX()),
-    X('tx-consultar-guia', '139 · Consultar guia (53)', 'Só de ver.', consultarX('guia')),
-    X('tx-prateleira', '140 · Ver a prateleira de preparados (54)', 'O que lá está, guia a guia.', consultarX('prateleira')),
+    X('tx-consultar-guia', '139 · Consultar guia (53)', 'Só de ver.', consultarX()),
   ];
 }
