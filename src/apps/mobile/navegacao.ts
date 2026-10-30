@@ -63,7 +63,7 @@ import inboxIc from 'lucide-static/icons/inbox.svg?raw';
 /* ---------- o menu da barra, como viria do menu central ---------- */
 type Funcao = 'gestor' | 'arrumacao' | 'separacao' | 'expedicao';
 interface Destino { id: string; funcao: Funcao; rotulo: string; icone: string; ecra: string; ordem: number; destaque?: boolean; ativo: boolean; gesto?: 'ler' | 'caixa' | 'tarefas' }
-const ICONES: Record<string, string> = { insights: chartColumn, operacoes: layoutGrid, inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
+const ICONES: Record<string, string> = { tarefa: pkg, sair: logOut, insights: chartColumn, operacoes: layoutGrid, inicio: home, tarefas: listTodo, inventario: pkg, arrumacao: boxes, mais: ellipsis, ler: scanBarcode, historico: history };
 /** 27 out. (ela: «para já remove as tarefas»): as Tarefas saem da barra do Gestor e da Arrumação; os ecrãs ficam no editor. */
 export const TAREFAS_ATIVAS = false;
 /** 27 out. (ela: «remove o mais por agora»): o Mais sai de todas as barras; os ecrãs dele ficam no editor. */
@@ -79,12 +79,10 @@ export const MENU_BARRA: Destino[] = [
   { id: 'insights', funcao: 'gestor', rotulo: 'Insights', icone: 'insights', ecra: 'g-insights', ordem: 40, ativo: true },
   { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'ta-inicio', ordem: 10, ativo: true },
-  /* 30 out. (briefing «Figma interativo V2 · Trabalhador de Arrumação»): Início · Tarefas · Ler · Mais — as Tarefas são só as
-     da pessoa (89), e o Histórico passa para o Mais */
-  { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'ta-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
-  { id: 'ler', funcao: 'arrumacao', rotulo: 'Ler', icone: 'ler', ecra: 'op-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
-  { id: 'historico', funcao: 'arrumacao', rotulo: 'Histórico', icone: 'historico', ecra: 'op-historico', ordem: 40, ativo: false },
-  { id: 'mais', funcao: 'arrumacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais', ordem: 90, ativo: true },
+  /* 30 out. (ela: «só podem fazer aquilo que deixei nos docs»): os três separadores do 07 · O menu da app — Tarefa (direto
+     para a palete, sem cartão) · Início · Sair. Sem Tarefas, Ler, Histórico nem Mais. */
+  { id: 'tarefa', funcao: 'arrumacao', rotulo: 'Tarefa', icone: 'tarefa', ecra: 'arr-op', ordem: 5, ativo: true },
+  { id: 'sair', funcao: 'arrumacao', rotulo: 'Sair', icone: 'sair', ecra: 'ta-sair', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'separacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-separacao', ordem: 10, ativo: true },
   { id: 'mais', funcao: 'separacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais-separacao', ordem: 90, ativo: MAIS_ATIVO },
   { id: 'inicio', funcao: 'expedicao', rotulo: 'Início', icone: 'inicio', ecra: 'op-expedicao', ordem: 10, ativo: true },
@@ -124,7 +122,7 @@ export function barra(funcao: Funcao, ativo: string, o: { semNumeros?: boolean; 
 type Tipo = 'inventario' | 'arrumacao';
 interface Tarefa { tipo: Tipo; ref: string; t: string; quem: string; est: 'atribuir' | 'curso' | 'atencao'; zona: string; acao: [string, string, string]; p?: [number, number] }
 const TAREFAS: Tarefa[] = [
-  { tipo: 'arrumacao', ref: 'GA-2026-0331', t: '2 paletes · 82 un. · cais 1 → 60101203', quem: '', est: 'atribuir', zona: 'Zona 10', acao: ['Atribuir', 'arr-guia', userPlus] },
+  { tipo: 'arrumacao', ref: 'GA-2026-0331', t: '2 paletes · 82 un. · cais 1 → 60101203', quem: '', est: 'atribuir', zona: 'Zona 10', acao: ['Abrir', 'arr-guia', list] },
   { tipo: 'inventario', ref: 'INV-2026-015 · colunas 07–12', t: 'Cíclica · rolamentos · 15 posições', quem: '', est: 'atribuir', zona: 'Zona 10', acao: ['Atribuir', 'gestor-atribuir', userPlus] },
   { tipo: 'inventario', ref: INVENTARIOS[0].ref, t: `${INVENTARIOS[0].area} · às cegas`, quem: 'Joana Silva', est: 'curso', zona: 'Zona 30', acao: ['Acompanhar', 'gestor-acompanhar', list], p: [INVENTARIOS[0].feitas, INVENTARIOS[0].total] },
   { tipo: 'arrumacao', ref: 'GA-2026-0330', t: '2 artigos · cais 2 → 60120401', quem: 'Inês Rocha', est: 'curso', zona: 'Zona 12', acao: ['Acompanhar', 'arr-acompanhar', list], p: [1, 2] },
@@ -214,7 +212,7 @@ const estadosNav = (): [string, string, string, string, string, string][] => [
   ['gestor-nav-falhou', 'gestor-inicio', '60.13 · O menu não carregou', 'O menu central não respondeu: ficam Início e Mais, e diz-se; tentar outra vez.', centro('normal', `<p class="gi-barra-aviso" data-por-cima role="status">${L(serverOff)}O menu não carregou: só Início e Mais. <button type="button" class="gp-ligacao">${L(refresh)}Tentar outra vez</button></p>${barra('gestor', 'inicio', { so: ['inicio', 'mais'] })}`), 'v3'],
   ['gestor-nav-indisponivel', 'gestor-inicio', '60.14 · Destino indisponível', 'A Arrumação foi desligada no menu central a meio do dia: sai das Operações, e quem estava lá vê porquê.', ecra(aviso('info', lock, 'A Arrumação deixou de estar disponível', 'O administrador desligou o módulo. O que estava atribuído continua no servidor; não se perde nada.'), { titulo: 'Arrumação', gestor: true, barra: barra('gestor', 'operacoes') }), 'v3'],
   ['op-nav-sem-destinos', 'op-inicio', '57.10 · Sem destinos autorizados', 'A conta entrou mas não tem nenhum módulo da Pick: só Mais (a conta e terminar sessão).', ecra(aviso('erro', lock, 'Ainda não tem módulos na Pick', 'A sua conta não tem permissões para nenhum módulo do armazém 60. Peça-as ao gestor do turno.'), { ...OP, titulo: 'Início', barra: barra('arrumacao', 'mais', { so: ['mais'] }) }), 'v2'],
-  ['op-por-confirmar', 'op-inicio', '57.11 · Uma contagem por confirmar', 'Tocou noutro destino com a quantidade escrita e por confirmar: pergunta antes de sair; nada se perde sem querer.', ecra(`${aviso('aviso', triangle, 'Tem uma contagem por confirmar', 'SKF VKBA 6556 · 4 un. na 60300102 ainda não foi registada. Se sair, o número não fica.')}`, { ...OP, titulo: 'Ler e contar', pe: `${acao('Voltar e confirmar', check, ' data-ir="inv-ler-lido"')}${sec('Sair sem registar', arrowLeft, ' data-ir="op-tarefas"')}` }), 'v2'],
+  ['op-por-confirmar', 'op-inicio', '57.11 · Uma contagem por confirmar', 'Tocou noutro destino com a quantidade escrita e por confirmar: pergunta antes de sair; nada se perde sem querer.', ecra(`${aviso('aviso', triangle, 'Tem uma contagem por confirmar', 'SKF VKBA 6556 · 4 un. na 60300102 ainda não foi registada. Se sair, o número não fica.')}`, { ...OP, titulo: 'Ler e contar', pe: `${acao('Voltar e confirmar', check, ' data-ir="inv-ler-lido"')}${sec('Sair sem registar', arrowLeft, ' data-ir="op-inicio"')}` }), 'v2'],
   ['op-reatribuida', 'op-inicio', '57.12 · Tarefa reatribuída', 'O gestor passou a contagem para outra pessoa: sai das Tarefas e diz-se; o que contou fica.', ecra(aviso('info', repeat, 'A contagem passou para a Inês', `O gestor reatribuiu o ${INV}. As 18 posições que contou ficam registadas com o seu nome.`), { ...OP, titulo: 'Tarefas', barra: barra('arrumacao', 'tarefas') }), 'v2'],
   ['op-permissao-retirada', 'op-inicio', '57.13 · Permissão retirada', 'O Inventário deixou de estar autorizado: os destinos dele saem da barra.', ecra(aviso('erro', userRound, 'Já não tem o Inventário', 'A permissão «Registar contagens» foi retirada da sua conta. Ler e as Tarefas saíram da barra.'), { ...OP, titulo: 'Início', barra: barra('arrumacao', 'inicio', { so: ['inicio', 'historico', 'mais'] }) }), 'v2'],
 ];

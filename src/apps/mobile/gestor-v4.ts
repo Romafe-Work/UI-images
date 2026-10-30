@@ -74,7 +74,7 @@ const estado = (o: { zero?: boolean; carregar?: boolean } = {}) => {
     <div class="gx-estado__l">${xs.map(([t, k, ir, tom]) => `<button type="button" class="gx-num${tom ? ` is-${tom}` : ''}" data-ir="${ir}"${o.carregar ? ' disabled' : ''}><b>${o.carregar ? '<i class="gx-esq"></i>' : o.zero ? 0 : k}</b><span>${t}</span></button>`).join('')}</div></section>`;
 };
 /** Por módulo: o que está por fazer ou pede atenção, e o estado que mais importa. */
-const ESTADO_MOD: Record<Modulo, string> = { inv: '1 por validar há 10 dias', arr: '2 por atribuir', sep: '1 guia com falta', exp: '2 prontas para recolher' };
+const ESTADO_MOD: Record<Modulo, string> = { inv: '1 por validar há 10 dias', arr: '2 à espera', sep: '1 guia com falta', exp: '2 prontas para recolher' };
 const abertas = (m: Modulo) => TAREFAS.filter((x) => TIPO_MOD[x.tipo] === m && x.est !== 'curso').length;
 const tile = ([k, t, ir]: typeof MODULOS[number], i: number, zero = false) => `<li style="--i:${i}"><button type="button" class="gx-mod gx-mod--${k}" data-ir="${ir}" aria-label="${t}: ${zero ? 'nada por fazer' : `${abertas(k)} por fazer, ${ESTADO_MOD[k]}`}">
     <span class="gi-mod__ic">${k === 'inv' ? CAIXA() : L(ICONE_MOD[k])}</span><b>${t}</b><span class="gx-mod__n"><strong>${zero ? 0 : abertas(k)}</strong> por fazer</span><small>${zero ? 'Nada pendente' : ESTADO_MOD[k]}</small></button></li>`;
@@ -186,15 +186,15 @@ interface Dados { rot: string; geral: [string, string, string][]; graf: { t: str
 const D: Record<Exclude<Periodo, 'outro'>, Dados> = {
   hoje: { rot: `Hoje, até às ${AGORA}`, geral: [['Criadas', '11', ''], ['Concluídas', '3', 'ok'], ['Exceções', '4', 'erro'], ['Duração média', '28 min', '']],
     graf: { t: 'Tarefas concluídas, por hora', xs: [['07h', 0], ['08h', 2], ['09h', 1], ['10h', 0]], parcial: true },
-    mods: { inv: [['Posições contadas', '18'], ['Correções', '1'], ['Divergências por rever', '2'], ['Validações à espera', '1']], arr: [['Guias concluídas', '1'], ['Duração média', '32 min'], ['Por atribuir agora', '2'], ['Exceções', '2']], sep: [['Guias preparadas', '1'], ['Duração média', '24 min'], ['Com falta', '1 de 3'], ['Por separar agora', '1']], exp: [['Guias expedidas', '1'], ['Prontas à espera agora', '2'], ['Espera mais longa', '1 h 33'], ['Exceções', '1']] },
+    mods: { inv: [['Posições contadas', '18'], ['Correções', '1'], ['Divergências por rever', '2'], ['Validações à espera', '1']], arr: [['Guias concluídas', '1'], ['Duração média', '32 min'], ['À espera agora', '2'], ['Exceções', '2']], sep: [['Guias preparadas', '1'], ['Duração média', '24 min'], ['Com falta', '1 de 3'], ['Por separar agora', '1']], exp: [['Guias expedidas', '1'], ['Prontas à espera agora', '2'], ['Espera mais longa', '1 h 33'], ['Exceções', '1']] },
     equipa: [['Inês Rocha', 'Arrumação', '1 guia', 1, '32 min'], ['Joana Silva', 'Arrumação', '18 posições', 1, '—'], ['Paulo Reis', 'Expedição', '1 guia', 1, '—'], ['Tiago Lopes', 'Separação', '1 guia', 1, '24 min']] },
   '7d': { rot: 'De 22 a 28 de outubro', geral: [['Criadas', '58', ''], ['Concluídas', '45', 'ok'], ['Exceções', '9', 'erro'], ['Duração média', '31 min', '']],
     graf: { t: 'Tarefas concluídas, por dia', xs: [['qui.', 11], ['sex.', 9], ['sáb.', 0], ['dom.', 0], ['seg.', 12], ['ter.', 10], ['qua.', 3]], parcial: true },
-    mods: { inv: [['Posições contadas', '94'], ['Correções', '4'], ['Divergências', '7'], ['Recontagens', '2']], arr: [['Guias concluídas', '17'], ['Duração média', '29 min'], ['Por atribuir agora', '2'], ['Exceções', '4']], sep: [['Guias preparadas', '16'], ['Duração média', '26 min'], ['Com falta', '3 de 18'], ['Por separar agora', '1']], exp: [['Guias expedidas', '12'], ['Prontas à espera agora', '2'], ['Espera média', '48 min'], ['Exceções', '2']] },
+    mods: { inv: [['Posições contadas', '94'], ['Correções', '4'], ['Divergências', '7'], ['Recontagens', '2']], arr: [['Guias concluídas', '17'], ['Duração média', '29 min'], ['À espera agora', '2'], ['Exceções', '4']], sep: [['Guias preparadas', '16'], ['Duração média', '26 min'], ['Com falta', '3 de 18'], ['Por separar agora', '1']], exp: [['Guias expedidas', '12'], ['Prontas à espera agora', '2'], ['Espera média', '48 min'], ['Exceções', '2']] },
     equipa: [['Inês Rocha', 'Arrumação', '9 guias', 2, '30 min'], ['Joana Silva', 'Arrumação', '8 guias · 94 posições', 2, '28 min'], ['Paulo Reis', 'Expedição', '12 guias', 2, '—'], ['Tiago Lopes', 'Separação', '16 guias', 3, '26 min']] },
   '30d': { rot: 'De 29 de setembro a 28 de outubro', geral: [['Criadas', '214', ''], ['Concluídas', '169', 'ok'], ['Exceções', '31', 'erro'], ['Duração média', '33 min', '']],
     graf: { t: 'Tarefas concluídas, por semana (começa à segunda)', xs: [['6 out.', 40], ['13 out.', 46], ['20 out.', 38], ['27 out.', 45]], parcial: true },
-    mods: { inv: [['Posições contadas', '312'], ['Correções', '15'], ['Divergências', '22'], ['Inventários fechados', '3']], arr: [['Guias concluídas', '64'], ['Duração média', '31 min'], ['Por atribuir agora', '2'], ['Exceções', '13']], sep: [['Guias preparadas', '58'], ['Duração média', '27 min'], ['Com falta', '9 de 61'], ['Por separar agora', '1']], exp: [['Guias expedidas', '47'], ['Prontas à espera agora', '2'], ['Espera média', '52 min'], ['Exceções', '6']] },
+    mods: { inv: [['Posições contadas', '312'], ['Correções', '15'], ['Divergências', '22'], ['Inventários fechados', '3']], arr: [['Guias concluídas', '64'], ['Duração média', '31 min'], ['À espera agora', '2'], ['Exceções', '13']], sep: [['Guias preparadas', '58'], ['Duração média', '27 min'], ['Com falta', '9 de 61'], ['Por separar agora', '1']], exp: [['Guias expedidas', '47'], ['Prontas à espera agora', '2'], ['Espera média', '52 min'], ['Exceções', '6']] },
     equipa: [['Inês Rocha', 'Arrumação', '33 guias', 7, '31 min'], ['Joana Silva', 'Arrumação', '31 guias · 312 posições', 6, '30 min'], ['Paulo Reis', 'Expedição', '47 guias', 6, '—'], ['Tiago Lopes', 'Separação', '58 guias', 12, '27 min']] },
 };
 /** Um gráfico de barras, uma série: concluídas. O valor em cima de cada barra; a última, ainda a decorrer, tracejada. */
@@ -211,7 +211,7 @@ const metricas = (xs: [string, string, string?][]) => `<dl class="gx-met">${xs.m
 const insight = (t: string, porque: string, regra: string, b: string, ic: string, ir: string, tom: 'erro' | 'aviso' | 'info' = 'aviso') => `<li><div class="gx-ins gx-ins--${tom}"><b>${t}</b><p>${porque}</p><p class="gx-ins__regra">Regra: ${regra}</p><button type="button" class="gp-btn gp-btn--acao" data-ir="${ir}">${L(ic)}<span>${b}</span></button></div></li>`;
 const INS: Record<Modulo, string> = {
   inv: insight('1 inventário espera validação há 10 dias', 'O INV-2026-011 tem 2 divergências por decidir; o stock da zona 21 não é ajustado até fechar.', 'validações à espera há mais de 24 h.', 'Validar contagens', check, 'gestor-validar'),
-  arr: insight('2 guias de arrumação por atribuir há 2 h', 'Ninguém da arrumação está livre; as paletes ocupam o cais 1.', 'por atribuir há mais de 30 min, o objetivo do armazém.', 'Ver tarefas', list, 'g-tarefas'),
+  arr: insight('2 guias de arrumação à espera há 2 h', 'Ninguém da arrumação está livre; as paletes ocupam o cais 1.', 'à espera há mais de 30 min, o objetivo do armazém.', 'Ver tarefas', list, 'g-tarefas'),
   sep: insight('1 guia seguiu com falta', 'A GS13454210 saiu com 2 de 4 pastilhas P 85 020; a falta ficou na 60210305.', 'qualquer falta registada hoje.', 'Rever a falta', triangle, 'g-sep-guia-falta', 'erro'),
   exp: insight('A GS13454208 está pronta há 1 h 33', 'O cliente espera e a prateleira de preparados enche.', 'guias prontas há mais de 1 h sem recolha.', 'Recolher', truck, 'g-exp-outra'),
 };
@@ -312,7 +312,7 @@ export function ecrasGestorV4(): Ecra<string>[] {
     e('g-insights-outro', '78.3 · Outro período', 'As datas de início e fim; todas as medidas nesse período.', insights({ p: 'outro' }), 'g-insights'),
     e('g-insights-invalido', '78.4 · Período inválido', 'O início depois do fim: diz-se, e «Ver o período» fica desligado.', insights({ p: 'outro', estado: 'invalido' }), 'g-insights'),
     e('g-insights-inv', '78.5 · Inventário', 'Posições contadas, correções, divergências e validações à espera — sem percentagens de um âmbito incompleto.', insights({ vista: 'inv' }), 'g-insights'),
-    e('g-insights-arr', '78.6 · Arrumação', 'Guias concluídas, duração média, por atribuir agora e exceções.', insights({ vista: 'arr' }), 'g-insights'),
+    e('g-insights-arr', '78.6 · Arrumação', 'Guias concluídas, duração média, à espera agora e exceções.', insights({ vista: 'arr' }), 'g-insights'),
     e('g-insights-sep', '78.7 · Separação', 'Guias preparadas, duração média, faltas (em quantas guias) e por separar agora.', insights({ vista: 'sep' }), 'g-insights'),
     e('g-insights-exp', '78.8 · Expedição', 'Guias expedidas, prontas à espera agora, a espera mais longa e exceções.', insights({ vista: 'exp' }), 'g-insights'),
     e('g-insights-equipa', '78.9 · Equipa', 'Por pessoa: concluídas, duração média do seu tipo e exceções; por ordem alfabética, sem classificação.', insights({ vista: 'equipa' }), 'g-insights'),

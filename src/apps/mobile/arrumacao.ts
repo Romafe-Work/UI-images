@@ -5,8 +5,8 @@
        (CH-…) — por isso não há «esperado hoje» nem comparação com encomendas de compra;
      - receber é tarefa (22 set.) e uma tarefa é uma guia (24 set.): de cada chegada nascem guias de arrumação (GA-…),
        com uma ou mais paletes; o motor entrega uma de cada vez a quem está livre;
-     - o motor atribui; o gestor pode atribuir quando acha necessário, com motivo escrito, e o motor aprende (18 set.):
-       «Por atribuir» quer dizer «ninguém da arrumação está livre», não «à espera do gestor»;
+     - o motor atribui, e na arrumação ninguém atribui nada a ninguém (30 out., ela: «na arrumação ninguém atribui nada a
+       ninguém»): «À espera» quer dizer «ninguém da arrumação está livre»; o gestor pode arrumá-la ele próprio;
      - o mapa é da v2 (22 set.): os destinos são posições de 8 algarismos, sem mapa nem coordenadas inventadas;
      - capacidades de posição não há medidas: não se mostram;
      - o Inventário e a Arrumação ligam-se pela posição: um destino numa zona em contagem às cegas (INV-2026-014, zona
@@ -32,7 +32,7 @@ import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
-import userPlus from 'lucide-static/icons/user-plus.svg?raw';
+import play from 'lucide-static/icons/play.svg?raw';
 import userRound from 'lucide-static/icons/user-round.svg?raw';
 import list from 'lucide-static/icons/list.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
@@ -51,7 +51,7 @@ interface Linha { ref: string; desc: string; q: number }
 interface Guia { ref: string; ch: string; paletes: number; origem: string; destino: string; quem: string; est: EstGuia; linhas: Linha[]; feitas: number; motivo?: string; hora?: string }
 export const GUIAS: Guia[] = [
   { ref: 'GA-2026-0331', ch: 'CH-2026-0412', paletes: 2, origem: 'Cais 1', destino: '60101203', quem: '', est: 'atribuir', feitas: 0, linhas: [{ ref: 'SKF 6205-2RSH', desc: 'Rolamento rígido de esferas', q: 40 }, { ref: 'SKF VKBA 6556', desc: 'Kit de rolamento de roda', q: 12 }, { ref: 'SKF 6206-2Z', desc: 'Rolamento rígido de esferas', q: 30 }] },
-  { ref: 'GA-2026-0330', ch: 'CH-2026-0411', paletes: 1, origem: 'Cais 2', destino: '60120401', quem: 'Inês Rocha', est: 'curso', feitas: 1, linhas: [{ ref: 'CR 30x47x7', desc: 'Retentor de cambota', q: 20 }, { ref: 'CR 35x52x7', desc: 'Retentor de cambota', q: 16 }] },
+  { ref: 'GA-2026-0330', ch: 'CH-2026-0411', paletes: 2, origem: 'Cais 2', destino: '60120401', quem: 'Inês Rocha', est: 'curso', feitas: 1, linhas: [{ ref: 'CR 30x47x7', desc: 'Retentor de cambota', q: 20 }, { ref: 'CR 35x52x7', desc: 'Retentor de cambota', q: 16 }] },
   { ref: 'GA-2026-0329', ch: 'CH-2026-0411', paletes: 1, origem: 'Cais 2', destino: '60300104', quem: '', est: 'excecao', feitas: 0, motivo: 'Destino em contagem: zona 30 (INV-2026-014)', linhas: [{ ref: 'TRW GDB1330', desc: 'Pastilhas de travão', q: 24 }] },
   { ref: 'GA-2026-0328', ch: 'CH-2026-0410', paletes: 1, origem: 'Cais 1', destino: '60210302', quem: 'Inês Rocha', est: 'excecao', feitas: 0, motivo: 'Quantidade diferente: 12 na guia, 10 arrumadas', linhas: [{ ref: 'NGK BKR6E', desc: 'Vela de ignição', q: 12 }] },
   { ref: 'GA-2026-0327', ch: 'CH-2026-0410', paletes: 1, origem: 'Cais 1', destino: '60100802', quem: 'Inês Rocha', est: 'feita', feitas: 2, hora: '08:12', linhas: [{ ref: 'SKF 6204-2RSH', desc: 'Rolamento rígido de esferas', q: 50 }, { ref: 'SKF VKMV 6PK1873', desc: 'Correia poli-V', q: 10 }] },
@@ -70,7 +70,7 @@ export const cenaArrumacao = (mini = false) => `<svg class="gi-cena${mini ? ' gi
   </svg>`;
 
 /* ---------- peças ---------- */
-const TAG: Record<EstGuia, [string, string]> = { atribuir: ['Por atribuir', 'planeada'], curso: ['Em curso', 'curso'], excecao: ['Exceção', 'erro'], feita: ['Concluída', 'ok'] };
+const TAG: Record<EstGuia, [string, string]> = { atribuir: ['À espera', 'planeada'], curso: ['Em curso', 'curso'], excecao: ['Exceção', 'erro'], feita: ['Concluída', 'ok'] };
 const percurso = (g: Guia) => `<p class="gi-percurso"><span>${L(truck)}${g.origem}</span>${L(arrowRight, 'gi-percurso__seta')}${posicao(g.destino, `gi-pos--peq${g.est === 'excecao' && g.motivo?.startsWith('Destino') ? ' gi-pos--erro' : ''}`)}</p>`;
 function cartao(g: Guia, i: number, aberta = false): string {
   const [t, k] = TAG[g.est];
@@ -81,7 +81,7 @@ function cartao(g: Guia, i: number, aberta = false): string {
     ${g.motivo ? `<p class="gi-guia__mot">${L(triangle)}${g.motivo}</p>` : ''}
     <span class="gi-exp__quem">${L(userRound)}${g.quem || 'Sem pessoa'}${g.est === 'curso' ? ` · ${g.feitas} de ${g.linhas.length} artigos` : g.hora ? ` · às ${g.hora}` : ''}${L(chevronDown, 'gi-exp__seta')}</span></summary>
     <div class="gi-exp__c"><ul class="gi-linhas" role="list">${g.linhas.map((l) => `<li class="gi-linha"><div><b>${l.ref}</b><span>${l.desc}</span></div><div class="gi-linha__q"><b>${l.q} un.</b></div></li>`).join('')}</ul>
-      ${g.est === 'feita' ? '' : `<button type="button" class="gp-btn gp-btn--acao" data-ir="${g.est === 'atribuir' ? 'arr-guia' : g.est === 'curso' ? 'arr-acompanhar' : g.motivo?.startsWith('Destino') ? 'arr-guia-bloqueada' : 'arr-excecoes'}">${L(g.est === 'atribuir' ? userPlus : g.est === 'curso' ? list : triangle)}<span>${g.est === 'atribuir' ? 'Abrir e atribuir' : g.est === 'curso' ? 'Acompanhar' : 'Resolver'}</span></button>`}</div></details></li>`;
+      ${g.est === 'feita' ? '' : `<button type="button" class="gp-btn gp-btn--acao" data-ir="${g.est === 'atribuir' ? 'arr-guia' : g.est === 'curso' ? 'arr-acompanhar' : g.motivo?.startsWith('Destino') ? 'arr-guia-bloqueada' : 'arr-excecoes'}">${L(g.est === 'atribuir' ? list : g.est === 'curso' ? list : triangle)}<span>${g.est === 'atribuir' ? 'Abrir' : g.est === 'curso' ? 'Acompanhar' : 'Resolver'}</span></button>`}</div></details></li>`;
 }
 const faixa = () => `<dl class="gi-faixa"><div><dd>${RESUMO_ARRUMACAO.porArrumar}</dd><dt>Por arrumar</dt></div><div><dd>${RESUMO_ARRUMACAO.emCurso}</dd><dt>Em execução</dt></div><div class="is-erro"><dd>${RESUMO_ARRUMACAO.problemas}</dd><dt>Com problemas</dt></div></dl>`;
 const G = (titulo: string, voltar = 'arr-inicio'): Opcoes => ({ titulo, voltar, gestor: true, funcao: 'Gestor' });
@@ -89,7 +89,7 @@ const G = (titulo: string, voltar = 'arr-inicio'): Opcoes => ({ titulo, voltar, 
 /* =========================================================
    70 · Arrumação (Gestor)
    ========================================================= */
-const SEPS: [EstGuia, string][] = [['atribuir', 'Por atribuir'], ['curso', 'Em curso'], ['excecao', 'Exceções'], ['feita', 'Concluídas']];
+const SEPS: [EstGuia, string][] = [['atribuir', 'À espera'], ['curso', 'Em curso'], ['excecao', 'Exceções'], ['feita', 'Concluídas']];
 export function arrumacaoInicio(cen: 'normal' | 'vazia' = 'normal', barra?: string): string {
   const gs = cen === 'vazia' ? [] : GUIAS;
   return ecra(`<h1 class="gp-titulo">Arrumação</h1>
@@ -113,7 +113,7 @@ function guia(cen: E71 = 'normal'): string {
   const destinos: [string, string, string][] = cen === 'bloqueada'
     ? [['60300104', 'Proposto antes', 'bloq'], ['60301101', 'Zona 30 · mesma família', 'bloq'], ['60120402', 'Zona 12 · livre', 'ok']]
     : cen === 'sem-destino' ? [] : [['60101203', 'Proposto · onde o artigo já está', 'ok'], ['60101204', 'Ao lado', 'ok'], ['60100105', 'Posição inativa', 'inativa']];
-  return ecra(`<div class="gi-acomp-cab"><h1 class="gp-titulo">${g.ref}</h1><span class="gp-tag gp-tag--${cen === 'bloqueada' ? 'erro' : 'planeada'}">${cen === 'bloqueada' ? 'Exceção' : 'Por atribuir'}</span></div>
+  return ecra(`<div class="gi-acomp-cab"><h1 class="gp-titulo">${g.ref}</h1><span class="gp-tag gp-tag--${cen === 'bloqueada' ? 'erro' : 'planeada'}">${cen === 'bloqueada' ? 'Exceção' : 'À espera'}</span></div>
     <p class="gp-nota">Da ${g.ch} · registada por Joana Silva às 08:40 · ${g.paletes} ${g.paletes === 1 ? 'palete' : 'paletes'} no ${g.origem.toLowerCase()}</p>
     ${cen === 'bloqueada' ? aviso('erro', lock, 'O destino está em contagem', 'A 60300104 é da zona 30, que está a ser contada às cegas (INV-2026-014). Até a contagem fechar não se arruma lá: escolha outro destino.') : ''}
     <section class="gp-sec">${h2('Artigos', g.linhas.length)}<ul class="gi-linhas" role="list">${g.linhas.map((l) => `<li class="gi-linha"><div><b>${l.ref}</b><span>${l.desc}</span></div><div class="gi-linha__q"><b>${l.q} un.</b></div></li>`).join('')}</ul></section>
@@ -121,10 +121,8 @@ function guia(cen: E71 = 'normal'): string {
       ${destinos.length ? `<ul class="gp-escolha" role="radiogroup" aria-label="Destino">${destinos.map(([p, t, k], i) => `<li><label class="gp-op gi-dest${k !== 'ok' ? ' is-ocupada' : ''}"><input type="radio" name="gi-dest"${(cen === 'bloqueada' ? i === 2 : i === 0) ? ' checked' : ''}${k !== 'ok' ? ' disabled' : ''}>${posicao(p, 'gi-pos--peq')}<span><small>${t}</small></span>${k === 'bloq' ? `<em class="is-nao">${L(lock)}Em contagem</em>` : k === 'inativa' ? '<em class="is-nao">Inativa</em>' : ''}</label></li>`).join('')}</ul>`
       : aviso('aviso', mapPin, 'Sem destino proposto', 'O motor não encontrou uma posição ativa da família destes artigos fora das zonas em contagem. Escreva a posição de destino.') + '<label class="gp-campo"><span>Posição de destino</span><input inputmode="numeric" placeholder="8 algarismos"></label>'}
       ${''}</section>
-    <section class="gp-sec">${h2('Quem arruma')}
-      <ul class="gp-escolha" role="radiogroup" aria-label="Quem arruma">${[['Deixar o motor escolher', 'M', 'Entrega a quem acabar primeiro', ''], ['Inês Rocha', 'IR', 'A seguir à GA-2026-0330, que acaba agora', ''], ['Joana Silva', 'JS', 'Na contagem INV-2026-014', 'o']].map(([q, ini, t, k], i) => `<li><label class="gp-op${k ? ' is-ocupada' : ''}"><input type="radio" name="gi-quem"${i === 1 ? ' checked' : ''}${k ? ' disabled' : ''}><span class="gp-av">${ini}</span><span><b>${q}</b><small>${t}</small></span></label></li>`).join('')}</ul>
-      <label class="gp-campo"><span>Motivo (obrigatório ao escolher a pessoa)</span><input value="Cais 1 cheio: a Inês leva-a a seguir à que tem"></label></section>`,
-  { ...G('Guia'), pe: cen === 'a-atribuir' ? esperar('A atribuir…') : acao(cen === 'bloqueada' ? 'Mudar o destino' : 'Atribuir à Inês', cen === 'bloqueada' ? mapPin : userPlus, cen === 'bloqueada' ? ' data-ir="arr-guia"' : ' data-ir="arr-guia-atribuida"') });
+    <p class="gp-nota">O motor dá-a a quem da arrumação ficar livre primeiro; ninguém a atribui.</p>`,
+  { ...G('Guia'), pe: cen === 'bloqueada' ? acao('Mudar o destino', mapPin, ' data-ir="arr-guia"') : `${acao('Arrumar eu', play, ' data-ir="g-arr-op"')}${sec('Voltar à Arrumação', arrowLeft, ' data-ir="arr-inicio"')}` });
 }
 
 /* =========================================================
@@ -140,7 +138,7 @@ function acompanhar(cen: 'normal' | 'parcial' | 'concluida-outro' = 'normal'): s
     <ul class="gi-secoes" role="list">${g.linhas.map((l, i) => `<li class="gi-secao ${i < g.feitas ? 'is-feita' : 'is-atual'}"><span><b>${l.ref}</b><small>${l.desc} · ${l.q} un.</small></span>${i < g.feitas ? `<span class="gp-tag gp-tag--ok">${L(check)}${cen === 'parcial' && i === 0 ? '14 de 20 · parcial' : 'Arrumado'}</span>` : '<span class="gp-tag gp-tag--planeada">Por arrumar</span>'}</li>`).join('')}</ul>
     ${cen === 'parcial' ? aviso('aviso', triangle, 'Arrumação parcial', 'Couberam 14 de 20 na 60120401. As 6 que faltam ficam na guia, no cais 2; o motor propõe outro destino para elas.') : ''}
     ${''}`,
-  { ...G('Acompanhar'), pe: `${sec('Reatribuir', repeat, ' data-ir="arr-guia"')}${sec('Ver a guia', list, ' data-ir="arr-inicio"')}` });
+  { ...G('Acompanhar'), pe: sec('Voltar à Arrumação', arrowLeft, ' data-ir="arr-inicio"') });
 }
 
 /* =========================================================

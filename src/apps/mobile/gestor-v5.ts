@@ -63,7 +63,7 @@ const NUMS: Record<Modulo, [string, number, ('aviso' | 'erro' | '')?][]> = {
 /** A próxima ação de cada módulo: a mesma regra do Centro (o que está parado há mais tempo à espera de alguém). */
 const PROXIMA: Record<Modulo, [string, string]> = {
   inv: ['Validar o INV-2026-011 · há 10 dias', 'gestor-validar'],
-  arr: ['Atribuir a GA-2026-0331 · 2 paletes no cais 1', 'arr-guia'],
+  arr: ['Arrumar eu a GA-2026-0331 · 2 paletes no cais 1', 'arr-guia'],
   sep: ['Rever a falta da GS13454210', 'g-sep-guia-falta'],
   exp: ['Recolher a GS13454208 · pronta desde as 09:12', 'g-exp-outra'],
 };
@@ -175,7 +175,7 @@ export function artigoG(e: EArt = 'normal'): string {
   const nums: [string, string, string][] = sem ? [['Em stock', '0', 'erro'], ['Reservado', '0', ''], ['A chegar', `${vem}`, '']] : [['Em stock', '20', ''], ['Reservado', '0', ''], ['A chegar', `${vem}`, '']];
   return ecra(`<div class="gx-cab"><h1 class="gp-titulo">SKF VKBA 6556</h1><p>Kit de rolamento de roda · 7316201250277</p></div>
     <dl class="gi-faixa gx-faixa">${nums.map(([t, v, tom]) => `<div${tom ? ` class="is-${tom}"` : ''}><dd>${v}</dd><dt>${t}</dt></div>`).join('')}</dl>
-    <section class="gp-sec">${h2('Por posição')}${sem ? `<p class="gp-vazio">${L(inbox)}Nenhuma posição o tem. Vêm ${vem} un. na GA-2026-0331 (cais 1, por atribuir).</p>`
+    <section class="gp-sec">${h2('Por posição')}${sem ? `<p class="gp-vazio">${L(inbox)}Nenhuma posição o tem. Vêm ${vem} un. na GA-2026-0331 (cais 1, à espera).</p>`
       : `<ul class="gi-mais-l" role="list">${itemMais(mapPin, '60101203 · 14 un.', 'Zona 10 · de onde a separação tira', 'g-posicao')}${itemMais(mapPin, '60300102 · 6 un.', 'Zona 30 · bloqueada: em contagem', 'g-posicao-bloqueada')}</ul>`}</section>
     ${sem ? '' : `<p class="gx-nota-cont">${L(pkg)}<span><b>Contadas hoje: 4 un. na 60300102</b> (INV-2026-014). Não é stock: o stock só muda quando o inventário for validado.</span></p>`}
     <section class="gp-sec">${h2('Tarefas com este artigo')}<ul class="gi-mais-l" role="list">${itemMais(pkgOpen, 'GA-2026-0331 · por atribuir', `${vem} un. · cais 1 → 60101203`, 'arr-guia')}${sem ? '' : itemMais(pkg, 'INV-2026-014 · a contar', 'Joana Silva · zona 30', 'gestor-acompanhar')}</ul></section>

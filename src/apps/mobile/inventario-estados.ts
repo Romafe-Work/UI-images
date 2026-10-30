@@ -49,7 +49,7 @@ export interface Funcao { k: 'gestor' | 'arrumacao' | 'separacao' | 'expedicao';
 export const FUNCOES: Funcao[] = [
   { k: 'gestor', t: 'Gestor', nome: 'Ana Ferreira', iniciais: 'AF', ecra: 'gestor-inicio', ve: ['Cria, atribui e acompanha os inventários', 'Vê o stock do sistema e decide as divergências', 'Valida e fecha (o ajuste é do servidor)'], nao: [] },
   /* 30 out. (ela: «com a role de arrumação»): a Arrumação abre o 85 · A minha arrumação, com a Inês (arrumador.ts) */
-  { k: 'arrumacao', t: 'Arrumação', nome: 'Inês Rocha', iniciais: 'IR', ecra: 'ta-inicio', ve: ['Arruma a guia que o motor lhe entrega', 'Comunica ao gestor o que a impede de arrumar', 'Conta as posições que lhe atribuem, às cegas'], nao: ['Não vê a fila das guias', 'Não vê o stock do sistema enquanto conta'] },
+  { k: 'arrumacao', t: 'Arrumação', nome: 'Inês Rocha', iniciais: 'IR', ecra: 'ta-inicio', ve: ['Arruma a guia que o motor lhe dá, palete a palete', 'Regista a chegada de um camião e corrige posições', 'Consulta artigos e posições, e chama o gestor'], nao: ['Ninguém lhe atribui nada: o trabalho vem do motor', 'Não vê a fila, números nem insights'] },
   { k: 'separacao', t: 'Separação', nome: 'Tiago Lopes', iniciais: 'TL', ecra: 'op-separacao', ve: ['Conta as posições que lhe atribuem, às cegas', 'Corrige a posição na guia, quando falta quantidade'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
   { k: 'expedicao', t: 'Expedição', nome: 'Paulo Reis', iniciais: 'PR', ecra: 'op-expedicao', ve: ['Conta as posições que lhe atribuem, às cegas', 'Trabalha no cais: carrega e fecha'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
 ];

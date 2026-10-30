@@ -401,7 +401,7 @@ export interface TarefaG { tipo: TipoT; ref: string; t: string; quem: string; es
 export const TAREFAS: TarefaG[] = [
   { tipo: 'separacao', ref: 'GS13454212', t: 'Auto Reparadora Silva · 4 linhas · ninguém livre', quem: '', est: 'fazer', acao: ['Iniciar', 'g-sep-guia', play] },
   { tipo: 'arrumacao', ref: 'GA-2026-0332', t: '30 un. · cais 1 → 60100305', quem: '', est: 'fazer', acao: ['Iniciar', 'g-arr-op', play] },
-  { tipo: 'arrumacao', ref: 'GA-2026-0331', t: '2 paletes · cais 1 → 60101203', quem: '', est: 'fazer', acao: ['Atribuir', 'arr-guia', userPlus] },
+  { tipo: 'arrumacao', ref: 'GA-2026-0331', t: '2 paletes · cais 1 → 60101203 · ninguém livre', quem: '', est: 'fazer', acao: ['Arrumar eu', 'g-arr-op', play] },
   { tipo: 'inventario', ref: 'INV-2026-015', t: 'Cíclica · zona 10 · 30 posições', quem: '', est: 'fazer', acao: ['Atribuir', 'gestor-atribuir', userPlus] },
   { tipo: 'expedicao', ref: 'GS13454209', t: 'Pronta desde as 09:40 · 3 linhas', quem: '', est: 'fazer', acao: ['Recolher', 'g-exp-prat', truck] },
   { tipo: 'expedicao', ref: 'GS13454208', t: 'Pronta desde as 09:12 · 5 linhas', quem: '', est: 'fazer', acao: ['Recolher', 'g-exp-outra', truck] },

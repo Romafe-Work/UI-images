@@ -33,11 +33,10 @@ registarRoteiro('inventario', 'Inventário: criar, contar e fechar', [
   { legenda: 'Fechado. O ajuste segue para o ERP numa transação do servidor, com auditoria. A Pick nunca ajusta stock sozinha.' },
 ]);
 
-registarRoteiro('arrumacao', 'Arrumação: atribuir, desbloquear e arrumar', [
+registarRoteiro('arrumacao', 'Arrumação: acompanhar, desbloquear e arrumar', [
   { ecra: 'gestor-inicio', legenda: 'A Ana abre a Arrumação.', clicar: '.gx-mod--arr' },
-  { legenda: 'Uma guia por atribuir: ninguém da arrumação está livre. Abre-a.', clicar: '.gi-sep:not([hidden]) .gp-btn--acao[data-ir="arr-guia"]' },
-  { legenda: 'Os artigos, o destino proposto e quem arruma. Escolher a pessoa pede motivo, e o motor aprende com ele.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Atribuída à Inês: o servidor confirmou e a caixa vai à prateleira. Volta à Arrumação.', clicar: '.gi-pe [data-ir="arr-inicio"]' },
+  { legenda: 'Uma guia à espera: ninguém da arrumação está livre. Abre-a.', clicar: '.gi-sep:not([hidden]) .gp-btn--acao[data-ir="arr-guia"]' },
+  { legenda: 'Os artigos e o destino proposto. Ninguém a atribui: o motor dá-a a quem ficar livre. Volta.', clicar: '.gi-pe [data-ir="arr-inicio"]' },
   { legenda: 'Vê as exceções.', clicar: '[data-gi-sep="excecao"]' },
   { legenda: 'Um destino ficou numa zona que está a ser contada às cegas: não se arruma lá.', clicar: '.gi-sep:not([hidden]) .gp-btn--acao[data-ir="arr-guia-bloqueada"]' },
   { legenda: 'Escolhe outro destino, fora das zonas em contagem.', clicar: '.gi-pe .gp-btn--acao' },
@@ -101,51 +100,45 @@ registarRoteiro('erros', 'Quando algo corre mal', [
   { ecra: 'gestor-sessao', legenda: 'A sessão terminou: entra outra vez pelo login comum e volta ao mesmo sítio.' },
 ]);
 
-/* 30 out. (briefing «Figma interativo V2 · Trabalhador de Arrumação»): os quatro cenários do trabalhador da Arrumação */
-const IN = { ecra: 'ta-inicio', legenda: 'A Inês, da arrumação, vê só a sua tarefa: a GA-2026-0330, artigo 2 de 2. Inicia.', clicar: '.ta-prox .gp-btn--acao' };
-const ORIGEM = { legenda: 'Lê a palete no cais 2 (tocar no leitor faz de tecla de leitura).', clicar: '.gi-leitor' };
-registarRoteiro('arr-normal', 'Arrumação A · Arrumar', [
-  IN, ORIGEM,
-  { legenda: 'Lê o artigo: CR 35x52x7.', clicar: '.gi-leitor' },
-  { legenda: 'Confirma a quantidade: as 16 da guia.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Lê a posição de destino proposta, a 60120401.', clicar: '.gi-leitor' },
-  { legenda: 'O resumo: artigo, quantidade, origem e destino. Confirma; só fica arrumado quando o servidor responde.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Arrumação concluída: a caixa vai à prateleira, depois da confirmação.' },
+/* 30 out. (ela: «só podem fazer aquilo que deixei nos docs»): a Arrumação dos documentos (07 · O menu da app), em quatro casos */
+const IN = { ecra: 'ta-inicio', legenda: 'A Inês, da arrumação: «Bom dia», o turno e uma opção de Trabalho — a guia que o motor lhe deu. Começa.', clicar: '.ta-trabalho' };
+const ARTIGO = { legenda: 'Palete 2 de 2: lê o artigo (tocar no leitor faz de gatilho).', clicar: '.gi-leitor' };
+registarRoteiro('arr-normal', 'Arrumação A · Arrumar uma palete', [
+  IN, ARTIGO,
+  { legenda: 'Vai à proposta 1 de 3, com o porquê e o caminho. Pousa a palete e lê a posição.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê a etiqueta da prateleira: o sistema confirma de novo que a posição serve.', clicar: '.gi-leitor' },
+  { legenda: 'Palete arrumada, com o seu nome. Era a última: a guia fecha e o motor dá a seguinte.' },
 ]);
-registarRoteiro('arr-artigo-errado', 'Arrumação B · Artigo errado', [
-  IN, ORIGEM,
-  { legenda: 'Lê um artigo que não é este (demonstração: «Artigo errado»).', clicar: '.ta-sim [data-ir="arr-op-artigo-errado"]' },
-  { legenda: 'Não continua com o artigo errado: diz qual é o certo. Lê outra vez.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Agora o artigo certo.', clicar: '.gi-leitor' },
-  { legenda: 'Segue para a quantidade, como sempre.' },
+registarRoteiro('arr-ocupada', 'Arrumação B · A posição está ocupada', [
+  IN, ARTIGO,
+  { legenda: 'Na proposta 1 já há caixas de outro artigo. «Está ocupada».', clicar: '.gi-pe [data-ir="arr-op-ocupada"]' },
+  { legenda: 'A posição fica registada como ocupada e o gestor vai ver porquê. Vai à proposta 2.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê a posição.', clicar: '.gi-leitor' },
+  { legenda: 'Arrumada na proposta 2. Ninguém teve de decidir nada por ela.' },
 ]);
-registarRoteiro('arr-bloqueado', 'Arrumação C · Destino ocupado', [
-  IN, ORIGEM,
-  { legenda: 'Lê o artigo.', clicar: '.gi-leitor' },
-  { legenda: 'Confirma as 16.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'No destino, a posição tem outra mercadoria (demonstração: «Posição ocupada»).', clicar: '.ta-sim [data-ir="arr-op-ocupada"]' },
-  { legenda: 'Não há como confirmar ali. Comunica o problema.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'O motivo e a observação; a fotografia é opcional. Comunica.', clicar: '.gi-pe .gp-btn--acao', pausa: 400 },
-  { legenda: 'Arrumação bloqueada: aguarda o gestor. Não há botão para contornar.' },
-  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, gestora, o problema aparece primeiro nas exceções. Resolve.', clicar: '[data-ir="arr-problema"]' },
-  { legenda: 'Vê o que a Inês comunicou e decide: muda o destino para a 60120402, ao lado.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Confirmado pelo servidor. Vê o que chega ao PDA da Inês.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Tarefa atualizada: o problema, as instruções novas e o destino. Retoma.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Lê-se tudo outra vez: a palete…', clicar: '.gi-leitor' },
-  { legenda: '…o artigo…', clicar: '.gi-leitor' },
-  { legenda: '…a quantidade…', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: '…e o destino novo.', clicar: '.gi-leitor' },
-  { legenda: 'Confirma.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Concluída no destino novo.' },
+registarRoteiro('arr-chamar', 'Arrumação C · Chamar o gestor', [
+  IN, ARTIGO,
+  { legenda: 'Na proposta, há uma dúvida. «Chamar», que está em todos os ecrãs.', clicar: '.ta-chamar' },
+  { legenda: 'A gestora vai saber onde está e o que tem em mãos. O motivo, com um toque.', clicar: '.ta-escolha', pausa: 400 },
+  { legenda: 'O gestor foi chamado: a tarefa fica com a Inês e o motor não lhe dá outra.' },
+  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, a chamada aparece primeiro. Responde.', clicar: '[data-ir="arr-problema-chamada"]' },
+  { legenda: 'Responde daí, sem ir lá.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'A resposta segue para o PDA da Inês.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'A Inês lê a resposta e continua a tarefa.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Como a Ana disse: «Está ocupada».', clicar: '.gi-pe [data-ir="arr-op-ocupada"]' },
+  { legenda: 'Proposta 2: lê a posição.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê.', clicar: '.gi-leitor' },
+  { legenda: 'Arrumada.' },
 ]);
-registarRoteiro('arr-parcial', 'Arrumação D · Quantidade parcial', [
-  IN, ORIGEM,
-  { legenda: 'Lê o artigo.', clicar: '.gi-leitor' },
-  { legenda: 'Só vai arrumar 10 das 16 (demonstração: «Parcial»).', clicar: '.ta-sim [data-ir="arr-op-parcial"]' },
-  { legenda: 'Diz-se que as 6 ficam pendentes na guia. Confirma 10.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Lê o destino.', clicar: '.gi-leitor' },
-  { legenda: 'O resumo com as pendentes. Confirma.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Parcial registada: 10 na 60120401, 6 pendentes no cais; a tarefa continua em curso.' },
+registarRoteiro('arr-danificado', 'Arrumação D · Artigo danificado', [
+  IN, ARTIGO,
+  { legenda: 'Uma caixa da palete está molhada. «Outro problema».', clicar: '.gi-pe [data-ir="arr-op-problema"]' },
+  { legenda: 'O que se passa, com um toque: artigo danificado.', clicar: '.ta-escolha[data-ir="arr-op-foto"]' },
+  { legenda: 'A fotografia é opcional. Regista.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Registado: o gestor foi avisado, a palete fica no cais, e a tarefa deixa de ser da Inês — o motor dá-lhe a seguinte.' },
+  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, o problema registado. Decide.', clicar: '[data-ir="arr-problema"]' },
+  { legenda: 'Tira a caixa molhada para quarentena e devolve a palete ao motor — não a dá a ninguém.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'A palete volta ao motor, que a dá a quem estiver livre na arrumação.' },
 ]);
 
 /* 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): sete percursos

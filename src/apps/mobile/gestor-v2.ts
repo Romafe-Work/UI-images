@@ -50,7 +50,7 @@ const faixa = (xs: [string, number, ('aviso' | 'erro' | '')?][]) => `<dl class="
 const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
   [shieldCheck, 'INV-2026-011 por validar', '16 posições · 2 divergências', 'gestor-validar', 'aviso'],
   [lock, 'Destino em contagem', 'GA-2026-0329 → 60300104 · zona 30 às cegas', 'arr-guia-bloqueada', 'erro'],
-  [userPlus, 'GA-2026-0331 sem pessoa', 'Ninguém da arrumação livre · 2 paletes', 'arr-guia', 'info'],
+  [userPlus, 'GA-2026-0331 à espera', 'Ninguém da arrumação livre · 2 paletes', 'arr-guia', 'info'],
 ];
 export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: string): string {
   const at = cen === 'sem-atencao' ? [] : ATENCAO.filter(([, , , ir]) => ARRUMACAO_ATIVA || !ir.startsWith('arr-'));

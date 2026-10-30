@@ -106,3 +106,30 @@
 .ta-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ta-topo p { display: grid; margin: 0; } .ta-topo b { font-family: var(--f-mono); font-size: 14px; } .ta-topo small { font-size: 12px; color: var(--g-tinta-2); }
 .ta-topo .ta-nao { min-height: 38px; padding: 0 10px; font-size: 13px; }
+
+/* ---------- a Arrumação dos documentos (30 out., 07 · O menu da app): Trabalho, Operações em quadrados, a proposta, as escolhas ---------- */
+.ta-trabalho { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 76px; padding: 12px 14px; border: 0; border-radius: var(--r-md); background: var(--g-laranja); color: #fff; font: inherit; text-align: left; cursor: pointer; transition: transform .1s ease; }
+.ta-trabalho:active { transform: scale(.985); } .ta-trabalho:focus-visible { outline: 3px solid var(--g-tinta); outline-offset: 2px; }
+.ta-trabalho__ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-md); background: rgba(255, 255, 255, .18); } .gpi .ta-trabalho__ic svg { width: 24px; height: 24px; }
+.ta-trabalho > span:nth-child(2) { display: grid; gap: 2px; } .ta-trabalho b { font-family: var(--f-titulo); font-size: 18px; font-weight: 800; } .ta-trabalho small { font-size: 13px; opacity: .92; }
+.gpi .ta-trabalho > svg { width: 22px; height: 22px; }
+.ta-ops { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ta-op { display: grid; justify-items: start; align-content: space-between; gap: 10px; min-height: 84px; padding: 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; font-size: 14px; font-weight: 700; text-align: left; cursor: pointer; transition: transform .1s ease; animation: ta-entrar .16s cubic-bezier(.22, 1, .36, 1) calc(var(--i, 0) * 25ms) both; }
+.gpi .ta-op svg { width: 22px; height: 22px; color: var(--g-azul-t); }
+.ta-op:active { transform: scale(.97); } .ta-op:focus-visible { outline: 3px solid var(--g-laranja); outline-offset: 2px; }
+.ta-op--chamar { grid-column: 1 / -1; min-height: 56px; grid-template-columns: auto 1fr; align-items: center; } .gpi .ta-op--chamar svg { color: var(--g-laranja-t); }
+.ta-chamar { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+.gpi .ta-chamar svg { width: 17px; height: 17px; color: var(--g-laranja-t); } .ta-chamar:focus-visible { outline: 3px solid var(--g-laranja); outline-offset: 2px; }
+.ta-proposta { display: grid; gap: 8px; padding: 12px; border: 1px solid color-mix(in srgb, var(--g-laranja) 45%, var(--g-borda)); border-radius: var(--r-md); background: var(--g-sup); animation: ta-alvo .26s cubic-bezier(.22, 1, .36, 1) both; }
+.ta-proposta__n { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--g-laranja-t); }
+.ta-proposta__pq { display: grid; gap: 2px; margin: 0; font-size: 13.5px; line-height: 1.4; color: var(--g-tinta-2); } .ta-proposta__pq b { color: var(--g-tinta); }
+.ta-proposta__cam { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 13px; line-height: 1.4; color: var(--g-tinta-2); } .gpi .ta-proposta__cam svg { flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--g-azul-t); }
+.ta-pe2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .ta-pe2 .gi-btn-sec { gap: 6px; padding: 0 8px; font-size: 14px; }
+.ta-escolhas { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.ta-escolha { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 8px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; font-size: 14.5px; font-weight: 700; text-align: left; cursor: pointer; animation: ta-entrar .16s cubic-bezier(.22, 1, .36, 1) calc(var(--i, 0) * 25ms) both; }
+.gpi .ta-escolha svg { width: 19px; height: 19px; color: var(--g-tinta-2); } .gpi .ta-escolha > svg:first-child { color: var(--g-azul-t); }
+.ta-escolha:active { transform: scale(.985); } .ta-escolha:focus-visible { outline: 3px solid var(--g-laranja); outline-offset: 2px; }
+.ta-diz { margin: 0; padding: 10px 12px; border-left: 3px solid var(--g-azul-t); border-radius: var(--r-md); background: var(--g-sup); } .ta-diz small { font-size: 12px; font-weight: 800; color: var(--g-tinta-2); } .ta-diz p { margin: 4px 0 0; font-size: 14.5px; line-height: 1.45; }
+.ta-ok__ic { width: 34px; height: 34px; color: var(--g-ok); }
+.ta-bloq--chamada { border-color: color-mix(in srgb, var(--g-laranja) 45%, var(--g-borda)); } .ta-bloq--chamada .ta-bloq__ic { color: var(--g-laranja-t); }
+@media (prefers-reduced-motion: reduce) { .ta-op, .ta-escolha, .ta-proposta { animation: none; } }
