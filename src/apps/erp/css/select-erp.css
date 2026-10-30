@@ -19,6 +19,10 @@
 .dv2-linhas-ed .esel__botao { height: 30px; font-size: 13px; }
 .dv2-crit-vv .esel { flex: 1; }
 .dv2-crit > .esel { width: 64px; } .dv2-crit > .esel .esel__botao { justify-content: center; gap: 2px; padding: 0 4px; font-weight: 800; background: var(--h-sup-2); }
+/* os campos que medem mais do que 32 px: os critérios dos mapas (34), a Lista de Faltas v1 (36), o agrupar do Automático (28) */
+.ak-crit-c .ak-campo .esel__botao { height: 34px; }
+.lf-campo .esel { min-width: 150px; } .lf-campo .esel__botao { height: 36px; border-radius: 8px; }
+.ak-agrupar-tecla .esel { width: auto; min-width: 130px; } .ak-agrupar-tecla .esel__botao { height: 28px; border-color: var(--h-borda); color: var(--h-tinta-2); font-size: 12.5px; }
 .rc-agrupar .esel { width: 210px; } .rc-agrupar .esel__botao { height: 30px; font-size: 13px; }
 
 .esel__lista { position: fixed; z-index: 400; margin: 0; padding: 4px; min-width: 160px; overflow: auto; list-style: none; border: 1px solid var(--h-borda-forte); border-radius: 8px; background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 14px 34px rgba(10, 20, 30, .2); outline: none; }

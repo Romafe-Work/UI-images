@@ -262,8 +262,8 @@ function ficha(x: EstDoc, fi: Ficha, d: Doc | undefined): string {
       ${campoF('tipo', 'Tipo de documento', `<select id="dv2-ff-tipo" data-dv2-ff="tipo"${s}>${(['FT', 'VD', 'ND'] as TipoFat[]).map((t) => `<option value="${t}"${t === (f?.tipo ?? 'FT') ? ' selected' : ''}>${NOME_TIPO[t]}</option>`).join('')}</select>`)}
       ${campoF('data', 'Data', `<input type="date" id="dv2-ff-data" value="${f?.data ?? HOJE}" data-dv2-ff="data"${s}>`)}
       ${campoF('forn', 'Fornecedor', `<select id="dv2-ff-forn" data-dv2-ff="forn"${fi.modo === 'criar' ? '' : ' disabled'}>${fi.modo === 'criar' ? '<option value="">Escolhe o fornecedor…</option>' : ''}${FORNECEDORES.map((y) => `<option value="${y.id}"${y.id === forn ? ' selected' : ''}>${esc(y.nome)} · ${numForn(y.id)}</option>`).join('')}</select>`)}
-      ${campoF('docForn', 'N.º do documento do fornecedor', `<input type="text" id="dv2-ff-docForn" value="${esc(f?.docForn ?? '')}" data-dv2-ff="docForn"${s}>`)}
-      ${campoF('dataDocForn', 'Data do documento do fornecedor', `<input type="date" id="dv2-ff-dataDocForn" value="${f?.dataDocForn ?? ''}" data-dv2-ff="dataDocForn"${s}>`)}
+      ${campoF('docForn', 'N.º doc. do fornecedor', `<input type="text" id="dv2-ff-docForn" value="${esc(f?.docForn ?? '')}" data-dv2-ff="docForn"${s}>`)}
+      ${campoF('dataDocForn', 'Data doc. do fornecedor', `<input type="date" id="dv2-ff-dataDocForn" value="${f?.dataDocForn ?? ''}" data-dv2-ff="dataDocForn"${s}>`)}
       ${campoF('moeda', 'Moeda', '<select id="dv2-ff-moeda" disabled><option>EUR · euro</option></select>')}
       ${campoF('enc', 'Encomenda', `<select id="dv2-ff-enc" data-dv2-ff="enc"${s}>${opsEnc(forn, enc)}</select>`)}
       ${campoF('rec', 'Receção', `<select id="dv2-ff-rec" data-dv2-ff="rec"${s}>${opsRec(enc, rec)}</select>`)}

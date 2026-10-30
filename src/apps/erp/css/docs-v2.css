@@ -77,7 +77,7 @@
 .dv2-ficha-cab h2 { margin: 0; font-size: 17px; }
 .dv2-ficha-acoes { display: flex; gap: 6px; margin-left: auto; }
 .dv2-ficha-modo { margin: 0 0 12px; font-size: 13px; color: var(--h-tinta-2); }
-.dv2-ficha-g { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; }
+.dv2-ficha-g { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; align-items: start; } /* 30 out.: ao lado de uma caixa de texto alta, o campo fica colado ao seu rótulo */
 .dv2-ficha-g .is-largo { grid-column: span 2; }
 .dv2 .ak-campo textarea { width: 100%; min-width: 0; padding: 6px 9px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13.5px; font-weight: 500; resize: vertical; }
 .dv2 .ak-campo textarea:focus { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
@@ -87,11 +87,23 @@
 .dv2-linhas-rolo { overflow-x: auto; border: 1px solid var(--h-borda); border-radius: 7px; }
 .dv2-linhas-ed { min-width: 640px; }
 .dv2-linhas-ed th { background: var(--h-sup-2); }
-.dv2-linhas-ed td { padding: 3px 6px; }
+.dv2-linhas-ed td { padding: 3px 4px; }
 .dv2-linhas-ed input { width: 100%; min-width: 70px; height: 30px; padding: 0 7px; border: 1px solid var(--h-borda-forte); border-radius: 5px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13px; }
 .dv2-linhas-ed input.is-num { text-align: right; font-variant-numeric: tabular-nums; }
 .dv2-linhas-ed input:focus { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 2px color-mix(in srgb, var(--h-azul) 18%, transparent); }
 .dv2-linhas-ed td.is-num { font-variant-numeric: tabular-nums; }
+/* 30 out. (ela: «ajusta todos os pormenores»): os valores não partem o «€» para a linha de baixo; a quantidade e o desconto
+   ficam estreitos para o artigo, a descrição e a data caberem inteiros */
+.dv2-linhas-ed td.is-num, .dv2-linhas-ed tfoot td.is-num { white-space: nowrap; }
+.dv2-linhas-ed :is([data-dv2-l="qtd"], [data-fl="qtd"], [data-dv2-l="desc"], [data-fl="desconto"]) { width: 64px; min-width: 0; }
+.dv2-linhas-ed :is([data-dv2-l="preco"], [data-fl="preco"]) { width: 84px; min-width: 0; }
+.dv2-linhas-ed :is([data-dv2-l="ref"], [data-fl="ref"]) { min-width: 140px; font-family: var(--f-mono); font-size: 12.5px; }
+.dv2-linhas-ed [data-fl="ref"] { min-width: 110px; }
+.dv2-linhas-ed [data-fl="desc"] { min-width: 120px; }
+.dv2-linhas-ed td.is-mono { white-space: nowrap; }
+.dv2-linhas-ed :is([data-dv2-r="desc"], [data-dv2-ff^="mn-"]) { width: 64px; min-width: 0; } .dv2-linhas-ed [data-dv2-r="preco"] { width: 84px; min-width: 0; }
+.dv2-linhas-ed [data-dv2-ff^="rf-"] { min-width: 120px; font-family: var(--f-mono); font-size: 12.5px; }
+.dv2-linhas-ed td:has(> .edata) { min-width: 128px; }
 .dv2-x { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-3); cursor: pointer; }
 .dv2-x:hover { background: color-mix(in srgb, var(--h-erro) 10%, transparent); color: var(--h-erro); } .dv2-x svg { width: 15px; height: 15px; }
 .dv2-mais-linha { margin-top: 8px; }
@@ -172,6 +184,8 @@
 .dv2-crit-vv :is(input, select) { flex: 1; min-width: 0; height: 32px; padding: 0 9px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13.5px; }
 .dv2-crit-vv :is(input, select):focus { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
 .dv2-crit .dv2-x { height: 32px; }
+/* a primeira condição não tem o botão de tirar: o valor ocupa também essa coluna, e acaba onde acabam os filtros */
+.dv2-crit-v:has(+ span:empty:last-child) { grid-column: 4 / -1; }
 .dv2-crit-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
 .dv2-sim--aviso svg { color: color-mix(in srgb, var(--h-aviso) 80%, var(--h-tinta)); }
 .dv2-verif { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
@@ -183,7 +197,7 @@
 .dv2-cred-barra span { position: relative; display: block; padding: 0 10px; font-size: 12.5px; line-height: 26px; }
 .dv2-ficha-linha-acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 @media (max-width: 1279px) { .dv2-crit { grid-template-columns: 56px minmax(150px, 1fr) minmax(120px, 160px) minmax(180px, 1fr) 30px; } }
-@media (max-width: 1099px) { .dv2-crit { grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr) 30px; } .dv2-crit-v { grid-column: 2 / 4; } }
+@media (max-width: 1099px) { .dv2-crit { grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr) 30px; } .dv2-crit-v { grid-column: 2 / 4; } .dv2-crit-v:has(+ span:empty:last-child) { grid-column: 2 / -1; } }
 
 /* =========================================================
    Mapa Recapitulativo de Fornecedores v2 (compras/recap-v2.ts): critérios por cima, tipos de documento, somatórios,

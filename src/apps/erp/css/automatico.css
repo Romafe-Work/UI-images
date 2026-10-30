@@ -169,7 +169,7 @@
 .ak-estado-aviso { flex-basis: 100%; font-weight: 600; color: var(--h-tinta); }
 
 @media (max-width: 1100px) { .ak.com-det .ak-corpo { grid-template-columns: minmax(0, 1fr); } .ak-det { border-left: 1px solid var(--h-borda); border-top: 0; border-radius: 0 0 8px 8px; } .ak.com-det .ak-grelha { border-radius: 0; } }
-@media (max-width: 760px) { .ak-campo--largo, .ak-periodo { grid-column: auto; } .ak-btn kbd, .ak-btn span { display: none; } .ak-btn--acao span { display: inline; } .ak-agrupar-tecla { margin-left: 0; } }
+@media (max-width: 760px) { .ak-campo--largo, .ak-periodo { grid-column: auto; } .ak-btn kbd, .ak-barra .ak-btn span { display: none; } .ak-barra .ak-btn--acao span, .ak-btn--acao span { display: inline; } /* 30 out.: só a barra de atalhos fica em ícones; fora dela, um botão sem nome parecia uma caixa vazia */ .ak-agrupar-tecla { margin-left: 0; } }
 @media (prefers-reduced-motion: reduce) { .ak *, .ak *::before { animation: none !important; transition: none !important; } }
 
 /* ---------- 23 out. (ela: «em falta … quero as coisas alinhadas»): como no ERP antigo — Imprimir (F12) na barra;
@@ -187,7 +187,7 @@
 .ak-crit-c > .ak-crit-g { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; padding: 12px 14px; align-items: start; }
 .ak-crit-c .ak-campo { grid-column: auto !important; }
 .ak-campo > span { display: block; height: 16px; line-height: 16px; }
-.ak-campo :is(input, select) { height: 34px; }
+.ak-crit-c .ak-campo :is(input, select) { height: 34px; }
 .ak-crit-acoes { display: grid; align-content: start; gap: 8px; padding: 12px 14px; border-left: 1px solid var(--h-borda); background: var(--h-sup-2); border-radius: 0 0 8px 0; }
 .ak-crit-acoes .ak-btn { justify-content: flex-start; width: 100%; height: 36px; margin-top: 19px; }
 .ak-crit-acoes .ak-btn + .ak-btn { margin-top: 0; }
@@ -199,7 +199,9 @@
 .ak.sem-crit .ak-crit-c, .ak.sem-crit .ak-crit-dica, .ak.sem-crit .ak-erro-campo { display: none; }
 .ak.sem-crit .ak-crit-cab { border-bottom: 0; }
 @media (max-width: 1100px) { .ak-crit-c > .ak-crit-g { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 760px) { .ak-crit-c { grid-template-columns: minmax(0, 1fr); } .ak-crit-c > .ak-crit-g { grid-template-columns: minmax(0, 1fr); } .ak-crit-acoes { border-left: 0; border-top: 1px solid var(--h-borda); } .ak-crit-acoes .ak-btn { margin-top: 0; } }
+@media (max-width: 760px) { .ak-crit-c { grid-template-columns: minmax(0, 1fr); } .ak-crit-c > .ak-crit-g { grid-template-columns: minmax(0, 1fr); } .ak-crit-acoes { border-left: 0; border-top: 1px solid var(--h-borda); } .ak-crit-acoes .ak-btn { margin-top: 0; }
+  /* 30 out.: a coluna de Gerar e Cancelar passa para baixo, lado a lado e com o nome (sem o nome, o Cancelar ficava uma caixa vazia com um ×) */
+  .ak-crit-acoes { display: flex; flex-wrap: wrap; justify-content: flex-end; } .ak-crit-acoes .ak-btn { width: auto; } .ak-crit-acoes .ak-btn span { display: inline; } }
 /* imprimir: só a grelha, inteira */
 @media print {
   .ak :is(.hm-topo, .ak-barra, .ak-crit, .ak-grupos .ak-agrupar-tecla, .ak-det, .ak-vazio button, .hm-aviso) { display: none !important; }

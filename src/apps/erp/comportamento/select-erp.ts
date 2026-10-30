@@ -11,7 +11,9 @@
    - Movimento só em transform/opacity: abre em 160 ms, as opções em cascata; com «reduzir movimento», abre logo.
    - O evento «esel:abrir» no <select> abre a lista (F4 na Série, como no ERP antigo).
    ========================================================= */
-const ALVO = '.lf2 select:not([multiple]):not([data-esel-nao])';
+/* 30 out. (ela: «ajusta todos os pormenores, desde selects desconfigurados»): também a Lista de Faltas v1 (.lf) e o
+   Automático e os comparativos (.ak), que ainda mostravam a lista do sistema, com outra seta e outra altura */
+const ALVO = ':is(.lf2, .ak, .lf) select:not([multiple]):not([data-esel-nao])';
 const SETA = '<svg class="esel__seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6"/></svg>';
 const VISTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg>';
 const TOKENS = ['--h-sup', '--h-sup-2', '--h-borda', '--h-borda-forte', '--h-tinta', '--h-tinta-2', '--h-tinta-3', '--h-azul', '--h-laranja'];

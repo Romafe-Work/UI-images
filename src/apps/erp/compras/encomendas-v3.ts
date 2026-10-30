@@ -240,7 +240,7 @@ function ficha(x: EstDoc, f: Ficha, d: Doc | undefined): string {
       ${campo('numero', 'Número', `<input type="text" id="dv2-ff-numero" value="${esc(e?.ref ?? 'Atribuído ao gravar')}" readonly>`)}
       ${campo('data', 'Data', `<input type="date" id="dv2-ff-data" value="${e?.data ?? HOJE}" readonly>`)}
       ${campo('forn', 'Fornecedor', `<select id="dv2-ff-forn" data-dv2-ff="forn"${f.modo === 'criar' ? '' : ' disabled'}>${f.modo === 'criar' ? '<option value="">Escolhe o fornecedor…</option>' : ''}${FORNECEDORES.filter((x_) => x_.ativo || x_.id === forn).map((x_) => `<option value="${x_.id}"${x_.id === forn ? ' selected' : ''}>${esc(x_.nome)} · ${x_.id}</option>`).join('')}</select>`)}
-      ${campo('refForn', 'N.º do documento do fornecedor', `<input type="text" id="dv2-ff-refForn" value="${esc(e?.refForn ?? '')}" data-dv2-ff="refForn" placeholder="A que ele der"${ver ? ' disabled' : ''}>`)}
+      ${campo('refForn', 'N.º doc. do fornecedor', `<input type="text" id="dv2-ff-refForn" value="${esc(e?.refForn ?? '')}" data-dv2-ff="refForn" placeholder="A que ele der"${ver ? ' disabled' : ''}>`)}
       ${campo('entrega', 'Entrega prevista', `<input type="date" id="dv2-ff-entrega" value="${e?.entrega ?? ''}" data-dv2-ff="entrega"${ver ? ' disabled' : ''}>`)}
       ${campo('pagamento', 'Pagamento', `<input type="text" id="dv2-ff-pagamento" value="${esc(e?.pagamento ?? '')}" data-dv2-ff="pagamento" placeholder="O do fornecedor"${ver ? ' disabled' : ''}>`)}
       ${campo('portes', 'Portes (€)', `<input type="text" inputmode="decimal" id="dv2-ff-portes" value="${eur(e?.portes ?? 0)}" data-dv2-ff="portes"${ver ? ' disabled' : ''}>`)}
