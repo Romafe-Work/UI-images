@@ -159,7 +159,7 @@ function sep(e: ES): string {
       ${leitor({ titulo: 'Leia a posição da prateleira onde a pousa', texto: `Deve ser ${PREP}`, ir: 'ts-fechada', tipo: 'posicao' })}
       <p class="gp-nota">Incompleta, ficava na mesma prateleira à espera: o motor voltava a dá-la a alguém assim que o stock entrasse.</p>`, sec('Não consigo ler — escrever', keyboard, ' data-ir="ts-fechada"')],
     fechada: () => [`<section class="gi-movido" role="status">${L(pkgCheck, 'ta-ok__ic')}<h1>Guia fechada às 11h02</h1><p>${GS.ref} · completa · ${PAR.length} linhas</p></section>${dl([['Deixou', `na ${PREP}`], ['Camião', `${GS.camiao} · ${GS.fecha}`]])}<p class="gp-nota">A expedição leva-a quando o camião chegar.</p>`, acao('Próxima tarefa', arrowRight, ' data-ir="ts-tarefa"')],
-    'fechada-incompleta': () => [`<section class="gi-movido" role="status">${L(pkg, 'ta-ok__ic')}<h1>Guia fechada incompleta</h1><p>${GS.ref} · ${PAR[2].ref}: 2 de ${PAR[2].q}</p></section>${dl([['Deixou', `na ${PREP}`], ['Não entra', 'na fila da expedição'], ['O resto', 'o motor dá-o outra vez a alguém quando o stock entrar']])}`, acao('Próxima tarefa', arrowRight, ' data-ir="ts-tarefa"')],
+    'fechada-incompleta': () => [`<section class="gi-movido" role="status">${L(pkg, 'ta-ok__ic')}<h1>Guia fechada incompleta</h1><p>${GS.ref} · ${PAR[2].ref}: 2 de ${PAR[2].q}</p></section>${dl([['Deixou', `na ${PREP}`], ['Não vai', 'para a expedição'], ['O resto', 'o motor dá-o outra vez a alguém quando o stock entrar']])}`, acao('Próxima tarefa', arrowRight, ' data-ir="ts-tarefa"')],
   };
   const [corpo, pe] = C[e]();
   return ecra(corpo, O(FS, 'Recolher', { voltar: 'ts-inicio', pe }));
@@ -253,7 +253,7 @@ export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
     S('ts-registado', '113.9 · Problema registado (18)', 'O gestor foi avisado; volta ao início da Separação.', registado(FS, 'Problema registado', 'fica na prateleira de preparados, incompleta'), 'ts-paragem'),
     S('ts-prateleira', '114 · Leva à prateleira de preparados (34)', 'A posição 60400101, perto do cais de saída; lê-se onde se pousa.', sep('prateleira')),
     S('ts-fechada', '115 · Guia fechada (35)', 'Completa: a expedição leva-a quando o camião chegar.', sep('fechada')),
-    S('ts-fechada-incompleta', '115.1 · Fechada incompleta', 'Fica na prateleira, fora da fila da expedição, até o stock entrar.', sep('fechada-incompleta'), 'ts-fechada'),
+    S('ts-fechada-incompleta', '115.1 · Fechada incompleta', 'Fica na prateleira e não vai para a expedição até o stock entrar.', sep('fechada-incompleta'), 'ts-fechada'),
     S('ts-chamar', '116 · Chamar o gestor (70)', 'Sem largar a tarefa; volta à paragem.', chamar(FS)),
     S('ts-chamado', '116.1 · O gestor foi chamado (71)', 'A tarefa fica consigo.', chamar(FS, 'chamado'), 'ts-chamar'),
     S('ts-chamado-resposta', '116.2 · O gestor respondeu', 'A resposta e «Continuar a tarefa».', chamar(FS, 'resposta'), 'ts-chamar'),

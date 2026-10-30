@@ -140,8 +140,7 @@ const servidor = () => pick(aviso('erro', IC.servidor, 'O servidor não responde
   { pe: BOTAO('Tentar outra vez', IC.denovo) });
 
 const semTarefa = () => pick(aviso('azul', IC.cafe, 'Não há guias para si agora', 'Assim que houver uma guia de separação, o sistema entrega-a aqui. Não precisa de fazer nada.')
-    + `<div class="pk-numeros"><div><strong>0</strong><span>guias por fazer</span></div><div><strong>14</strong><span>feitas hoje</span></div></div>
-    <p class="pk-estado" role="status">${GIRADOR('girador--pequeno')}À espera da próxima guia…</p>`,
+    + `<p class="pk-estado" role="status">${GIRADOR('girador--pequeno')}À espera da próxima guia…</p>`,
   { pe: BOTAO('Atualizar', IC.denovo, 'btn--ghost') });
 
 export function ecrasCarregarPick(): Ecra<IdCarregarPick>[] {

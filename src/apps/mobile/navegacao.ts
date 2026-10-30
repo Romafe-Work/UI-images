@@ -296,7 +296,7 @@ export const ESTADOS_INVENTARIO_GESTOR: [string, string, string, () => string][]
   ['gestor-inventario-vazio', '61.4 · Sem inventários', 'Ainda nenhum: Novo inventário.', () => eVazio({ ...GINV, barra: bInv() }, inboxIc, 'Ainda não há inventários.', 'Crie o primeiro: o âmbito, as regras e quem conta.', acao('Novo inventário', userPlus, ' data-ir="gestor-inv-novo"'))],
   ['gestor-inventario-erro', '61.5 · Não carregou', 'O servidor não respondeu: tentar outra vez, com a referência.', () => eServidor({ ...GINV, barra: bInv() }, 'PK-2710-1B9D')],
   ['gestor-inventario-sem-rede', '61.6 · Sem rede', 'A Pick para e espera; não mostra a lista velha como se fosse de agora.', () => eSemRede({ ...GINV, barra: bInv() })],
-  ['gestor-inventario-operador', '61.7 · Aberto pela Arrumação', 'Criar, atribuir e validar é do gestor: a Arrumação vai para o seu Inventário.', () => eSemPermissao({ titulo: 'Inventário', funcao: 'Arrumação', barra: barra('arrumacao', 'inicio') }, 'Criar, atribuir e validar inventários é do gestor. O seu Inventário é o de contar.', 'op-inicio')],
+  ['gestor-inventario-operador', '61.7 · Aberto pela Arrumação', 'Criar, atribuir e validar é do gestor: a Arrumação vai para o seu Inventário.', () => eSemPermissao({ titulo: 'Inventário', funcao: 'Arrumação', barra: barra('arrumacao', 'inicio') }, 'Criar, atribuir e validar inventários é do gestor. O seu Inventário é o de contar.', 'ta-inicio')],
   ['gestor-inventario-iniciar', '61.8 · Por iniciar', 'Tocar em «Por iniciar»: o INV-2026-015, à espera de quem conte.', () => inventarioV2(bInv(), { sep: 'planeada' })],
   ['gestor-inventario-validar', '61.9 · Por validar', 'Tocar em «Por validar»: o INV-2026-011 submetido, com Validar.', () => inventarioV2(bInv(), { sep: 'validar' })],
   ['gestor-inventario-concluidos', '61.10 · Concluídos', 'Tocar em «Concluídos»: o INV-2026-009, com o histórico.', () => inventarioV2(bInv(), { sep: 'concluidos' })],
@@ -314,7 +314,7 @@ const LOGIN = '';
 const PAI: [RegExp, string][] = [
   [/^gestor-inventario/, 'g-operacoes'], [/^gestor-validar/, 'gestor-inventario'], [/^g-inv-fim/, 'g-inv-exec'], [/^g-inv-/, 'gestor-inventario'],
   [/^arr-inicio/, 'g-operacoes'], [/^(g-arr-|arr-)/, 'arr-inicio'], [/^g-sep-acomp/, 'g-sep'], [/^g-sep/, 'g-operacoes'], [/^g-exp-acomp/, 'g-exp'], [/^g-exp/, 'g-operacoes'],
-  [/^(abertura|gestor-)/, LOGIN], [/^(op-|inv-)/, 'op-inicio'],
+  [/^(abertura|gestor-)/, LOGIN], [/^(op-|inv-)/, 'ta-inicio'],
 ];
 function comVoltar<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const ids = new Set<string>(ecras.map((e) => e.id));
