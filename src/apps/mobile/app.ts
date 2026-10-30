@@ -10,6 +10,7 @@ import { ecrasArrumacao } from './arrumacao';
 import { ecrasArrumador, comArrumador } from './arrumador';
 import { ecrasArrumadorV2, comArrumadorV2 } from './arrumador-v2';
 import { ecrasArrumadorV3, comArrumadorV3 } from './arrumador-v3';
+import { ecrasArrumacaoParcial, comArrumacaoParcial } from './arrumador-parcial';
 import { ecrasSeparacaoExpedicao } from './separacao-expedicao';
 import { comBarra, ecrasNavegacao, soUltima } from './navegacao';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
@@ -41,6 +42,7 @@ const ARRUMADOR_V2 = ecrasArrumadorV2() as Ecra<IdMobile>[];
 /* 30 out. (ela: «só podem fazer aquilo que deixei nos docs»): arrumador-v3.ts — a Arrumação como no 07 · O menu da app */
 const ARRUMADOR_V3 = ecrasArrumadorV3() as Ecra<IdMobile>[];
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): separacao-expedicao.ts, como nos documentos */
+const ARR_PARCIAL = ecrasArrumacaoParcial() as Ecra<IdMobile>[];
 const SEP_EXP = ecrasSeparacaoExpedicao() as Ecra<IdMobile>[];
 const DESCRICAO_SEPARACAO = 'A Separação: uma guia é uma tarefa; as linhas pelo percurso (posição → artigo → quantidade); a falta corrige-se na posição; a guia acaba na prateleira de preparados.';
 const DESCRICAO_EXPEDICAO = 'A Expedição: recolhe as guias prontas na prateleira de preparados (prateleira → guia → verificar), confirma a recolha e a saída; nada se dá como expedido sem o servidor.';
@@ -61,7 +63,7 @@ export const mobile: App<IdMobile> = {
   /* 27 out. (o briefing da app Kotlin, «apenas com rede», «no figma»): o Gestor ganha o 62–64 e a v2 do 61.1 e do 61.2;
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
   /* 27 out. (ela: «só quero a última versão, não todos»): cada ecrã só com a última versão (navegacao.ts, soUltima) */
-  ecras: soUltima(comArrumadorV3(comArrumadorV2(comArrumador(comGestorV5(comGestorV4(comGestorV3([...ecrasLoginPick<IdMobile>(), ...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...GV4, ...GV5, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...ARRUMADOR, ...ARRUMADOR_V2, ...ARRUMADOR_V3, ...SEP_EXP, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()]))))))),
+  ecras: soUltima(comArrumacaoParcial(comArrumadorV3(comArrumadorV2(comArrumador(comGestorV5(comGestorV4(comGestorV3([...ecrasLoginPick<IdMobile>(), ...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...GV4, ...GV5, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...ARRUMADOR, ...ARRUMADOR_V2, ...ARRUMADOR_V3, ...ARR_PARCIAL, ...SEP_EXP, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()])))))))),
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →

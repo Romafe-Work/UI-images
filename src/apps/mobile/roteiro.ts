@@ -141,6 +141,27 @@ registarRoteiro('arr-danificado', 'Arrumação D · Artigo danificado', [
   { legenda: 'A palete volta ao motor, que a dá a quem estiver livre na arrumação.' },
 ]);
 
+/* 30 out. (ela: «sim faz isso»): a arrumação parcial — 30 un. em três posições, a 3.ª bloqueada, a Inês e a Ana */
+const LER = { legenda: 'Lê a etiqueta da prateleira.', clicar: '.gi-leitor' };
+registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três posições', [
+  { ecra: 'arr-par', legenda: 'Uma palete de 30 × SKF 6205-2Z. A Inês lê o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'Proposta 1 de 3. Vai lá e lê a posição.', clicar: '.gi-pe .gp-btn--acao' }, LER,
+  { legenda: 'Só cabem 12: confirma as que ficaram.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: '12 arrumadas. As 18 que faltam vão à proposta 2.', clicar: '.gi-pe .gp-btn--acao' }, LER,
+  { legenda: 'Cabem 10. Confirma.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: '22 arrumadas em duas posições; as 8 vão à proposta 3.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Ao ler, o sistema confirma se a posição ainda serve.', clicar: '.gi-leitor' },
+  { legenda: 'Está bloqueada, e era a última proposta. Chama o gestor, sem largar a tarefa.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'As 22 ficam feitas; as 8 continuam com a Inês.' },
+  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, a chamada aparece primeiro.', clicar: '[data-ir="arr-par-g"]' },
+  { legenda: 'Vê as duas partes já arrumadas e manda as 8 para a 60100402.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'As já arrumadas não mudam. A resposta segue para a Inês.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'A Inês lê a resposta e continua.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'O destino que a Ana indicou. Lê a posição.', clicar: '.gi-pe .gp-btn--acao' }, LER,
+  { legenda: 'As últimas 8.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: '30 de 30 em três posições, cada parte registada uma vez, com a hora. A guia fecha.' },
+]);
+
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */
 registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
   { ecra: 'ts-inicio', legenda: 'O Tiago, da separação: «Bom dia», o turno e uma opção de Trabalho — a guia que o motor lhe deu. Começa.', clicar: '.ta-trabalho' },
@@ -182,6 +203,6 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-inv-gestor', 'Todos os ecrãs · Inventário do Gestor', entre([61, 64])],
   ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
   ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
-  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89], [100, 101])],
+  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89], [100, 102])],
   ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99], [110, 140])],
 ] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));
