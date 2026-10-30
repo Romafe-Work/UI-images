@@ -1,0 +1,62 @@
+/* =========================================================
+   PICK — o trabalhador da Arrumação (30 out. 2026). Ver arrumador.ts.
+   Ecrãs ajustáveis: 320 px de largura para cima, a altura rola; claro e escuro pelos tokens --g-*.
+   Movimento só em transform/opacity: o aviso do bloqueio entra em 200 ms, os motivos em 160 ms um a um, nada com
+   «reduzir movimento». Cantos var(--r-md).
+   ========================================================= */
+.gp-ola p { margin: 2px 0 0; font-size: 13px; color: var(--g-tinta-2); }
+
+/* «Não consigo arrumar»: sempre à mão, discreto mas grande o bastante para o polegar */
+.ta-nao { display: inline-flex; align-items: center; justify-self: end; gap: 6px; min-height: 40px; padding: 0 12px; border: 1px solid color-mix(in srgb, var(--g-erro) 45%, var(--g-borda)); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-erro); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: transform .1s ease, background-color .12s ease; }
+.ta-nao svg { width: 17px; height: 17px; }
+.ta-nao:active { transform: scale(.97); }
+.ta-nao:focus-visible { outline: 3px solid var(--g-laranja); outline-offset: 2px; }
+.gpi .gi-corpo > .ta-nao { margin-left: auto; }
+.ta-nao--pe { justify-content: center; width: 100%; min-height: 48px; }
+
+/* a guia em mãos */
+.ta-mudou { display: flex; align-items: flex-start; gap: 6px; margin: 0; padding: 8px 10px; border-radius: var(--r-md); background: color-mix(in srgb, var(--g-azul) 12%, var(--g-sup)); font-size: 13px; line-height: 1.4; color: var(--g-tinta); }
+.ta-mudou svg { flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--g-azul-t); }
+.ta-guia--nova { border-color: color-mix(in srgb, var(--g-azul) 55%, var(--g-borda)); }
+.ta-espera { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--g-aviso) 50%, var(--g-borda)); border-radius: var(--r-md); background: color-mix(in srgb, var(--g-aviso) 10%, var(--g-sup)); color: var(--g-tinta); font: inherit; text-align: left; cursor: pointer; }
+.ta-espera > span { display: grid; flex: 1; gap: 2px; min-width: 0; } .ta-espera b { font-family: var(--f-mono); font-size: 13.5px; } .ta-espera small { font-size: 12.5px; color: var(--g-tinta-2); }
+.ta-espera > svg { flex: none; width: 18px; height: 18px; color: var(--g-aviso); }
+.gi-linha.is-feita { opacity: .7; }
+.gi-linha__q { display: grid; justify-items: end; gap: 4px; }
+
+/* 87 · os motivos: um por linha, ícone grande, o escolhido com a risca laranja */
+.ta-onde { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; font-size: 13px; color: var(--g-tinta-2); } .ta-onde b { font-family: var(--f-mono); font-size: 14px; color: var(--g-tinta); }
+.ta-motivos { display: grid; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.ta-motivos legend { margin-bottom: 6px; padding: 0; font-size: 13px; font-weight: 800; color: var(--g-tinta-2); }
+.ta-motivo { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); cursor: pointer; animation: ta-entrar .16s cubic-bezier(.22, 1, .36, 1) calc(var(--i, 0) * 25ms) both; }
+.ta-motivo input { position: absolute; opacity: 0; pointer-events: none; }
+.ta-motivo__ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-md); background: var(--g-elev); color: var(--g-tinta-2); }
+.ta-motivo__ic svg { width: 19px; height: 19px; }
+.ta-motivo > span:last-child { display: grid; gap: 1px; } .ta-motivo b { font-size: 14.5px; } .ta-motivo small { font-size: 12.5px; color: var(--g-tinta-2); }
+.ta-motivo:has(input:checked) { border-color: var(--g-laranja); box-shadow: inset 3px 0 0 var(--g-laranja); }
+.ta-motivo:has(input:checked) .ta-motivo__ic { background: color-mix(in srgb, var(--g-laranja) 16%, var(--g-sup)); color: var(--g-laranja-t); }
+.ta-motivo:has(input:focus-visible) { outline: 3px solid var(--g-laranja); outline-offset: 2px; }
+.ta-motivo:has(input:disabled) { opacity: .6; cursor: default; }
+.ta-foto { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 8px 12px; border: 1px dashed var(--g-borda); border-radius: var(--r-md); background: none; color: var(--g-tinta); font: inherit; text-align: left; cursor: pointer; }
+.ta-foto > svg { flex: none; width: 20px; height: 20px; color: var(--g-azul-t); } .ta-foto > span { display: grid; } .ta-foto small { font-size: 12.5px; color: var(--g-tinta-2); }
+.ta-foto:disabled { opacity: .6; cursor: default; }
+.gpi .gi-pe .gp-btn[disabled] { opacity: .5; cursor: default; }
+
+/* 88 · enviado: o envelope sai, uma vez; e o resumo do que foi */
+.ta-enviado { display: grid; justify-items: center; gap: 8px; padding: 18px 12px; border: 1px solid color-mix(in srgb, var(--g-aviso) 45%, var(--g-borda)); border-radius: var(--r-md); background: var(--g-sup); text-align: center; animation: ta-entrar .2s cubic-bezier(.22, 1, .36, 1) both; }
+.ta-enviado__ic { width: 34px; height: 34px; color: var(--g-aviso); animation: ta-envio .3s cubic-bezier(.22, 1, .36, 1) .05s both; }
+.ta-enviado h1 { margin: 0; font-family: var(--f-titulo); font-size: 20px; font-weight: 800; } .ta-enviado p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--g-tinta-2); }
+.ta-resumo { display: grid; gap: 0; margin: 0; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); }
+.ta-resumo > div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 8px; padding: 8px 12px; border-top: 1px solid var(--g-borda); } .ta-resumo > div:first-child { border-top: 0; }
+.ta-resumo dt { font-size: 12.5px; color: var(--g-tinta-2); } .ta-resumo dd { margin: 0; font-size: 13.5px; font-weight: 700; overflow-wrap: anywhere; }
+.ta-ja { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 13px; line-height: 1.4; color: var(--g-tinta-2); } .ta-ja svg { flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--g-ok); }
+.ta-resposta { animation: ta-entrar .2s cubic-bezier(.22, 1, .36, 1) both; }
+
+/* 79 · o problema no Gestor */
+.ta-caso { display: grid; gap: 10px; }
+.ta-caso__mot { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--g-erro) 40%, var(--g-borda)); border-left-width: 3px; border-radius: var(--r-md); background: var(--g-sup); }
+.ta-caso__mot > svg { flex: none; width: 20px; height: 20px; color: var(--g-erro); } .ta-caso__mot > span { display: grid; gap: 2px; } .ta-caso__mot b { font-size: 14.5px; } .ta-caso__mot small { font-size: 13px; color: var(--g-tinta-2); }
+
+@keyframes ta-entrar { from { opacity: 0; transform: translateY(6px); } }
+@keyframes ta-envio { from { opacity: 0; transform: translate(-10px, 8px) scale(.85); } }
+@media (prefers-reduced-motion: reduce) { .ta-motivo, .ta-enviado, .ta-enviado__ic, .ta-resposta { animation: none; } .ta-nao { transition: none; } }

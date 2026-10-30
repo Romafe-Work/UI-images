@@ -101,6 +101,27 @@ registarRoteiro('erros', 'Quando algo corre mal', [
   { ecra: 'gestor-sessao', legenda: 'A sessão terminou: entra outra vez pelo login comum e volta ao mesmo sítio.' },
 ]);
 
+/* 30 out. (briefing «Trabalhador de Arrumação V1»): quem arruma não consegue, comunica, o Gestor resolve e a guia acaba */
+registarRoteiro('nao-consigo', 'Arrumação: não consigo arrumar', [
+  { ecra: 'ta-inicio', legenda: 'A Inês, da arrumação, vê só a guia que o motor lhe entregou: a GA-2026-0330, a meio. Continua.', clicar: '.gi-tarefa .gp-btn--acao' },
+  { legenda: 'Lê a palete no cais 2.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Lê o artigo: CR 35x52x7, 16 un.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Na 60120401 não cabe: tem caixas de outro artigo. Toca em «Não consigo arrumar», sempre à mão.', clicar: '.ta-nao' },
+  { legenda: 'Escolhe porquê. Daqui não se liberta a posição nem se inventa outro destino.', clicar: '.ta-motivo[data-ir]' },
+  { legenda: 'Com uma nota (e uma fotografia, se quiser), envia ao gestor.', clicar: '.gi-pe .gp-btn--acao', pausa: 400 },
+  { legenda: 'O servidor registou: a guia fica com o gestor, a palete fica no cais e o que já arrumou fica confirmado.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'O motor entrega-lhe a guia seguinte; a GA-2026-0330 fica à vista, à espera da resposta.' },
+  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, gestora, o problema aparece primeiro nas exceções, com quem e a hora. Resolve.', clicar: '[data-ir="arr-problema"]' },
+  { legenda: 'O motivo, o artigo, a origem, o destino recusado e o que já está confirmado. Escolhe a 60120402 e envia à Inês.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Confirmado pelo servidor, com o histórico de quem mudou e porquê.' },
+  { ecra: 'ta-resolvido', legenda: 'A resposta chega ao PDA da Inês: o destino novo. Continua a guia.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê outra vez a palete…', clicar: '.gi-faixa-ler' },
+  { legenda: '…o artigo…', clicar: '.gi-faixa-ler' },
+  { legenda: '…e o destino novo: só esse aceita o movimento.', clicar: '.gi-faixa-ler' },
+  { legenda: 'Confirma os 16. Só fica arrumado quando o servidor responde.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Guia concluída: a caixa vai à prateleira, depois da confirmação.' },
+]);
+
 /* 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): sete percursos
    que passam por TODOS os ecrãs e estados da Pick, pela ordem do número; o rato toca na ligação verdadeira quando o ecrã a
    tem, e ao lado diz-se o que é cada um. Os cinco de cima são os casos contados; estes são o inventário completo. */
@@ -112,6 +133,6 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-inv-gestor', 'Todos os ecrãs · Inventário do Gestor', entre([61, 64])],
   ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
   ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
-  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [80, 81])],
+  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89])],
   ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99])],
 ] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));
