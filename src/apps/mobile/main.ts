@@ -32,5 +32,6 @@ import { iniciar as navegar } from './comportamento/navegar';
 import { iniciar as aberturaPick } from './comportamento/abertura-pick';
 import { iniciar as gestor } from './comportamento/gestor';
 import { iniciar as funcoes } from './comportamento/funcoes';
+import { iniciar as arrumador } from './comportamento/arrumador';
 
-montar(mobile, [navegar, entrar, inventario, entrarIndustrial, aberturaPick, gestor, funcoes]);
+montar(mobile, [navegar, entrar, inventario, entrarIndustrial, aberturaPick, gestor, funcoes, arrumador]);

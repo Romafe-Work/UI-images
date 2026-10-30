@@ -101,25 +101,51 @@ registarRoteiro('erros', 'Quando algo corre mal', [
   { ecra: 'gestor-sessao', legenda: 'A sessão terminou: entra outra vez pelo login comum e volta ao mesmo sítio.' },
 ]);
 
-/* 30 out. (briefing «Trabalhador de Arrumação V1»): quem arruma não consegue, comunica, o Gestor resolve e a guia acaba */
-registarRoteiro('nao-consigo', 'Arrumação: não consigo arrumar', [
-  { ecra: 'ta-inicio', legenda: 'A Inês, da arrumação, vê só a guia que o motor lhe entregou: a GA-2026-0330, a meio. Continua.', clicar: '.gi-tarefa .gp-btn--acao' },
-  { legenda: 'Lê a palete no cais 2.', clicar: '.gi-faixa-ler' },
-  { legenda: 'Lê o artigo: CR 35x52x7, 16 un.', clicar: '.gi-faixa-ler' },
-  { legenda: 'Na 60120401 não cabe: tem caixas de outro artigo. Toca em «Não consigo arrumar», sempre à mão.', clicar: '.ta-nao' },
-  { legenda: 'Escolhe porquê. Daqui não se liberta a posição nem se inventa outro destino.', clicar: '.ta-motivo[data-ir]' },
-  { legenda: 'Com uma nota (e uma fotografia, se quiser), envia ao gestor.', clicar: '.gi-pe .gp-btn--acao', pausa: 400 },
-  { legenda: 'O servidor registou: a guia fica com o gestor, a palete fica no cais e o que já arrumou fica confirmado.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'O motor entrega-lhe a guia seguinte; a GA-2026-0330 fica à vista, à espera da resposta.' },
-  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, gestora, o problema aparece primeiro nas exceções, com quem e a hora. Resolve.', clicar: '[data-ir="arr-problema"]' },
-  { legenda: 'O motivo, o artigo, a origem, o destino recusado e o que já está confirmado. Escolhe a 60120402 e envia à Inês.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Confirmado pelo servidor, com o histórico de quem mudou e porquê.' },
-  { ecra: 'ta-resolvido', legenda: 'A resposta chega ao PDA da Inês: o destino novo. Continua a guia.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Lê outra vez a palete…', clicar: '.gi-faixa-ler' },
-  { legenda: '…o artigo…', clicar: '.gi-faixa-ler' },
-  { legenda: '…e o destino novo: só esse aceita o movimento.', clicar: '.gi-faixa-ler' },
-  { legenda: 'Confirma os 16. Só fica arrumado quando o servidor responde.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Guia concluída: a caixa vai à prateleira, depois da confirmação.' },
+/* 30 out. (briefing «Figma interativo V2 · Trabalhador de Arrumação»): os quatro cenários do trabalhador da Arrumação */
+const IN = { ecra: 'ta-inicio', legenda: 'A Inês, da arrumação, vê só a sua tarefa: a GA-2026-0330, artigo 2 de 2. Inicia.', clicar: '.ta-prox .gp-btn--acao' };
+const ORIGEM = { legenda: 'Lê a palete no cais 2 (tocar no leitor faz de tecla de leitura).', clicar: '.gi-leitor' };
+registarRoteiro('arr-normal', 'Arrumação A · Arrumar', [
+  IN, ORIGEM,
+  { legenda: 'Lê o artigo: CR 35x52x7.', clicar: '.gi-leitor' },
+  { legenda: 'Confirma a quantidade: as 16 da guia.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê a posição de destino proposta, a 60120401.', clicar: '.gi-leitor' },
+  { legenda: 'O resumo: artigo, quantidade, origem e destino. Confirma; só fica arrumado quando o servidor responde.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Arrumação concluída: a caixa vai à prateleira, depois da confirmação.' },
+]);
+registarRoteiro('arr-artigo-errado', 'Arrumação B · Artigo errado', [
+  IN, ORIGEM,
+  { legenda: 'Lê um artigo que não é este (demonstração: «Artigo errado»).', clicar: '.ta-sim [data-ir="arr-op-artigo-errado"]' },
+  { legenda: 'Não continua com o artigo errado: diz qual é o certo. Lê outra vez.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Agora o artigo certo.', clicar: '.gi-leitor' },
+  { legenda: 'Segue para a quantidade, como sempre.' },
+]);
+registarRoteiro('arr-bloqueado', 'Arrumação C · Destino ocupado', [
+  IN, ORIGEM,
+  { legenda: 'Lê o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'Confirma as 16.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'No destino, a posição tem outra mercadoria (demonstração: «Posição ocupada»).', clicar: '.ta-sim [data-ir="arr-op-ocupada"]' },
+  { legenda: 'Não há como confirmar ali. Comunica o problema.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'O motivo e a observação; a fotografia é opcional. Comunica.', clicar: '.gi-pe .gp-btn--acao', pausa: 400 },
+  { legenda: 'Arrumação bloqueada: aguarda o gestor. Não há botão para contornar.' },
+  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, gestora, o problema aparece primeiro nas exceções. Resolve.', clicar: '[data-ir="arr-problema"]' },
+  { legenda: 'Vê o que a Inês comunicou e decide: muda o destino para a 60120402, ao lado.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Confirmado pelo servidor. Vê o que chega ao PDA da Inês.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Tarefa atualizada: o problema, as instruções novas e o destino. Retoma.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê-se tudo outra vez: a palete…', clicar: '.gi-leitor' },
+  { legenda: '…o artigo…', clicar: '.gi-leitor' },
+  { legenda: '…a quantidade…', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: '…e o destino novo.', clicar: '.gi-leitor' },
+  { legenda: 'Confirma.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Concluída no destino novo.' },
+]);
+registarRoteiro('arr-parcial', 'Arrumação D · Quantidade parcial', [
+  IN, ORIGEM,
+  { legenda: 'Lê o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'Só vai arrumar 10 das 16 (demonstração: «Parcial»).', clicar: '.ta-sim [data-ir="arr-op-parcial"]' },
+  { legenda: 'Diz-se que as 6 ficam pendentes na guia. Confirma 10.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Lê o destino.', clicar: '.gi-leitor' },
+  { legenda: 'O resumo com as pendentes. Confirma.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Parcial registada: 10 na 60120401, 6 pendentes no cais; a tarefa continua em curso.' },
 ]);
 
 /* 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): sete percursos
@@ -133,6 +159,6 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-inv-gestor', 'Todos os ecrãs · Inventário do Gestor', entre([61, 64])],
   ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
   ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
-  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89])],
+  ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89], [100, 101])],
   ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99])],
 ] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));

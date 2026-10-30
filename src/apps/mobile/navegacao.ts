@@ -79,10 +79,12 @@ export const MENU_BARRA: Destino[] = [
   { id: 'insights', funcao: 'gestor', rotulo: 'Insights', icone: 'insights', ecra: 'g-insights', ordem: 40, ativo: true },
   { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'ta-inicio', ordem: 10, ativo: true },
-  { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
+  /* 30 out. (briefing «Figma interativo V2 · Trabalhador de Arrumação»): Início · Tarefas · Ler · Mais — as Tarefas são só as
+     da pessoa (89), e o Histórico passa para o Mais */
+  { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'ta-tarefas', ordem: 20, ativo: true, gesto: 'tarefas' },
   { id: 'ler', funcao: 'arrumacao', rotulo: 'Ler', icone: 'ler', ecra: 'op-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
-  { id: 'historico', funcao: 'arrumacao', rotulo: 'Histórico', icone: 'historico', ecra: 'op-historico', ordem: 40, ativo: true },
-  { id: 'mais', funcao: 'arrumacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais', ordem: 90, ativo: MAIS_ATIVO },
+  { id: 'historico', funcao: 'arrumacao', rotulo: 'Histórico', icone: 'historico', ecra: 'op-historico', ordem: 40, ativo: false },
+  { id: 'mais', funcao: 'arrumacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais', ordem: 90, ativo: true },
   { id: 'inicio', funcao: 'separacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-separacao', ordem: 10, ativo: true },
   { id: 'mais', funcao: 'separacao', rotulo: 'Mais', icone: 'mais', ecra: 'op-mais-separacao', ordem: 90, ativo: MAIS_ATIVO },
   { id: 'inicio', funcao: 'expedicao', rotulo: 'Início', icone: 'inicio', ecra: 'op-expedicao', ordem: 10, ativo: true },
@@ -193,9 +195,10 @@ function historicoOperador(vazio = false): string {
   { ...OP, titulo: 'Histórico', barra: barra('arrumacao', 'historico') });
 }
 function maisOperador(k: Funcao = 'arrumacao'): string {
-  const nome = { arrumacao: 'Joana Silva', separacao: 'Tiago Lopes', expedicao: 'Paulo Reis', gestor: 'Ana Ferreira' }[k];
-  const quem = { arrumacao: { nome: 'Joana Silva', iniciais: 'JS' }, separacao: { nome: 'Tiago Lopes', iniciais: 'TL' }, expedicao: { nome: 'Paulo Reis', iniciais: 'PR' }, gestor: { nome: 'Ana Ferreira', iniciais: 'AF' } }[k];
+  const nome = { arrumacao: 'Inês Rocha', separacao: 'Tiago Lopes', expedicao: 'Paulo Reis', gestor: 'Ana Ferreira' }[k];
+  const quem = { arrumacao: { nome: 'Inês Rocha', iniciais: 'IR' }, separacao: { nome: 'Tiago Lopes', iniciais: 'TL' }, expedicao: { nome: 'Paulo Reis', iniciais: 'PR' }, gestor: { nome: 'Ana Ferreira', iniciais: 'AF' } }[k];
   return ecra(`<h1 class="gp-titulo">Mais</h1>
+    ${k === 'arrumacao' ? `<section class="gp-sec">${h2('Arrumação')}<ul class="gi-mais-l" role="list">${itemMais(history, 'Histórico de arrumações', 'O que o servidor confirmou', 'ta-historico')}</ul></section>` : ''}
     ${k !== 'gestor' ? `<section class="gp-sec">${h2('Inventário')}<ul class="gi-mais-l" role="list">${itemMais(list, 'Contagens atribuídas', 'As suas contagens e o estado', 'inv-lista')}${itemMais(search, 'Consultar stock', 'Ler um artigo ou uma posição', 'inv-consultar')}</ul></section>` : ''}
     <section class="gp-sec">${h2('A conta')}<ul class="gi-mais-l" role="list">${itemMais(users, 'Ver como (demonstração)', 'Mudar de função', '', ' data-gi-ver-como')}${itemMais(logOut, 'Terminar sessão', `${nome} · volta ao início de sessão comum`, 'op-sessao')}</ul></section>
 `,
