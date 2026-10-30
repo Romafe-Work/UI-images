@@ -4,8 +4,8 @@
    todos os estados possíveis para os screens». As funções são as do armazém (27 ago.): três e o gestor —
      - Gestor: cria, atribui, acompanha, valida e fecha; é o único que vê o stock do sistema;
      - Arrumação: conta (às cegas), corrige posição e consulta stock — «contar é de quem já anda nos corredores»;
-     - Separação: não tem o Inventário; a falta numa posição corrige-se na guia de separação (18 set.);
-     - Expedição: não tem o Inventário; carrega e fecha no cais.
+     - Separação e Expedição: 30 out. (ela: «o inventário é de todos») também contam as posições que o gestor lhes
+       atribui, às cegas; na separação, a falta numa posição continua a corrigir-se na guia (18 set.).
    Na demonstração, tocar nas iniciais da conta (em qualquer ecrã da Pick) abre «Ver como» com as quatro funções, o
    que cada uma vê e não vê; escolher leva à página dessa função (comportamento/funcoes.ts). No produto, a função vem
    das permissões da conta (ROMAFE Identity) e não se escolhe.
@@ -26,6 +26,8 @@ import wifiOff from 'lucide-static/icons/wifi-off.svg?raw';
 import serverOff from 'lucide-static/icons/server-off.svg?raw';
 import refresh from 'lucide-static/icons/refresh-cw.svg?raw';
 import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
+import folder from 'lucide-static/icons/folder.svg?raw';
+import pkg from 'lucide-static/icons/package.svg?raw';
 import lock from 'lucide-static/icons/lock.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import logIn from 'lucide-static/icons/log-in.svg?raw';
@@ -47,9 +49,9 @@ export interface Funcao { k: 'gestor' | 'arrumacao' | 'separacao' | 'expedicao';
 export const FUNCOES: Funcao[] = [
   { k: 'gestor', t: 'Gestor', nome: 'Ana Ferreira', iniciais: 'AF', ecra: 'gestor-inicio', ve: ['Cria, atribui e acompanha os inventários', 'Vê o stock do sistema e decide as divergências', 'Valida e fecha (o ajuste é do servidor)'], nao: [] },
   /* 30 out. (ela: «com a role de arrumação»): a Arrumação abre o 85 · A minha arrumação, com a Inês (arrumador.ts) */
-  { k: 'arrumacao', t: 'Arrumação', nome: 'Inês Rocha', iniciais: 'IR', ecra: 'ta-inicio', ve: ['Arruma a guia que o motor lhe entrega', 'Lê a palete, o artigo e o destino', 'Comunica ao gestor o que a impede de arrumar'], nao: ['Não vê a fila das guias', 'Não liberta posições nem escolhe outro destino'] },
-  { k: 'separacao', t: 'Separação', nome: 'Tiago Lopes', iniciais: 'TL', ecra: 'op-separacao', ve: ['Corrige a posição na guia, quando falta quantidade'], nao: ['Não tem o Inventário', 'Não conta: ninguém cria contagens na separação'] },
-  { k: 'expedicao', t: 'Expedição', nome: 'Paulo Reis', iniciais: 'PR', ecra: 'op-expedicao', ve: [], nao: ['Não tem o Inventário', 'Trabalha no cais: carrega e fecha'] },
+  { k: 'arrumacao', t: 'Arrumação', nome: 'Inês Rocha', iniciais: 'IR', ecra: 'ta-inicio', ve: ['Arruma a guia que o motor lhe entrega', 'Comunica ao gestor o que a impede de arrumar', 'Conta as posições que lhe atribuem, às cegas'], nao: ['Não vê a fila das guias', 'Não vê o stock do sistema enquanto conta'] },
+  { k: 'separacao', t: 'Separação', nome: 'Tiago Lopes', iniciais: 'TL', ecra: 'op-separacao', ve: ['Conta as posições que lhe atribuem, às cegas', 'Corrige a posição na guia, quando falta quantidade'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
+  { k: 'expedicao', t: 'Expedição', nome: 'Paulo Reis', iniciais: 'PR', ecra: 'op-expedicao', ve: ['Conta as posições que lhe atribuem, às cegas', 'Trabalha no cais: carrega e fecha'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
 ];
 const quem = (k: Funcao['k']) => { const f = FUNCOES.find((x) => x.k === k)!; return { nome: f.nome, iniciais: f.iniciais }; };
 
@@ -61,13 +63,18 @@ export const sessao = (o: Opcoes) => ecra(aviso('aviso', clock, 'A sessão termi
 export const semPermissao = (o: Opcoes, texto: string, volta: string) => ecra(aviso('erro', userRound, 'Sem permissão', texto), { ...o, pe: acao('Voltar ao início', arrowLeft, ` data-ir="${volta}"`) });
 export const vazio = (o: Opcoes, ic: string, t: string, x: string, pe = '') => ecra(`<section class="gi-vazio">${L(ic)}<p><b>${t}</b> ${x}</p></section>`, { ...o, pe });
 
-/* ---------- as páginas da Separação e da Expedição (sem o Inventário) ---------- */
+/* ---------- o Inventário de cada um (30 out., ela: «o inventário é de todos»): as contagens que o gestor lhe atribui ---------- */
+export const asMinhasContagens = (n: [number, number, number]) => `<section class="gp-sec">${h2('As minhas contagens')}
+      <div class="gi-tres">${(['Atribuídas', 'Em curso', 'Concluídas'] as const).map((t, i) => `<button type="button" class="gi-num" data-ir="inv-lista"><b>${n[i]}</b><span>${t}</span></button>`).join('')}</div>
+      ${n[0] + n[1] ? '' : '<p class="gi-vazio-l">Quando o gestor lhe atribuir uma contagem, o sistema entrega-a como uma tarefa.</p>'}
+    </section>`;
+/* ---------- as páginas da Separação e da Expedição (os módulos delas ainda não estão na Pick; o Inventário sim) ---------- */
 export const paginaSemInventario = (k: 'separacao' | 'expedicao', barra?: string) => {
   const f = FUNCOES.find((x) => x.k === k)!, sep = k === 'separacao';
   return ecra(`<div class="gp-ola"><h1>Bom dia, ${f.nome.split(' ')[0]}</h1><p>${f.t} · armazém 60</p></div>
     <section class="gi-aviso gi-aviso--info" role="status"><span class="gi-aviso__ic">${L(sep ? shoppingCart : truck)}</span><h1>O módulo ${f.t} ainda não está na Pick</h1><p>Aparece aqui quando estiver feito e autorizado. Até lá, ${sep ? 'as guias de separação' : 'as cargas'} fazem-se como hoje.</p></section>
-    <section class="gp-sec">${h2('Inventário')}<div class="gi-funcao-nao">${L(lock)}<p><b>A ${f.t} não tem o Inventário.</b> ${sep ? 'Quando falta quantidade numa posição, corrige-se na própria guia de separação — não se cria contagem.' : 'O Inventário é do gestor e da arrumação.'}</p></div></section>
-    <section class="gp-sec">${h2('Módulos')}<p class="gi-vazio-l">Ainda não tem módulos ativos na Pick. Só aparecem os que estão feitos e autorizados para a sua função.</p></section>`,
+    ${asMinhasContagens([0, 0, 0])}
+    <section class="gp-sec">${h2('Módulos')}<div class="gp-modulos"><button type="button" class="gp-pasta" data-ir="inv-inicio"><span class="gp-pasta-g">${L(folder)}${L(pkg)}</span><b>Inventário</b></button></div></section>`,
   { titulo: 'Início', quem: quem(k), funcao: f.t, barra });
 };
 
@@ -78,8 +85,8 @@ type Est = [id: string, de: string, nome: string, objetivo: string, html: () => 
 const OP: Opcoes = { titulo: 'Início' }, G = (titulo: string, voltar = 'gestor-inventario'): Opcoes => ({ titulo, voltar, gestor: true });
 const ESTADOS: Est[] = [
   /* 57 · Início do Operador (e as páginas das outras funções) */
-  ['op-separacao', 'op-inicio', '57.3 · Separação: sem o Inventário', 'A mesma Pick vista pela Separação: o Inventário não aparece, e diz-se porquê (a falta corrige-se na guia).', () => paginaSemInventario('separacao')],
-  ['op-expedicao', 'op-inicio', '57.4 · Expedição: sem o Inventário', 'Vista pela Expedição: nada do Inventário; o módulo dela ainda não está feito e diz-se.', () => paginaSemInventario('expedicao')],
+  ['op-separacao', 'op-inicio', '57.3 · Separação', 'A mesma Pick vista pela Separação: as contagens que lhe atribuem (o Inventário é de todos) e o módulo da Separação, que ainda não está na Pick.', () => paginaSemInventario('separacao')],
+  ['op-expedicao', 'op-inicio', '57.4 · Expedição', 'Vista pela Expedição: as contagens que lhe atribuem e o módulo da Expedição, que ainda não está feito, e diz-se.', () => paginaSemInventario('expedicao')],
   ['op-carregar', 'op-inicio', '57.5 · A carregar', 'O cabeçalho já está; a tarefa e as contagens em esqueleto.', () => carregar(OP)],
   ['op-sem-rede', 'op-inicio', '57.6 · Sem rede', 'Sem rede não se mostra a tarefa: diz-se e espera.', () => semRede(OP)],
   ['op-erro', 'op-inicio', '57.7 · Não carregou', 'O servidor não respondeu: tentar outra vez, com a referência.', () => servidor(OP, 'PK-2710-4F1A')],

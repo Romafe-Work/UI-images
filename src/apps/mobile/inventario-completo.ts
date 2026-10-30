@@ -146,7 +146,7 @@ function criar(): string {
 /* ---------- 61.2 · Atribuir v2: por secções, sem dupla atribuição ---------- */
 function atribuir(): string {
   const SEC: [string, number, string, string][] = [['Colunas 01–06', 15, 'Inês Rocha', 'ines'], ['Colunas 07–12', 15, '', '']];
-  const OP: [string, string, string, string][] = [['Inês Rocha', 'IR', 'Já tem as 01–06 · leva estas a seguir', ''], ['Joana Silva', 'JS', 'Já conta o INV-2026-014', 'ocupada'], ['Tiago Lopes', 'TL', 'Separação · não conta', 'ocupada']];
+  const OP: [string, string, string, string][] = [['Inês Rocha', 'IR', 'Já tem as 01–06 · leva estas a seguir', ''], ['Joana Silva', 'JS', 'Já conta o INV-2026-014', 'ocupada'], ['Tiago Lopes', 'TL', 'Separação · entre duas guias', '']];
   return ecra(`<h1 class="gp-titulo">Atribuir contagem</h1>
     <div class="gp-cartao"><b>INV-2026-015</b><small>Cíclica · zona 10 · rolamentos · 30 posições</small></div>
     ${h2('Secções')}

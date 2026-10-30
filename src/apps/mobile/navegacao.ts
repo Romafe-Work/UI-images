@@ -196,7 +196,7 @@ function maisOperador(k: Funcao = 'arrumacao'): string {
   const nome = { arrumacao: 'Joana Silva', separacao: 'Tiago Lopes', expedicao: 'Paulo Reis', gestor: 'Ana Ferreira' }[k];
   const quem = { arrumacao: { nome: 'Joana Silva', iniciais: 'JS' }, separacao: { nome: 'Tiago Lopes', iniciais: 'TL' }, expedicao: { nome: 'Paulo Reis', iniciais: 'PR' }, gestor: { nome: 'Ana Ferreira', iniciais: 'AF' } }[k];
   return ecra(`<h1 class="gp-titulo">Mais</h1>
-    ${k === 'arrumacao' ? `<section class="gp-sec">${h2('Inventário')}<ul class="gi-mais-l" role="list">${itemMais(list, 'Contagens atribuídas', 'As suas contagens e o estado', 'inv-lista')}${itemMais(search, 'Consultar stock', 'Ler um artigo ou uma posição', 'inv-consultar')}</ul></section>` : ''}
+    ${k !== 'gestor' ? `<section class="gp-sec">${h2('Inventário')}<ul class="gi-mais-l" role="list">${itemMais(list, 'Contagens atribuídas', 'As suas contagens e o estado', 'inv-lista')}${itemMais(search, 'Consultar stock', 'Ler um artigo ou uma posição', 'inv-consultar')}</ul></section>` : ''}
     <section class="gp-sec">${h2('A conta')}<ul class="gi-mais-l" role="list">${itemMais(users, 'Ver como (demonstração)', 'Mudar de função', '', ' data-gi-ver-como')}${itemMais(logOut, 'Terminar sessão', `${nome} · volta ao início de sessão comum`, 'op-sessao')}</ul></section>
 `,
   { titulo: 'Mais', funcao: { arrumacao: 'Arrumação', separacao: 'Separação', expedicao: 'Expedição', gestor: 'Gestor' }[k], quem, barra: barra(k, 'mais') });
@@ -245,8 +245,8 @@ export function ecrasNavegacao(): Ecra<string>[] {
     e('op-historico', '67 · Histórico (Arrumação)', 'Inventário', 'O que o servidor confirmou hoje: contagens, correções e chegadas, com a hora.', historicoOperador()),
     e('op-historico-vazio', '67.1 · Ainda nada hoje', 'Inventário', 'Sem nada confirmado hoje.', historicoOperador(true), 'op-historico'),
     e('op-mais', '68 · Mais (Arrumação)', 'Inventário', 'As contagens atribuídas, consultar stock, a conta e o «Ver como».', maisOperador('arrumacao')),
-    e('op-mais-separacao', '68.1 · Mais (Separação)', 'Inventário', 'A Separação só tem a conta: os módulos dela ainda não estão na Pick.', maisOperador('separacao'), 'op-mais'),
-    e('op-mais-expedicao', '68.2 · Mais (Expedição)', 'Inventário', 'A Expedição só tem a conta.', maisOperador('expedicao'), 'op-mais'),
+    e('op-mais-separacao', '68.1 · Mais (Separação)', 'Inventário', 'As contagens atribuídas e consultar stock (o Inventário é de todos) e a conta; o módulo da Separação ainda não está na Pick.', maisOperador('separacao'), 'op-mais'),
+    e('op-mais-expedicao', '68.2 · Mais (Expedição)', 'Inventário', 'As contagens atribuídas, consultar stock e a conta.', maisOperador('expedicao'), 'op-mais'),
     ...estadosNav().map(([id, de, nome, objetivo, html, v]) => e(id, nome, de.startsWith('gestor') ? 'Gestor' : 'Inventário', objetivo, html, de, v)),
     /* os estados novos do 61 (os que já existiam ganham a versão nova em soUltima) */
     ...ESTADOS_INVENTARIO_GESTOR.filter(([id]) => !['gestor-inventario-carregar', 'gestor-inventario-vazio', 'gestor-inventario-erro', 'gestor-inventario-sem-rede', 'gestor-inventario-operador'].includes(id)).map(([id, nome, objetivo, html]) => e(id, nome, 'Gestor', objetivo, html(), 'gestor-inventario', 'v3')),

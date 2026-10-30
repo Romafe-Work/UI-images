@@ -20,6 +20,7 @@ import type { Ecra } from '../../comum/tipos';
 import { ecra, acao, sec, esperar, aviso, prog, posicao, h2, L, type Opcoes } from './inventario-v2';
 import { GUIAS, arrumar, cenaArrumacao } from './arrumacao';
 import { barra } from './navegacao';
+import { asMinhasContagens } from './inventario-estados';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
 import play from 'lucide-static/icons/play.svg?raw';
 import pkgX from 'lucide-static/icons/package-x.svg?raw';
@@ -88,7 +89,7 @@ function inicio(e: E85 = 'normal'): string {
       ${e === 'seguinte' ? '' : `<button type="button" class="gp-btn gi-btn-sec" data-ir="ta-guia">${L(list)}<span>Ver a guia</span></button>`}
     </section>`;
   const comGestor = e === 'seguinte' ? `<button type="button" class="ta-espera" data-ir="ta-enviado">${L(clock)}<span><b>${G.ref} com o gestor</b><small>Posição cheia · comunicado às ${HORA}. A resposta chega aqui.</small></span>${L(arrowRight)}</button>` : '';
-  return ecra(`<div class="gp-ola"><h1>Arrumação</h1><p>A minha guia de arrumação</p></div>${comGestor}${tarefa}`, T('Início', { barra: barraArr() }));
+  return ecra(`<div class="gp-ola"><h1>Arrumação</h1><p>A minha guia de arrumação</p></div>${comGestor}${tarefa}${asMinhasContagens([0, 0, 1])}`, T('Início', { barra: barraArr() }));
 }
 
 /* =========================================================
