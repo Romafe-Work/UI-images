@@ -17,7 +17,7 @@
    espera no PDA; os motivos são os do briefing menos «Destino em contagem», que o servidor já deteta sozinho (80.8).
    ========================================================= */
 import type { Ecra } from '../../comum/tipos';
-import { ecra, acao, sec, esperar, aviso, prog, posicao, h2, L, trocarIr, type Opcoes } from './inventario-v2';
+import { ecra, acao, sec, esperar, aviso, prog, posicao, h2, L, type Opcoes } from './inventario-v2';
 import { GUIAS, arrumar, cenaArrumacao } from './arrumacao';
 import { barra } from './navegacao';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
@@ -58,8 +58,8 @@ const G = GUIAS[1], A1 = G.linhas[0], A2 = G.linhas[1];
 const RECUSADA = G.destino, NOVO = '60120402', HORA = '10:42';
 const SEGUINTE = GUIAS[0];
 const T = (titulo: string, extra: Opcoes = {}): Opcoes => ({ titulo, funcao: 'Arrumação', quem: INES, ...extra });
-/* a barra da Arrumação (Início · Ler · Histórico), com o Início a abrir esta página */
-const barraArr = () => trocarIr(barra('arrumacao', 'inicio'), { 'op-inicio': 'ta-inicio' });
+/* a barra da Arrumação (Início · Ler · Histórico); o Início é esta página */
+const barraArr = () => barra('arrumacao', 'inicio');
 const percurso = (destino = G.destino, riscado = false) => `<p class="gi-percurso"><span>${L(truck)}${G.origem}</span>${L(arrowRight, 'gi-percurso__seta')}${posicao(destino, `gi-pos--peq${riscado ? ' gi-pos--erro' : ''}`)}</p>`;
 /** «Não consigo arrumar»: sempre à mão durante a guia */
 export const naoConsigo = (cls = '') => `<button type="button" class="ta-nao${cls ? ` ${cls}` : ''}" data-ir="ta-problema">${L(octagon)}<span>Não consigo arrumar</span></button>`;

@@ -46,7 +46,8 @@ import search from 'lucide-static/icons/search.svg?raw';
 export interface Funcao { k: 'gestor' | 'arrumacao' | 'separacao' | 'expedicao'; t: string; nome: string; iniciais: string; ecra: string; ve: string[]; nao: string[] }
 export const FUNCOES: Funcao[] = [
   { k: 'gestor', t: 'Gestor', nome: 'Ana Ferreira', iniciais: 'AF', ecra: 'gestor-inicio', ve: ['Cria, atribui e acompanha os inventários', 'Vê o stock do sistema e decide as divergências', 'Valida e fecha (o ajuste é do servidor)'], nao: [] },
-  { k: 'arrumacao', t: 'Arrumação', nome: 'Joana Silva', iniciais: 'JS', ecra: 'op-inicio', ve: ['Conta as posições atribuídas, às cegas', 'Corrige uma posição', 'Consulta o stock'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
+  /* 30 out. (ela: «com a role de arrumação»): a Arrumação abre o 85 · A minha arrumação, com a Inês (arrumador.ts) */
+  { k: 'arrumacao', t: 'Arrumação', nome: 'Inês Rocha', iniciais: 'IR', ecra: 'ta-inicio', ve: ['Arruma a guia que o motor lhe entrega', 'Lê a palete, o artigo e o destino', 'Comunica ao gestor o que a impede de arrumar'], nao: ['Não vê a fila das guias', 'Não liberta posições nem escolhe outro destino'] },
   { k: 'separacao', t: 'Separação', nome: 'Tiago Lopes', iniciais: 'TL', ecra: 'op-separacao', ve: ['Corrige a posição na guia, quando falta quantidade'], nao: ['Não tem o Inventário', 'Não conta: ninguém cria contagens na separação'] },
   { k: 'expedicao', t: 'Expedição', nome: 'Paulo Reis', iniciais: 'PR', ecra: 'op-expedicao', ve: [], nao: ['Não tem o Inventário', 'Trabalha no cais: carrega e fecha'] },
 ];

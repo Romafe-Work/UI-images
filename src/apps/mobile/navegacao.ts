@@ -78,7 +78,7 @@ export const MENU_BARRA: Destino[] = [
      e em Mais › Operações */
   { id: 'insights', funcao: 'gestor', rotulo: 'Insights', icone: 'insights', ecra: 'g-insights', ordem: 40, ativo: true },
   { id: 'mais', funcao: 'gestor', rotulo: 'Mais', icone: 'mais', ecra: 'g-mais', ordem: 90, ativo: true },
-  { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'op-inicio', ordem: 10, ativo: true },
+  { id: 'inicio', funcao: 'arrumacao', rotulo: 'Início', icone: 'inicio', ecra: 'ta-inicio', ordem: 10, ativo: true },
   { id: 'tarefas', funcao: 'arrumacao', rotulo: 'Tarefas', icone: 'tarefas', ecra: 'op-tarefas', ordem: 20, ativo: TAREFAS_ATIVAS, gesto: 'tarefas' },
   { id: 'ler', funcao: 'arrumacao', rotulo: 'Ler', icone: 'ler', ecra: 'op-ler', ordem: 30, destaque: true, ativo: true, gesto: 'ler' },
   { id: 'historico', funcao: 'arrumacao', rotulo: 'Histórico', icone: 'historico', ecra: 'op-historico', ordem: 40, ativo: true },
