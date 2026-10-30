@@ -141,6 +141,36 @@ registarRoteiro('arr-danificado', 'Arrumação D · Artigo danificado', [
   { legenda: 'A palete volta ao motor, que a dá a quem estiver livre na arrumação.' },
 ]);
 
+/* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */
+registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
+  { ecra: 'ts-inicio', legenda: 'O Tiago, da separação: «Bom dia», o turno e uma opção de Trabalho — a guia que o motor lhe deu. Começa.', clicar: '.ta-trabalho' },
+  { legenda: 'O cartão com o porquê: o camião DPD fecha às 11h30. Ninguém escolhe, ninguém apanha a guia de outro.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'As paragens pela ordem mais curta, e a prateleira de preparados já reservada.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Paragem 1: vai à posição e lê-a.', clicar: '.gi-leitor' },
+  { legenda: 'Posição certa. Agora o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'As paragens do meio fazem-se igual. Última paragem: a posição…', clicar: '.gi-leitor' },
+  { legenda: '…e o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'Leva a guia à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
+  { legenda: 'Guia fechada: a expedição leva-a quando o camião chegar.' },
+]);
+registarRoteiro('sep-falta', 'Separação · Falta quantidade', [
+  { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
+  { legenda: 'Regista o que tirou: 2 das 4. A diferença fica na posição e o gestor decide o stock.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Segue para a paragem seguinte; a guia vai fechar incompleta.' },
+  { ecra: 'ts-fechada-incompleta', legenda: 'Fechada incompleta: fica na prateleira, fora da fila da expedição, até o stock entrar.' },
+]);
+registarRoteiro('exp-carregar', 'Expedição · Carregar e fechar a saída', [
+  { ecra: 'tx-inicio', legenda: 'O Paulo, da expedição: a guia que o motor lhe deu, na prateleira de preparados. Começa.', clicar: '.ta-trabalho' },
+  { legenda: 'O cartão com o porquê: o camião DPD já está no cais.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Na prateleira, lê cada volume.', clicar: '.gi-leitor' },
+  { legenda: 'Mais um.', clicar: '.gi-leitor' },
+  { legenda: 'Os três conferidos. Leva ao cais de saída 2 e lê a etiqueta do cais.', clicar: '.gi-leitor' },
+  { legenda: 'Lê cada volume quando sobe. Faltam 2 da GS13454208 e o transportador não pode esperar: «Fechar a saída».', clicar: '.gi-pe [data-ir="tx-perguntar"]' },
+  { legenda: 'O PDA pergunta antes de fechar incompleta, que é o que não tem volta.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Diz porquê; fica com o seu nome e a hora.', clicar: '.ta-escolha', pausa: 400 },
+  { legenda: 'Saída fechada incompleta: os 2 volumes vão no camião seguinte.' },
+]);
+
 /* 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): sete percursos
    que passam por TODOS os ecrãs e estados da Pick, pela ordem do número; o rato toca na ligação verdadeira quando o ecrã a
    tem, e ao lado diz-se o que é cada um. Os cinco de cima são os casos contados; estes são o inventário completo. */
@@ -153,5 +183,5 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-contar', 'Todos os ecrãs · Contar (inventário)', entre([40, 59], [67, 68], [76, 76])],
   ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
   ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89], [100, 101])],
-  ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99])],
+  ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99], [110, 140])],
 ] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));

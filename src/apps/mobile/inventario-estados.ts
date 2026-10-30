@@ -50,8 +50,8 @@ export const FUNCOES: Funcao[] = [
   { k: 'gestor', t: 'Gestor', nome: 'Ana Ferreira', iniciais: 'AF', ecra: 'gestor-inicio', ve: ['Cria, atribui e acompanha os inventários', 'Vê o stock do sistema e decide as divergências', 'Valida e fecha (o ajuste é do servidor)'], nao: [] },
   /* 30 out. (ela: «com a role de arrumação»): a Arrumação abre o 85 · A minha arrumação, com a Inês (arrumador.ts) */
   { k: 'arrumacao', t: 'Arrumação', nome: 'Inês Rocha', iniciais: 'IR', ecra: 'ta-inicio', ve: ['Arruma a guia que o motor lhe dá, palete a palete', 'Regista a chegada de um camião e corrige posições', 'Consulta artigos e posições, e chama o gestor'], nao: ['Ninguém lhe atribui nada: o trabalho vem do motor', 'Não vê a fila, números nem insights'] },
-  { k: 'separacao', t: 'Separação', nome: 'Tiago Lopes', iniciais: 'TL', ecra: 'op-separacao', ve: ['Conta as posições que lhe atribuem, às cegas', 'Corrige a posição na guia, quando falta quantidade'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
-  { k: 'expedicao', t: 'Expedição', nome: 'Paulo Reis', iniciais: 'PR', ecra: 'op-expedicao', ve: ['Conta as posições que lhe atribuem, às cegas', 'Trabalha no cais: carrega e fecha'], nao: ['Não vê o stock do sistema enquanto conta', 'Não valida nem fecha'] },
+  { k: 'separacao', t: 'Separação', nome: 'Tiago Lopes', iniciais: 'TL', ecra: 'ts-inicio', ve: ['Recolhe a guia que o motor lhe dá, paragem a paragem', 'Assinala a falta dentro da guia (o gestor decide o stock)', 'Consulta guias, artigos e posições, e chama o gestor'], nao: ['Ninguém lhe atribui nada: o trabalho vem do motor', 'Não corrige posições nem vê a fila'] },
+  { k: 'expedicao', t: 'Expedição', nome: 'Paulo Reis', iniciais: 'PR', ecra: 'tx-inicio', ve: ['Confere a guia volume a volume na prateleira de preparados', 'Leva ao cais, carrega e fecha a saída', 'Vê os camiões de hoje, a prateleira e as guias, e chama o gestor'], nao: ['Ninguém lhe atribui nada: o trabalho vem do motor', 'Não manda trabalho à separação'] },
 ];
 const quem = (k: Funcao['k']) => { const f = FUNCOES.find((x) => x.k === k)!; return { nome: f.nome, iniciais: f.iniciais }; };
 
@@ -91,7 +91,7 @@ const ESTADOS: Est[] = [
   ['op-sem-rede', 'op-inicio', '57.6 · Sem rede', 'Sem rede não se mostra a tarefa: diz-se e espera.', () => semRede(OP)],
   ['op-erro', 'op-inicio', '57.7 · Não carregou', 'O servidor não respondeu: tentar outra vez, com a referência.', () => servidor(OP, 'PK-2710-4F1A')],
   ['op-sessao', 'op-inicio', '57.8 · Sessão terminada', 'Entrar outra vez pelo início de sessão comum.', () => sessao(OP)],
-  ['op-permissao', 'op-inicio', '57.9 · A função mudou', 'O gestor mudou-lhe a função para a Separação: o Inventário sai, e diz-se.', () => ecra(aviso('info', userRound, 'A sua função mudou', 'Agora está na <b>Separação</b>: o Inventário deixa de aparecer. A contagem que tinha a meio volta ao gestor.'), { ...OP, pe: acao('Continuar', check, ' data-ir="op-separacao"') })],
+  ['op-permissao', 'op-inicio', '57.9 · A função mudou', 'O gestor mudou-lhe a função para a Separação: o PDA passa a ser o da separação, e diz-se.', () => ecra(aviso('info', userRound, 'A sua função mudou', 'Agora está na <b>Separação</b>: o trabalho que o motor lhe der passa a ser o da separação. A contagem que tinha a meio volta ao gestor.'), { ...OP, pe: acao('Continuar', check, ' data-ir="ts-inicio"') })],
 
   /* 43 · Ler e contar */
   ['inv-ler-a-registar', 'inv-ler', '43.10 · A registar', 'Depois de Confirmar: só o botão espera pela resposta do servidor; nada se diz antes.', () => ecra(`<p class="gi-ler-inv"><b>${INV}</b><span>Zona 30 · às cegas</span></p>${aviso('info', send, 'A registar…', `${ART.ref} · 4 un. na posição ${POS}.`)}`, { titulo: 'Ler e contar', pe: esperar('A registar…') })],

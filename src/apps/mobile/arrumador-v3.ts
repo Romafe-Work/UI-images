@@ -212,6 +212,8 @@ export const SAEM_DA_ARRUMACAO = new Set([
   'arr-op-quantidade', 'arr-op-a-confirmar', 'arr-op-destino-errado', 'arr-op-bloqueada', 'arr-op-parcial', 'arr-op-desconhecida', 'arr-op-recusado', 'arr-op-sem-leitor', 'arr-op-sessao', 'arr-op-concluida-outro',
   'arr-op-retomar', 'arr-op-retomar-artigo', 'arr-op-retomar-destino', 'arr-op-retomar-quantidade', 'arr-op-retomar-ok', 'arr-op-retomar-resumo', 'arr-op-retomar-mesmo', 'arr-op-seguinte', 'arr-op-seg-artigo', 'arr-op-seg-quantidade', 'arr-op-seg-destino', 'arr-op-seg-resumo', 'arr-op-seg-ok',
   /* as páginas da função Arrumação de 27 out. (58 Tarefas, 59 Ler, 67 Histórico, 68 Mais): não estão nos documentos */
+  /* e as páginas «o módulo ainda não está na Pick» da Separação e da Expedição (57.3, 57.4): já estão (separacao-expedicao.ts) */
+  'op-separacao', 'op-expedicao',
   'op-tarefas', 'op-ler', 'op-ler-lido', 'op-ler-sem-contexto', 'op-historico', 'op-historico-vazio', 'op-mais', 'op-mais-separacao', 'op-mais-expedicao',
   'arr-op-origem-errada', 'arr-op-artigo-desconhecido', 'arr-op-qtd-invalida', 'arr-op-resumo', 'arr-op-destino-parcial', 'arr-op-resumo-parcial', 'arr-op-parcial-ok',
 ]);
