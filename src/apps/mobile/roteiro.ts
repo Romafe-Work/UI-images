@@ -184,13 +184,25 @@ registarRoteiro('sep-recolher', 'Separação A · Recolher uma guia', [
   { legenda: 'Leva a guia à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
   { legenda: 'Guia fechada: a expedição leva-a quando o camião chegar.' },
 ], { papel: 'Separação' });
-registarRoteiro('sep-falta', 'Separação B · Falta quantidade', [
+registarRoteiro('sep-falta', 'Separação B · Falta quantidade: o resto noutra posição', [
   { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
-  { legenda: 'Regista o que tirou: 2 das 4. A diferença fica na posição e o gestor decide o stock.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Regista o que tirou: 2 das 4. Não chama ninguém.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'O PDA dá-lhe outra posição com o artigo. Lê a posição…', clicar: '.gi-leitor' },
+  { legenda: '…e o artigo: a paragem fica completa.', clicar: '.gi-leitor' },
+  { legenda: 'A guia segue inteira. Última paragem: a posição…', clicar: '.gi-leitor' },
+  { legenda: '…e o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'Leva-a à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
+  { legenda: 'Guia fechada, completa: a falta resolveu-se sem o gestor.' },
+], { papel: 'Separação' });
+registarRoteiro('sep-sem-stock', 'Separação B · Falta quantidade: não há mais stock', [
+  { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
+  { legenda: 'Regista o que tirou: 2 das 4.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Vai à outra posição que o PDA lhe dá, mas também lá não chega.', clicar: '.gi-pe [data-ir="ts-falta-sem-stock"]' },
+  { legenda: 'Não há mais em lado nenhum: só agora chama o gestor, e segue.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'A guia segue incompleta. Última paragem: a posição…', clicar: '.gi-leitor' },
   { legenda: '…e o artigo.', clicar: '.gi-leitor' },
   { legenda: 'Leva-a à prateleira de preparados e lê onde a pousa: fica fora da fila da expedição.', clicar: '.gi-leitor' },
-  { legenda: 'Fechada incompleta: fica na prateleira até o stock entrar.' },
+  { legenda: 'Fechada incompleta: o gestor decide quando se completa.' },
 ], { papel: 'Separação' });
 registarRoteiro('exp-carregar', 'Expedição · Carregar e fechar a saída', [
   { ecra: 'tx-inicio', legenda: 'O Paulo, da expedição: a guia que o motor lhe deu, na prateleira de preparados. Começa.', clicar: '.ta-trabalho' },

@@ -52,6 +52,8 @@ import ruler from 'lucide-static/icons/ruler.svg?raw';
 /* ---------- os dados ---------- */
 const TIAGO = { nome: 'Tiago Lopes', iniciais: 'TL' }, PAULO = { nome: 'Paulo Reis', iniciais: 'PR' };
 const PREP = '60400101';
+/* a outra posição com o CR 30x47x7, para onde a falta manda buscar o resto */
+const FALTA_OUTRA = '60120604';
 /* a guia do Tiago: a GS13454212, quatro paragens pela ordem mais curta; o camião DPD fecha às 11h30 */
 const GS = { ref: 'GS13454212', cli: 'Auto Reparadora Silva', camiao: 'DPD', fecha: '11h30' };
 const PAR: { pos: string; ref: string; desc: string; q: number; lote?: string }[] = [
@@ -107,7 +109,7 @@ function chamar(f: Fun, e: 'escolher' | 'chamado' | 'resposta' = 'escolher'): st
     ${dl([['A tarefa', 'fica consigo'], ['O motor', 'não lhe dá outra']])}<p class="gp-nota">Ela vê onde está e o que tem em mãos. Se não puder vir, responde pelo PDA — e, se for preciso, faz ela a tarefa.</p>`,
   O(f, 'Chamada', { voltar: f.continuar, pe: `${acao('Continuar a tarefa', play, ` data-ir="${f.continuar}"`)}${sec('Ver o pedido', msg, ` data-ir="${f.p}-chamado-resposta"`)}` }));
   if (e === 'resposta') return ecra(`<section class="gi-aviso gi-aviso--info ta-resposta" role="status"><span class="gi-aviso__ic">${L(msg)}</span><h1>A Ana Ferreira respondeu</h1><p>Às 10h31, cinco minutos depois de a chamar.</p></section>
-    <blockquote class="ta-diz"><small>O que ela diz</small><p>${f.k === 'separacao' ? `Se na ${PAR[0].pos} houver menos, tire o que há e diga «Falta quantidade»: eu trato do stock.` : 'O camião DPD espera até às 11h40. Carregue o que está conferido.'}</p></blockquote>
+    <blockquote class="ta-diz"><small>O que ela diz</small><p>${f.k === 'separacao' ? `Se na ${PAR[0].pos} houver menos, diga «Falta quantidade»: o PDA dá-lhe outra posição. Só me chame se não houver mais.` : 'O camião DPD espera até às 11h40. Carregue o que está conferido.'}</p></blockquote>
     <ol class="ta-linha-t" aria-label="O pedido"><li class="is-feito"><b>Pedido enviado</b><small>10h26</small></li><li class="is-feito"><b>Visto por ela</b><small>10h27</small></li><li class="is-feito"><b>Respondeu daí — não vem</b><small>10h31</small></li></ol>
     <p class="gp-nota">Quem chamou decide se chega: se não chegar, chama outra vez e o pedido sobe de urgência no ecrã dela.</p>`,
   O(f, 'Chamada', { voltar: f.continuar, pe: `${acao('Continuar a tarefa', play, ` data-ir="${f.continuar}"`)}${sec('Não chega — chamar outra vez', phone, ` data-ir="${f.p}-chamado"`)}` }));
@@ -138,9 +140,9 @@ function guiaS(): string {
     <p class="gp-nota">Pela ordem mais curta. A prateleira já está reservada para esta guia: é lá que ela fica, inteira ou a meio.</p>`,
   O(FS, 'Guia', { voltar: 'ts-tarefa', pe: acao('Começar a recolher', play, ' data-ir="ts-paragem"') }));
 }
-type ES = 'paragem' | 'artigo' | 'ultima' | 'ultima-artigo' | 'ultima-inc' | 'ultima-artigo-inc' | 'prateleira-inc' | 'errada' | 'falta' | 'problema' | 'escrever' | 'prateleira' | 'fechada' | 'fechada-incompleta';
+type ES = 'falta-v2' | 'falta-outra' | 'falta-outra-artigo' | 'falta-sem-stock' | 'paragem' | 'artigo' | 'ultima' | 'ultima-artigo' | 'ultima-inc' | 'ultima-artigo-inc' | 'prateleira-inc' | 'errada' | 'falta' | 'problema' | 'escrever' | 'prateleira' | 'fechada' | 'fechada-incompleta';
 function sep(e: ES): string {
-  const i = e === 'ultima' || e === 'ultima-artigo' || e === 'ultima-inc' || e === 'ultima-artigo-inc' ? PAR.length - 1 : e === 'falta' ? 2 : 0, p = PAR[i];
+  const i = e === 'ultima' || e === 'ultima-artigo' || e === 'ultima-inc' || e === 'ultima-artigo-inc' ? PAR.length - 1 : e.startsWith('falta') ? 2 : 0, p = PAR[i];
   const vai = `<section class="ta-proposta"><p class="ta-proposta__n">Vai a</p>${posicao(p.pos)}<p class="ta-proposta__pq"><b>Tira</b>${p.q} × ${p.ref} · ${p.desc}</p><p class="ta-proposta__cam">${L(lock)}<span>Para a ${GS.ref}: o stock já está reservado para si.</span></p>${i < PAR.length - 1 ? `<p class="ta-proposta__cam">${L(arrowRight)}<span>A seguir: ${PAR[i + 1].pos} · 5 m</span></p>` : ''}</section>`;
   const C: Record<ES, () => [string, string, string?]> = {
     paragem: () => [`${topoS(i)}${vai}${leitor({ titulo: 'Leia a POSIÇÃO, depois o ARTIGO', texto: `Deve ser ${p.pos}`, ir: 'ts-artigo', tipo: 'posicao' })}`, `<div class="ta-pe2">${sec('Falta quantidade', hash, ' data-ir="ts-falta"')}${sec('Outro problema', circleEllipsis, ' data-ir="ts-problema"')}</div>${sec('Não consigo ler — escrever', keyboard, ' data-ir="ts-escrever"')}`],
@@ -148,7 +150,7 @@ function sep(e: ES): string {
     ultima: () => [`${topoS(i)}${vai}${leitor({ titulo: 'Leia a POSIÇÃO, depois o ARTIGO', texto: `Deve ser ${p.pos}`, ir: 'ts-ultima-artigo', tipo: 'posicao' })}`, `<div class="ta-pe2">${sec('Falta quantidade', hash, ' data-ir="ts-falta"')}${sec('Outro problema', circleEllipsis, ' data-ir="ts-problema"')}</div>`],
     'ultima-artigo': () => [`${topoS(i)}${aviso('ok', circleCheck, 'Posição certa', `${p.pos} · bip curto`)}${leitor({ titulo: 'Agora leia o ARTIGO', texto: `${p.q} × ${p.ref}`, ir: 'ts-prateleira', tipo: 'artigo' })}`, sec('Falta quantidade', hash, ' data-ir="ts-falta"')],
     /* 2 nov. (correção): depois de «Falta quantidade» o protótipo seguia como se a guia estivesse completa; agora segue incompleta até à prateleira */
-    'ultima-inc': () => [`${topoS(i)}${aviso('aviso', hash, 'A guia já vai incompleta', `${PAR[2].ref}: tirou 2 de ${PAR[2].q}. Continua: o resto recolhe-se igual.`)}${vai}${leitor({ titulo: 'Leia a POSIÇÃO, depois o ARTIGO', texto: `Deve ser ${p.pos}`, ir: 'ts-ultima-artigo-inc', tipo: 'posicao' })}`, `<div class="ta-pe2">${sec('Falta quantidade', hash, ' data-ir="ts-falta"')}${sec('Outro problema', circleEllipsis, ' data-ir="ts-problema"')}</div>`],
+    'ultima-inc': () => [`${topoS(i)}${aviso('aviso', hash, 'A guia já vai incompleta', `${PAR[2].ref}: tirou 2 de ${PAR[2].q} e não há mais. O gestor foi chamado; o resto recolhe-se igual.`)}${vai}${leitor({ titulo: 'Leia a POSIÇÃO, depois o ARTIGO', texto: `Deve ser ${p.pos}`, ir: 'ts-ultima-artigo-inc', tipo: 'posicao' })}`, `<div class="ta-pe2">${sec('Falta quantidade', hash, ' data-ir="ts-falta"')}${sec('Outro problema', circleEllipsis, ' data-ir="ts-problema"')}</div>`],
     'ultima-artigo-inc': () => [`${topoS(i)}${aviso('ok', circleCheck, 'Posição certa', `${p.pos} · bip curto`)}${leitor({ titulo: 'Agora leia o ARTIGO', texto: `${p.q} × ${p.ref}`, ir: 'ts-prateleira-inc', tipo: 'artigo' })}`, sec('Falta quantidade', hash, ' data-ir="ts-falta"')],
     'prateleira-inc': () => [`<div class="ta-topo"><p><b>${GS.ref}</b><small>${GS.camiao} −00:28 · fim da guia · ${PAR.length} de ${PAR.length}</small></p><button type="button" class="ta-chamar" data-ir="ts-chamar">${L(phone)}<span>Chamar</span></button></div>
       <h1 class="ta-passo-t">Leve à prateleira de preparados</h1><div class="ta-alvo"><small>Prateleira de preparados</small>${posicao(PREP)}</div>
@@ -159,6 +161,17 @@ function sep(e: ES): string {
     falta: () => [`${topoS(i)}<h1 class="ta-passo-t">Aqui há 2 das ${p.q}</h1><p class="gp-nota">Registe o que tirou. A guia fica incompleta e não sai sem o resto.</p><div class="ta-alvo"><small>Posição</small>${posicao(p.pos)}</div>
       ${dl([['Precisa', `${p.q}`], ['Faltam', `${p.q - 2}`]])}${quantidade('2', { teclado: false, rotulo: 'Quantas tirou?' })}
       <p class="gp-nota">As 2 que tirou ficam na guia. A diferença fica registada nesta posição e o gestor vê o sinal — mexer no stock é decisão dele.</p>`, acao('Registar e seguir', check, ' data-confirmar data-ir="ts-ultima-inc"')],
+    /* 2 nov. (ela: «se na posição não houver suficiente vai ter que ir a outra posição buscar, só chama o gestor se não houver
+       mesmo stock»): o PDA dá a posição seguinte com o artigo; só sem stock em lado nenhum a guia fica incompleta e o gestor é chamado */
+    'falta-v2': () => [`${topoS(i)}<h1 class="ta-passo-t">Aqui há 2 das ${p.q}</h1><p class="gp-nota">Tire o que há e diga quantas tirou. O resto vai buscá-lo a outra posição.</p><div class="ta-alvo"><small>Posição</small>${posicao(p.pos)}</div>
+      ${dl([['Precisa', `${p.q}`], ['Faltam', `${p.q - 2}`]])}${quantidade('2', { teclado: false, rotulo: 'Quantas tirou?' })}
+      <p class="gp-nota">A diferença fica registada nesta posição. Não precisa de chamar ninguém.</p>`, acao('Registar e ir buscar o resto', check, ' data-confirmar data-ir="ts-falta-outra"')],
+    'falta-outra': () => [`${topoS(i)}${aviso('aviso', hash, `Faltam ${p.q - 2}: há noutra posição`, `${p.ref}: tirou 2 de ${p.q} na ${p.pos}.`)}<section class="ta-proposta"><p class="ta-proposta__n">Vá buscar o resto a</p>${posicao(FALTA_OUTRA)}<p class="ta-proposta__pq"><b>Tira</b>${p.q - 2} × ${p.ref} · ${p.desc}</p><p class="ta-proposta__cam">${L(lock)}<span>O PDA reservou-as para a ${GS.ref}.</span></p></section>
+      ${leitor({ titulo: 'Leia a POSIÇÃO, depois o ARTIGO', texto: `Deve ser ${FALTA_OUTRA}`, ir: 'ts-falta-outra-artigo', tipo: 'posicao' })}`, sec('Também não chega aqui', hash, ' data-ir="ts-falta-sem-stock"')],
+    'falta-outra-artigo': () => [`${topoS(i)}${aviso('ok', circleCheck, 'Posição certa', `${FALTA_OUTRA} · bip curto`)}${leitor({ titulo: 'Agora leia o ARTIGO', texto: `${p.q - 2} × ${p.ref}`, ir: 'ts-ultima', tipo: 'artigo' })}<p class="gp-nota">Com estas, a paragem fica completa: 2 + ${p.q - 2}. A guia segue inteira.</p>`, sec('Também não chega aqui', hash, ' data-ir="ts-falta-sem-stock"')],
+    'falta-sem-stock': () => [`${topoS(i)}${aviso('erro', pkgX, `Não há mais ${p.ref}`, 'Nenhuma outra posição do armazém tem este artigo.')}
+      ${dl([['Tirou', `2 de ${p.q}`], ['Noutras posições', 'nenhuma'], ['A guia', 'fica incompleta']])}
+      <p class="gp-nota">Só agora se chama o gestor: ele decide o stock e quando a guia se completa. Siga com as outras paragens.</p>`, acao('Chamar o gestor e seguir', phone, ' data-confirmar data-ir="ts-ultima-inc"')],
     problema: () => [`${topoS(i)}<h1 class="ta-passo-t">O que se passa?</h1><p class="ta-onde"><span>Em</span>${posicao(p.pos, 'gi-pos--peq')}</p>${escolhas([[mapPinOff, 'Não há nada na posição', 'ts-falta'], [hash, 'Está lá menos do que a guia pede', 'ts-falta'], [pkgX, 'Está lá outro artigo', 'ts-registado'], [scanLine, 'Etiqueta ilegível', 'ts-escrever'], [pkgX, 'Artigo danificado', 'ts-foto'], [circleEllipsis, 'Outro motivo — escrever', 'ts-registado']])}`, sec('Voltar à paragem', arrowLeft, ' data-ir="ts-paragem"')],
     escrever: () => [`${topoS(i)}<h1 class="ta-passo-t">Escreva a POSIÇÃO</h1><p class="gp-nota">Os oito algarismos da etiqueta da prateleira.</p><label class="gp-campo"><span>Código da posição</span><input inputmode="numeric" maxlength="8" value="${p.pos}" autocomplete="off"></label><p class="gp-nota">Fica registada como leitura à mão. Se a etiqueta falhar muitas vezes, o sistema aconselha a renová-la.</p>`, acao('Confirmar', check, ' data-ir="ts-artigo"')],
     prateleira: () => [`<div class="ta-topo"><p><b>${GS.ref}</b><small>${GS.camiao} −00:28 · fim da guia · ${PAR.length} de ${PAR.length}</small></p><button type="button" class="ta-chamar" data-ir="ts-chamar">${L(phone)}<span>Chamar</span></button></div>
@@ -182,7 +195,7 @@ function consultarS(k: 'guia' | 'artigo' | 'posicao'): string {
   const v = sec('Voltar', arrowLeft, ' data-ir="ts-inicio"');
   if (k === 'guia') return ecra(`${leitor({ titulo: 'Leia a guia ou escreva o número', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<h2 class="gp-h">${GS.ref}</h2>${dl([['Cliente', GS.cli], ['Camião', `${GS.camiao} · ${GS.fecha}`], ['Linhas', `${PAR.length}`], ['Recolhidas', '0'], ['Onde vai ficar', PREP], ['Estado', 'por recolher']])}`, O(FS, 'Consultar guia', { voltar: 'ts-inicio', pe: v }));
   if (k === 'artigo') return ecra(`${leitor({ titulo: 'Leia o artigo, ou escreva a referência', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<section class="gi-artigo"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${PAR[0].ref}</p><p class="gi-artigo__desc">${PAR[0].desc} · zona 10</p></div></section><h2 class="gp-h">Onde está</h2>${dl([[PAR[0].pos, '24 un.'], ['60100306', '6 un.'], ['Reservado para guias', '12 un.']])}`, O(FS, 'Consultar artigo', { voltar: 'ts-inicio', pe: v }));
-  return ecra(`${leitor({ titulo: 'Leia a posição', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<div class="ta-alvo"><small>Posição</small>${posicao(PAR[0].pos)}</div>${dl([['Artigo', `${PAR[0].ref} · ${PAR[0].desc}`], ['Quantidade', '24 un.'], ['Última saída', '9h40 · Tiago Lopes']])}<p class="gp-nota">A separação não corrige posições: se não bater, diga-o na guia («Falta quantidade») e o gestor decide.</p>`, O(FS, 'Consultar posição', { voltar: 'ts-inicio', pe: v }));
+  return ecra(`${leitor({ titulo: 'Leia a posição', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<div class="ta-alvo"><small>Posição</small>${posicao(PAR[0].pos)}</div>${dl([['Artigo', `${PAR[0].ref} · ${PAR[0].desc}`], ['Quantidade', '24 un.'], ['Última saída', '9h40 · Tiago Lopes']])}<p class="gp-nota">A separação não corrige posições: se não bater, diga-o na guia («Falta quantidade») e o PDA manda-a a outra posição.</p>`, O(FS, 'Consultar posição', { voltar: 'ts-inicio', pe: v }));
 }
 
 /* =========================================================
@@ -239,6 +252,7 @@ function consultarX(): string {
    Os ecrãs
    ========================================================= */
 const NOTA = 'A Separação e a Expedição como nos documentos (30 out.): 07 · O menu da app e os ecrãs 29–54, 63, d1 e d4 do Figma do armazém, com as guias GS e a prateleira de preparados 60400101.';
+const NOTA_FALTA = '2 nov.: se na posição não há que chegue, vai-se buscar o resto a outra posição; só se chama o gestor quando não há mesmo stock.';
 export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
   const e = (fluxo: string, id: string, nome: string, objetivo: string, html: string, de?: string): Ecra<string> => ({ id, nome, fluxo, objetivo, ...(de ? { estadoDe: de } : {}), versoes: [{ id: 'v1', nota: NOTA, html }] });
   const S = (...a: [string, string, string, string, string?]) => e('Separação', ...a), X = (...a: [string, string, string, string, string?]) => e('Expedição', ...a);
@@ -256,7 +270,11 @@ export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
     S('ts-ultima-inc', '113.10 · A última, com a guia incompleta', 'Depois de uma falta: a guia segue incompleta e recolhe-se o resto igual.', sep('ultima-inc'), 'ts-paragem'),
     S('ts-ultima-artigo-inc', '113.11 · A última: o artigo (incompleta)', 'Depois deste, a prateleira, com a guia incompleta.', sep('ultima-artigo-inc'), 'ts-paragem'),
     S('ts-errada', '113.4 · Não é esta posição', 'Vibração e bip grave; diz-se qual é.', sep('errada'), 'ts-paragem'),
-    S('ts-falta', '113.5 · Falta quantidade (33)', 'Regista-se o que se tirou; a guia fica incompleta; mexer no stock é do gestor.', sep('falta'), 'ts-paragem'),
+    { ...S('ts-falta', '113.5 · Falta quantidade (33)', 'Regista-se o que se tirou e vai-se buscar o resto a outra posição; o gestor só se não houver mais stock.', sep('falta'), 'ts-paragem'),
+      versoes: [{ id: 'v1', nota: NOTA, html: sep('falta') }, { id: 'v2', nota: NOTA_FALTA, html: sep('falta-v2') }] },
+    S('ts-falta-outra', '113.12 · O resto noutra posição', 'O PDA dá a posição seguinte com o artigo; lê-se a posição e o artigo.', sep('falta-outra'), 'ts-paragem'),
+    S('ts-falta-outra-artigo', '113.13 · O resto: lê o artigo', 'A paragem fica completa e a guia segue inteira.', sep('falta-outra-artigo'), 'ts-paragem'),
+    S('ts-falta-sem-stock', '113.14 · Não há mais stock', 'Só aqui se chama o gestor; a guia segue incompleta.', sep('falta-sem-stock'), 'ts-paragem'),
     S('ts-problema', '113.6 · O que se passa? (36)', 'Não há nada, há menos, outro artigo, etiqueta ilegível, danificado, outro motivo.', sep('problema'), 'ts-paragem'),
     S('ts-escrever', '113.7 · Escreve a posição (37)', 'Os 8 algarismos à mão.', sep('escrever'), 'ts-paragem'),
     S('ts-foto', '113.8 · Fotografia', 'Opcional; fica presa à incidência.', foto(FS, 'Artigo danificado', `${PAR[0].ref} · paragem 1`), 'ts-paragem'),
