@@ -73,6 +73,11 @@ function comPapel(ecras: Ecra<IdMobile>[]): Ecra<IdMobile>[] {
   const papel = new Map(ecras.filter((e) => !e.estadoDe).map((e) => [e.id, papelDe(e)]));
   return ecras.map((e) => ({ ...e, papel: (e.estadoDe && papel.get(e.estadoDe)) || papelDe(e) }));
 }
+/* 2 nov. (ela: «"Não tem permissões" no Gestor não faz sentido!»): o gestor pode tudo; os estados de sem permissão, só
+   consulta, «aberto pela Arrumação» e conta sem Pick/armazém saem do Gestor (ficam no código). A conta sem a Pick é da
+   entrada (00.2), comum a todos. */
+const SEM_PERMISSAO_NO_GESTOR = new Set(['gestor-inventario-so-consulta', 'g-tarefas-so-consulta', 'gestor-inventario-operador', 'gestor-acompanhar-operador', 'gestor-validar-operador', 'inv-divergencias-operador', 'arr-permissao', 'gestor-permissao', 'gestor-sem-acesso', 'gestor-sem-armazem']);
+function semPermissoesNoGestor<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] { return ecras.map((e) => SEM_PERMISSAO_NO_GESTOR.has(e.id) ? { ...e, foraDaLista: true } : e); }
 export const mobile: App<IdMobile> = {
   id: 'mobile',
   nome: 'Pick',
@@ -90,7 +95,7 @@ export const mobile: App<IdMobile> = {
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
   /* 27 out. (ela: «só quero a última versão, não todos»): cada ecrã só com a última versão (navegacao.ts, soUltima) */
   papeis: PAPEIS,
-  ecras: comPapel(soUltima(comTresPropostasParcial(comTresPropostas(comSoATarefa(comArrumacaoParcial(comArrumadorV3(comArrumadorV2(comArrumador(comGestorV5(comGestorV4(comGestorV3([...ecrasLoginPick<IdMobile>(), ...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...GV4, ...GV5, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...ARRUMADOR, ...ARRUMADOR_V2, ...ARRUMADOR_V3, ...ARR_PARCIAL, ...(ecrasTresPropostas() as Ecra<IdMobile>[]), ...SEP_EXP, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()])))))))))))),
+  ecras: semPermissoesNoGestor(comPapel(soUltima(comTresPropostasParcial(comTresPropostas(comSoATarefa(comArrumacaoParcial(comArrumadorV3(comArrumadorV2(comArrumador(comGestorV5(comGestorV4(comGestorV3([...ecrasLoginPick<IdMobile>(), ...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...GV4, ...GV5, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...ARRUMADOR, ...ARRUMADOR_V2, ...ARRUMADOR_V3, ...ARR_PARCIAL, ...(ecrasTresPropostas() as Ecra<IdMobile>[]), ...SEP_EXP, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()]))))))))))))),
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →
