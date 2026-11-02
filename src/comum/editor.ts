@@ -45,7 +45,7 @@ let APP = 'app';
 /** os guiões de uso em Word, por app (os ficheiros vivem em public/documentos) */
 const GUIOES: Record<string, string> = { goparts: 'PecaAPeca-Guiao-de-uso.docx', mobile: 'Pick-Arrumacao-Guiao.docx' };
 /* 2 nov.: na Pick há um guião por função; o botão descarrega o da função do ecrã que se vê (sem guião, o da app) */
-const GUIOES_PAPEL: Record<string, string> = { 'Arrumação': 'Pick-Arrumacao-Guiao.docx', 'Separação': 'Pick-Separacao-Guiao.docx' };
+const GUIOES_PAPEL: Record<string, string> = { 'Arrumação': 'Pick-Arrumacao-Guiao.docx', 'Separação': 'Pick-Separacao-Guiao.docx', 'Expedição': 'Pick-Expedicao-Guiao.docx' };
 let MARCA = 'ROMAFE';
 let CHAVE = 'romafe:app:editor:v1';
 const CHAVE_PAINEIS = 'romafe:editor:paineis';
