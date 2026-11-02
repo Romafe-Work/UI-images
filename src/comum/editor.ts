@@ -43,7 +43,7 @@ type Passo =
 /* cada app guarda as suas alterações à parte: as do ERP não pintam o Mobile */
 let APP = 'app';
 /** os guiões de uso em Word, por app (os ficheiros vivem em public/documentos) */
-const GUIOES: Record<string, string> = { goparts: 'PecaAPeca-Guiao-de-uso.docx' };
+const GUIOES: Record<string, string> = { goparts: 'PecaAPeca-Guiao-de-uso.docx', mobile: 'Pick-Arrumacao-Guiao.docx' };
 let MARCA = 'ROMAFE';
 let CHAVE = 'romafe:app:editor:v1';
 const CHAVE_PAINEIS = 'romafe:editor:paineis';
