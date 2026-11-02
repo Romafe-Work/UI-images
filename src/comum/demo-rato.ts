@@ -28,12 +28,14 @@ export interface Passo {
   ir?: string;
 }
 type Fonte = Passo[] | (() => Passo[]);
-const ROTEIROS = new Map<string, { titulo: string; passos: Fonte; semTexto?: boolean; papel?: string }>();
+const ROTEIROS = new Map<string, { titulo: string; passos: Fonte; semTexto?: boolean; papel?: string; ecras?: string[] }>();
 /** 28 out.: `semTexto` — só o rato e os cliques, sem a legenda (ela: «no erp com rato mas sem texto»). */
 /** 2 nov.: `papel` — a função a que o roteiro pertence (a Pick); a barra agrupa por ela e começa na do ecrã que se vê. */
-export function registarRoteiro(id: string, titulo: string, passos: Fonte, o: { semTexto?: boolean; papel?: string } = {}): void { ROTEIROS.set(id, { titulo, passos, ...o }); }
+export function registarRoteiro(id: string, titulo: string, passos: Fonte, o: { semTexto?: boolean; papel?: string; ecras?: string[] } = {}): void { ROTEIROS.set(id, { titulo, passos, ...o }); }
 /** Os roteiros registados, pela ordem do registo: [id, título, função]. */
 export const roteiros = (): [string, string, string?][] => [...ROTEIROS].map(([id, r]) => [id, r.titulo, r.papel]);
+/* 2 nov.: o caso que mostra este ecrã, para o «Ver o fluxo com o rato» o escolher sozinho */
+export const roteiroDoEcra = (ecra: string): string | undefined => [...ROTEIROS].find(([, r]) => r.ecras?.includes(ecra))?.[0];
 export const temRoteiro = () => ROTEIROS.size > 0;
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;

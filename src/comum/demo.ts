@@ -16,7 +16,7 @@
    ========================================================= */
 import { ler, mostrar, mostrarVersao, definirTransicao, transitar, type Sentido } from './ecras';
 import './css/demo.css';
-import { temRoteiro, roteiros, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
+import { temRoteiro, roteiros, roteiroDoEcra, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
 
 export interface Animacao { id: string; nome: string; descricao: string; grupo: string }
 export const ANIMACOES: Animacao[] = [
@@ -159,6 +159,8 @@ export function iniciar(): void {
   let papelVisto = '';
   function roteiroDoPapel(): void {
     const sel = barra.querySelector<HTMLSelectElement>('.demo-barra__roteiro');
+    const doEcra = roteiroDoEcra(ecraVisivel()?.dataset.ecra ?? '');
+    if (sel && doEcra) { sel.value = doEcra; return; }
     const papel = ecraVisivel()?.dataset.papel ?? '';
     if (!sel || !papel || papel === papelVisto) return;
     papelVisto = papel;
