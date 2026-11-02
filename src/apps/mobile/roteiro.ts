@@ -111,8 +111,9 @@ registarRoteiro('arr-normal', 'Arrumação A · Arrumar uma palete', [
 ]);
 registarRoteiro('arr-ocupada', 'Arrumação B · A posição está ocupada', [
   IN, ARTIGO,
-  { legenda: 'Na proposta 1 já há caixas de outro artigo. «Está ocupada».', clicar: '.gi-pe [data-ir="arr-op-ocupada"]' },
-  { legenda: 'A posição fica registada como ocupada e o gestor vai ver porquê. Vai à proposta 2.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Na proposta 1 já há caixas de outro artigo. «Não serve».', clicar: '.gi-pe [data-ir="arr-op-picar"]' },
+  { legenda: 'Antes de passar à seguinte, pica a posição: lê a etiqueta da prateleira.', clicar: '.gi-leitor' },
+  { legenda: 'A 1 fica picada e registada como ocupada. Vai à proposta 2.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Lê a posição.', clicar: '.gi-leitor' },
   { legenda: 'Arrumada na proposta 2. Ninguém teve de decidir nada por ela.' },
 ]);
@@ -125,7 +126,8 @@ registarRoteiro('arr-chamar', 'Arrumação C · Chamar o gestor', [
   { legenda: 'Responde daí, sem ir lá.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'A resposta segue para o PDA da Inês.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'A Inês lê a resposta e continua a tarefa.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Como a Ana disse: «Está ocupada».', clicar: '.gi-pe [data-ir="arr-op-ocupada"]' },
+  { legenda: 'Como a Ana disse: «Não serve».', clicar: '.gi-pe [data-ir="arr-op-picar"]' },
+  { legenda: 'Pica a posição.', clicar: '.gi-leitor' },
   { legenda: 'Proposta 2: lê a posição.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Lê.', clicar: '.gi-leitor' },
   { legenda: 'Arrumada.' },
@@ -141,6 +143,19 @@ registarRoteiro('arr-danificado', 'Arrumação D · Artigo danificado', [
   { legenda: 'A palete volta ao motor, que a dá a quem estiver livre na arrumação.' },
 ]);
 
+/* 2 nov. (ela: «tem de picar as três posições propostas pelo motor»): nenhuma das três serve — picam-se as três e arruma-se onde se entender */
+registarRoteiro('arr-tres', 'Arrumação F · Nenhuma das três propostas serve', [
+  IN, ARTIGO,
+  { legenda: 'A proposta 1 não serve. «Não serve».', clicar: '.gi-pe [data-ir="arr-op-picar"]' },
+  { legenda: 'Para passar à seguinte, pica a posição no sítio.', clicar: '.gi-leitor' },
+  { legenda: 'A 1 fica picada. A proposta 2 também não serve.', clicar: '.gi-pe [data-ir="arr-op-picar-2"]' },
+  { legenda: 'Pica a 2.', clicar: '.gi-leitor' },
+  { legenda: 'Duas picadas. A proposta 3, a última do motor, também não serve.', clicar: '.gi-pe [data-ir="arr-op-picar-3"]' },
+  { legenda: 'Pica a 3.', clicar: '.gi-leitor' },
+  { legenda: 'As três picadas: agora arruma onde entender. Pousa a palete e lê essa posição.', clicar: '.gi-leitor' },
+  { legenda: 'Arrumada, com o seu nome e a posição registada como escolhida por ela, fora das propostas.' },
+]);
+
 /* 30 out. (ela: «sim faz isso»): a arrumação parcial — 30 un. em três posições, a 3.ª bloqueada, a Inês e a Ana */
 const LER = { legenda: 'Lê a etiqueta da prateleira.', clicar: '.gi-leitor' };
 registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três posições', [
@@ -151,15 +166,10 @@ registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três p
   { legenda: 'Cabem 10. Confirma.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: '22 arrumadas em duas posições; as 8 vão à proposta 3.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Ao ler, o sistema confirma se a posição ainda serve.', clicar: '.gi-leitor' },
-  { legenda: 'Está bloqueada, e era a última proposta. Chama o gestor, sem largar a tarefa.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'As 22 ficam feitas; as 8 continuam com a Inês.' },
-  { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, a chamada aparece primeiro.', clicar: '[data-ir="arr-par-g"]' },
-  { legenda: 'Vê as duas partes já arrumadas e manda as 8 para a 60100402.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'As já arrumadas não mudam. A resposta segue para a Inês.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'A Inês lê a resposta e continua.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'O destino que a Ana indicou. Lê a posição.', clicar: '.gi-pe .gp-btn--acao' }, LER,
+  { legenda: 'Está bloqueada. As três propostas estão picadas: arruma as 8 onde entender, sem esperar pelo gestor.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Pousa-as na 60100402 e lê a posição: fica registada como escolhida por ela.', clicar: '.gi-leitor' },
   { legenda: 'As últimas 8.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: '30 de 30 em três posições, cada parte registada uma vez, com a hora. A guia fecha.' },
+  { legenda: '30 de 30 em três posições: duas propostas pelo motor e uma escolhida pela Inês. A guia fecha.' },
 ]);
 
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */

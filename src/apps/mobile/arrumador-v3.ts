@@ -262,3 +262,76 @@ export function comArrumadorV3<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   return ecras.filter((x) => !SAEM_DA_ARRUMACAO.has(x.id) && x.id !== 'arr-op-artigo')
     .map((x) => { const v = V[x.id]; return v ? { ...x, nome: v[0], ...(v[2] ? { objetivo: v[2] } : {}), versoes: [...x.versoes, { id: `v${x.versoes.length + 1}`, nota: NOTA, html: v[1]() }] as Ecra<T>['versoes'] } : x; });
 }
+
+/* =========================================================
+   2 nov. · As três propostas picadas (ela: «a arrumação ao fim de 3 posições, se nenhuma der, guarda num sítio qualquer
+   que a pessoa bem entender; no entanto tem de picar as três posições propostas pelo motor»)
+   Uma proposta só se dá por não servir depois de picada no sítio (lida a etiqueta da prateleira). Com as três picadas, a
+   pessoa arruma onde entender e lê essa posição; fica registado que foi escolhida por ela, fora das propostas.
+   ========================================================= */
+const MOTIVOS: [string, string][] = [['Não serve', '10h41'], ['Não serve', '10h43'], ['Não serve', '10h45']];
+const LIVRE = '60120603';
+const NOTA_TRES = 'As três propostas picadas (2 nov., ela: «tem de picar as três posições propostas pelo motor»): cada proposta que não serve lê-se no sítio; com as três picadas, arruma-se onde se entender.';
+/** As três propostas: as n primeiras picadas (não servem), a seguinte é a de agora */
+const picadas = (n: number) => `<ul class="gi-secoes" role="list" aria-label="As três propostas">${P.map(([pos], i) => i < n
+  ? `<li class="gi-secao is-falta"><span><b>${pos}</b><small>picada às ${MOTIVOS[i][1]}</small></span><span class="gp-tag gp-tag--erro">${MOTIVOS[i][0]}</span></li>`
+  : `<li class="gi-secao${i === n ? ' is-atual' : ''}"><span><b>${pos}</b><small>proposta ${i + 1} de 3</small></span><span class="gp-tag gp-tag--planeada">${i === n ? 'Agora' : 'Por picar'}</span></li>`).join('')}</ul>`;
+const propostaN = (i: number) => `<section class="ta-proposta"><p class="ta-proposta__n">Vai a · proposta ${i + 1} de 3</p>${posicao(P[i][0])}
+  <p class="ta-proposta__pq"><b>Porquê aqui</b>${P[i][1]}</p>
+  <p class="ta-proposta__cam">${L(mapPin)}<span>Sai do ${G.origem.toLowerCase()} para a zona 12, coluna ${P[i][0].slice(4, 6)} à esquerda.</span></p></section>`;
+const LER_POS = ['arr-op-ler-posicao', 'arr-op-ler-posicao-2', 'arr-op-ler-posicao-3'];
+const PICAR = ['arr-op-picar', 'arr-op-picar-2', 'arr-op-picar-3'];
+const DEPOIS = ['arr-op-ocupada', 'arr-op-proposta-3', 'arr-op-livre'];
+type PassoTres = 'proposta' | 'proposta-2' | 'proposta-3' | 'ler-3' | 'arrumada-3' | 'picar-1' | 'picar-2' | 'picar-3' | 'problema' | 'livre' | 'livre-arrumada';
+function passoTres(p: PassoTres): string {
+  const prop = (i: number): [number, string, string] => [2, `${i ? picadas(i) : ''}${propostaN(i)}`,
+    `${acao('Ler a posição', scanBarcode, ` data-ir="${LER_POS[i]}"`)}<div class="ta-pe2">${sec('Não serve', mapPinX, ` data-ir="${PICAR[i]}"`)}${sec('Outro problema', circleEllipsis, ' data-ir="arr-op-problema"')}</div>`];
+  const picar = (i: number): [number, string, string] => [2, `<h1 class="ta-passo-t">Pique a posição que não serve</h1>
+    <p class="gp-nota">Leia a etiqueta da prateleira da proposta ${i + 1}. Só depois de picada se passa à ${i < 2 ? 'proposta seguinte' : 'escolha de outra posição'}.</p>
+    <div class="ta-alvo"><small>Proposta ${i + 1} de 3</small>${posicao(P[i][0])}</div>
+    ${leitor({ titulo: 'Aponte e carregue no gatilho', texto: `Fica registada como «${MOTIVOS[i][0].toLowerCase()}»`, ir: DEPOIS[i], tipo: 'arrumar' })}`,
+    sec('Afinal serve — voltar', arrowLeft, ` data-ir="${i === 0 ? 'arr-op-destino' : i === 1 ? 'arr-op-ocupada' : 'arr-op-proposta-3'}"`)];
+  const C: Record<PassoTres, () => [number, string, string]> = {
+    proposta: () => prop(0), 'proposta-2': () => prop(1), 'proposta-3': () => prop(2),
+    'ler-3': () => [3, `<h1 class="ta-passo-t">Leia a posição</h1><p class="gp-nota">A etiqueta na prateleira onde pousou a palete.</p><div class="ta-alvo"><small>Deve ser</small>${posicao(P[2][0])}</div>${leitor({ titulo: 'Aponte e carregue no gatilho', texto: 'O sistema confirma de novo, ao ler, que a posição ainda serve', ir: 'arr-op-arrumada-3', tipo: 'arrumar' })}`, sec('Não consigo ler — escrever', keyboard, ' data-ir="arr-op-escrever-posicao"')],
+    'arrumada-3': () => [4, arrumada(P[2][0]), acao('Próxima tarefa', arrowRight, ' data-ir="ta-inicio"')],
+    'picar-1': () => picar(0), 'picar-2': () => picar(1), 'picar-3': () => picar(2),
+    problema: () => [2, `<h1 class="ta-passo-t">O que se passa?</h1><p class="ta-onde"><span>Em</span>${posicao(P[0][0], 'gi-pos--peq')}</p>
+      <ul class="ta-escolhas" role="list">${([[mapPinX, 'Posição ocupada', 'arr-op-picar'], [ruler, 'Não cabe', 'arr-op-picar'], [ban, 'Posição inacessível', 'arr-op-picar'], [pkgX, 'Artigo danificado', 'arr-op-foto'], [scanLine, 'Etiqueta ilegível', 'arr-op-escrever-posicao'], [circleEllipsis, 'Outro motivo — escrever', 'arr-op-foto']] as const).map(([ic, t, ir], i) => `<li style="--i:${i}"><button type="button" class="ta-escolha" data-ir="${ir}">${L(ic)}<span>${t}</span>${L(arrowRight)}</button></li>`).join('')}</ul>
+      <p class="gp-nota">Ocupada, não cabe ou inacessível: pica-se a posição e passa-se à proposta seguinte.</p>`, sec('Voltar à proposta', arrowLeft, ' data-ir="arr-op-destino"')],
+    livre: () => [3, `<h1 class="ta-passo-t">Arrume onde entender</h1><p class="gp-nota">Picou as três propostas e nenhuma serve. Pouse a palete onde achar melhor e leia essa posição.</p>
+      ${picadas(3)}${leitor({ titulo: 'Leia a posição onde a pousou', texto: 'Fica registada como escolhida por si', ir: 'arr-op-livre-arrumada', tipo: 'arrumar' })}`,
+      `${sec('Não consigo ler — escrever', keyboard, ' data-ir="arr-op-escrever-posicao"')}`],
+    'livre-arrumada': () => [4, `<section class="gi-movido" role="status">${cenaArrumacao()}<h1>Palete arrumada em ${LIVRE}</h1><p>${A.q} × ${A.ref} · escolhida por si · às 10h48.</p></section>
+      ${dl([['Antes', `A aguardar arrumação · ${G.origem.toLowerCase()}`], ['Agora', `Armazenado · ${LIVRE}`], ['As 3 propostas', 'picadas e registadas como não servindo']])}
+      <p class="gp-nota">Fica registado que a posição foi escolhida por si, fora das propostas. Era a última palete: a guia fechou, e o motor dá-lhe a seguinte.</p>`, acao('Próxima tarefa', arrowRight, ' data-ir="ta-inicio"')],
+  };
+  const [n, corpo, pe] = C[p]();
+  const semFaixa = p === 'livre-arrumada' || p === 'arrumada-3';
+  return ecra(`${semFaixa ? '' : `${faixa(n)}${passos(n)}`}${corpo}`, T('Arrumar', { voltar: 'ta-inicio', pe }));
+}
+/** Os estados novos da regra das três propostas */
+export function ecrasTresPropostas(): Ecra<string>[] {
+  const e = (id: string, nome: string, objetivo: string, html: string): Ecra<string> => ({ id, nome, fluxo: 'Arrumação', objetivo, estadoDe: 'arr-op', versoes: [{ id: 'v1', nota: NOTA_TRES, html }] });
+  return [
+    e('arr-op-picar', '80.15 · Pica a proposta 1', 'A proposta não serve: lê-se a etiqueta da prateleira no sítio; só depois passa à proposta seguinte.', passoTres('picar-1')),
+    e('arr-op-picar-2', '80.16 · Pica a proposta 2', 'A mesma leitura, na proposta 2.', passoTres('picar-2')),
+    e('arr-op-proposta-3', '80.17 · Proposta 3 de 3', 'As duas primeiras picadas e o motivo de cada uma; a última proposta do motor.', passoTres('proposta-3')),
+    e('arr-op-ler-posicao-3', '80.17.1 · Lê a posição (proposta 3)', 'A mesma leitura, na proposta 3.', passoTres('ler-3')),
+    e('arr-op-arrumada-3', '80.17.2 · Arrumada (proposta 3)', 'A palete ficou na proposta 3.', passoTres('arrumada-3')),
+    e('arr-op-picar-3', '80.18 · Pica a proposta 3', 'A última proposta também não serve: lê-se; com as três picadas, arruma-se onde se entender.', passoTres('picar-3')),
+    e('arr-op-livre', '80.19 · Arrume onde entender', 'As três propostas picadas e nenhuma serve: pousa-se a palete onde se achar melhor e lê-se essa posição.', passoTres('livre')),
+    e('arr-op-livre-arrumada', '80.20 · Arrumada onde escolheu', 'Registado com o nome de quem arrumou e que a posição foi escolhida por ela, fora das propostas.', passoTres('livre-arrumada')),
+  ];
+}
+/** Versões novas da proposta, da proposta seguinte e do «O que se passa?»: «Não serve» pica a posição */
+export function comTresPropostas<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const V: Record<string, [() => string, string]> = {
+    'arr-op-destino': [() => passoTres('proposta'), 'Para onde levar a palete, e porquê: proposta 1 de 3, com o caminho; «Ler a posição», «Não serve» (pica-se a posição) ou «Outro problema».'],
+    'arr-op-ocupada': [() => passoTres('proposta-2'), 'A proposta 1 foi picada e ficou registada como não servindo; vai-se à proposta 2 de 3.'],
+    'ta-chamado-resposta': [() => chamar('resposta').replace('Diga «Está ocupada» e siga para a proposta seguinte.', 'Pique-a como «Não serve» e siga para a proposta seguinte.'), 'A resposta, a linha do pedido e «Não chega — chamar outra vez».'],
+    'arr-problema-chamada': [() => gestorChamada().replace('Diga «Está ocupada» e siga para a proposta seguinte.', 'Pique-a como «Não serve» e siga para a proposta seguinte.'), 'A chamada no Gestor: o motivo, onde está e o que tem em mãos; responder daí ou ir lá.'],
+    'arr-op-problema': [() => passoTres('problema'), 'Com um toque: ocupada, não cabe, inacessível (pica-se a posição e passa à seguinte), artigo danificado (fotografia), etiqueta ilegível (escrever).'],
+  };
+  return ecras.map((x) => { const v = V[x.id]; return v ? { ...x, objetivo: v[1], versoes: [...x.versoes, { id: `v${x.versoes.length + 1}`, nota: NOTA_TRES, html: v[0]() }] as Ecra<T>['versoes'] } : x; });
+}

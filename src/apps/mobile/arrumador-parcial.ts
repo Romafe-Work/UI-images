@@ -143,3 +143,29 @@ export function comArrumacaoParcial<T extends string>(ecras: Ecra<T>[]): Ecra<T>
   };
   return ecras.map((x) => { const v = V[x.id]; return v ? { ...x, nome: v[0], objetivo: v[2], versoes: [...x.versoes, { id: `v${x.versoes.length + 1}`, nota: NOTA, html: v[1]() }] as Ecra<T>['versoes'] } : x; });
 }
+
+/* =========================================================
+   2 nov. · As três propostas picadas (ela: «ao fim de 3 posições, se nenhuma der, guarda num sítio qualquer que a pessoa
+   bem entender; no entanto tem de picar as três posições propostas pelo motor»): a 1 e a 2 foram picadas (e serviram em
+   parte), a 3 foi picada e está bloqueada — as três estão picadas, por isso a Inês arruma as 8 onde entender, sem esperar
+   pelo gestor. Chamar o gestor fica como opção (102.9–102.11).
+   ========================================================= */
+const NOTA_TRES = 'As três propostas picadas (2 nov., ela: «tem de picar as três posições propostas pelo motor»): com a 3.ª picada e bloqueada, as 8 arrumam-se onde a Inês entender; o gestor é opção, não espera.';
+const partesLivre = () => `<ul class="gi-secoes" role="list" aria-label="Onde ficou">${PARTES.map(([pos, q, h], i) => `<li class="gi-secao is-feita"><span><b>${pos}</b><small>${q} un. · às ${h}${i === 2 ? ' · escolhida por si' : ''}</small></span><span class="gp-tag gp-tag--ok">${L(check)}Arrumadas</span></li>`).join('')}</ul>`;
+function passoTres(p: 'bloqueada' | 'ler-livre' | 'fim'): string {
+  if (p === 'bloqueada') return ecra(`${faixa(2)}${passos(2)}${aviso('erro', ban, `A ${P[2][0]} está bloqueada`, 'Picou as três propostas e nenhuma leva as 8 que faltam. Arrume-as onde entender e leia essa posição.')}${partes(2)}`,
+    T('Arrumar', { voltar: 'ta-inicio', pe: `${acao('Ler a posição onde as pousou', scanBarcode, ' data-ir="arr-par-ler-4"')}${sec('Chamar o gestor', phone, ' data-ir="arr-par-chamado"')}` }));
+  if (p === 'ler-livre') return ecra(`${faixa(2)}${passos(3)}<h1 class="ta-passo-t">Leia a posição</h1><p class="gp-nota">A etiqueta na prateleira onde pousou as ${TOTAL - feitas(2)} caixas.</p>${leitor({ titulo: 'Aponte e carregue no gatilho', texto: 'Fica registada como escolhida por si', ir: 'arr-par-qtd-4', tipo: 'arrumar' })}`,
+    T('Arrumar', { voltar: 'ta-inicio' }));
+  return ecra(`<section class="gi-movido" role="status">${cenaArrumacao()}<h1>Palete arrumada</h1><p>${TOTAL} × ${A.ref} em 3 posições: duas propostas pelo motor e uma escolhida por si.</p></section>${partesLivre()}
+    <p class="gp-nota">Era a única palete: a guia fechou, e o motor dá-lhe a seguinte.</p>`, T('Arrumar', { voltar: 'ta-inicio', pe: acao('Próxima tarefa', arrowRight, ' data-ir="ta-inicio"') }));
+}
+/** Versões novas: a 3.ª bloqueada deixa arrumar onde se entender; a leitura da posição escolhida; o fim */
+export function comTresPropostasParcial<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
+  const V: Record<string, [() => string, string]> = {
+    'arr-par-bloqueada': [() => passoTres('bloqueada'), 'As três propostas estão picadas e a 3.ª está bloqueada: as 8 arrumam-se onde a Inês entender; chamar o gestor é opção.'],
+    'arr-par-ler-4': [() => passoTres('ler-livre'), 'Lê-se a posição onde pousou as 8; fica registada como escolhida por ela.'],
+    'arr-par-fim': [() => passoTres('fim'), 'As três partes, cada uma registada uma vez, com a hora; a 3.ª escolhida pela Inês; a guia fecha.'],
+  };
+  return ecras.map((x) => { const v = V[x.id]; return v ? { ...x, objetivo: v[1], versoes: [...x.versoes, { id: `v${x.versoes.length + 1}`, nota: NOTA_TRES, html: v[0]() }] as Ecra<T>['versoes'] } : x; });
+}
