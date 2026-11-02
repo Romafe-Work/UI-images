@@ -150,7 +150,14 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
 /** Vai a um ecrã: com a ligação verdadeira, se o ecrã que se vê a tiver; senão diretamente (um estado escolhe-se assim). */
 async function irPara(id: string, i: number, n: number, titulo: string, legenda: string): Promise<void> {
   const aqui = visivel(), destino = document.querySelector<HTMLElement>(`.ecra[data-ecra="${id}"]`);
-  if (!destino || aqui?.dataset.ecra === id) return;
+  if (!destino) return;
+  /* 2 nov.: o percurso começa no ecrã que já se vê (o início da função): diz-se o que é, em vez de o saltar */
+  if (aqui?.dataset.ecra === id) {
+    const o = destino.dataset.objetivo ?? '';
+    escrever(i, n, legenda || `${destino.dataset.nome ?? id}. ${o}`, titulo); aoCimo();
+    await dormir(quieto() ? 700 : Math.min(5200, 1700 + o.length * 22));
+    return;
+  }
   const lig = [...(aqui?.querySelectorAll<HTMLElement>(`.versao:not([hidden]) :is([data-ir="${id}"], [data-depois="${id}"])`) ?? [])].find((l) => l.getClientRects().length > 0 && !l.closest('[hidden]'));
   const nome = destino.dataset.nome ?? id;
   const toque = lig ? (lig.getAttribute('aria-label') || lig.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40) : '';

@@ -6,7 +6,7 @@
    Link para mandar: …/mobile/#so=ecra&demo=1&anim=dissolver&ecra=gestor-inicio&rato=<id> (inventario, arrumacao,
    gestor, supervisionar, erros; rato=1 é o primeiro)
    ========================================================= */
-import { registarRoteiro, percurso } from '../../comum/demo-rato';
+import { type Passo, registarRoteiro, percurso } from '../../comum/demo-rato';
 
 registarRoteiro('inventario', 'Inventário: criar, contar e fechar', [
   { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, abre o Inventário a partir do Centro de operações.', clicar: '.gx-mod--inv' },
@@ -218,4 +218,12 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
 ] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f), { papel: id === 'todos-entrar' || id === 'todos-contar' ? 'Todas as funções' : 'Gestor' }));
 /* 2 nov.: todos os ecrãs de quem arruma, separa e expede (a função, pela data-papel), para ver cada uma com o rato */
 ([['todos-f-arrumacao', 'Todos os ecrãs · Arrumação (quem arruma)', 'Arrumação'], ['todos-f-separacao', 'Todos os ecrãs · Separação (quem separa)', 'Separação'], ['todos-f-expedicao', 'Todos os ecrãs · Expedição (quem expede)', 'Expedição']] as const)
-  .forEach(([id, t, papel]) => registarRoteiro(id, t, () => percurso((e) => e.dataset.papel === papel), { papel }));
+  .forEach(([id, t, papel]) => registarRoteiro(id, t, () => aPartirDoInicio(percurso((e) => e.dataset.papel === papel)), { papel }));
+/* 2 nov. (ela: «quero o fluxo a partir daqui» e «quero o fluxo para todos os estados»): o percurso de todos os estados de
+   uma função começa no início dela (o ecrã -inicio e os seus estados), como o Seguinte da barra */
+function aPartirDoInicio(passos: Passo[]): Passo[] {
+  const de = (id?: string) => document.querySelector<HTMLElement>(`.ecra[data-ecra="${id}"]`);
+  const inicio = passos.find((p) => p.ir?.endsWith('-inicio') && !de(p.ir)?.dataset.estadoDe)?.ir;
+  const primeiro = (p: Passo) => Number(!(p.ir === inicio || de(p.ir)?.dataset.estadoDe === inicio));
+  return passos.map((p, i) => [p, i] as const).sort((a, b) => primeiro(a[0]) - primeiro(b[0]) || a[1] - b[1]).map(([p]) => p);
+}

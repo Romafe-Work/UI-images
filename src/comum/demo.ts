@@ -147,7 +147,14 @@ export function iniciar(): void {
     if (!rs.some((r) => r[2])) return rs.map(([id, t]) => `<option value="${id}">${t}</option>`).join('');
     /* o que é de todas as funções no fim; dentro de cada função, pela letra do título (A, B, C…) */
     const grupos = [...new Set(rs.map((r) => r[2] ?? ''))].sort((a, b) => Number(a === 'Todas as funções' || !a) - Number(b === 'Todas as funções' || !b));
-    return grupos.map((g) => `<optgroup label="${g || 'Outros'}">${rs.filter((r) => (r[2] ?? '') === g).sort((a, b) => (/ [A-Z] · /.test(a[1]) && / [A-Z] · /.test(b[1]) ? a[1].localeCompare(b[1], 'pt') : 0)).map(([id, t]) => `<option value="${id}">${t}</option>`).join('')}</optgroup>`).join('');
+    return grupos.map((g) => `<optgroup label="${g || 'Outros'}">${rs.filter((r) => (r[2] ?? '') === g).sort((a, b) => ordemRoteiro(a[1]).localeCompare(ordemRoteiro(b[1]), 'pt')).map(([id, t]) => `<option value="${id}">${t}</option>`).join('')}</optgroup>`).join('');
+  }
+  /* «Todos os ecrãs · <função> (quem …)» primeiro (é o que passa por todos os estados), depois os casos pela letra (A, B…);
+     os outros ficam pela ordem do registo */
+  function ordemRoteiro(t: string): string {
+    if (/^Todos os ecrãs · .* \(quem /.test(t)) return '0';
+    const m = / ([A-Z]) · /.exec(t);
+    return m ? '1' + m[1] : '2';
   }
   let papelVisto = '';
   function roteiroDoPapel(): void {
@@ -155,7 +162,7 @@ export function iniciar(): void {
     const papel = ecraVisivel()?.dataset.papel ?? '';
     if (!sel || !papel || papel === papelVisto) return;
     papelVisto = papel;
-    const r = roteiros().find((x) => x[2] === papel);
+    const r = roteiros().filter((x) => x[2] === papel).sort((a, b) => ordemRoteiro(a[1]).localeCompare(ordemRoteiro(b[1]), 'pt'))[0];
     if (r) sel.value = r[0];
   }
 
