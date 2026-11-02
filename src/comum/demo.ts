@@ -129,6 +129,25 @@ export function iniciar(): void {
     raiz.style.setProperty('--demo-y', naBarra ? '50%' : ev.clientY + 'px');
   }, true);
 
+  /* 2 nov. (ela: «falta ver o fluxo com o rato na app da arrumação»): na Pick os roteiros vêm agrupados pela função, e a
+     lista começa nos da função do ecrã que se vê (num ecrã da Arrumação, o rato mostra a arrumação e não o inventário) */
+  function opcoesRoteiro(): string {
+    const rs = roteiros();
+    if (!rs.some((r) => r[2])) return rs.map(([id, t]) => `<option value="${id}">${t}</option>`).join('');
+    /* o que é de todas as funções no fim; dentro de cada função, pela letra do título (A, B, C…) */
+    const grupos = [...new Set(rs.map((r) => r[2] ?? ''))].sort((a, b) => Number(a === 'Todas as funções' || !a) - Number(b === 'Todas as funções' || !b));
+    return grupos.map((g) => `<optgroup label="${g || 'Outros'}">${rs.filter((r) => (r[2] ?? '') === g).sort((a, b) => (/ [A-Z] · /.test(a[1]) && / [A-Z] · /.test(b[1]) ? a[1].localeCompare(b[1], 'pt') : 0)).map(([id, t]) => `<option value="${id}">${t}</option>`).join('')}</optgroup>`).join('');
+  }
+  let papelVisto = '';
+  function roteiroDoPapel(): void {
+    const sel = barra.querySelector<HTMLSelectElement>('.demo-barra__roteiro');
+    const papel = ecraVisivel()?.dataset.papel ?? '';
+    if (!sel || !papel || papel === papelVisto) return;
+    papelVisto = papel;
+    const r = roteiros().find((x) => x[2] === papel);
+    if (r) sel.value = r[0];
+  }
+
   /* ---------- a barra de baixo ---------- */
   const barra = document.createElement('nav');
   barra.className = 'demo-barra';
@@ -142,7 +161,7 @@ export function iniciar(): void {
     <span class="demo-barra__onde" aria-live="polite"></span>
     <button type="button" class="demo-barra__botao" data-demo="seg"><span>Seguinte</span>${I('<path d="m9 5 7 7-7 7"/>')}</button>
     <button type="button" class="demo-barra__botao demo-barra__botao--acao" data-demo="tocar">${I('<polygon points="6 4 20 12 6 20 6 4"/>')}<span>Reproduzir o fluxo</span></button>
-    ${roteiros().length > 1 ? `<label class="demo-barra__anim"><span>Com o rato</span><select class="demo-barra__select demo-barra__roteiro" aria-label="Que demonstração ver com o rato">${roteiros().map(([id, t]) => `<option value="${id}">${t}</option>`).join('')}</select></label>` : ''}
+    ${roteiros().length > 1 ? `<label class="demo-barra__anim"><span>Com o rato</span><select class="demo-barra__select demo-barra__roteiro" aria-label="Que demonstração ver com o rato">${opcoesRoteiro()}</select></label>` : ''}
     ${temRoteiro() ? `<button type="button" class="demo-barra__botao demo-barra__botao--acao" data-demo="rato">${I('<path d="M4 2v17l4.6-4.2 3 6.6 3-1.4-3-6.4H18Z"/>')}<span>Ver o fluxo com o rato</span></button>` : ''}
     <button type="button" class="demo-barra__botao" data-demo="copiar">${I('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>')}<span>Copiar o link</span></button>
     <p class="demo-barra__dica"></p>`;
@@ -222,6 +241,7 @@ export function iniciar(): void {
     onde.textContent = emCurso || (e ? `${e.dataset.nome || e.dataset.ecra} · ${lista.indexOf(e) + 1} de ${lista.length}` : '');
     const a = ANIMACOES.find((x) => x.id === raiz.dataset.anim);
     dica.textContent = (a ? a.descricao + ' ' : '') + 'Clique nas ligações do ecrã, ou use ← e →.';
+    roteiroDoPapel();
   }
   pintar();
   document.addEventListener('romafe:mostrado', () => pintar());

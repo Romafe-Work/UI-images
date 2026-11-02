@@ -31,7 +31,7 @@ registarRoteiro('inventario', 'Inventário: criar, contar e fechar', [
   { ecra: 'gestor-validar', legenda: 'Noutro inventário, contado pela Joana, a Ana valida: só o gestor vê o stock do sistema. Aceita a divergência.', clicar: '[data-ir="gestor-validar-decidido"]' },
   { legenda: 'Tudo decidido. Fecha o inventário.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Fechado. O ajuste segue para o ERP numa transação do servidor, com auditoria. A Pick nunca ajusta stock sozinha.' },
-]);
+], { papel: 'Gestor' });
 
 registarRoteiro('arrumacao', 'Arrumação: acompanhar, desbloquear e arrumar', [
   { ecra: 'gestor-inicio', legenda: 'A Ana abre a Arrumação.', clicar: '.gx-mod--arr' },
@@ -46,7 +46,7 @@ registarRoteiro('arrumacao', 'Arrumação: acompanhar, desbloquear e arrumar', [
   { legenda: 'Na prateleira, lê a posição de destino: só a da guia aceita o movimento.', clicar: '.gi-faixa-ler' },
   { legenda: 'Destino certo. Confirma as 30 unidades.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'Movimento confirmado pelo servidor; a guia fecha. O stock mudou pelo movimento, não pelo PDA.' },
-]);
+], { papel: 'Gestor' });
 
 /* 28 out. (briefing «Gestor V1»): o primeiro roteiro é o do Gestor que faz tudo — separa uma guia, regista a falta na
    posição, pousa-a nos preparados e expede outra. É o que «Ver o fluxo com o rato» toca. */
@@ -71,7 +71,7 @@ registarRoteiro('gestor', 'O Gestor separa e expede', [
   { legenda: 'A guia está pronta e sem faltas. Confirma a recolha.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Recolhida. Confirma a saída: só fica expedida quando o servidor confirmar.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'Expedida. A mesma pessoa acompanhou e executou duas operações, sem mudar de função; o stock nunca mudou pelo PDA.' },
-]);
+], { papel: 'Gestor' });
 
 registarRoteiro('supervisionar', 'Supervisionar: tarefas, equipa e insights', [
   { ecra: 'gestor-inicio', legenda: 'O estado do armazém, hoje: em curso, por fazer, exceções e concluídas. A Ana toca nas exceções.', clicar: '.gx-num.is-erro' },
@@ -85,7 +85,7 @@ registarRoteiro('supervisionar', 'Supervisionar: tarefas, equipa e insights', [
   { legenda: 'Hoje: criadas, concluídas, exceções, duração média, e onde está a parar. Vê a Expedição.', escolher: ['[data-gi-sel]', 'exp'] },
   { legenda: 'Uma guia pronta há 1 h 33 sem recolha. O insight diz porquê, a regra, e leva à ação.', clicar: '.gi-sep:not([hidden]) .gx-ins .gp-btn--acao' },
   { legenda: 'Da análise à tarefa num toque: a Ana pode recolher a guia já.' },
-]);
+], { papel: 'Gestor' });
 
 registarRoteiro('erros', 'Quando algo corre mal', [
   { ecra: 'g-sep-pos-errada', legenda: 'Na separação, leu a posição ao lado. Não se tira daqui: a Pick diz qual é a certa.', clicar: '.gi-pe .gp-btn--acao' },
@@ -98,7 +98,7 @@ registarRoteiro('erros', 'Quando algo corre mal', [
   { ecra: 'g-sep-sem-rede-op', legenda: 'Sem rede, a Pick para: nada se confirma e nada fica à espera no PDA. Continua quando houver sinal.' },
   { ecra: 'g-insights-indisponivel', legenda: 'Os insights não carregam, mas as operações continuam. Vai às tarefas.', clicar: '.gi-pe [data-ir="g-tarefas"]' },
   { ecra: 'gestor-sessao', legenda: 'A sessão terminou: entra outra vez pelo login comum e volta ao mesmo sítio.' },
-]);
+], { papel: 'Todas as funções' });
 
 /* 30 out. (ela: «só podem fazer aquilo que deixei nos docs»): a Arrumação dos documentos (07 · O menu da app), em quatro casos */
 const IN = { ecra: 'ta-inicio', legenda: 'A Inês, da arrumação: «Bom dia», o turno e uma opção de Trabalho — a guia que o motor lhe deu. Começa.', clicar: '.ta-trabalho' };
@@ -108,16 +108,16 @@ registarRoteiro('arr-normal', 'Arrumação A · Arrumar uma palete', [
   { legenda: 'Vai à proposta 1 de 3, com o porquê e o caminho. Pousa a palete e lê a posição.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Lê a etiqueta da prateleira: o sistema confirma de novo que a posição serve.', clicar: '.gi-leitor' },
   { legenda: 'Palete arrumada, com o seu nome. Era a última: a guia fecha e o motor dá a seguinte.' },
-]);
-registarRoteiro('arr-ocupada', 'Arrumação B · A posição está ocupada', [
+], { papel: 'Arrumação' });
+registarRoteiro('arr-ocupada', 'Arrumação B · A proposta não serve', [
   IN, ARTIGO,
   { legenda: 'Na proposta 1 já há caixas de outro artigo. «Não serve».', clicar: '.gi-pe [data-ir="arr-op-picar"]' },
   { legenda: 'Antes de passar à seguinte, pica a posição: lê a etiqueta da prateleira.', clicar: '.gi-leitor' },
   { legenda: 'A 1 fica picada e registada como ocupada. Vai à proposta 2.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Lê a posição.', clicar: '.gi-leitor' },
   { legenda: 'Arrumada na proposta 2. Ninguém teve de decidir nada por ela.' },
-]);
-registarRoteiro('arr-chamar', 'Arrumação C · Chamar o gestor', [
+], { papel: 'Arrumação' });
+registarRoteiro('arr-chamar', 'Arrumação F · Chamar o gestor', [
   IN, ARTIGO,
   { legenda: 'Na proposta, há uma dúvida. «Chamar», que está em todos os ecrãs.', clicar: '.ta-chamar' },
   { legenda: 'A gestora vai saber onde está e o que tem em mãos. O motivo, com um toque.', clicar: '.ta-escolha', pausa: 400 },
@@ -131,8 +131,8 @@ registarRoteiro('arr-chamar', 'Arrumação C · Chamar o gestor', [
   { legenda: 'Proposta 2: lê a posição.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Lê.', clicar: '.gi-leitor' },
   { legenda: 'Arrumada.' },
-]);
-registarRoteiro('arr-danificado', 'Arrumação D · Artigo danificado', [
+], { papel: 'Arrumação' });
+registarRoteiro('arr-danificado', 'Arrumação D · Outro problema: artigo danificado', [
   IN, ARTIGO,
   { legenda: 'Uma caixa da palete está molhada. «Outro problema».', clicar: '.gi-pe [data-ir="arr-op-problema"]' },
   { legenda: 'O que se passa, com um toque: artigo danificado.', clicar: '.ta-escolha[data-ir="arr-op-foto"]' },
@@ -141,10 +141,10 @@ registarRoteiro('arr-danificado', 'Arrumação D · Artigo danificado', [
   { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, o problema registado. Decide.', clicar: '[data-ir="arr-problema"]' },
   { legenda: 'Tira a caixa molhada para quarentena e devolve a palete ao motor — não a dá a ninguém.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'A palete volta ao motor, que a dá a quem estiver livre na arrumação.' },
-]);
+], { papel: 'Arrumação' });
 
 /* 2 nov. (ela: «tem de picar as três posições propostas pelo motor»): nenhuma das três serve — picam-se as três e arruma-se onde se entender */
-registarRoteiro('arr-tres', 'Arrumação F · Nenhuma das três propostas serve', [
+registarRoteiro('arr-tres', 'Arrumação C · Nenhuma das três propostas serve', [
   IN, ARTIGO,
   { legenda: 'A proposta 1 não serve. «Não serve».', clicar: '.gi-pe [data-ir="arr-op-picar"]' },
   { legenda: 'Para passar à seguinte, pica a posição no sítio.', clicar: '.gi-leitor' },
@@ -154,7 +154,7 @@ registarRoteiro('arr-tres', 'Arrumação F · Nenhuma das três propostas serve'
   { legenda: 'Pica a 3.', clicar: '.gi-leitor' },
   { legenda: 'As três picadas: agora arruma onde entender. Pousa a palete e lê essa posição.', clicar: '.gi-leitor' },
   { legenda: 'Arrumada, com o seu nome e a posição registada como escolhida por ela, fora das propostas.' },
-]);
+], { papel: 'Arrumação' });
 
 /* 30 out. (ela: «sim faz isso»): a arrumação parcial — 30 un. em três posições, a 3.ª bloqueada, a Inês e a Ana */
 const LER = { legenda: 'Lê a etiqueta da prateleira.', clicar: '.gi-leitor' };
@@ -170,7 +170,7 @@ registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três p
   { legenda: 'Pousa-as na 60100402 e lê a posição: fica registada como escolhida por ela.', clicar: '.gi-leitor' },
   { legenda: 'As últimas 8.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: '30 de 30 em três posições: duas propostas pelo motor e uma escolhida pela Inês. A guia fecha.' },
-]);
+], { papel: 'Arrumação' });
 
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */
 registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
@@ -183,13 +183,13 @@ registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
   { legenda: '…e o artigo.', clicar: '.gi-leitor' },
   { legenda: 'Leva a guia à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
   { legenda: 'Guia fechada: a expedição leva-a quando o camião chegar.' },
-]);
+], { papel: 'Separação' });
 registarRoteiro('sep-falta', 'Separação · Falta quantidade', [
   { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
   { legenda: 'Regista o que tirou: 2 das 4. A diferença fica na posição e o gestor decide o stock.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'Segue para a paragem seguinte; a guia vai fechar incompleta.' },
   { ecra: 'ts-fechada-incompleta', legenda: 'Fechada incompleta: fica na prateleira, fora da fila da expedição, até o stock entrar.' },
-]);
+], { papel: 'Separação' });
 registarRoteiro('exp-carregar', 'Expedição · Carregar e fechar a saída', [
   { ecra: 'tx-inicio', legenda: 'O Paulo, da expedição: a guia que o motor lhe deu, na prateleira de preparados. Começa.', clicar: '.ta-trabalho' },
   { legenda: 'O cartão com o porquê: o camião DPD já está no cais.', clicar: '.gi-pe .gp-btn--acao' },
@@ -200,7 +200,7 @@ registarRoteiro('exp-carregar', 'Expedição · Carregar e fechar a saída', [
   { legenda: 'O PDA pergunta antes de fechar incompleta, que é o que não tem volta.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Diz porquê; fica com o seu nome e a hora.', clicar: '.ta-escolha', pausa: 400 },
   { legenda: 'Saída fechada incompleta: os 2 volumes vão no camião seguinte.' },
-]);
+], { papel: 'Expedição' });
 
 /* 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): sete percursos
    que passam por TODOS os ecrãs e estados da Pick, pela ordem do número; o rato toca na ligação verdadeira quando o ecrã a
@@ -215,4 +215,7 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
   ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89], [100, 102])],
   ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99], [110, 140])],
-] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f)));
+] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f), { papel: id === 'todos-entrar' || id === 'todos-contar' ? 'Todas as funções' : 'Gestor' }));
+/* 2 nov.: todos os ecrãs de quem arruma, separa e expede (a função, pela data-papel), para ver cada uma com o rato */
+([['todos-f-arrumacao', 'Todos os ecrãs · Arrumação (quem arruma)', 'Arrumação'], ['todos-f-separacao', 'Todos os ecrãs · Separação (quem separa)', 'Separação'], ['todos-f-expedicao', 'Todos os ecrãs · Expedição (quem expede)', 'Expedição']] as const)
+  .forEach(([id, t, papel]) => registarRoteiro(id, t, () => percurso((e) => e.dataset.papel === papel), { papel }));
