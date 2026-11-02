@@ -77,7 +77,18 @@ function ecraVisivel(): HTMLElement | null { return document.querySelector<HTMLE
 function doFluxo(): HTMLElement[] {
   const e = ecraVisivel();
   const todos = Array.from(document.querySelectorAll<HTMLElement>('.ecra[data-ecra]'));
-  return e ? todos.filter((x) => x.dataset.fluxo === e.dataset.fluxo) : todos;
+  if (!e) return todos;
+  const doMesmo = todos.filter((x) => x.dataset.fluxo === e.dataset.fluxo);
+  if (!e.dataset.papel) return doMesmo;
+  /* 2 nov. (ela, no Início da Arrumação: «quero o fluxo a partir daqui»): na Pick o fluxo é o da função de quem usa o ecrã
+     — sem os ecrãs do Gestor no meio — e começa no início da função (o seu ecrã -inicio e os estados dele); depois, pelo
+     número (80, 80.1… 86, 87…) */
+  const meus = doMesmo.filter((x) => x.dataset.papel === e.dataset.papel);
+  const inicio = meus.find((x) => !x.dataset.estadoDe && x.dataset.ecra!.endsWith('-inicio'))?.dataset.ecra;
+  const num = (x: HTMLElement) => (/^[\d.]+/.exec(x.dataset.nome ?? '')?.[0] ?? '999').split('.').filter(Boolean).map(Number);
+  const cmp = (a: number[], b: number[]) => { for (let k = 0; k < Math.max(a.length, b.length); k++) { const d = (a[k] ?? -1) - (b[k] ?? -1); if (d) return d; } return 0; };
+  const primeiro = (x: HTMLElement) => Number(!(x.dataset.ecra === inicio || x.dataset.estadoDe === inicio));
+  return meus.sort((a, b) => primeiro(a) - primeiro(b) || cmp(num(a), num(b)));
 }
 
 const I = (d: string) => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
