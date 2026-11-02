@@ -6,7 +6,8 @@
    Link para mandar: …/mobile/#so=ecra&demo=1&anim=dissolver&ecra=gestor-inicio&rato=<id> (inventario, arrumacao,
    gestor, supervisionar, erros; rato=1 é o primeiro)
    ========================================================= */
-import { type Passo, registarRoteiro, percurso } from '../../comum/demo-rato';
+import { type Passo, registarRoteiro, percurso, juntarEcras } from '../../comum/demo-rato';
+import { ECRAS_DOS_ROTEIROS } from './roteiro-ecras';
 
 registarRoteiro('inventario', 'Inventário: criar, contar e fechar', [
   { ecra: 'gestor-inicio', legenda: 'A Ana, gestora, abre o Inventário a partir do Centro de operações.', clicar: '.gx-mod--inv' },
@@ -173,37 +174,72 @@ registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três p
 ], { papel: 'Arrumação' });
 
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */
-registarRoteiro('sep-recolher', 'Separação A · Recolher uma guia', [
-  { ecra: 'ts-inicio', legenda: 'O Tiago, da separação: «Bom dia», o turno e uma opção de Trabalho — a guia que o motor lhe deu. Começa.', clicar: '.ta-trabalho' },
-  { legenda: 'O cartão com o porquê: o camião DPD fecha às 11h30. Ninguém escolhe, ninguém apanha a guia de outro.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'As paragens pela ordem mais curta, e a prateleira de preparados já reservada.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Paragem 1: vai à posição e lê-a.', clicar: '.gi-leitor' },
-  { legenda: 'Posição certa. Agora o artigo.', clicar: '.gi-leitor' },
-  { legenda: 'As paragens do meio fazem-se igual. Última paragem: a posição…', clicar: '.gi-leitor' },
-  { legenda: '…e o artigo.', clicar: '.gi-leitor' },
-  { legenda: 'Leva a guia à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
-  { legenda: 'Guia fechada: a expedição leva-a quando o camião chegar.' },
-], { papel: 'Separação' });
-registarRoteiro('sep-falta', 'Separação B · Falta quantidade: o resto noutra posição', [
-  { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
-  { legenda: 'Regista o que tirou: 2 das 4. Não chama ninguém.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'O PDA dá-lhe outra posição com o artigo. Lê a posição…', clicar: '.gi-leitor' },
-  { legenda: '…e o artigo: a paragem fica completa.', clicar: '.gi-leitor' },
-  { legenda: 'A guia segue inteira. Última paragem: a posição…', clicar: '.gi-leitor' },
-  { legenda: '…e o artigo.', clicar: '.gi-leitor' },
-  { legenda: 'Leva-a à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
-  { legenda: 'Guia fechada, completa: a falta resolveu-se sem o gestor.' },
-], { papel: 'Separação', ecras: ['ts-falta', 'ts-falta-outra', 'ts-falta-outra-artigo'] });
-registarRoteiro('sep-sem-stock', 'Separação B · Falta quantidade: não há mais stock', [
-  { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
-  { legenda: 'Regista o que tirou: 2 das 4.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Vai à outra posição que o PDA lhe dá, mas também lá não chega.', clicar: '.gi-pe [data-ir="ts-falta-sem-stock"]' },
-  { legenda: 'Não há mais em lado nenhum: só agora chama o gestor, e segue.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'A guia segue incompleta. Última paragem: a posição…', clicar: '.gi-leitor' },
-  { legenda: '…e o artigo.', clicar: '.gi-leitor' },
-  { legenda: 'Leva-a à prateleira de preparados e lê onde a pousa: fica fora da fila da expedição.', clicar: '.gi-leitor' },
-  { legenda: 'Fechada incompleta: o gestor decide quando se completa.' },
-], { papel: 'Separação', ecras: ['ts-falta-sem-stock', 'ts-ultima-inc', 'ts-ultima-artigo-inc', 'ts-prateleira-inc', 'ts-fechada-incompleta'] });
+/* 2 nov. (Separação v2, o briefing dela): um caso por critério de aceitação, pelas letras do guião */
+const S2 = { papel: 'Separação' };
+registarRoteiro('sep-recolher', 'Separação A · Recolher, consultar e retomar', [
+  { ecra: 'ts-inicio', legenda: 'O Tiago, da separação. Um cartão só: a guia, as linhas, a zona; o prazo dos preparados em destaque e o camião por baixo. Começa.', clicar: '.ta-trabalho' },
+  { legenda: 'O cartão com o porquê.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'As linhas com a quantidade e a caixa. Começa a recolher.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Primeiro o carrinho: fica ligado à guia (C-07).', clicar: '.gi-leitor' },
+  { legenda: 'Linha 1: «Leia a posição». Recolher 12 un.; 1 caixa = 10 un.', clicar: '.gi-leitor' },
+  { legenda: 'Posição certa. Agora a caixa ou a unidade.', clicar: '.gi-leitor' },
+  { legenda: 'Caixa lida · +10 un. Ficam 10 de 12. Lê outra caixa por engano…', clicar: '.gi-leitor' },
+  { legenda: '…e é recusada: «Faltam 2 un. Esta caixa contém 10.» Continua em 10. Lê uma unidade.', clicar: '.gi-leitor' },
+  { legenda: '+1: 11 de 12. Mais uma.', clicar: '.gi-leitor' },
+  { legenda: 'Linha 1 completa, com o histórico. Segue para a linha 2.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Linha 2: a posição e o artigo.', clicar: '.gi-leitor' },
+  { legenda: '2 de 4 linhas. Volta ao Início.', clicar: '.gp-voltar' },
+  { legenda: '«Continuar recolha · 2 de 4 linhas recolhidas» e a próxima posição. Vai consultar um artigo.', clicar: '.ta-op[data-ir="ts-consultar-artigo"]' },
+  { legenda: 'Só de ver; a recolha continua guardada. Volta.', clicar: '.gi-pe .gi-btn-sec' },
+  { legenda: 'O cartão continua igual. «Continuar recolha».', clicar: '.ta-trabalho' },
+  { legenda: 'Retoma na linha 3, na posição seguinte: nada se lê outra vez.' },
+], S2);
+registarRoteiro('sep-corrigir', 'Separação B · Corrigir a última leitura', [
+  { ecra: 'ts-paragem-4', legenda: 'Linha 4: 30 velas, em caixas de 10. Lê a posição.', clicar: '.gi-leitor' },
+  { legenda: 'Duas caixas lidas: 20 de 30. A segunda foi engano: «Corrigir última leitura».', clicar: '.gi-pe [data-ir="ts-corrigir"]' },
+  { legenda: '«Retirar a última caixa de 10 un.?» Tira-a do carrinho e confirma.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'De 20 para 10, e a correção fica no histórico com a hora e o nome. Lê as caixas que faltam.', clicar: '.gi-leitor' },
+  { legenda: 'Linha 4 completa.' },
+], S2);
+registarRoteiro('sep-falta', 'Separação C · Falta quantidade: o resto noutra posição', [
+  { ecra: 'ts-paragem-3', legenda: 'Linha 3: pedidas 8. Na posição só há 5. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
+  { legenda: 'Pedidas 8 · recolhidas 5 · faltam 3. Não chama ninguém: vai buscar o resto.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'O PDA dá outra posição com o artigo. Lê a posição…', clicar: '.gi-leitor' },
+  { legenda: '…e o artigo: 5 + 3, a linha fica completa.', clicar: '.gi-leitor' },
+  { legenda: 'Segue para a linha 4, sem o gestor.' },
+], S2);
+registarRoteiro('sep-sem-stock', 'Separação C · Falta quantidade: não há mais stock', [
+  { ecra: 'ts-paragem-3', legenda: 'Linha 3: só há 5 das 8. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
+  { legenda: 'Regista as 5 e vai buscar o resto.', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Na outra posição também não há: «Aqui também falta».', clicar: '.gi-pe [data-ir="ts-falta-sem-stock"]' },
+  { legenda: 'Não há mais em lado nenhum. O pedido já leva a guia, a linha, o artigo e as posições: «Chamar o gestor».', clicar: '[data-confirmar]', pausa: 400 },
+  { legenda: 'Pedido por enviar → recebido → resposta. A linha 3 fica pendente; continua nas outras.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Linha 4, com a 3 pendente à vista. Mais tarde, no Início…', ir: 'ts-inicio-resposta' },
+  { legenda: '«Ver resposta do gestor · linha 3».', clicar: '.ts2-pedido-gestor' },
+  { legenda: 'A resposta presa à linha 3. Continua nas restantes.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'De volta à linha 4.' },
+], S2);
+registarRoteiro('sep-entregar', 'Separação D · Entregar nos preparados', [
+  { ecra: 'ts-linha4-completa', legenda: 'A última linha completa. «Ver o resumo».', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: '3 linhas completas · 1 com falta. A regra desta operação deixa entregar o que há.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Leva à prateleira de preparados e lê-a. Lê a prateleira ao lado, por engano…', clicar: '.gi-leitor' },
+  { legenda: '…lida 60400102, esperada 60400101. A guia continua aberta: repete só este passo.', clicar: '.gi-leitor' },
+  { legenda: 'Entrega confirmada no sistema. «Próxima tarefa».', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'O Início fica pronto para a próxima guia.' },
+], S2);
+registarRoteiro('sep-rede', 'Separação E · Sem ligação a meio', [
+  { ecra: 'ts-inicio-sem-rede', legenda: 'A rede caiu depois de uma leitura: o PDA diz o que guardou e o que falta sincronizar.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Ligação reposta: a leitura foi enviada uma vez; o sistema e o carrinho dizem 20. Continua.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'De volta à linha 4, onde estava.' },
+], S2);
+registarRoteiro('sep-sair', 'Separação F · Pausar e terminar sessão', [
+  { ecra: 'ts-paragem-3', legenda: '«Pausar» está na faixa da guia.', clicar: '.ta-topo [data-ir="ts-sair"]' },
+  { legenda: 'O que fica guardado e onde se retoma. «Pausar recolha».', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'O Início com «Continuar recolha». Terminar a sessão é na conta: as iniciais.', clicar: '.gp-conta' },
+  { legenda: 'A conta: quem, o turno e o que tem em mãos. «Terminar sessão».', clicar: '.gi-pe .gi-btn-sec' },
+  { legenda: 'Com a guia a meio, diz o que fica feito e onde se retoma.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Sessão terminada.' },
+], S2);
 registarRoteiro('exp-carregar', 'Expedição · Carregar e fechar a saída', [
   { ecra: 'tx-inicio', legenda: 'O Paulo, da expedição: a guia que o motor lhe deu, na prateleira de preparados. Começa.', clicar: '.ta-trabalho' },
   { legenda: 'O cartão com o porquê: o camião DPD já está no cais.', clicar: '.gi-pe .gp-btn--acao' },
@@ -241,3 +277,5 @@ function aPartirDoInicio(passos: Passo[]): Passo[] {
   const primeiro = (p: Passo) => Number(!(p.ir === inicio || de(p.ir)?.dataset.estadoDe === inicio));
   return passos.map((p, i) => [p, i] as const).sort((a, b) => primeiro(a[0]) - primeiro(b[0]) || a[1] - b[1]).map(([p]) => p);
 }
+
+juntarEcras(ECRAS_DOS_ROTEIROS);

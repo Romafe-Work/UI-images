@@ -143,3 +143,38 @@
 .tx-vols li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); font-size: 13.5px; }
 .gpi .tx-vols li > svg { width: 18px; height: 18px; color: var(--g-tinta-3); } .tx-vols code { font-family: var(--f-mono); font-size: 12.5px; font-weight: 700; color: var(--g-tinta-2); }
 .tx-vols li.is-lido { border-color: color-mix(in srgb, var(--g-ok) 45%, var(--g-borda)); } .gpi .tx-vols li.is-lido > svg { color: var(--g-ok); }
+
+/* 2 nov. · Separação v2: o pedido com a unidade, a contagem da linha, o histórico, os horários e o pedido ao gestor */
+.ts2-topo__bt { display: inline-flex; gap: 6px; flex: none; }
+.ts2-topo .ta-chamar { padding: 0 10px; }
+.ts2-pedido { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); }
+.ts2-pedido p { margin: 0; }
+.ts2-pedido__q { font-size: 15px; color: var(--g-tinta-2); } .ts2-pedido__q b { font-size: 24px; font-weight: 800; color: var(--g-tinta); }
+.ts2-pedido__a { font-size: 14px; overflow-wrap: anywhere; } .ts2-pedido__a b { font-family: var(--f-mono); }
+.ts2-pedido__cx { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: var(--g-azul-t); }
+.gpi .ts2-pedido__cx svg { width: 16px; height: 16px; }
+.ts2-falta { margin: -4px 0 0; font-size: 14px; font-weight: 800; color: var(--g-tinta); }
+.ts2-hist { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 13.5px; }
+.ts2-hist li { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 8px; padding: 6px 10px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); }
+.ts2-hist time { font-family: var(--f-mono); color: var(--g-tinta-2); }
+.ts2-hist li.is-corr { border-color: color-mix(in srgb, var(--g-aviso) 50%, var(--g-borda)); }
+.ts2-hist li.is-rec { color: var(--g-tinta-2); text-decoration: line-through; }
+.ts2-horas { display: grid; gap: 4px; margin: 8px 0 0; }
+.ts2-horas span { display: inline-flex; align-items: center; gap: 6px; }
+.ts2-horas__prazo { font-size: 15px; font-weight: 800; color: var(--g-tinta); } .gpi .ts2-horas__prazo svg { width: 17px; height: 17px; color: var(--g-laranja-t); }
+.ts2-horas__cam { font-size: 13px; color: var(--g-tinta-2); } .gpi .ts2-horas__cam svg { width: 15px; height: 15px; }
+.ts2-pedido-gestor { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; margin: 8px 0 0; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--g-aviso) 50%, var(--g-borda)); border-radius: var(--r-md); background: var(--g-sup); color: var(--g-tinta); font: inherit; text-align: left; }
+.ts2-pedido-gestor span { display: grid; } .ts2-pedido-gestor b { font-size: 14px; } .ts2-pedido-gestor small { font-size: 12.5px; color: var(--g-tinta-2); }
+.gpi .ts2-pedido-gestor svg { width: 18px; height: 18px; color: var(--g-laranja-t); }
+.ts2-pedido-gestor.is-envio { border-style: dashed; }
+button.ts2-pedido-gestor { cursor: pointer; } button.ts2-pedido-gestor:focus-visible { outline: 3px solid var(--g-laranja); outline-offset: 2px; }
+.ts2-espera { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 12px; border: 1px solid color-mix(in srgb, var(--g-aviso) 55%, var(--g-borda)); border-radius: var(--r-md); background: var(--g-sup); }
+.ts2-espera span { display: grid; gap: 3px; } .ts2-espera b { font-size: 15px; } .ts2-espera small { font-size: 13px; color: var(--g-tinta-2); }
+.gpi .ts2-espera > svg { width: 20px; height: 20px; color: var(--g-aviso); }
+.ts2-faltalinha { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 10px 12px; border: 1px solid var(--g-borda); border-radius: var(--r-md); background: var(--g-sup); font-size: 14px; color: var(--g-tinta-2); }
+.ts2-faltalinha b { color: var(--g-tinta); font-size: 16px; } .ts2-faltalinha .is-falta b { color: var(--g-erro); }
+.ts2-linhas b { display: grid; } .ts2-linhas small { font-size: 12px; font-weight: 600; color: var(--g-tinta-2); }
+.ts2-linhas li.is-feita > span { background: color-mix(in srgb, var(--g-ok) 18%, var(--g-sup)); color: var(--g-ok); }
+.ts2-linhas li.is-falta { border-color: color-mix(in srgb, var(--g-erro) 45%, var(--g-borda)); } .ts2-linhas li.is-falta > span { color: var(--g-erro); }
+.gpi .ts2-linhas li > span svg { width: 14px; height: 14px; }
+.ts2-conta { display: flex; align-items: center; gap: 12px; } .ts2-conta p { display: grid; margin: 0; } .ts2-conta b { font-size: 17px; } .ts2-conta small { color: var(--g-tinta-2); }

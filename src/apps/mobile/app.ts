@@ -14,6 +14,7 @@ import { ecrasArrumacaoParcial, comArrumacaoParcial, comTresPropostasParcial } f
 import { comSoATarefa } from './so-a-tarefa';
 import { ecrasSeparacaoExpedicao } from './separacao-expedicao';
 import { comBarra, ecrasNavegacao, soUltima } from './navegacao';
+import { comSeparacaoV2 } from './separacao-v2';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import { comGestorV3, ecrasGestorV3 } from './gestor-v3';
 import { comGestorV4, ecrasGestorV4 } from './gestor-v4';
@@ -44,7 +45,8 @@ const ARRUMADOR_V2 = ecrasArrumadorV2() as Ecra<IdMobile>[];
 const ARRUMADOR_V3 = ecrasArrumadorV3() as Ecra<IdMobile>[];
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): separacao-expedicao.ts, como nos documentos */
 const ARR_PARCIAL = ecrasArrumacaoParcial() as Ecra<IdMobile>[];
-const SEP_EXP = ecrasSeparacaoExpedicao() as Ecra<IdMobile>[];
+/* 2 nov.: a Separação v2 (o briefing dela) por cima da v1 */
+const SEP_EXP = comSeparacaoV2(ecrasSeparacaoExpedicao() as Ecra<IdMobile>[]);
 const DESCRICAO_SEPARACAO = 'A Separação: uma guia é uma tarefa; as linhas pelo percurso (posição → artigo → quantidade); a falta corrige-se na posição; a guia acaba na prateleira de preparados.';
 const DESCRICAO_EXPEDICAO = 'A Expedição: recolhe as guias prontas na prateleira de preparados (prateleira → guia → verificar), confirma a recolha e a saída; nada se dá como expedido sem o servidor.';
 const DESCRICAO_ARRUMACAO = 'A Arrumação: das chegadas registadas pela arrumação às posições — as guias, os destinos propostos (fora das zonas em contagem), quem arruma (o motor, ou o gestor com motivo) e o PDA de quem arruma.';

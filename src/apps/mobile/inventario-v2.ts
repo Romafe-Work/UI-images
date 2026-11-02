@@ -59,7 +59,7 @@ export const GESTORA = { nome: 'Ana Ferreira', iniciais: 'AF' };
 const CONTADOS: [string, string, string, string][] = [['SKF VKBA 6556', 'Kit de rolamento de roda', '4 un.', '10:42'], ['SKF VKMV 6PK1873', 'Correia poli-V', '12 un.', '10:40']];
 
 /* ---------- o ecrã: cabeçalho, corpo e o pé com as ações ---------- */
-export interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string; /** outra pessoa e outra função (a demonstração das funções, 27 out.) */ quem?: { nome: string; iniciais: string }; funcao?: string; /** a barra de navegação inferior (navegacao.ts) */ barra?: string }
+export interface Opcoes { voltar?: string; titulo?: string; rede?: boolean; pe?: string; gestor?: boolean; faixa?: string; /** outra pessoa e outra função (a demonstração das funções, 27 out.) */ quem?: { nome: string; iniciais: string }; funcao?: string; /** a barra de navegação inferior (navegacao.ts) */ barra?: string; /** 2 nov.: o ecrã da conta, ao tocar nas iniciais */ conta?: string }
 export function ecra(corpo: string, o: Opcoes = {}): string {
   const rede = o.rede !== false, quem = o.quem ?? (o.gestor ? GESTORA : OPERADOR);
   return `<div class="gp gpi" data-gpi data-ir-ultima>
@@ -67,7 +67,7 @@ export function ecra(corpo: string, o: Opcoes = {}): string {
     ${o.voltar ? `<button type="button" class="gp-voltar" data-ir="${o.voltar}" aria-label="Voltar">${L(arrowLeft)}</button>` : ''}
     <div class="gp-marca"><span class="romafe gp-romafe">ROMAFE</span><i aria-hidden="true"></i><b>Pick</b></div>
     <span class="gp-rede${rede ? '' : ' is-mal'}" title="${rede ? 'Ligado ao servidor' : 'Sem rede'}">${L(rede ? wifi : wifiOff)}<span class="sr-only">${rede ? 'Ligado' : 'Sem rede'}</span></span>
-    <button type="button" class="gp-conta" aria-label="Conta de ${quem.nome}">${quem.iniciais}</button>
+    <button type="button" class="gp-conta" aria-label="Conta de ${quem.nome}"${o.conta ? ` data-ir="${o.conta}"` : ''}>${quem.iniciais}</button>
     <p class="gp-onde"><b>${o.titulo ?? 'Inventário'}</b> · ${o.funcao ?? (o.gestor ? 'Gestor' : 'Arrumação')} · Armazém 60</p>
   </header>
   ${rede ? '' : `<p class="gp-faixa" role="status">${L(wifiOff)}<span><b>Sem rede.</b> A Pick precisa de rede para registar. Continua quando houver sinal.</span></p>`}${o.faixa ?? ''}

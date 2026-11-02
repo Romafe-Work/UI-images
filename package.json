@@ -11,7 +11,8 @@
     "medir": "node scripts/medir-ecras.mjs",
     "testar:barra": "node scripts/testar-barra.mjs",
     "testar:inicio": "node scripts/testar-inicio.mjs",
-    "testar:fluxos": "node scripts/testar-fluxos.mjs"
+    "testar:fluxos": "node scripts/testar-fluxos.mjs",
+    "roteiros": "node scripts/roteiro-ecras.mjs"
   },
   "devDependencies": {
     "@types/three": "^0.170.0",

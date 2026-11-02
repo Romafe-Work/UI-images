@@ -16,7 +16,7 @@
    ========================================================= */
 import { ler, mostrar, mostrarVersao, definirTransicao, transitar, type Sentido } from './ecras';
 import './css/demo.css';
-import { temRoteiro, roteiros, roteiroDoEcra, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
+import { temRoteiro, roteiros, roteirosDoEcra, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
 
 export interface Animacao { id: string; nome: string; descricao: string; grupo: string }
 export const ANIMACOES: Animacao[] = [
@@ -159,8 +159,12 @@ export function iniciar(): void {
   let papelVisto = '';
   function roteiroDoPapel(): void {
     const sel = barra.querySelector<HTMLSelectElement>('.demo-barra__roteiro');
-    const doEcra = roteiroDoEcra(ecraVisivel()?.dataset.ecra ?? '');
-    if (sel && doEcra) { sel.value = doEcra; return; }
+    /* o caso que mostra o ecrã aberto (pela letra: A antes de B); no Início da função, e quando nenhum caso o mostra,
+       o primeiro da função («Todos os ecrãs», que começa no Início) */
+    const id = ecraVisivel()?.dataset.ecra ?? '';
+    const doEcra = (id.endsWith('-inicio') ? [] : roteirosDoEcra(id)).sort((a, b) => ordemRoteiro(a[1]).localeCompare(ordemRoteiro(b[1]), 'pt'))[0];
+    if (sel && doEcra) { sel.value = doEcra[0]; papelVisto = ''; return; }
+    if (id.endsWith('-inicio')) papelVisto = '';
     const papel = ecraVisivel()?.dataset.papel ?? '';
     if (!sel || !papel || papel === papelVisto) return;
     papelVisto = papel;

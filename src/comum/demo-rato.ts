@@ -34,8 +34,10 @@ const ROTEIROS = new Map<string, { titulo: string; passos: Fonte; semTexto?: boo
 export function registarRoteiro(id: string, titulo: string, passos: Fonte, o: { semTexto?: boolean; papel?: string; ecras?: string[] } = {}): void { ROTEIROS.set(id, { titulo, passos, ...o }); }
 /** Os roteiros registados, pela ordem do registo: [id, título, função]. */
 export const roteiros = (): [string, string, string?][] => [...ROTEIROS].map(([id, r]) => [id, r.titulo, r.papel]);
-/* 2 nov.: o caso que mostra este ecrã, para o «Ver o fluxo com o rato» o escolher sozinho */
-export const roteiroDoEcra = (ecra: string): string | undefined => [...ROTEIROS].find(([, r]) => r.ecras?.includes(ecra))?.[0];
+/* 2 nov. (ela: «faz isso para todas as roles do PDA»): os casos que mostram este ecrã, para o «Ver o fluxo com o rato» escolher
+   sozinho; a lista de cada roteiro é gerada (scripts/roteiro-ecras.mjs) */
+export const juntarEcras = (mapa: Record<string, string[]>): void => { for (const [id, ecras] of Object.entries(mapa)) { const r = ROTEIROS.get(id); if (r) r.ecras = ecras; } };
+export const roteirosDoEcra = (ecra: string): [string, string][] => [...ROTEIROS].filter(([, r]) => r.ecras?.includes(ecra)).map(([id, r]) => [id, r.titulo]);
 export const temRoteiro = () => ROTEIROS.size > 0;
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;

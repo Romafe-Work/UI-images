@@ -252,6 +252,8 @@ function consultarX(): string {
    Os ecrãs
    ========================================================= */
 const NOTA = 'A Separação e a Expedição como nos documentos (30 out.): 07 · O menu da app e os ecrãs 29–54, 63, d1 e d4 do Figma do armazém, com as guias GS e a prateleira de preparados 60400101.';
+/* para a Separação v2 (separacao-v2.ts) */
+export { dl, escolhas, ops, FS, O, GS, PREP, FALTA_OUTRA };
 const NOTA_FALTA = '2 nov.: se na posição não há que chegue, vai-se buscar o resto a outra posição; só se chama o gestor quando não há mesmo stock.';
 export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
   const e = (fluxo: string, id: string, nome: string, objetivo: string, html: string, de?: string): Ecra<string> => ({ id, nome, fluxo, objetivo, ...(de ? { estadoDe: de } : {}), versoes: [{ id: 'v1', nota: NOTA, html }] });
