@@ -1126,16 +1126,18 @@ function montar(): void {
   const barraEcras = el('div', 'ed-ecras');
   barraEcras.appendChild(el('label', null, 'Ecrã'));
   const selEcras = el('select', 'ed-select');
-  /* agrupados pelo fluxo a que pertencem, como no mapa */
+  /* agrupados pelo fluxo a que pertencem, como no mapa; (2 nov.) na Pick, pela função de quem os usa */
   const ecras = document.querySelectorAll<HTMLElement>('.ecra');
-  let grupo: HTMLOptGroupElement | null = null;
+  const grupos = new Map<string, HTMLOptGroupElement>();
   for (let i = 0; i < ecras.length; i++) {
     /* os estados escolhem-se na secção «Estados», por baixo das versões */
     if (ecras[i].dataset.estadoDe || ecras[i].dataset.foraDaLista) continue;
-    const fl = ecras[i].dataset.fluxo || '';
-    if (!grupo || grupo.label !== fl) {
+    const fl = ecras[i].dataset.papel || ecras[i].dataset.fluxo || '';
+    let grupo = grupos.get(fl);
+    if (!grupo) {
       grupo = el('optgroup');
       grupo.label = fl;
+      grupos.set(fl, grupo);
       selEcras.appendChild(grupo);
     }
     const o = el('option', null, ecras[i].dataset.nome || ecras[i].dataset.ecra);

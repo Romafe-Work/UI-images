@@ -35,6 +35,9 @@ export interface Ecra<Id extends string = string> {
   /** (28 out. 2026, ela: «no menu lateral só quero início e as compras») um ecrã que existe e abre (por uma ligação, um
       separador da área de trabalho) mas não aparece no seletor nem no mapa. */
   foraDaLista?: boolean;
+  /** (2 nov. 2026, ela: «divide aqui as roles em mobile») a função de quem usa o ecrã (Gestor, Arrumação…), quando a app
+      tem `papeis`; a porta de entrada mostra um cartão por função. */
+  papel?: string;
 }
 
 export type IdApp = 'erp' | 'goshop' | 'goparts' | 'mobile' | 'identidade';
@@ -52,6 +55,8 @@ export interface App<Id extends string = string> {
   tela: Tela;
   /** a descrição de cada fluxo, pela ordem em que aparecem no mapa */
   fluxos: Record<string, string>;
+  /** as funções de quem usa a app e a descrição de cada uma, pela ordem dos cartões na porta de entrada */
+  papeis?: Record<string, string>;
   ecras: Ecra<Id>[];
 }
 
