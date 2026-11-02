@@ -269,6 +269,17 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
 /* 2 nov.: todos os ecrãs de quem arruma, separa e expede (a função, pela data-papel), para ver cada uma com o rato */
 ([['todos-f-arrumacao', 'Todos os ecrãs · Arrumação (quem arruma)', 'Arrumação'], ['todos-f-separacao', 'Todos os ecrãs · Separação (quem separa)', 'Separação'], ['todos-f-expedicao', 'Todos os ecrãs · Expedição (quem expede)', 'Expedição']] as const)
   .forEach(([id, t, papel]) => registarRoteiro(id, t, () => aPartirDoInicio(percurso((e) => e.dataset.papel === papel)), { papel }));
+/* 2 nov. (ela: «prepara o fluxo de rato para mostrar todos os ecrãs das 4 roles»): o Gestor sozinho, e as quatro funções
+   seguidas (Arrumação, Separação, Expedição, Gestor), cada uma a partir do seu Início, com o nome da função ao entrar nela */
+const FUNCOES = ['Arrumação', 'Separação', 'Expedição', 'Gestor'];
+const daFuncao = (papel: string) => aPartirDoInicio(percurso((e) => e.dataset.papel === papel));
+function comEntrada(papel: string, passos: Passo[]): Passo[] {
+  const p = passos[0]; if (!p?.ir) return passos;
+  const e = document.querySelector<HTMLElement>(`.ecra[data-ecra="${p.ir}"]`);
+  return [{ ...p, legenda: `${papel.toUpperCase()} · ${e?.dataset.nome ?? p.ir}. ${e?.dataset.objetivo ?? ''}` }, ...passos.slice(1)];
+}
+registarRoteiro('todos-f-gestor', 'Todos os ecrãs · Gestor (quem gere)', () => daFuncao('Gestor'), { papel: 'Gestor' });
+registarRoteiro('todos-funcoes', 'Todos os ecrãs · As 4 funções (quem arruma, separa, expede e gere)', () => FUNCOES.flatMap((f) => comEntrada(f, daFuncao(f))), { papel: 'Todas as funções' });
 /* 2 nov. (ela: «quero o fluxo a partir daqui» e «quero o fluxo para todos os estados»): o percurso de todos os estados de
    uma função começa no início dela (o ecrã -inicio e os seus estados), como o Seguinte da barra */
 function aPartirDoInicio(passos: Passo[]): Passo[] {
