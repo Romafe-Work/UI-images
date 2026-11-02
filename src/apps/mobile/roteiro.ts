@@ -173,7 +173,7 @@ registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três p
 ], { papel: 'Arrumação' });
 
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */
-registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
+registarRoteiro('sep-recolher', 'Separação A · Recolher uma guia', [
   { ecra: 'ts-inicio', legenda: 'O Tiago, da separação: «Bom dia», o turno e uma opção de Trabalho — a guia que o motor lhe deu. Começa.', clicar: '.ta-trabalho' },
   { legenda: 'O cartão com o porquê: o camião DPD fecha às 11h30. Ninguém escolhe, ninguém apanha a guia de outro.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'As paragens pela ordem mais curta, e a prateleira de preparados já reservada.', clicar: '.gi-pe .gp-btn--acao' },
@@ -184,7 +184,7 @@ registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
   { legenda: 'Leva a guia à prateleira de preparados e lê onde a pousa.', clicar: '.gi-leitor' },
   { legenda: 'Guia fechada: a expedição leva-a quando o camião chegar.' },
 ], { papel: 'Separação' });
-registarRoteiro('sep-falta', 'Separação · Falta quantidade', [
+registarRoteiro('sep-falta', 'Separação B · Falta quantidade', [
   { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
   { legenda: 'Regista o que tirou: 2 das 4. A diferença fica na posição e o gestor decide o stock.', clicar: '[data-confirmar]', pausa: 400 },
   { legenda: 'A guia segue incompleta. Última paragem: a posição…', clicar: '.gi-leitor' },

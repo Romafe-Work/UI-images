@@ -44,6 +44,8 @@ type Passo =
 let APP = 'app';
 /** os guiões de uso em Word, por app (os ficheiros vivem em public/documentos) */
 const GUIOES: Record<string, string> = { goparts: 'PecaAPeca-Guiao-de-uso.docx', mobile: 'Pick-Arrumacao-Guiao.docx' };
+/* 2 nov.: na Pick há um guião por função; o botão descarrega o da função do ecrã que se vê (sem guião, o da app) */
+const GUIOES_PAPEL: Record<string, string> = { 'Arrumação': 'Pick-Arrumacao-Guiao.docx', 'Separação': 'Pick-Separacao-Guiao.docx' };
 let MARCA = 'ROMAFE';
 let CHAVE = 'romafe:app:editor:v1';
 const CHAVE_PAINEIS = 'romafe:editor:paineis';
@@ -1215,9 +1217,11 @@ function montar(): void {
   const guiao = GUIOES[APP];
   if (guiao) {
     const bGuiao = botaoIcone('Guião de uso (.docx)', I_EXPORTAR, function () {
+      const papel = document.querySelector<HTMLElement>('.ecra:not([hidden])')?.dataset.papel ?? '';
+      const ficheiro = GUIOES_PAPEL[papel] ?? guiao;
       const a = document.createElement('a');
-      a.href = '../documentos/' + guiao;
-      a.download = guiao;
+      a.href = '../documentos/' + ficheiro;
+      a.download = ficheiro;
       a.click();
     }, 'Descarrega o guião desta app: como se usa cada página, os diagramas do fluxo e todos os estados');
     bGuiao.classList.add('ed-guiao');
