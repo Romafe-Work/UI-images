@@ -142,9 +142,9 @@ const modCartao = ([k, t, ir, x, n]: typeof MODULOS[number], i: number) => `<li 
 export function inicioV4(cen: 'normal' | 'sem-atencao' = 'normal', b = barra('gestor', 'inicio')): string {
   const at = cen === 'sem-atencao' ? [] : ATENCAO;
   return ecra(`<div class="gp-ola gi-ola-peq"><h1><span data-gp-saudacao>Bom dia</span>, Ana</h1></div>
-    <section class="gp-sec">${h2('Precisa da tua atenção', at.length || undefined)}
+    <section class="gp-sec">${h2('Precisa da sua atenção', at.length || undefined)}
       ${at.length ? `<ul class="gp-lista" role="list">${at.map(([ic, t, x, ir, tom], i) => `<li style="--i:${i}"><button type="button" class="gp-item gp-item--${tom}" data-ir="${ir}"><span class="gp-item-ic">${L(ic)}</span><span class="gp-item-t"><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`).join('')}</ul>`
-      : `<p class="gp-vazio">${L(check)}Nada pede a tua atenção agora.</p>`}
+      : `<p class="gp-vazio">${L(check)}Nada pede a sua atenção agora.</p>`}
     </section>
     <section class="gp-sec">${h2('Operações')}<ul class="gx-mods" role="list">${MODULOS.map(modCartao).join('')}</ul></section>`,
   { titulo: 'Início', gestor: true, barra: b });
@@ -380,7 +380,7 @@ export function lerGestor(e: E75 = 'normal'): string {
     ${aviso('info', pkgCheck, 'Guia pronta na prateleira de preparados', 'Pneus e Travões do Minho · 3 linhas · separada pelo Tiago às 09:40.')}
     <ul class="gi-mais-l" role="list">${itemMais(truck, 'Recolher para expedir', 'Verifica e confirma a recolha', 'g-exp-verificar')}${itemMais(list, 'Ver a guia', 'As linhas e quem as separou', 'g-exp-acomp')}</ul>`, o());
   if (e === 'artigo') return ecra(`${aviso('info', scanBarcode, 'Leu 7316201250277', 'É um artigo (SKF VKBA 6556). Nenhuma operação sua o pede agora: o que quer fazer?')}
-    <ul class="gi-mais-l" role="list">${itemMais(search, 'Consultar o stock', 'Onde está e quanto o sistema diz que há', 'inv-consultar')}${itemMais(pencil, 'Corrigir uma posição', 'Lê primeiro a posição', 'inv-cp-ler')}</ul>
+    <ul class="gi-mais-l" role="list">${itemMais(search, 'Consultar o stock', 'Onde está e quanto o sistema diz que há', 'inv-consultar')}${itemMais(pencil, 'Corrigir uma posição', 'Leia primeiro a posição', 'inv-cp-ler')}</ul>
     ${''}`, o());
   if (e === 'desconhecido') return ecra(`${aviso('erro', pkgX, 'Código desconhecido', 'Leu <b>5601234000017</b>: não é posição, artigo, palete nem guia do armazém 60.')}`, o({ pe: acao('Ler outra vez', scanBarcode, ' data-ir="g-ler"') }));
   if (e === 'sem-leitor') return ecra(`${leitor({ titulo: 'O leitor não responde', texto: 'Prima a tecla de leitura de novo. Se não ler, reinicie o leitor; até lá pode escrever o código à mão — fica marcado como escrito.', estado: 'parado' })}`, o({ pe: `${acao('Reiniciar o leitor', refresh)}${sec('Escrever à mão', keyboard)}` }));

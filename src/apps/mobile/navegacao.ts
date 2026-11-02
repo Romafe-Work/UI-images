@@ -82,14 +82,14 @@ export const MENU_BARRA: Destino[] = [
   /* 30 out. (ela: «só podem fazer aquilo que deixei nos docs»): os três separadores do 07 · O menu da app — Tarefa (direto
      para a palete, sem cartão) · Início · Sair. Sem Tarefas, Ler, Histórico nem Mais. */
   { id: 'tarefa', funcao: 'arrumacao', rotulo: 'Tarefa', icone: 'tarefa', ecra: 'arr-op', ordem: 5, ativo: true },
-  { id: 'sair', funcao: 'arrumacao', rotulo: 'Sair', icone: 'sair', ecra: 'ta-sair', ordem: 90, ativo: true },
+  { id: 'sair', funcao: 'arrumacao', rotulo: 'Sair', icone: 'sair', ecra: 'ta-sair', ordem: 90, ativo: false }, /* 2 nov.: «Pausar» na faixa, «Terminar sessão» na conta (sair-conta.ts) */
   /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): os três separadores do 07 · O menu da app */
   { id: 'tarefa', funcao: 'separacao', rotulo: 'Tarefa', icone: 'tarefa', ecra: 'ts-tarefa', ordem: 5, ativo: true },
   { id: 'inicio', funcao: 'separacao', rotulo: 'Início', icone: 'inicio', ecra: 'ts-inicio', ordem: 10, ativo: true },
   { id: 'sair', funcao: 'separacao', rotulo: 'Sair', icone: 'sair', ecra: 'ts-sair', ordem: 90, ativo: true },
   { id: 'tarefa', funcao: 'expedicao', rotulo: 'Tarefa', icone: 'tarefa', ecra: 'tx-tarefa', ordem: 5, ativo: true },
   { id: 'inicio', funcao: 'expedicao', rotulo: 'Início', icone: 'inicio', ecra: 'tx-inicio', ordem: 10, ativo: true },
-  { id: 'sair', funcao: 'expedicao', rotulo: 'Sair', icone: 'sair', ecra: 'tx-sair', ordem: 90, ativo: true },
+  { id: 'sair', funcao: 'expedicao', rotulo: 'Sair', icone: 'sair', ecra: 'tx-sair', ordem: 90, ativo: false }, /* 2 nov.: «Pausar» na faixa, «Terminar sessão» na conta (sair-conta.ts) */
 ];
 /** Os números verdadeiros, os mesmos das faixas: contados uma vez. */
 /* GA-2026-0331 e as colunas 07–12 do INV-2026-015 — com a Arrumação desligada, só as do Inventário */

@@ -8,7 +8,7 @@
        palete, o feixe laranja marca a posição, pousa-a e confirma; aparece ROMAFE | Pick e, na passagem, a caixa
        voa para o ícone do Inventário e a marca para o cabeçalho, enquanto a página aparece por baixo.
      - 60 · Início do Gestor: o armazém e a rede em cima; «Bom dia, Ana»; o Inventário como ação dominante (o que
-       está em curso, por validar e por recontar, e o progresso em posições); «Requer a tua atenção»; os
+       está em curso, por validar e por recontar, e o progresso em posições); «Requer a sua atenção»; os
        inventários em curso; a equipa (só o que está atribuído, sem presença inventada); o acesso rápido; os
        módulos como pastas (só os ativos e autorizados).
      - 61 · Inventário (Gestor): em curso, por iniciar, por validar e concluídos; divergências e recontagens;
@@ -86,15 +86,15 @@ export function gestorInicio(cen: CenarioGestor = 'normal', extra = ''): string 
   const atencao = vazio || cen === 'sem-tarefas' ? [] : ATENCAO;
   const c = INVENTARIOS.find((i) => i.estado === 'curso');
   if (cen === 'sem-acesso' || cen === 'sem-armazem' || cen === 'sessao') {
-    const [t, x, b] = cen === 'sem-acesso' ? ['A tua conta não tem acesso à Pick.', 'Pede o acesso ao administrador da tua empresa.', ''] : cen === 'sem-armazem' ? ['Ainda não tens um armazém atribuído.', 'O administrador atribui-te o armazém 60 na tua conta ROMAFE.', ''] : ['A sessão terminou.', 'Por segurança, entra outra vez. Voltas ao sítio onde estavas.', btn('Entrar outra vez', IC.entrar, ' data-login', 'gp-btn--acao')];
+    const [t, x, b] = cen === 'sem-acesso' ? ['A sua conta não tem acesso à Pick.', 'Peça o acesso ao administrador da sua empresa.', ''] : cen === 'sem-armazem' ? ['Ainda não tem um armazém atribuído.', 'O administrador atribui-lhe o armazém 60 na sua conta ROMAFE.', ''] : ['A sessão terminou.', 'Por segurança, entre outra vez. Volta ao sítio onde estava.', btn('Entrar outra vez', IC.entrar, ' data-login', 'gp-btn--acao')];
     return `<div class="gp" data-gp data-gp-cenario="${cen}">${topo()}<main class="gp-corpo gp-corpo--centro"><section class="gp-estado">${I(IC2.aviso)}<b>${t}</b><p>${x}</p>${b}</section></main>${extra}</div>`;
   }
   return `<div class="gp" data-gp data-gp-cenario="${cen}">
   ${topo({ rede: !semRede })}
   ${semRede ? `<p class="gp-faixa" role="status">${I(IC2.semrede)}<span><b>Sem rede.</b> A Pick precisa de rede para mostrar o armazém. Continua quando houver sinal.</span></p>` : ''}
-  ${cen === 'permissao' ? `<p class="gp-faixa gp-faixa--info" role="status">${I(IC2.pessoa)}<span>As tuas permissões mudaram: agora vês só o que é do <b>operador</b>. Volta a entrar para as atualizar.</span></p>` : ''}
+  ${cen === 'permissao' ? `<p class="gp-faixa gp-faixa--info" role="status">${I(IC2.pessoa)}<span>As suas permissões mudaram: agora vê só o que é do <b>operador</b>. Entre outra vez para as atualizar.</span></p>` : ''}
   <main class="gp-corpo${semRede ? ' is-off' : ''}">
-    <div class="gp-ola gp-r" style="--r:0"><h1><span data-gp-saudacao>Bom dia</span>, ${GESTORA.primeiro}</h1><p>Estas são as operações do teu armazém.</p></div>
+    <div class="gp-ola gp-r" style="--r:0"><h1><span data-gp-saudacao>Bom dia</span>, ${GESTORA.primeiro}</h1><p>Estas são as operações do seu armazém.</p></div>
 
     <section class="gp-inv gp-r" style="--r:1" aria-labelledby="gp-inv-t">
       <div class="gp-inv-cab"><span class="gp-inv-ic" data-gp-alvo>${I(IC2.caixa)}</span><h2 id="gp-inv-t">Inventário</h2></div>
@@ -104,9 +104,9 @@ export function gestorInicio(cen: CenarioGestor = 'normal', extra = ''): string 
       <button type="button" class="gp-btn gp-btn--acao gp-btn--grande" data-ir="gestor-inventario"${semRede ? ' disabled' : ''}>${I(IC2.caixa)}<span>Gerir inventários</span>${I(IC2.seta)}</button>
     </section>
 
-    <section class="gp-sec gp-r" style="--r:2" aria-labelledby="gp-at-t"><h2 class="gp-h" id="gp-at-t">Requer a tua atenção${atencao.length ? ` <span class="gp-conta-n">${atencao.length}</span>` : ''}</h2>
+    <section class="gp-sec gp-r" style="--r:2" aria-labelledby="gp-at-t"><h2 class="gp-h" id="gp-at-t">Requer a sua atenção${atencao.length ? ` <span class="gp-conta-n">${atencao.length}</span>` : ''}</h2>
       ${carga ? '<div class="gp-esq"><i></i><i></i><i></i></div>' : atencao.length ? `<ul class="gp-lista">${atencao.map(([ic, t, ref, est, ir, tom], i) => `<li style="--i:${i}"><button type="button" class="gp-item gp-item--${tom}" data-ir="${ir}"${semRede ? ' disabled' : ''}><span class="gp-item-ic">${I(ic)}</span><span class="gp-item-t"><b>${t}</b><small>${ref}</small></span><span class="gp-item-e">${est}</span></button></li>`).join('')}</ul>`
-      : `<p class="gp-vazio">${I(IC2.validar)}Nada pede a tua atenção agora.</p>`}
+      : `<p class="gp-vazio">${I(IC2.validar)}Nada pede a sua atenção agora.</p>`}
     </section>
 
     <section class="gp-sec gp-r" style="--r:3" aria-labelledby="gp-ec-t"><h2 class="gp-h" id="gp-ec-t">Inventários em curso</h2>
@@ -186,7 +186,7 @@ export function camadaAbertura(cen: CenarioAbertura = 'normal'): string {
     <div class="gpa-centro">
       <p class="gpa-marca" data-gpa-marca><span class="romafe gpa-romafe">ROMAFE</span><i aria-hidden="true"></i><b>Pick</b></p>
       <p class="gpa-sub">Operações de armazém</p>
-      ${cen === 'sem-rede' ? `<p class="gpa-msg">${I(IC2.semrede)}Sem rede. A Pick precisa de rede para abrir; continua sozinha quando houver sinal.</p>` : cen === 'sem-acesso' ? `<p class="gpa-msg">${I(IC2.aviso)}A tua conta não tem acesso à Pick. Fala com o gestor de turno.</p>` : ''}
+      ${cen === 'sem-rede' ? `<p class="gpa-msg">${I(IC2.semrede)}Sem rede. A Pick precisa de rede para abrir; continua sozinha quando houver sinal.</p>` : cen === 'sem-acesso' ? `<p class="gpa-msg">${I(IC2.aviso)}A sua conta não tem acesso à Pick. Fala com o gestor de turno.</p>` : ''}
     </div>
     <button type="button" class="gpa-saltar" data-gpa-saltar>Saltar</button>
   </div>`;

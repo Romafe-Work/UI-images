@@ -267,7 +267,7 @@ export function comArrumadorV3<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
    2 nov. · As três propostas picadas (ela: «a arrumação ao fim de 3 posições, se nenhuma der, guarda num sítio qualquer
    que a pessoa bem entender; no entanto tem de picar as três posições propostas pelo motor»)
    Uma proposta só se dá por não servir depois de picada no sítio (lida a etiqueta da prateleira). Com as três picadas, a
-   pessoa arruma onde entender e lê essa posição; fica registado que foi escolhida por ela, fora das propostas.
+   pessoa arruma onde entender e lê essa posição; fica registado que foi escolhida por quem arruma, fora das propostas.
    ========================================================= */
 const MOTIVOS: [string, string][] = [['Não serve', '10h41'], ['Não serve', '10h43'], ['Não serve', '10h45']];
 const LIVRE = '60120603';
@@ -321,7 +321,7 @@ export function ecrasTresPropostas(): Ecra<string>[] {
     e('arr-op-arrumada-3', '80.17.2 · Arrumada (proposta 3)', 'A palete ficou na proposta 3.', passoTres('arrumada-3')),
     e('arr-op-picar-3', '80.18 · Pica a proposta 3', 'A última proposta também não serve: lê-se; com as três picadas, arruma-se onde se entender.', passoTres('picar-3')),
     e('arr-op-livre', '80.19 · Arrume onde entender', 'As três propostas picadas e nenhuma serve: pousa-se a palete onde se achar melhor e lê-se essa posição.', passoTres('livre')),
-    e('arr-op-livre-arrumada', '80.20 · Arrumada onde escolheu', 'Registado com o nome de quem arrumou e que a posição foi escolhida por ela, fora das propostas.', passoTres('livre-arrumada')),
+    e('arr-op-livre-arrumada', '80.20 · Arrumada onde escolheu', 'Registado com o nome de quem arrumou e que a posição foi escolhida por quem arruma, fora das propostas.', passoTres('livre-arrumada')),
   ];
 }
 /** Versões novas da proposta, da proposta seguinte e do «O que se passa?»: «Não serve» pica a posição */

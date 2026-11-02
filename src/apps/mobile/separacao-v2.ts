@@ -7,7 +7,8 @@
      cada leitura, «Corrigir última leitura» (só para leituras aceites) e a leitura recusada que não conta.
    - Falta: pedido · recolhido · falta na mesma linha; outra posição primeiro (regra dela, 2 nov.); só sem stock se chama
      o gestor, com a linha associada; continua-se nas outras linhas.
-   - Carrinho C-07, «Não consigo ler a etiqueta», «Sem ligação» com o que falta sincronizar, a prateleira validada.
+   - Carrinho C-07, «Não consigo ler a etiqueta», «Sem ligação» com o que o sistema confirmou e o que se lê outra vez (sem
+     guardar nada no PDA, decisão de 17 set.), a prateleira validada.
    - «Pausar recolha» na tarefa e «Terminar sessão» na conta (as iniciais).
    As regras que a Romafe tem de validar estão em REGRAS; os dois lados de cada uma existem como estado.
    ========================================================= */
@@ -94,7 +95,7 @@ function inicio(e: EI): string {
     ajuda: () => [cartao('ts-paragem-4', play, 'Continuar nas restantes linhas', [`3 de ${LIN.length} linhas tratadas`, `Leia a posição ${LIN[3].pos}`]),
       `<p class="ts2-pedido-gestor">${L(phone)}<span><b>Ajuda pedida · linha 3</b><small>Recebida pelo gestor às 10h41 · ainda sem resposta</small></span></p>`],
     'ajuda-envio': () => [cartao('ts-paragem-4', play, 'Continuar nas restantes linhas', [`3 de ${LIN.length} linhas tratadas`, `Leia a posição ${LIN[3].pos}`]),
-      `<p class="ts2-pedido-gestor is-envio">${L(wifiOff)}<span><b>Ajuda pedida · linha 3 · por enviar</b><small>O gestor ainda não a recebeu: sai quando houver rede</small></span></p>`],
+      `<p class="ts2-pedido-gestor is-envio">${L(wifiOff)}<span><b>O pedido de ajuda não saiu · linha 3</b><small>Sem rede, o gestor não o recebeu. Chame outra vez quando a ligação voltar.</small></span></p>`],
     resposta: () => [cartao('ts-paragem-4', play, 'Continuar nas restantes linhas', [`3 de ${LIN.length} linhas tratadas`, `Leia a posição ${LIN[3].pos}`]),
       `<button type="button" class="ts2-pedido-gestor is-resposta" data-ir="ts-chamado-resposta">${L(msg)}<span><b>Ver resposta do gestor · linha 3</b><small>Respondeu às 10h44</small></span>${L(arrowRight)}</button>`],
     bloqueada: () => [`<section class="ts2-espera" role="status">${L(clock)}<span><b>A aguardar resposta do gestor</b><small>Linha 3 · ${LIN[2].ref}: faltam 3 un. e não há mais stock. A guia não pode seguir sem a decisão dele.</small><small>Pedido recebido às 10h41</small></span></section>`, ''],
@@ -108,11 +109,11 @@ function inicio(e: EI): string {
 }
 function semRede(e: 'sem' | 'sincronizado'): string {
   if (e === 'sem') return ecra(`${aviso('erro', wifiOff, 'Sem ligação', 'O PDA não está ligado ao servidor desde as 10h52. Não pode começar nem fechar operações até a ligação voltar.')}
-    ${dl([['Guardado no PDA', `Linha 4 · caixa +10 un. · 10h52`], ['Por sincronizar', '1 leitura'], ['No carrinho', `${LIN[3].ref} · 20 de 30 un.`]])}
-    <p class="gp-nota">Quando a ligação voltar, a leitura guardada é enviada uma só vez: se se repetir o envio, o sistema reconhece-a e não a soma outra vez.</p>`,
+    ${dl([['Confirmado no sistema', `Linha 4 · ${LIN[3].ref} · 20 de 30 un. · 10h51`], ['Não chegou', 'a caixa lida às 10h52'], ['No carrinho', '30 un.: a caixa das 10h52 está lá']])}
+    <p class="gp-nota">A Pick não guarda nada para enviar depois. Quando a ligação voltar, leia outra vez só a caixa das 10h52: o sistema fica igual ao carrinho.</p>`,
   O(FS, 'Início', { rede: false, conta, pe: acao('Tentar de novo', refresh, ' data-ir="ts-sincronizado"') }));
-  return ecra(`<section class="gi-movido" role="status">${L(wifi, 'ta-ok__ic')}<h1>Ligação reposta</h1><p>1 leitura sincronizada às 10h54</p></section>
-    ${dl([['Linha 4', `${LIN[3].ref} · 20 de 30 un.`], ['No sistema', '20 un. · igual ao carrinho'], ['Enviada', '1 vez']])}`,
+  return ecra(`<section class="gi-movido" role="status">${L(wifi, 'ta-ok__ic')}<h1>Ligação reposta</h1><p>Às 10h54</p></section>
+    ${dl([['Linha 4', `${LIN[3].ref} · 20 de 30 un. no sistema`], ['Leia outra vez', 'a caixa das 10h52, que não chegou'], ['Depois', '30 de 30 · igual ao carrinho']])}`,
   O(FS, 'Início', { conta, pe: acao('Continuar recolha', play, ' data-ir="ts-l4-20"') }));
 }
 
@@ -165,7 +166,7 @@ function falta(e: 'registar' | 'outra' | 'outra-artigo' | 'sem-stock' | 'enviada
     <p class="gp-nota">Não precisa de escrever nada: o pedido leva a linha.</p>`,
   R('Falta quantidade', acao('Chamar o gestor', phone, ' data-confirmar data-ir="ts-ajuda-enviada"')));
   return ecra(`${topo(3)}<section class="ta-bloq ta-bloq--chamada" role="status">${L(phone, 'ta-bloq__ic')}<h1>Ajuda pedida · linha 3</h1><p>${l.ref} · faltam 3 un.</p></section>
-    <ol class="ta-linha-t" aria-label="O pedido"><li class="is-feito"><b>Pedido por enviar</b><small>10h41</small></li><li class="is-feito"><b>Pedido recebido</b><small>10h41</small></li><li class="is-atual"><b>Resposta do gestor</b><small>—</small></li></ol>
+    <ol class="ta-linha-t" aria-label="O pedido"><li class="is-feito"><b>Pedido enviado</b><small>10h41</small></li><li class="is-feito"><b>Pedido recebido</b><small>10h41</small></li><li class="is-atual"><b>Resposta do gestor</b><small>—</small></li></ol>
     <p class="gp-nota">${REGRAS.continuarComAjuda ? 'A linha 3 fica pendente e à vista no resumo. Pode seguir nas outras.' : 'A guia fica parada até ele responder.'}</p>`,
   R('Chamada', REGRAS.continuarComAjuda ? acao('Continuar nas restantes linhas', play, ' data-ir="ts-paragem-4"') : sec('Voltar ao início', arrowLeft, ' data-ir="ts-inicio-bloqueada"')));
 }
@@ -196,8 +197,8 @@ function prateleira(e: 'ler' | 'errada'): string {
   R('Entregar', sec('Não consigo ler a etiqueta', keyboard, ' data-ir="ts-escrever"')));
 }
 function fechada(e: 'sistema' | 'pda'): string {
-  if (e === 'pda') return ecra(`${aviso('aviso', wifiOff, 'Guardada no PDA', 'A entrega ainda não está confirmada no sistema: a ligação caiu às 11h09.')}${dl([['Prateleira', PREP], ['Leitura', '11h09 · guardada no PDA'], ['No sistema', 'por confirmar']])}
-    <p class="gp-nota">Não comece outra tarefa: a guia só fecha quando o sistema confirmar.</p>`, O(FS, 'Entregar', { rede: false, conta, pe: acao('Tentar de novo', refresh, ' data-ir="ts-fechada"') }));
+  if (e === 'pda') return ecra(`${aviso('erro', wifiOff, 'Entrega não confirmada', 'A ligação caiu às 11h09, antes de o sistema confirmar a prateleira.')}${dl([['Prateleira', PREP], ['A guia', 'continua aberta'], ['No sistema', 'nada mudou']])}
+    <p class="gp-nota">A Pick não guarda a leitura para depois. Fique junto à prateleira: quando a ligação voltar, leia-a outra vez.</p>`, O(FS, 'Entregar', { rede: false, conta, pe: acao('Ler outra vez', refresh, ' data-ir="ts-prateleira"') }));
   return ecra(`<section class="gi-movido" role="status">${L(pkgCheck, 'ta-ok__ic')}<h1>Entrega confirmada no sistema</h1><p>${GS.ref} · 11h09</p></section>
     ${dl([['Deixou', `na ${PREP}`], ['Carrinho', `${CARRINHO} · livre`], ['A guia', '3 linhas completas · 1 com falta (o gestor tem-na)'], ['Camião', `${GS.camiao} · partida às ${GS.fecha}`]])}`,
   O(FS, 'Guia fechada', { conta, pe: acao('Próxima tarefa', arrowRight, ' data-ir="ts-inicio"') }));
@@ -240,7 +241,7 @@ export function comSeparacaoV2<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   /* v2 por cima da v1 nos ecrãs que já existem */
   const V: Record<string, [() => string, string]> = {
     'ts-inicio': [() => inicio('novo'), 'Um cartão só, que muda com a guia; o prazo dos preparados em destaque e o camião em segundo; a conta nas iniciais.'],
-    'ts-inicio-sem-rede': [() => semRede('sem'), 'O que ficou guardado no PDA e o que falta sincronizar; envia-se uma só vez.'],
+    'ts-inicio-sem-rede': [() => semRede('sem'), 'O que o sistema confirmou e o que não chegou; nada fica à espera no PDA.'],
     'ts-guia': [guia, 'As linhas com a quantidade e a caixa, os horários e a prateleira reservada.'],
     'ts-paragem': [() => lerPosicao(LIN[0], 'ts-artigo'), 'Uma instrução de cada vez: «Leia a posição»; a quantidade pedida com a unidade e a caixa.'],
     'ts-artigo': [() => lerArtigo(LIN[0], 0, 'ts-caixa-lida', aviso('ok', circleCheck, 'Posição certa', `${LIN[0].pos} · bip curto`)), 'Posição certa; agora o artigo: a caixa soma 10, a unidade soma 1.'],
@@ -254,7 +255,7 @@ export function comSeparacaoV2<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
     'ts-fechada': [() => fechada('sistema'), 'Só fecha com a entrega confirmada no sistema; o Início fica pronto para a próxima tarefa.'],
     'ts-chamado-resposta': [() => ecra(`<section class="gi-aviso gi-aviso--info ta-resposta" role="status"><span class="gi-aviso__ic">${L(msg)}</span><h1>Resposta do gestor · linha 3</h1><p>${LIN[2].ref} · faltam 3 un. · às 10h44</p></section>
       <blockquote class="ta-diz"><small>O que ele diz</small><p>Entregue o que tem. As 3 ficam comigo: entram amanhã.</p></blockquote>
-      <ol class="ta-linha-t" aria-label="O pedido"><li class="is-feito"><b>Pedido por enviar</b><small>10h41</small></li><li class="is-feito"><b>Pedido recebido</b><small>10h41</small></li><li class="is-feito"><b>Resposta do gestor</b><small>10h44</small></li></ol>`,
+      <ol class="ta-linha-t" aria-label="O pedido"><li class="is-feito"><b>Pedido enviado</b><small>10h41</small></li><li class="is-feito"><b>Pedido recebido</b><small>10h41</small></li><li class="is-feito"><b>Resposta do gestor</b><small>10h44</small></li></ol>`,
     O(FS, 'Chamada', { voltar: 'ts-inicio-resposta', conta, pe: acao('Continuar nas restantes linhas', play, ' data-ir="ts-paragem-4"') })), 'A resposta presa à linha 3; continua-se nas outras.'],
     'ts-sair': [pausar, '«Pausar recolha», da faixa da guia: o que fica guardado e onde se retoma.'],
     'ts-consultar-artigo': [() => ecra(`${leitor({ titulo: 'Leia o artigo, ou escreva a referência', texto: 'Só para ver: não muda nada', tipo: 'consulta' })}<section class="gi-artigo"><span class="gi-artigo__ic">${L(pkg)}</span><div><p class="gi-artigo__ref">${LIN[2].ref}</p><p class="gi-artigo__desc">${LIN[2].desc} · zona 12</p></div></section><h2 class="gp-h">Onde está</h2>${dl([[LIN[2].pos, '5 un.'], [FALTA_OUTRA, '0 un.'], ['Reservado para guias', '8 un.']])}<p class="gp-nota">A sua recolha continua guardada: 2 de ${LIN.length} linhas.</p>`,
@@ -271,11 +272,11 @@ export function comSeparacaoV2<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const novos: Ecra<T>[] = [
     S('ts-inicio-curso', '110.4 · Recolha em curso', '«Continuar recolha · 2 de 4 linhas recolhidas» e a próxima posição; abre o passo exato.', inicio('curso'), 'ts-inicio'),
     S('ts-inicio-ajuda', '110.5 · Ajuda pedida', '«Ajuda pedida · linha 3», recebida pelo gestor; continua-se nas outras linhas.', inicio('ajuda'), 'ts-inicio'),
-    S('ts-inicio-ajuda-envio', '110.6 · Ajuda por enviar', 'O pedido ainda não chegou ao gestor: sai quando houver rede.', inicio('ajuda-envio'), 'ts-inicio'),
+    S('ts-inicio-ajuda-envio', '110.6 · O pedido não saiu', 'Sem rede, o pedido não chegou ao gestor: chama-se outra vez quando a ligação voltar (nada fica à espera no PDA).', inicio('ajuda-envio'), 'ts-inicio'),
     S('ts-inicio-resposta', '110.7 · O gestor respondeu', '«Ver resposta do gestor · linha 3», e continuar.', inicio('resposta'), 'ts-inicio'),
     S('ts-inicio-bloqueada', '110.8 · A aguardar o gestor', 'A guia não pode seguir: o motivo e a hora do pedido.', inicio('bloqueada'), 'ts-inicio'),
     S('ts-inicio-entregar', '110.9 · Levar aos preparados', 'Todas as linhas tratadas: a ação passa a «Levar aos preparados».', inicio('entregar'), 'ts-inicio'),
-    S('ts-sincronizado', '110.10 · Ligação reposta', 'A leitura guardada foi enviada uma vez; o carrinho e o sistema batem certo.', semRede('sincronizado'), 'ts-inicio'),
+    S('ts-sincronizado', '110.10 · Ligação reposta', 'O que o sistema confirmou e a leitura a repetir; depois, o sistema bate com o carrinho.', semRede('sincronizado'), 'ts-inicio'),
     S('ts-carrinho', '112.1 · Leia o carrinho', 'O carrinho fica ligado à guia (Carrinho C-07).', carrinho(), 'ts-guia'),
     S('ts-caixa-lida', '113.15 · Caixa lida', '«Caixa lida · +10 un.» e «10 de 12 un. · faltam 2»; pode corrigir-se.', lerArtigo(LIN[0], 10, 'ts-caixa-recusada', aviso('ok', circleCheck, 'Caixa lida · +10 un.', 'Bip curto'), `${corrigirBt(10)}${sec('Falta quantidade', hash, ' data-ir="ts-falta"')}`), 'ts-paragem'),
     S('ts-caixa-recusada', '113.16 · Leitura recusada', '«Faltam 2 un. Esta caixa contém 10.»: não conta e não se corrige.', lerArtigo(LIN[0], 10, 'ts-unidade-lida', aviso('erro', pkgX, 'Faltam 2 un. Esta caixa contém 10.', 'Leitura recusada · bip grave. Continua em 10. Leia unidades.')), 'ts-paragem'),
@@ -284,7 +285,7 @@ export function comSeparacaoV2<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
     S('ts-paragem-2', '113.19 · Linha 2: leia a posição', 'A linha seguinte, igual.', lerPosicao(LIN[1], 'ts-linha2-completa'), 'ts-paragem'),
     S('ts-linha2-completa', '113.20 · Linha 2 completa', '2 de 4 linhas; voltar ao Início guarda tudo.', linhaCompleta(LIN[1], 'ts-paragem-3', `Seguinte: linha 3 · ${LIN[2].pos}`, [['10h36', 'Artigo · +1 un.'], ['10h36', 'Artigo · +1 un.']]), 'ts-paragem'),
     S('ts-paragem-3', '113.21 · Linha 3: leia a posição', 'Onde «Continuar recolha» retoma, sem repetir leituras.', lerPosicao(LIN[2], 'ts-falta', aviso('info', play, 'Retoma na linha 3', '2 de 4 linhas já recolhidas · nada se lê outra vez')), 'ts-paragem'),
-    S('ts-ajuda-enviada', '113.22 · Ajuda pedida · linha 3', 'Por enviar · recebido · resposta; a linha fica pendente e segue-se.', falta('enviada'), 'ts-paragem'),
+    S('ts-ajuda-enviada', '113.22 · Ajuda pedida · linha 3', 'Enviado · recebido · resposta; a linha fica pendente e segue-se.', falta('enviada'), 'ts-paragem'),
     S('ts-paragem-4', '113.23 · Linha 4: leia a posição', 'A última linha, com a 3 pendente.', lerPosicao(LIN[3], 'ts-l4-20', `<p class="ts2-pedido-gestor">${L(phone)}<span><b>Linha 3 pendente</b><small>Ajuda pedida ao gestor · faltam 3 un.</small></span></p>`), 'ts-paragem'),
     S('ts-l4-20', '113.24 · Duas caixas lidas', '20 de 30 un.; «Corrigir última leitura».', lerArtigo(LIN[3], 20, 'ts-linha4-completa', aviso('ok', circleCheck, 'Caixa lida · +10 un.', 'Bip curto'), `${corrigirBt(10)}${sec('Falta quantidade', hash, ' data-ir="ts-falta"')}`), 'ts-paragem'),
     S('ts-corrigir', '113.25 · Retirar a última leitura?', '«Retirar a última caixa de 10 un.?»; só para leituras aceites.', corrigir('perguntar'), 'ts-paragem'),
@@ -296,7 +297,7 @@ export function comSeparacaoV2<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
     S('ts-resumo-parcial', '114.2 · Resumo: entregar parcial', '«3 linhas completas · 1 com falta»; a regra deixa entregar o que há.', resumo('parcial'), 'ts-prateleira'),
     S('ts-resumo-aguardar', '114.3 · Resumo: aguardar o gestor', 'A regra manda esperar pela decisão do gestor.', resumo('aguardar'), 'ts-prateleira'),
     S('ts-prateleira-errada', '114.4 · Não é esta prateleira', 'A lida e a esperada; a guia continua aberta e repete-se só este passo.', prateleira('errada'), 'ts-prateleira'),
-    S('ts-fechada-pda', '115.2 · Guardada no PDA', 'A entrega ainda não está confirmada no sistema.', fechada('pda'), 'ts-fechada'),
+    S('ts-fechada-pda', '115.2 · Entrega não confirmada', 'A ligação caiu antes da confirmação: a guia continua aberta e lê-se a prateleira outra vez.', fechada('pda'), 'ts-fechada'),
     S('ts-conta', '121 · A sua conta', 'Nas iniciais: quem, o turno, o que tem em mãos; «Terminar sessão».', contaE('conta')),
     S('ts-conta-guia', '121.1 · Terminar com a guia a meio', 'O que fica feito e onde se retoma.', contaE('guia'), 'ts-conta'),
     S('ts-sessao-terminada', '121.2 · Sessão terminada', 'O fim: a guia pausada no carrinho e «Entrar».', contaE('terminada'), 'ts-conta'),

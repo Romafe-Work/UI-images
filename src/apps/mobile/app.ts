@@ -15,6 +15,7 @@ import { comSoATarefa } from './so-a-tarefa';
 import { ecrasSeparacaoExpedicao } from './separacao-expedicao';
 import { comBarra, ecrasNavegacao, soUltima } from './navegacao';
 import { comSeparacaoV2 } from './separacao-v2';
+import { comSairNaConta } from './sair-conta';
 import { aberturaGestor, gestorInicio, gestorInventario } from './gestor';
 import { comGestorV3, ecrasGestorV3 } from './gestor-v3';
 import { comGestorV4, ecrasGestorV4 } from './gestor-v4';
@@ -95,7 +96,7 @@ export const mobile: App<IdMobile> = {
      o operador o 57 (a sua página) e o 43 (ler e contar num só ecrã) — inventario-completo.ts */
   /* 27 out. (ela: «só quero a última versão, não todos»): cada ecrã só com a última versão (navegacao.ts, soUltima) */
   papeis: PAPEIS,
-  ecras: semPermissoesNoGestor(comPapel(soUltima(comTresPropostasParcial(comTresPropostas(comSoATarefa(comArrumacaoParcial(comArrumadorV3(comArrumadorV2(comArrumador(comGestorV5(comGestorV4(comGestorV3([...ecrasLoginPick<IdMobile>(), ...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...GV4, ...GV5, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...ARRUMADOR, ...ARRUMADOR_V2, ...ARRUMADOR_V3, ...ARR_PARCIAL, ...(ecrasTresPropostas() as Ecra<IdMobile>[]), ...SEP_EXP, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()]))))))))))))),
+  ecras: semPermissoesNoGestor(comSairNaConta(comPapel(soUltima(comTresPropostasParcial(comTresPropostas(comSoATarefa(comArrumacaoParcial(comArrumadorV3(comArrumadorV2(comArrumador(comGestorV5(comGestorV4(comGestorV3([...ecrasLoginPick<IdMobile>(), ...ecrasEntrarPick(), ...comBarra(comGestorV2b(comGestorV2(ecrasGestor()))), ...GESTOR_V2, ...NAV.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Gestor'), ...GV4, ...GV5, ...COMPLETO.filter((e) => e.fluxo === 'Gestor'), ...GV3.filter((e) => e.fluxo === 'Inventário'), ...ARRUMACAO, ...ARRUMADOR, ...ARRUMADOR_V2, ...ARRUMADOR_V3, ...ARR_PARCIAL, ...(ecrasTresPropostas() as Ecra<IdMobile>[]), ...SEP_EXP, ...GV3.filter((e) => e.fluxo === 'Arrumação'), ...GV3.filter((e) => e.fluxo === 'Separação' || e.fluxo === 'Expedição'), ...comBarra(COMPLETO.filter((e) => e.id.startsWith('op-'))), ...NAV.filter((e) => e.fluxo !== 'Gestor'), ...comGestorV2b(comInventarioV2(ecrasInventario())), ...COMPLETO.filter((e) => e.id.startsWith('inv-ler')), ...comBarra(ESTADOS_PICK), ...ecrasCarregarPick(), ...ecrasErroPick()])))))))))))))),
 };
 
 /* 22 out. 2026: ela, «a app do armazém segue a mesma arquitetura do ERP e do Peça A Peça: login universal → abertura →
@@ -120,7 +121,7 @@ function ecrasGestor(): Ecra<IdMobile>[] {
     { id: 'gestor-inicio' as IdMobile, nome: '60 · Início do Gestor', fluxo: FLUXO, objetivo: 'O centro de operações do armazém 60: o Inventário como ação dominante (em curso, por validar, recontagens e o progresso em posições), o que pede atenção com a ação direta, os inventários em curso, a equipa (só o atribuído), o acesso rápido e os módulos (só os ativos).', versoes: v(gestorInicio()) },
     e('gestor-carregar', 'gestor-inicio', '60.1 · A carregar', 'O cabeçalho e o Inventário já estão; as listas em esqueleto.', gestorInicio('carregar')),
     e('gestor-sem-inventarios', 'gestor-inicio', '60.2 · Sem inventários', 'Nada em curso: diz-se e oferece «Criar inventário».', gestorInicio('sem-inventarios')),
-    e('gestor-sem-tarefas', 'gestor-inicio', '60.3 · Nada pede atenção', '«Requer a tua atenção» vazio, com o motivo.', gestorInicio('sem-tarefas')),
+    e('gestor-sem-tarefas', 'gestor-inicio', '60.3 · Nada pede atenção', '«Requer a sua atenção» vazio, com o motivo.', gestorInicio('sem-tarefas')),
     e('gestor-erro', 'gestor-inicio', '60.4 · Os inventários não carregaram', 'O servidor não respondeu: «Tentar outra vez» no painel do Inventário.', gestorInicio('erro')),
     e('gestor-sem-rede', 'gestor-inicio', '60.5 · Sem rede', 'A Pick não trabalha sem rede (nada em cache): a faixa diz porquê e as ações esperam.', gestorInicio('sem-rede')),
     e('gestor-menus', 'gestor-inicio', '60.6 · Os módulos não carregaram', 'O serviço dos módulos não respondeu: «Tentar outra vez».', gestorInicio('menus')),

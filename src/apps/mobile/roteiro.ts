@@ -120,7 +120,7 @@ registarRoteiro('arr-ocupada', 'Arrumação B · A proposta não serve', [
 ], { papel: 'Arrumação' });
 registarRoteiro('arr-chamar', 'Arrumação F · Chamar o gestor', [
   IN, ARTIGO,
-  { legenda: 'Na proposta, há uma dúvida. «Chamar», que está em todos os ecrãs.', clicar: '.ta-chamar' },
+  { legenda: 'Na proposta, há uma dúvida. «Chamar», que está em todos os ecrãs.', clicar: '.ta-topo [data-ir$="-chamar"]' },
   { legenda: 'A gestora vai saber onde está e o que tem em mãos. O motivo, com um toque.', clicar: '.ta-escolha', pausa: 400 },
   { legenda: 'O gestor foi chamado: a tarefa fica com a Inês e o motor não lhe dá outra.' },
   { ecra: 'arr-excecoes', legenda: 'No PDA da Ana, a chamada aparece primeiro. Responde.', clicar: '[data-ir="arr-problema-chamada"]' },
@@ -154,7 +154,7 @@ registarRoteiro('arr-tres', 'Arrumação C · Nenhuma das três propostas serve'
   { legenda: 'Duas picadas. A proposta 3, a última do motor, também não serve.', clicar: '.gi-pe [data-ir="arr-op-picar-3"]' },
   { legenda: 'Pica a 3.', clicar: '.gi-leitor' },
   { legenda: 'As três picadas: agora arruma onde entender. Pousa a palete e lê essa posição.', clicar: '.gi-leitor' },
-  { legenda: 'Arrumada, com o seu nome e a posição registada como escolhida por ela, fora das propostas.' },
+  { legenda: 'Arrumada, com o seu nome e a posição registada como escolhida por quem arruma, fora das propostas.' },
 ], { papel: 'Arrumação' });
 
 /* 30 out. (ela: «sim faz isso»): a arrumação parcial — 30 un. em três posições, a 3.ª bloqueada, a Inês e a Ana */
@@ -168,9 +168,9 @@ registarRoteiro('arr-parcial', 'Arrumação E · Parcial: 30 unidades em três p
   { legenda: '22 arrumadas em duas posições; as 8 vão à proposta 3.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'Ao ler, o sistema confirma se a posição ainda serve.', clicar: '.gi-leitor' },
   { legenda: 'Está bloqueada. As três propostas estão picadas: arruma as 8 onde entender, sem esperar pelo gestor.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Pousa-as na 60100402 e lê a posição: fica registada como escolhida por ela.', clicar: '.gi-leitor' },
+  { legenda: 'Pousa-as na 60100402 e lê a posição: fica registada como escolhida por quem arruma.', clicar: '.gi-leitor' },
   { legenda: 'As últimas 8.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: '30 de 30 em três posições: duas propostas pelo motor e uma escolhida pela Inês. A guia fecha.' },
+  { legenda: '30 de 30 em três posições: duas propostas pelo motor e uma escolhida por quem arruma. A guia fecha.' },
 ], { papel: 'Arrumação' });
 
 /* 30 out. (ela: «agora faz a app da expedição e separação no figma»): as duas funções, como nos documentos */
@@ -228,8 +228,8 @@ registarRoteiro('sep-entregar', 'Separação D · Entregar nos preparados', [
   { legenda: 'O Início fica pronto para a próxima guia.' },
 ], S2);
 registarRoteiro('sep-rede', 'Separação E · Sem ligação a meio', [
-  { ecra: 'ts-inicio-sem-rede', legenda: 'A rede caiu depois de uma leitura: o PDA diz o que guardou e o que falta sincronizar.', clicar: '.gi-pe .gp-btn--acao' },
-  { legenda: 'Ligação reposta: a leitura foi enviada uma vez; o sistema e o carrinho dizem 20. Continua.', clicar: '.gi-pe .gp-btn--acao' },
+  { ecra: 'ts-inicio-sem-rede', legenda: 'A rede caiu logo a seguir a uma leitura: o PDA diz o que o sistema confirmou e o que não chegou. Nada fica guardado no PDA.', clicar: '.gi-pe .gp-btn--acao' },
+  { legenda: 'Ligação reposta: o sistema tem 20. Lê outra vez só a caixa que não chegou.', clicar: '.gi-pe .gp-btn--acao' },
   { legenda: 'De volta à linha 4, onde estava.' },
 ], S2);
 registarRoteiro('sep-sair', 'Separação F · Pausar e terminar sessão', [

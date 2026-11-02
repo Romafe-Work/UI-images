@@ -2,7 +2,7 @@
    PICK — o Gestor v2: Inventário e Arrumação (27 out. 2026)
    Do briefing dela «ROMAFE Warehouse V2 — Manager Inventory & Putaway», no Figma e só com rede (as respostas de
    hoje: «apenas com rede», «no figma»). As versões novas não mexem nas que ela já viu:
-     - 60 · Início do Gestor v2: o cabeçalho compacto (ROMAFE | Pick, armazém, ligação, conta), «Precisa da tua
+     - 60 · Início do Gestor v2: o cabeçalho compacto (ROMAFE | Pick, armazém, ligação, conta), «Precisa da sua
        atenção» (só exceções verdadeiras) e os dois módulos — Inventário e Arrumação — como espaços de trabalho, cada
        um com a sua faixa de estado e a sua entrada; sem gráficos nem contadores a mais;
      - 61 · Inventário v2: a faixa (em curso · por validar · divergências), «Novo inventário», os separadores e o
@@ -55,9 +55,9 @@ const ATENCAO: [string, string, string, string, 'erro' | 'aviso' | 'info'][] = [
 export function inicioV2(cen: 'normal' | 'sem-atencao' = 'normal', barra?: string): string {
   const at = cen === 'sem-atencao' ? [] : ATENCAO.filter(([, , , ir]) => ARRUMACAO_ATIVA || !ir.startsWith('arr-'));
   return ecra(`<div class="gp-ola gi-ola-peq"><h1>Bom dia, Ana</h1></div>
-    <section class="gp-sec">${h2('Precisa da tua atenção', at.length || undefined)}
+    <section class="gp-sec">${h2('Precisa da sua atenção', at.length || undefined)}
       ${at.length ? `<ul class="gp-lista" role="list">${at.map(([ic, t, x, ir, tom], i) => `<li style="--i:${i}"><button type="button" class="gp-item gp-item--${tom}" data-ir="${ir}"><span class="gp-item-ic">${L(ic)}</span><span class="gp-item-t"><b>${t}</b><small>${x}</small></span>${L(arrowRight, 'gi-seta')}</button></li>`).join('')}</ul>`
-      : `<p class="gp-vazio">${L(check)}Nada pede a tua atenção agora.</p>`}
+      : `<p class="gp-vazio">${L(check)}Nada pede a sua atenção agora.</p>`}
     </section>
     <button type="button" class="gi-mod gi-mod--inv" data-ir="gestor-inventario" aria-label="Abrir o Inventário">
       <span class="gi-mod__cab"><span class="gi-mod__ic">${CAIXA()}</span><b>Inventário</b>${L(arrowRight, 'gi-seta')}</span>

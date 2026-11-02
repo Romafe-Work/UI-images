@@ -164,7 +164,7 @@ function passoTres(p: 'bloqueada' | 'ler-livre' | 'fim'): string {
 export function comTresPropostasParcial<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const V: Record<string, [() => string, string]> = {
     'arr-par-bloqueada': [() => passoTres('bloqueada'), 'As três propostas estão picadas e a 3.ª está bloqueada: as 8 arrumam-se onde a Inês entender; chamar o gestor é opção.'],
-    'arr-par-ler-4': [() => passoTres('ler-livre'), 'Lê-se a posição onde pousou as 8; fica registada como escolhida por ela.'],
+    'arr-par-ler-4': [() => passoTres('ler-livre'), 'Lê-se a posição onde pousou as 8; fica registada como escolhida por quem arruma.'],
     'arr-par-fim': [() => passoTres('fim'), 'As três partes, cada uma registada uma vez, com a hora; a 3.ª escolhida pela Inês; a guia fecha.'],
   };
   return ecras.map((x) => { const v = V[x.id]; return v ? { ...x, objetivo: v[1], versoes: [...x.versoes, { id: `v${x.versoes.length + 1}`, nota: NOTA_TRES, html: v[0]() }] as Ecra<T>['versoes'] } : x; });
