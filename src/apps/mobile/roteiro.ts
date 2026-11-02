@@ -265,21 +265,24 @@ const entre = (...faixas: [number, number][]) => (e: HTMLElement) => faixas.some
   ['todos-ler', 'Todos os ecrãs · Ler, posição, artigo, atividade, equipa e insights', entre([75, 75], [77, 78], [82, 84])],
   ['todos-arrumacao', 'Todos os ecrãs · Arrumação', entre([70, 74], [79, 81], [85, 89], [100, 102])],
   ['todos-sep-exp', 'Todos os ecrãs · Separação e expedição', entre([90, 99], [110, 140])],
-] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => percurso(f), { papel: id === 'todos-entrar' || id === 'todos-contar' ? 'Todas as funções' : 'Gestor' }));
+] as [string, string, (e: HTMLElement) => boolean][]).forEach(([id, t, f]) => registarRoteiro(id, t, () => { const ps = percurso(f); return comFim(ps, `Fim do percurso: ${ps.length} ecrãs e estados.`); }, { papel: id === 'todos-entrar' || id === 'todos-contar' ? 'Todas as funções' : 'Gestor' }));
 /* 2 nov.: todos os ecrãs de quem arruma, separa e expede (a função, pela data-papel), para ver cada uma com o rato */
 ([['todos-f-arrumacao', 'Todos os ecrãs · Arrumação (quem arruma)', 'Arrumação'], ['todos-f-separacao', 'Todos os ecrãs · Separação (quem separa)', 'Separação'], ['todos-f-expedicao', 'Todos os ecrãs · Expedição (quem expede)', 'Expedição']] as const)
-  .forEach(([id, t, papel]) => registarRoteiro(id, t, () => aPartirDoInicio(percurso((e) => e.dataset.papel === papel)), { papel }));
+  .forEach(([id, t, papel]) => registarRoteiro(id, t, () => daFuncao(papel), { papel }));
 /* 2 nov. (ela: «prepara o fluxo de rato para mostrar todos os ecrãs das 4 roles»): o Gestor sozinho, e as quatro funções
    seguidas (Arrumação, Separação, Expedição, Gestor), cada uma a partir do seu Início, com o nome da função ao entrar nela */
 const FUNCOES = ['Arrumação', 'Separação', 'Expedição', 'Gestor'];
-const daFuncao = (papel: string) => aPartirDoInicio(percurso((e) => e.dataset.papel === papel));
+const daFuncao = (papel: string, seguinte?: string) => { const ps = aPartirDoInicio(percurso((e) => e.dataset.papel === papel));
+  return comFim(ps, `Fim ${DA[papel] ?? 'da função'}: ${ps.length} ecrãs e estados. ${seguinte ? `De volta ao Início; a seguir, ${DA_SEG[seguinte]}.` : 'De volta ao Início.'}`); };
+const DA: Record<string, string> = { 'Arrumação': 'da Arrumação', 'Separação': 'da Separação', 'Expedição': 'da Expedição', 'Gestor': 'do Gestor' };
+const DA_SEG: Record<string, string> = { 'Separação': 'a Separação', 'Expedição': 'a Expedição', 'Gestor': 'o Gestor' };
 function comEntrada(papel: string, passos: Passo[]): Passo[] {
   const p = passos[0]; if (!p?.ir) return passos;
   const e = document.querySelector<HTMLElement>(`.ecra[data-ecra="${p.ir}"]`);
   return [{ ...p, legenda: `${papel.toUpperCase()} · ${e?.dataset.nome ?? p.ir}. ${e?.dataset.objetivo ?? ''}` }, ...passos.slice(1)];
 }
 registarRoteiro('todos-f-gestor', 'Todos os ecrãs · Gestor (quem gere)', () => daFuncao('Gestor'), { papel: 'Gestor' });
-registarRoteiro('todos-funcoes', 'Todos os ecrãs · As 4 funções (quem arruma, separa, expede e gere)', () => FUNCOES.flatMap((f) => comEntrada(f, daFuncao(f))), { papel: 'Todas as funções' });
+registarRoteiro('todos-funcoes', 'Todos os ecrãs · As 4 funções (quem arruma, separa, expede e gere)', () => FUNCOES.flatMap((f, i) => comEntrada(f, daFuncao(f, FUNCOES[i + 1]))), { papel: 'Todas as funções' });
 /* 2 nov. (ela: «quero o fluxo a partir daqui» e «quero o fluxo para todos os estados»): o percurso de todos os estados de
    uma função começa no início dela (o ecrã -inicio e os seus estados), como o Seguinte da barra */
 function aPartirDoInicio(passos: Passo[]): Passo[] {
@@ -287,6 +290,13 @@ function aPartirDoInicio(passos: Passo[]): Passo[] {
   const inicio = passos.find((p) => p.ir?.endsWith('-inicio') && !de(p.ir)?.dataset.estadoDe)?.ir;
   const primeiro = (p: Passo) => Number(!(p.ir === inicio || de(p.ir)?.dataset.estadoDe === inicio));
   return passos.map((p, i) => [p, i] as const).sort((a, b) => primeiro(a[0]) - primeiro(b[0]) || a[1] - b[1]).map(([p]) => p);
+}
+/* 2 nov. (ela: «bloqueou aqui», no último estado do Gestor): o percurso acabava no estado de número mais alto, que podia
+   ser um erro, e parecia preso. Agora volta ao Início da função e diz que acabou (e, nas 4 funções, qual vem a seguir). */
+function comFim(passos: Passo[], texto: string): Passo[] {
+  const de = (id?: string) => document.querySelector<HTMLElement>(`.ecra[data-ecra="${id}"]`);
+  const inicio = passos.find((p) => p.ir?.endsWith('-inicio') && !de(p.ir)?.dataset.estadoDe)?.ir ?? passos[0]?.ir;
+  return inicio ? [...passos, { ir: inicio, legenda: texto }] : passos;
 }
 
 juntarEcras(ECRAS_DOS_ROTEIROS);
