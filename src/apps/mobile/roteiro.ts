@@ -187,8 +187,10 @@ registarRoteiro('sep-recolher', 'Separação · Recolher uma guia', [
 registarRoteiro('sep-falta', 'Separação · Falta quantidade', [
   { ecra: 'ts-paragem', legenda: 'Na posição há menos do que a guia pede. «Falta quantidade».', clicar: '.gi-pe [data-ir="ts-falta"]' },
   { legenda: 'Regista o que tirou: 2 das 4. A diferença fica na posição e o gestor decide o stock.', clicar: '[data-confirmar]', pausa: 400 },
-  { legenda: 'Segue para a paragem seguinte; a guia vai fechar incompleta.' },
-  { ecra: 'ts-fechada-incompleta', legenda: 'Fechada incompleta: fica na prateleira, fora da fila da expedição, até o stock entrar.' },
+  { legenda: 'A guia segue incompleta. Última paragem: a posição…', clicar: '.gi-leitor' },
+  { legenda: '…e o artigo.', clicar: '.gi-leitor' },
+  { legenda: 'Leva-a à prateleira de preparados e lê onde a pousa: fica fora da fila da expedição.', clicar: '.gi-leitor' },
+  { legenda: 'Fechada incompleta: fica na prateleira até o stock entrar.' },
 ], { papel: 'Separação' });
 registarRoteiro('exp-carregar', 'Expedição · Carregar e fechar a saída', [
   { ecra: 'tx-inicio', legenda: 'O Paulo, da expedição: a guia que o motor lhe deu, na prateleira de preparados. Começa.', clicar: '.ta-trabalho' },
