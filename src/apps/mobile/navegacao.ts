@@ -320,7 +320,11 @@ function comVoltar<T extends string>(ecras: Ecra<T>[]): Ecra<T>[] {
   const ids = new Set<string>(ecras.map((e) => e.id));
   return ecras.map((e) => {
     const base = e.estadoDe ?? e.id;
-    let pai = PAI.find(([r]) => r.test(base))?.[1] ?? 'gestor-inicio';
+    /* 3 nov.: o Início de quem arruma, separa ou expede é a raiz da função: sem «Voltar» (ia dar ao Centro do Gestor); os
+       outros ecrãs dessas funções sem «Voltar» próprio voltam ao Início da função */
+    const fun = /^(ta|ts|tx)-/.exec(base)?.[1];
+    if (fun && base === `${fun}-inicio`) return e;
+    let pai = PAI.find(([r]) => r.test(base))?.[1] ?? (fun ? `${fun}-inicio` : 'gestor-inicio');
     if (pai === base || (pai && !ids.has(pai))) pai = pai === 'op-inicio' || base.startsWith('op-') ? LOGIN : 'gestor-inicio';
     const botao = `<button type="button" class="gp-voltar" ${pai ? `data-ir="${pai}" aria-label="Voltar"` : 'data-login aria-label="Voltar ao início de sessão"'}>${L(arrowLeft)}</button>`;
     const versoes = e.versoes.map((v) => v.html.includes('class="gp-topo"') && !v.html.includes('class="gp-voltar"') ? { ...v, html: v.html.replace(/(<header class="gp-topo">)/, `$1\n    ${botao}`) } : v);

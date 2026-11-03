@@ -288,7 +288,7 @@ export function ecrasSeparacaoExpedicao(): Ecra<string>[] {
     S('ts-chamar', '116 · Chamar o gestor (70)', 'Sem largar a tarefa; volta à paragem.', chamar(FS)),
     S('ts-chamado', '116.1 · O gestor foi chamado (71)', 'A tarefa fica consigo.', chamar(FS, 'chamado'), 'ts-chamar'),
     S('ts-chamado-resposta', '116.2 · O gestor respondeu', 'A resposta e «Continuar a tarefa».', chamar(FS, 'resposta'), 'ts-chamar'),
-    S('ts-sair', '117 · Sair com a guia a meio (38)', 'O que se tirou vai à prateleira da guia; o resto volta ao motor.', sairS()),
+    S('ts-sair', '117 · Pausar (38)', '«Pausar», na faixa da guia: o que fica guardado e onde se retoma.', sairS()),
     S('ts-consultar-guia', '118 · Consultar guia (39)', 'Só de ver.', consultarS('guia')),
     S('ts-consultar-artigo', '119 · Consultar artigo (40)', 'Onde está e quanto está reservado.', consultarS('artigo')),
     S('ts-consultar-posicao', '120 · Consultar posição (41)', 'Sem corrigir: a separação não corrige posições.', consultarS('posicao')),
