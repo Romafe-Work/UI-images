@@ -67,12 +67,9 @@ const $ = <T extends HTMLElement = HTMLElement>(s: string, r: ParentNode | null 
 const $$ = <T extends HTMLElement = HTMLElement>(s: string, r: ParentNode | null = raiz) => [...(r?.querySelectorAll<T>(s) ?? [])];
 const utilizador = () => lerSessao()?.correio ?? PERFIS[perfil].correio;
 const CHAVE = () => `erp:ide:${utilizador()}`;
-const hora = () => new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
 
-function mensagem(t: string, tipo: 'info' | 'aviso' | 'erro' = 'info'): void {
-  dados.mensagens.unshift({ quando: hora(), tipo, t }); dados.mensagens = dados.mensagens.slice(0, 40);
-  pintarFerr(idFerr('mensagens'));
-}
+/* 6 nov. (ela: «mensagens não faz sentido»): a vista Mensagens saiu; o que a área de trabalho faz por ti diz-se numa nota */
+function mensagem(t: string, _tipo: 'info' | 'aviso' | 'erro' = 'info'): void { dizer(t); }
 let avisoT = 0;
 function dizer(t: string): void {
   const el = $('[data-ide-aviso]'); if (!el) return;
@@ -854,8 +851,8 @@ function espelhoDe(el: Element): HTMLElement | null {
 (window as unknown as { ideEspelho?: typeof espelhoDe }).ideEspelho = espelhoDe;
 
 /* ---------- a barra de atividade (VS Code): um ícone por vista ---------- */
-const VISTAS: IdFerr[] = ['explorador', 'pesquisa', 'propriedades', 'stock', 'relacionados', 'historico', 'notificacoes', 'mensagens'];
-const TECLA_VISTA: Partial<Record<IdFerr, string>> = { explorador: 'explorador', pesquisa: 'pesquisa', mensagens: 'ver-mensagens', propriedades: 'ver-propriedades', stock: 'ver-stock', relacionados: 'ver-relacionados', notificacoes: 'ver-notificacoes' };
+const VISTAS: IdFerr[] = ['explorador', 'pesquisa', 'propriedades', 'stock', 'relacionados', 'historico', 'notificacoes'];
+const TECLA_VISTA: Partial<Record<IdFerr, string>> = { explorador: 'explorador', pesquisa: 'pesquisa', propriedades: 'ver-propriedades', stock: 'ver-stock', relacionados: 'ver-relacionados', notificacoes: 'ver-notificacoes' };
 function nNotificacoes(): number {
   const tmp = document.createElement('div'); tmp.innerHTML = corpoFerr(itemFerr('notificacoes'), { ...dados, q: '' });
   return [...tmp.querySelectorAll('.ide-n b')].reduce((s, b) => s + (parseInt(b.textContent ?? '', 10) || 0), 0);
@@ -1017,7 +1014,7 @@ function itensMenu(k: string): ItemMenu[] {
         { t: 'Aplicar disposição', ic: L(I.layoutTemplate), sub: [...Object.keys(nomeadas).map((n) => ({ cmd: `disp:${n}`, t: n, marcado: n === nomeDisp })), ...(Object.keys(nomeadas).length ? [{ sep: true }] : []), ...PRESETS.map((p) => ({ cmd: `preset:${p.id}`, t: p.nome }))] },
         ...(docs.length ? [{ sep: true }, { titulo: 'Abertos' }, ...docs.slice(0, 12).map((i): ItemMenu => ({ cmd: `ir:${i.id}`, t: i.titulo, marcado: i.id === d.ativo }))] : [])];
     }
-    case 'ferramentas': return [cmd('atalhos', 'Atalhos de teclado…', '', false, L(I.keyboard)), cmd('disposicoes', 'Disposições…', at('menu-disposicoes'), false, L(I.layoutTemplate)), cmd('ver:mensagens', 'Mensagens', '', false, L(I.messageSquare))];
+    case 'ferramentas': return [cmd('atalhos', 'Atalhos de teclado…', '', false, L(I.keyboard)), cmd('disposicoes', 'Disposições…', at('menu-disposicoes'), false, L(I.layoutTemplate))];
     case 'ajuda': return [cmd('atalhos', 'Atalhos de teclado', 'F1', false, L(I.keyboard)), cmd('ver:notificacoes', 'Alertas de compras', at('ver-notificacoes'), false, L(I.bell))];
     default: return [];
   }
@@ -1123,7 +1120,6 @@ const ATALHOS: (LinhaAtalho & { cmd: string })[] = [
   A('zen', 'zen', 'Modo zen (só o documento; Esc sai)', 'Ctrl+K Z', G2),
   A('focar-lateral', 'focar-lateral', 'Ir para a barra lateral', 'Ctrl+0', G2),
   A('explorador', 'explorador', 'Módulos do ERP', 'Ctrl+Shift+E', G2),
-  A('ver-mensagens', 'ver:mensagens', 'Mensagens', 'Ctrl+Shift+M', G2),
   A('ver-propriedades', 'ver:propriedades', 'Ficha', 'Ctrl+Alt+P', G2),
   A('ver-stock', 'ver:stock', 'Stock por armazém', 'Ctrl+Alt+S', G2),
   A('ver-relacionados', 'ver:relacionados', 'Documentos ligados', 'Ctrl+Alt+R', G2),
@@ -1394,14 +1390,11 @@ function prepararCenario(c: string): void {
     }
     case 'notificacoes': verFerr('notificacoes'); break;
     case 'reposta':
-      mensagem('Disposição «Compras» reposta.');
-      mensagem('Ao repor a disposição, saiu «Fornecedores»: já não existe no ERP novo ou não tens acesso.', 'aviso');
-      verFerr('mensagens'); dizer('Disposição «Compras» reposta. Um ecrã ficou de fora: vê as Mensagens.'); break;
+      dizer('Disposição «Compras» reposta. Saiu «Fornecedores»: já não existe no ERP novo ou não tens acesso.'); break;
     case 'invalida':
-      mensagem('A disposição guardada não era válida (talvez de outra versão do ERP). Abrimos a disposição padrão.', 'aviso');
-      verFerr('mensagens'); dizer('A disposição guardada não se pôde repor: abrimos a padrão.'); break;
+      dizer('A disposição guardada não era válida (talvez de outra versão do ERP): abrimos a padrão.'); break;
     case 'sem-acesso': abrirDoc('compras.encomendas'); break;
-    case 'sem-rota': abrirDoc('compras.fornecedores', { titulo: 'Fornecedores' }); verFerr('mensagens'); break;
+    case 'sem-rota': abrirDoc('compras.fornecedores', { titulo: 'Fornecedores' }); break;
     case 'offline': dizer('Sem ligação ao servidor. O que está aberto continua à vista; o que grava espera pela ligação.'); break;
     case 'falha': mensagem('«Lista de Faltas» não abriu: o ecrã não respondeu em 20 segundos.', 'erro'); break;
     case 'sessao': abrirDlg(dlgSessao()); break;

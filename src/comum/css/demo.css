@@ -158,7 +158,7 @@
 .demo .versoes { display: none; }
 .demo-barra {
   view-transition-name: demo-barra;
-  position: fixed; left: 50%; bottom: 16px; z-index: 50; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: 16px; z-index: 2147483000; transform: translateX(-50%);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px;
   width: max-content; max-width: calc(100vw - 32px); padding: 10px 14px;
   font: 13px/1.3 var(--f-base, system-ui, sans-serif); color: #fff;

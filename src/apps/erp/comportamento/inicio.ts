@@ -564,7 +564,8 @@ function entrar(): void {
   window.setTimeout(() => raiz?.classList.remove('is-chegada'), 1100);
 }
 function armar(): void {
-  const r = document.querySelector<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ws');
+  /* só o espaço de trabalho do Início (com o menu lateral): as janelas das Guias também usam a classe «ws» (6 nov.) */
+  const r = [...document.querySelectorAll<HTMLElement>('.ecra:not([hidden]) > .versao:not([hidden]) .ws')].find((x) => x.querySelector('.ws-lado') && x.querySelector('.ws-principal')) ?? null;
   if (r === raiz) return;
   camada = null;
   raiz = r;

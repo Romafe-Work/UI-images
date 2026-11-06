@@ -10,6 +10,12 @@ import { registarReproducao, type PassoReproducao } from '../../comum/demo';
 import { mostrar, mostrarVersao } from '../../comum/ecras';
 
 const SEM = { semTexto: true };
+/* 6 nov. (ela: «quero o ver fluxo com o rato com todos os cenários e de todos os ecrãs possíveis»): «Tudo» é o primeiro
+   da lista — os casos todos, um a seguir ao outro, e depois todos os ecrãs e estados com a explicação de cada um */
+const CASOS: Passo[] = [];
+const registarCaso = (id: string, titulo: string, passos: Passo[], o = SEM): void => { registarRoteiro(id, titulo, passos, o); CASOS.push(...passos); };
+registarRoteiro('erp-tudo', 'Tudo: todos os casos, ecrãs e estados', () => [...CASOS, ...todosEcras()]);
+
 /** Abre um ecrã pelo Explorador (o Início v3, 6 nov.) e espera que o separador carregue. */
 const menu = (rota: string): Passo => ({ legenda: '', clicar: `.ide-x-g [data-ide-abrir="${rota}"]`, pausa: 1800 });
 /** Um clique dentro do separador ativo. */
@@ -17,7 +23,7 @@ const sep = (clicar: string, pausa = 0): Passo => ({ legenda: '', clicar, separa
 
 /* 28 out. (ela: «melhora o fluxo no erp!!!»): cada caso acaba no resultado à vista — a encomenda com as linhas novas,
    a ficha com as receções — e as janelas fecham-se antes de passar ao seguinte, como faria quem trabalha */
-registarRoteiro('erp-faltas', 'Lista de Faltas: da falta à encomenda', [
+registarCaso('erp-faltas', 'Lista de Faltas: da falta à encomenda', [
   { ecra: 'inicio', ...menu('compras.faltas') },
   sep('tr[data-lf2-ref="0 986 424 797"]', 1200),
   sep('[data-lf2-jan-acao="fechar"]'),
@@ -30,7 +36,7 @@ registarRoteiro('erp-faltas', 'Lista de Faltas: da falta à encomenda', [
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-encomendas', 'Encomendas: uma encomenda e as quatro vistas', [
+registarCaso('erp-encomendas', 'Encomendas: uma encomenda e as quatro vistas', [
   { ecra: 'inicio', ...menu('compras.encomendas') },
   sep('tr[data-dv2-id="EF 2026/0411"]', 1000),
   sep('[data-dv2-jan-tab="linhas"]', 900),
@@ -45,7 +51,7 @@ registarRoteiro('erp-encomendas', 'Encomendas: uma encomenda e as quatro vistas'
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-orcamentos', 'Orçamentos: da proposta à encomenda', [
+registarCaso('erp-orcamentos', 'Orçamentos: da proposta à encomenda', [
   { ecra: 'inicio', ...menu('compras.cotacoes') },
   sep('[data-dv2-modo="data"]', 600),
   sep('tr[data-dv2-id="PC 2026/0016|gates"]', 1200),
@@ -59,7 +65,7 @@ registarRoteiro('erp-orcamentos', 'Orçamentos: da proposta à encomenda', [
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-guias-faturas', 'Guias e faturas', [
+registarCaso('erp-guias-faturas', 'Guias e faturas', [
   { ecra: 'inicio', ...menu('compras.compras-guias-entrada') },
   sep('tr[data-rc2-abrir="gui:GR 88213"]', 1800),
   sep('[data-rc2-acao="fechar"]'),
@@ -75,7 +81,7 @@ registarRoteiro('erp-guias-faturas', 'Guias e faturas', [
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-mapas', 'Mapas: documentos e análise', [
+registarCaso('erp-mapas', 'Mapas: documentos e análise', [
   { ecra: 'inicio', ...menu('compras.mapas-tot-enc') },
   sep('[data-fx-par-vista="det"]'),
   menu('compras.analise-artigo'),
@@ -108,7 +114,7 @@ const abrirEx = (rota: string, pausa = 1400): Passo => ({ legenda: '', clicar: `
 const noQuadro = (item: string, clicar: string, pausa = 0): Passo => ({ legenda: '', clicar, separador: `${IDE}iframe[data-ide-frame="${item}"]`, pausa });
 const FAL = 'doc:compras.faltas', ENC = 'doc:compras.encomendas';
 
-registarRoteiro('erp-area-trabalho', 'Área de trabalho: dividir, acoplar, flutuar e guardar a disposição', [
+registarCaso('erp-area-trabalho', 'Área de trabalho: dividir, acoplar, flutuar e guardar a disposição', [
   { ecra: 'inicio', ...abrirEx('compras.encomendas') },
   abrirEx('compras.faltas', 1800),
   { legenda: '', arrastar: { de: `[data-ide-tab="${FAL}"]`, para: guia(FAL, 'dir') }, pausa: 1200 },
@@ -135,7 +141,7 @@ registarRoteiro('erp-area-trabalho', 'Área de trabalho: dividir, acoplar, flutu
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-vscode', 'Como o VS Code: barra lateral, painel, paleta e teclas', [
+registarCaso('erp-vscode', 'Como o VS Code: barra lateral, painel, paleta e teclas', [
   { ecra: 'inicio', legenda: '', tecla: 'Control+B', pausa: 400 },
   { legenda: '', tecla: 'Control+B', pausa: 400 },
   { legenda: '', clicar: '[data-ide-atv-f="explorador"]', pausa: 400 },
@@ -159,7 +165,7 @@ registarRoteiro('erp-vscode', 'Como o VS Code: barra lateral, painel, paleta e t
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-contexto', 'Documentos ligados: stock, propriedades e relacionados', [
+registarCaso('erp-contexto', 'Documentos ligados: stock, propriedades e relacionados', [
   { ecra: 'inicio', legenda: '', clicar: '[data-ide-estado] [data-ide-cmd="menu-disposicoes"]' },
   { legenda: '', clicar: '[data-ide-pop] [data-ide-cmd="preset:compras"]', pausa: 2400 },
   noQuadro(FAL, 'tr[data-lf2-ref="0 986 494 524"]', 900),
@@ -176,7 +182,7 @@ registarRoteiro('erp-contexto', 'Documentos ligados: stock, propriedades e relac
   { legenda: '' },
 ], SEM);
 
-registarRoteiro('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, fornecedores e automático', [
+registarCaso('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, fornecedores e automático', [
   { ecra: 'inicio', ...menu('compras.mapas-tot-ge') },
   sep('[data-fx-par-vista="det"]', 900),
   menu('compras.mapas-recap'),
@@ -194,11 +200,12 @@ registarRoteiro('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, forn
 registarRoteiro('erp-estados-inicio', 'Os estados da área de trabalho, um a um', () => percurso((e) => e.dataset.ecra === 'inicio' || e.dataset.estadoDe === 'inicio'));
 /* 6 nov. (ela: «no ver fluxo com o rato também»): primeiro os ecrãs das Compras abertos pelos Módulos, como quem
    trabalha; depois todos os ecrãs e estados, cada um com a explicação */
-registarRoteiro('erp-todos', 'Todos os ecrãs e estados do ERP', () => [
+function todosEcras(): Passo[] { return [
   { ecra: 'inicio', legenda: '' },
   ...[...(document.querySelector('.ecra[data-ecra="inicio"] > .versao:not([hidden])')?.querySelectorAll<HTMLElement>('.ide-x-g [data-ide-abrir]') ?? [])].map((el) => menu(el.dataset.ideAbrir!)),
   ...percurso(),
-]);
+]; }
+registarRoteiro('erp-todos', 'Todos os ecrãs e estados do ERP', todosEcras);
 
 /* 28 out. (ela: «reproduzir fluxo no erp está mal no menu»): «Reproduzir o fluxo» andava pelos 31 estados do Início
    (menu recolhido, em esqueleto, sem módulos, sessão expirada…) e nunca passava pelo menu Compras. Agora segue o menu

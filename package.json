@@ -12,6 +12,7 @@
     "testar:barra": "node scripts/testar-barra.mjs",
     "testar:inicio": "node scripts/testar-inicio.mjs",
     "testar:ide": "node scripts/testar-ide.mjs",
+    "testar:ecras-erp": "node scripts/testar-ecras-erp.mjs",
     "testar:fluxos": "node scripts/testar-fluxos.mjs",
     "roteiros": "node scripts/roteiro-ecras.mjs"
   },

@@ -203,6 +203,8 @@ export function mostrar(nome: string): boolean {
   document.dispatchEvent(new CustomEvent('romafe:mostrado', { detail: nome }));
   return true;
 }
+/* 6 nov.: para os testes de todos os ecrãs (scripts/testar-ecras-erp.mjs), só no servidor de desenvolvimento */
+if (import.meta.env.DEV) (window as unknown as { __mostrar?: typeof mostrar }).__mostrar = mostrar;
 
 /* ---------------- a transição entre ecrãs ----------------
    No protótipo normal, trocar de ecrã é instantâneo. A demonstração
