@@ -504,7 +504,8 @@ function paraSeparador(): void {
   const ec = document.querySelector<HTMLElement>('.ecra:not([hidden])'); if (!ec || ec.dataset.estadoDe) return;
   const rota = rotaDoEcra(ec.dataset.ecra!); if (!rota) return;
   mostrar('inicio');
-  requestAnimationFrame(() => { armar(); if (pg && normal) abrirRota(rota); });
+  /* (6 nov.) na v3 do Início (o IDE) quem abre é o motor dela: comportamento/ide.ts */
+  requestAnimationFrame(() => { armar(); if (pg && normal) abrirRota(rota); else document.dispatchEvent(new CustomEvent('erp:abrir', { detail: rota })); });
 }
 export function iniciar(): void {
   /* dentro de um separador, a página esconde a sua moldura */
