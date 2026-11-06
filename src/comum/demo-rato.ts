@@ -18,7 +18,7 @@ export interface Passo {
   /** escolher um valor num select em vez de clicar */
   escolher?: [string, string];
   /** 28 out. (ERP): o alvo está no separador ativo da área de trabalho (um iframe da mesma origem), e não na página de cima */
-  separador?: boolean;
+  separador?: boolean | string;
   /** a legenda do passo */
   legenda: string;
   /** espera a mais, depois do passo (ms) */
@@ -26,6 +26,13 @@ export interface Passo {
   /** 28 out. (ela: «o fluxo com o rato em mobile também deve representar todos os cenários de todos os ecrãs»): vai a este
       ecrã — clica a ligação verdadeira (data-ir / data-depois) quando o ecrã que se vê a tem; senão mostra-o, como um estado */
   ir?: string;
+  /** 6 nov. (ERP, a área de trabalho): arrasta de um elemento até um ponto (calculado já com o arrasto a decorrer, porque as
+      guias de acoplar só aparecem nessa altura). O rato desce, leva e larga, com os eventos de ponteiro verdadeiros. */
+  arrastar?: { de: string; para: () => { x: number; y: number } | null };
+  /** prime uma combinação de teclas («Control+B», «Control+K Control+P»); um selo mostra-a junto do rato */
+  tecla?: string;
+  /** escreve num campo, letra a letra */
+  escrever?: [string, string];
 }
 type Fonte = Passo[] | (() => Passo[]);
 const ROTEIROS = new Map<string, { titulo: string; passos: Fonte; semTexto?: boolean; papel?: string; ecras?: string[] }>();
@@ -71,8 +78,10 @@ function doSeparador(): Document | null {
   });
   try { return f?.contentDocument ?? null; } catch { return null; }
 }
-function alvo(sel: string, separador = false): HTMLElement | null {
-  const doc = separador ? doSeparador() : document; if (!doc) return null;
+/** 6 nov.: com os ecrãs lado a lado, o passo pode dizer qual (o seletor do iframe dele). */
+function doQuadro(sel: string): Document | null { try { return document.querySelector<HTMLIFrameElement>(sel)?.contentDocument ?? null; } catch { return null; } }
+function alvo(sel: string, separador: boolean | string = false): HTMLElement | null {
+  const doc = typeof separador === 'string' ? doQuadro(separador) : separador ? doSeparador() : document; if (!doc) return null;
   const d = doc.querySelector<HTMLElement>('dialog[open]');
   return (d?.querySelector<HTMLElement>(sel)) ?? doc.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) ${sel}`) ?? (separador ? doc.querySelector<HTMLElement>(sel) : null);
 }
@@ -89,6 +98,8 @@ function aVista(el: HTMLElement): boolean {
   const r = el.getBoundingClientRect(), fundo = Math.min(barra - oy - 12, el.ownerDocument.defaultView?.innerHeight ?? innerHeight);
   for (let p = el.parentElement; p; p = p.parentElement) {
     const cs = getComputedStyle(p), raiz = p === el.ownerDocument.documentElement;
+    /* 6 nov.: a área de trabalho do ERP ocupa a janela e já fica por cima da barra: a página de cima não rola */
+    if (raiz && el.ownerDocument === document && el.closest('[data-ide]')) break;
     if (!raiz && !/(auto|scroll)/.test(cs.overflowY)) continue;
     if (p.scrollHeight <= p.clientHeight + 1) { if (raiz) break; continue; }
     const q = raiz ? { top: 0, bottom: fundo } : p.getBoundingClientRect(), baixo = Math.min(q.bottom, fundo);
@@ -105,6 +116,58 @@ async function mover(el: HTMLElement): Promise<void> {
   rato!.animate([{ transform: `translate(${x}px, ${y}px)` }, { transform: `translate(${nx}px, ${ny}px)` }], { duration: t, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'forwards' });
   x = nx; y = ny; rato!.style.transform = `translate(${x}px, ${y}px)`;
   await dormir(t);
+}
+const ponteiro = (tipo: string, px: number, py: number, alvo?: Element | null) => {
+  const el = alvo ?? document.elementFromPoint(px, py) ?? document.body;
+  el.dispatchEvent(new PointerEvent(tipo, { bubbles: true, cancelable: true, composed: true, clientX: px, clientY: py, button: 0, buttons: tipo === 'pointerup' ? 0 : 1, pointerId: 1, pointerType: 'mouse', isPrimary: true }));
+};
+/** Arrastar: desce no elemento, leva o rato em passos (com os eventos pelo caminho) e larga no ponto pedido. */
+async function arrastarDe(de: HTMLElement, para: () => { x: number; y: number } | null): Promise<boolean> {
+  await mover(de);
+  const r = de.getBoundingClientRect(), [ox, oy] = origem(de);
+  const x0 = ox + r.left + Math.min(r.width / 2, 60), y0 = oy + r.top + r.height / 2;
+  rato!.classList.add('is-preso');
+  ponteiro('pointerdown', x0, y0, de);
+  /* os primeiros pixéis: começa o arrasto e aparecem as guias */
+  for (let k = 1; k <= 4; k++) { ponteiro('pointermove', x0 + k * 4, y0 + k * 3); await dormir(16); }
+  x = x0 + 16; y = y0 + 12; rato!.style.transform = `translate(${x}px, ${y}px)`;
+  const p = para(); if (!p) { ponteiro('pointerup', x, y); rato!.classList.remove('is-preso'); return false; }
+  const n = quieto() ? 2 : 28, xa = x, ya = y;
+  for (let k = 1; k <= n; k++) {
+    const t = k / n, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const px = xa + (p.x - xa) * e, py = ya + (p.y - ya) * e;
+    x = px; y = py; rato!.style.transform = `translate(${x}px, ${y}px)`;
+    ponteiro('pointermove', px, py); await dormir(quieto() ? 0 : 24);
+  }
+  await dormir(quieto() ? 100 : 500);
+  ponteiro('pointerup', p.x, p.y); rato!.classList.remove('is-preso');
+  return true;
+}
+/** As teclas: «Control+B», ou uma sequência «Control+K Control+P». O selo mostra-as como se leem («Ctrl B»). */
+const CODIGOS: Record<string, string> = { '\\': 'Backslash', '`': 'Backquote', ',': 'Comma', '.': 'Period', '/': 'Slash', '-': 'Minus', '=': 'Equal' };
+async function premir(seq: string): Promise<void> {
+  selo(seq.replace(/Control/g, 'Ctrl').replace(/\+/g, ' ').replace(/ArrowRight/g, '→').replace(/ArrowLeft/g, '←'));
+  for (const parte of seq.split(' ')) {
+    const ks = parte.split('+'), key = ks[ks.length - 1];
+    const code = /^[A-Za-z]$/.test(key) ? `Key${key.toUpperCase()}` : /^\d$/.test(key) ? `Digit${key}` : CODIGOS[key] ?? key;
+    const o = { key: key.length === 1 ? key.toLowerCase() : key, code, ctrlKey: ks.includes('Control'), shiftKey: ks.includes('Shift'), altKey: ks.includes('Alt'), metaKey: ks.includes('Meta'), bubbles: true, cancelable: true };
+    window.dispatchEvent(new KeyboardEvent('keydown', o)); window.dispatchEvent(new KeyboardEvent('keyup', o));
+    await dormir(quieto() ? 60 : 260);
+  }
+}
+let seloEl: HTMLElement | null = null;
+function selo(t: string): void {
+  if (!seloEl) { seloEl = document.createElement('div'); seloEl.className = 'demo-tecla'; seloEl.setAttribute('popover', 'manual'); seloEl.setAttribute('aria-hidden', 'true'); document.body.append(seloEl); }
+  seloEl.textContent = t;
+  seloEl.style.transform = `translate(${Math.min(x + 26, innerWidth - 180)}px, ${y + 24}px)`;
+  try { seloEl.hidePopover(); seloEl.showPopover(); } catch { /* */ }
+  if (!quieto()) seloEl.animate([{ opacity: 0, scale: .9 }, { opacity: 1, scale: 1, offset: .12 }, { opacity: 1, offset: .8 }, { opacity: 0 }], { duration: 1600, fill: 'forwards' });
+  else window.setTimeout(() => { try { seloEl?.hidePopover(); } catch { /* */ } }, 1200);
+}
+/** Escreve num campo, letra a letra, com os eventos de input (a página responde como se fosse alguém a escrever). */
+async function escreverEm(el: HTMLInputElement, texto: string): Promise<void> {
+  el.focus(); el.value = '';
+  for (const c of texto) { el.value += c; el.dispatchEvent(new Event('input', { bubbles: true })); await dormir(quieto() ? 10 : 70); }
 }
 async function clicar(el: HTMLElement): Promise<void> {
   rato!.classList.remove('is-clique'); void rato!.offsetWidth; rato!.classList.add('is-clique');
@@ -140,14 +203,20 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
       } else if (p.clicar) {
         const el = alvo(p.clicar, p.separador); if (!el) { fim('O roteiro parou: este ecrã mudou.'); break; }
         await mover(el); await clicar(el);
+      } else if (p.arrastar) {
+        const el = alvo(p.arrastar.de, p.separador); if (!el || !(await arrastarDe(el, p.arrastar.para))) { fim('O roteiro parou: este ecrã mudou.'); break; }
+      } else if (p.escrever) {
+        const el = alvo(p.escrever[0], p.separador) as HTMLInputElement | null; if (!el) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        await mover(el); await escreverEm(el, p.escrever[1]);
       }
+      if (p.tecla) await premir(p.tecla);
       await dormir((quieto() ? 300 : 1000) + (p.pausa ?? 0));
       aoCimo();
     }
     if (!parar) await dormir(1800);
   } finally {
     ativo = false; document.body.classList.remove('demo-a-tocar', 'demo-sem-texto');
-    try { rato?.hidePopover(); legenda?.hidePopover(); } catch { /* sem popover */ }
+    try { rato?.hidePopover(); legenda?.hidePopover(); seloEl?.hidePopover(); } catch { /* sem popover */ }
   }
 }
 

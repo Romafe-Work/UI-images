@@ -5,7 +5,7 @@
    trabalha dentro do separador (separador: true). Escolhe-se em «Com o rato», na barra da demonstração.
    Link para mandar: …/erp/#so=ecra&demo=1&anim=dissolver&ecra=inicio&rato=<id>
    ========================================================= */
-import { registarRoteiro, type Passo } from '../../comum/demo-rato';
+import { registarRoteiro, percurso, type Passo } from '../../comum/demo-rato';
 import { registarReproducao, type PassoReproducao } from '../../comum/demo';
 import { mostrar, mostrarVersao } from '../../comum/ecras';
 
@@ -83,6 +83,116 @@ registarRoteiro('erp-mapas', 'Mapas: documentos e análise', [
   sep('[data-cf-acao="gerar"]', 1200),
   { legenda: '' },
 ], SEM);
+
+/* =========================================================
+   6 nov. (ela: «a demonstração de ver o fluxo com o rato deve estar a funcionar com todos os screens e cenários possíveis
+   para mostrar ao meu chefe»): a área de trabalho (abrir, dividir, arrastar, acoplar, ocultar, flutuar, guardar e repor
+   a disposição), o que é como o VS Code (barra lateral, painel, paleta, teclas), os documentos ligados, os mapas que
+   faltavam, e dois percursos com explicação: os estados do Início e todos os ecrãs e estados do ERP.
+   ========================================================= */
+const IDE = '.ecra:not([hidden]) > .versao:not([hidden]) .ide ';
+const q = (sel: string) => document.querySelector<HTMLElement>(IDE + sel);
+const grupoDe = (item: string) => q(`[data-ide-grupo]:has(:is([data-ide-tab="${item}"], [data-ide-tit="${item}"]))`);
+/** O centro de uma guia de acoplar do grupo que tem este separador (o losango: ao centro do corpo do grupo). */
+const guia = (item: string, zona: 'esq' | 'dir' | 'cima' | 'baixo' | 'centro') => () => {
+  const g = grupoDe(item); if (!g) return null;
+  const r = g.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + 30 + (r.height - 30) / 2, d = 38;
+  return { esq: { x: cx - d, y: cy }, dir: { x: cx + d, y: cy }, cima: { x: cx, y: cy - d }, baixo: { x: cx, y: cy + d }, centro: { x: cx, y: cy } }[zona];
+};
+/** A seta de acoplar numa borda da área inteira. */
+const bordaArea = (lado: 'esq' | 'dir') => () => { const a = q('[data-ide-area]'); if (!a) return null; const r = a.getBoundingClientRect(); return { x: lado === 'esq' ? r.left + 25 : r.right - 25, y: r.top + r.height / 2 }; };
+/** Um sítio livre (sem guia por baixo) dentro do grupo deste separador: largar aí põe a flutuar. */
+const livre = (item: string) => () => { const g = grupoDe(item); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 90, y: r.top + 110 }; };
+const deslocar = (sel: string, dx: number, dy: number) => () => { const el = q(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 + dx, y: r.top + r.height / 2 + dy }; };
+const abrirEx = (rota: string, pausa = 1400): Passo => ({ legenda: '', clicar: `.ide-x-g [data-ide-abrir="${rota}"]`, pausa });
+const noQuadro = (item: string, clicar: string, pausa = 0): Passo => ({ legenda: '', clicar, separador: `${IDE}iframe[data-ide-frame="${item}"]`, pausa });
+const FAL = 'doc:compras.faltas', ENC = 'doc:compras.encomendas';
+
+registarRoteiro('erp-area-trabalho', 'Área de trabalho: dividir, acoplar, flutuar e guardar a disposição', [
+  { ecra: 'inicio', ...abrirEx('compras.encomendas') },
+  abrirEx('compras.faltas', 1800),
+  { legenda: '', arrastar: { de: `[data-ide-tab="${FAL}"]`, para: guia(FAL, 'dir') }, pausa: 1200 },
+  { legenda: '', arrastar: { de: `[data-ide-no]:has(> [data-ide-grupo] [data-ide-tab="${ENC}"]) + [data-ide-sep]`, para: deslocar(`[data-ide-no]:has(> [data-ide-grupo] [data-ide-tab="${ENC}"]) + [data-ide-sep]`, -140, 0) } },
+  { legenda: '', clicar: '[data-ide-atv-f="stock"]', pausa: 600 },
+  noQuadro(FAL, 'tr[data-lf2-ref="0 986 494 524"]', 900),
+  noQuadro(FAL, '[data-lf2-jan-acao="fechar"]'),
+  { legenda: '', clicar: '[data-ide-grupo]:has([data-ide-tit="ferr:explorador"]) [data-ide-g-acao="ocultar"]', pausa: 500 },
+  { legenda: '', clicar: '[data-ide-oculto="ferr:explorador"]', pausa: 900 },
+  { legenda: '', clicar: `[data-ide-tab="${ENC}"]` },
+  { legenda: '', arrastar: { de: '[data-ide-tit="ferr:stock"]', para: bordaArea('esq') }, pausa: 900 },
+  { legenda: '', arrastar: { de: '[data-ide-tit="ferr:stock"]', para: livre(ENC) }, pausa: 900 },
+  { legenda: '', arrastar: { de: '[data-ide-fj-arrastar]', para: deslocar('[data-ide-fj-arrastar]', 160, 60) } },
+  { legenda: '', clicar: '[data-ide-fj-acao="acoplar"]', pausa: 700 },
+  { legenda: '', clicar: '[data-ide-estado] [data-ide-cmd="menu-disposicoes"]' },
+  { legenda: '', clicar: '[data-ide-pop] [data-ide-cmd="guardar-disp"]' },
+  { legenda: '', escrever: ['[data-ide-disp-nome-in]', 'Compras'] },
+  { legenda: '', clicar: '[data-ide-disp-form] button[type="submit"]', pausa: 600 },
+  { legenda: '', clicar: '[data-ide-dlg] [data-ide-dlg-fechar]' },
+  { legenda: '', clicar: '[data-ide-estado] [data-ide-cmd="menu-disposicoes"]' },
+  { legenda: '', clicar: '[data-ide-pop] [data-ide-cmd="preset:artigos"]', pausa: 1800 },
+  { legenda: '', clicar: '[data-ide-estado] [data-ide-cmd="menu-disposicoes"]' },
+  { legenda: '', clicar: '[data-ide-pop] [data-ide-cmd="disp:Compras"]', pausa: 2200 },
+  { legenda: '' },
+], SEM);
+
+registarRoteiro('erp-vscode', 'Como o VS Code: barra lateral, painel, paleta e teclas', [
+  { ecra: 'inicio', legenda: '', tecla: 'Control+B', pausa: 400 },
+  { legenda: '', tecla: 'Control+B', pausa: 400 },
+  { legenda: '', clicar: '[data-ide-atv-f="explorador"]', pausa: 400 },
+  { legenda: '', clicar: '[data-ide-atv-f="explorador"]', pausa: 400 },
+  { legenda: '', clicar: '[data-ide-atv-f="pesquisa"]' },
+  { legenda: '', escrever: ['[data-ide-f-q="pesquisa"]', 'skf'], pausa: 500 },
+  { legenda: '', clicar: '[data-ide-ferr="ferr:pesquisa"] [data-ide-ctx^="artigo:"]', pausa: 900 },
+  { legenda: '', tecla: 'Control+J', pausa: 600 },
+  { legenda: '', tecla: 'Control+J', pausa: 600 },
+  { legenda: '', tecla: 'Control+P' },
+  { legenda: '', escrever: ['[data-ide-pal-q]', 'faltas'], pausa: 300 },
+  { legenda: '', tecla: 'Enter', pausa: 1600 },
+  { legenda: '', tecla: 'Control+\\', pausa: 1000 },
+  { legenda: '', tecla: 'Control+K Control+ArrowLeft', pausa: 600 },
+  { legenda: '', tecla: 'Control+Shift+P' },
+  { legenda: '', escrever: ['[data-ide-pal-q]', '>zen'], pausa: 300 },
+  { legenda: '', tecla: 'Enter', pausa: 1600 },
+  { legenda: '', tecla: 'Escape', pausa: 600 },
+  { legenda: '', tecla: 'Control+K Control+S', pausa: 2400 },
+  { legenda: '', tecla: 'Escape' },
+  { legenda: '' },
+], SEM);
+
+registarRoteiro('erp-contexto', 'Documentos ligados: stock, propriedades e relacionados', [
+  { ecra: 'inicio', legenda: '', clicar: '[data-ide-estado] [data-ide-cmd="menu-disposicoes"]' },
+  { legenda: '', clicar: '[data-ide-pop] [data-ide-cmd="preset:compras"]', pausa: 2400 },
+  noQuadro(FAL, 'tr[data-lf2-ref="0 986 494 524"]', 900),
+  noQuadro(FAL, '[data-lf2-jan-acao="fechar"]'),
+  { legenda: '', clicar: '[data-ide-tab="ferr:propriedades"]', pausa: 700 },
+  { legenda: '', clicar: '[data-ide-ferr="ferr:propriedades"] [data-ide-f-pin]', pausa: 600 },
+  noQuadro(FAL, 'tr[data-lf2-ref="0 986 424 797"]', 900),
+  noQuadro(FAL, '[data-lf2-jan-acao="fechar"]'),
+  { legenda: '', clicar: '[data-ide-tab="ferr:stock"]', pausa: 900 },
+  noQuadro(FAL, 'tr[data-lf2-ref="0 986 494 524"]', 700),
+  noQuadro(FAL, '[data-lf2-jan-acao="fechar"]'),
+  { legenda: '', clicar: '[data-ide-atv-f="relacionados"]', pausa: 700 },
+  { legenda: '', clicar: '[data-ide-ferr="ferr:relacionados"] [data-ide-enc]', pausa: 2400 },
+  { legenda: '' },
+], SEM);
+
+registarRoteiro('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, fornecedores e automático', [
+  { ecra: 'inicio', ...menu('compras.mapas-tot-ge') },
+  sep('[data-fx-par-vista="det"]', 900),
+  menu('compras.mapas-recap'),
+  sep('[data-rc-acao="gerar"]', 1400),
+  menu('compras.comp-geral-var'),
+  sep('[data-cf-acao="gerar"]', 1400),
+  menu('compras.mapas-analise-forn'),
+  sep('tr[data-fx-i="2"]', 900),
+  menu('compras.mapas-automatico'),
+  sep('[data-ak-acao="gerar"]', 1600),
+  { legenda: '' },
+], SEM);
+
+/* os percursos com explicação (nome e objetivo de cada um): os estados do Início, e todos os ecrãs e estados do ERP */
+registarRoteiro('erp-estados-inicio', 'Os estados da área de trabalho, um a um', () => percurso((e) => e.dataset.ecra === 'inicio' || e.dataset.estadoDe === 'inicio'));
+registarRoteiro('erp-todos', 'Todos os ecrãs e estados do ERP', () => percurso());
 
 /* 28 out. (ela: «reproduzir fluxo no erp está mal no menu»): «Reproduzir o fluxo» andava pelos 31 estados do Início
    (menu recolhido, em esqueleto, sem módulos, sessão expirada…) e nunca passava pelo menu Compras. Agora segue o menu

@@ -13,7 +13,7 @@
    - Disposições guardadas neste computador por utilizador (erp:ide:<correio>), com versão do esquema; ao repor,
      revalida as rotas e as permissões. Nunca se guardam dados dos documentos.
    ========================================================= */
-import { ROTAS, MENU_ERP, esc, L } from '../espaco';
+import { ROTAS, MENU_ERP, FICHA_PARA, rotaDoEcra, esc, L } from '../espaco';
 import { navegacao, type NoNav } from '../navegacao';
 import { perfilDaSessao, lerSessao } from '../sessao';
 import { PERFIS, type IdPerfil } from '../inicio-dados';
@@ -250,6 +250,20 @@ function ganchos(f: HTMLIFrameElement, id: string, segunda: boolean): void {
   doc.addEventListener('focusin', () => { if (d.ativo === id) return; if (performance.now() - t0 < 2500) { (doc.activeElement as HTMLElement | null)?.blur(); return; } ativar(id, false); });
   const verSel = (alvo: Element | null) => { const c = alvo && registo(alvo); if (c) mudarContexto(c, id); };
   doc.addEventListener('click', (ev) => { verSel(ev.target as Element); window.setTimeout(comandos, 60); }, true);
+  /* os pedidos que os ecrãs fazem à área de trabalho: abrir um documento num separador («Abrir» na Lista de Faltas) e
+     as janelas de contexto (o stock de um artigo, um fornecedor), que aqui são as janelas de ferramenta */
+  doc.addEventListener('click', (ev) => {
+    const t = ev.target as HTMLElement;
+    const pd = t.closest<HTMLElement>('[data-dk-doc]');
+    if (pd) {
+      let rota = pd.dataset.dkDoc!; const tit = pd.dataset.dkTitulo, ecra = ROTAS[rota]?.ecra;
+      if (ecra && FICHA_PARA[ecra] && !document.querySelector(`.ecra[data-ecra="${CSS.escape(ecra)}"]`)) rota = rotaDoEcra(FICHA_PARA[ecra]) ?? rota;
+      abrirDoc(rota, { titulo: tit, chave: tit && /\d{4}\/\d+/.test(tit) ? tit : undefined });
+      return;
+    }
+    const pj = t.closest<HTMLElement>('[data-dk-janela]');
+    if (pj) { const [tipo, ...ch] = pj.dataset.dkJanela!.split(':'); const forn = tipo === 'fornecedor'; mudarContexto({ tipo: forn ? 'fornecedor' : 'artigo', chave: ch.join(':') }, id); verFerr(forn ? 'propriedades' : 'stock'); }
+  });
   doc.addEventListener('keyup', (ev) => { if (/^Arrow|^Page|^Home|^End/.test(ev.key)) verSel(doc.activeElement); });
   if (segunda) { espelho(doc, w); return; }
   doc.addEventListener('input', (ev) => {
@@ -1131,6 +1145,14 @@ function gravarAtalho(ev: KeyboardEvent): void {
    Responsivo: abaixo do mínimo, só o grupo ativo à vista (a disposição fica)
    ========================================================= */
 let forcarDivisoes = false;
+/** Na demonstração (#…&demo=1), a barra dela flutua no fundo: a área de trabalho encolhe para caber por cima dela. */
+function caberAcimaDaDemo(): void {
+  if (!raiz) return;
+  const b = document.querySelector<HTMLElement>('.demo-barra');
+  const visivelB = !!b && b.getClientRects().length > 0 && getComputedStyle(b).visibility !== 'hidden' && getComputedStyle(b).display !== 'none';
+  const h = visivelB ? Math.max(0, innerHeight - b!.getBoundingClientRect().top + 10) : 0;
+  raiz.style.height = h ? `calc(100vh - ${Math.round(h)}px)` : '';
+}
 function medir(): void {
   if (!area) return;
   const r = area.getBoundingClientRect();
@@ -1166,6 +1188,7 @@ function armar(): void {
   persistir = cenario === 'normal';
   desenhar();
   ro = new ResizeObserver(() => medir()); ro.observe(area);
+  caberAcimaDaDemo(); window.setTimeout(caberAcimaDaDemo, 600);
   if (cenario !== 'normal') requestAnimationFrame(() => prepararCenario(cenario));
   if (pendente) { const r = pendente; pendente = null; abrirDoc(r); }
   const h = new URLSearchParams(location.hash.slice(1));
@@ -1395,7 +1418,9 @@ export function iniciar(): void {
   /* no protótipo, um ecrã de módulo aberto sozinho vem para um separador (espaco.ts → paraSeparador) */
   document.addEventListener('erp:abrir', (ev) => { const r = (ev as CustomEvent<string>).detail; if (raiz && normal) abrirDoc(r); else pendente = r; });
   document.addEventListener('romafe:rato-inicio', () => { raiz = null; requestAnimationFrame(armar); });
-  window.addEventListener('resize', () => { if (raiz) { medir(); fecharPop(); } });
+  window.addEventListener('resize', () => { if (raiz) { caberAcimaDaDemo(); medir(); fecharPop(); } });
+  /* a barra da demonstração aparece e desaparece (durante o rato, esconde-se): a área acompanha */
+  new MutationObserver(() => requestAnimationFrame(caberAcimaDaDemo)).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('online', barraEstado); window.addEventListener('offline', barraEstado);
   /* o que os ecrãs gravam chega aqui: os inspetores e a segunda vista dos documentos divididos atualizam-se */
   let stT = 0;
@@ -1428,10 +1453,10 @@ export function iniciar(): void {
     const t = ev.target as HTMLElement;
     if (t.closest('[data-ide-pop], [data-ide-dlg]')) return;
     let b: HTMLElement | null;
-    if ((b = t.closest('[data-ide-sep]'))) { ev.preventDefault(); b.setPointerCapture(ev.pointerId); comecarDivisoria(b, ev.clientX, ev.clientY); return; }
-    if ((b = t.closest('[data-ide-dv-sep]'))) { ev.preventDefault(); b.setPointerCapture(ev.pointerId); const it = d.itens[b.dataset.ideDvSep!]; if (it?.dividido) { dvDoc = { id: it.id, box: b.parentElement!, dir: it.dividido.dir }; raiz.classList.add('is-arrastar', it.dividido.dir === 'v' ? 'is-lin' : 'is-col'); } return; }
-    if ((b = t.closest('[data-ide-fj-r]'))) { ev.preventDefault(); const el = b.closest<HTMLElement>('[data-ide-fj]')!, f = d.flut.find((x) => x.id === el.dataset.ideFj)!; b.setPointerCapture(ev.pointerId); rz = { f, el, k: b.dataset.ideFjR!, x0: ev.clientX, y0: ev.clientY, r0: { x: f.x, y: f.y, w: f.w, h: f.h } }; raiz.classList.add('is-arrastar'); return; }
-    if ((b = t.closest('[data-ide-gav-r]'))) { ev.preventDefault(); b.setPointerCapture(ev.pointerId); const g = b.closest<HTMLElement>('[data-ide-gav]')!; rzGav = { id: g.dataset.ideGav!, el: g }; raiz.classList.add('is-arrastar'); return; }
+    if ((b = t.closest('[data-ide-sep]'))) { ev.preventDefault(); try { b.setPointerCapture(ev.pointerId); } catch { /* a demonstração com o rato não tem ponteiro de verdade */ } comecarDivisoria(b, ev.clientX, ev.clientY); return; }
+    if ((b = t.closest('[data-ide-dv-sep]'))) { ev.preventDefault(); try { b.setPointerCapture(ev.pointerId); } catch { /* a demonstração com o rato não tem ponteiro de verdade */ } const it = d.itens[b.dataset.ideDvSep!]; if (it?.dividido) { dvDoc = { id: it.id, box: b.parentElement!, dir: it.dividido.dir }; raiz.classList.add('is-arrastar', it.dividido.dir === 'v' ? 'is-lin' : 'is-col'); } return; }
+    if ((b = t.closest('[data-ide-fj-r]'))) { ev.preventDefault(); const el = b.closest<HTMLElement>('[data-ide-fj]')!, f = d.flut.find((x) => x.id === el.dataset.ideFj)!; try { b.setPointerCapture(ev.pointerId); } catch { /* a demonstração com o rato não tem ponteiro de verdade */ } rz = { f, el, k: b.dataset.ideFjR!, x0: ev.clientX, y0: ev.clientY, r0: { x: f.x, y: f.y, w: f.w, h: f.h } }; raiz.classList.add('is-arrastar'); return; }
+    if ((b = t.closest('[data-ide-gav-r]'))) { ev.preventDefault(); try { b.setPointerCapture(ev.pointerId); } catch { /* a demonstração com o rato não tem ponteiro de verdade */ } const g = b.closest<HTMLElement>('[data-ide-gav]')!; rzGav = { id: g.dataset.ideGav!, el: g }; raiz.classList.add('is-arrastar'); return; }
     if (t.closest('button:not([data-ide-abrir]), input, a')) return;
     const fjc = t.closest<HTMLElement>('[data-ide-fj-arrastar]');
     if (fjc) { const el = fjc.closest<HTMLElement>('[data-ide-fj]')!, f = d.flut.find((x) => x.id === el.dataset.ideFj)!; f.z = Math.max(0, ...d.flut.map((x) => x.z)) + 1; el.style.zIndex = String(10 + f.z * 2); posicionar(); const r = el.getBoundingClientRect(); comecar({ tipo: 'fj', fj: f.id, x0: ev.clientX, y0: ev.clientY, dx: ev.clientX - r.left, dy: ev.clientY - r.top, id: ev.pointerId }); return; }

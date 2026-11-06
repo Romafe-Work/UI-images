@@ -183,6 +183,8 @@
 .demo-barra__dica { flex-basis: 100%; margin: 0; text-align: center; font-size: 12px; color: rgba(255,255,255,.6); }
 /* deixar espaço para a barra no fim da página */
 body.demo::after { content: ''; display: block; height: 120px; }
+/* a área de trabalho do ERP (6 nov.) já encolhe para caber por cima da barra: sem espaço a mais por baixo */
+body.demo:has(.ecra:not([hidden]) > .versao:not([hidden]) [data-ide])::after { display: none; }
 
 @media (max-width: 600px) {
   .demo-barra { bottom: 8px; padding: 8px; gap: 6px; font-size: 12px; }
@@ -219,3 +221,8 @@ body.demo-a-tocar .ecra { cursor: default; }
 /* 28 out.: um roteiro sem texto — só o rato; a legenda não aparece (Esc continua a parar) */
 body.demo-sem-texto .demo-legenda { display: none !important; }
 .demo-barra__roteiro { max-width: 230px; }
+
+/* 6 nov. — a demonstração arrasta e prime teclas: o rato «preso» (a arrastar) e o selo com as teclas */
+.demo-rato.is-preso > svg { transform: scale(.9); }
+.demo-rato.is-preso::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: rgba(239, 123, 16, .45); }
+.demo-tecla { position: fixed; inset: 0 auto auto 0; margin: 0; padding: 6px 10px; border: 1px solid rgba(255, 255, 255, .25); border-radius: 10px; background: #0e1621; color: #fff; font: 700 15px/1.2 var(--f-mono, monospace); letter-spacing: .02em; pointer-events: none; z-index: 2147483646; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); overflow: visible; }
