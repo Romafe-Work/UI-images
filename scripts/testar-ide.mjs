@@ -240,7 +240,11 @@ await passo('Como o VS Code: barra lateral, painel, paleta, zen', async () => {
   await p.keyboard.press('Control+P'); await p.waitForTimeout(200);
   await p.keyboard.type('guias'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
   ok(await sel('[data-ide-tab="doc:compras.compras-guias-entrada"]').count() === 1, 'Ctrl P, «guias», Enter abre as Guias');
-  ok(await sel('.ide-cmds').count() === 0, 'sem a barra de comandos repetida (Novo, Editar…)');
+  /* 6 nov. (tarde): uma barra de ações só, por baixo do menu, com os botões do ecrã ativo; a do ecrã fica fora de vista */
+  await p.waitForTimeout(1500);
+  ok(await sel('[data-ide-acoes] button[data-ide-ac]').count() > 0, 'a barra de cima tem as ações do ecrã ativo');
+  const fora = await p.evaluate(() => [...document.querySelectorAll('iframe.ide-frame')].filter((f) => f.getBoundingClientRect().width).every((f) => [...(f.contentDocument?.querySelectorAll('.ak-barra') ?? [])].every((b) => { const r = b.getBoundingClientRect(); return !r.width || r.right < 0; })));
+  ok(fora, 'sem Novo, Editar… repetidos dentro dos ecrãs');
 });
 ok(erros.length === 0, `sem erros na página${erros.length ? `: ${erros.join(' | ')}` : ''}`);
 console.log(`\n${n - falhas}/${n} verificações passaram.`);

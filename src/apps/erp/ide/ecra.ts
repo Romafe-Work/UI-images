@@ -17,7 +17,7 @@ import { casca } from './vista';
 import { preset, idFerr, idDoc, novoId, grupos, type Disposicao } from './modelo';
 
 export const VERSAO_INICIO_V3 = 'v3';
-const NOTA = 'O Início v3 (6 nov., briefing «Visual Studio-style workspace»): a área de trabalho como um IDE — divisões encaixadas, separadores que se arrastam entre grupos com guias de acoplar, janelas de ferramenta (Explorador, Propriedades, Stock por armazém…) que se acoplam, ocultam na borda ou flutuam, e disposições com nome guardadas por utilizador. Os ecrãs abertos nunca se recarregam ao mudar de sítio.';
+const NOTA = 'O Início v3 (6 nov., briefing «Visual Studio-style workspace»): a área de trabalho como um IDE — divisões encaixadas, separadores que se arrastam entre grupos com guias de acoplar, janelas de ferramenta (Módulos, Ficha, Stock por armazém…) que se acoplam, ocultam na borda ou flutuam, e disposições com nome guardadas por utilizador. Os ecrãs abertos nunca se recarregam ao mudar de sítio.';
 const V3 = { id: VERSAO_INICIO_V3, nota: NOTA };
 
 /** As disposições dos estados (no editor e no protótipo; não se guardam) e o nome que a barra de estado mostra. */
@@ -75,7 +75,7 @@ const ESTADOS: [string, string, string][] = [
   ['compras', 'Disposição Compras', 'A disposição pronta «Compras»: a Lista de Faltas à esquerda, as Encomendas à direita e, por baixo, o stock e as propriedades do artigo escolhido na lista.'],
   ['guias', 'A acoplar um separador', 'A arrastar um separador: as guias aparecem no grupo por baixo do rato (ao centro junta, nos lados divide) e nas bordas da área; a zona escolhida (aqui, em baixo das Encomendas) fica sombreada antes de largar; as setas que dariam ecrãs estreitos demais ficam desligadas.'],
   ['flutuante', 'Janela flutuante', 'O Stock por armazém a flutuar por cima das Encomendas: arrasta-se, redimensiona-se, maximiza-se e volta ao sítio de onde saiu com «Acoplar».'],
-  ['oculto', 'Explorador oculto na borda', 'O Explorador e a Pesquisa ocultos na borda esquerda: um clique abre-os por cima do trabalho; o alfinete volta a acoplá-los.'],
+  ['oculto', 'Módulos ocultos na borda', 'Os Módulos e o Procurar ocultos na borda esquerda: um clique abre-os por cima do trabalho; o alfinete volta a acoplá-los.'],
   ['dividido', 'Documento dividido', 'As Encomendas divididas em duas vistas: a de cima edita, a de baixo é só de leitura e mostra o que está gravado; cada uma rola sozinha.'],
   ['disposicoes', 'Disposições', 'Guardar a disposição com um nome, aplicar, duplicar ou eliminar as tuas, e as prontas: Compras, Análise de Fornecedores, Gestão de Artigos e Contabilidade.'],
   ['artigos', 'Disposição Gestão de Artigos', 'O catálogo de artigos à esquerda, as propriedades do artigo à direita e o stock por armazém e o histórico por baixo.'],
@@ -90,21 +90,21 @@ const ESTADOS: [string, string, string][] = [
   ['menu-tab', 'Menu do separador', 'Botão direito num separador: fechar, fechar outros ou à direita, fixar, nova divisão para cada lado, mover para outro grupo, flutuar e dividir o documento.'],
   ['atalhos', 'Atalhos de teclado', 'As teclas do ERP antigo (F5, F6, F8, F9, F11…), que não mudam, e as da área de trabalho, que cada pessoa pode trocar.'],
   ['atalho-conflito', 'Atalho já usado', 'A trocar uma tecla: a combinação escolhida é do navegador ou do ERP antigo, e o ERP diz qual e pede outra.'],
-  ['vazio', 'Sem documentos abertos', 'Nenhum ecrã aberto: o grupo vazio diz como abrir um (Explorador, arrastar ou disposição).'],
+  ['vazio', 'Sem documentos abertos', 'Nenhum ecrã aberto: o grupo vazio diz como abrir um (Módulos, arrastar ou disposição).'],
   ['pesquisa', 'Pesquisa global', 'A Pesquisa com «skf»: ecrãs, artigos, fornecedores e encomendas a que a conta tem acesso; um clique abre ou escolhe.'],
-  ['relacionados', 'Documentos relacionados', 'A encomenda EF 2026/0411 escolhida: o fornecedor, as receções e os artigos dela; uma encomenda abre noutro grupo, ao lado.'],
-  ['fixado', 'Inspetor fixado', 'As Propriedades fixadas no 6206-2RSH não mudam quando se escolhe outro artigo; o Stock, ao lado, segue a seleção (0 986 424 797).'],
-  ['notificacoes', 'Notificações', 'Só o que os dados dizem: encomendas por aprovar, entregas atrasadas e artigos sem stock, cada um a abrir o documento.'],
-  ['reposta', 'Disposição reposta', 'Ao voltar ao ERP, a disposição é reposta; um ecrã que deixou de existir ou sem acesso fica de fora, e as Mensagens do sistema dizem qual.'],
-  ['invalida', 'Disposição guardada inválida', 'A disposição guardada não se pôde ler (outra versão do ERP): abre a padrão e as Mensagens do sistema dizem porquê.'],
-  ['sem-acesso', 'Sem acesso às Compras', 'Uma conta de Vendas: o Explorador não mostra módulos, as Encomendas da disposição ficam de fora e abrir um ecrã de Compras diz que não há acesso.'],
+  ['relacionados', 'Documentos ligados', 'A encomenda EF 2026/0411 escolhida: o fornecedor, as receções e os artigos dela; uma encomenda abre noutro grupo, ao lado.'],
+  ['fixado', 'Inspetor fixado', 'A Ficha fixada no 6206-2RSH não mudam quando se escolhe outro artigo; o Stock, ao lado, segue a seleção (0 986 424 797).'],
+  ['notificacoes', 'Alertas de compras', 'Só o que os dados dizem: encomendas por aprovar, entregas atrasadas e artigos sem stock, cada um a abrir o documento.'],
+  ['reposta', 'Disposição reposta', 'Ao voltar ao ERP, a disposição é reposta; um ecrã que deixou de existir ou sem acesso fica de fora, e as Mensagens dizem qual.'],
+  ['invalida', 'Disposição guardada inválida', 'A disposição guardada não se pôde ler (outra versão do ERP): abre a padrão e as Mensagens dizem porquê.'],
+  ['sem-acesso', 'Sem acesso às Compras', 'Uma conta de Vendas: os Módulos ficam vazios, as Encomendas da disposição ficam de fora e abrir um ecrã de Compras diz que não há acesso.'],
   ['sem-rota', 'Ecrã ainda sem rota', 'Pedir um ecrã que ainda não existe no ERP novo (Fornecedores): não abre, diz para continuar no ERP antigo e fica nas Mensagens do sistema.'],
   ['offline', 'Sem ligação', 'Sem ligação ao servidor: a barra de estado fica a vermelho; o que está aberto continua à vista e o que grava espera.'],
   ['a-abrir', 'A abrir', 'Os ecrãs a abrir: «A abrir…» no lugar de cada um e, na barra de estado, quantos faltam.'],
   ['falha', 'Ecrã que não abriu', 'A Lista de Faltas não respondeu a tempo: no lugar dela, o que aconteceu e «Tentar outra vez»; o resto continua a funcionar.'],
   ['sessao', 'Sessão expirada', 'A sessão terminou: «Entrar outra vez» leva ao login comum (ROMAFE Identity); a disposição fica guardada.'],
-  ['menu-a-carregar', 'Menu a carregar', 'A navegação ainda a chegar da API central: o Explorador mostra o esqueleto, sem inventar itens.'],
-  ['menu-falhou', 'O menu não carregou', 'A navegação não respondeu: o Explorador diz-o e deixa tentar outra vez; os ecrãs abertos continuam.'],
+  ['menu-a-carregar', 'Menu a carregar', 'A navegação ainda a chegar da API central: os Módulos mostram o esqueleto, sem inventar itens.'],
+  ['menu-falhou', 'O menu não carregou', 'A navegação não respondeu: os Módulos dizem-no e deixa tentar outra vez; os ecrãs abertos continuam.'],
 ];
 export type IdIde = `ide-${string}`;
 export function estadosIde(): Ecra<IdErp>[] {

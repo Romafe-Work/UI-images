@@ -83,7 +83,9 @@ function doQuadro(sel: string): Document | null { try { return document.querySel
 function alvo(sel: string, separador: boolean | string = false): HTMLElement | null {
   const doc = typeof separador === 'string' ? doQuadro(separador) : separador ? doSeparador() : document; if (!doc) return null;
   const d = doc.querySelector<HTMLElement>('dialog[open]');
-  return (d?.querySelector<HTMLElement>(sel)) ?? doc.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) ${sel}`) ?? (separador ? doc.querySelector<HTMLElement>(sel) : null);
+  const el = (d?.querySelector<HTMLElement>(sel)) ?? doc.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) ${sel}`) ?? (separador ? doc.querySelector<HTMLElement>(sel) : null);
+  /* 6 nov.: no Início v3 a barra de ações do ecrã está por cima, na área de trabalho; o rato vai à de cima */
+  return (el && doc !== document && (window as unknown as { ideEspelho?: (e: Element) => HTMLElement | null }).ideEspelho?.(el)) || el;
 }
 /** Onde o documento do elemento começa na janela de cima (0,0 na própria página; o canto do iframe num separador). */
 function origem(el: HTMLElement): [number, number] {

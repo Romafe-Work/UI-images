@@ -243,6 +243,7 @@ function ganchos(f: HTMLIFrameElement, id: string, segunda: boolean): void {
   let t = 'auto'; try { t = localStorage.getItem('uiux:tema') || 'auto'; } catch { /* */ }
   if (t === 'auto') doc.documentElement.removeAttribute('data-theme'); else doc.documentElement.setAttribute('data-theme', t);
   if (!doc.getElementById('ide-compacto')) { const st = doc.createElement('style'); st.id = 'ide-compacto'; st.textContent = COMPACTO; doc.head.appendChild(st); }
+  doc.documentElement.classList.add('ide-barra-fora');
   tamanhoDoEcra(f);
   doc.addEventListener('pointerdown', () => { fecharPop(); if (gav) fecharGaveta(); if (d.ativo !== id) ativar(id, false); }, true);
   /* o foco que a página põe sozinha ao abrir (a procura das listas) não muda o documento ativo */
@@ -286,6 +287,7 @@ function ganchos(f: HTMLIFrameElement, id: string, segunda: boolean): void {
    Mini (menos de 600 × 420): também sem o cabeçalho (o nome está no separador) e dos filtros fica só a procura.
    As ações ficam todas: só sai o que repete ou explica. */
 const COMPACTO = `
+html.ide-barra-fora .ak-barra { position: fixed !important; left: -99999px !important; top: 0 !important; }
 html.ide-pequeno :is(.ak-cab, .fx-cab) { padding-top: 8px !important; padding-bottom: 8px !important; min-height: 0 !important; gap: 8px !important; }
 html.ide-pequeno :is(.ak-cab, .fx-cab) :is(p, .fx-sub), html.ide-pequeno :is(.ak-cab-ic, .fx-ic) { display: none !important; }
 html.ide-pequeno :is(.ak-cab, .fx-cab) h1 { font-size: 17px !important; }
@@ -773,9 +775,84 @@ function recarregarDoc(id: string): void {
    (Ctrl ou ⌘) e a barra de atividade. */
 function comandos(): void {
   $$('[data-ide-kbd]').forEach((k) => { k.textContent = at(k.dataset.ideKbd!); });
-  pintarAtividade();
+  pintarAtividade(); barraAcoes();
   document.title = `${d.itens[d.ativo]?.titulo ? `${d.itens[d.ativo].titulo} — ` : ''}ROMAFE ERP`;
 }
+/* ---------- a barra de ações do ecrã em uso ----------
+   6 nov. (ela: «isto deve ficar por baixo [do menu]… sempre que se seleciona Novo, Editar… vai para o ecrã em uso»): a
+   barra de cada ecrã (Novo, Editar, Anular, Atualizar, Imprimir e as dele) sai de dentro do ecrã e há uma só, por baixo
+   do menu, com os botões do documento ativo. Carregar num botão carrega no do ecrã; o estado (desligado, premido, o
+   motivo no título) vem do ecrã, que continua a mandar. Os menus dos botões («Ações de compra», «Mais ações») abrem
+   aqui, com os itens do ecrã. Nas teclas nada muda: F5, F6… continuam no ecrã. */
+let docBarra = '', obsBarra: MutationObserver | null = null, barraObs: HTMLElement | null = null, ctlBarra: HTMLElement[] = [];
+function barraDoEcra(id: string): HTMLElement | null {
+  try {
+    const doc = frames.get(id)?.contentDocument; if (!doc) return null;
+    return [...doc.querySelectorAll<HTMLElement>('.ak-barra')].find((b) => !b.closest('[hidden], [role="dialog"]')) ?? null;
+  } catch { return null; }
+}
+function barraAcoes(): void {
+  const el = $('[data-ide-acoes]'); if (!el) return;
+  if (docAtivo()) docBarra = d.ativo;
+  if (docBarra && !d.itens[docBarra]) docBarra = '';
+  const it = docBarra ? d.itens[docBarra] : null, b = docBarra ? barraDoEcra(docBarra) : null;
+  if (b !== barraObs) {
+    obsBarra?.disconnect(); barraObs = b;
+    if (b) { obsBarra = new MutationObserver(() => { cancelAnimationFrame(barraT); barraT = requestAnimationFrame(barraAcoes); }); obsBarra.observe(b, { subtree: true, childList: true, attributes: true, characterData: true }); }
+  }
+  ctlBarra = [];
+  const ctl = (x: HTMLElement) => { ctlBarra.push(x); return ctlBarra.length - 1; };
+  const botao = (x: HTMLButtonElement) => {
+    const t = x.querySelector('span')?.textContent?.trim() || x.getAttribute('aria-label') || x.title || '';
+    const k = x.querySelector('kbd')?.textContent?.trim() ?? '', menu = x.getAttribute('aria-haspopup');
+    const cls = x.classList.contains('ak-btn--acao') ? ' is-acao' : x.classList.contains('ak-btn--perigo') ? ' is-perigo' : '';
+    const prem = x.getAttribute('aria-pressed');
+    return `<button type="button" class="ide-cmd ide-ac${cls}" data-ide-ac="${ctl(x)}" title="${esc(x.title || t)}"${x.disabled ? ' disabled' : ''}${x.getAttribute('aria-disabled') === 'true' ? ' aria-disabled="true"' : ''}${prem ? ` aria-pressed="${prem}"` : ''}${menu ? ` aria-haspopup="menu" aria-expanded="${x.getAttribute('aria-expanded') ?? 'false'}"` : ''}>${x.querySelector('svg')?.outerHTML ?? ''}<span>${esc(t)}</span>${k ? `<kbd>${esc(k)}</kbd>` : ''}</button>`;
+  };
+  const filho = (c: HTMLElement): string => {
+    if (c.hidden || getComputedStyle(c).display === 'none') return '';
+    if (c.matches('button')) return botao(c as HTMLButtonElement);
+    if (c.matches('.ak-menu-c')) { const x = c.querySelector<HTMLButtonElement>(':scope > button'); return x ? botao(x) : ''; }
+    if (c.matches('.ak-sep')) return '<i class="ide-cmds-sep" aria-hidden="true"></i>';
+    if (c.matches('.ak2-esp')) return '<span class="ide-cmds-fim"></span>';
+    const sel = c.querySelector<HTMLSelectElement>('select');
+    if (sel) return `<label class="ide-ac-sel">${c.querySelector('svg')?.outerHTML ?? ''}<select data-ide-ac="${ctl(sel)}" aria-label="${esc(sel.getAttribute('aria-label') ?? c.textContent?.trim() ?? '')}">${[...sel.options].map((o) => `<option value="${esc(o.value)}"${o.selected ? ' selected' : ''}>${esc(o.text)}</option>`).join('')}</select></label>`;
+    if (c.querySelector('button')) return [...c.children].map((x) => filho(x as HTMLElement)).join('');
+    if (c.matches('svg, .ak-menu, [role="menu"]')) return '';
+    const tx = c.textContent?.trim(); return tx ? `<span class="ide-ac-tx">${esc(tx)}</span>` : '';
+  };
+  const corpo = b ? [...b.children].map((c) => filho(c as HTMLElement)).join('') : '';
+  el.innerHTML = it ? `<span class="ide-doc-ativo" title="As ações vão para este ecrã">${iconeItem(it)}<span>${esc(it.titulo)}</span></span><i class="ide-cmds-sep" aria-hidden="true"></i>${corpo || `<span class="ide-ac-tx">${aCarregar.has(docBarra) ? 'A abrir…' : 'Este ecrã não tem ações.'}</span>`}` : '<span class="ide-ac-tx">Abre um ecrã para ver as ações dele.</span>';
+}
+let barraT = 0;
+/** Um botão da barra: carrega no do ecrã; se abre um menu, mostra-o aqui com os itens dele. */
+function cliqueAcao(b: HTMLElement): void {
+  const x = ctlBarra[Number(b.dataset.ideAc)]; if (!x) return;
+  if (docBarra && d.ativo !== docBarra) ativar(docBarra, false);
+  const aberto = menuEcra?.x === x && !menuEcra.m.hidden;
+  fecharMenuEcra(); if (aberto) return;
+  x.click();
+  if (!b.hasAttribute('aria-haspopup')) { window.setTimeout(comandos, 120); return; }
+  const m = x.parentElement?.querySelector<HTMLElement>('.ak-menu, [role="menu"]');
+  const f = frames.get(docBarra); if (!m || m.hidden || !f) return;
+  /* o menu é o do ecrã (com tudo o que ele faz: colunas, vistas, ações), mostrado logo por baixo do botão de cima */
+  const fr = f.getBoundingClientRect(), r = b.getBoundingClientRect();
+  m.style.setProperty('position', 'fixed', 'important'); m.style.setProperty('top', '4px', 'important'); m.style.setProperty('right', 'auto', 'important'); m.style.setProperty('bottom', 'auto', 'important');
+  const mw = m.getBoundingClientRect().width;
+  m.style.setProperty('left', `${Math.max(4, Math.min(r.left - fr.left, fr.width - mw - 8))}px`, 'important');
+  menuEcra = { m, x };
+}
+let menuEcra: { m: HTMLElement; x: HTMLElement } | null = null;
+/** Um clique fora (na casca) fecha o menu do ecrã, como o ecrã faria. */
+function fecharMenuEcra(): void { if (menuEcra && !menuEcra.m.hidden) menuEcra.x.click(); menuEcra = null; }
+/** Para as demonstrações com o rato: um botão (ou item de menu) da barra do ecrã, que aqui está escondida, é o da casca. */
+function espelhoDe(el: Element): HTMLElement | null {
+  const i = ctlBarra.indexOf(el as HTMLElement); if (i >= 0) return $(`[data-ide-acoes] [data-ide-ac="${i}"]`);
+  const c = el.closest?.('.ak-menu-c'); if (c) { const k = ctlBarra.indexOf(c.querySelector(':scope > button') as HTMLElement); if (k >= 0) return $(`[data-ide-acoes] [data-ide-ac="${k}"]`); }
+  return null;
+}
+(window as unknown as { ideEspelho?: typeof espelhoDe }).ideEspelho = espelhoDe;
+
 /* ---------- a barra de atividade (VS Code): um ícone por vista ---------- */
 const VISTAS: IdFerr[] = ['explorador', 'pesquisa', 'propriedades', 'stock', 'relacionados', 'historico', 'notificacoes', 'mensagens'];
 const TECLA_VISTA: Partial<Record<IdFerr, string>> = { explorador: 'explorador', pesquisa: 'pesquisa', mensagens: 'ver-mensagens', propriedades: 'ver-propriedades', stock: 'ver-stock', relacionados: 'ver-relacionados', notificacoes: 'ver-notificacoes' };
@@ -940,8 +1017,8 @@ function itensMenu(k: string): ItemMenu[] {
         { t: 'Aplicar disposição', ic: L(I.layoutTemplate), sub: [...Object.keys(nomeadas).map((n) => ({ cmd: `disp:${n}`, t: n, marcado: n === nomeDisp })), ...(Object.keys(nomeadas).length ? [{ sep: true }] : []), ...PRESETS.map((p) => ({ cmd: `preset:${p.id}`, t: p.nome }))] },
         ...(docs.length ? [{ sep: true }, { titulo: 'Abertos' }, ...docs.slice(0, 12).map((i): ItemMenu => ({ cmd: `ir:${i.id}`, t: i.titulo, marcado: i.id === d.ativo }))] : [])];
     }
-    case 'ferramentas': return [cmd('atalhos', 'Atalhos de teclado…', '', false, L(I.keyboard)), cmd('disposicoes', 'Disposições…', at('menu-disposicoes'), false, L(I.layoutTemplate)), cmd('ver:mensagens', 'Mensagens do sistema', '', false, L(I.messageSquare))];
-    case 'ajuda': return [cmd('atalhos', 'Atalhos de teclado', 'F1', false, L(I.keyboard)), cmd('ver:notificacoes', 'Notificações', at('ver-notificacoes'), false, L(I.bell))];
+    case 'ferramentas': return [cmd('atalhos', 'Atalhos de teclado…', '', false, L(I.keyboard)), cmd('disposicoes', 'Disposições…', at('menu-disposicoes'), false, L(I.layoutTemplate)), cmd('ver:mensagens', 'Mensagens', '', false, L(I.messageSquare))];
+    case 'ajuda': return [cmd('atalhos', 'Atalhos de teclado', 'F1', false, L(I.keyboard)), cmd('ver:notificacoes', 'Alertas de compras', at('ver-notificacoes'), false, L(I.bell))];
     default: return [];
   }
 }
@@ -1045,12 +1122,12 @@ const ATALHOS: (LinhaAtalho & { cmd: string })[] = [
   A('painel-2', 'painel', 'Mostrar ou esconder o painel', 'Ctrl+`', G2),
   A('zen', 'zen', 'Modo zen (só o documento; Esc sai)', 'Ctrl+K Z', G2),
   A('focar-lateral', 'focar-lateral', 'Ir para a barra lateral', 'Ctrl+0', G2),
-  A('explorador', 'explorador', 'Explorador', 'Ctrl+Shift+E', G2),
-  A('ver-mensagens', 'ver:mensagens', 'Mensagens do sistema', 'Ctrl+Shift+M', G2),
-  A('ver-propriedades', 'ver:propriedades', 'Propriedades', 'Ctrl+Alt+P', G2),
+  A('explorador', 'explorador', 'Módulos do ERP', 'Ctrl+Shift+E', G2),
+  A('ver-mensagens', 'ver:mensagens', 'Mensagens', 'Ctrl+Shift+M', G2),
+  A('ver-propriedades', 'ver:propriedades', 'Ficha', 'Ctrl+Alt+P', G2),
   A('ver-stock', 'ver:stock', 'Stock por armazém', 'Ctrl+Alt+S', G2),
-  A('ver-relacionados', 'ver:relacionados', 'Documentos relacionados', 'Ctrl+Alt+R', G2),
-  A('ver-notificacoes', 'ver:notificacoes', 'Notificações', 'Ctrl+Alt+N', G2),
+  A('ver-relacionados', 'ver:relacionados', 'Documentos ligados', 'Ctrl+Alt+R', G2),
+  A('ver-notificacoes', 'ver:notificacoes', 'Alertas de compras', 'Ctrl+Alt+N', G2),
   A('fechar', 'fechar', 'Fechar o separador', 'Ctrl+W', G3, true),
   A('fechar-f4', 'fechar', 'Fechar o separador', 'Ctrl+F4', G3, true),
   A('fechar-alt', 'fechar', 'Fechar o separador', 'Alt+W', G3),
@@ -1319,7 +1396,7 @@ function prepararCenario(c: string): void {
     case 'reposta':
       mensagem('Disposição «Compras» reposta.');
       mensagem('Ao repor a disposição, saiu «Fornecedores»: já não existe no ERP novo ou não tens acesso.', 'aviso');
-      verFerr('mensagens'); dizer('Disposição «Compras» reposta. Um ecrã ficou de fora: vê as Mensagens do sistema.'); break;
+      verFerr('mensagens'); dizer('Disposição «Compras» reposta. Um ecrã ficou de fora: vê as Mensagens.'); break;
     case 'invalida':
       mensagem('A disposição guardada não era válida (talvez de outra versão do ERP). Abrimos a disposição padrão.', 'aviso');
       verFerr('mensagens'); dizer('A disposição guardada não se pôde repor: abrimos a padrão.'); break;
@@ -1349,6 +1426,7 @@ function cliques(ev: MouseEvent): void {
   if (!raiz) return;
   const t = ev.target as HTMLElement;
   let b: HTMLElement | null;
+  if (!t.closest('button[data-ide-ac]')) fecharMenuEcra();
   if ((b = t.closest('[data-ide-dlg-fechar]'))) { fecharDlg(); return; }
   if ((b = t.closest('[data-ide-sujo-fechar]'))) { const p = pedidoFechar; fecharDlg(); if (p?.acao === 'atualizar') recarregarDoc(p.id); else if (p) fechar(p.id, true, p.depois); return; }
   if ((b = t.closest('[data-ide-disp-aplicar]'))) { aplicarNomeada(b.dataset.ideDispAplicar!); return; }
@@ -1360,6 +1438,7 @@ function cliques(ev: MouseEvent): void {
   if (t.closest('[data-ide-dlg]') && t === $('[data-ide-dlg]')) { fecharDlg(); return; }
   if ((b = t.closest('[data-ide-menu]'))) { const k = b.dataset.ideMenu!; if (menuAberto === k && pop) { fecharPop(); menuAberto = ''; } else abrirMenu(k); return; }
   if ((b = t.closest('[data-ide-pal-i]'))) { executarPaleta(Number(b.dataset.idePalI)); return; }
+  if ((b = t.closest('button[data-ide-ac]'))) { fecharPop(); cliqueAcao(b); return; }
   if ((b = t.closest('[data-ide-atv-f]'))) { fecharPop(); cliqueAtividade(b.dataset.ideAtvF as IdFerr); return; }
   if ((b = t.closest('[data-ide-atv-menu]'))) { menuAtividade(b.dataset.ideAtvMenu!, b); return; }
   if ((b = t.closest('[data-ide-fechar-item]'))) { fechar(b.dataset.ideFecharItem!); return; }
@@ -1489,6 +1568,12 @@ export function iniciar(): void {
     if (t.matches('[data-ide-f-q]')) { qFerr[t.dataset.ideFQ!] = t.value; pintarFerr(idFerr(t.dataset.ideFQ as IdFerr)); return; }
     if (t.matches('[data-ide-pal-q]')) { pal.q = t.value; pal.sel = 0; pal.itens = itensPaleta(t.value); pintarPaleta(); return; }
     if (t.matches('[data-ide-lista-q]')) { const p = $('[data-ide-pop]')!; const tmp = document.createElement('div'); tmp.innerHTML = listaSeps(d, pop?.alvo || null, t.value, fechados); p.querySelector('.ide-lista-l')!.innerHTML = tmp.querySelector('.ide-lista-l')!.innerHTML; }
+  });
+  /* o «Agrupar» do Mapa e afins: a escolha na barra de cima passa para o ecrã */
+  document.addEventListener('change', (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLSelectElement>('select[data-ide-ac]'); if (!el || !raiz?.contains(el)) return;
+    const x = ctlBarra[Number(el.dataset.ideAc)] as HTMLSelectElement | undefined; if (!x) return;
+    x.value = el.value; x.dispatchEvent(new Event('input', { bubbles: true })); x.dispatchEvent(new Event('change', { bubbles: true }));
   });
   document.addEventListener('submit', (ev) => { const f = (ev.target as HTMLElement).closest('[data-ide-disp-form]'); if (!f || !raiz?.contains(f)) return; ev.preventDefault(); guardarComo((f.querySelector('input') as HTMLInputElement).value); abrirDlg(dlgDisposicoes(Object.keys(nomeadas), nomeDisp)); });
   document.addEventListener('wheel', (ev) => { const t = (ev.target as HTMLElement).closest<HTMLElement>('[data-ide-tabs]'); if (t && raiz?.contains(t) && Math.abs(ev.deltaY) > Math.abs(ev.deltaX)) { t.scrollLeft += ev.deltaY; ev.preventDefault(); } }, { passive: false });

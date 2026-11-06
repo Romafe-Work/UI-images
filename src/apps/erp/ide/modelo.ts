@@ -53,14 +53,14 @@ export const idFerr = (f: IdFerr) => `ferr:${f}`;
 
 /* ---------- as janelas de ferramenta: título e onde se acoplam quando se reabrem ---------- */
 export const FERRAMENTAS: Record<IdFerr, { titulo: string; lado: Exclude<Lado, 'cima'>; icone: string; tecla?: string }> = {
-  explorador: { titulo: 'Explorador ROMAFE', lado: 'esq', icone: 'folder-tree' },
-  pesquisa: { titulo: 'Pesquisa', lado: 'esq', icone: 'search' },
-  propriedades: { titulo: 'Propriedades', lado: 'dir', icone: 'sliders-horizontal' },
+  explorador: { titulo: 'Módulos do ERP', lado: 'esq', icone: 'layout-grid' },
+  pesquisa: { titulo: 'Procurar no ERP', lado: 'esq', icone: 'package-search' },
+  propriedades: { titulo: 'Ficha', lado: 'dir', icone: 'id-card' },
   stock: { titulo: 'Stock por armazém', lado: 'baixo', icone: 'warehouse' },
-  relacionados: { titulo: 'Documentos relacionados', lado: 'baixo', icone: 'link' },
-  historico: { titulo: 'Histórico', lado: 'baixo', icone: 'history' },
-  notificacoes: { titulo: 'Notificações', lado: 'dir', icone: 'bell' },
-  mensagens: { titulo: 'Mensagens do sistema', lado: 'baixo', icone: 'message-square' },
+  relacionados: { titulo: 'Documentos ligados', lado: 'baixo', icone: 'file-stack' },
+  historico: { titulo: 'Abertos recentemente', lado: 'baixo', icone: 'history' },
+  notificacoes: { titulo: 'Alertas de compras', lado: 'dir', icone: 'triangle-alert' },
+  mensagens: { titulo: 'Mensagens', lado: 'baixo', icone: 'message-square' },
 };
 export const itemFerr = (f: IdFerr): Item => ({ id: idFerr(f), tipo: 'ferr', ferr: f, titulo: FERRAMENTAS[f].titulo });
 

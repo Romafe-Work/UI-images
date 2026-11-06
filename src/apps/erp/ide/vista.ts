@@ -30,6 +30,11 @@ import star from 'lucide-static/icons/star.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import folderTree from 'lucide-static/icons/folder-tree.svg?raw';
+import layoutGrid from 'lucide-static/icons/layout-grid.svg?raw';
+import packageSearch from 'lucide-static/icons/package-search.svg?raw';
+import idCard from 'lucide-static/icons/id-card.svg?raw';
+import fileStack from 'lucide-static/icons/file-stack.svg?raw';
+import triangleAlert from 'lucide-static/icons/triangle-alert.svg?raw';
 import folder from 'lucide-static/icons/folder.svg?raw';
 import slidersHorizontal from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
@@ -67,7 +72,7 @@ import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
 import rotateCcw from 'lucide-static/icons/rotate-ccw.svg?raw';
 
 export const I = { x, pin, pinOff, chevronDown, chevronRight, maximize2, minimize2, appWindow, panelLeft, columns2, rows2, star, clock, search, folderTree, folder, slidersHorizontal, warehouse, link, history, bell, messageSquare, plus, pencil, save, ban, refreshCw, download, printer, layoutTemplate, wifi, wifiOff, user, fileText, packageIc, users, packageCheck, loader, circleAlert, info, eye, squareSplitVertical, keyboard, check };
-const ICONE_FERR: Record<IdFerr, string> = { explorador: folderTree, pesquisa: search, propriedades: slidersHorizontal, stock: warehouse, relacionados: link, historico: history, notificacoes: bell, mensagens: messageSquare };
+const ICONE_FERR: Record<IdFerr, string> = { explorador: layoutGrid, pesquisa: packageSearch, propriedades: idCard, stock: warehouse, relacionados: fileStack, historico: history, notificacoes: triangleAlert, mensagens: messageSquare };
 export const iconeItem = (it: Item | undefined) => !it ? L(fileText) : it.tipo === 'ferr' ? L(ICONE_FERR[it.ferr!]) : icone(ROTAS[it.rota!]?.icone ?? 'file-text');
 
 /* =========================================================
@@ -87,6 +92,7 @@ export function casca(c: Casca): string {
     <nav class="ide-menus" role="menubar" aria-label="Menu da aplicação">${MENUS.map(([k, t]) => `<div class="ide-m" data-ide-m="${k}"><button type="button" class="ide-m-b" role="menuitem" aria-haspopup="true" aria-expanded="false" data-ide-menu="${k}">${t}</button></div>`).join('')}</nav>
     <button type="button" class="ide-procura" data-ide-cmd="abrir-rapido" title="Ir para um ecrã ou separador; com «>» à frente, os comandos">${L(search)}<span>Ir para um ecrã, separador ou comando…</span><kbd data-ide-kbd="abrir-rapido">Ctrl P</kbd></button>
   </header>
+  <div class="ide-cmds ide-acoes" data-ide-acoes role="toolbar" aria-label="Ações do ecrã em uso"></div>
   <div class="ide-corpo">
     <nav class="ide-atv" data-ide-atv aria-label="Barra de atividade"></nav>
     <div class="ide-borda ide-borda--esq" data-ide-borda="esq" role="tablist" aria-label="Janelas ocultas à esquerda" aria-orientation="vertical"></div>
@@ -145,7 +151,7 @@ export function grupo(d: Disposicao, g: Grupo): string {
     ${ferr && g.itens.length > 1 ? `<div class="ide-g-pe">${tabs}</div>` : ''}
   </section>`;
 }
-const vazioHtml = () => `<div class="ide-vazio">${L(layoutTemplate)}<p><b>Sem documentos abertos</b>Abre um ecrã no Explorador, arrasta um separador para aqui ou aplica uma disposição.</p></div>`;
+const vazioHtml = () => `<div class="ide-vazio">${L(layoutTemplate)}<p><b>Sem documentos abertos</b>Abre um ecrã em Módulos, arrasta um separador para aqui ou aplica uma disposição.</p></div>`;
 export function separador(d: Disposicao, g: Grupo, id: string): string {
   const it = d.itens[id]; if (!it) return '';
   const a = g.ativo === id;
@@ -243,7 +249,7 @@ export interface DadosFerr { perfil: IdPerfil; ctx: Partial<Record<Contexto['tip
 
 /** A cabeça (desenhada uma vez, para o que se escreve não se perder) e o corpo (que se redesenha). */
 export function cabFerr(f: IdFerr): string {
-  if (f === 'explorador') return `<label class="ide-f-q">${L(search)}<input type="search" placeholder="Procurar no Explorador" aria-label="Procurar no Explorador" data-ide-f-q="explorador"></label>`;
+  if (f === 'explorador') return `<label class="ide-f-q">${L(search)}<input type="search" placeholder="Procurar nos módulos" aria-label="Procurar nos módulos" data-ide-f-q="explorador"></label>`;
   if (f === 'pesquisa') return `<label class="ide-f-q">${L(search)}<input type="search" placeholder="Ecrãs, artigos, fornecedores, encomendas" aria-label="Pesquisa global" data-ide-f-q="pesquisa"></label>`;
   if (f === 'propriedades' || f === 'stock' || f === 'relacionados' || f === 'historico') return `<div class="ide-f-seg" data-ide-f-seg></div>`;
   return '';
@@ -310,7 +316,7 @@ function explorador(d: DadosFerr): string {
   return `${abertosH}${favs.length ? `<p class="ide-x-t">${L(star)}Favoritos</p>${favs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
     ${recs.length ? `<p class="ide-x-t">${L(clock)}Abertos há pouco</p>${recs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
     <p class="ide-x-t">${L(folderTree)}Módulos</p>
-    ${arv || nada(q ? `Nada no Explorador com «${esc(d.q)}».` : 'A tua conta ainda não tem módulos no ERP novo. Pede o acesso ao administrador; até lá, continua no ERP antigo.')}`;
+    ${arv || nada(q ? `Nada nos módulos com «${esc(d.q)}».` : 'A tua conta ainda não tem módulos no ERP novo. Pede o acesso ao administrador; até lá, continua no ERP antigo.')}`;
 }
 
 /* ---------- Pesquisa global ---------- */
@@ -368,7 +374,7 @@ function relacionados(c: Contexto | null): string {
   if (c.tipo === 'encomenda') {
     const e = encomenda(c.chave); if (!e) return nada('Esta encomenda já não existe.');
     const recs = rececoesDe(e.ref);
-    return `<p class="ide-x-t">Fornecedor</p><button type="button" class="ide-p-i" data-ide-ctx="fornecedor:${esc(e.forn)}">${L(users)}<span>${esc(fornecedor(e.forn)?.nome ?? e.forn)}</span><small>Propriedades</small></button>
+    return `<p class="ide-x-t">Fornecedor</p><button type="button" class="ide-p-i" data-ide-ctx="fornecedor:${esc(e.forn)}">${L(users)}<span>${esc(fornecedor(e.forn)?.nome ?? e.forn)}</span><small>Ficha</small></button>
       <p class="ide-x-t">Receções <small>${recs.length}</small></p>${recs.length ? recs.map((r) => `<div class="ide-p-i is-so">${L(packageCheck)}<span><b class="ide-mono">${esc(r.ref)}</b> guia ${esc(r.guia)}</span><small>${dia(r.data)}${r.anulada ? ' · anulada' : ''}</small></div>`).join('') : nada('Ainda sem receções.')}
       <p class="ide-x-t">Artigos <small>${e.linhas.length}</small></p>${e.linhas.map((l) => `<button type="button" class="ide-p-i" data-ide-ctx="artigo:${esc(l.ref)}">${L(packageIc)}<span><b class="ide-mono">${esc(l.ref)}</b> ${esc(artigo(l.ref)?.desc ?? '')}</span><small>${l.qtd} · ${pendente(l)} por receber</small></button>`).join('')}`;
   }
