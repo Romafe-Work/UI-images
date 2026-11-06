@@ -165,7 +165,7 @@ registarCaso('erp-vscode', 'Como o VS Code: barra lateral, painel, paleta e tecl
   { legenda: '' },
 ], SEM);
 
-registarCaso('erp-contexto', 'Documentos ligados: stock, propriedades e relacionados', [
+registarCaso('erp-contexto', 'Documentos ligados: stock, ficha e documentos da encomenda', [
   { ecra: 'inicio', legenda: '', clicar: '[data-ide-estado] [data-ide-cmd="menu-disposicoes"]' },
   { legenda: '', clicar: '[data-ide-pop] [data-ide-cmd="preset:compras"]', pausa: 2400 },
   noQuadro(FAL, 'tr[data-lf2-ref="0 986 494 524"]', 900),
