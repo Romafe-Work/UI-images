@@ -10,8 +10,8 @@ import { registarReproducao, type PassoReproducao } from '../../comum/demo';
 import { mostrar, mostrarVersao } from '../../comum/ecras';
 
 const SEM = { semTexto: true };
-/** Abre um item do menu lateral (no Início) e espera que o separador carregue. */
-const menu = (rota: string): Passo => ({ legenda: '', clicar: `.dk7-i[data-dk-atalho="${rota}"]`, pausa: 1800 });
+/** Abre um ecrã pelo Explorador (o Início v3, 6 nov.) e espera que o separador carregue. */
+const menu = (rota: string): Passo => ({ legenda: '', clicar: `.ide-x-g [data-ide-abrir="${rota}"]`, pausa: 1800 });
 /** Um clique dentro do separador ativo. */
 const sep = (clicar: string, pausa = 0): Passo => ({ legenda: '', clicar, separador: true, pausa });
 
@@ -76,8 +76,7 @@ registarRoteiro('erp-guias-faturas', 'Guias e faturas', [
 ], SEM);
 
 registarRoteiro('erp-mapas', 'Mapas: documentos e análise', [
-  { ecra: 'inicio', legenda: '', clicar: '[data-dk7-grupo="compras-mapas"]' },
-  menu('compras.mapas-tot-enc'),
+  { ecra: 'inicio', ...menu('compras.mapas-tot-enc') },
   sep('[data-fx-par-vista="det"]'),
   menu('compras.analise-artigo'),
   sep('[data-cf-modo="familia"]'),
@@ -91,28 +90,31 @@ registarRoteiro('erp-mapas', 'Mapas: documentos e análise', [
    Compras no separador da área de trabalho — com o clique verdadeiro, por isso o item fica marcado a laranja. Os
    estados do Início continuam no seletor de estados (e em Anterior / Seguinte). */
 const casa = () => document.querySelector<HTMLElement>('.ecra[data-ecra="inicio"]');
-/** Os itens do menu Compras que abrem ecrã, pela ordem do menu (os do ERP antigo, a cinzento, não). */
-const itensCompras = () => [...(casa()?.querySelectorAll<HTMLElement>('[data-dk8-g="compras"] .dk7-i[data-dk-atalho]') ?? [])];
-/** O nome do item com as pastas de dentro do Compras («Mapas · Comparação · Geral»). */
+/* 6 nov.: o Início é só a v3 (o IDE): os ecrãs abrem-se pelo Explorador ROMAFE (a árvore dos módulos, sem os Favoritos
+   nem os Abertos há pouco, que repetem itens) */
+const versaoCasa = () => casa()?.querySelector<HTMLElement>(':scope > .versao:not([hidden])') ?? null;
+/** Os itens do menu Compras que abrem ecrã, pela ordem do menu. */
+const itensCompras = () => [...(versaoCasa()?.querySelectorAll<HTMLElement>('.ide-x-g [data-ide-abrir]') ?? [])];
+/** O nome do item com as pastas de dentro do Compras («Mapas · Análise de compras»). */
 function nomeItem(el: HTMLElement): string {
   const pastas: string[] = [];
-  for (let g = el.closest<HTMLElement>('.dk7-g--sub'); g; g = g.parentElement?.closest<HTMLElement>('.dk7-g--sub') ?? null) pastas.unshift(g.querySelector(':scope > .dk8-g-cab .dk7-g-t > span:not([aria-hidden])')?.textContent?.trim() ?? '');
-  return [...pastas.filter(Boolean), el.textContent?.trim() ?? ''].join(' · ');
+  for (let g = el.closest<HTMLElement>('.ide-x-g'); g; g = g.parentElement?.closest<HTMLElement>('.ide-x-g') ?? null) pastas.unshift(g.querySelector(':scope > .ide-x-gt span')?.textContent?.trim() ?? '');
+  return [...pastas.filter((p) => p && p !== 'Compras'), el.textContent?.trim() ?? ''].join(' · ');
 }
-/** Abre um item pelo menu: primeiro as pastas fechadas que o escondem (cada clique redesenha o menu), depois o item. */
+/** Abre um item pelo Explorador: primeiro as pastas fechadas que o escondem (cada clique redesenha a árvore), depois o item. */
 function abrirPeloMenu(rota: string): void {
   if (casa()?.hidden) { mostrar('inicio'); mostrarVersao(''); }
   for (let k = 0; k < 4; k++) {
-    const el = casa()?.querySelector<HTMLElement>(`.dk7-i[data-dk-atalho="${rota}"]`);
+    const el = versaoCasa()?.querySelector<HTMLElement>(`.ide-x-g [data-ide-abrir="${CSS.escape(rota)}"]`);
     if (!el) return;
-    const fechada = [...casa()!.querySelectorAll<HTMLElement>('.dk7-g:not(.is-aberto)')].find((g) => g.contains(el));
-    if (!fechada) { el.click(); requestAnimationFrame(aVista); return; }
-    fechada.querySelector<HTMLElement>(':scope > .dk8-g-cab [data-dk7-grupo]')?.click();
+    const fechada = [...versaoCasa()!.querySelectorAll<HTMLElement>('.ide-x-g:not(.is-aberto)')].find((g) => g.contains(el));
+    if (!fechada) { el.click(); requestAnimationFrame(() => aVista(rota)); return; }
+    fechada.querySelector<HTMLElement>(':scope > [data-ide-exp-g]')?.click();
   }
 }
-/** O item marcado fica à vista: os últimos mapas ficavam por baixo da barra da demonstração. Só rola a caixa do menu. */
-function aVista(): void {
-  const el = casa()?.querySelector<HTMLElement>('[data-dk7-lado] .dk7-i.is-ativo'); if (!el) return;
+/** O item aberto fica à vista: os últimos mapas ficavam por baixo da barra da demonstração. Só rola a caixa do Explorador. */
+function aVista(rota: string): void {
+  const el = versaoCasa()?.querySelector<HTMLElement>(`.ide-x-g [data-ide-abrir="${CSS.escape(rota)}"]`); if (!el) return;
   const fundo = Math.min(document.querySelector('.demo-barra')?.getBoundingClientRect().top ?? innerHeight, innerHeight) - 12;
   for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
     if (!/(auto|scroll)/.test(getComputedStyle(p).overflowY) || p.scrollHeight <= p.clientHeight + 1) continue;
@@ -158,7 +160,7 @@ const NO_ECRA: Record<string, Feito[]> = {
   'compras.mapas-automatico': [['Gerar dados', '[data-ak-acao="gerar"]'], ['Um artigo', '[data-ak-grelha] tbody tr, .ak-grelha tbody tr'], ['Mais ações', '[data-ak-acao="mais"]'], ['', ESC]],
 };
 /** O documento do separador à frente (a área de trabalho). */
-const docAtivo = () => { try { return casa()?.querySelector<HTMLIFrameElement>('.dk-painel.is-ativo iframe')?.contentDocument ?? null; } catch { return null; } };
+const docAtivo = () => { try { return [...(versaoCasa()?.querySelectorAll<HTMLIFrameElement>('iframe.ide-frame:not(.is-espelho)') ?? [])].find((f) => f.style.visibility === 'visible')?.contentDocument ?? null; } catch { return null; } };
 /** Clica no que está à vista no separador (num diálogo aberto, primeiro); «esc» fecha o menu ou o diálogo aberto. */
 function noSeparador(sel: string): void {
   const d = docAtivo(); if (!d) return;
@@ -168,6 +170,6 @@ function noSeparador(sel: string): void {
 }
 registarReproducao((): PassoReproducao[] => [
   { nome: '05 · Início', fazer: () => { mostrar('inicio'); mostrarVersao(''); document.dispatchEvent(new CustomEvent('romafe:rato-inicio', { detail: 'reproduzir' })); } },
-  ...itensCompras().flatMap((el) => { const rota = el.dataset.dkAtalho!, nome = nomeItem(el);
+  ...itensCompras().flatMap((el) => { const rota = el.dataset.ideAbrir!, nome = nomeItem(el);
     return [{ nome, fazer: () => abrirPeloMenu(rota) }, ...(NO_ECRA[rota] ?? []).map(([t, sel]) => ({ nome: t ? `${nome} · ${t}` : nome, fazer: () => noSeparador(sel) }))]; }),
 ]);

@@ -5,10 +5,7 @@ import type { Ecra } from '../../comum/tipos';
 import { ecraAbertura } from './abertura';
 import { versaoAberturaV6, estadosAberturaV6 } from './abertura-v6';
 import { ecrasInicio, DESCRICAO_INICIO } from './inicio';
-import { estadosEspacoV6 } from './espaco-v6';
-import { estadosLat } from './espaco-lateral';
 import { ecrasFicheiros, DESCRICAO_FICHEIROS } from './ficheiros/ecras';
-import { versaoInicioV7, versaoEstadoVivo, estadosVivo } from './espaco-vivo';
 import { versaoInicioV3, estadosIde } from './ide/ecra';
 import { ecrasFaltasV2 } from './compras/faltas-v2';
 import { comOrcamentosV2 } from './compras/orcamentos-v2';
@@ -46,8 +43,9 @@ const comV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'compras' ? { 
    só existiam nelas; o código fica (inicio-v2.ts, inicio-v3.ts, espaco.ts, espaco-v6.ts, espaco-lateral.ts), porque
    a v2 assenta nele. Dos estados da área de trabalho fica só a versão v2. */
 /* 6 nov. 2026 (briefing «ROMAFE ERP V3 — Visual Studio-style workspace»): a v3, a área de trabalho como um IDE (ide/ecra.ts); a v1 e a v2 ficam como estavam */
-const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [e.versoes[0], versaoInicioV7(), versaoInicioV3()] as Ecra<IdErp>['versoes'] } : e);
-const soV2 = (ecras: Ecra<IdErp>[]) => ecras.flatMap((e) => { const v = versaoEstadoVivo(e.id); return v ? [{ ...e, versoes: [v] as Ecra<IdErp>['versoes'] }] : []; });
+/* 6 nov. 2026 (ela: «só quero mostrar uma versão!!! neste caso sempre a última versão feita»): o 05 · Início fica só com
+   a última, a v3; saem a v1, a v2 e os estados que eram só da v2 (o código fica: a v3 abre os mesmos ecrãs) */
+const comInicioV2 = (ecras: Ecra<IdErp>[]) => ecras.map((e) => e.id === 'inicio' ? { ...e, versoes: [versaoInicioV3()] as Ecra<IdErp>['versoes'] } : e);
 
 /* por baixo do ROMAFE, o nome por extenso e não «E R P» espaçado (ela, 8 out. 2026) */
 /* 27 out. (ela: «coloca esses 4 no mesmo ecrã»): as Notas de crédito, os Pendentes de crédito e a Verificação de faturas passaram a vistas das Faturas (v3) */
@@ -66,7 +64,7 @@ export const erp: App<IdErp> = {
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
   /* 27 out. (ela: «sim», tirar): a Receção de encomendas, as Guias de transporte e as Devoluções passaram a vistas das Encomendas e das Guias */
-  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...soV2(estadosEspacoV6()), ...soV2(estadosLat()), ...estadosVivo(), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
+  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
 };
 
 /* 28 out. 2026 (ela: «no erp tenho ecrãs diferentes, não fazem sentido; por agora no menu lateral só quero início e as
