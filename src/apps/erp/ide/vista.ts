@@ -58,6 +58,8 @@ import info from 'lucide-static/icons/info.svg?raw';
 import eye from 'lucide-static/icons/eye.svg?raw';
 import squareSplitVertical from 'lucide-static/icons/square-split-vertical.svg?raw';
 import keyboard from 'lucide-static/icons/keyboard.svg?raw';
+import settings from 'lucide-static/icons/settings.svg?raw';
+import ellipsis from 'lucide-static/icons/ellipsis.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
 import copy from 'lucide-static/icons/copy.svg?raw';
 import trash2 from 'lucide-static/icons/trash-2.svg?raw';
@@ -79,25 +81,14 @@ export const COMANDOS: [string, string, string, string][] = [
 ];
 export interface Casca { cenario: string; perfil: IdPerfil; d: Disposicao }
 export function casca(c: Casca): string {
-  const p = PERFIS[c.perfil];
   return `<div class="ide" data-ide data-ide-cenario="${esc(c.cenario)}">
   <header class="ide-topo">
     <a class="ide-marca" href="#" data-ide-cmd="explorador" aria-label="ROMAFE ERP"><span class="romafe ide-romafe">ROMAFE</span><i aria-hidden="true"></i><span>ERP</span></a>
     <nav class="ide-menus" role="menubar" aria-label="Menu da aplicação">${MENUS.map(([k, t]) => `<div class="ide-m" data-ide-m="${k}"><button type="button" class="ide-m-b" role="menuitem" aria-haspopup="true" aria-expanded="false" data-ide-menu="${k}">${t}</button></div>`).join('')}</nav>
-    <button type="button" class="ide-procura" data-ide-cmd="pesquisa" title="Pesquisa global (Ctrl K)">${L(search)}<span>Procurar ecrãs, artigos, fornecedores, encomendas…</span><kbd>Ctrl K</kbd></button>
-    <span class="ide-pessoa" title="${esc(p.pessoa)} · ${esc(p.cargo)}"><span class="ide-inicial">${p.iniciais}</span><span class="ide-pessoa-t"><b>${esc(p.pessoa)}</b><small>${esc(p.cargo)}</small></span></span>
+    <button type="button" class="ide-procura" data-ide-cmd="abrir-rapido" title="Ir para um ecrã ou separador; com «>» à frente, os comandos">${L(search)}<span>Ir para um ecrã, separador ou comando…</span><kbd data-ide-kbd="abrir-rapido">Ctrl P</kbd></button>
   </header>
-  <div class="ide-cmds" role="toolbar" aria-label="Comandos do documento ativo" data-ide-cmds>
-    ${COMANDOS.map(([k, ic, t, tecla]) => k === '|' ? '<span class="ide-cmds-sep" aria-hidden="true"></span>' : `<button type="button" class="ide-cmd" data-ide-cmd="${k}"${tecla ? ` aria-keyshortcuts="${tecla}"` : ''} title="${t}${tecla ? ` (${tecla})` : ''}" disabled>${L(ic)}<span>${t}</span></button>`).join('')}
-    <span class="ide-cmds-sep" aria-hidden="true"></span>
-    <button type="button" class="ide-cmd" data-ide-cmd="dividir-dir" title="Nova divisão vertical: o separador ativo à direita (Ctrl Alt →)">${L(columns2)}<span class="ide-so-largo">Dividir</span></button>
-    <button type="button" class="ide-cmd" data-ide-cmd="dividir-baixo" title="Nova divisão horizontal: o separador ativo em baixo (Ctrl Alt ↓)">${L(rows2)}</button>
-    <button type="button" class="ide-cmd" data-ide-cmd="flutuar" title="Janela flutuante">${L(appWindow)}</button>
-    <span class="ide-cmds-fim"></span>
-    <span class="ide-doc-ativo" data-ide-doc-ativo></span>
-    <button type="button" class="ide-cmd ide-disp" data-ide-cmd="menu-disposicoes" aria-haspopup="true" aria-expanded="false" title="Disposições (Alt Shift D)">${L(layoutTemplate)}<span>Disposição: <b data-ide-disp-nome>Padrão</b></span>${L(chevronDown, 'ide-seta')}</button>
-  </div>
   <div class="ide-corpo">
+    <nav class="ide-atv" data-ide-atv aria-label="Barra de atividade"></nav>
     <div class="ide-borda ide-borda--esq" data-ide-borda="esq" role="tablist" aria-label="Janelas ocultas à esquerda" aria-orientation="vertical"></div>
     <div class="ide-area" data-ide-area>
       <div class="ide-arvore" data-ide-arvore>${arvore(c.d, c.d.raiz)}</div>
@@ -122,9 +113,12 @@ export function casca(c: Casca): string {
 /* =========================================================
    A árvore
    ========================================================= */
+/** Um nó escondido (a barra lateral ou o painel fechados com Ctrl B / Ctrl J): não se desenha, e os outros ocupam o lugar. */
+const escondido = (d: Disposicao, n: No): boolean => n.t === 'grupo' ? (d.escondidos ?? []).includes(n.id) : n.filhos.every((f) => escondido(d, f));
 export function arvore(d: Disposicao, n: No): string {
   if (n.t === 'grupo') return grupo(d, n);
-  return `<div class="ide-div ide-div--${n.dir}" data-ide-div="${n.id}">${n.filhos.map((f, i) => `${i ? `<div class="ide-sep ide-sep--${n.dir}" role="separator" tabindex="0" aria-orientation="${n.dir === 'h' ? 'vertical' : 'horizontal'}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(n.tam.slice(0, i).reduce((a, b) => a + b, 0) * 100)}" aria-label="Redimensionar" data-ide-sep="${n.id}:${i}"></div>` : ''}<div class="ide-no" style="flex:${n.tam[i].toFixed(5)} 1 0" data-ide-no="${f.id}">${arvore(d, f)}</div>`).join('')}</div>`;
+  const vis = n.filhos.map((f, i) => ({ f, i })).filter(({ f }) => !escondido(d, f));
+  return `<div class="ide-div ide-div--${n.dir}" data-ide-div="${n.id}">${vis.map(({ f, i }, k) => `${k ? `<div class="ide-sep ide-sep--${n.dir}" role="separator" tabindex="0" aria-orientation="${n.dir === 'h' ? 'vertical' : 'horizontal'}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(n.tam.slice(0, i).reduce((a, b) => a + b, 0) * 100)}" aria-label="Redimensionar" data-ide-sep="${n.id}:${i}" data-ide-sep-a="${vis[k - 1].i}"></div>` : ''}<div class="ide-no" style="flex:${n.tam[i].toFixed(5)} 1 0" data-ide-no="${f.id}">${arvore(d, f)}</div>`).join('')}</div>`;
 }
 /** Um grupo de separadores (na árvore ou numa janela flutuante). */
 export function grupo(d: Disposicao, g: Grupo): string {
@@ -139,7 +133,9 @@ export function grupo(d: Disposicao, g: Grupo): string {
     <div class="ide-g-cab"${so ? ' hidden' : ''}>
       ${ferr ? `<div class="ide-g-tit" data-ide-tit="${esc(g.ativo)}" title="${esc(it?.titulo ?? '')} — arrasta para acoplar noutro sítio">${iconeItem(it)}<span>${esc(it?.titulo ?? '')}</span></div>` : tabs}
       <div class="ide-g-acoes">
-        ${g.itens.length > 1 || !ferr ? `<button type="button" class="ide-g-b" data-ide-g-acao="lista" aria-haspopup="true" title="Separadores deste grupo (Ctrl Shift E)">${L(chevronDown)}</button>` : ''}
+        ${!ferr && !vazio && !fl ? `<button type="button" class="ide-g-b" data-ide-g-acao="dividir" title="Dividir à direita (Ctrl \\)">${L(columns2)}</button>` : ''}
+        ${g.itens.length > 1 || !ferr ? `<button type="button" class="ide-g-b" data-ide-g-acao="lista" aria-haspopup="true" title="Separadores abertos (Ctrl K Ctrl P)">${L(chevronDown)}</button>` : ''}
+        ${!ferr && !vazio ? `<button type="button" class="ide-g-b" data-ide-g-acao="mais" aria-haspopup="true" title="Mais ações">${L(ellipsis)}</button>` : ''}
         ${ferr && !fl ? `<button type="button" class="ide-g-b" data-ide-g-acao="ocultar" title="Ocultar automaticamente">${L(pin)}</button>` : ''}
         ${!fl && !vazio ? `<button type="button" class="ide-g-b" data-ide-g-acao="max" title="${d.max === g.id ? 'Restaurar' : 'Maximizar'} (duplo clique na barra)">${L(d.max === g.id ? minimize2 : maximize2)}</button>` : ''}
         ${ferr && !fl ? `<button type="button" class="ide-g-b" data-ide-g-acao="fechar" title="Fechar">${L(x)}</button>` : ''}
@@ -196,22 +192,54 @@ export function menu(itens: ItemMenu[]): string {
 /* =========================================================
    A barra de estado
    ========================================================= */
-export interface InfoEstado { ligado: boolean; perfil: IdPerfil; doc: string; sujos: number; carregar: number; disposicao: string; alterada: boolean }
+export interface InfoEstado { ligado: boolean; perfil: IdPerfil; doc: string; sujos: number; carregar: number; disposicao: string; alterada: boolean; acorde?: string }
 export function estado(s: InfoEstado): string {
-  const p = PERFIS[s.perfil];
   return `<span class="ide-e${s.ligado ? ' is-ok' : ' is-erro'}">${L(s.ligado ? wifi : wifiOff)}${s.ligado ? 'Ligado' : 'Sem ligação'}</span>
-    <span class="ide-e">${L(user)}${esc(p.pessoa)}</span>
     <span class="ide-e ide-e-doc">${s.doc ? `${L(eye)}${esc(s.doc)}` : 'Nenhum documento ativo'}</span>
+    ${s.acorde ? `<span class="ide-e is-acorde">(${esc(s.acorde)}) à espera da segunda tecla…</span>` : ''}
     ${s.sujos ? `<span class="ide-e is-aviso"><i class="ide-tab-sujo"></i>${s.sujos === 1 ? '1 documento com alterações por guardar' : `${s.sujos} documentos com alterações por guardar`}</span>` : ''}
     ${s.carregar ? `<span class="ide-e">${L(loader, 'ide-roda')}A abrir ${s.carregar === 1 ? '1 ecrã' : `${s.carregar} ecrãs`}…</span>` : ''}
-    <span class="ide-e ide-e-fim">${L(layoutTemplate)}Disposição: ${esc(s.disposicao)}${s.alterada ? ' · alterada' : ''}</span>`;
+    <button type="button" class="ide-e ide-e-fim ide-e-b" data-ide-cmd="menu-disposicoes" aria-haspopup="true" title="Disposições (Alt Shift D)">${L(layoutTemplate)}Disposição: <b data-ide-disp-nome>${esc(s.disposicao)}</b>${s.alterada ? ' · alterada' : ''}</button>`;
+}
+
+/* =========================================================
+   A barra de atividade (como a do VS Code): um ícone por vista; carregar no ícone da vista que está aberta na barra
+   lateral fecha a barra lateral; em baixo, a conta e Gerir
+   ========================================================= */
+export interface ItemAtv { f: IdFerr; titulo: string; tecla: string; ativo: boolean; aberto: boolean; badge: number }
+export function atividade(xs: ItemAtv[], perfil: IdPerfil, teclaGerir: string): string {
+  const p = PERFIS[perfil];
+  const b = (x: ItemAtv) => `<button type="button" class="ide-atv-i${x.ativo ? ' is-ativo' : ''}${x.aberto ? ' is-aberto' : ''}" data-ide-atv-f="${x.f}" aria-pressed="${x.ativo}" title="${esc(x.titulo)}${x.tecla ? ` (${esc(x.tecla)})` : ''}" aria-label="${esc(x.titulo)}">${L(ICONE_FERR[x.f])}${x.badge ? `<span class="ide-atv-n">${x.badge > 99 ? '99+' : x.badge}</span>` : ''}</button>`;
+  return `<div class="ide-atv-c">${xs.map(b).join('')}</div>
+    <div class="ide-atv-c ide-atv-fim">
+      <button type="button" class="ide-atv-i ide-atv-conta" data-ide-atv-menu="conta" aria-haspopup="true" title="${esc(p.pessoa)} · ${esc(p.cargo)}" aria-label="Conta: ${esc(p.pessoa)}"><span class="ide-inicial">${p.iniciais}</span></button>
+      <button type="button" class="ide-atv-i" data-ide-atv-menu="gerir" aria-haspopup="true" title="Gerir${teclaGerir ? ` (${esc(teclaGerir)})` : ''}" aria-label="Gerir">${L(settings)}</button>
+    </div>`;
+}
+/** A paleta (Ctrl P / Ctrl Shift P): ir para um ecrã ou separador; com «>» à frente, os comandos. */
+export interface ItemPaleta { t: string; s?: string; tecla?: string; ic: string; grupo: string }
+export function paleta(q: string, xs: ItemPaleta[], sel: number): string {
+  let g = '';
+  return `<div class="ide-pal" role="dialog" aria-label="Paleta">
+    <label class="ide-pal-q">${L(search)}<input type="text" data-ide-pal-q value="${esc(q)}" placeholder="Escreve o nome de um ecrã ou separador; «>» para os comandos" aria-label="Procurar" autocomplete="off" spellcheck="false"></label>
+    <div class="ide-pal-l" role="listbox" data-ide-pal-l>${xs.length ? xs.map((x, i) => { const cab = x.grupo !== g ? `<p class="ide-menu-tit">${esc(x.grupo)}</p>` : ''; g = x.grupo; return `${cab}<button type="button" role="option" aria-selected="${i === sel}" class="ide-menu-i${i === sel ? ' is-sel' : ''}" data-ide-pal-i="${i}"><span class="ide-menu-ic">${x.ic}</span><span>${esc(x.t)}${x.s ? ` <small>${esc(x.s)}</small>` : ''}</span>${x.tecla ? `<kbd>${esc(x.tecla)}</kbd>` : ''}</button>`; }).join('') : '<p class="ide-f-nada">Nada encontrado.</p>'}</div>
+  </div>`;
+}
+export function dlgDefinicoes(tema: string, barraEstado: boolean, teclaAtalhos: string): string {
+  const op = (v: string, t: string) => `<button type="button" class="ide-btn${tema === v ? ' is-sel' : ''}" aria-pressed="${tema === v}" data-ide-cmd="tema:${v}">${tema === v ? L(check) : ''}${t}</button>`;
+  return `<div class="ide-dlg-c ide-dlg-c--p" role="dialog" aria-modal="true" aria-labelledby="ide-dlg-t">
+    <header><h2 id="ide-dlg-t">${L(settings)}Definições</h2><button type="button" class="ide-g-b" data-ide-dlg-fechar aria-label="Fechar">${L(x)}</button></header>
+    <p class="ide-x-t">Tema</p><div class="ide-def-l">${op('light', 'Claro')}${op('dark', 'Escuro')}${op('auto', 'Como o sistema')}</div>
+    <p class="ide-x-t">Barra de estado</p><div class="ide-def-l"><button type="button" class="ide-btn${barraEstado ? ' is-sel' : ''}" aria-pressed="${barraEstado}" data-ide-cmd="barra-estado">${barraEstado ? L(check) : ''}${barraEstado ? 'À vista' : 'Escondida'}</button></div>
+    <p class="ide-x-t">Teclado</p><div class="ide-def-l"><button type="button" class="ide-btn" data-ide-cmd="atalhos">${L(keyboard)}Atalhos de teclado${teclaAtalhos ? ` <kbd>${esc(teclaAtalhos)}</kbd>` : ''}</button></div>
+  </div>`;
 }
 
 /* =========================================================
    As janelas de ferramenta
    ========================================================= */
 export interface Fav { rota: string; titulo: string }
-export interface DadosFerr { perfil: IdPerfil; ctx: Partial<Record<Contexto['tipo'], Contexto & { origem?: string }>>; ultimo?: Contexto['tipo']; favoritos: Fav[]; recentes: Fav[]; abertos: Set<string>; q: string; abertosExp: Record<string, boolean>; mensagens: { quando: string; tipo: 'info' | 'aviso' | 'erro'; t: string }[] }
+export interface DadosFerr { perfil: IdPerfil; ctx: Partial<Record<Contexto['tipo'], Contexto & { origem?: string }>>; ultimo?: Contexto['tipo']; favoritos: Fav[]; recentes: Fav[]; abertos: Set<string>; q: string; abertosExp: Record<string, boolean>; menu?: 'a-carregar' | 'falhou'; editores?: { id: string; titulo: string; rota?: string; ativo: boolean; sujo: boolean }[]; mensagens: { quando: string; tipo: 'info' | 'aviso' | 'erro'; t: string }[] }
 
 /** A cabeça (desenhada uma vez, para o que se escreve não se perder) e o corpo (que se redesenha). */
 export function cabFerr(f: IdFerr): string {
@@ -254,6 +282,9 @@ export function corpoFerr(it: Item, d: DadosFerr): string {
 
 /* ---------- Explorador ROMAFE (as linhas da navegação, como vêm da base) ---------- */
 function explorador(d: DadosFerr): string {
+  /* a navegação vem da API central: enquanto não chega, o esqueleto; se falhar, diz e deixa tentar outra vez (sem menu inventado) */
+  if (d.menu === 'a-carregar') return `<div class="ide-x-esq" aria-busy="true" aria-label="A carregar o menu">${[70, 55, 62, 48, 66, 52, 58].map((w, i) => `<span style="width:${w}%;margin-left:${i ? 26 : 8}px"></span>`).join('')}</div>`;
+  if (d.menu === 'falhou') return `<div class="ide-f-falha" role="alert">${L(circleAlert)}<b>O menu não carregou.</b><span>O servidor da navegação não respondeu. Os ecrãs abertos continuam a funcionar.</span><button type="button" class="ide-btn is-acao" data-ide-cmd="recarregar-menu">${L(refreshCw)}Tentar outra vez</button></div>`;
   const q = d.q.trim().toLowerCase();
   const passa = (t: string) => !q || t.toLowerCase().includes(q);
   const folha = (rota: string, titulo: string, ic: string, nivel: number) => {
@@ -273,10 +304,13 @@ function explorador(d: DadosFerr): string {
   const arv = ramo(navegacao(d.perfil).filter((n) => n.id === 'compras'), 0);
   const favs = d.favoritos.filter((f) => ROTAS[f.rota] && passa(f.titulo));
   const recs = d.recentes.filter((f) => ROTAS[f.rota] && passa(f.titulo)).slice(0, 5);
-  return `${favs.length ? `<p class="ide-x-t">${L(star)}Favoritos</p>${favs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
+  /* como no VS Code: os editores abertos em cima, com o ativo marcado, o ● das alterações e o × para fechar */
+  const eds = (d.editores ?? []).filter((e) => passa(e.titulo));
+  const abertosH = eds.length ? `<p class="ide-x-t">${L(fileText)}Editores abertos <small>${eds.length}</small></p>${eds.map((e) => `<div class="ide-x-f ide-x-ed${e.ativo ? ' is-ativo' : ''}" style="--n:0"><button type="button" class="ide-x-i" data-ide-ir="${esc(e.id)}">${icone(e.rota ? ROTAS[e.rota]?.icone ?? 'file-text' : 'file-text')}<span>${esc(e.titulo)}</span></button>${e.sujo ? '<i class="ide-tab-sujo" aria-label="Alterações por guardar"></i>' : ''}<button type="button" class="ide-x-fav ide-x-x" data-ide-fechar-item="${esc(e.id)}" aria-label="Fechar ${esc(e.titulo)}">${L(x)}</button></div>`).join('')}` : '';
+  return `${abertosH}${favs.length ? `<p class="ide-x-t">${L(star)}Favoritos</p>${favs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
     ${recs.length ? `<p class="ide-x-t">${L(clock)}Abertos há pouco</p>${recs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
     <p class="ide-x-t">${L(folderTree)}Módulos</p>
-    ${arv || nada(`Nada no Explorador com «${esc(d.q)}».`)}`;
+    ${arv || nada(q ? `Nada no Explorador com «${esc(d.q)}».` : 'A tua conta ainda não tem módulos no ERP novo. Pede o acesso ao administrador; até lá, continua no ERP antigo.')}`;
 }
 
 /* ---------- Pesquisa global ---------- */
@@ -395,15 +429,22 @@ export function dlgFecharSujo(titulo: string, acao: 'fechar' | 'atualizar'): str
     <footer><button type="button" class="ide-btn" data-ide-dlg-fechar>${L(arrowLeft)}Voltar ao documento</button><button type="button" class="ide-btn is-perigo" data-ide-sujo-fechar>${L(f ? x : refreshCw)}${f ? 'Fechar' : 'Atualizar'} sem guardar</button></footer>
   </div>`;
 }
-export interface LinhaAtalho { id: string; t: string; tecla: string; grupo: string }
+export function dlgSessao(): string {
+  return `<div class="ide-dlg-c ide-dlg-c--p" role="alertdialog" aria-modal="true" aria-labelledby="ide-dlg-t" aria-describedby="ide-dlg-d">
+    <header><h2 id="ide-dlg-t">${L(circleAlert)}A sessão terminou</h2></header>
+    <p id="ide-dlg-d">Por segurança, a sessão termina depois de algum tempo sem uso. A tua disposição fica guardada; o que estava por guardar nos documentos perde-se.</p>
+    <footer><button type="button" class="ide-btn is-acao" data-ide-cmd="sair">${L(user)}Entrar outra vez</button></footer>
+  </div>`;
+}
+export interface LinhaAtalho { id: string; t: string; tecla: string; grupo: string; navegador?: boolean }
 export function dlgAtalhos(xs: LinhaAtalho[], legado: [string, string][], editar: string, erro: string): string {
   const grupos = [...new Set(xs.map((a) => a.grupo))];
   return `<div class="ide-dlg-c ide-dlg-c--l" role="dialog" aria-modal="true" aria-labelledby="ide-dlg-t">
     <header><h2 id="ide-dlg-t">${L(keyboard)}Atalhos de teclado</h2><button type="button" class="ide-g-b" data-ide-dlg-fechar aria-label="Fechar">${L(x)}</button></header>
-    <p class="ide-dlg-nota">As teclas do ERP antigo ficam como estavam e não se podem trocar. As da área de trabalho podem: carrega em «Mudar» e prime a combinação nova (Esc cancela).</p>
+    <p class="ide-dlg-nota">As da área de trabalho são as do VS Code (Ctrl no Windows e no Linux, ⌘ no Mac). As teclas do ERP antigo ganham sempre e não se trocam. «Ctrl K Ctrl W» quer dizer Ctrl K e depois Ctrl W. As marcadas «navegador» são do navegador: funcionam na aplicação instalada. Para trocar uma tecla, carrega em «Mudar» e prime a combinação nova (Esc cancela).</p>
     <div class="ide-at">
       <section><p class="ide-x-t">ERP antigo</p><dl>${legado.map(([t, k]) => `<div><dt>${esc(t)}</dt><dd><kbd>${esc(k)}</kbd></dd></div>`).join('')}</dl></section>
-      ${grupos.map((g) => `<section><p class="ide-x-t">${esc(g)}</p><dl>${xs.filter((a) => a.grupo === g).map((a) => `<div${editar === a.id ? ' class="is-editar"' : ''}><dt>${esc(a.t)}</dt><dd>${editar === a.id ? '<kbd class="is-espera">Prime as teclas…</kbd>' : `<kbd>${esc(a.tecla)}</kbd>`}<button type="button" class="ide-btn is-p" data-ide-at-mudar="${a.id}">${L(pencil)}Mudar</button></dd></div>`).join('')}</dl></section>`).join('')}
+      ${grupos.map((g) => `<section><p class="ide-x-t">${esc(g)}</p><dl>${xs.filter((a) => a.grupo === g).map((a) => `<div${editar === a.id ? ' class="is-editar"' : ''}><dt>${esc(a.t)}${a.navegador ? ' <small class="ide-at-nav" title="No navegador, esta tecla é dele (fechar ou trocar de separador). Na aplicação instalada funciona; aqui usa a alternativa.">navegador</small>' : ''}</dt><dd>${editar === a.id ? '<kbd class="is-espera">Prime as teclas…</kbd>' : `<kbd>${esc(a.tecla)}</kbd>`}<button type="button" class="ide-btn is-p" data-ide-at-mudar="${a.id}">${L(pencil)}Mudar</button></dd></div>`).join('')}</dl></section>`).join('')}
     </div>
     ${erro ? `<p class="ide-dlg-erro" role="alert">${L(circleAlert)}${esc(erro)}</p>` : ''}
     <footer><button type="button" class="ide-btn" data-ide-at-repor>${L(rotateCcw)}Repor as teclas de origem</button></footer>

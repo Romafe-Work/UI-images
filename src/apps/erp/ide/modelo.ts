@@ -41,6 +41,8 @@ export interface Item {
 export interface Disposicao {
   v: typeof ESQUEMA; raiz: No; flut: Flutuante[]; ocultos: Oculto[]; itens: Record<string, Item>;
   ativo: string; grupo: string; max?: string; barraEstado: boolean;
+  /** grupos escondidos com Ctrl B, Ctrl J ou Ctrl Alt B (a barra lateral, o painel, a secundária) e qual era qual */
+  escondidos?: string[]; regioes?: Partial<Record<'esq' | 'dir' | 'baixo', string[]>>;
 }
 
 /* ---------- ids ---------- */
@@ -77,7 +79,7 @@ export function pai(raiz: No, id: string): { p: Divisao; i: number } | null {
   for (let i = 0; i < raiz.filhos.length; i++) { if (raiz.filhos[i].id === id) return { p: raiz, i }; const r = pai(raiz.filhos[i], id); if (r) return r; }
   return null;
 }
-export const visivel = (d: Disposicao, item: string) => { const g = grupoDe(d, item); return !!g && g.ativo === item && (!d.max || d.max === g.id || !!flutDe(d, g.id)); };
+export const visivel = (d: Disposicao, item: string) => { const g = grupoDe(d, item); return !!g && g.ativo === item && !(d.escondidos ?? []).includes(g.id) && (!d.max || d.max === g.id || !!flutDe(d, g.id)); };
 export const soFerramentas = (d: Disposicao, g: Grupo) => g.itens.length > 0 && g.itens.every((i) => d.itens[i]?.tipo === 'ferr');
 
 /* ---------- arrumar a árvore depois de cada mudança ---------- */
@@ -102,6 +104,8 @@ export function arrumar(d: Disposicao): void {
   d.flut = d.flut.filter((f) => f.grupo.itens.length);
   grupos(d).forEach((g) => { if (!g.itens.includes(g.ativo)) g.ativo = g.itens[0] ?? ''; });
   if (d.max && !grupo(d, d.max)) d.max = undefined;
+  if (d.escondidos) d.escondidos = d.escondidos.filter((x) => !!grupo(d, x));
+  if (d.regioes) (Object.keys(d.regioes) as ('esq' | 'dir' | 'baixo')[]).forEach((l) => { const v = (d.regioes![l] ?? []).filter((x) => !!grupo(d, x)); if (v.length) d.regioes![l] = v; else delete d.regioes![l]; });
   if (!grupo(d, d.grupo)) d.grupo = grupoDe(d, d.ativo)?.id ?? (d.raiz.t === 'grupo' ? d.raiz.id : grupos(d)[0]?.id ?? '');
 }
 
