@@ -192,7 +192,13 @@ registarRoteiro('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, forn
 
 /* os percursos com explicação (nome e objetivo de cada um): os estados do Início, e todos os ecrãs e estados do ERP */
 registarRoteiro('erp-estados-inicio', 'Os estados da área de trabalho, um a um', () => percurso((e) => e.dataset.ecra === 'inicio' || e.dataset.estadoDe === 'inicio'));
-registarRoteiro('erp-todos', 'Todos os ecrãs e estados do ERP', () => percurso());
+/* 6 nov. (ela: «no ver fluxo com o rato também»): primeiro os ecrãs das Compras abertos pelos Módulos, como quem
+   trabalha; depois todos os ecrãs e estados, cada um com a explicação */
+registarRoteiro('erp-todos', 'Todos os ecrãs e estados do ERP', () => [
+  { ecra: 'inicio', legenda: '' },
+  ...[...(document.querySelector('.ecra[data-ecra="inicio"] > .versao:not([hidden])')?.querySelectorAll<HTMLElement>('.ide-x-g [data-ide-abrir]') ?? [])].map((el) => menu(el.dataset.ideAbrir!)),
+  ...percurso(),
+]);
 
 /* 28 out. (ela: «reproduzir fluxo no erp está mal no menu»): «Reproduzir o fluxo» andava pelos 31 estados do Início
    (menu recolhido, em esqueleto, sem módulos, sessão expirada…) e nunca passava pelo menu Compras. Agora segue o menu
@@ -276,10 +282,19 @@ function noSeparador(sel: string): void {
   const d = docAtivo(); if (!d) return;
   if (sel === ESC) { (d.activeElement ?? d.body).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); return; }
   const el = [...d.querySelectorAll<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) ${sel.split(', ').join(', .ecra:not([hidden]) > .versao:not([hidden]) ')}`)].find((x) => !x.closest('[hidden]') && x.getClientRects().length > 0);
-  if (el) el.click(); else console.warn(`reproduzir: não há «${sel}» neste ecrã`);
+  /* 6 nov.: a barra de ações do ecrã está por cima, na área de trabalho — o clique vai ao botão de cima (os menus abrem à vista) */
+  const cima = el && (window as unknown as { ideEspelho?: (e: Element) => HTMLElement | null }).ideEspelho?.(el);
+  if (cima) cima.click(); else if (el) el.click(); else console.warn(`reproduzir: não há «${sel}» neste ecrã`);
 }
+/* 6 nov. (ela: «no fluxo do ERP deve ter todos os estados de screen»): depois do trabalho nos ecrãs das Compras, a
+   reprodução passa por todos os ecrãs e estados da lista, pela ordem do número (os mesmos do percurso «Todos os ecrãs
+   e estados» com o rato), e volta ao Início. */
+const ecraEstados = () => percurso().map((p) => p.ir!).filter((id) => id !== 'inicio');
+const nomeEcra = (id: string) => document.querySelector<HTMLElement>(`.ecra[data-ecra="${CSS.escape(id)}"]`)?.dataset.nome ?? id;
 registarReproducao((): PassoReproducao[] => [
   { nome: '05 · Início', fazer: () => { mostrar('inicio'); mostrarVersao(''); document.dispatchEvent(new CustomEvent('romafe:rato-inicio', { detail: 'reproduzir' })); } },
   ...itensCompras().flatMap((el) => { const rota = el.dataset.ideAbrir!, nome = nomeItem(el);
     return [{ nome, fazer: () => abrirPeloMenu(rota) }, ...(NO_ECRA[rota] ?? []).map(([t, sel]) => ({ nome: t ? `${nome} · ${t}` : nome, fazer: () => noSeparador(sel) }))]; }),
+  ...ecraEstados().map((id) => ({ nome: nomeEcra(id), fazer: () => { mostrar(id); mostrarVersao(''); } })),
+  { nome: '05 · Início', fazer: () => { mostrar('inicio'); mostrarVersao(''); } },
 ]);
