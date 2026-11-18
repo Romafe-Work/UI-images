@@ -156,9 +156,9 @@ export const MENU_ERP: LinhaMenu[] = [
   T('stocks-mapas', 'stocks', 'Mapas', 'chart-bar', 200, true),
   T('stocks-mapa-artigos-clientes', 'stocks-mapas', 'Artigos/clientes', '', 10, false, 'stocks.mapa-artigos-clientes'),
   T('stocks-mapa-stocks', 'stocks-mapas', 'Stocks', '', 20, true, 'stocks.mapa-stocks'),
-  T('stocks-mapa-movimentos', 'stocks-mapas', 'Movimentos de artigos', '', 30, true),
-  T('stocks-mapa-extracto', 'stocks-mapas', 'Extrato de movimentos/artigo', '', 40),
-  T('stocks-mapa-mov-saldo', 'stocks-mapas', 'Movimento artigos — saldo', '', 50),
+  /* 18 nov. (ela: «estes devem ficar no mesmo screen, separados por tabs»): o Extrato de movimentos/artigo e o Movimento
+     artigos — saldo são separadores dos Movimentos de artigos e saem do menu */
+  T('stocks-mapa-movimentos', 'stocks-mapas', 'Movimentos de artigos', '', 30, true, 'stocks.mapa-movimentos'),
   T('stocks-mapa-inventario', 'stocks-mapas', 'Inventário', '', 60, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
@@ -202,6 +202,7 @@ export const ROTAS: Record<string, Rota> = {
   /* 18 nov. (ela, com o print dos «MAPAS» do antigo): Stocks ▸ Mapas ▸ Artigos/clientes */
   'stocks.mapa-artigos-clientes': { ecra: 'stocks-mapa-artigos-clientes', titulo: 'Artigos/clientes', icone: 'users', acoes: ['atualizar', 'imprimir'] },
   'stocks.mapa-stocks': { ecra: 'stocks-mapa-stocks', titulo: 'Mapa de stocks', icone: 'boxes', acoes: ['atualizar', 'imprimir'] },
+  'stocks.mapa-movimentos': { ecra: 'stocks-mapa-movimentos', titulo: 'Movimentos de artigos', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   'stocks.transf-armazens': { ecra: 'stocks-transf-armazens', titulo: 'Transferências entre armazéns', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },

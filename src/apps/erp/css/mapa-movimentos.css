@@ -1,0 +1,21 @@
+/* =========================================================
+   ERP — Stocks ▸ Mapas ▸ 77 · Movimentos de artigos (18 nov. 2026). Ver stocks/mapa-movimentos.ts.
+   Assenta em css/mapa-artigos-clientes.css, css/mapa-stocks.css, css/docs-v2.css e css/encomendas-v5.css (os separadores).
+   ========================================================= */
+.mva-pq { flex-wrap: wrap; height: auto; min-height: 32px; max-width: none; }
+.mva-pq .lf2-pq-in { min-width: 220px; }
+.mva-campos { grid-template-columns: repeat(3, minmax(160px, 1fr)) auto; }
+@media (max-width: 1100px) { .mva-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.mva-barra [data-mva-so] { display: inline-flex; gap: 6px; } .mva-barra [data-mva-so][hidden] { display: none; }
+.mva-pm { font-size: 14px; color: var(--h-tinta-2); } .mva-pm b { color: var(--h-tinta); font-variant-numeric: tabular-nums; }
+.mva-crit { margin: 12px clamp(16px, 2vw, 28px) 0; }
+.mva-crit-c { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.mva-crit-campos { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; flex: 1; min-width: 260px; }
+.mva-crit-campos .ak-campo { min-width: 200px; } .mva-crit-campos .ak-campo select { min-width: 320px; }
+.mva-crit-campos .mva-ano { min-width: 120px; } .mva-crit-campos .mva-ano input { width: 120px; }
+.mva-crit-campos .ak-erro-campo { flex-basis: 100%; margin: 0; }
+.mva-crit [hidden] { display: none !important; }
+.mva-tipo.is-anul { color: var(--h-erro); }
+.mva-abertura td { background: var(--h-sup-2) !important; font-size: 13.5px; }
+.mva-agrupar { margin-left: auto; }
+section[data-mva-p][hidden] { display: none; }

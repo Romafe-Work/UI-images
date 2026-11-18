@@ -50,6 +50,8 @@ import { iniciar as docs2 } from './compras/docs-v2-comportamento';
 import { iniciar as recap2 } from './compras/recap-v2';
 import { iniciar as mapaAc } from './stocks/mapa-artigos-clientes';
 import { iniciar as mapaStk } from './stocks/mapa-stocks';
+import { iniciar as mapaMov } from './stocks/mapa-movimentos';
+import './css/mapa-movimentos.css';
 import './css/mapa-stocks.css';
 import './css/mapa-artigos-clientes.css';
 import { iniciar as selectErp } from './comportamento/select-erp';
@@ -68,7 +70,7 @@ import { iniciar as comparativo } from './compras/comparativo-comportamento';
 calmo();
 rececoes2();
 guias3();
-montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, recap2, mapaAc, mapaStk, selectErp, dataErp, moldura, espaco, ide, inicio, compras, compras2, ficheiros, automatico, comparativo]);
+montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, recap2, mapaAc, mapaStk, mapaMov, selectErp, dataErp, moldura, espaco, ide, inicio, compras, compras2, ficheiros, automatico, comparativo]);
 
 /* 18 nov. (ela: «aqui quero um rolamento para fazer scroll e não este scroll»): a página e os painéis da área de trabalho rolam com um rolamento */
 iniciarRolamento('.ide-ferr-corpo');
