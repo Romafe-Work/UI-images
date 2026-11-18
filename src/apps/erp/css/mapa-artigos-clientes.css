@@ -1,0 +1,71 @@
+/* =========================================================
+   ERP — Stocks ▸ Mapas ▸ 75 · Artigos/clientes (18 nov. 2026). Ver stocks/mapa-artigos-clientes.ts.
+   Assenta em css/faltas-v2.css (.lf2) e css/docs-v2.css (.dv2: a pesquisa por modos, os Somatórios .rc-s).
+   Aqui: a pesquisa a toda a largura com as hipóteses por baixo, os campos Artigo e Cliente, as faixas da grelha.
+   Claro e escuro pelos tokens --h-*. Só transform e opacity.
+   ========================================================= */
+.mac-filtros { display: grid; gap: 10px; }
+.mac-filtros > .mac-pesquisa { grid-row: 1; grid-column: 1 / -1; } .mac-filtros > .mac-campos { grid-row: 2; }
+.mac-pesquisa { position: relative; }
+.mac-pq { max-width: 980px; }
+.mac-pq .lf2-pq-in input { min-width: 180px; }
+.mac-campos { display: grid; grid-template-columns: minmax(220px, 1.3fr) minmax(220px, 1.3fr) auto minmax(150px, 200px); gap: 8px 12px; align-items: end; }
+@media (max-width: 1100px) { .mac-campos { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .mac-campos { grid-template-columns: 1fr; } .mac-pq { flex-wrap: wrap; height: auto; } }
+.mac-ent > span small { margin-left: 4px; padding: 0 5px; border-radius: 4px; background: var(--h-sup-2); color: var(--h-tinta-3); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.mac-ent-v { display: flex; align-items: center; gap: 6px; min-width: 0; height: 32px; padding: 0 4px 0 8px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); }
+.mac-ent-v.is-principal { border-color: color-mix(in srgb, var(--h-azul) 45%, var(--h-borda-forte)); }
+.mac-ent-vazio { flex: 1; min-width: 0; font-size: 13px; color: var(--h-tinta-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mac-ent-chip { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; font-size: 13px; }
+.mac-ent-chip b { flex: none; color: var(--h-tinta); }
+.mac-ent-chip > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--h-tinta); }
+.mac-ent-chip button { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border: 0; border-radius: 50%; background: none; color: var(--h-tinta-2); cursor: pointer; }
+.mac-ent-chip button:hover { background: color-mix(in srgb, var(--h-azul) 14%, transparent); color: var(--h-tinta); }
+.mac-ent-chip button svg { width: 14px; height: 14px; }
+.mac-ent-v[hidden], .mac-ent-f[hidden] { display: none; }
+.mac-ent-f select { width: 100%; }
+
+/* as hipóteses da pesquisa */
+.mac-sug { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; width: min(640px, 100%); max-height: 340px; overflow-y: auto; margin: 0; padding: 5px; list-style: none; border: 1px solid var(--h-borda-forte); border-radius: var(--r-md, 8px); background: var(--h-sup); box-shadow: 0 10px 28px rgba(10, 20, 30, .18); animation: mac-sug .14s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes mac-sug { from { opacity: 0; transform: translateY(-4px); } }
+.mac-sug li[data-mac-hip] { display: grid; grid-template-columns: minmax(110px, auto) minmax(0, 1fr) auto; gap: 12px; align-items: center; height: 36px; padding: 0 10px; border-radius: 6px; font-size: 13.5px; cursor: pointer; }
+.mac-sug li[data-mac-hip] > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mac-sug li[data-mac-hip] small { color: var(--h-tinta-3); font-size: 12px; }
+.mac-sug li[data-mac-hip]:hover, .mac-sug li[aria-selected="true"] { background: color-mix(in srgb, var(--h-azul) 10%, transparent); }
+.mac-sug li[aria-selected="true"] b { color: rgb(0, 99, 170); }
+.mac-sug mark { background: color-mix(in srgb, var(--h-laranja) 28%, transparent); color: inherit; border-radius: 2px; }
+.mac-sug-nada { display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 13px; color: var(--h-tinta-2); }
+.mac-sug-nada > svg { width: 16px; height: 16px; flex: none; color: var(--h-tinta-3); }
+.mac-sug-mais { padding: 6px 10px 3px; font-size: 12px; color: var(--h-tinta-3); }
+
+/* os Somatórios e a lista */
+.mac-soma { margin: 12px clamp(16px, 2vw, 28px) 0; }
+.mac-lista .lf2-lista-cab { align-items: center; }
+.mac-volta { margin-left: auto; }
+.mac-tab td.is-mono, .mac-tab .is-mono { font-family: var(--f-mono); }
+.mac-neg { color: var(--h-erro); }
+.mac-tab tr.is-credito td { background: color-mix(in srgb, var(--h-erro) 4%, var(--h-sup)); }
+.mac-ent-c { display: block; overflow: hidden; text-overflow: ellipsis; }
+.mac-ent-c b { margin-right: 4px; color: var(--h-tinta-2); font-weight: 700; }
+.mac-tipo { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+.mac-tipo--NC { color: var(--h-erro); font-weight: 600; }
+.mac-g td { height: 38px; padding: 0 6px 0 4px; background: var(--h-sup-2) !important; border-bottom-color: var(--h-borda-forte); }
+.mac-g-c { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.mac-g-abrir { display: inline-flex; align-items: center; gap: 7px; min-width: 0; height: 30px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--h-tinta); font: inherit; font-size: 13.5px; cursor: pointer; }
+.mac-g-abrir b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mac-g-abrir small { color: var(--h-tinta-3); font-size: 12px; white-space: nowrap; }
+.mac-g-abrir:hover { background: color-mix(in srgb, var(--h-azul) 8%, transparent); }
+.mac-g-seta { width: 15px; height: 15px; flex: none; color: var(--h-tinta-3); transition: transform .16s ease; }
+.mac-g-abrir[aria-expanded="false"] .mac-g-seta { transform: rotate(-90deg); }
+.mac-g-n { font-size: 12.5px; color: var(--h-tinta-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.mac-g-n b { color: var(--h-tinta); }
+.mac-g-trocar { margin-left: auto; flex: none; }
+.mac-total td { background: var(--h-sup-2) !important; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .mac-sug { animation: none; } .mac-g-seta { transition: none; } }
+
+/* a impressão: o título e as linhas */
+.mac-impressao { display: none; }
+@media print {
+  .mac :is(.hm-topo, .mac-barra, .mac-filtros, .lf2-estado, .hm-aviso, .mac-g-trocar, .mac-volta) { display: none !important; }
+  .mac-impressao { display: block; margin: 0 0 10px; } .mac-impressao h1 { margin: 0 0 4px; font-size: 16px; } .mac-impressao p { margin: 0; font-size: 11px; }
+}
