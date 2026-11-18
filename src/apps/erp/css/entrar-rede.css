@@ -80,7 +80,7 @@
 
 .rede__marca { display: flex; align-items: baseline; gap: 12px; margin-bottom: 26px; }
 .rede__romafe { font-size: 34px; color: var(--c-logotipo); }
-.rede__erp { padding-left: 12px; border-left: 1px solid var(--rede-borda); font-family: var(--f-titulo); font-size: 14px; font-weight: 600; letter-spacing: .14em; color: var(--rede-tinta-2); line-height: 22px; }
+.rede__erp { padding-left: 12px; border-left: 1px solid var(--rede-borda); font-family: var(--f-titulo); font-size: 15px; font-weight: 600; letter-spacing: .14em; color: var(--rede-tinta-2); line-height: 22px; }
 
 /* os dois passos na mesma célula: o cartão tem a altura do maior e nunca muda */
 .rede__passos { display: grid; }
@@ -97,17 +97,17 @@
 .rede__sub--abre { margin-top: 0; }
 
 /* a identificação: o correio já escolhido, compacto, com «Mudar» */
-.rede__conta { display: flex; align-items: center; gap: 10px; min-width: 0; margin: -6px 0 18px; padding: 8px 8px 8px 12px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-fundo-2); font-size: 14px; }
+.rede__conta { display: flex; align-items: center; gap: 10px; min-width: 0; margin: -6px 0 18px; padding: 8px 8px 8px 12px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-fundo-2); font-size: 15px; }
 .rede__conta > svg { width: 16px; height: 16px; flex: none; color: var(--rede-azul); }
 .rede__conta-correio { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-.rede__mudar { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 5px 8px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-azul); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .14s ease; }
+.rede__mudar { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 5px 8px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-azul); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .14s ease; }
 .rede__mudar svg { width: 14px; height: 14px; }
 .rede__mudar:hover { background: var(--rede-painel); }
 
 /* ---------- o formulário ---------- */
 .rede__form { display: grid; gap: 16px; }
 .rede__campo { display: grid; gap: 6px; }
-.rede__campo label, .rede__rotulos label { font-size: 13px; font-weight: 700; color: var(--rede-tinta); }
+.rede__campo label, .rede__rotulos label { font-size: 14px; font-weight: 700; color: var(--rede-tinta); }
 .rede__rotulos { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .rede__caixa { position: relative; display: flex; align-items: center; height: 46px; border: 1px solid var(--rede-borda); border-radius: 8px; background: var(--rede-painel); transition: border-color .16s ease, box-shadow .16s ease; }
 .rede__caixa:hover { border-color: color-mix(in srgb, var(--rede-tinta-2) 50%, var(--rede-borda)); }
@@ -124,20 +124,20 @@
 .rede__olho[aria-pressed="true"] { color: var(--rede-azul); }
 .rede__campo.is-erro .rede__caixa { border-color: var(--rede-erro); }
 .rede__campo.is-erro .rede__caixa:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--rede-erro) 18%, transparent); }
-.rede__erro, .rede__maiusculas { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 13px; line-height: 1.4; animation: rede-aparecer .16s ease; }
+.rede__erro, .rede__maiusculas { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 14px; line-height: 1.4; animation: rede-aparecer .16s ease; }
 .rede__erro { color: var(--rede-erro); font-weight: 600; }
 .rede__maiusculas { color: var(--rede-tinta-2); }
 .rede__erro svg, .rede__maiusculas svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
 .rede__erro[hidden], .rede__maiusculas[hidden] { display: none; }
-.rede__nota { margin: 0; font-size: 13px; line-height: 1.45; color: var(--rede-tinta-2); }
+.rede__nota { margin: 0; font-size: 14px; line-height: 1.45; color: var(--rede-tinta-2); }
 .rede__nota--caixa { display: flex; gap: 10px; margin-bottom: 18px; padding: 12px; border-radius: 8px; background: var(--rede-fundo-2); }
 .rede__nota--caixa svg { width: 18px; height: 18px; flex: none; color: var(--rede-azul); }
 
-.rede__manter { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--rede-tinta-2); cursor: pointer; }
+.rede__manter { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--rede-tinta-2); cursor: pointer; }
 .rede__manter input { width: 16px; height: 16px; accent-color: var(--rede-azul); }
 
 /* o aviso por cima do formulário */
-.rede__aviso { display: flex; gap: 10px; margin: -6px 0 18px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.45; animation: rede-aparecer .2s ease; }
+.rede__aviso { display: flex; gap: 10px; margin: -6px 0 18px; padding: 12px; border-radius: 8px; font-size: 14px; line-height: 1.45; animation: rede-aparecer .2s ease; }
 .rede__aviso svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
 .rede__aviso p { margin: 0; }
 .rede__aviso-titulo { font-weight: 700; color: var(--rede-tinta); }
@@ -162,20 +162,20 @@
 .rede__passo .rede__form:has(+ .rede__ajudas) { margin-bottom: 18px; }
 /* a ajuda vai para o fundo do cartão, que tem a altura do passo maior */
 .rede__ajudas { display: flex; justify-content: center; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--rede-borda); }
-.rede__ligacao { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-azul); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color .14s ease; }
+.rede__ligacao { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px; border: 0; border-radius: 6px; background: transparent; color: var(--rede-azul); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color .14s ease; }
 .rede__ligacao svg { width: 16px; height: 16px; }
 .rede__ligacao:hover { text-decoration-color: currentColor; }
-.rede__ligacao--pequena { padding: 0; font-size: 13px; }
+.rede__ligacao--pequena { padding: 0; font-size: 14px; }
 
 /* a ajuda */
 .rede__casos { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 10px; }
 .rede__casos li { display: flex; gap: 12px; padding: 12px; border: 1px solid var(--rede-borda); border-radius: 8px; }
 .rede__casos svg { width: 20px; height: 20px; flex: none; color: var(--rede-azul); margin-top: 1px; }
-.rede__casos p { margin: 0 0 2px; font-weight: 700; font-size: 14px; }
-.rede__casos span { font-size: 13px; line-height: 1.45; color: var(--rede-tinta-2); }
+.rede__casos p { margin: 0 0 2px; font-weight: 700; font-size: 15px; }
+.rede__casos span { font-size: 14px; line-height: 1.45; color: var(--rede-tinta-2); }
 
 /* ---------- em baixo ---------- */
-.rede__rodape { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 14px clamp(16px, 3vw, 32px); font-size: 12px; color: var(--rede-tinta-2); }
+.rede__rodape { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 14px clamp(16px, 3vw, 32px); font-size: 13px; color: var(--rede-tinta-2); }
 
 /* ---------- a passagem ao ERP ----------
    A rede já se alinhou (rede-cena.ts); o cartão sai e a moldura do ERP desenha-se no sítio dela: a barra
@@ -230,20 +230,20 @@ button.central__opcao[aria-busy="true"] { cursor: progress; border-color: var(--
 .central__icone { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 8px; background: var(--rede-fundo-2); color: var(--rede-azul); }
 .central__icone svg { width: 18px; height: 18px; }
 .central__texto { display: grid; gap: 1px; flex: 1; min-width: 0; }
-.central__nome { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.central__desc { font-size: 13px; line-height: 1.35; color: var(--rede-tinta-2); }
-.central__marca { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 12px; font-weight: 600; color: var(--rede-tinta-2); }
+.central__nome { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.central__desc { font-size: 14px; line-height: 1.35; color: var(--rede-tinta-2); }
+.central__marca { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 13px; font-weight: 600; color: var(--rede-tinta-2); }
 .central__marca svg { width: 13px; height: 13px; }
 .central__marca[hidden] { display: none; }
 .central__seta { flex: none; width: 18px; height: 18px; color: var(--rede-tinta-2); transition: transform .14s ease, color .14s ease; }
 button.central__opcao:hover .central__seta { transform: translateX(2px); color: var(--rede-azul); }
-.central__abrir { display: inline-flex; align-items: center; gap: 2px; flex: none; padding: 6px 8px 6px 12px; border-radius: 6px; background: var(--rede-azul); color: #fff; font-size: 13px; font-weight: 700; transition: background .14s ease; }
+.central__abrir { display: inline-flex; align-items: center; gap: 2px; flex: none; padding: 6px 8px 6px 12px; border-radius: 6px; background: var(--rede-azul); color: #fff; font-size: 14px; font-weight: 700; transition: background .14s ease; }
 .central__abrir svg { width: 16px; height: 16px; transition: transform .14s ease; }
 button.central__opcao:hover .central__abrir { background: var(--rede-azul-premido); }
 button.central__opcao:hover .central__abrir svg { transform: translateX(2px); }
 .central__opcao.is-fechada .central__icone { color: var(--rede-tinta-2); }
 .central__opcao.is-fechada .central__nome { color: var(--rede-tinta-2); }
-.central__estado { display: inline-flex; align-items: center; gap: 6px; flex: none; max-width: 44%; font-size: 12px; line-height: 1.3; color: var(--rede-tinta-2); text-align: right; }
+.central__estado { display: inline-flex; align-items: center; gap: 6px; flex: none; max-width: 44%; font-size: 13px; line-height: 1.3; color: var(--rede-tinta-2); text-align: right; }
 .central__estado svg { width: 13px; height: 13px; flex: none; }
 .central__girar { width: 14px; height: 14px; border: 2px solid color-mix(in srgb, var(--rede-azul) 30%, transparent); border-top-color: var(--rede-azul); border-radius: 50%; animation: rede-girar .8s linear infinite; }
 .central__empresa { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }

@@ -52,9 +52,9 @@
 .ab6__traco { position: relative; width: 48px; height: 2px; overflow: hidden; border-radius: 2px; background: rgba(168, 183, 197, .2); }
 .ab6__traco::after { content: ""; position: absolute; inset: 0; width: 40%; background: #4fa3dc; animation: ab6-traco 1s ease-in-out infinite; }
 @keyframes ab6-traco { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
-.ab6__btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid rgba(168, 183, 197, .35); border-radius: 10px; background: transparent; color: #f5f8fa; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ab6__btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid rgba(168, 183, 197, .35); border-radius: 10px; background: transparent; color: #f5f8fa; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
 .ab6__btn svg { width: 16px; height: 16px; } .ab6__btn:hover { border-color: rgba(168, 183, 197, .6); }
-.ab6__saltar { position: absolute; right: 18px; bottom: 18px; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #8fa3b8; font: inherit; font-size: 13px; cursor: pointer; }
+.ab6__saltar { position: absolute; right: 18px; bottom: 18px; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #8fa3b8; font: inherit; font-size: 14px; cursor: pointer; }
 .ab6__saltar svg { width: 15px; height: 15px; } .ab6__saltar:hover { color: #fff; background: rgba(255, 255, 255, .06); }
 /* E — a passagem: o fundo e o motor somem por cima da página que já está a entrar */
 .ab6.is-e .ab6__fundo, .ab6.is-e .ab6__cena, .ab6.is-e .ab6__estado, .ab6.is-e .ab6__saltar { opacity: 0; }

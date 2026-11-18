@@ -10,31 +10,31 @@
 .cf-anos input { font-variant-numeric: tabular-nums; font-weight: 700 !important; }
 .cf-seta { display: grid; place-items: center; height: 34px; color: rgb(0, 99, 170); }
 .cf-seta svg { width: 18px; height: 18px; }
-.cf-dica { flex-basis: 100%; margin: 2px 0 0; font-size: 12.5px; color: var(--h-tinta-3); }
+.cf-dica { flex-basis: 100%; margin: 2px 0 0; font-size: 13.5px; color: var(--h-tinta-3); }
 .cf .ak-crit-acoes { align-content: center; }
-.cf-etq { display: inline-flex; align-items: center; height: 28px; font-size: 13px; color: var(--h-tinta-2); }
+.cf-etq { display: inline-flex; align-items: center; height: 28px; font-size: 14px; color: var(--h-tinta-2); }
 .cf-pronto-ic { width: 40px !important; height: 40px !important; color: rgb(0, 99, 170); }
 
 /* o resumo */
 .cf-sumario { row-gap: 6px; }
-.cf-m-ano.is-vazio b { font-size: 14px; font-weight: 700; color: var(--h-tinta-3); }
+.cf-m-ano.is-vazio b { font-size: 15px; font-weight: 700; color: var(--h-tinta-3); }
 .cf-m-var { display: inline-flex; align-items: baseline; padding: 0 2px; }
 .cf-m-global { border-left: 1px solid var(--h-borda); }
 .cf-m-global .cf-var b { font-size: 16px; }
-.cf-parcial { display: flex; align-items: flex-start; gap: 8px; flex-basis: 100%; margin: 4px 0 0; padding: 7px 10px; border-radius: 6px; background: color-mix(in srgb, var(--h-laranja) 11%, var(--h-sup)); font-size: 13px; color: var(--h-tinta); }
+.cf-parcial { display: flex; align-items: flex-start; gap: 8px; flex-basis: 100%; margin: 4px 0 0; padding: 7px 10px; border-radius: 6px; background: color-mix(in srgb, var(--h-laranja) 11%, var(--h-sup)); font-size: 14px; color: var(--h-tinta); }
 .cf-parcial svg { width: 16px; height: 16px; margin-top: 1px; color: var(--h-laranja); }
 .cf-imprimir-t { display: none; }
 
 /* a grelha: duas linhas de cabeçalho */
-.cf-tab thead tr.cf-bandas th { top: 0; height: 30px; padding: 0 10px; border-bottom: 1px solid var(--h-borda); font-size: 12.5px; font-weight: 800; text-align: center; color: var(--h-tinta); }
+.cf-tab thead tr.cf-bandas th { top: 0; height: 30px; padding: 0 10px; border-bottom: 1px solid var(--h-borda); font-size: 13.5px; font-weight: 800; text-align: center; color: var(--h-tinta); }
 .cf-tab thead tr.cf-folhas th { top: 30px; }
 .cf-tab thead tr.ak-filtros th { top: 64px !important; }
 .cf-tab thead th.ak-th-sel { top: 0; vertical-align: middle; }
 .cf-banda span { display: inline-flex; align-items: baseline; gap: 6px; }
-.cf-banda small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--h-tinta-3); }
-.cf-banda em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--h-tinta-3); }
+.cf-banda small { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--h-tinta-3); }
+.cf-banda em { font-style: normal; font-size: 12px; font-weight: 600; color: var(--h-tinta-3); }
 .cf-banda.cf-b-forn { text-align: left !important; }
-.cf-banda.cf-b-ano { background: color-mix(in srgb, var(--h-azul) 13%, var(--h-sup-2)) !important; color: rgb(0, 99, 170) !important; font-size: 13.5px !important; font-variant-numeric: tabular-nums; }
+.cf-banda.cf-b-ano { background: color-mix(in srgb, var(--h-azul) 13%, var(--h-sup-2)) !important; color: rgb(0, 99, 170) !important; font-size: 14.5px !important; font-variant-numeric: tabular-nums; }
 :root[data-theme="dark"] .cf-banda.cf-b-ano { color: var(--h-azul) !important; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cf-banda.cf-b-ano { color: var(--h-azul) !important; } }
 .cf-banda.cf-b-ano.is-vazia { background: var(--h-sup-2) !important; color: var(--h-tinta-3) !important; }
@@ -68,22 +68,22 @@
 :root[data-theme="dark"] .cf-var.is-desce svg, :root[data-theme="dark"] .cf-var.is-desce b { color: #a8b5c7; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cf-var.is-sobe svg, :root:not([data-theme="light"]) .cf-var.is-sobe b { color: var(--h-azul); } :root:not([data-theme="light"]) .cf-var.is-desce svg, :root:not([data-theme="light"]) .cf-var.is-desce b { color: #a8b5c7; } }
 .cf-var.is-igual { color: var(--h-tinta-3); }
-.cf-var.is-nd { display: inline-block; padding: 0 6px; border: 1px dashed var(--h-borda-forte); border-radius: 4px; font-size: 11.5px; font-weight: 800; letter-spacing: .04em; color: var(--h-tinta-2); cursor: help; }
+.cf-var.is-nd { display: inline-block; padding: 0 6px; border: 1px dashed var(--h-borda-forte); border-radius: 4px; font-size: 12.5px; font-weight: 800; letter-spacing: .04em; color: var(--h-tinta-2); cursor: help; }
 .cf-var.is-nada { color: var(--h-tinta-3); }
 
 /* o detalhe: as barras dos três anos */
 .cf-det .cf-graf { margin: 12px 0 4px; }
-.cf-graf figcaption { margin-bottom: 4px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--h-tinta-3); }
+.cf-graf figcaption { margin-bottom: 4px; font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--h-tinta-3); }
 .cf-graf svg { display: block; width: 100%; height: auto; overflow: visible; }
 .cf-bar { fill: color-mix(in srgb, var(--h-azul) 38%, var(--h-sup)); transform-box: fill-box; transform-origin: bottom; animation: cf-cresce .28s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i) * 60ms + 80ms); }
 .cf-bar.is-ult { fill: rgb(0, 99, 170); }
 @keyframes cf-cresce { from { transform: scaleY(0); } }
-.cf-bar-v { font-size: 10.5px; font-weight: 700; fill: var(--h-tinta); font-variant-numeric: tabular-nums; }
-.cf-bar-a { font-size: 11px; font-weight: 700; fill: var(--h-tinta-3); }
+.cf-bar-v { font-size: 11.5px; font-weight: 700; fill: var(--h-tinta); font-variant-numeric: tabular-nums; }
+.cf-bar-a { font-size: 12px; font-weight: 700; fill: var(--h-tinta-3); }
 .cf-bar-base { stroke: var(--h-borda-forte); }
 .cf-det-tab th[scope="row"] { font-weight: 700; color: var(--h-tinta); }
 .cf-det-tab .cf-var b { min-width: 0; }
-.cf-arq { font-family: var(--f-mono); font-size: 12.5px; font-weight: 600; color: var(--h-tinta-2); }
+.cf-arq { font-family: var(--f-mono); font-size: 13.5px; font-weight: 600; color: var(--h-tinta-2); }
 :root:not(.dk8-vivo) .cf-det [data-dk-janela] { display: none; }
 .cf.com-det .ak-corpo { grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); }
 
@@ -99,19 +99,19 @@
 .cf-sumario .ak2-m { padding: 0 12px; }
 .cf-sumario .cf-var b { min-width: 0; }
 .cf-sumario .cf-m-var { padding: 0; margin-left: -4px; margin-right: 4px; }
-.cf-gerado { flex: none; font-size: 12.5px; color: var(--h-tinta-3); } .cf-gerado b { color: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
+.cf-gerado { flex: none; font-size: 13.5px; color: var(--h-tinta-3); } .cf-gerado b { color: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
 /* o total preso em baixo tapa as linhas por trás (também nas colunas de variação) */
 .cf-tab tfoot td.cf-b-var { background: color-mix(in srgb, var(--h-azul) 4%, var(--h-sup-2)); }
 .cf-tab tfoot td { z-index: 1; }
 .cf-tab tfoot td { z-index: 3; } .cf-tab tfoot td.is-fixa { z-index: 4; }
 .cf-sumario .ak2-m { padding: 0 10px; gap: 6px; }
 .cf-sumario .ak2-m b { font-size: 16px; }
-@media (max-width: 1440px) { .cf-sumario .ak2-m small { font-size: 11.5px; } .cf-sumario .ak2-m i { font-size: 12px; } }
+@media (max-width: 1440px) { .cf-sumario .ak2-m small { font-size: 12.5px; } .cf-sumario .ak2-m i { font-size: 13px; } }
 
 /* Variação anual ou Mês a mês (23 out., ela: «quero num só ecrã») */
 .cf-modo { width: auto !important; margin-right: 6px; }
 .cf-seg { display: inline-flex !important; height: 34px !important; padding: 3px; gap: 3px; border: 1px solid var(--h-borda-forte); border-radius: 7px; background: var(--h-sup-2); }
-.cf-seg button { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color .12s ease, color .12s ease; }
+.cf-seg button { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color .12s ease, color .12s ease; }
 .cf-seg button svg { width: 15px; height: 15px; color: rgb(0, 99, 170); }
 .cf-seg button[aria-checked="true"] { background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 1px 2px rgba(16, 32, 48, .14); }
 .cf-seg button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
@@ -130,7 +130,7 @@
    ========================================================= */
 /* o seletor de modo: um indicador que desliza (só transform) */
 .cf-modos { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-self: flex-start; margin: 0 clamp(16px, 2vw, 28px) 10px; padding: 3px; border: 1px solid var(--h-borda-forte); border-radius: 9px; background: var(--h-sup-2); }
-.cf-modos button { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: color .16s ease; }
+.cf-modos button { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: color .16s ease; }
 .cf-modos button svg { width: 16px; height: 16px; color: rgb(0, 99, 170); }
 .cf-modos button[aria-checked="true"] { color: var(--h-tinta); }
 .cf-modos button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
@@ -159,7 +159,7 @@
 .cf-etq-x svg { width: 13px !important; height: 13px !important; }
 
 /* resultados de outro modo: o aviso e a grelha esbatida (os rótulos nunca mudam) */
-.cf-outro { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 8px 10px; border-radius: 7px; background: color-mix(in srgb, var(--h-laranja) 12%, var(--h-sup)); font-size: 13px; color: var(--h-tinta); }
+.cf-outro { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 8px 10px; border-radius: 7px; background: color-mix(in srgb, var(--h-laranja) 12%, var(--h-sup)); font-size: 14px; color: var(--h-tinta); }
 .cf-outro > svg { width: 17px; height: 17px; color: var(--h-laranja); }
 .cf-outro span { flex: 1; }
 .cf-outro .ak-btn { flex: none; border-color: var(--h-borda-forte); background: var(--h-sup); }
@@ -167,14 +167,14 @@
 
 /* vista detalhada | vista por períodos (só com resultados mensais) */
 .cf-vistas-m { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--h-borda); border-radius: 7px; background: var(--h-sup); }
-.cf-vistas-m button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 9px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.cf-vistas-m button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 9px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
 .cf-vistas-m button svg { width: 15px; height: 15px; color: rgb(0, 99, 170); }
 .cf-vistas-m button[aria-checked="true"] { background: color-mix(in srgb, var(--h-azul) 12%, var(--h-sup)); color: var(--h-tinta); }
 .cf-vistas-m button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
-.cf-cod { margin-right: 2px; padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, var(--h-azul) 12%, transparent); font-family: var(--f-mono); font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--h-tinta-2); }
+.cf-cod { margin-right: 2px; padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, var(--h-azul) 12%, transparent); font-family: var(--f-mono); font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--h-tinta-2); }
 .cf-vl { grid-template-columns: minmax(0, 1fr) 30px 30px !important; }
 .cf-vl-nome { display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; gap: 6px; padding: 4px; }
-.cf-vl-nome input { height: 30px; min-width: 0; padding: 0 8px; border: 1px solid var(--h-azul); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13px; }
+.cf-vl-nome input { height: 30px; min-width: 0; padding: 0 8px; border: 1px solid var(--h-azul); border-radius: 6px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 14px; }
 .cf-vl-nome input[aria-invalid="true"] { border-color: var(--h-erro); }
 .cf-vl-nome .ak-btn { height: 30px; border-color: var(--h-borda-forte); }
 .cf-det-tab tr.is-ativo th, .cf-det-tab tr.is-ativo td { background: color-mix(in srgb, var(--h-azul) 12%, transparent); }
@@ -182,13 +182,13 @@
 /* o gráfico da evolução (Geral): valores ou quantidades, nunca no mesmo eixo */
 .cf-grafico { margin-bottom: 8px; padding: 8px 12px 6px; border: 1px solid var(--h-borda); border-radius: 8px; background: var(--h-sup); }
 .cf-grafico header { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
-.cf-grafico header b { font-size: 13px; } .cf-grafico header small { flex: 1; font-size: 12px; color: var(--h-tinta-3); }
+.cf-grafico header b { font-size: 14px; } .cf-grafico header small { flex: 1; font-size: 13px; color: var(--h-tinta-3); }
 .cf-grafico .ak-x { width: 26px; height: 26px; }
 .cf-seg--p { height: 30px !important; padding: 2px !important; }
-.cf-seg--p button { height: 24px; font-size: 12.5px; }
+.cf-seg--p button { height: 24px; font-size: 13.5px; }
 .cf-graf-area { position: relative; }
 .cf-graf-area svg { display: block; max-width: 100%; }
-.cf-g-eixo line { stroke: var(--h-borda); stroke-dasharray: 2 3; } .cf-g-eixo text { font-size: 10.5px; fill: var(--h-tinta-3); font-variant-numeric: tabular-nums; }
+.cf-g-eixo line { stroke: var(--h-borda); stroke-dasharray: 2 3; } .cf-g-eixo text { font-size: 11.5px; fill: var(--h-tinta-3); font-variant-numeric: tabular-nums; }
 .cf-g-zona { fill: transparent; }
 .cf-g-b { cursor: pointer; outline: none; }
 .cf-g-b:hover .cf-g-zona, .cf-g-b:focus-visible .cf-g-zona { fill: color-mix(in srgb, var(--h-azul) 7%, transparent); }
@@ -196,9 +196,9 @@
 .cf-g-b.is-sem { cursor: default; }
 .cf-grafico .cf-bar { animation: none; }
 .cf-grafico svg.is-novo .cf-bar { animation: cf-cresce .34s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i) * 40ms); }
-.cf-g-var { font-size: 11px; font-weight: 700; fill: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
-.cf-dica-g { position: absolute; z-index: 5; margin: 0; padding: 4px 8px; border-radius: 6px; background: var(--h-navy, #0f2236); color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
-.cf-graf-vazio { display: flex; align-items: center; gap: 8px; margin: 10px 0 8px; font-size: 13px; color: var(--h-tinta-2); }
+.cf-g-var { font-size: 12px; font-weight: 700; fill: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
+.cf-dica-g { position: absolute; z-index: 5; margin: 0; padding: 4px 8px; border-radius: 6px; background: var(--h-navy, #0f2236); color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
+.cf-graf-vazio { display: flex; align-items: center; gap: 8px; margin: 10px 0 8px; font-size: 14px; color: var(--h-tinta-2); }
 .cf-graf-vazio svg { width: 16px; height: 16px; color: var(--h-tinta-3); }
 /* o realce do que o gráfico escolheu na grelha */
 .cf-tab .cf-realce { animation: cf-realce 1.1s ease both; }
@@ -228,7 +228,7 @@
 .cf-m-artigo [data-so~="artigo"], .cf-m-artigo-forn [data-so~="artigo-forn"], .cf-m-familia [data-so~="familia"], .cf-m-familia-forn [data-so~="familia-forn"] { display: flex; }
 .cf-intervalos { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 10px 22px; padding-top: 10px; border-top: 1px dashed var(--h-borda); }
 .cf-intervalo { align-items: flex-end; gap: 8px; }
-.cf-int-t { align-self: center; width: 84px; margin-top: 18px; font-size: 12.5px; font-weight: 800; color: var(--h-tinta-2); }
+.cf-int-t { align-self: center; width: 84px; margin-top: 18px; font-size: 13.5px; font-weight: 800; color: var(--h-tinta-2); }
 .cf-intervalo .ak-campo { flex: 1; min-width: 0; width: auto !important; }
 .cf-intervalo .cf-seta { height: 34px; }
 .cf-datas .ak-campo { width: 160px; }
@@ -243,7 +243,7 @@
 .cf-opcoes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 10px clamp(16px, 2vw, 28px) 0; }
 .cf-opcoes:not(:has(*)) { display: none; }
 .cf-opcoes .cf-modos { margin: 0; border: 0; background: color-mix(in srgb, rgb(0, 99, 170) 6%, var(--h-sup-2)); }
-.cf-opcoes .cf-modos button { height: 34px; padding: 0 14px; font-size: 13.5px; color: var(--h-tinta-2); }
+.cf-opcoes .cf-modos button { height: 34px; padding: 0 14px; font-size: 14.5px; color: var(--h-tinta-2); }
 .cf-opcoes .cf-modos button[aria-checked="true"] { color: var(--h-tinta); }
 .cf-opcoes .cf-modos-ind { box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-laranja); }
 .cf-opcoes .fx-par-zona { margin: 0; }

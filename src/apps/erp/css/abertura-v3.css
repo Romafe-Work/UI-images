@@ -45,7 +45,7 @@
   transform: translate(var(--ex), var(--ey)) scale(.82) rotate(calc((var(--i) - 2) * 6deg));
   transition: transform .26s var(--curva) calc(var(--i) * 22ms), opacity .2s ease calc(var(--i) * 22ms); }
 .ab3__peca svg { width: 160px; height: 122px; overflow: visible; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .45)); }
-.ab3__peca-nome { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--a3-tinta-2); opacity: 0; transition: opacity .2s ease; }
+.ab3__peca-nome { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--a3-tinta-2); opacity: 0; transition: opacity .2s ease; }
 .ab3.is-a .ab3__peca { opacity: 1; transform: translate(calc(var(--ex) + (var(--ax) - var(--ex)) * .78), calc(var(--ey) + (var(--ay) - var(--ey)) * .78)) scale(.94) rotate(calc((var(--i) - 2) * 2deg)); }
 .ab3.is-b .ab3__peca { transform: translate(var(--ax), var(--ay)) scale(1); transition-duration: .3s; transition-timing-function: var(--mola); }
 .ab3.is-b .ab3__peca-nome { opacity: 1; }
@@ -74,7 +74,7 @@
 .ab3__erp { font-family: var(--f-titulo); font-size: clamp(22px, 2.4vw, 30px); font-weight: 800; letter-spacing: .42em; padding-left: .42em; color: var(--a3-tinta); }
 .ab3__risco { width: 120px; height: 3px; border-radius: 2px; background: var(--a3-laranja); transform: scaleX(0); transition: transform .26s var(--curva) .06s; }
 .ab3__sub { margin: 4px 0 0; font-size: clamp(15px, 1.25vw, 18px); font-weight: 500; color: var(--a3-tinta); opacity: 0; transition: opacity .22s ease .08s; }
-.ab3__lema { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--a3-tinta-2); opacity: 0; transition: opacity .22s ease .14s; }
+.ab3__lema { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--a3-tinta-2); opacity: 0; transition: opacity .22s ease .14s; }
 .ab3.is-d .ab3__marca { opacity: 1; transform: none; }
 .ab3.is-d .ab3__risco { transform: scaleX(1); }
 .ab3.is-d .ab3__sub, .ab3.is-d .ab3__lema { opacity: 1; }
@@ -85,7 +85,7 @@
 .ab3__msg { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 600; color: var(--a3-tinta); }
 .ab3__msg svg { width: 18px; height: 18px; color: var(--a3-azul-claro); }
 .ab3__msg--ok svg { color: #2fbf7f; } .ab3__msg--erro svg { color: #f0676c; }
-.ab3__nota { margin: 0; max-width: 40ch; font-size: 13px; line-height: 1.5; color: var(--a3-tinta-2); }
+.ab3__nota { margin: 0; max-width: 40ch; font-size: 14px; line-height: 1.5; color: var(--a3-tinta-2); }
 .ab3__accoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
 .ab3__btn.btn { min-height: 42px; color: var(--a3-tinta); border-color: rgba(168, 183, 197, .35); background: transparent; }
 .ab3__btn.btn.btn--acao { border-color: var(--a3-laranja); background: var(--a3-laranja); color: #fff; }

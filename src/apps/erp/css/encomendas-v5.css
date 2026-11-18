@@ -16,7 +16,7 @@
 .dv2c .dv2c-filtros { margin: 10px clamp(16px, 2vw, 28px) 0; padding: 8px; border-radius: 10px; }
 .dv2c-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 :is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas { position: relative; margin: 0; flex: none; }
-:is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas button { position: relative; z-index: 1; height: 30px; padding: 0 11px; font-size: 13px; }
+:is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas button { position: relative; z-index: 1; height: 30px; padding: 0 11px; font-size: 14px; }
 :is(.dv2c, .dv2c-vistas-zona) .dv2c-vistas button[aria-selected="true"] { background: none; box-shadow: none; color: var(--h-tinta); }
 .dv2c-vistas-ind { position: absolute; left: 0; top: 3px; bottom: 3px; width: 100px; border-radius: 6px; background: var(--h-sup); box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-laranja); transform-origin: 0 50%; opacity: 0; pointer-events: none; transition: transform .2s cubic-bezier(.22, 1, .36, 1), opacity .12s ease; }
 .dv2c-vistas-ind.is-pronto { opacity: 1; }
@@ -25,7 +25,7 @@
 .dv2c-pq { display: flex; align-items: stretch; flex: 1 1 320px; min-width: 430px; height: 32px; border: 1px solid var(--h-borda-forte); border-radius: 6px; background: var(--h-sup); transition: border-color .12s ease, box-shadow .12s ease; }
 .dv2c-pq:focus-within { border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
 .dv2c-pq-modo { flex: 0 0 138px; min-width: 0; border-right: 1px solid var(--h-borda); }
-.dv2c-pq-modo .esel__botao { height: 30px; border: 0; border-radius: 5px 0 0 5px; background: color-mix(in srgb, rgb(0, 99, 170) 6%, var(--h-sup)); font-size: 12.5px; font-weight: 700; }
+.dv2c-pq-modo .esel__botao { height: 30px; border: 0; border-radius: 5px 0 0 5px; background: color-mix(in srgb, rgb(0, 99, 170) 6%, var(--h-sup)); font-size: 13.5px; font-weight: 700; }
 .dv2c-pq-modo .esel__botao:focus-visible, .dv2c-pq-modo .esel__botao.is-aberto { box-shadow: none; }
 .dv2c-pq .lf2-comp { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border-right: 1px solid var(--h-borda); }
 .dv2c-pq.is-geral .lf2-comp { display: none; }
@@ -34,7 +34,7 @@
 .dv2c .dv2c-av { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 14px; margin-top: 8px; padding: 10px 4px 2px; border-top: 1px solid var(--h-borda); }
 .dv2c .dv2c-av .dv2-periodo { grid-column: span 2; }
 .dv2c .dv2c-av .lf2-av-dica { grid-column: 1 / -1; margin: 0; }
-.dv2c .dv2-periodo small { margin-left: 4px; font-size: 11px; font-weight: 600; color: var(--h-tinta-3); }
+.dv2c .dv2-periodo small { margin-left: 4px; font-size: 12px; font-weight: 600; color: var(--h-tinta-3); }
 .dv2c .lf2-ativos:not(:empty) { margin-top: 8px; }
 
 /* ---- a lista ---- */
@@ -43,7 +43,7 @@
 .dv2c .lf2-resumo { display: flex; flex-wrap: wrap; gap: 2px 14px; }
 .dv2c .lf2-resumo .is-atr b { color: var(--h-erro); } .dv2c .lf2-resumo .is-falta b { color: var(--h-aviso); }
 .dv2c-agmodo { display: inline-flex; gap: 2px; margin-left: auto; padding: 2px; border: 1px solid var(--h-borda); border-radius: 7px; background: var(--h-sup-2); }
-.dv2c-agmodo button { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.dv2c-agmodo button { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border: 0; border-radius: 5px; background: none; color: var(--h-tinta-2); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
 .dv2c-agmodo button svg { width: 14px; height: 14px; color: rgb(0, 99, 170); }
 .dv2c-agmodo button[aria-checked="true"] { background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 1px 2px rgba(10, 20, 30, .12); }
 .dv2c-agmodo button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
@@ -63,7 +63,7 @@
 .dv2c .lf2-tab tbody tr.is-ligada:not(.is-ativo) td { background: color-mix(in srgb, var(--h-laranja) 7%, var(--h-sup)); }
 .dv2c .lf2-tab tbody tr.is-ligada:not(.is-ativo) td:first-child { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--h-laranja) 55%, transparent); }
 .dv2c .lf2-tab tbody tr.is-ligada .dv2c-ref, .dv2c .lf2-tab tbody tr.is-ligada td[data-col="numero"] b { color: color-mix(in srgb, var(--h-laranja) 80%, var(--h-tinta)); }
-.dv2c-sit { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 11px; background: var(--h-sup-2); color: var(--h-tinta-2); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.dv2c-sit { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 11px; background: var(--h-sup-2); color: var(--h-tinta-2); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .dv2c-sit.is-atr { background: color-mix(in srgb, var(--h-erro) 12%, var(--h-sup)); color: var(--h-erro); }
 .dv2c-sit.is-hoje, .dv2c-sit.is-falta { background: color-mix(in srgb, var(--h-aviso) 14%, var(--h-sup)); color: var(--h-aviso); }
 .dv2c-sit.is-prazo, .dv2c-sit.is-enc { background: color-mix(in srgb, rgb(0, 99, 170) 10%, var(--h-sup)); color: color-mix(in srgb, rgb(0, 99, 170) 80%, var(--h-tinta)); }
@@ -72,20 +72,20 @@
 /* ---- o calendário do agendamento ---- */
 .dv2c-cal { padding: 8px 10px 12px; }
 .dv2c-cal-cab { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.dv2c-cal-cab b { min-width: 150px; text-align: center; font-size: 14px; }
+.dv2c-cal-cab b { min-width: 150px; text-align: center; font-size: 15px; }
 .dv2c-cal-cab .ak-btn { width: 30px; height: 30px; padding: 0; justify-content: center; }
-.dv2c-cal-cab span { margin-left: auto; font-size: 12px; color: var(--h-tinta-3); }
+.dv2c-cal-cab span { margin-left: auto; font-size: 13px; color: var(--h-tinta-3); }
 .dv2c-cal-s, .dv2c-cal-g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-.dv2c-cal-s span { padding: 0 6px 4px; font-size: 11.5px; font-weight: 700; color: var(--h-tinta-3); text-transform: uppercase; letter-spacing: .05em; }
+.dv2c-cal-s span { padding: 0 6px 4px; font-size: 12.5px; font-weight: 700; color: var(--h-tinta-3); text-transform: uppercase; letter-spacing: .05em; }
 .dv2c-cal-d { display: flex; flex-direction: column; gap: 3px; min-height: 86px; padding: 5px; border: 1px solid var(--h-borda); border-radius: 7px; background: var(--h-sup); }
 .dv2c-cal-d.is-fds { background: color-mix(in srgb, var(--h-sup-2) 60%, var(--h-sup)); }
 .dv2c-cal-d.is-fora { border-style: dashed; background: none; opacity: .5; }
 .dv2c-cal-d.is-hoje { border-color: var(--h-laranja); box-shadow: inset 0 0 0 1px var(--h-laranja); }
-.dv2c-cal-n { font-size: 12px; font-weight: 700; color: var(--h-tinta-2); }
+.dv2c-cal-n { font-size: 13px; font-weight: 700; color: var(--h-tinta-2); }
 .dv2c-cal-d.is-hoje .dv2c-cal-n { color: var(--h-laranja); }
-.dv2c-cal-d small { font-size: 11px; color: var(--h-tinta-3); }
+.dv2c-cal-d small { font-size: 12px; color: var(--h-tinta-3); }
 .dv2c-cal-i { display: grid; gap: 0; width: 100%; min-width: 0; padding: 3px 6px; border: 0; border-left: 3px solid rgb(0, 99, 170); border-radius: 4px; background: color-mix(in srgb, rgb(0, 99, 170) 8%, var(--h-sup)); color: var(--h-tinta); font: inherit; text-align: left; cursor: pointer; transition: background-color .1s ease; }
-.dv2c-cal-i b { font-family: var(--f-mono); font-size: 11.5px; } .dv2c-cal-i span { overflow: hidden; font-size: 11px; color: var(--h-tinta-2); text-overflow: ellipsis; white-space: nowrap; }
+.dv2c-cal-i b { font-family: var(--f-mono); font-size: 12.5px; } .dv2c-cal-i span { overflow: hidden; font-size: 12px; color: var(--h-tinta-2); text-overflow: ellipsis; white-space: nowrap; }
 .dv2c-cal-i.is-atr { border-left-color: var(--h-erro); background: color-mix(in srgb, var(--h-erro) 9%, var(--h-sup)); }
 .dv2c-cal-i.is-hoje { border-left-color: var(--h-aviso); background: color-mix(in srgb, var(--h-aviso) 10%, var(--h-sup)); }
 .dv2c-cal-i:hover { background: color-mix(in srgb, var(--h-azul) 14%, var(--h-sup)); }
@@ -107,9 +107,9 @@
 .dv2c-cadeia li > div { display: grid; gap: 1px; min-width: 0; padding: 7px 10px; border: 1px solid var(--h-borda); border-radius: 8px; background: var(--h-sup); }
 .dv2c-cadeia li.is-agora > div { border-color: color-mix(in srgb, rgb(0, 99, 170) 45%, var(--h-borda)); background: color-mix(in srgb, rgb(0, 99, 170) 6%, var(--h-sup)); }
 .dv2c-cadeia li.is-falta > div { border-color: color-mix(in srgb, var(--h-erro) 35%, var(--h-borda)); }
-.dv2c-cadeia small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-3); }
-.dv2c-cadeia b { font-size: 14px; } .dv2c-cadeia li[data-no="enc"] b, .dv2c-cadeia li[data-no="rec"] b { font-family: var(--f-mono); }
-.dv2c-cadeia span { font-size: 12.5px; color: var(--h-tinta-2); }
+.dv2c-cadeia small { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-3); }
+.dv2c-cadeia b { font-size: 15px; } .dv2c-cadeia li[data-no="enc"] b, .dv2c-cadeia li[data-no="rec"] b { font-family: var(--f-mono); }
+.dv2c-cadeia span { font-size: 13.5px; color: var(--h-tinta-2); }
 .dv2c-cadeia li.is-nada b { color: var(--h-tinta-2); font-family: inherit !important; font-weight: 600; }
 .dv2c-cadeia li.is-falta[data-no="enc"] b { font-family: inherit; }
 .dv2c-rel-acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--h-borda); }
@@ -121,7 +121,7 @@
 /* 27 out. (ela: «acima e fora do card»): as vistas ficam na página, por cima do cartão dos filtros */
 .dv2c-vistas-zona { display: flex; align-items: center; margin: 10px clamp(16px, 2vw, 28px) 0; }
 .dv2c-vistas-zona .dv2c-vistas { background: color-mix(in srgb, rgb(0, 99, 170) 6%, var(--h-sup-2)); }
-.dv2c-vistas-zona .dv2c-vistas button { height: 34px; padding: 0 14px; font-size: 13.5px; }
+.dv2c-vistas-zona .dv2c-vistas button { height: 34px; padding: 0 14px; font-size: 14.5px; }
 .dv2c .dv2c-filtros { margin-top: 8px; }
 /* sem o seletor do modo (Agendamento e Pedidos), a pesquisa precisa de menos largura */
 .dv2c:not([data-dv2-vista-atual="docs"]) .dv2c-pq { min-width: 280px; }
@@ -129,11 +129,11 @@
    tem o ● e o que se grava diz-se no aviso; o elemento fica (o motor escreve nele), escondido */
 .dv2c .lf2-estado { display: none; }
 /* a vista das Receções: dois blocos (por receber; registadas) na mesma lista */
-.dv2c-sub { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 10px 12px 6px; font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--h-tinta-2); }
+.dv2c-sub { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 10px 12px 6px; font-size: 12.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--h-tinta-2); }
 .dv2c-sub + .lf2-tab, .dv2c-sub + .dv2c-sub-nada { margin-bottom: 4px; }
 .dv2c-sub i { align-self: center; width: 8px; height: 8px; border-radius: 50%; background: rgb(0, 99, 170); }
 .dv2c-sub.is-feito i { background: var(--h-ok); }
-.dv2c-sub small { font-size: 12px; letter-spacing: 0; color: var(--h-tinta-3); }
-.dv2c-sub span { margin-left: auto; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--h-tinta-3); }
+.dv2c-sub small { font-size: 13px; letter-spacing: 0; color: var(--h-tinta-3); }
+.dv2c-sub span { margin-left: auto; font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--h-tinta-3); }
 .dv2c-sub:not(:first-child) { border-top: 1px solid var(--h-borda); margin-top: 6px; }
-.dv2c-sub-nada { margin: 0; padding: 4px 12px 12px; font-size: 13px; color: var(--h-tinta-3); }
+.dv2c-sub-nada { margin: 0; padding: 4px 12px 12px; font-size: 14px; color: var(--h-tinta-3); }

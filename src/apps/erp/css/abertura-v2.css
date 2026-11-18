@@ -75,7 +75,7 @@
 .ab2__moldura-nome { position: absolute; left: 12px; top: 12px; display: flex; align-items: center; gap: 7px; font-family: var(--f-titulo); font-size: 15px; font-weight: 600; color: var(--ab2-tinta); transform: translateZ(1px); }
 .ab2__moldura-nome svg { width: 16px; height: 16px; color: var(--ab2-tinta-2); }
 .ab2__moldura.is-disponivel .ab2__moldura-nome svg { color: var(--ab2-azul); }
-.ab2__moldura-estado { position: absolute; left: 12px; bottom: 10px; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .04em; color: var(--ab2-tinta-2); transform: translateZ(1px); }
+.ab2__moldura-estado { position: absolute; left: 12px; bottom: 10px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .04em; color: var(--ab2-tinta-2); transform: translateZ(1px); }
 .ab2__moldura.is-disponivel .ab2__moldura-estado { color: var(--ab2-azul); }
 .ab2.is-f2 .ab2__moldura { opacity: 1; transform: translate3d(var(--x1), var(--y1), var(--z1)); }
 .ab2.is-f3 .ab2__moldura { transform: translate3d(var(--x2), var(--y2), 0); }
@@ -99,11 +99,11 @@
 .ab2__sub { margin: 6px 0 0; color: var(--ab2-tinta-2); opacity: 0; transition: opacity .4s ease .22s; }
 .ab2.is-f4 .ab2__romafe { opacity: 1; transform: none; }
 .ab2.is-f4 .ab2__titulo, .ab2.is-f4 .ab2__sub { opacity: 1; }
-.ab2__lema { order: -1; margin: 0 0 14px; font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; color: var(--ab2-tinta-2); opacity: 0; transition: opacity .4s ease; }
+.ab2__lema { order: -1; margin: 0 0 14px; font-family: var(--f-mono); font-size: 13px; letter-spacing: .06em; color: var(--ab2-tinta-2); opacity: 0; transition: opacity .4s ease; }
 .ab2.is-f2 .ab2__lema { opacity: 1; }
 .ab2.is-f4 .ab2__lema, .ab2.is-final .ab2__lema { opacity: 0 !important; }
 
-.ab2__faixa { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; margin-top: 26px; font-size: 13.5px; color: var(--ab2-tinta-2); }
+.ab2__faixa { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; margin-top: 26px; font-size: 14.5px; color: var(--ab2-tinta-2); }
 .ab2__faixa:empty { margin-top: 18px; min-height: 0; }
 .ab2__faixa svg { width: 16px; height: 16px; }
 .ab2[data-ab2-cenario="erro"] .ab2__faixa svg { color: #c2410c; }
@@ -118,12 +118,12 @@
 .ab2__cta .btn__icone { transition: transform .16s var(--curva); }
 .ab2__cta:hover .btn__icone { transform: translateX(2px); }
 .ab2__cta:focus-visible, .ab2__mod-abrir:focus-visible, .ab2__saltar:focus-visible, .ab2__tema-btn:focus-visible, .ab2__ligacao:focus-visible { outline: 2px solid var(--ab2-azul); outline-offset: 3px; }
-.ab2__quem { margin: 0; font-size: 13px; color: var(--ab2-tinta-2); }
+.ab2__quem { margin: 0; font-size: 14px; color: var(--ab2-tinta-2); }
 
 /* o lançador */
 .ab2__modulos { width: min(760px, 100%); margin-top: 34px; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .4s ease, transform .5s var(--curva), visibility 0s .4s; }
 .ab2.is-final .ab2__modulos { opacity: 1; visibility: visible; transform: none; transition: opacity .4s ease .1s, transform .5s var(--curva) .1s, visibility 0s; }
-.ab2__modulos-titulo { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ab2-tinta-2); text-align: left; }
+.ab2__modulos-titulo { margin: 0 0 10px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ab2-tinta-2); text-align: left; }
 .ab2__lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; text-align: left; }
 .ab2__mod { display: grid; align-content: start; gap: 6px; min-height: 76px; padding: 10px 12px; border: 1px dashed var(--ab2-linha-forte); border-radius: 6px; background: var(--ab2-sup); color: var(--ab2-tinta-2); }
 .ab2__mod.is-disponivel { grid-column: 1 / -1; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; min-height: 72px; border: 1.5px solid var(--ab2-azul); color: var(--ab2-tinta); transition: border-color .2s ease, transform .22s var(--curva); }
@@ -133,10 +133,10 @@
 .ab2__mod.is-disponivel .ab2__mod-icone { width: 40px; height: 40px; background: var(--ab2-azul-fundo); color: var(--ab2-azul); }
 .ab2__mod-icone svg { width: 17px; height: 17px; }
 .ab2__mod-texto { display: grid; gap: 2px; min-width: 0; }
-.ab2__mod-nome { font-family: var(--f-titulo); font-size: 14px; font-weight: 600; color: var(--ab2-tinta); }
+.ab2__mod-nome { font-family: var(--f-titulo); font-size: 15px; font-weight: 600; color: var(--ab2-tinta); }
 .ab2__mod.is-disponivel .ab2__mod-nome { font-size: 17px; }
-.ab2__mod-desc { font-size: 13px; color: var(--ab2-tinta-2); }
-.ab2__mod-estado { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .02em; color: var(--ab2-tinta-2); }
+.ab2__mod-desc { font-size: 14px; color: var(--ab2-tinta-2); }
+.ab2__mod-estado { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .02em; color: var(--ab2-tinta-2); }
 .ab2__mod-estado svg { width: 13px; height: 13px; }
 .ab2__mod-estado--ok { color: var(--ab2-azul); }
 .ab2__mod-abrir.btn { color: var(--ab2-tinta); border-color: var(--ab2-azul); background: transparent; }
@@ -149,7 +149,7 @@
 ::view-transition-group(erp-modulo) { animation-duration: .55s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
 ::view-transition-group(erp-marca) { animation-duration: .55s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
 
-.ab2__pe { position: absolute; left: 0; right: 0; bottom: 18px; z-index: 1; margin: 0; padding: 0 20px; text-align: center; font-size: 12px; color: var(--ab2-tinta-2); opacity: 0; transition: opacity .4s ease .2s; }
+.ab2__pe { position: absolute; left: 0; right: 0; bottom: 18px; z-index: 1; margin: 0; padding: 0 20px; text-align: center; font-size: 13px; color: var(--ab2-tinta-2); opacity: 0; transition: opacity .4s ease .2s; }
 .ab2.is-final .ab2__pe { opacity: 1; }
 
 /* já visto, «Saltar», ou movimento reduzido: tudo no fim, sem viagem */

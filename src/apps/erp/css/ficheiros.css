@@ -11,18 +11,18 @@
 .fx-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: color-mix(in srgb, var(--h-azul) 11%, var(--h-sup)); color: var(--h-azul); }
 .fx-ic svg { width: 21px; height: 21px; }
 .fx-cab h1 { margin: 0; font-family: var(--f-titulo); font-size: 24px; font-weight: 800; line-height: 1.2; }
-.fx-sub { margin: 2px 0 0; font-size: 13.5px; color: var(--h-tinta-2); } .fx-sub b { color: var(--h-tinta); }
+.fx-sub { margin: 2px 0 0; font-size: 14.5px; color: var(--h-tinta-2); } .fx-sub b { color: var(--h-tinta); }
 .fx-procura { position: relative; display: flex; align-items: center; flex: 1 1 260px; max-width: 400px; margin-left: auto; }
 .fx-procura > svg { position: absolute; left: 11px; color: var(--h-tinta-3); }
-.fx-procura kbd { position: absolute; right: 9px; padding: 0 5px; border: 1px solid var(--h-borda); border-radius: 4px; font-family: var(--f-mono); font-size: 10.5px; color: var(--h-tinta-3); }
-.fx-procura input { width: 100%; height: 38px; padding: 0 64px 0 36px; border: 1px solid var(--h-borda-forte); border-radius: 8px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 14px; transition: border-color .12s ease, box-shadow .12s ease; }
+.fx-procura kbd { position: absolute; right: 9px; padding: 0 5px; border: 1px solid var(--h-borda); border-radius: 4px; font-family: var(--f-mono); font-size: 11.5px; color: var(--h-tinta-3); }
+.fx-procura input { width: 100%; height: 38px; padding: 0 64px 0 36px; border: 1px solid var(--h-borda-forte); border-radius: 8px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 15px; transition: border-color .12s ease, box-shadow .12s ease; }
 .fx-procura input:focus { outline: none; border-color: var(--h-azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--h-azul) 18%, transparent); }
 
 .fx-corpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 16px; align-items: start; padding: 0 clamp(16px, 2.5vw, 32px); }
 .fx-caixa { min-width: 0; overflow-x: auto; border: 1px solid var(--h-borda); border-radius: 8px; background: var(--h-sup); }
-.fx-tab { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.fx-tab { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 .fx-tab th { position: sticky; top: 0; z-index: 1; height: 36px; padding: 0; border-bottom: 1px solid var(--h-borda); background: var(--h-sup-2); text-align: left; }
-.fx-tab th button { display: inline-flex; align-items: center; gap: 6px; width: 100%; height: 36px; padding: 0 10px; border: 0; background: none; color: var(--h-tinta-3); font: inherit; font-size: 11.5px; white-space: nowrap; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+.fx-tab th button { display: inline-flex; align-items: center; gap: 6px; width: 100%; height: 36px; padding: 0 10px; border: 0; background: none; color: var(--h-tinta-3); font: inherit; font-size: 12.5px; white-space: nowrap; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
 .fx-tab th.is-num button { justify-content: flex-end; }
 .fx-tab th button svg { width: 13px; height: 13px; opacity: .45; }
 .fx-tab th[aria-sort="ascending"] button, .fx-tab th[aria-sort="descending"] button { color: var(--h-tinta); }
@@ -31,30 +31,30 @@
 .fx-tab td { height: 40px; padding: 0 10px; border-top: 1px solid var(--h-borda); white-space: nowrap; }
 .fx-tab tbody tr:first-child td { border-top: 0; }
 .fx-tab td.is-num { text-align: right; font-variant-numeric: tabular-nums; }
-.fx-tab td.is-mono { font-family: var(--f-mono); font-size: 13px; font-weight: 600; }
+.fx-tab td.is-mono { font-family: var(--f-mono); font-size: 14px; font-weight: 600; }
 .fx-tab tbody tr { cursor: pointer; transition: background-color .12s ease; }
 .fx-tab tbody tr:hover { background: color-mix(in srgb, var(--h-azul) 5%, var(--h-sup)); }
 .fx-tab tbody tr[aria-selected="true"] { background: color-mix(in srgb, var(--h-azul) 11%, var(--h-sup)); box-shadow: inset 3px 0 0 var(--h-azul); }
 .fx-tab tbody tr:focus-visible { outline: 2px solid var(--h-azul); outline-offset: -2px; }
 
-.fx-nada { display: grid; justify-items: center; gap: 10px; padding: 36px 20px; text-align: center; color: var(--h-tinta-2); font-size: 13.5px; }
+.fx-nada { display: grid; justify-items: center; gap: 10px; padding: 36px 20px; text-align: center; color: var(--h-tinta-2); font-size: 14.5px; }
 .fx-nada > svg { width: 24px; height: 24px; color: var(--h-tinta-3); }
 .fx-nada p { margin: 0; } .fx-nada b { display: block; color: var(--h-tinta); }
-.fx-btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border: 1px solid var(--h-laranja); border-radius: 8px; background: var(--h-laranja); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: transform .1s ease; }
+.fx-btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border: 1px solid var(--h-laranja); border-radius: 8px; background: var(--h-laranja); color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform .1s ease; }
 .fx-btn:active { transform: scale(.97); }
 .fx-btn:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 2px; }
 
-.fx-det { position: sticky; top: 12px; padding: 16px; border: 1px solid var(--h-borda); border-radius: 8px; background: var(--h-sup); font-size: 13.5px; }
+.fx-det { position: sticky; top: 12px; padding: 16px; border: 1px solid var(--h-borda); border-radius: 8px; background: var(--h-sup); font-size: 14.5px; }
 .fx-det.is-entrar { animation: fx-entrar .16s ease both; }
 @keyframes fx-entrar { from { opacity: 0; transform: translateY(3px); } }
 .fx-det h2 { margin: 0 0 10px; font-family: var(--f-mono); font-size: 15px; font-weight: 700; }
 .fx-det dl { display: grid; gap: 0; margin: 0; }
 .fx-det dl div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; padding: 7px 0; border-top: 1px solid var(--h-borda); }
 .fx-det dt { color: var(--h-tinta-3); } .fx-det dd { margin: 0; overflow-wrap: anywhere; }
-.fx-det h3 { display: flex; align-items: center; gap: 6px; margin: 14px 0 6px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--h-tinta-3); }
+.fx-det h3 { display: flex; align-items: center; gap: 6px; margin: 14px 0 6px; font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--h-tinta-3); }
 .fx-det h3 span { padding: 0 6px; border-radius: 4px; background: var(--h-sup-2); color: var(--h-tinta-2); letter-spacing: 0; }
 .fx-det ul { display: grid; gap: 2px; max-height: 260px; margin: 0; padding: 0; overflow: auto; list-style: none; }
-.fx-det li { padding: 5px 0; font-size: 13px; color: var(--h-tinta-2); border-top: 1px dashed var(--h-borda); }
+.fx-det li { padding: 5px 0; font-size: 14px; color: var(--h-tinta-2); border-top: 1px dashed var(--h-borda); }
 .fx-vazio { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--h-tinta-3); }
 
 @media (max-width: 1100px) { .fx-corpo { grid-template-columns: minmax(0, 1fr); } .fx-det { position: static; } }
@@ -64,9 +64,9 @@
 /* ---------- dentro de um separador do Início v2 (23 out., «The Living Workspace») ----------
    o contador do registo e as janelas de contexto só existem lá (é a área de trabalho que as abre) */
 .fx-conta, .fx-jans { display: none; }
-.dk8-vivo .fx-conta { display: block; margin: 0 0 4px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-3); font-variant-numeric: tabular-nums; }
+.dk8-vivo .fx-conta { display: block; margin: 0 0 4px; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--h-tinta-3); font-variant-numeric: tabular-nums; }
 .dk8-vivo .fx-jans { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.fx-jan-b { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px; border: 1px solid var(--h-borda-forte); border-radius: 7px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .14s ease, background-color .14s ease, transform .1s ease; }
+.fx-jan-b { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px; border: 1px solid var(--h-borda-forte); border-radius: 7px; background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: border-color .14s ease, background-color .14s ease, transform .1s ease; }
 .fx-jan-b svg { color: var(--h-azul); }
 .fx-jan-b:hover { border-color: var(--h-azul); background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup)); }
 .fx-jan-b:active { transform: scale(.97); }
@@ -96,7 +96,7 @@
 .fx-filtros { display: flex; align-items: center; gap: 10px; margin: 10px clamp(16px, 2vw, 28px) 0; }
 .fx-filtros .fx-procura { flex: 1 1 320px; max-width: 520px; margin-left: 0; }
 .fx .dv2c-vistas-zona { margin-top: 10px; }
-.fx-barra kbd { padding: 0 5px; border: 1px solid var(--h-borda); border-radius: 4px; font-family: var(--f-mono); font-size: 10.5px; font-weight: 600; line-height: 16px; color: var(--h-tinta-3); background: var(--h-sup-2); }
+.fx-barra kbd { padding: 0 5px; border: 1px solid var(--h-borda); border-radius: 4px; font-family: var(--f-mono); font-size: 11.5px; font-weight: 600; line-height: 16px; color: var(--h-tinta-3); background: var(--h-sup-2); }
 .fx-filtros { margin-bottom: 12px; } /* 29 out. (ela: «demasiado junto»): a procura não cola à tabela */
 /* 30 out. (ela: «ajusta todos os pormenores»): as vistas, a procura e a tabela começam na mesma linha que o título */
 .fx .fx-par-zona { margin-left: clamp(16px, 2vw, 28px); margin-right: clamp(16px, 2vw, 28px); }

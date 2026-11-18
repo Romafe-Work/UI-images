@@ -34,7 +34,7 @@
 .is-cotas .erp-ab__cota:nth-child(2) line { transition-delay: .06s; } .is-cotas .erp-ab__cota:nth-child(3) line { transition-delay: .12s; }
 .is-cotas .erp-ab__cota:nth-child(4) line { transition-delay: .18s; } .is-cotas .erp-ab__cota:nth-child(5) line { transition-delay: .24s; }
 .erp-ab__rotulos { position: absolute; inset: 0; pointer-events: none; }
-.erp-ab__rotulo { position: absolute; left: 0; top: 0; padding: 4px 10px; font-family: var(--f-mono); font-size: 12px; color: var(--rede-tinta); white-space: nowrap; background: var(--rede-painel); border: 1px solid var(--rede-borda); border-left: 2px solid var(--rede-azul); border-radius: 4px; opacity: 0; transition: opacity .3s ease .25s; }
+.erp-ab__rotulo { position: absolute; left: 0; top: 0; padding: 4px 10px; font-family: var(--f-mono); font-size: 13px; color: var(--rede-tinta); white-space: nowrap; background: var(--rede-painel); border: 1px solid var(--rede-borda); border-left: 2px solid var(--rede-azul); border-radius: 4px; opacity: 0; transition: opacity .3s ease .25s; }
 .erp-ab__rotulo.is-esq { border-left: 1px solid var(--rede-borda); border-right: 2px solid var(--rede-azul); }
 .erp-ab__rotulo--titulo { left: 32px; top: 32px; transform: none !important; color: var(--rede-tinta-2); background: transparent; border: 0; border-left: 1px solid var(--rede-borda); border-radius: 0; }
 .is-cotas .erp-ab__rotulo { opacity: 1; }
@@ -52,10 +52,10 @@
 .is-linha .erp-ab__linha { transform: scaleX(1); }
 .is-linha .erp-ab__frase { opacity: 1; transform: none; }
 
-.erp-ab__dica { position: absolute; left: 50%; bottom: 40px; display: inline-flex; align-items: center; gap: 8px; margin: 0; transform: translateX(-50%); font-family: var(--f-mono); font-size: 12px; color: var(--rede-tinta-2); opacity: 0; transition: opacity .4s ease; pointer-events: none; white-space: nowrap; }
+.erp-ab__dica { position: absolute; left: 50%; bottom: 40px; display: inline-flex; align-items: center; gap: 8px; margin: 0; transform: translateX(-50%); font-family: var(--f-mono); font-size: 13px; color: var(--rede-tinta-2); opacity: 0; transition: opacity .4s ease; pointer-events: none; white-space: nowrap; }
 .erp-ab__dica svg { width: 16px; height: 16px; color: var(--rede-azul); }
 .is-cena:not(.is-marca) .erp-ab__dica { opacity: 1; transition-delay: 1.2s; }
-.erp-ab__espera { position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%); font-family: var(--f-mono); font-size: 13px; color: var(--rede-tinta-2); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+.erp-ab__espera { position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%); font-family: var(--f-mono); font-size: 14px; color: var(--rede-tinta-2); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
 .is-espera .erp-ab__espera { opacity: 1; }
 
 /* os botões: ícone e texto; o ícone na cor da ação */
@@ -75,7 +75,7 @@
 @media (max-width: 560px) {
   .erp-ab__accoes { right: 12px; top: 12px; }
   .erp-ab__botao.btn { padding: 0 14px; }
-  .erp-ab__rotulo { font-size: 11px; }
+  .erp-ab__rotulo { font-size: 12px; }
   .erp-ab__cota[data-cota="gai"], .erp-ab__rotulo[data-cota="gai"], .erp-ab__cota[data-cota="lar"], .erp-ab__rotulo[data-cota="lar"], .erp-ab__rotulo--titulo { display: none; }
   .erp-ab__rede::after { background: radial-gradient(ellipse 70% 40% at 50% 50%, var(--rede-fundo) 30%, transparent 100%); }
 }
