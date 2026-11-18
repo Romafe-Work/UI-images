@@ -306,8 +306,8 @@ function explorador(d: DadosFerr): string {
     }
     return n.rota && ROTAS[n.rota] && passa(n.rotulo) ? folha(n.rota, n.rotulo, n.icone || ROTAS[n.rota].icone, nivel) : '';
   }).join('');
-  /* 23 out. (ela: «para já vamos manter só as compras»): no Explorador, como no menu lateral, só Compras */
-  const arv = ramo(navegacao(d.perfil).filter((n) => n.id === 'compras'), 0);
+  /* 23 out. (ela: «para já vamos manter só as compras»): no Explorador, como no menu lateral, só Compras; 18 nov.: e Stocks */
+  const arv = ramo(navegacao(d.perfil).filter((n) => n.id === 'compras' || n.id === 'stocks'), 0);
   const favs = d.favoritos.filter((f) => ROTAS[f.rota] && passa(f.titulo));
   const recs = d.recentes.filter((f) => ROTAS[f.rota] && passa(f.titulo)).slice(0, 5);
   /* como no VS Code: os editores abertos em cima, com o ativo marcado, o ● das alterações e o × para fechar */

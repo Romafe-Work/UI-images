@@ -37,6 +37,11 @@ export const NAV_ERP: LinhaNav[] = [
      Encomendas é o 6.º atalho do Início. */
   ...MENU_ERP.filter((l) => { for (let p = l.pai; p; p = MENU_ERP.find((m) => m.id === p)?.pai ?? null) if (p === 'compras') return true; return false; })
     .map((l): LinhaNav => ({ id: l.id, app: 'erp', pai: l.pai, rotulo: l.rotulo, icone: l.icone, rota: l.rota, ordem: l.om ?? l.ordem, permissoes: l.permissoes, ativo: l.ativo, sep: l.sep, antigo: !(l.rota && ROTAS[l.rota]) && !MENU_ERP.some((m) => m.pai === l.id), casa: l.rota === 'compras.encomendas' ? 6 : undefined, curto: l.rota === 'compras.encomendas' ? 'Encomendas' : undefined })),
+  /* 18 nov. (ela: «o primeiro screen é o stock inventário, e cria o menu»): Stocks a seguir às Compras, com as linhas de
+     MENU_ERP debaixo de Stocks, como nas Compras (o que ainda não tem ecrã vem «antigo», desligado) */
+  { ...G('stocks', 'Stocks', 'boxes', 40), permissoes: MENU_ERP.find((l) => l.id === 'stocks')!.permissoes },
+  ...MENU_ERP.filter((l) => { for (let p = l.pai; p; p = MENU_ERP.find((m) => m.id === p)?.pai ?? null) if (p === 'stocks') return true; return false; })
+    .map((l): LinhaNav => ({ id: l.id, app: 'erp', pai: l.pai, rotulo: l.rotulo, icone: l.icone, rota: l.rota, ordem: l.om ?? l.ordem, permissoes: l.permissoes, ativo: l.ativo, sep: l.sep, antigo: !(l.rota && ROTAS[l.rota]) && !MENU_ERP.some((m) => m.pai === l.id) })),
   /* 28 out. (ela: «no menu lateral só quero início e as compras»): a Ajuda sai do menu; o F1 continua a abrir os atalhos */
   { ...G('ajuda', 'Ajuda', 'life-buoy', 90), semMenu: true },
   { ...F('ajuda-atalhos', 'ajuda', 'Atalhos de teclado', 'keyboard', '', 10), rota: null, acao: 'atalhos' },

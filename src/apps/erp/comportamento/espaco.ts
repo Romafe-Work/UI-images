@@ -400,6 +400,7 @@ function itens(): Item[] {
     { k: 'cmd:sair', g: 'Comandos', t: 'Terminar sessão', ic: 'log-out', fazer: sair },
   ];
   filhos('compras', e.perfil).filter((f) => f.registada && f.permitido).forEach((f) => l.push({ k: `ecra:${f.rota}`, g: 'Ecrãs', t: f.rotulo, s: 'Compras', ic: f.icone, fazer: () => abrirRota(f.rota!) }));
+  filhos('stocks', e.perfil).filter((f) => f.registada && f.permitido).forEach((f) => l.push({ k: `ecra:${f.rota}`, g: 'Ecrãs', t: f.rotulo, s: 'Stocks', ic: f.icone, fazer: () => abrirRota(f.rota!) }));
   if (e.lat) Object.keys(ROTAS).filter((r) => r.startsWith('ficheiros.')).forEach((r) => l.push({ k: `ecra:${r}`, g: 'Ecrãs', t: ROTAS[r].titulo, s: 'Ficheiros', ic: 'file-text', fazer: () => abrirRota(r) }));
   FORNECEDORES.forEach((f) => l.push({ k: `forn:${f.id}`, g: 'Fornecedores', t: f.nome, s: `${f.cidade} · ${f.nif}`, ic: 'users', fazer: () => abrirJanela('fornecedor', f.id) }));
   ARTIGOS.forEach((a) => l.push({ k: `art:${a.ref}`, g: 'Artigos', t: a.ref, s: `${a.marca} · ${a.desc}`, ic: 'warehouse', fazer: () => abrirJanela('artigo', a.ref) }));

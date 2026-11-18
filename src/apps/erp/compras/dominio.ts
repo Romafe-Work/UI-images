@@ -180,7 +180,16 @@ export const diasAtraso = (iso: string) => Math.round((Date.parse(HOJE) - Date.p
 
 /** O stock de um artigo no armazém: o de partida (de exemplo) mais os movimentos que as receções criaram. */
 const STOCK0: Record<string, number> = { '6206-2RSH': 140, '6205-2Z': 1320, '30205': 20, 'VKBA 6556': 64, 'LGMT 2/1': 85, 'GDB1330': 12, 'JTE1001': 34, 'P 85 020': 210, 'P 23 133': 6, '09.A727.11': 88, '0 986 494 524': 18, '0 242 236 565': 260, '0 986 424 797': 0, '826210': 3, 'K015603XS': 11, '6PK1050': 72, 'BKR6E': 410, '23.443.00': 340, '27.A44.00': 230, 'GDB2042': 0 };
-export const stock = (ref: string) => (STOCK0[ref] ?? 0) + db().mov.filter((m) => m.ref === ref).reduce((s, m) => s + m.qtd, 0);
+export const stock = (ref: string) => (STOCK0[ref] ?? 0) + db().mov.filter((m) => m.ref === ref && m.armazem === ARMAZEM).reduce((s, m) => s + m.qtd, 0);
+/** 18 nov. (Stocks ▸ Inventário inicial): o stock de partida do armazém 60 é o inventário inicial II 2026/0001; os outros armazéns só têm o que os seus inventários lançaram. */
+export const stockInicial = (): Record<string, number> => ({ ...STOCK0 });
+export const stockEm = (ref: string, armazem: string) => (armazem === ARMAZEM ? STOCK0[ref] ?? 0 : 0) + db().mov.filter((m) => m.ref === ref && m.armazem === armazem).reduce((s, m) => s + m.qtd, 0);
+/** 18 nov. (Stocks): os documentos de stock mexem no stock pelo mesmo inventário das receções — tudo ou nada, idempotente pela chave. */
+export function lancarNoStock(movs: { ref: string; qtd: number; armazem: string; origem: string; chave: string }[]): void {
+  recarregar();
+  movs.forEach((m) => inventarioEntrada(m.ref, m.qtd, m.armazem, m.origem, m.chave));
+  gravar();
+}
 export const aCaminho = (ref: string) => db().enc.filter((e) => ['Emitida', 'Parcialmente recebida'].includes(e.estado)).flatMap((e) => e.linhas).filter((l) => l.ref === ref).reduce((s, l) => s + pendente(l), 0);
 
 /* ---------- os totais ---------- */

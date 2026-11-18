@@ -92,8 +92,8 @@ function podeAbrir(rota: string): boolean {
   const r = ROTAS[rota]; if (!r) return false;
   const l = MENU_ERP.find((x) => x.rota === rota);
   if (l && l.permissoes !== '*' && !l.permissoes.includes(perfil)) return false;
-  const top = MENU_ERP.find((x) => x.id === 'compras');
-  if (rota.startsWith('compras.') && top && top.permissoes !== '*' && !top.permissoes.includes(perfil)) return false;
+  const top = MENU_ERP.find((x) => !x.pai && x.id === rota.split('.')[0]);
+  if (top && top.permissoes !== '*' && !top.permissoes.includes(perfil)) return false;
   return !!document.querySelector(`.ecra[data-ecra="${CSS.escape(r.ecra)}"]`);
 }
 const podeItem = (i: Item) => i.tipo === 'ferr' ? !!(i.ferr && FERRAMENTAS[i.ferr]) : !!(i.rota && podeAbrir(i.rota));
@@ -1000,8 +1000,10 @@ function itensMenu(k: string): ItemMenu[] {
     case 'editar': return [pagina('novo', 'Novo', I.plus), pagina('editar', 'Editar', I.pencil), pagina('guardar', 'Guardar', I.save), pagina('anular', 'Anular', I.ban)];
     case 'ver': return [...(Object.keys(FERRAMENTAS) as IdFerr[]).map((f): ItemMenu => ({ cmd: `ver:${f}`, t: FERRAMENTAS[f].titulo, tecla: ATALHOS.find((a) => a.id === `ver-${f}`) ? at(`ver-${f}`) : f === 'explorador' ? at('explorador') : '', marcado: aberta(f) })), { sep: true }, { cmd: 'barra-estado', t: 'Barra de estado', marcado: d.barraEstado }, { sep: true }, { t: 'Tema', ic: L(I.slidersHorizontal), sub: (['light', 'dark', 'auto'] as const).map((t) => ({ cmd: `tema:${t}`, t: t === 'light' ? 'Claro' : t === 'dark' ? 'Escuro' : 'Como o sistema', marcado: temaAtual() === t })) }];
     case 'modulos': {
-      const ramo = (ns: NoNav[]): ItemMenu[] => ns.filter((n) => !n.antigo).map((n) => n.filhos.length ? { t: n.rotulo, ic: L(I.folder), sub: ramo(n.filhos) } : { cmd: `abrir:${n.rota}`, t: n.rotulo, off: !(n.rota && ROTAS[n.rota]) }).filter((x) => !x.sub || x.sub.length);
-      return ramo(navegacao(perfil).filter((n) => n.id === 'compras'));
+      /* 18 nov. (ela: «cria o menu» de Stocks): Compras e Stocks, cada um no seu submenu; o que ainda não tem ecrã novo
+         aparece desligado, como no menu do ERP antigo */
+      const ramo = (ns: NoNav[]): ItemMenu[] => ns.map((n) => n.filhos.length ? { t: n.rotulo, ic: L(I.folder), sub: ramo(n.filhos) } : { cmd: `abrir:${n.rota}`, t: n.rotulo, off: n.antigo || !(n.rota && ROTAS[n.rota]) }).filter((x) => !x.sub || x.sub.length);
+      return ramo(navegacao(perfil).filter((n) => n.id === 'compras' || n.id === 'stocks'));
     }
     case 'janela': {
       const docs = Object.values(d.itens).filter((i) => grupoDe(d, i.id));

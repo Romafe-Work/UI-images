@@ -95,6 +95,11 @@ import tag from 'lucide-static/icons/tag.svg?raw';
 import ruler from 'lucide-static/icons/ruler.svg?raw';
 import house from 'lucide-static/icons/house.svg?raw';
 import keyboardIc from 'lucide-static/icons/keyboard.svg?raw';
+import packagePlus from 'lucide-static/icons/package-plus.svg?raw';
+import arrowLeftRight from 'lucide-static/icons/arrow-left-right.svg?raw';
+import circlePlus from 'lucide-static/icons/circle-plus.svg?raw';
+import circleMinus from 'lucide-static/icons/circle-minus.svg?raw';
+import repeatIc from 'lucide-static/icons/repeat.svg?raw';
 
 export const L = (raw: string, cls = '') => raw.replace(/<!--[\s\S]*?-->/, '').replace(/\s+class="lucide lucide-([^"]*)"/, ' data-lucide="$1"').replace(/\s+class="[^"]*"/, '').replace('<svg', `<svg${cls ? ` class="${cls}"` : ''} aria-hidden="true"`).replace(/\n\s*/g, '');
 export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -107,10 +112,12 @@ export const IC = { x, minus, maximize2, minimize2, pin, pinOff, rotateCw, print
 export interface LinhaMenu { id: string; app: 'erp'; modulo: string; pai: string | null; rotulo: string; icone: string; rota: string | null; ordem: number; permissoes: IdPerfil[] | '*'; ativo: boolean; so?: 'menu'; om?: number; sep?: boolean }
 const M = (id: string, rotulo: string, icone: string, ordem: number, ativo = false): LinhaMenu => ({ id, app: 'erp', modulo: id, pai: null, rotulo, icone, rota: null, ordem, permissoes: '*', ativo });
 const A = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai, rotulo, icone, rota: null, ordem: om, permissoes: '*', ativo: true, so: 'menu', om, sep });
+/** 18 nov. (Stocks): uma linha do menu Stocks do ERP antigo; com rota, já tem ecrã novo. */
+const T = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false, rota: string | null = null): LinhaMenu => ({ id, app: 'erp', modulo: 'stocks', pai, rotulo, icone, rota, ordem: om, permissoes: '*', ativo: true, so: rota ? undefined : 'menu', om, sep });
 const S = (id: string, rotulo: string, icone: string, rota: string, ordem: number, permissoes: IdPerfil[] | '*' = '*'): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai: 'compras', rotulo, icone, rota, ordem, permissoes, ativo: true });
 /** Os módulos do ERP antigo (a referência da migração) e, em Compras, o que já existe. */
 export const MENU_ERP: LinhaMenu[] = [
-  M('ficheiros', 'Ficheiros', 'file', 10), M('tabelas', 'Tabelas', 'table', 20), M('vendas', 'Vendas', 'trending-up', 30), M('stocks', 'Stocks', 'boxes', 40),
+  M('ficheiros', 'Ficheiros', 'file', 10), M('tabelas', 'Tabelas', 'table', 20), M('vendas', 'Vendas', 'trending-up', 30), { ...M('stocks', 'Stocks', 'boxes', 40, true), permissoes: ['armazem', 'compras', 'financeiro', 'admin'] },
   { ...M('compras', 'Compras', 'shopping-cart', 50, true), permissoes: ['compras', 'armazem', 'financeiro', 'admin'] },
   M('cobrancas', 'Cobranças', 'hand-coins', 60), M('pagamentos', 'Pagamentos', 'wallet', 70), M('bancos', 'Bancos', 'landmark', 80), M('servicos', 'Serviços', 'wrench', 90),
   M('crm', 'CRM', 'users', 100), M('bi', 'BI', 'chart-column', 110), M('relatorios', 'Relatórios', 'file-text', 120), M('configuracoes', 'Configurações', 'sliders-horizontal', 130),
@@ -137,6 +144,21 @@ export const MENU_ERP: LinhaMenu[] = [
   /* 29 out. (ela: «coloca tudo num só screen»): os quatro comparativos são um ecrã só, com quatro vistas; o submenu sai */
   A('comp-geral-var', 'compras-mapas', 'Comparativos de compras', '', 70),
   A('mapas-analise-forn', 'compras-mapas', 'Análise de fornecedores', '', 80, true), A('mapas-automatico', 'compras-mapas', 'Artigos/compras automático', '', 90, true),
+  /* 18 nov. (ela, com o print do menu Stocks do ERP antigo: «o primeiro screen é o stock inventário, e cria o menu»): a
+     mesma ordem e os mesmos separadores; o Inventário inicial já tem ecrã, o resto fica desligado, como nas Compras */
+  T('stocks-inventario-inicial', 'stocks', 'Inventário inicial', 'package-plus', 10, false, 'stocks.inventario-inicial'),
+  T('stocks-transf-armazens', 'stocks', 'Transferências entre armazéns', 'arrow-left-right', 20, true),
+  T('stocks-ajuste-valor', 'stocks', 'Ajustamento em valor', 'scale', 30),
+  T('stocks-acrescimos', 'stocks', 'Acréscimos', 'circle-plus', 40, true),
+  T('stocks-perdas', 'stocks', 'Perdas', 'circle-minus', 50),
+  T('stocks-transf-artigos', 'stocks', 'Transferências entre artigos', 'repeat', 60),
+  T('stocks-mapas', 'stocks', 'Mapas', 'chart-bar', 200, true),
+  T('stocks-mapa-artigos-clientes', 'stocks-mapas', 'Artigos/clientes', '', 10),
+  T('stocks-mapa-stocks', 'stocks-mapas', 'Stocks', '', 20, true),
+  T('stocks-mapa-movimentos', 'stocks-mapas', 'Movimentos de artigos', '', 30, true),
+  T('stocks-mapa-extracto', 'stocks-mapas', 'Extrato de movimentos/artigo', '', 40),
+  T('stocks-mapa-mov-saldo', 'stocks-mapas', 'Movimento artigos — saldo', '', 50),
+  T('stocks-mapa-inventario', 'stocks-mapas', 'Inventário', '', 60, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
 /* 26 out. (ela mandou outra vez o print do menu): sem linha entre as Guias de transporte e as de devolução, nem entre as Faturas e as Notas de
@@ -145,7 +167,9 @@ const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], '
 MENU_ERP.forEach((l) => { const o = OM[l.id]; if (o) { l.om = o[0]; l.sep = o[1]; } });
 const ICONES: Record<string, string> = { sigma, list: listIc, 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
   /* Ficheiros (23 out., Início v6) */
-  package: packageIc, warehouse, 'folder-tree': folderTree, tag, ruler, house, keyboard: keyboardIc };
+  package: packageIc, warehouse, 'folder-tree': folderTree, tag, ruler, house, keyboard: keyboardIc,
+  /* Stocks (18 nov.) */
+  'package-plus': packagePlus, 'arrow-left-right': arrowLeftRight, 'circle-plus': circlePlus, 'circle-minus': circleMinus, repeat: repeatIc };
 export const icone = (n: string, cls = '') => L(ICONES[n] ?? file, cls);
 
 /** As teclas do ERP antigo, numa barra que muda com o separador. */
@@ -169,6 +193,8 @@ export const ROTAS: Record<string, Rota> = {
   'ficheiros.familias': { ecra: 'ficheiros-familias', titulo: 'Famílias', icone: 'folder-tree', acoes: ['atualizar', 'imprimir'] },
   'ficheiros.marcas': { ecra: 'ficheiros-marcas', titulo: 'Marcas', icone: 'tag', acoes: ['atualizar', 'imprimir'] },
   'ficheiros.unidades': { ecra: 'ficheiros-unidades', titulo: 'Unidades de medida', icone: 'ruler', acoes: ['atualizar', 'imprimir'] },
+  /* 18 nov.: Stocks ▸ Inventário inicial, com a barra do ERP antigo dentro do ecrã (o motor das listas das Compras) */
+  'stocks.inventario-inicial': { ecra: 'stocks-inventario-inicial', titulo: 'Inventário inicial', icone: 'package-plus', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },
   'compras.fornecedor': { ecra: 'compras-fornecedor', titulo: 'Fornecedor', icone: 'users', acoes: ['editar', 'atualizar', 'imprimir'] },
@@ -184,7 +210,7 @@ MENU_ANTIGO.forEach((id) => {
 });
 /* 26 out. (ela: «existe redundância»): os ecrãs com barra própria não levam a barra da área de trabalho por cima */
 /* 29 out. (ela: «título, subtítulo, atalhos e options»): todos os relatórios em tabela (cm-…) e os Ficheiros têm agora a barra deles, por baixo do título */
-const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-.+|ficheiros-.+)$/;
+const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-.+|ficheiros-.+|stocks-.+)$/;
 Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* os dois itens que passaram a vistas das Encomendas: quem os tinha nos favoritos ou nos recentes abre as Encomendas na vista deles */
 ROTAS['compras.compras-agendamento'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'agenda' };

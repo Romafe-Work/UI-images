@@ -89,6 +89,8 @@ export interface CfgDoc {
   relacao?: { icone: string; titulo(r: HTMLElement, e: EstDoc, chave: string): string; corpo(r: HTMLElement, e: EstDoc, chave: string): string };
   /** o que vai para o topo de Mais ações (ações menos usadas que saem da barra) */
   maisTopo?: string;
+  /** 18 nov. (Stocks): o filtro do «código» não é sempre o fornecedor — nos documentos de stock é o armazém */
+  rotuloForn?: string; phCodigo?: string;
 }
 export interface Vista { k: string; t: string; ic: string; tecla: string; titulo: string; tabela?(r: HTMLElement, e: EstDoc): string; resumo?(e: EstDoc): string }
 export const CFGS = new Map<string, CfgDoc>();
@@ -147,7 +149,7 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
     <div class="dv2-rapidos">
       ${campo('serie', 'Série <kbd>F4</kbd>', `<select id="${id('serie')}" data-dv2-f="serie" data-dv2-campo>${op('', 'Todas')}${c.series().map((s) => op(s, s)).join('')}</select>`)}
       ${c.construtor ? '' : pesquisaModos(id)}
-      ${campo('forn', 'Fornecedor', `<select id="${id('forn')}" data-dv2-f="forn" data-dv2-campo>${op('', 'Todos')}${fornecedores.map(([v, t]) => op(v, t)).join('')}</select>`)}
+      ${campo('forn', c.rotuloForn ?? 'Fornecedor', `<select id="${id('forn')}" data-dv2-f="forn" data-dv2-campo>${op('', 'Todos')}${fornecedores.map(([v, t]) => op(v, t)).join('')}</select>`)}
       ${campo('estado', 'Estado', `<select id="${id('estado')}" data-dv2-f="estado" data-dv2-campo>${c.estados.map(([v, t]) => op(v, t)).join('')}</select>`)}
       <button type="button" class="lf2-mais-f" data-dv2-acao="mais-filtros" aria-expanded="false" aria-controls="${id('av')}">${L(sliders)}<span>Mais filtros</span><small data-dv2-n-av></small>${L(chevronDown, 'lf2-seta')}</button>
     </div>

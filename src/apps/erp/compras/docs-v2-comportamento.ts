@@ -129,7 +129,7 @@ function filtrosNaPagina(r: HTMLElement, e: EstDoc): void {
   const m = MODOS.find((x) => x.k === e.modo)!, q = r.querySelector<HTMLInputElement>('[data-dv2-q]');
   if (q) {
   if (q.value !== e.q) q.value = e.q;
-  q.placeholder = e.extra.geral ? 'Procura em todas as colunas à vista' : e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? 'Código do fornecedor, ex.: bosch' : 'Descrição ou notas';
+  q.placeholder = e.extra.geral ? 'Procura em todas as colunas à vista' : e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? cfgDe(r).phCodigo ?? 'Código do fornecedor, ex.: bosch' : 'Descrição ou notas';
   q.setAttribute('aria-label', `Pesquisar por ${m.t.toLowerCase()}, ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`);
   }
   r.querySelectorAll<HTMLElement>('[data-dv2-modo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.dv2Modo === e.modo)));
