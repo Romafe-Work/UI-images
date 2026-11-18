@@ -147,7 +147,7 @@ export const MENU_ERP: LinhaMenu[] = [
   /* 18 nov. (ela, com o print do menu Stocks do ERP antigo: «o primeiro screen é o stock inventário, e cria o menu»): a
      mesma ordem e os mesmos separadores; o Inventário inicial já tem ecrã, o resto fica desligado, como nas Compras */
   T('stocks-inventario-inicial', 'stocks', 'Inventário inicial', 'package-plus', 10, false, 'stocks.inventario-inicial'),
-  T('stocks-transf-armazens', 'stocks', 'Transferências entre armazéns', 'arrow-left-right', 20, true),
+  T('stocks-transf-armazens', 'stocks', 'Transferências entre armazéns', 'arrow-left-right', 20, true, 'stocks.transf-armazens'),
   T('stocks-ajuste-valor', 'stocks', 'Ajustamento em valor', 'scale', 30),
   T('stocks-acrescimos', 'stocks', 'Acréscimos', 'circle-plus', 40, true),
   T('stocks-perdas', 'stocks', 'Perdas', 'circle-minus', 50),
@@ -195,6 +195,7 @@ export const ROTAS: Record<string, Rota> = {
   'ficheiros.unidades': { ecra: 'ficheiros-unidades', titulo: 'Unidades de medida', icone: 'ruler', acoes: ['atualizar', 'imprimir'] },
   /* 18 nov.: Stocks ▸ Inventário inicial, com a barra do ERP antigo dentro do ecrã (o motor das listas das Compras) */
   'stocks.inventario-inicial': { ecra: 'stocks-inventario-inicial', titulo: 'Inventário inicial', icone: 'package-plus', acoes: ['atualizar', 'imprimir'] },
+  'stocks.transf-armazens': { ecra: 'stocks-transf-armazens', titulo: 'Transferências entre armazéns', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },
   'compras.fornecedor': { ecra: 'compras-fornecedor', titulo: 'Fornecedor', icone: 'users', acoes: ['editar', 'atualizar', 'imprimir'] },

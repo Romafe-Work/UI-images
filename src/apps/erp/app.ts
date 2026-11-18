@@ -22,6 +22,7 @@ import { ecrasMenuAntigo } from './compras/menu-antigo';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
 import { ecrasStocks, DESCRICAO_STOCKS } from './stocks/inventario-inicial';
+import { ecrasTransferencias } from './stocks/transferencias';
 import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS_ERP } from './estados';
 
 /* 19 out. 2026: a 00 · Abertura ganha a v2 (briefing «V2 Cinematic Opening»); a v1 fica como estava */
@@ -65,7 +66,7 @@ export const erp: App<IdErp> = {
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
   /* 27 out. (ela: «sim», tirar): a Receção de encomendas, as Guias de transporte e as Devoluções passaram a vistas das Encomendas e das Guias */
-  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasStocks(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
+  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasStocks(), ...ecrasTransferencias(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
 };
 
 /* 28 out. 2026 (ela: «no erp tenho ecrãs diferentes, não fazem sentido; por agora no menu lateral só quero início e as
@@ -85,7 +86,7 @@ function menuCompras(): [string, string | null][] {
   ['compras-fornecedores', '14 · Fornecedores'], ['compras-requisicoes', '16 · Requisições'],
   /* 18 nov. 2026 (ela, com o print do menu Stocks do ERP antigo: «o primeiro screen é o stock inventário, e cria o menu»):
      o menu Stocks, a seguir às Compras; o Inventário inicial é o primeiro ecrã, os outros itens ainda não têm ecrã */
-  ['stocks-inventario-inicial', '70 · Inventário inicial'],
+  ['stocks-inventario-inicial', '70 · Inventário inicial'], ['stocks-transf-armazens', '71 · Transferências entre armazéns'],
   ];
 }
 /* 28 out. (ela: «quero os ecrãs assim, e não assim — remove todos estes últimos do erp»): saem todas as versões e

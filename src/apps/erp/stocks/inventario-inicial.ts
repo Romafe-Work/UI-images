@@ -247,7 +247,7 @@ const CFG = registar({
     if (cen === 'ja-lancado' && lanc) { e.ativo = lanc.id; e.recusa = porqueLancar_(e, lanc); }
     if (cen === 'editar' && rasc) e.ativo = rasc.id;
     if (cen === 'anular-lancado' && lanc) e.ativo = lanc.id;
-    if (cen === 'anulado' && rasc) { e.extra.anuladoSim = rasc.id; e.ativo = rasc.id; e.aviso = `${rasc.ref} anulado: «Contagem repetida: o armazém 10 conta outra vez a 20/10». Fica no histórico.`; }
+    if (cen === 'anulado' && rasc) { e.extra.anuladoSim = rasc.id; e.ativo = rasc.id; e.aviso = `${rasc.ref} anulado: «Contagem repetida: o armazém 2 conta outra vez a 20/10». Fica no histórico.`; }
     if (cen === 'gravado' && ls[0]) e.ativo = ls[0].id;
     requestAnimationFrame(() => {
       if (cen === 'lancar' || cen === 'a-lancar' || cen === 'lancar-falhou') dlgLancar(r, e, cen === 'lancar-falhou' ? 'O servidor não confirmou o lançamento (ERP-STK-504). Nada se repete sozinho: atualiza a lista (F9) para ver se ficou lançado antes de tentar outra vez.' : '');
@@ -294,7 +294,7 @@ export const ESTADOS_INV: [string, string, string][] = [
 const armazensDaLista = (): [string, string][] => ARMAZENS.map((a) => [a.cod, `${a.cod} · ${a.nome}`]);
 export function versaoInventario(cen = 'normal') { return { id: 'v1', nota: NOTA, html: paginaDoc(CFG, cen, armazensDaLista()) }; }
 export type IdStocks = 'stocks-inventario-inicial' | `inv-${string}`;
-export const DESCRICAO_STOCKS = 'O menu Stocks do ERP antigo. O primeiro ecrã é o 70 · Inventário inicial: os documentos de stock com as quantidades e os custos de partida de cada armazém, que entram no stock ao lançar (Ctrl+F2). Os outros itens do menu ainda não têm ecrã novo e aparecem desligados.';
+export const DESCRICAO_STOCKS = 'O menu Stocks do ERP antigo. O 70 · Inventário inicial (as quantidades e os custos de partida de cada armazém) e o 71 · Transferências entre armazéns (de um armazém para outro, só com stock na origem) entram no stock ao lançar (Ctrl+F2). Os outros itens do menu ainda não têm ecrã novo e aparecem desligados.';
 export function ecrasStocks(): Ecra<IdErp>[] {
   return [
     { id: 'stocks-inventario-inicial', nome: '70 · Inventário inicial', fluxo: 'Stocks', objetivo: 'Os documentos de stock do inventário inicial de cada armazém: criar o rascunho, lançar no stock (Ctrl+F2) e anular, com o motor das listas das Compras.', versoes: [versaoInventario()] as Ecra<IdErp>['versoes'] },
