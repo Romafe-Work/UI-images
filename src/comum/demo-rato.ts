@@ -200,15 +200,15 @@ export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
       await dormir(quieto() ? 400 : 900);
       if (parar) break;
       if (p.escolher) {
-        const s = alvo(p.escolher[0], p.separador) as HTMLSelectElement | null; if (!s) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        const s = alvo(p.escolher[0], p.separador) as HTMLSelectElement | null; if (!s) { { console.warn(`roteiro ${id}: parou no passo ${i + 1}`, p); fim('O roteiro parou: este ecrã mudou.'); } break; }
         await mover(s); await clicar(s); s.value = p.escolher[1]; s.dispatchEvent(new Event('change', { bubbles: true }));
       } else if (p.clicar) {
-        const el = alvo(p.clicar, p.separador); if (!el) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        const el = alvo(p.clicar, p.separador); if (!el) { { console.warn(`roteiro ${id}: parou no passo ${i + 1}`, p); fim('O roteiro parou: este ecrã mudou.'); } break; }
         await mover(el); await clicar(el);
       } else if (p.arrastar) {
-        const el = alvo(p.arrastar.de, p.separador); if (!el || !(await arrastarDe(el, p.arrastar.para))) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        const el = alvo(p.arrastar.de, p.separador); if (!el || !(await arrastarDe(el, p.arrastar.para))) { { console.warn(`roteiro ${id}: parou no passo ${i + 1}`, p); fim('O roteiro parou: este ecrã mudou.'); } break; }
       } else if (p.escrever) {
-        const el = alvo(p.escrever[0], p.separador) as HTMLInputElement | null; if (!el) { fim('O roteiro parou: este ecrã mudou.'); break; }
+        const el = alvo(p.escrever[0], p.separador) as HTMLInputElement | null; if (!el) { { console.warn(`roteiro ${id}: parou no passo ${i + 1}`, p); fim('O roteiro parou: este ecrã mudou.'); } break; }
         await mover(el); await escreverEm(el, p.escrever[1]);
       }
       if (p.tecla) await premir(p.tecla);
