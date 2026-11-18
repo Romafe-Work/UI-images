@@ -106,7 +106,7 @@ export function todosMovimentos(): Mov[] {
     /* «TA 2026/0003»: a série é «TA 2026» e o número «0003» */
     const p = b.origem.match(/^(\S+ \d{4})\/(\S+)$/);
     return { n, ref: b.ref, armazem: b.armazem, data: b.data, serie: b.cod === 'SI' ? '—' : p ? p[1] : b.origem, doc: b.cod === 'SI' ? '—' : p ? p[2] : b.origem, docCompleto: b.cod === 'SI' ? '—' : b.origem, cod: b.cod, anulacao: b.anulacao, enc: b.enc,
-      qtd: b.qtd, preco, vEnt, vSai, pm: q1 > 0 ? Math.round(v1 / q1) : preco, saldoArt: q1, valorArt: v1 };
+      qtd: b.qtd, preco, vEnt, vSai, pm: q1 > 0 ? Math.round(v1 / q1) : preco, saldoArt: q1, valorArt: q1 > 0 ? q1 * Math.round(v1 / q1) : 0 }; // o valor que se mostra é a quantidade × o preço médio mostrado
   });
 }
 

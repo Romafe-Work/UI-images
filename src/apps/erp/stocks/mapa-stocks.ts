@@ -26,6 +26,7 @@ import { xlsx, descarregar, type Celula } from '../compras/xlsx';
 import { familiaDe } from '../ficheiros/ecras';
 import { ARMAZENS, stockEm, custoDe } from './dominio';
 import { precoVenda } from './vendas';
+import { todosMovimentos } from './mapa-movimentos';
 import boxes from 'lucide-static/icons/boxes.svg?raw';
 import refresh from 'lucide-static/icons/refresh-cw.svg?raw';
 import printer from 'lucide-static/icons/printer.svg?raw';
@@ -100,7 +101,9 @@ const VALZ: { k: Valz; tecla: string; t: string; col: string }[] = [
 
 /* ---------- as linhas ---------- */
 interface Linha { a: Artigo; fam: string; sub: string; exist: number; encCli: number; encFor: number; nominal: number; preco: number; valor: number; cons: number; vCons: number; dev: number; vDev: number }
-const precoDe = (a: Artigo, v: Valz) => v === 'medio' ? custoDe(a.ref) : v === 'ultimo' ? a.preco ?? 0 : precoVenda(a.ref);
+/* 18 nov.: o preço médio é o ponderado dos movimentos (o mesmo do 77 e do 78), para os mapas darem o mesmo valor */
+const pmDe = (ref: string) => { const ms = todosMovimentos().filter((m) => m.ref === ref); return ms.length ? ms[ms.length - 1].pm : custoDe(ref); };
+const precoDe = (a: Artigo, v: Valz) => v === 'medio' ? pmDe(a.ref) : v === 'ultimo' ? a.preco ?? 0 : precoVenda(a.ref);
 const existDe = (a: Artigo, arm: string) => arm ? stockEm(a.ref, ARMAZENS.find((x) => x.cod === arm)!.nome) : ARMAZENS.reduce((t, x) => t + stockEm(a.ref, x.nome), 0);
 function sem(s: string) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ''); }
 function compara(c: Comp, v: string, q: string) { const a = sem(v), b = sem(q); return c === 'igual' ? a === b : c === 'contem' ? a.includes(b) : a.startsWith(b); }

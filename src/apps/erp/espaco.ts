@@ -159,7 +159,7 @@ export const MENU_ERP: LinhaMenu[] = [
   /* 18 nov. (ela: «estes devem ficar no mesmo screen, separados por tabs»): o Extrato de movimentos/artigo e o Movimento
      artigos — saldo são separadores dos Movimentos de artigos e saem do menu */
   T('stocks-mapa-movimentos', 'stocks-mapas', 'Movimentos de artigos', '', 30, true, 'stocks.mapa-movimentos'),
-  T('stocks-mapa-inventario', 'stocks-mapas', 'Inventário', '', 60, true),
+  T('stocks-mapa-inventario', 'stocks-mapas', 'Inventário', '', 60, true, 'stocks.mapa-inventario'),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
 /* 26 out. (ela mandou outra vez o print do menu): sem linha entre as Guias de transporte e as de devolução, nem entre as Faturas e as Notas de
@@ -203,6 +203,7 @@ export const ROTAS: Record<string, Rota> = {
   'stocks.mapa-artigos-clientes': { ecra: 'stocks-mapa-artigos-clientes', titulo: 'Artigos/clientes', icone: 'users', acoes: ['atualizar', 'imprimir'] },
   'stocks.mapa-stocks': { ecra: 'stocks-mapa-stocks', titulo: 'Mapa de stocks', icone: 'boxes', acoes: ['atualizar', 'imprimir'] },
   'stocks.mapa-movimentos': { ecra: 'stocks-mapa-movimentos', titulo: 'Movimentos de artigos', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
+  'stocks.mapa-inventario': { ecra: 'stocks-mapa-inventario', titulo: 'Mapa de inventário', icone: 'clipboard-list', acoes: ['atualizar', 'imprimir'] },
   'stocks.transf-armazens': { ecra: 'stocks-transf-armazens', titulo: 'Transferências entre armazéns', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },

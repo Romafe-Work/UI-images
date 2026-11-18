@@ -19,3 +19,5 @@
 .mva-abertura td { background: var(--h-sup-2) !important; font-size: 13.5px; }
 .mva-agrupar { margin-left: auto; }
 section[data-mva-p][hidden] { display: none; }
+.minv-sit { color: var(--h-tinta-3); } .minv-sit.is-com { color: var(--h-ok); font-weight: 600; }
+.minv-barra .rc-agrupar { margin-left: 4px; }
