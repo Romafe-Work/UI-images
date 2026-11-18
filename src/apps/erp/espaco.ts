@@ -155,7 +155,7 @@ export const MENU_ERP: LinhaMenu[] = [
      menu; passa-se de um artigo para outro no painel Stock da área de trabalho («Passar para outro artigo») */
   T('stocks-mapas', 'stocks', 'Mapas', 'chart-bar', 200, true),
   T('stocks-mapa-artigos-clientes', 'stocks-mapas', 'Artigos/clientes', '', 10, false, 'stocks.mapa-artigos-clientes'),
-  T('stocks-mapa-stocks', 'stocks-mapas', 'Stocks', '', 20, true),
+  T('stocks-mapa-stocks', 'stocks-mapas', 'Stocks', '', 20, true, 'stocks.mapa-stocks'),
   T('stocks-mapa-movimentos', 'stocks-mapas', 'Movimentos de artigos', '', 30, true),
   T('stocks-mapa-extracto', 'stocks-mapas', 'Extrato de movimentos/artigo', '', 40),
   T('stocks-mapa-mov-saldo', 'stocks-mapas', 'Movimento artigos — saldo', '', 50),
@@ -201,6 +201,7 @@ export const ROTAS: Record<string, Rota> = {
   'stocks.perdas': { ecra: 'stocks-perdas', titulo: 'Perdas', icone: 'circle-minus', acoes: ['atualizar', 'imprimir'] },
   /* 18 nov. (ela, com o print dos «MAPAS» do antigo): Stocks ▸ Mapas ▸ Artigos/clientes */
   'stocks.mapa-artigos-clientes': { ecra: 'stocks-mapa-artigos-clientes', titulo: 'Artigos/clientes', icone: 'users', acoes: ['atualizar', 'imprimir'] },
+  'stocks.mapa-stocks': { ecra: 'stocks-mapa-stocks', titulo: 'Mapa de stocks', icone: 'boxes', acoes: ['atualizar', 'imprimir'] },
   'stocks.transf-armazens': { ecra: 'stocks-transf-armazens', titulo: 'Transferências entre armazéns', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },
