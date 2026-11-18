@@ -53,7 +53,7 @@ const doc = (d: Doc) => inventario(String(d.ref))!;
 const COLS: CfgDoc['cols'] = [
   { k: 'numero', t: 'Número', tipo: 'mono', w: 130, presa: true, antiga: true },
   { k: 'data', t: 'Data de emissão', tipo: 'data', w: 120, antiga: true },
-  { k: 'armazem', t: 'Armazém', tipo: 'mono', w: 90 },
+  { k: 'armazem', t: 'Armazém', tipo: 'txt', w: 170 },
   { k: 'armazemNome', t: 'Nome do armazém', tipo: 'txt', w: 190 },
   { k: 'notas', t: 'Observações', tipo: 'txt', w: 250, antiga: true },
   { k: 'valor', t: 'Valor total', tipo: 'eur', w: 130, antiga: true },
@@ -68,6 +68,7 @@ function celula(d: Doc, k: string): string {
   switch (k) {
     case 'numero': return `<span class="lf2-art"><b>${esc(String(d.numero))}</b></span>`;
     case 'data': return dia(String(d.data));
+    case 'armazem': return `<span class="is-mono">${esc(String(d.armazem))}</span> ${esc(String(d.armazemNome).split(' · ')[1] ?? '')}`;
     case 'artigos': case 'qtd': return nf(d[k] as number);
     case 'valor': return euros(d.valor as number);
     case 'estado': return `<span class="lf2-badges">${d.anulado ? badge('lf2-b--rutura', ban, 'Anulado') : d.lancado ? badge('lf2-b--pend', circleCheck, 'Lançado') : badge('lf2-b--enc', clock, 'Rascunho', 'Ainda não entrou no stock')}</span>`;
@@ -203,7 +204,7 @@ async function lancar(r: HTMLElement, e: EstDoc, b: HTMLElement): Promise<void> 
 const CFG = registar({
   k: 'inv', titulo: 'Inventário Inicial', sub: 'Documentos de stock com as quantidades e os custos de partida de cada armazém.', icone: packagePlus, um: 'documento', o: 'o',
   caminho: [['ERP', 'inicio'], ['Stocks', 'stocks'], ['Inventário inicial', '']],
-  cols: COLS, verIniciais: ['numero', 'data', 'armazem', 'armazemNome', 'notas', 'valor', 'estado', 'artigos', 'qtd', 'uIns', 'uAlt'],
+  cols: COLS, verIniciais: ['numero', 'data', 'armazem', 'notas', 'qtd', 'valor', 'estado'], ajustar: true,
   campos: { numero: 'n', data: 'data', codigo: 'armazem', descricao: 'notas' },
   rotuloForn: 'Armazém', phCodigo: 'Código do armazém, ex.: 60',
   linhas, series: () => [...new Set(inventarios().map((d) => d.ref.split('/')[0]))], serieDe: (d) => String(d.serie), fornDe: (d) => String(d.armazem), dataDe: (d) => String(d.data), moedaDe: (d) => String(d.moeda),

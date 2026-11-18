@@ -211,7 +211,9 @@ export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
     return `<tr data-dv2-id="${esc(d.id)}" tabindex="${a ? 0 : -1}" aria-selected="${s}" class="${a ? 'is-ativo' : ''}${d.anulado ? ' is-anulado' : ''}"><td class="lf2-td-sel is-presa"><input type="checkbox" tabindex="-1" aria-label="Escolher ${esc(String(d.numero ?? d.id))}" data-dv2-escolher="${esc(d.id)}"${s ? ' checked' : ''}></td>${cs.map((x) => `<td class="${x.presa ? 'is-presa is-presa2 ' : ''}${num(x) ? 'is-num ' : ''}${x.tipo === 'mono' ? 'is-mono ' : ''}${x.k === campoModo ? 'is-modo' : ''}" data-col="${x.k}">${c.celula(d, x.k)}</td>`).join('')}</tr>`; };
   const corpo = (virtual && ini ? `<tr class="lf2-esp" aria-hidden="true"><td colspan="${cs.length + 1}" style="height:${ini * hl}px"></td></tr>` : '') + ls.slice(ini, fim).map(linha).join('')
     + (virtual && fim < ls.length ? `<tr class="lf2-esp" aria-hidden="true"><td colspan="${cs.length + 1}" style="height:${(ls.length - fim) * hl}px"></td></tr>` : '');
-  g.innerHTML = `<table class="lf2-tab" aria-label="${esc(c.titulo)}" aria-rowcount="${ls.length}" aria-multiselectable="true"><colgroup><col style="width:36px">${cs.map((x) => `<col data-dv2-w="${x.k}" style="width:${w(x)}px">`).join('')}</colgroup><thead>${cab}</thead><tbody>${corpo}</tbody></table>`;
+  const soma = cs.reduce((t, x) => t + w(x), 0), larg = (x: ColDoc) => c.ajustar ? `${(w(x) / soma * 100).toFixed(3)}%` : `${w(x)}px`;
+  g.classList.toggle('lf2-grelha--ajusta', !!c.ajustar);
+  g.innerHTML = `<table class="lf2-tab${c.ajustar ? ' lf2-tab--ajusta' : ''}" aria-label="${esc(c.titulo)}" aria-rowcount="${ls.length}" aria-multiselectable="true"><colgroup><col style="width:36px">${cs.map((x) => `<col data-dv2-w="${x.k}" style="width:${larg(x)}">`).join('')}</colgroup><thead>${cab}</thead><tbody>${corpo}</tbody></table>`;
   g.scrollTop = sc; g.scrollLeft = sl; g.dataset.dv2Virtual = virtual ? '1' : '';
   if (animar && !quieto()) g.querySelectorAll<HTMLElement>('tbody tr[data-dv2-id]').forEach((t, i) => {
     const a = antes.get(t.dataset.dv2Id!), b = t.getBoundingClientRect().top;

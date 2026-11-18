@@ -33,10 +33,12 @@ import type { IdIde } from './ide/ecra';
 import type { IdMenuAntigo } from './compras/menu-antigo-ids';
 import type { IdStocks } from './stocks/inventario-inicial';
 import type { IdTransf } from './stocks/transferencias';
+import type { IdAjv } from './stocks/ajustamentos';
+import type { IdMov } from './stocks/movimentos';
 
 /** Os ecrãs do ERP: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */
-export type IdErp = 'abertura' | IdEntrar | IdEstadoRede | IdCentral | IdInicio | IdCompras2 | IdAberturaV2 | IdAberturaV3 | IdAberturaV4 | IdAberturaV5 | IdAberturaV6 | IdInicioV2 | IdFaltas | IdFaltas2 | IdOrc2 | IdEnc3 | IdEnc4 | IdEnc5 | IdRececoesV2 | IdGuias3 | IdFat2 | IdFat3 | IdRc2 | IdEstados | IdEspaco | IdCompras3 | IdCompras | IdCarregarErp | IdErroErp | IdFicheiros | IdLateral | IdVivo | IdIde | IdMenuAntigo | IdStocks | IdTransf;
+export type IdErp = 'abertura' | IdEntrar | IdEstadoRede | IdCentral | IdInicio | IdCompras2 | IdAberturaV2 | IdAberturaV3 | IdAberturaV4 | IdAberturaV5 | IdAberturaV6 | IdInicioV2 | IdFaltas | IdFaltas2 | IdOrc2 | IdEnc3 | IdEnc4 | IdEnc5 | IdRececoesV2 | IdGuias3 | IdFat2 | IdFat3 | IdRc2 | IdEstados | IdEspaco | IdCompras3 | IdCompras | IdCarregarErp | IdErroErp | IdFicheiros | IdLateral | IdVivo | IdIde | IdMenuAntigo | IdStocks | IdTransf | IdAjv | IdMov;
 
 export type EcraErp = Ecra<IdErp>;
 

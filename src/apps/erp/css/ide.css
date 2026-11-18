@@ -439,3 +439,16 @@
 .ide-def-l { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .ide-btn.is-sel { border-color: var(--i-azul); background: var(--i-azul-suave); color: var(--i-azul); font-weight: 700; }
 .ide-at-nav { margin-left: 6px; padding: 0 5px; border-radius: var(--r-md); background: var(--i-tabs); color: var(--i-texto-3); font-size: 11px; }
+
+/* 18 nov. (Stock ▸ «Passar para outro artigo»: a ação no topo do painel, no lugar do ecrã Transferências entre artigos) */
+.ide-f-acoes { display: flex; justify-content: flex-end; padding: 6px 8px 2px; }
+.ide-f-ac { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--i-borda-forte); border-radius: var(--r-md, 6px); background: var(--i-sup); color: var(--i-texto); font: inherit; font-size: 13px; cursor: pointer; }
+.ide-f-ac svg { width: 15px; height: 15px; color: var(--i-azul); }
+.ide-f-ac:hover:not(:disabled) { background: var(--i-sup-2); } .ide-f-ac:disabled { opacity: .5; cursor: not-allowed; }
+.ide-f-ac.is-acao { border-color: var(--i-laranja); background: var(--i-laranja); color: #fff; } .ide-f-ac.is-acao svg { color: #fff; }
+.ide-f-passar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 8px 10px; padding: 10px; border: 1px solid var(--i-borda); border-radius: var(--r-md, 6px); background: var(--i-sup-2); }
+.ide-f-passar[hidden] { display: none; }
+.ide-f-passar label { display: grid; gap: 3px; font-size: 12px; color: var(--i-texto-2); } .ide-f-passar label.is-largo { grid-column: 1 / -1; }
+.ide-f-passar :is(input, select) { height: 30px; padding: 0 8px; border: 1px solid var(--i-borda-forte); border-radius: var(--r-md, 6px); background: var(--i-sup); color: var(--i-texto); font: inherit; font-size: 13px; }
+.ide-f-passar-erro { grid-column: 1 / -1; margin: 0; color: var(--i-erro); font-size: 12.5px; }
+.ide-f-passar-b { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }

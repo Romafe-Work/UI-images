@@ -11,6 +11,8 @@ import { navegacao, type NoNav } from '../navegacao';
 import type { IdPerfil } from '../inicio-dados';
 import { PERFIS } from '../inicio-dados';
 import { FORNECEDORES, ARTIGOS, ARMAZEM, artigo, fornecedor, encomenda, encomendas, rececoesDe, stock, aCaminho, pendente, atrasada, totais, euros, dia, db } from '../compras/dominio';
+import { ARMAZENS, stockEm, passagens } from '../stocks/dominio';
+import repeatIc from 'lucide-static/icons/repeat.svg?raw';
 import {
   PRESETS, grupos, soFerramentas, flutDe,
   type Disposicao, type No, type Grupo, type Flutuante, type Item, type IdFerr, type Contexto, type Lado,
@@ -362,8 +364,22 @@ function stockArm(c: Contexto | null): string {
   const a = artigo(c.chave); if (!a) return nada('Este artigo já não existe.');
   const s = stock(a.ref), cam = aCaminho(a.ref);
   const abertas = encomendas().filter((e) => ['Emitida', 'Parcialmente recebida', 'Aprovada', 'A aprovar'].includes(e.estado) && e.linhas.some((l) => l.ref === a.ref));
-  return `<table class="ide-f-t"><thead><tr><th>Armazém</th><th class="is-num">Em stock</th><th class="is-num">A caminho</th><th class="is-num">Disponível previsto</th></tr></thead>
-    <tbody><tr><td>${esc(ARMAZEM.split(' · ')[0])}</td><td class="is-num${s <= 0 ? ' is-rutura' : ''}">${s} ${esc(a.un)}</td><td class="is-num">${cam}</td><td class="is-num">${s + cam}</td></tr></tbody></table>
+  /* 18 nov. (ela: «transferências entre artigos — nem devia ser um screen, devia ser algo no header do stock»): todos os
+     armazéns e, no topo, «Passar para outro artigo» — sem ecrã; fica registado e aparece em baixo */
+  const comStock = ARMAZENS.filter((x) => stockEm(a.ref, x.nome) > 0), ps = passagens(a.ref).slice(0, 5);
+  const passar = `<div class="ide-f-acoes"><button type="button" class="ide-f-ac" data-ide-passar-abrir aria-expanded="false"${comStock.length ? '' : ' disabled title="Sem stock em nenhum armazém"'}>${L(repeatIc)}<span>Passar para outro artigo</span></button></div>
+    <div class="ide-f-passar" data-ide-passar data-de="${esc(a.ref)}" hidden>
+      <label><span>Armazém</span><select data-ide-passar-arm>${comStock.map((x) => `<option value="${x.cod}"${x.nome === ARMAZEM ? ' selected' : ''}>${esc(x.cod)} · ${esc(x.nome.split(' · ')[1] ?? x.nome)} (${stockEm(a.ref, x.nome)})</option>`).join('')}</select></label>
+      <label><span>Para o artigo</span><input type="text" list="ide-passar-arts" data-ide-passar-para placeholder="Referência" autocomplete="off"></label>
+      <label><span>Quantidade</span><input type="text" inputmode="numeric" data-ide-passar-qtd placeholder="0"></label>
+      <label class="is-largo"><span>Motivo</span><input type="text" data-ide-passar-notas placeholder="Ex.: Mudança de referência"></label>
+      <datalist id="ide-passar-arts">${ARTIGOS.filter((x) => x.ref !== a.ref).map((x) => `<option value="${esc(x.ref)}">${esc(x.desc)} · ${esc(x.marca)}</option>`).join('')}</datalist>
+      <p class="ide-f-passar-erro" data-ide-passar-erro role="alert" hidden></p>
+      <div class="ide-f-passar-b"><button type="button" class="ide-f-ac" data-ide-passar-nao>Cancelar</button><button type="button" class="ide-f-ac is-acao" data-ide-passar-ok>${L(repeatIc)}<span>Passar</span></button></div>
+    </div>`;
+  return `${passar}<table class="ide-f-t"><thead><tr><th>Armazém</th><th class="is-num">Em stock</th><th class="is-num">A caminho</th><th class="is-num">Disponível previsto</th></tr></thead>
+    <tbody>${ARMAZENS.map((x) => { const e60 = x.nome === ARMAZEM, q = e60 ? s : stockEm(a.ref, x.nome), c = e60 ? cam : 0; return `<tr><td>${esc(x.cod)} · ${esc(x.nome.split(' · ')[1] ?? x.nome)}</td><td class="is-num${q <= 0 ? ' is-rutura' : ''}">${q} ${esc(a.un)}</td><td class="is-num">${c}</td><td class="is-num">${q + c}</td></tr>`; }).join('')}</tbody></table>
+    ${ps.length ? `<p class="ide-x-t">Passagens entre artigos <small>${ps.length}</small></p>${ps.map((p) => `<div class="ide-p-i"><span><b class="ide-mono">${esc(p.ref)}</b> ${esc(p.de)} → ${esc(p.para)}</span><small>${p.qtd} un. · ${esc(p.armazem)} · ${esc(p.quando)}${p.notas ? ` · ${esc(p.notas)}` : ''}</small></div>`).join('')}` : ''}
     ${abertas.length ? `<p class="ide-x-t">Encomendas abertas com este artigo <small>${abertas.length}</small></p>${abertas.map((e) => { const l = e.linhas.find((y) => y.ref === a.ref)!; return `<button type="button" class="ide-p-i" data-ide-enc="${esc(e.ref)}">${L(fileText)}<span><b class="ide-mono">${esc(e.ref)}</b> ${esc(fornecedor(e.forn)?.nome ?? '')}</span><small>${pendente(l)} por receber · ${esc(e.estado)}</small></button>`; }).join('')}` : nada('Nenhuma encomenda aberta com este artigo.')}`;
 }
 

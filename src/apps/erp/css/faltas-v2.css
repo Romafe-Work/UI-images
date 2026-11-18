@@ -96,6 +96,13 @@
 /* 26 out. (ela: «não quero dois scrolls!»): a grelha cresce com as linhas e só a página rola; de lado, só a grelha */
 .lf2-grelha { position: relative; height: auto; overflow-x: auto; overflow-y: hidden; transition: opacity .16s ease; }
 .lf2.is-ocupada .lf2-grelha { opacity: .55; }
+/* 18 nov. (ela: «não quero scroll lateral na tabela» e «está feio» — a faixa branca da barra no escuro): com `ajustar`, a
+   tabela cabe na largura e não há barra de lado; nas outras, a barra é fina e segue o tema */
+.lf2-grelha { scrollbar-width: thin; scrollbar-color: rgba(120, 135, 150, .55) transparent; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lf2-grelha { color-scheme: dark; } }
+:root[data-theme="dark"] .lf2-grelha { color-scheme: dark; }
+.lf2-grelha--ajusta { overflow-x: hidden; }
+.lf2-tab.lf2-tab--ajusta { width: 100%; min-width: 0; }
 .lf2.a-redimensionar { cursor: row-resize; user-select: none; }
 .lf2-tab { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; }
 .lf2-tab th, .lf2-tab td { height: var(--lf2-linha); padding: 0 10px; border-bottom: 1px solid var(--h-borda); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--h-sup); }

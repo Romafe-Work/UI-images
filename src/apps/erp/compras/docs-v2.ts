@@ -91,6 +91,9 @@ export interface CfgDoc {
   maisTopo?: string;
   /** 18 nov. (Stocks): o filtro do «código» não é sempre o fornecedor — nos documentos de stock é o armazém */
   rotuloForn?: string; phCodigo?: string;
+  /** 18 nov. (ela: «não quero scroll lateral na tabela»): a tabela cabe na largura — as colunas repartem-na em proporção da
+   *  largura de cada uma e o texto comprido corta com «…»; nunca há barra de lado */
+  ajustar?: boolean;
 }
 export interface Vista { k: string; t: string; ic: string; tecla: string; titulo: string; tabela?(r: HTMLElement, e: EstDoc): string; resumo?(e: EstDoc): string }
 export const CFGS = new Map<string, CfgDoc>();

@@ -212,7 +212,7 @@ async function lancar(r: HTMLElement, e: EstDoc, b: HTMLElement): Promise<void> 
 const CFG = registar({
   k: 'tra', titulo: 'Transferências entre Armazéns', sub: 'Documentos de stock que passam artigos de um armazém para outro.', icone: arrowLeftRight, um: 'transferência', o: 'a',
   caminho: [['ERP', 'inicio'], ['Stocks', 'stocks'], ['Transferências entre armazéns', '']],
-  cols: COLS, verIniciais: ['numero', 'data', 'notas', 'origem', 'destino', 'qtd', 'valor', 'estado', 'artigos', 'uIns', 'uAlt'],
+  cols: COLS, verIniciais: ['numero', 'data', 'notas', 'origem', 'destino', 'qtd', 'valor', 'estado'], ajustar: true,
   campos: { numero: 'n', data: 'data', codigo: 'origem', descricao: 'notas' },
   rotuloForn: 'Armazém de origem', phCodigo: 'Código do armazém de origem, ex.: 60',
   linhas, series: () => [...new Set(transferencias().map((d) => d.ref.split('/')[0]))], serieDe: (d) => String(d.serie), fornDe: (d) => String(d.origem), dataDe: (d) => String(d.data), moedaDe: (d) => String(d.moeda),

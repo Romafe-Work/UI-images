@@ -13,6 +13,7 @@
    - Disposições guardadas neste computador por utilizador (erp:ide:<correio>), com versão do esquema; ao repor,
      revalida as rotas e as permissões. Nunca se guardam dados dos documentos.
    ========================================================= */
+import { passarArtigo } from '../stocks/dominio';
 import { ROTAS, MENU_ERP, FICHA_PARA, rotaDoEcra, esc, L } from '../espaco';
 import { navegacao, type NoNav } from '../navegacao';
 import { perfilDaSessao, lerSessao } from '../sessao';
@@ -1468,6 +1469,18 @@ function cliques(ev: MouseEvent): void {
   if ((b = t.closest('[data-ide-recarregar]'))) { const k = b.dataset.ideRecarregar!; falhados.delete(k); pararCargas = false; desenhar(); return; }
   if ((b = t.closest('[data-ide-dv-juntar]'))) { executar('dividir-doc', b.dataset.ideDvJuntar!); return; }
   /* janelas de ferramenta */
+  /* 18 nov.: Stock ▸ «Passar para outro artigo» (no lugar do ecrã Transferências entre artigos) */
+  if ((b = t.closest('[data-ide-passar-abrir]'))) { const f = b.closest('.ide-f-c, [data-ide-ferr], body')?.querySelector<HTMLElement>('[data-ide-passar]') ?? document.querySelector<HTMLElement>('[data-ide-passar]'); if (f) { f.hidden = !f.hidden; b.setAttribute('aria-expanded', String(!f.hidden)); if (!f.hidden) f.querySelector<HTMLElement>('[data-ide-passar-para]')?.focus(); } return; }
+  if ((b = t.closest('[data-ide-passar-nao]'))) { const f = b.closest<HTMLElement>('[data-ide-passar]')!; f.hidden = true; f.parentElement?.querySelector('[data-ide-passar-abrir]')?.setAttribute('aria-expanded', 'false'); return; }
+  if ((b = t.closest('[data-ide-passar-ok]'))) {
+    const f = b.closest<HTMLElement>('[data-ide-passar]')!, v = (s: string) => f.querySelector<HTMLInputElement>(s)!.value.trim(), erro = f.querySelector<HTMLElement>('[data-ide-passar-erro]')!;
+    try {
+      const p = passarArtigo(perfil, { armazem: v('[data-ide-passar-arm]'), de: f.dataset.de!, para: v('[data-ide-passar-para]'), qtd: Number(v('[data-ide-passar-qtd]') || 'NaN'), notas: v('[data-ide-passar-notas]') });
+      ['stock', 'historico', 'propriedades'].forEach((x) => pintarFerr(idFerr(x as IdFerr)));
+      mensagem(`${p.ref}: ${p.qtd} de ${p.de} passaram para ${p.para} no armazém ${p.armazem}.`);
+    } catch (x) { erro.hidden = false; erro.textContent = x instanceof Error ? x.message : 'Não foi possível passar. Nada mudou.'; }
+    return;
+  }
   if ((b = t.closest('[data-ide-fav]'))) { const r = b.dataset.ideFav!, ti = b.dataset.ideTitulo!; dados.favoritos = dados.favoritos.some((f) => f.rota === r) ? dados.favoritos.filter((f) => f.rota !== r) : [...dados.favoritos, { rota: r, titulo: ti }]; pintarFerr(idFerr('explorador')); guardar(false); return; }
   if ((b = t.closest('[data-ide-exp-g]'))) { const k = b.dataset.ideExpG!; dados.abertosExp[k] = b.getAttribute('aria-expanded') !== 'true'; pintarFerr(idFerr('explorador')); guardar(false); $<HTMLElement>(`[data-ide-exp-g="${CSS.escape(k)}"]`)?.focus(); return; }
   if ((b = t.closest('[data-ide-abrir]'))) { if (Date.now() - largouEm < 300) return; abrirDoc(b.dataset.ideAbrir!, { titulo: b.dataset.ideTitulo, ...(ev.ctrlKey ? { lado: 'dir' as Lado, grupo: grupoDocs() } : {}) }); return; }
