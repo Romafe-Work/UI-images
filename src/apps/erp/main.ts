@@ -24,8 +24,10 @@ import './css/ficheiros.css';
 import './css/automatico.css';
 import './css/comparativo.css';
 import '../../comum/css/editor.css';
+import '../../comum/css/rolar-rolamento.css';
 
 import { montar } from '../../comum/pagina';
+import { iniciarRolamento } from '../../comum/rolar-rolamento';
 /* 28 out.: as demonstrações com o rato, sem texto (registam-se antes de a página montar) */
 import './roteiro';
 import { iniciar as entrar } from '../../comum/entrar/comportamento';
@@ -63,3 +65,6 @@ calmo();
 rececoes2();
 guias3();
 montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, recap2, selectErp, dataErp, moldura, espaco, ide, inicio, compras, compras2, ficheiros, automatico, comparativo]);
+
+/* 18 nov. (ela: «aqui quero um rolamento para fazer scroll e não este scroll»): a página e os painéis da área de trabalho rolam com um rolamento */
+iniciarRolamento('.ide-ferr-corpo');
