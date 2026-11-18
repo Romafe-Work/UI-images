@@ -21,3 +21,4 @@
 section[data-mva-p][hidden] { display: none; }
 .minv-sit { color: var(--h-tinta-3); } .minv-sit.is-com { color: var(--h-ok); font-weight: 600; }
 .minv-barra .rc-agrupar { margin-left: 4px; }
+.mva-linha { cursor: pointer; } .mva-linha:hover td { background: color-mix(in srgb, var(--h-azul) 5%, var(--h-sup)); } .mva-linha:focus-visible { outline: 2px solid var(--h-azul); outline-offset: -2px; }

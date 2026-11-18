@@ -252,7 +252,16 @@ export function iniciar(): void {
     const v = VISTAS.find((x) => ev.altKey && !ev.ctrlKey && x.tecla === `Alt+${ev.key}`); if (v) { ev.preventDefault(); vista(r, v.k); return; }
     const t = ev.target as HTMLElement;
     if (t.matches('[data-gv3-vista]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const i = VISTAS.findIndex((x) => x.k === t.dataset.gv3Vista); vista(r, VISTAS[(i + (ev.key === 'ArrowRight' ? 1 : VISTAS.length - 1)) % VISTAS.length].k); return; }
-    if (t.matches('tr[data-rc2-abrir]') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) { ev.preventDefault(); const ls = [...r.querySelectorAll<HTMLElement>('[data-gv3-g] tr[data-rc2-abrir]')], i = ls.indexOf(t); ls[Math.max(0, Math.min(ls.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]?.focus(); return; }
+    if (t.matches('tr[data-rc2-abrir]') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
+      ev.preventDefault(); const ls = [...r.querySelectorAll<HTMLElement>('[data-gv3-g] tr[data-rc2-abrir]')], i = ls.indexOf(t), n = ls[Math.max(0, Math.min(ls.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))];
+      if (!n || n === t) return;
+      /* 18 nov. (ela: «permite andar com as setas»): a seta escolhe a guia seguinte e a janela aberta da guia de antes passa a ser a dela */
+      const aberta = document.querySelector<HTMLElement>(`[data-rc2-jan="${CSS.escape(t.dataset.rc2Abrir!)}"] [data-rc2-acao="fechar"]`);
+      if (aberta) { aberta.click(); n.querySelector<HTMLElement>('td')?.click(); }
+      else n.dispatchEvent(new CustomEvent('rc2:linha', { bubbles: true }));
+      n.focus({ preventScroll: true }); n.scrollIntoView({ block: 'nearest' }); /* a grelha pode redesenhar-se ao escolher: o foco vai para a linha nova dela */
+      const chave = n.dataset.rc2Abrir!; requestAnimationFrame(() => r.querySelector<HTMLElement>(`[data-gv3-g] tr[data-rc2-abrir="${CSS.escape(chave)}"]`)?.focus({ preventScroll: true })); return;
+    }
     if (ev.key === 'Escape' && fecharDlg(r)) { ev.preventDefault(); return; }
     if (!r.querySelector<HTMLElement>('[data-gv3-dlg]')?.hidden) return;
     if (ev.key === 'F4') { ev.preventDefault(); r.querySelector<HTMLElement>('[data-gv3-serie]')?.focus(); return; }

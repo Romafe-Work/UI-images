@@ -11,7 +11,7 @@ let falhas = 0;
 for (const id of IDS) {
   const p = await b.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: process.env.RAPIDO ? 'reduce' : 'no-preference' });
   const erros = []; p.on('pageerror', (e) => erros.push(e.message)); p.on('console', (m) => { if (/parou no passo/.test(m.text())) erros.push(m.text()); });
-  await p.goto(`${BASE}/erp/#so=ecra&demo=1&anim=instantaneo&ecra=inicio&rato=${id}`);
+  await p.goto(`${BASE}/erp/#so=ecra&demo=1&anim=instantaneo&ecra=inicio&rato=${id}`, { timeout: 90000 });
   const t0 = Date.now();
   await p.waitForFunction(() => document.body.classList.contains('demo-a-tocar'), null, { timeout: 15000 }).catch(() => {});
   const acabou = await p.waitForFunction(() => !document.body.classList.contains('demo-a-tocar'), null, { timeout: LIMITE, polling: 500 }).then(() => true, () => false);

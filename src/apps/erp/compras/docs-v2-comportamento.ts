@@ -597,6 +597,8 @@ function teclaGrelha(r: HTMLElement, e: EstDoc, ev: KeyboardEvent, tr: HTMLEleme
     if (estender) { const a = ls.findIndex((d) => d.id === String(e.extra.ancora ?? ls[i].id)); if (e.extra.ancora === undefined) e.extra.ancora = ls[i].id; e.sel = new Set(ls.slice(Math.min(a, k), Math.max(a, k) + 1).map((d) => d.id)); } else e.extra.ancora = undefined;
     if (estender || r.querySelector<HTMLElement>('[data-dv2-grelha]')!.dataset.dv2Virtual) grelha(r, e);
     e.ativo = ''; escolher(r, e, ls[k].id); estado(r, e);
+    /* a janela aberta da linha de antes passa a mostrar a linha nova (como uma pré-visualização) */
+    if (!estender && comJanelas(r)) { const js = jds(e), j = js.find((x) => x.id === ls[i]?.id && !x.ed); if (j && !js.some((x) => x.id === ls[k].id)) { j.id = ls[k].id; desenharJanelas(r, e); } }
   };
   const pagina = Math.max(1, Math.floor((r.querySelector<HTMLElement>('[data-dv2-grelha]')!.clientHeight - 40) / (e.dens === 'compacta' ? 34 : 42)));
   switch (ev.key) {
@@ -671,7 +673,10 @@ export function iniciar(): void {
     if ((b = t.closest('[data-dv2-vjan]'))) { const [id, tab] = b.dataset.dv2Vjan!.split('|'); if (!docDe(r, e, id)) { toast(r, b.dataset.dv2Vsem || 'Sem documento.'); return; } escolher(r, e, id, false); const ja = jds(e).find((x) => x.id === id); if (ja && tab) ja.tab = tab; abrirJanelaDoc(r, e, id, tab || undefined); return; }
     if ((b = t.closest('[data-dv2-jan-acao]'))) { acaoJanelaDoc(r, e, b.closest<HTMLElement>('[data-dv2-jan]')!.dataset.dv2Jan!, b.dataset.dv2JanAcao!); return; }
     if ((b = t.closest('[data-dv2-jan-tab]'))) { const j = jds(e).find((x) => x.id === b!.closest<HTMLElement>('[data-dv2-jan]')?.dataset.dv2Jan); if (j) { j.tab = b.dataset.dv2JanTab!; refrescarJanelas(r, e); r.querySelector<HTMLElement>(`[data-dv2-jan="${CSS.escape(j.id)}"] [data-dv2-jan-tab="${j.tab}"]`)?.focus(); } return; }
-    if ((b = t.closest('tr[data-dv2-id]')) && !t.closest('input, a, button')) { escolher(r, e, b.dataset.dv2Id!, !comJanelas(r)); if (comJanelas(r)) abrirJanelaDoc(r, e, b.dataset.dv2Id!); }
+    if ((b = t.closest('tr[data-dv2-id]')) && !t.closest('input, a, button')) {
+      /* 18 nov. (ela: «depois de selecionar um item da tabela, permite andar com as setas»): a janela abre, mas o foco fica na linha */
+      const id = b.dataset.dv2Id!; escolher(r, e, id, !comJanelas(r)); if (comJanelas(r)) { abrirJanelaDoc(r, e, id, undefined, false); r.querySelector<HTMLElement>(`tr[data-dv2-id="${CSS.escape(id)}"]`)?.focus({ preventScroll: true }); }
+    }
   });
   document.addEventListener('dblclick', (ev) => { const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const tr = t.closest<HTMLElement>('tr[data-dv2-id]'); if (!tr || t.closest('input')) return; const e = de(r), d = filtradas(r, e).find((x) => x.id === tr.dataset.dv2Id); if (d) abrirFicha(r, e, 'editar', d); });
   document.addEventListener('change', (ev) => {

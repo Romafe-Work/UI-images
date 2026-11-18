@@ -69,3 +69,6 @@
   .mac :is(.hm-topo, .mac-barra, .mac-filtros, .lf2-estado, .hm-aviso, .mac-g-trocar, .mac-volta) { display: none !important; }
   .mac-impressao { display: block; margin: 0 0 10px; } .mac-impressao h1 { margin: 0 0 4px; font-size: 16px; } .mac-impressao p { margin: 0; font-size: 12px; }
 }
+.mac-top { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 8px; max-width: 760px; margin-top: 4px; }
+.mac-top small { flex-basis: 100%; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--h-tinta-3); }
+.mac-top .ak-btn b { margin-right: 6px; }

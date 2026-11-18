@@ -196,6 +196,54 @@ registarCaso('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, fornece
   { legenda: '' },
 ], SEM);
 
+/* 18 nov.: os casos de Stocks — os documentos de stock (inventário, transferência, ajuste, acréscimo, perda) e os mapas.
+   Os ecrãs de Stocks levam mais tempo a abrir no separador: o rato espera que o ecrã esteja lá */
+const menuS = (rota: string): Passo => ({ ...menu(rota), pausa: 3400 });
+registarCaso('erp-stocks-documentos', 'Stocks: inventário, transferência, ajuste, acréscimo e perda', [
+  { ecra: 'inicio', legenda: '', pausa: 1500 },
+  menuS('stocks.inventario-inicial'),
+  sep('tbody tr[data-dv2-id]', 1000),
+  sep('[data-dv2-jan-tab="linhas"]', 900),
+  sep('[data-dv2-jan-tab="stock"]', 1000),
+  sep('[data-dv2-jan-acao="fechar"]'),
+  menuS('stocks.transf-armazens'),
+  sep('tbody tr[data-dv2-id]', 1000),
+  sep('[data-dv2-jan-tab="linhas"]', 900),
+  sep('[data-dv2-jan-tab="stock"]', 1000),
+  sep('[data-dv2-jan-acao="fechar"]'),
+  menuS('stocks.ajuste-valor'),
+  sep('tbody tr[data-dv2-id]', 1000),
+  sep('[data-dv2-jan-tab="linhas"]', 1000),
+  sep('[data-dv2-jan-acao="fechar"]'),
+  menuS('stocks.acrescimos'),
+  sep('[data-dv2-acao="novo"]', 1400),
+  sep('[data-dv2-acao="fechar-ficha"]'),
+  menuS('stocks.perdas'),
+  sep('tbody tr[data-dv2-id]', 1000),
+  sep('[data-dv2-jan-tab="linhas"]', 1400),
+  { legenda: '' },
+], SEM);
+
+registarCaso('erp-stocks-mapas', 'Stocks: quem comprou, o stock, os movimentos e o inventário', [
+  { ecra: 'inicio', legenda: '', pausa: 1500 },
+  menuS('stocks.mapa-artigos-clientes'),
+  sep('.mac-top [data-mac-hip]', 1400),
+  sep('[data-mac-trocar]', 1600),
+  sep('[data-mac-acao="voltar"]', 1200),
+  menuS('stocks.mapa-stocks'),
+  sep('tr[data-mst-art]', 1200),
+  sep('[data-mst-modo="familia"]', 1200),
+  sep('[data-mst-valz="ultimo"]', 1200),
+  menuS('stocks.mapa-movimentos'),
+  sep('tr[data-mva-ref]', 600),
+  sep('[data-mva-acao="extrato"]', 1600),
+  sep('[data-mva-tab="sal"]', 600),
+  sep('[data-mva-p="sal"] [data-mva-acao="gerar"]', 1600),
+  menuS('stocks.mapa-inventario'),
+  sep('[data-minv-acao="gerar"]', 1600),
+  { legenda: '' },
+], SEM);
+
 /* os percursos com explicação (nome e objetivo de cada um): os estados do Início, e todos os ecrãs e estados do ERP */
 registarRoteiro('erp-estados-inicio', 'Os estados da área de trabalho, um a um', () => percurso((e) => e.dataset.ecra === 'inicio' || e.dataset.estadoDe === 'inicio'));
 /* 6 nov. (ela: «no ver fluxo com o rato também»): primeiro os ecrãs das Compras abertos pelos Módulos, como quem
@@ -281,6 +329,24 @@ const NO_ECRA: Record<string, Feito[]> = {
     ['Por fornecedor', '[data-fx-par-vista="forn"]'], ['Gerar dados', '[data-cf-acao="gerar"]'], ['Geral', '[data-fx-par-vista="geral"]']],
   'compras.mapas-analise-forn': [['Outro fornecedor', 'tr[data-fx-i="2"]'], ['Outro fornecedor', 'tr[data-fx-i="3"]'], ['Outro fornecedor', 'tr[data-fx-i="4"]']],
   'compras.mapas-automatico': [['Gerar dados', '[data-ak-acao="gerar"]'], ['Um artigo', '[data-ak-grelha] tbody tr, .ak-grelha tbody tr'], ['Mais ações', '[data-ak-acao="mais"]'], ['', ESC]],
+  /* 18 nov. (ela: «prepara os screens para eu reproduzir o fluxo» — «all screens»): os ecrãs de Stocks também mostram o
+     que se faz em cada um; fica de fora o que muda o stock (Lançar, Anular) */
+  'stocks.inventario-inicial': [['Um inventário numa janela', 'tbody tr[data-dv2-id]'], ['Linhas', '[data-dv2-jan-tab="linhas"]'], ['Stock', '[data-dv2-jan-tab="stock"]'], ['Anexos', '[data-dv2-jan-tab="anexos"]'], ['Detalhes', '[data-dv2-jan-tab="detalhes"]'], fechaJanDv2, ['Pesquisar por data', '[data-dv2-modo="data"]'], ['Pesquisar por número', '[data-dv2-modo="numero"]'], ['Mais filtros', '[data-dv2-acao="mais-filtros"]'], ['Menos filtros', '[data-dv2-acao="mais-filtros"]'], ['Novo', '[data-dv2-acao="novo"]'], ['Fechar sem gravar', '[data-dv2-acao="fechar-ficha"]']],
+  'stocks.transf-armazens': [['Uma transferência numa janela', 'tbody tr[data-dv2-id]'], ['Linhas', '[data-dv2-jan-tab="linhas"]'], ['Stock', '[data-dv2-jan-tab="stock"]'], ['Anexos', '[data-dv2-jan-tab="anexos"]'], ['Detalhes', '[data-dv2-jan-tab="detalhes"]'], fechaJanDv2, ['Pesquisar por data', '[data-dv2-modo="data"]'], ['Pesquisar por número', '[data-dv2-modo="numero"]'], ['Mais filtros', '[data-dv2-acao="mais-filtros"]'], ['Menos filtros', '[data-dv2-acao="mais-filtros"]'], ['Novo', '[data-dv2-acao="novo"]'], ['Fechar sem gravar', '[data-dv2-acao="fechar-ficha"]']],
+  'stocks.ajuste-valor': [['Um ajustamento numa janela', 'tbody tr[data-dv2-id]'], ['Linhas', '[data-dv2-jan-tab="linhas"]'], ['Anexos', '[data-dv2-jan-tab="anexos"]'], ['Detalhes', '[data-dv2-jan-tab="detalhes"]'], fechaJanDv2, ['Pesquisar por data', '[data-dv2-modo="data"]'], ['Pesquisar por número', '[data-dv2-modo="numero"]'], ['Mais filtros', '[data-dv2-acao="mais-filtros"]'], ['Menos filtros', '[data-dv2-acao="mais-filtros"]'], ['Novo', '[data-dv2-acao="novo"]'], ['Fechar sem gravar', '[data-dv2-acao="fechar-ficha"]']],
+  'stocks.acrescimos': [['Um acréscimo numa janela', 'tbody tr[data-dv2-id]'], ['Linhas', '[data-dv2-jan-tab="linhas"]'], ['Anexos', '[data-dv2-jan-tab="anexos"]'], ['Detalhes', '[data-dv2-jan-tab="detalhes"]'], fechaJanDv2, ['Pesquisar por data', '[data-dv2-modo="data"]'], ['Pesquisar por número', '[data-dv2-modo="numero"]'], ['Mais filtros', '[data-dv2-acao="mais-filtros"]'], ['Menos filtros', '[data-dv2-acao="mais-filtros"]'], ['Novo', '[data-dv2-acao="novo"]'], ['Fechar sem gravar', '[data-dv2-acao="fechar-ficha"]']],
+  'stocks.perdas': [['Uma perda numa janela', 'tbody tr[data-dv2-id]'], ['Linhas', '[data-dv2-jan-tab="linhas"]'], ['Anexos', '[data-dv2-jan-tab="anexos"]'], ['Detalhes', '[data-dv2-jan-tab="detalhes"]'], fechaJanDv2, ['Pesquisar por data', '[data-dv2-modo="data"]'], ['Pesquisar por número', '[data-dv2-modo="numero"]'], ['Mais filtros', '[data-dv2-acao="mais-filtros"]'], ['Menos filtros', '[data-dv2-acao="mais-filtros"]'], ['Novo', '[data-dv2-acao="novo"]'], ['Fechar sem gravar', '[data-dv2-acao="fechar-ficha"]']],
+  'stocks.mapa-artigos-clientes': [['Um dos mais vendidos', '.mac-top [data-mac-hip]'], ['Esconder as linhas de um cliente', '[data-mac-abrir]'], ['Mostrar as linhas', '[data-mac-abrir]'],
+    ['Ordenar pelo valor', '[data-mac-ordenar="valor"]'], ['Ver o que esse cliente comprou', '[data-mac-trocar]'], ['Voltar ao artigo', '[data-mac-acao="voltar"]'],
+    ['Por cliente', '[data-mac-modo="cliente"]'], ['Um dos maiores clientes', '.mac-top [data-mac-hip]'], ['Por artigo', '[data-mac-modo="artigo"]']],
+  'stocks.mapa-stocks': [['Um artigo: o stock por armazém', 'tr[data-mst-art]'], ['Fechar', 'tr[data-mst-art].is-ativo'], ['Por descrição', '[data-mst-modo="descricao"]'], ['Por família/subfamília', '[data-mst-modo="familia"]'],
+    ['Fechar uma família', '[data-mst-abrir]'], ['Abrir a família', '[data-mst-abrir]'], ['Valorizar ao último preço', '[data-mst-valz="ultimo"]'], ['Valorizar ao preço de tabela', '[data-mst-valz="tabela"]'],
+    ['Valorizar ao preço médio', '[data-mst-valz="medio"]'], ['Ordenar pelo valor', '[data-mst-ordenar="valor"]'], ['Por artigo', '[data-mst-modo="artigo"]']],
+  'stocks.mapa-movimentos': [['Por documento', '[data-mva-modo="documento"]'], ['Por armazém', '[data-mva-modo="armazem"]'], ['Por artigo', '[data-mva-modo="artigo"]'],
+    ['Escolher um movimento', 'tr[data-mva-ref]'], ['Ver o extrato desse artigo', '[data-mva-acao="extrato"]'], ['Saldo', '[data-mva-tab="sal"]'], ['Gerar dados', '[data-mva-p="sal"] [data-mva-acao="gerar"]'], ['Alterar critérios', '[data-mva-p="sal"] [data-mva-acao="alterar"]'],
+    ['Cancelar', '[data-mva-p="sal"] [data-mva-acao="cancelar"]'], ['Movimentos', '[data-mva-tab="mov"]']],
+  'stocks.mapa-inventario': [['Gerar dados (hoje)', '[data-minv-acao="gerar"]'], ['Ordenar pelo valor', '[data-minv-ordenar="valor"]'], ['Filtrar a tabela', '[data-minv-acao="filtrar"]'], ['Fechar os filtros', '[data-minv-acao="filtrar"]'],
+    ['Alterar critérios', '[data-minv-acao="alterar"]'], ['Cancelar', '[data-minv-acao="cancelar"]']],
 };
 /** O documento do separador à frente (a área de trabalho). */
 const docAtivo = () => { try { return [...(versaoCasa()?.querySelectorAll<HTMLIFrameElement>('iframe.ide-frame:not(.is-espelho)') ?? [])].find((f) => f.style.visibility === 'visible')?.contentDocument ?? null; } catch { return null; } };

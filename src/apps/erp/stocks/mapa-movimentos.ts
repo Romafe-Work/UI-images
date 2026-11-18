@@ -115,7 +115,7 @@ type Tab = 'mov' | 'ext' | 'sal';
 type Modo = 'artigo' | 'descricao' | 'armazem' | 'data' | 'documento' | 'encomenda';
 type Comp = 'inicio' | 'contem' | 'igual' | 'encomenda';
 interface Est {
-  tab: Tab; modo: Modo; comp: Comp; q: string; armazem: string; art: string; tipo: string; de: string; ate: string; ordem: { k: string; dir: 1 | -1 } | null;
+  tab: Tab; escolhido?: string; modo: Modo; comp: Comp; q: string; armazem: string; art: string; tipo: string; de: string; ate: string; ordem: { k: string; dir: 1 | -1 } | null;
   extArt: string; extAno: string; extFeito?: { art: string; ano: string }; extEditar: boolean;
   salIni: string; salFim: string; salFeito?: { ini: string; fim: string }; salGrupo: '' | 'artigo' | 'tipo'; salEditar: boolean;
   aviso: string; editor: boolean; erroCrit: string;
@@ -157,7 +157,7 @@ function html(cen: string): string {
   <nav class="dv2c-vistas-zona" aria-label="Vistas"><div class="dv2-vistas dv2c-vistas" role="tablist" aria-label="Ver">${TABS.map((t, i) => `<button type="button" role="tab" id="${id(`tab-${t.k}`)}" aria-controls="${id(`p-${t.k}`)}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-mva-tab="${t.k}">${L(t.ic)}<span>${t.t}</span></button>`).join('')}<i class="dv2c-vistas-ind" data-mva-ind aria-hidden="true"></i></div></nav>
 
   <div class="ak-barra lf2-barra mva-barra" role="toolbar" aria-label="Ações">
-    <span data-mva-so="mov">${B('atualizar', refresh, 'Atualizar', 'F9')}${B('imprimir', printer, 'Imprimir', 'F11')}</span>
+    <span data-mva-so="mov">${B('atualizar', refresh, 'Atualizar', 'F9')}${B('imprimir', printer, 'Imprimir', 'F11')}<i class="ak-sep" aria-hidden="true"></i>${B('extrato', fileText, 'Ver extrato', 'Enter')}</span>
     <span data-mva-so="ext sal" hidden>${B('imprimir2', printer, 'Imprimir', 'F12')}</span>
     <i class="ak-sep" aria-hidden="true"></i>
     ${B('excel', sheet, 'Exportar para Excel', '')}
@@ -278,9 +278,14 @@ function desenharMov(r: HTMLElement, e: Est): void {
   s.innerHTML = ms.length ? `<span class="rc-s rc-s--total"><small>Valor das entradas</small><b>${euros(tot(ms, (m) => m.vEnt))}</b><i>${nf(tot(ms, ent))} unidades</i></span><span class="rc-s"><small>Valor das saídas</small><b>${euros(tot(ms, (m) => m.vSai))}</b><i>${nf(tot(ms, sai))} unidades</i></span><span class="rc-s"><small>Artigos</small><b>${nf(new Set(ms.map((m) => m.ref)).size)}</b><i>${nf(new Set(ms.map((m) => `${m.serie} ${m.doc}`)).size)} documentos</i></span>` : '';
   if (!ms.length && e.comp === 'encomenda' && e.q) { g.innerHTML = vazio(searchX, `Nenhuma receção da encomenda «${esc(e.q)}» lançada no stock.`, 'As receções das Compras entram aqui quando se lançam; no protótipo ainda não há nenhuma.', `<button type="button" class="ak-btn" data-mva-acao="limpar">${L(funnelX)}<span>Limpar a pesquisa</span></button>`); return; }
   if (!ms.length) { g.innerHTML = vazio(searchX, 'Nenhum movimento com estes filtros.', e.q ? `Nada ${e.comp === 'inicio' ? 'começa por' : e.comp === 'igual' ? 'é exatamente' : 'contém'} «${esc(e.q)}».` : 'Alarga o período ou tira um filtro.', `<button type="button" class="ak-btn" data-mva-acao="limpar">${L(funnelX)}<span>Limpar filtros</span></button>`); return; }
-  const corpo = ms.map((m) => `<tr class="${m.anulacao ? 'is-anulado' : ''}">${cs.map((c) => `<td class="${c.n ? 'is-num' : ''}">${c.cel(m)}</td>`).join('')}</tr>`).join('');
+  /* tocar num movimento abre o extrato desse artigo nesse ano */
+  const corpo = ms.map((m) => `<tr class="mva-linha${m.anulacao ? ' is-anulado' : ''}" data-mva-ref="${esc(m.ref)}" data-mva-ano="${m.data.slice(0, 4)}" data-mva-n="${m.n}" tabindex="${String(m.n) === e.escolhido ? 0 : -1}" title="Enter ou duplo clique: o extrato de ${esc(m.ref)} em ${m.data.slice(0, 4)}">${cs.map((c) => `<td class="${c.n ? 'is-num' : ''}">${c.cel(m)}</td>`).join('')}</tr>`).join('');
   const rod = `<tr class="rc-total mac-total"><td colspan="7"><b>Total · ${nf(ms.length)} movimentos</b></td><td class="is-num"><b>${nf(tot(ms, ent))}</b></td><td class="is-num"><b>${nf(tot(ms, sai))}</b></td><td class="is-num"><b>${euros(tot(ms, (m) => m.vEnt))}</b></td><td class="is-num"><b>${euros(tot(ms, (m) => m.vSai))}</b></td></tr>`;
   g.innerHTML = tabela(r, e, 'mov', cs, corpo, rod, 'Movimentos');
+  /* sem nenhum escolhido, a primeira linha recebe o Tab */
+  if (!g.querySelector('tr[data-mva-ref][tabindex="0"]')) g.querySelector<HTMLElement>('tr[data-mva-ref]')?.setAttribute('tabindex', '0');
+  const sel = e.escolhido ? g.querySelector<HTMLElement>(`tr[data-mva-n="${e.escolhido}"]`) : null; sel?.classList.add('is-ativo');
+  barraExtrato(r, e);
 }
 
 /* Extrato: um artigo num ano, com o stock a cada passo, por armazém e no total */
@@ -335,6 +340,15 @@ function desenharSal(r: HTMLElement, e: Est): void {
 }
 
 /* ---------- o resto da página ---------- */
+/** O «Ver extrato» da barra: com um movimento escolhido, abre o extrato desse artigo nesse ano. */
+function barraExtrato(r: HTMLElement, e: Est): void {
+  const tr = e.escolhido ? r.querySelector<HTMLElement>(`tr[data-mva-n="${e.escolhido}"]`) : null, b = r.querySelector<HTMLElement>('[data-mva-acao="extrato"]'); if (!b) return;
+  b.setAttribute('aria-disabled', String(!tr)); b.title = tr ? `O extrato de ${tr.dataset.mvaRef} em ${tr.dataset.mvaAno} (Enter)` : 'Escolhe primeiro um movimento.';
+}
+function abrirExtrato(r: HTMLElement, e: Est, tr: HTMLElement): void {
+  const ref = tr.dataset.mvaRef!, ano = tr.dataset.mvaAno!;
+  Object.assign(e, { tab: 'ext', extArt: ref, extAno: ano, extFeito: { art: ref, ano }, extEditar: false, ordem: null, erroCrit: '' }); tudo(r, e); toast(r, `Extrato de ${ref} em ${ano}.`);
+}
 const avisos = new WeakMap<HTMLElement, number>();
 function toast(r: HTMLElement, t: string): void { const p = r.querySelector<HTMLElement>('[data-hm-aviso]'); if (!p) return; p.textContent = t; p.classList.add('is-visivel'); clearTimeout(avisos.get(r)); avisos.set(r, window.setTimeout(() => p.classList.remove('is-visivel'), 3200)); }
 function indicador(r: HTMLElement): void {
@@ -436,10 +450,12 @@ export function iniciar(): void {
     if ((b = t.closest('[data-mva-tab]'))) { e.tab = b.dataset.mvaTab as Tab; e.ordem = null; e.erroCrit = ''; tudo(r, e); return; }
     if ((b = t.closest('[data-mva-modo]'))) { e.modo = b.dataset.mvaModo as Modo; if (e.comp === 'encomenda') e.comp = 'inicio'; tudo(r, e); qi?.focus(); return; }
     if ((b = t.closest('[data-mva-comp]'))) { e.comp = b.dataset.mvaComp as Comp; tudo(r, e); qi?.focus(); return; }
+    if ((b = t.closest('tr[data-mva-ref]'))) { e.escolhido = b.dataset.mvaN!; barraExtrato(r, e); return; }
     if ((b = t.closest('[data-mva-ordenar]'))) { const k = b.dataset.mvaOrdenar!; e.ordem = e.ordem?.k === k ? (e.ordem.dir === 1 ? { k, dir: -1 } : null) : { k, dir: 1 }; tudo(r, e); return; }
     if ((b = t.closest('[data-mva-acao]'))) {
       const k = b.dataset.mvaAcao!;
-      if (k === 'atualizar') { tudo(r, e); toast(r, 'Movimentos atualizados.'); }
+      if (k === 'extrato') { const tr = e.escolhido ? r.querySelector<HTMLElement>(`tr[data-mva-n="${e.escolhido}"]`) : null; if (tr) abrirExtrato(r, e, tr); else toast(r, 'Escolhe primeiro um movimento.'); }
+      else if (k === 'atualizar') { tudo(r, e); toast(r, 'Movimentos atualizados.'); }
       else if (k === 'imprimir' || k === 'imprimir2') window.print();
       else if (k === 'excel') exportar(r, e);
       else if (k === 'limpar') { Object.assign(e, { q: '', armazem: '', art: '', tipo: '', de: '', ate: '' }); tudo(r, e); }
@@ -448,6 +464,7 @@ export function iniciar(): void {
       else if (k === 'alterar') { if (e.tab === 'ext') e.extEditar = true; else e.salEditar = true; tudo(r, e); r.querySelector<HTMLElement>(`[data-mva-p="${e.tab}"] [data-mva-c]`)?.focus(); }
     }
   });
+  document.addEventListener('dblclick', (ev) => { const t = ev.target as HTMLElement, r = raiz(t), b = t.closest<HTMLElement>('tr[data-mva-ref]'); if (!r || !b || editando()) return; abrirExtrato(r, de(r), b); });
   document.addEventListener('input', (ev) => {
     const t = ev.target as HTMLInputElement, r = raiz(t); if (!r) return; const e = de(r);
     if (t.matches('[data-mva-q]')) { clearTimeout(espera); espera = window.setTimeout(() => { e.q = t.value; desenharMov(r, e); }, 120); }
@@ -463,6 +480,9 @@ export function iniciar(): void {
     const t = ev.target as HTMLElement, r = raiz(t) ?? visivel(); if (!r || editando()) return; const e = de(r);
     const so = !ev.ctrlKey && !ev.altKey && !ev.metaKey;
     if (t.matches('[data-mva-tab]') && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) { ev.preventDefault(); const i = TABS.findIndex((x) => x.k === e.tab), j = (i + (ev.key === 'ArrowRight' ? 1 : -1) + 3) % 3; e.tab = TABS[j].k; tudo(r, e); r.querySelector<HTMLElement>(`[data-mva-tab="${e.tab}"]`)?.focus(); return; }
+    if (e.tab === 'mov' && ev.key === 'Enter' && t.matches('tr[data-mva-ref]')) { ev.preventDefault(); abrirExtrato(r, e, t); return; }
+    /* as setas (comportamento/setas-tabelas.ts) mudam a linha: fica escolhida para o «Ver extrato» */
+    if (e.tab === 'mov' && t.matches('tr[data-mva-ref]') && ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'].includes(ev.key)) requestAnimationFrame(() => { const a = document.activeElement as HTMLElement | null; if (a?.dataset.mvaN) { e.escolhido = a.dataset.mvaN; barraExtrato(r, e); } });
     if (e.tab === 'mov') {
       if (so && ev.shiftKey && ['F1', 'F2', 'F3', 'F6'].includes(ev.key)) { ev.preventDefault(); r.querySelector<HTMLElement>(`[data-mva-comp="${{ F1: 'inicio', F2: 'contem', F3: 'igual', F6: 'encomenda' }[ev.key]}"]`)?.click(); return; }
       if (so && !ev.shiftKey && ['F1', 'F2', 'F3', 'F4', 'F5'].includes(ev.key)) { ev.preventDefault(); r.querySelector<HTMLElement>(`[data-mva-modo="${MODOS[Number(ev.key.slice(1)) - 1].k}"]`)?.click(); return; }

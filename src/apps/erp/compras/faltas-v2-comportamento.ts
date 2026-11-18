@@ -375,7 +375,7 @@ function desenharJanelas(r: HTMLElement, e: Est): void {
   const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]'); if (caixa) caixa.innerHTML = jans(e).map((j) => janelaHtml(r, e, j)).join('');
 }
 /** Abre (ou traz para a frente) a janela do artigo; a janela nasce da linha (só transform e opacity). */
-function abrirJanela(r: HTMLElement, e: Est, ref: string): void {
+function abrirJanela(r: HTMLElement, e: Est, ref: string, focar = true): void {
   const caixa = r.querySelector<HTMLElement>('[data-lf2-janelas]')!, js = jans(e); let j = js.find((x) => x.ref === ref);
   if (j) { j.z = ++zTopo; j.min = false; desenharJanelas(r, e); }
   else {
@@ -385,7 +385,7 @@ function abrirJanela(r: HTMLElement, e: Est, ref: string): void {
     const jan = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`), tr = r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`);
     if (jan && tr && !quieto()) { const a = tr.getBoundingClientRect(), b = jan.getBoundingClientRect(); jan.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${Math.max(.2, a.width / b.width)}, ${Math.max(.06, a.height / b.height)})`, opacity: .2, transformOrigin: '0 0' }, { transform: 'none', opacity: 1, transformOrigin: '0 0' }], { duration: 280, easing: 'cubic-bezier(.22, 1, .36, 1)' }); }
   }
-  const jan = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`); jan?.focus({ preventScroll: true });
+  const jan = caixa.querySelector<HTMLElement>(`[data-lf2-jan="${CSS.escape(ref)}"]`); if (focar) jan?.focus({ preventScroll: true });
   const b = jan?.querySelector<HTMLElement>('[data-lf2-jan-ref]'); if (b && !quieto()) b.animate([{ backgroundColor: 'color-mix(in srgb, var(--h-laranja) 30%, transparent)' }, { backgroundColor: 'transparent' }], { duration: 700, easing: 'ease-out' });
 }
 function acaoJanela(r: HTMLElement, e: Est, ref: string, k: string): void {
@@ -679,6 +679,8 @@ function teclaGrelha(r: HTMLElement, e: Est, ev: KeyboardEvent, tr: HTMLElement)
     e.ativo = ''; const ref = ls[k].ref;
     if (estender || r.querySelector<HTMLElement>('[data-lf2-grelha]')!.dataset.lf2Virtual) grelha(r, e);
     escolher(r, e, ref); estado(r, e);
+    /* a janela aberta da linha de antes passa a mostrar a linha nova */
+    if (!estender) { const js = jans(e), j = js.find((x) => x.ref === ls[i]?.ref && !x.ed); if (j && !js.some((x) => x.ref === ref)) { j.ref = ref; desenharJanelas(r, e); } }
     if (estender) r.querySelectorAll<HTMLElement>('tr[data-lf2-ref]').forEach((t) => { const s = e.sel.has(t.dataset.lf2Ref!); t.setAttribute('aria-selected', String(s)); const c = t.querySelector<HTMLInputElement>('[data-lf2-escolher]'); if (c) c.checked = s; });
   };
   const pagina = Math.max(1, Math.floor((r.querySelector<HTMLElement>('[data-lf2-grelha]')!.clientHeight - 40) / (e.dens === 'compacta' ? 34 : 42)));
@@ -756,7 +758,10 @@ export function iniciar(): void {
     }
     if ((b = t.closest('[data-lf2-ed-acao]'))) { acaoEdicao(r, e, b.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, b.dataset.lf2EdAcao!); return; }
     if ((b = t.closest('[data-lf2-jan-acao]'))) { acaoJanela(r, e, b.closest<HTMLElement>('[data-lf2-jan]')!.dataset.lf2Jan!, b.dataset.lf2JanAcao!); return; }
-    if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) { escolher(r, e, b.dataset.lf2Ref!, false); abrirJanela(r, e, b.dataset.lf2Ref!); }
+    if ((b = t.closest('tr[data-lf2-ref]')) && !t.closest('input')) {
+      /* 18 nov.: a janela abre, mas o foco fica na linha, para andar com as setas */
+      const ref = b.dataset.lf2Ref!; escolher(r, e, ref, false); abrirJanela(r, e, ref, false); r.querySelector<HTMLElement>(`tr[data-lf2-ref="${CSS.escape(ref)}"]`)?.focus({ preventScroll: true });
+    }
   });
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r);

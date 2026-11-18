@@ -251,7 +251,13 @@ function grelha(r: HTMLElement, e: Est, revelar = false): void {
     return vazio(circleAlert, 'Não foi possível ler as vendas.', 'O servidor das vendas não respondeu (ERP-VND-503). A pesquisa fica.', `<button type="button" class="ak-btn ak-btn--acao" data-mac-acao="atualizar">${L(refresh)}<span>Tentar outra vez</span></button>`);
   }
   if (e.fase === 'carregar' && !g.querySelector('table')) { g.innerHTML = `<div class="lf2-esq" aria-label="A ler as vendas">${Array.from({ length: 8 }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div>`; return; }
-  if (e.modo === 'artigo' ? !e.art : !e.cli) return vazio(search, e.modo === 'artigo' ? 'Escolhe um artigo.' : 'Escolhe um cliente.', e.modo === 'artigo' ? 'Escreve em cima a referência ou a descrição; aparecem os clientes que o compraram.' : 'Escreve em cima o número ou o nome; aparecem os artigos que comprou.');
+  if (e.modo === 'artigo' ? !e.art : !e.cli) {
+    /* os mais vendidos (ou os maiores clientes) num toque, para não ter de escrever */
+    const por = new Map<string, number>(); vendas().forEach((l) => { const k = e.modo === 'artigo' ? l.ref : l.cli; por.set(k, (por.get(k) ?? 0) + l.valor); });
+    const top = [...por].filter(([k]) => k !== '1').sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
+    const bts = `<div class="mac-top"><small>${e.modo === 'artigo' ? 'Os mais vendidos este ano' : 'Os maiores clientes este ano'}</small>${top.map((k) => `<button type="button" class="ak-btn" data-mac-hip="${esc(k)}"><b class="is-mono">${esc(k)}</b><span>${esc(e.modo === 'artigo' ? artigo(k)?.desc ?? '' : cliente(k)?.nome ?? '')}</span></button>`).join('')}</div>`;
+    return vazio(search, e.modo === 'artigo' ? 'Escolhe um artigo.' : 'Escolhe um cliente.', e.modo === 'artigo' ? 'Escreve em cima a referência ou a descrição; aparecem os clientes que o compraram.' : 'Escreve em cima o número ou o nome; aparecem os artigos que comprou.', bts);
+  }
   const ls = linhas(e), cs = cols(e);
   if (!ls.length) {
     const largo = e.de !== DE0 || e.ate !== HOJE || !!e.tipo || (e.modo === 'artigo' ? !!e.cli : !!e.art);
