@@ -240,7 +240,10 @@ registarCaso('erp-stocks-mapas', 'Stocks: quem comprou, o stock, os movimentos e
   sep('[data-mva-tab="sal"]', 600),
   sep('[data-mva-p="sal"] [data-mva-acao="gerar"]', 1600),
   menuS('stocks.mapa-inventario'),
-  sep('[data-minv-acao="gerar"]', 1600),
+  sep('.minv2-barra [data-minv2-acao="gerar"]', 1800),
+  sep('[data-minv2-sit="sem"]', 1200),
+  sep('[data-minv2-vista="cartoes"]', 1200),
+  sep('[data-minv2-ver]', 1600),
   { legenda: '' },
 ], SEM);
 
@@ -345,8 +348,10 @@ const NO_ECRA: Record<string, Feito[]> = {
   'stocks.mapa-movimentos': [['Por documento', '[data-mva-modo="documento"]'], ['Por armazém', '[data-mva-modo="armazem"]'], ['Por artigo', '[data-mva-modo="artigo"]'],
     ['Escolher um movimento', 'tr[data-mva-ref]'], ['Ver o extrato desse artigo', '[data-mva-acao="extrato"]'], ['Saldo', '[data-mva-tab="sal"]'], ['Gerar dados', '[data-mva-p="sal"] [data-mva-acao="gerar"]'], ['Alterar critérios', '[data-mva-p="sal"] [data-mva-acao="alterar"]'],
     ['Cancelar', '[data-mva-p="sal"] [data-mva-acao="cancelar"]'], ['Movimentos', '[data-mva-tab="mov"]']],
-  'stocks.mapa-inventario': [['Gerar dados (hoje)', '[data-minv-acao="gerar"]'], ['Ordenar pelo valor', '[data-minv-ordenar="valor"]'], ['Filtrar a tabela', '[data-minv-acao="filtrar"]'], ['Fechar os filtros', '[data-minv-acao="filtrar"]'],
-    ['Alterar critérios', '[data-minv-acao="alterar"]'], ['Cancelar', '[data-minv-acao="cancelar"]']],
+  'stocks.mapa-inventario': [['Gerar dados (hoje)', '.minv2-barra [data-minv2-acao="gerar"]'], ['Só os sem stock (o indicador filtra)', '[data-minv2-sit="sem"]'], ['Outra vez: tira o filtro', '[data-minv2-sit="sem"]'],
+    ['Ordenar pelo valor', '[data-minv2-ordenar="valor"]'], ['Abrir o detalhe de um artigo', 'tr[data-minv2-ref]'], ['Fechar o detalhe', '[data-minv2-acao="fechar-jan"]'], ['Vista cartões', '[data-minv2-vista="cartoes"]'],
+    ['Ver detalhes num cartão', '[data-minv2-ver]'], ['Fechar o detalhe', '[data-minv2-acao="fechar-jan"]'], ['Vista tabela', '[data-minv2-vista="tabela"]'], ['Mais opções', '[data-minv2-acao="mais"]'],
+    ['Filtros por coluna', '[data-minv2-acao="filtrar"]'], ['Fechar os filtros por coluna', '[data-minv2-acao="filtrar"]']],
 };
 /** O documento do separador à frente (a área de trabalho). */
 const docAtivo = () => { try { return [...(versaoCasa()?.querySelectorAll<HTMLIFrameElement>('iframe.ide-frame:not(.is-espelho)') ?? [])].find((f) => f.style.visibility === 'visible')?.contentDocument ?? null; } catch { return null; } };

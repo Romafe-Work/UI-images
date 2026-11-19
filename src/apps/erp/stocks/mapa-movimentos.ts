@@ -51,14 +51,14 @@ import layers from 'lucide-static/icons/layers.svg?raw';
 
 /* ---------- os movimentos ---------- */
 type CodTipo = 'SI' | 'II' | 'RC' | 'TA' | 'AC' | 'QB' | 'TT' | 'AV';
-const NOME_TIPO: Record<CodTipo, string> = { SI: 'Stock de partida', II: 'Inventário inicial', RC: 'Receção de encomenda', TA: 'Transferência', AC: 'Acréscimo', QB: 'Perda', TT: 'Passagem de artigo', AV: 'Ajustamento em valor' };
+export const NOME_TIPO: Record<CodTipo, string> = { SI: 'Stock de partida', II: 'Inventário inicial', RC: 'Receção de encomenda', TA: 'Transferência', AC: 'Acréscimo', QB: 'Perda', TT: 'Passagem de artigo', AV: 'Ajustamento em valor' };
 export interface Mov {
   n: number; ref: string; armazem: string; data: string; serie: string; doc: string; docCompleto: string; cod: CodTipo; anulacao: boolean; enc: string;
   qtd: number; preco: number; vEnt: number; vSai: number; pm: number; saldoArt: number; valorArt: number;
 }
 const iso = (s: string) => { const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : s.slice(0, 10); };
 const codArm = (nome: string) => ARMAZENS.find((a) => a.nome === nome)?.cod ?? nome;
-const designacao = (m: Pick<Mov, 'cod' | 'anulacao' | 'qtd'>) => (m.anulacao ? 'Anulação · ' : '') + NOME_TIPO[m.cod] + (m.cod === 'TA' || m.cod === 'TT' ? (m.qtd < 0 ? ' (sai)' : ' (entra)') : '');
+export const designacao = (m: Pick<Mov, 'cod' | 'anulacao' | 'qtd'>) => (m.anulacao ? 'Anulação · ' : '') + NOME_TIPO[m.cod] + (m.cod === 'TA' || m.cod === 'TT' ? (m.qtd < 0 ? ' (sai)' : ' (entra)') : '');
 
 /** Todos os movimentos, pela ordem em que aconteceram, com o preço médio e o saldo de cada artigo depois de cada um. */
 export function todosMovimentos(): Mov[] {

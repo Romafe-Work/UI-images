@@ -38,7 +38,7 @@ import type { IdMov } from './stocks/movimentos';
 import type { IdMapaAc } from './stocks/mapa-artigos-clientes';
 import type { IdMapaStocks } from './stocks/mapa-stocks';
 import type { IdMapaMov } from './stocks/mapa-movimentos';
-import type { IdMapaInv } from './stocks/mapa-inventario';
+import type { IdMapaInv } from './stocks/mapa-inventario-v2';
 
 /** Os ecrãs do ERP: os do início de sessão (comuns) e os seus. Um ecrã novo
     entra primeiro aqui; depois disso, `ir('…')` só aceita ecrãs que existem. */

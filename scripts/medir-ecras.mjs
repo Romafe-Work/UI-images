@@ -79,13 +79,17 @@ function medir() {
 }
 
 const browser = await chromium.launch();
+/* SO=<expressão> mede só os ecrãs cujo id lhe corresponde; APP=erp só essa app */
+const SO = process.env.SO ? new RegExp(process.env.SO) : null;
 let total = 0, ecras = 0;
 for (const [app, tamanhos] of APPS) {
+  if (process.env.APP && app !== process.env.APP) continue;
   const page = await browser.newPage({ viewport: { width: tamanhos[0][0], height: tamanhos[0][1] } });
   await page.goto(`${BASE}/${app}/#so=ecra`);
   await page.waitForTimeout(1200);
   const lista = await page.evaluate(() => [...document.querySelectorAll('.ecra[data-ecra]')].map((e) => [e.dataset.ecra, [...e.querySelectorAll(':scope > .versao')].map((v) => v.dataset.versao)]));
   for (const [id, versoes] of lista) for (const v of versoes) {
+    if (SO && !SO.test(id)) continue;
     ecras++;
     await page.evaluate(([id, v]) => {
       document.querySelectorAll('.ecra').forEach((e) => { e.hidden = e.dataset.ecra !== id; });
