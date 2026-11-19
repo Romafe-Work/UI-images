@@ -14,6 +14,7 @@
      revalida as rotas e as permissões. Nunca se guardam dados dos documentos.
    ========================================================= */
 import { passarArtigo } from '../stocks/dominio';
+import { tocar, aTocar, pararRoteiro } from '../../../comum/demo-rato';
 import { ROTAS, MENU_ERP, FICHA_PARA, rotaDoEcra, esc, L } from '../espaco';
 import { navegacao, type NoNav } from '../navegacao';
 import { perfilDaSessao, lerSessao } from '../sessao';
@@ -1501,6 +1502,7 @@ function cliques(ev: MouseEvent): void {
     return;
   }
   if ((b = t.closest('[data-ide-fav]'))) { const r = b.dataset.ideFav!, ti = b.dataset.ideTitulo!; dados.favoritos = dados.favoritos.some((f) => f.rota === r) ? dados.favoritos.filter((f) => f.rota !== r) : [...dados.favoritos, { rota: r, titulo: ti }]; pintarFerr(idFerr('explorador')); guardar(false); return; }
+  if ((b = t.closest('[data-ide-fluxo]'))) { if (aTocar()) pararRoteiro(); else void tocar(b.dataset.ideFluxo); return; }
   if ((b = t.closest('[data-ide-exp-g]'))) { const k = b.dataset.ideExpG!; dados.abertosExp[k] = b.getAttribute('aria-expanded') !== 'true'; pintarFerr(idFerr('explorador')); guardar(false); $<HTMLElement>(`[data-ide-exp-g="${CSS.escape(k)}"]`)?.focus(); return; }
   if ((b = t.closest('[data-ide-abrir]'))) { if (Date.now() - largouEm < 300) return; abrirDoc(b.dataset.ideAbrir!, { titulo: b.dataset.ideTitulo, ...(ev.ctrlKey ? { lado: 'dir' as Lado, grupo: grupoDocs() } : {}) }); return; }
   if ((b = t.closest('[data-ide-ctx]'))) { const [tipo, ...ch] = b.dataset.ideCtx!.split(':'); mudarContexto({ tipo: tipo as Contexto['tipo'], chave: ch.join(':') }); if (!['propriedades', 'stock', 'relacionados', 'historico'].some((f) => visivel(d, idFerr(f as IdFerr)))) verFerr('propriedades'); return; }

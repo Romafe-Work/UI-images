@@ -199,7 +199,7 @@ registarCaso('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, fornece
 /* 18 nov.: os casos de Stocks — os documentos de stock (inventário, transferência, ajuste, acréscimo, perda) e os mapas.
    Os ecrãs de Stocks levam mais tempo a abrir no separador: o rato espera que o ecrã esteja lá */
 const menuS = (rota: string): Passo => ({ ...menu(rota), pausa: 3400 });
-registarCaso('erp-stocks-documentos', 'Stocks: inventário, transferência, ajuste, acréscimo e perda', [
+const STOCKS_DOCS: Passo[] = [
   { ecra: 'inicio', legenda: '', pausa: 1500 },
   menuS('stocks.inventario-inicial'),
   sep('tbody tr[data-dv2-id]', 1000),
@@ -222,9 +222,10 @@ registarCaso('erp-stocks-documentos', 'Stocks: inventário, transferência, ajus
   sep('tbody tr[data-dv2-id]', 1000),
   sep('[data-dv2-jan-tab="linhas"]', 1400),
   { legenda: '' },
-], SEM);
+];
+registarCaso('erp-stocks-documentos', 'Stocks: inventário, transferência, ajuste, acréscimo e perda', STOCKS_DOCS, SEM);
 
-registarCaso('erp-stocks-mapas', 'Stocks: quem comprou, o stock, os movimentos e o inventário', [
+const STOCKS_MAPAS: Passo[] = [
   { ecra: 'inicio', legenda: '', pausa: 1500 },
   menuS('stocks.mapa-artigos-clientes'),
   sep('.mac2-ini-b', 1600),
@@ -247,7 +248,12 @@ registarCaso('erp-stocks-mapas', 'Stocks: quem comprou, o stock, os movimentos e
   sep('[data-minv2-vista="cartoes"]', 1200),
   sep('[data-minv2-ver]', 1600),
   { legenda: '' },
-], SEM);
+];
+registarCaso('erp-stocks-mapas', 'Stocks: quem comprou, o stock, os movimentos e o inventário', STOCKS_MAPAS, SEM);
+/* 19 nov. (ela, com o menu Stocks do Explorador: «quero um button para apenas produzir o fluxo disto»): o menu Stocks
+   inteiro — os documentos e os mapas seguidos, sem voltar ao Início a meio. Toca-se pelo ▷ da pasta Stocks no Explorador
+   (ide/vista.ts, FLUXO_PASTA) e também aparece na barra da demonstração. Não entra no «Tudo» (já lá estão os dois). */
+registarRoteiro('erp-stocks', 'Stocks: todo o menu (documentos e mapas)', [...STOCKS_DOCS, ...STOCKS_MAPAS.filter((x) => !x.ecra)], SEM);
 
 /* os percursos com explicação (nome e objetivo de cada um): os estados do Início, e todos os ecrãs e estados do ERP */
 registarRoteiro('erp-estados-inicio', 'Os estados da área de trabalho, um a um', () => percurso((e) => e.dataset.ecra === 'inicio' || e.dataset.estadoDe === 'inicio'));

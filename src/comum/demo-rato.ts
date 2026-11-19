@@ -182,6 +182,10 @@ function escrever(i: number, n: number, t: string, titulo: string): void {
   if (!quieto()) legenda!.animate([{ opacity: .4, translate: '0 6px' }, { opacity: 1, translate: '0 0' }], { duration: 200, easing: 'ease-out' });
 }
 
+/** 19 nov.: parar o roteiro que está a tocar (o ▷ das pastas do Explorador para-o ao tocar outra vez; o Esc não chega cá
+    quando o foco está dentro de um separador) */
+export const aTocar = () => ativo;
+export function pararRoteiro(): void { if (ativo) parar = true; }
 export async function tocar(id = [...ROTEIROS.keys()][0]): Promise<void> {
   const r = ROTEIROS.get(id); if (!r || ativo) return;
   ativo = true; parar = false;

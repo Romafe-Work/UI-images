@@ -29,6 +29,7 @@ import panelLeft from 'lucide-static/icons/panel-left.svg?raw';
 import columns2 from 'lucide-static/icons/columns-2.svg?raw';
 import rows2 from 'lucide-static/icons/rows-2.svg?raw';
 import star from 'lucide-static/icons/star.svg?raw';
+import play from 'lucide-static/icons/play.svg?raw';
 import clock from 'lucide-static/icons/clock.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
 import folderTree from 'lucide-static/icons/folder-tree.svg?raw';
@@ -299,12 +300,16 @@ function explorador(d: DadosFerr): string {
     const fav = d.favoritos.some((f) => f.rota === rota);
     return `<div class="ide-x-f" style="--n:${nivel}"><button type="button" class="ide-x-i${d.abertos.has(rota) ? ' is-aberto' : ''}" data-ide-abrir="${esc(rota)}" data-ide-titulo="${esc(titulo)}" title="Abrir ${esc(titulo)} (duplo clique abre ao lado; arrasta para escolher onde)">${icone(ic)}<span>${esc(titulo)}</span></button><button type="button" class="ide-x-fav${fav ? ' is-fav' : ''}" data-ide-fav="${esc(rota)}" data-ide-titulo="${esc(titulo)}" aria-pressed="${fav}" aria-label="${fav ? 'Tirar dos favoritos' : 'Pôr nos favoritos'}">${L(star)}</button></div>`;
   };
+  /* 19 nov. (ela: «quero um button para apenas produzir o fluxo disto», do menu Stocks): as pastas com um roteiro do
+     rato próprio têm um ▷ que o toca (roteiro.ts) */
+  const FLUXO_PASTA: Record<string, string> = { stocks: 'erp-stocks' };
   const ramo = (ns: NoNav[], nivel: number): string => ns.map((n) => {
     if (n.antigo) return '';
     if (n.filhos.length) {
       const dentro = ramo(n.filhos, nivel + 1); if (q && !dentro) return '';
       const aberto = q ? true : d.abertosExp[n.id] !== false;
-      return `<div class="ide-x-g${aberto ? ' is-aberto' : ''}" style="--n:${nivel}"><button type="button" class="ide-x-gt" data-ide-exp-g="${esc(n.id)}" aria-expanded="${aberto}">${L(chevronRight, 'ide-x-seta')}${L(folder)}<span>${esc(n.rotulo)}</span></button><div class="ide-x-l"${aberto ? '' : ' hidden'}>${dentro}</div></div>`;
+      const fluxo = FLUXO_PASTA[n.id];
+      return `<div class="ide-x-g${aberto ? ' is-aberto' : ''}${fluxo ? ' com-fluxo' : ''}" style="--n:${nivel}"><button type="button" class="ide-x-gt" data-ide-exp-g="${esc(n.id)}" aria-expanded="${aberto}">${L(chevronRight, 'ide-x-seta')}${L(folder)}<span>${esc(n.rotulo)}</span></button>${fluxo ? `<button type="button" class="ide-x-fluxo" data-ide-fluxo="${fluxo}" title="Reproduzir o fluxo de ${esc(n.rotulo)} com o rato (tocar outra vez para)" aria-label="Reproduzir o fluxo de ${esc(n.rotulo)} com o rato">${L(play)}</button>` : ''}<div class="ide-x-l"${aberto ? '' : ' hidden'}>${dentro}</div></div>`;
     }
     return n.rota && ROTAS[n.rota] && passa(n.rotulo) ? folha(n.rota, n.rotulo, n.icone || ROTAS[n.rota].icone, nivel) : '';
   }).join('');
