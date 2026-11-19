@@ -35,7 +35,7 @@ import type { IdStocks } from './stocks/inventario-inicial';
 import type { IdTransf } from './stocks/transferencias';
 import type { IdAjv } from './stocks/ajustamentos';
 import type { IdMov } from './stocks/movimentos';
-import type { IdMapaAc } from './stocks/mapa-artigos-clientes';
+import type { IdMapaAc } from './stocks/mapa-artigos-clientes-v2';
 import type { IdMapaStocks } from './stocks/mapa-stocks-v2';
 import type { IdMapaMov } from './stocks/mapa-movimentos-v2';
 import type { IdMapaInv } from './stocks/mapa-inventario-v2';

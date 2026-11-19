@@ -1,0 +1,64 @@
+/* =========================================================
+   ERP — Stocks ▸ Mapas ▸ 75 · Artigos/Clientes v2 (19 nov. 2026). Ver stocks/mapa-artigos-clientes-v2.ts.
+   Assenta no do 78 v2, do 77 v2 e do 76 v2 (pesquisa, filtros aplicados, indicadores, cartões, árvore, análise, janela).
+   ========================================================= */
+.mac2 > :is(.minv2-filtros, .minv2-kpis, .mva2-chips) { margin-inline: var(--minv2-m); }
+.mac2-barra .mac2-modo button { display: inline-flex; align-items: center; gap: 6px; }
+.mac2-barra .mac2-modo button svg { width: 15px; height: 15px; }
+.mac2-filtros { grid-template-columns: minmax(340px, 2.4fr) minmax(260px, 1.3fr) minmax(170px, 1fr) auto; }
+.mac2-mais { display: grid !important; grid-template-columns: repeat(2, minmax(200px, 360px)); gap: 8px 12px; }
+.mac2-pesq-c { position: relative; } .mac2-pesq-c[hidden] { display: none; }
+.mac2-sug { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 30; max-height: 320px; overflow: auto; margin: 0; padding: 4px; list-style: none; border: 1px solid var(--h-borda); border-radius: var(--r-md, 8px); background: var(--h-sup); box-shadow: 0 8px 22px rgba(10, 20, 30, .2); }
+.mac2-sug[hidden] { display: none; }
+.mac2-sug li { display: flex; align-items: baseline; gap: 10px; padding: 7px 10px; border-radius: 6px; font-size: 14.5px; cursor: pointer; }
+.mac2-sug li small { color: var(--h-tinta-3); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mac2-sug li[aria-selected="true"], .mac2-sug li:hover { background: color-mix(in srgb, var(--h-azul) 10%, var(--h-sup)); }
+.mac2-sug .mac2-sug-nada { color: var(--h-tinta-2); cursor: default; } .mac2-sug .mac2-sug-nada:hover { background: none; }
+.mac2-esc { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; min-width: 0; height: 32px; padding: 0 4px 0 10px; border: 1px solid color-mix(in srgb, var(--h-azul) 55%, var(--h-borda)); border-radius: var(--r-md, 6px); background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup)); font-size: 14.5px; }
+.mac2-esc[hidden] { display: none; } .mac2-esc > svg { width: 16px; height: 16px; flex: none; color: var(--h-azul); }
+.mac2-esc > span { overflow: hidden; color: var(--h-tinta-2); text-overflow: ellipsis; white-space: nowrap; } .mac2-esc > b { white-space: nowrap; }
+.mac2-esc .ak-btn { margin-left: auto; height: 26px; }
+@media (max-width: 1180px) { .mac2-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mac2-filtros .mva2-pesq { grid-column: 1 / -1; } .mac2-mais { grid-template-columns: 1fr 1fr; } }
+
+/* o estado inicial: curto, com hipóteses reais */
+.mac2-ini { padding: 14px 16px 16px; } .mac2-ini > p { margin: 0 0 10px; font-size: 14.5px; color: var(--h-tinta-2); } .mac2-ini > p b { color: var(--h-tinta); }
+.mac2-ini-l { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mac2-ini-b { display: grid; gap: 1px; width: 100%; padding: 9px 12px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 8px); background: var(--h-sup); color: var(--h-tinta); font: inherit; text-align: left; cursor: pointer; }
+.mac2-ini-b:hover { border-color: color-mix(in srgb, var(--h-azul) 45%, var(--h-borda)); } .mac2-ini-b:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.mac2-ini-b b { font-size: 15px; } .mac2-ini-b small { overflow: hidden; color: var(--h-tinta-3); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; } .mac2-ini-b span { font-size: 13.5px; color: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
+
+/* indicadores e informação */
+.mac2-kpis { grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr)); }
+.mac2-kpis .minv2-kpi b small { font-size: 13px; font-weight: 500; color: var(--h-tinta-3); }
+.mac2-info { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0; padding: 7px 12px; border: 1px dashed var(--h-borda); border-radius: var(--r-md, 8px); font-size: 14px; color: var(--h-tinta-2); }
+.mac2-info svg { width: 15px; height: 15px; color: var(--h-laranja); } .mac2-info b { color: var(--h-tinta); }
+@media (max-width: 1180px) { .mac2-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* a tabela */
+.mac2-tab td, .mac2-tab th { font-size: 14.5px; }
+.mac2-doc { padding: 0; border: 0; background: none; color: var(--h-azul); font: inherit; font-family: var(--f-mono, monospace); font-weight: 700; cursor: pointer; white-space: nowrap; }
+.mac2-doc:hover { text-decoration: underline; } .mac2-doc:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; border-radius: 3px; }
+.mac2-tipo { display: inline-block; min-width: 2.4em; padding: 0 4px; border-radius: 4px; font-family: var(--f-mono, monospace); font-size: 13px; font-weight: 700; text-align: center; color: var(--h-tinta-2); background: var(--h-sup-2); }
+.mac2-tipo.is-NC { color: var(--h-erro); }
+.mac2-linha { cursor: pointer; } .mac2-linha:hover td { background: color-mix(in srgb, var(--h-azul) 5%, var(--h-sup)); }
+.mac2-linha.is-ativo td { background: color-mix(in srgb, var(--h-azul) 10%, var(--h-sup)); } .mac2-linha.is-ativo td:first-child { box-shadow: inset 3px 0 0 var(--h-azul); }
+.mac2-linha:focus-visible { outline: 2px solid var(--h-azul); outline-offset: -2px; }
+.mac2-linha.is-nc td.is-num:last-child { color: var(--h-erro); }
+.mac2-g-l .mac-g-c { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.mac2-g-l .mac-g-abrir small { color: var(--h-tinta-3); font-weight: 500; }
+.mac2-g-acoes { display: inline-flex; gap: 6px; margin-left: auto; } .mac2-g-acoes .ak-btn { height: 28px; font-size: 13.5px; }
+.mac2-lista .lf2-lista-cab > .ak-btn { height: 30px; } .mac2-lista .lf2-lista-cab > .ak-btn[hidden] { display: none; }
+
+/* cartões */
+.mac2-cartao { cursor: default; }
+.mac2-cartao .mst2-q { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mac2-c-pe { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.mac2-c-pe .ak-btn { height: 30px; font-size: 13.5px; }
+.mac2-poucos { margin: 12px 12px 0; font-size: 14px; color: var(--h-tinta-2); }
+@media print { .mac2 :is(.minv2-filtros, .mva2-chips, .mac2-kpis, .mac2-g-acoes, [data-mac2-janela]) { display: none !important; } }
+.mac2-tab thead th { padding: 0 10px; height: 34px; font-size: 13.5px; font-weight: 700; color: var(--h-tinta-2); text-align: left; white-space: nowrap; }
+.mac2-tab thead th.is-num { text-align: right; }
+@media (max-width: 1560px) { .mac2-barra .minv2-vistas button { padding: 0 8px; } .mac2-barra .minv2-vistas button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .mac2-barra .mac2-modo kbd { display: none; } }
+.mac2-doc { font-size: 13.5px; }
+@media (max-width: 1500px) { .mac2-filtros { grid-template-columns: minmax(300px, 1.4fr) minmax(170px, 1fr) auto; } .mac2-filtros .mva2-pesq { grid-column: 1 / -1; } }
+@media (max-width: 1280px) { .mac2-tab .mac2-doc { font-size: 12.5px; } .mac2-tab td { padding-inline: 6px; } }
