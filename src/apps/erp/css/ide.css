@@ -84,6 +84,13 @@
 .ide-ac.is-acao:hover:not(:disabled) { background: color-mix(in srgb, var(--i-laranja) 88%, #000); border-color: transparent; color: #fff; }
 .ide-ac.is-perigo svg { color: var(--i-erro); }
 .ide-ac-tx { color: var(--i-texto-3); font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ide-ac-grupo { display: inline-flex; flex: none; align-items: center; gap: 1px; padding: 1px; border: 1px solid var(--i-borda); border-radius: var(--r-md); background: var(--i-sup); }
+.ide-ac-grupo .ide-ac-modo { border-color: transparent; }
+.ide-ac-grupo .ide-ac-modo[aria-checked="true"] { background: var(--i-azul-suave); border-color: color-mix(in srgb, var(--i-azul) 45%, transparent); color: var(--i-texto); font-weight: 700; }
+.ide-ac-grupo .ide-ac-modo[aria-checked="true"] svg { color: var(--i-azul); }
+.ide-ac-grupo .ide-ac-modo { padding-inline: 7px; } .ide-ac-grupo .ide-ac-modo kbd { display: none; }
+@media (max-width: 1600px) { .ide-ac-grupo .ide-ac-modo:has(svg) > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+.ide-acoes { overflow-x: auto; scrollbar-width: none; } .ide-acoes::-webkit-scrollbar { display: none; }
 .ide-ac-sel { display: inline-flex; align-items: center; gap: 6px; color: var(--i-texto-2); }
 .ide-ac-sel svg { color: var(--i-azul); }
 .ide-ac-sel select { height: 28px; padding: 0 6px; border: 1px solid var(--i-borda); border-radius: var(--r-md); background: var(--i-sup); color: var(--i-texto); font: inherit; font-size: 14.5px; }

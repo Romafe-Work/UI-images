@@ -286,6 +286,7 @@ function ganchos(f: HTMLIFrameElement, id: string, segunda: boolean): void {
    As ações ficam todas: só sai o que repete ou explica. */
 const COMPACTO = `
 html.ide-barra-fora .ak-barra { position: fixed !important; left: -99999px !important; top: 0 !important; }
+html.ide-barra-fora :is(.dv2-modos, .lf2-comp)[role="radiogroup"] { display: none !important; }
 html.ide-pequeno :is(.ak-cab, .fx-cab) { padding-top: 8px !important; padding-bottom: 8px !important; min-height: 0 !important; gap: 8px !important; }
 html.ide-pequeno :is(.ak-cab, .fx-cab) :is(p, .fx-sub), html.ide-pequeno :is(.ak-cab-ic, .fx-ic) { display: none !important; }
 html.ide-pequeno :is(.ak-cab, .fx-cab) h1 { font-size: 17px !important; }
@@ -782,6 +783,8 @@ function comandos(): void {
    do menu, com os botões do documento ativo. Carregar num botão carrega no do ecrã; o estado (desligado, premido, o
    motivo no título) vem do ecrã, que continua a mandar. Os menus dos botões («Ações de compra», «Mais ações») abrem
    aqui, com os itens do ecrã. Nas teclas nada muda: F5, F6… continuam no ecrã. */
+const GRUPOS_VIS = ':is(.dv2-modos, .lf2-comp)[role="radiogroup"]';
+let obsGrupos: MutationObserver | null = null, obsGruposEm: HTMLElement | null = null;
 let docBarra = '', obsBarra: MutationObserver | null = null, barraObs: HTMLElement | null = null, ctlBarra: HTMLElement[] = [];
 function barraDoEcra(id: string): HTMLElement | null {
   try {
@@ -819,7 +822,23 @@ function barraAcoes(): void {
     if (c.matches('svg, .ak-menu, [role="menu"]')) return '';
     const tx = c.textContent?.trim(); return tx ? `<span class="ide-ac-tx">${esc(tx)}</span>` : '';
   };
-  const corpo = b ? [...b.children].map((c) => filho(c as HTMLElement)).join('') : '';
+  /* 19 nov. (ela: «sempre que isto tiver que ser usado num screen deve ir para aqui», em todos os ecrãs): a
+     «Visualização» do ecrã (por artigo F1…, Iniciado por / Contendo… Shift+F1…) vem para esta barra, a seguir às
+     ações; no ecrã fica só o campo de pesquisa. As teclas continuam no ecrã. */
+  const grupo = (g: HTMLElement) => {
+    const bs = [...g.querySelectorAll<HTMLButtonElement>('button[role="radio"]')].filter((x) => !x.hidden && !x.closest('[hidden]'));
+    if (!bs.length) return '';
+    return `<i class="ide-cmds-sep" aria-hidden="true"></i><span class="ide-ac-grupo" role="radiogroup" aria-label="${esc(g.getAttribute('aria-label') ?? '')}">${bs.map((x) => {
+      const c = x.cloneNode(true) as HTMLElement; c.querySelectorAll('kbd, svg').forEach((k) => k.remove());
+      const k = x.querySelector('kbd')?.textContent?.trim() ?? '', t = c.textContent?.trim() ?? '';
+      return `<button type="button" role="radio" class="ide-cmd ide-ac ide-ac-modo" data-ide-ac="${ctl(x)}" aria-checked="${x.getAttribute('aria-checked') ?? 'false'}" title="${esc(x.title || t)}"${x.disabled ? ' disabled' : ''}>${x.querySelector('svg')?.outerHTML ?? ''}<span>${esc(t)}</span>${k ? `<kbd>${esc(k)}</kbd>` : ''}</button>`;
+    }).join('')}</span>`;
+  };
+  const docE = docBarra ? (() => { try { return frames.get(docBarra)?.contentDocument ?? null; } catch { return null; } })() : null;
+  const grupos = docE ? [...docE.querySelectorAll<HTMLElement>(GRUPOS_VIS)].filter((g) => !g.closest('[hidden], [role="dialog"], .lf2-jan') && (g.parentElement?.getClientRects().length ?? 0) > 0) : [];
+  if (docE && docE.body !== obsGruposEm) { obsGrupos?.disconnect(); obsGruposEm = docE.body; obsGrupos = new MutationObserver(() => { cancelAnimationFrame(barraT); barraT = requestAnimationFrame(barraAcoes); }); obsGrupos.observe(docE.body, { subtree: true, attributes: true, attributeFilter: ['aria-checked', 'hidden'] }); }
+  const corpoB = b ? [...b.children].map((c) => filho(c as HTMLElement)).join('') : '', gs = grupos.map(grupo).join('');
+  const corpo = corpoB.includes('ide-cmds-fim') ? corpoB.replace('<span class="ide-cmds-fim"></span>', `${gs}<span class="ide-cmds-fim"></span>`) : corpoB + gs;
   el.innerHTML = it ? `<span class="ide-doc-ativo" title="As ações vão para este ecrã">${iconeItem(it)}<span>${esc(it.titulo)}</span></span><i class="ide-cmds-sep" aria-hidden="true"></i>${corpo || `<span class="ide-ac-tx">${aCarregar.has(docBarra) ? 'A abrir…' : 'Este ecrã não tem ações.'}</span>`}` : '<span class="ide-ac-tx">Abre um ecrã para ver as ações dele.</span>';
 }
 let barraT = 0;
