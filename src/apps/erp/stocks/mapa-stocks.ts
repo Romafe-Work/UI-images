@@ -61,21 +61,21 @@ export function subfamiliaDe(desc: string): string {
   return 'Geral';
 }
 interface Classe { cod: string; nome: string }
-const CLASSES_AUTO: Classe[] = [{ cod: 'A1', nome: 'Auto · alta rotação' }, { cod: 'A2', nome: 'Auto · rotação média' }, { cod: 'A3', nome: 'Auto · baixa rotação' }];
-const CLASSES_IND: Classe[] = [{ cod: 'I1', nome: 'Indústria · rotação contínua' }, { cod: 'I2', nome: 'Indústria · sob encomenda' }];
+export const CLASSES_AUTO: Classe[] = [{ cod: 'A1', nome: 'Auto · alta rotação' }, { cod: 'A2', nome: 'Auto · rotação média' }, { cod: 'A3', nome: 'Auto · baixa rotação' }];
+export const CLASSES_IND: Classe[] = [{ cod: 'I1', nome: 'Indústria · rotação contínua' }, { cod: 'I2', nome: 'Indústria · sob encomenda' }];
 const n0 = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 /* os rolamentos e a massa são da Indústria; o resto é Auto (a zona 30) */
 const ehInd = (a: Artigo) => a.marca === 'SKF';
-const classeAuto = (a: Artigo) => ehInd(a) ? '' : CLASSES_AUTO[n0(a.ref) % 3].cod;
-const classeInd = (a: Artigo) => ehInd(a) ? CLASSES_IND[n0(a.ref) % 2].cod : '';
-const encCli = (a: Artigo) => n0(a.ref + 'c') % 4 === 0 ? 0 : n0(a.ref + 'c') % 9;
-const consignado = (a: Artigo) => n0(a.ref + 's') % 3 === 0 ? (n0(a.ref + 's') % 6) + 1 : 0;
-const devolvido = (a: Artigo) => n0(a.ref + 'd') % 5 === 0 ? (n0(a.ref + 'd') % 3) + 1 : 0;
+export const classeAuto = (a: Artigo) => ehInd(a) ? '' : CLASSES_AUTO[n0(a.ref) % 3].cod;
+export const classeInd = (a: Artigo) => ehInd(a) ? CLASSES_IND[n0(a.ref) % 2].cod : '';
+export const encCli = (a: Artigo) => n0(a.ref + 'c') % 4 === 0 ? 0 : n0(a.ref + 'c') % 9;
+export const consignado = (a: Artigo) => n0(a.ref + 's') % 3 === 0 ? (n0(a.ref + 's') % 6) + 1 : 0;
+export const devolvido = (a: Artigo) => n0(a.ref + 'd') % 5 === 0 ? (n0(a.ref + 'd') % 3) + 1 : 0;
 
 /* ---------- o estado ---------- */
 type Modo = 'artigo' | 'descricao' | 'familia';
 type Comp = 'inicio' | 'contem' | 'igual';
-type Valz = 'medio' | 'ultimo' | 'tabela';
+export type Valz = 'medio' | 'ultimo' | 'tabela';
 type ColK = 'ref' | 'exist' | 'encCli' | 'encFor' | 'nominal' | 'preco' | 'valor' | 'cons' | 'vCons' | 'dev' | 'vDev';
 interface Est {
   modo: Modo; comp: Comp; q: string; valz: Valz; armazem: string; cAuto: string; cInd: string; fam: string; sub: string; soCom: boolean;
@@ -102,9 +102,9 @@ const VALZ: { k: Valz; tecla: string; t: string; col: string }[] = [
 /* ---------- as linhas ---------- */
 interface Linha { a: Artigo; fam: string; sub: string; exist: number; encCli: number; encFor: number; nominal: number; preco: number; valor: number; cons: number; vCons: number; dev: number; vDev: number }
 /* 18 nov.: o preço médio é o ponderado dos movimentos (o mesmo do 77 e do 78), para os mapas darem o mesmo valor */
-const pmDe = (ref: string) => { const ms = todosMovimentos().filter((m) => m.ref === ref); return ms.length ? ms[ms.length - 1].pm : custoDe(ref); };
-const precoDe = (a: Artigo, v: Valz) => v === 'medio' ? pmDe(a.ref) : v === 'ultimo' ? a.preco ?? 0 : precoVenda(a.ref);
-const existDe = (a: Artigo, arm: string) => arm ? stockEm(a.ref, ARMAZENS.find((x) => x.cod === arm)!.nome) : ARMAZENS.reduce((t, x) => t + stockEm(a.ref, x.nome), 0);
+export const pmDe = (ref: string) => { const ms = todosMovimentos().filter((m) => m.ref === ref); return ms.length ? ms[ms.length - 1].pm : custoDe(ref); };
+export const precoDe = (a: Artigo, v: Valz) => v === 'medio' ? pmDe(a.ref) : v === 'ultimo' ? a.preco ?? 0 : precoVenda(a.ref);
+export const existDe = (a: Artigo, arm: string) => arm ? stockEm(a.ref, ARMAZENS.find((x) => x.cod === arm)!.nome) : ARMAZENS.reduce((t, x) => t + stockEm(a.ref, x.nome), 0);
 function sem(s: string) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ''); }
 function compara(c: Comp, v: string, q: string) { const a = sem(v), b = sem(q); return c === 'igual' ? a === b : c === 'contem' ? a.includes(b) : a.startsWith(b); }
 function linhas(e: Est): Linha[] {
