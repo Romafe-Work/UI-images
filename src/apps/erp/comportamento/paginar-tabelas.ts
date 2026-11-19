@@ -45,14 +45,15 @@ function aplicar(t: HTMLElement): void {
   const ver = new Set(dados.slice(de, ate));
   /* as linhas que não são dados: a faixa mostra-se se algum dos seus dados se vê; o subtotal se o último se vê */
   const todas = [...t.querySelectorAll<HTMLTableRowElement>(':scope > tbody > tr')];
-  let grupo: HTMLTableRowElement | null = null, grupoVisto = false, ultimoVisto = false;
-  const fechar = () => { if (grupo) grupo.classList.toggle('is-pag-fora', !grupoVisto); };
+  /* uma faixa fechada (sem linhas de dados à vista) mostra sempre o cabeçalho, para se poder abrir */
+  let grupo: HTMLTableRowElement | null = null, grupoVisto = false, ultimoVisto = false, grupoDados = 0;
+  const fechar = () => { if (grupo) grupo.classList.toggle('is-pag-fora', grupoDados > 0 && !grupoVisto); };
   todas.forEach((tr) => {
-    if (tr.matches(GRUPO)) { fechar(); grupo = tr; grupoVisto = false; return; }
+    if (tr.matches(GRUPO)) { fechar(); grupo = tr; grupoVisto = false; grupoDados = 0; return; }
     if (tr.matches(SUBTOTAL)) { tr.classList.toggle('is-pag-fora', !ultimoVisto); return; }
     if (tr.matches(AGARRADA)) { tr.classList.toggle('is-pag-fora', !ultimoVisto); return; }
     if (tr.matches(NAO_DADOS) || tr.hidden) return;
-    const v = ver.has(tr); tr.classList.toggle('is-pag-fora', !v); ultimoVisto = v; if (v) grupoVisto = true;
+    const v = ver.has(tr); tr.classList.toggle('is-pag-fora', !v); ultimoVisto = v; grupoDados++; if (v) grupoVisto = true;
   });
   fechar();
   const precisa = total > 0;
