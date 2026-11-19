@@ -25,6 +25,7 @@ import { ARTIGOS, artigo, dia, HOJE } from '../compras/dominio';
 import { xlsx, descarregar, type Celula } from '../compras/xlsx';
 import { ARMAZENS } from './dominio';
 import { todosMovimentos, NOME_TIPO, designacao, type Mov } from './mapa-movimentos';
+import { lerModo } from '../comportamento/abrir-ecra';
 import arrowLeftRight from 'lucide-static/icons/arrow-left-right.svg?raw';
 import list from 'lucide-static/icons/list.svg?raw';
 import fileText from 'lucide-static/icons/file-text.svg?raw';
@@ -574,12 +575,20 @@ function armar(r: HTMLElement): void {
   tudo(r, e);
   if (!e.editor && r.closest('.ecra:not([hidden]) > .versao:not([hidden])') && !quieto()) r.classList.add('lf2-entra');
 }
-const armarTodos = () => document.querySelectorAll<HTMLElement>('[data-mva2]').forEach(armar);
+/** O contexto pedido por outro ecrã (76, 78): os movimentos de um artigo, ou o extrato dele num ano. */
+function aplicarModo(r: HTMLElement, e: Est, modo: string | null | undefined): void {
+  const m = lerModo(modo); if (!m.art || !artigo(m.art)) return;
+  if (m.aba === 'ext') { abrirExtrato(r, e, m.art, m.ano && ANOS.includes(m.ano) ? m.ano : HOJE.slice(0, 4)); return; }
+  Object.assign(e, { tab: 'mov', art: m.art, mais: true, q: '', pagina: 0, ordem: null, jan: false }); tudo(r, e, true); toast(r, `Os movimentos de ${m.art}.`);
+}
+const armarTodos = () => document.querySelectorAll<HTMLElement>('[data-mva2]').forEach((r) => { const novo = !estados.has(r); armar(r); if (novo && r.closest('.ecra:not([hidden]) > .versao:not([hidden])')) { const md = new URLSearchParams(location.hash.slice(1)).get('modo'); if (md) aplicarModo(r, de(r), md); } });
 let espera = 0;
 export function iniciar(): void {
   requestAnimationFrame(armarTodos);
   ['romafe:versao', 'romafe:ecra'].forEach((y) => document.addEventListener(y, () => requestAnimationFrame(armarTodos)));
   window.addEventListener('resize', () => document.querySelectorAll<HTMLElement>('[data-mva2]').forEach(indicador));
+  window.addEventListener('message', (ev) => { const x = ev.data as { romafe?: string; modo?: string } | null; if (x?.romafe !== 'cf-modo' || !x.modo) return; const r = visivel(); if (r) aplicarModo(r, de(r), x.modo); });
+  window.addEventListener('hashchange', () => window.setTimeout(() => { const md = new URLSearchParams(location.hash.slice(1)).get('modo'), r = visivel(); if (md && r) aplicarModo(r, de(r), md); }, 80));
   document.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement, r = raiz(t); if (!r || editando()) return; const e = de(r); let b: HTMLElement | null;
     if ((b = t.closest('[data-mva2-acao][aria-disabled="true"]'))) { toast(r, b.title); return; }

@@ -77,3 +77,4 @@
 .mva2-g-abrir > svg { width: 15px; height: 15px; transition: transform .15s; } .mva2-g-abrir[aria-expanded="false"] > svg { transform: rotate(-90deg); }
 .mva2-grupo-c { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; } .mva2-grupo-c[hidden] { display: none; } .mva2-grupo-c .ak-btn { height: 30px; } .mva2-grupo-c .ak-btn[hidden] { display: none; }
 @media print { .mva2 :is(.minv2-filtros, .mva2-chips, .minv2-kpis, .mva2-crit, .mva2-graf, .minv2-pag, [data-mva2-janela]) { display: none !important; } }
+.mva2-jan-acoes { display: flex; flex-wrap: wrap; gap: 6px; }

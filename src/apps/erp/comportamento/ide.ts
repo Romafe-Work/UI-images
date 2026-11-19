@@ -1523,6 +1523,13 @@ export function iniciar(): void {
   window.addEventListener('hashchange', () => requestAnimationFrame(armar));
   /* no protótipo, um ecrã de módulo aberto sozinho vem para um separador (espaco.ts → paraSeparador) */
   document.addEventListener('erp:abrir', (ev) => { const r = (ev as CustomEvent<string>).detail; if (raiz && normal) abrirDoc(r); else pendente = r; });
+  /* 19 nov.: um ecrã aberto num separador pede outro ecrã com contexto (ex.: o detalhe do 76 → os movimentos do artigo no 77).
+     Só se aceitam pedidos dos próprios separadores; o contexto vai no «modo» (no endereço, ou numa mensagem se já estiver aberto). */
+  window.addEventListener('message', (ev) => {
+    const x = ev.data as { romafe?: string; rota?: string; modo?: string; titulo?: string } | null;
+    if (x?.romafe !== 'abrir' || !x.rota || ![...frames.values()].some((f) => f.contentWindow === ev.source)) return;
+    if (raiz && normal) abrirDoc(x.rota, { modo: x.modo, titulo: x.titulo });
+  });
   document.addEventListener('romafe:rato-inicio', () => { raiz = null; requestAnimationFrame(armar); });
   window.addEventListener('resize', () => { if (raiz) { caberAcimaDaDemo(); medir(); fecharPop(); } });
   /* a barra da demonstração aparece e desaparece (durante o rato, esconde-se): a área acompanha */

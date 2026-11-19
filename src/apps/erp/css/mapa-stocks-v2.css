@@ -104,3 +104,4 @@ li[role="treeitem"]:focus-visible { outline: none; } li[role="treeitem"]:focus-v
 .mst2-rel li svg { width: 15px; height: 15px; color: var(--h-tinta-3); } .mst2-rel li span { color: var(--h-tinta-3); } .mst2-rel li b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media print { .mst2 :is(.minv2-filtros, .mva2-chips, .mst2-kpis, .mst2-cols-c, [data-mst2-janela]) { display: none !important; } }
 @media (max-width: 1560px) { .mst2-barra .minv2-vistas button { padding: 0 8px; } .mst2-barra .minv2-vistas button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+.mst2-est.is-baixo { color: var(--h-aviso); font-weight: 700; } .mst2-est.is-baixo i { background: var(--h-aviso); }

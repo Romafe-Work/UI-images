@@ -24,6 +24,7 @@ import { xlsx, descarregar, type Celula } from '../compras/xlsx';
 import { familiaDe } from '../ficheiros/ecras';
 import { subfamiliaDe } from './mapa-stocks';
 import { todosMovimentos, designacao, type Mov } from './mapa-movimentos';
+import { abrirEcra } from '../comportamento/abrir-ecra';
 import clipboardList from 'lucide-static/icons/clipboard-list.svg?raw';
 import funnel from 'lucide-static/icons/funnel.svg?raw';
 import funnelX from 'lucide-static/icons/funnel-x.svg?raw';
@@ -198,7 +199,7 @@ function toast(r: HTMLElement, t: string): void { const p = r.querySelector<HTML
 const sit = (l: Linha) => `<span class="minv2-sit${l.com ? ' is-com' : ''}"><i aria-hidden="true"></i>${l.situacao}</span>`;
 const zero = (t: string) => `<span class="is-nada">${t}</span>`;
 const cel = (l: Linha, c: Col) => c.k === 'ref' ? `<b class="is-mono">${esc(l.ref)}</b>` : c.k === 'desc' ? `<span class="minv2-desc" title="${esc(l.desc)}">${esc(l.desc)}</span>` : c.k === 'situacao' ? sit(l)
-  : c.k === 'qtd' ? (l.qtd ? nf(l.qtd) : zero('0')) : c.k === 'valor' ? (l.valor ? eur(l.valor) : zero(eur(0))) : c.k === 'pm' ? eur(l.pm) : `<span class="minv2-desc" title="${esc(String(l[c.k]))}">${esc(String(l[c.k]))}</span>`;
+  : c.k === 'qtd' ? (l.qtd ? nf(l.qtd) : zero('0')) : c.k === 'valor' ? (l.valor ? eur(l.valor) : zero(eur(0))) : c.k === 'pm' ? (l.pm ? eur(l.pm) : '<span class="is-nada" title="Sem preço: o artigo não tem movimentos nem preço de compra">sem preço</span>') : `<span class="minv2-desc" title="${esc(String(l[c.k]))}">${esc(String(l[c.k]))}</span>`;
 
 function grupos(e: Est, linhas: Linha[], todas: Linha[]): [string, Linha[], Linha[]][] {
   const k = e.grupo as K, gs = new Map<string, Linha[]>();
@@ -219,7 +220,7 @@ function cartao(e: Est, l: Linha): string {
     <header><b class="is-mono">${esc(l.ref)}</b>${sit(l)}</header>
     <h3 title="${esc(l.desc)}">${esc(l.desc)}</h3>
     <p class="minv2-fam">${esc(l.fam)} › ${esc(l.sub)}</p>
-    <dl class="minv2-nums"><div><dt>Quantidade</dt><dd>${l.qtd ? `${nf(l.qtd)} <small>${esc(l.un)}</small>` : zero(`0 ${esc(l.un)}`)}</dd></div><div><dt>Preço médio</dt><dd>${eur(l.pm)}</dd></div><div class="is-valor"><dt>Valor em stock</dt><dd>${l.valor ? eur(l.valor) : zero(eur(0))}</dd></div></dl>
+    <dl class="minv2-nums"><div><dt>Quantidade</dt><dd>${l.qtd ? `${nf(l.qtd)} <small>${esc(l.un)}</small>` : zero(`0 ${esc(l.un)}`)}</dd></div><div><dt>Preço médio</dt><dd>${l.pm ? eur(l.pm) : '<span class="is-nada">sem preço</span>'}</dd></div><div class="is-valor"><dt>Valor em stock</dt><dd>${l.valor ? eur(l.valor) : zero(eur(0))}</dd></div></dl>
     <footer><button type="button" class="ak-btn ak-btn--linha" data-minv2-ver="${esc(l.ref)}">${L(eye)}<span>Ver detalhes</span></button></footer>
   </article>`;
 }
@@ -325,12 +326,13 @@ function janela(r: HTMLElement, e: Est): void {
       <span class="lf2-jan-bts"><button type="button" data-minv2-acao="fechar-jan" data-lf2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${L(xIc)}</button></span></header>
     <div class="lf2-jan-corpo">
       <div class="minv2-jan-id"><p class="minv2-jan-desc">${esc(l.desc)}</p><p class="minv2-fam">${esc(l.marca)} · ${esc(l.fam)} › ${esc(l.sub)}</p>${sit(l)}</div>
-      <dl class="minv2-nums minv2-jan-nums"><div><dt>Quantidade</dt><dd>${nf(l.qtd)} <small>${esc(l.un)}</small></dd></div><div><dt>Preço médio</dt><dd>${eur(l.pm)}</dd></div><div class="is-valor"><dt>Valor em stock</dt><dd>${eur(l.valor)}</dd></div></dl>
+      <dl class="minv2-nums minv2-jan-nums"><div><dt>Quantidade</dt><dd>${nf(l.qtd)} <small>${esc(l.un)}</small></dd></div><div><dt>Preço médio</dt><dd>${l.pm ? eur(l.pm) : '<span class="is-nada">sem preço</span>'}</dd></div><div class="is-valor"><dt>Valor em stock</dt><dd>${eur(l.valor)}</dd></div></dl>
       <h4 class="minv2-jan-t">${L(warehouse)}Por armazém a ${dia(e.feito!)}</h4>
       <ul class="minv2-arms">${arms.map(([a, q]) => `<li class="${q ? '' : 'is-zero'}${e.armazem === a.cod ? ' is-escolhido' : ''}"><span>${esc(curto(a.nome))}</span><i style="--p:${(q / max) * 100}%" aria-hidden="true"></i><b>${nf(q)}</b><small>${q ? eur(Math.round(q * l.pm)) : '—'}</small></li>`).join('')}</ul>
       <h4 class="minv2-jan-t">${L(history)}Últimos movimentos até ${dia(e.feito!)}</h4>
       ${movs.length ? `<ul class="minv2-movs">${movs.map((m) => `<li><span class="minv2-mov-d">${dia(m.data)}</span><span class="minv2-mov-t">${esc(designacao(m))}<small>${esc(m.docCompleto === '—' ? '' : m.docCompleto)}${m.armazem ? ` · ${esc(curto(m.armazem))}` : ''}</small></span><b class="${m.qtd > 0 ? 'is-ent' : m.qtd < 0 ? 'is-sai' : ''}">${m.qtd > 0 ? '+' : m.qtd < 0 ? '−' : ''}${m.qtd ? nf(Math.abs(m.qtd)) : 'valor'}</b></li>`).join('')}</ul>` : `<p class="minv2-jan-nada">Sem movimentos além do stock de partida.</p>`}
-      <p class="minv2-jan-nota">Os movimentos todos estão no 77 · Movimentos de artigos.</p>
+      <p class="mva2-jan-acoes"><button type="button" class="ak-btn" data-minv2-ir="mov">${L(history)}<span>Ver movimentos</span></button><button type="button" class="ak-btn" data-minv2-ir="ext">${L(clipboardList)}<span>Ver extrato</span></button></p>
+      <p class="minv2-jan-nota">Abrem no 77 · Movimentos de artigos, noutro separador; este mapa fica como está.</p>
     </div>
   </section>`;
   if (foco) c.querySelector<HTMLElement>('[data-minv2-jan]')?.focus({ preventScroll: true });
@@ -428,6 +430,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-minv2-vista]'))) { const v = b.dataset.minv2Vista as Vista; if (v !== e.vista) { e.vista = v; guardar(e); tudo(r, e, true); if (e.sel) focarSel(r, e); } return; }
     if ((b = t.closest('[data-minv2-sit]'))) { const s = b.dataset.minv2Sit as 'com' | 'sem'; e.sit = e.sit === s ? '' : s; e.pagina = 0; tudo(r, e); r.querySelector<HTMLElement>(`[data-minv2-sit="${s}"]`)?.focus(); return; }
     if ((b = t.closest('[data-minv2-pag-ir]'))) { e.pagina += Number(b.dataset.minv2PagIr); tudo(r, e); r.querySelector<HTMLElement>(`[data-minv2-pag-ir="${b.dataset.minv2PagIr}"]:not(:disabled)`)?.focus(); return; }
+    if ((b = t.closest('[data-minv2-ir]'))) { const aba = b.dataset.minv2Ir!; abrirEcra('stocks.mapa-movimentos', 'stocks-mapa-movimentos', `aba=${aba};art=${e.sel};ano=${(e.feito ?? HOJE).slice(0, 4)}`, 'Movimentos de artigos'); toast(r, aba === 'ext' ? `O extrato de ${e.sel} abre no 77.` : `Os movimentos de ${e.sel} abrem no 77.`); return; }
     if ((b = t.closest('[data-minv2-ver]'))) { abrirJanela(r, e, b.dataset.minv2Ver!, true); return; }
     if ((b = t.closest('[data-minv2-acao]'))) {
       const k = b.dataset.minv2Acao!;

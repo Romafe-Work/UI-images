@@ -30,6 +30,7 @@ import { familiaDe } from '../ficheiros/ecras';
 import { ARMAZENS, stockEm } from './dominio';
 import { vendas, cliente } from './vendas';
 import { todosMovimentos, designacao } from './mapa-movimentos';
+import { abrirEcra } from '../comportamento/abrir-ecra';
 import { subfamiliaDe, CLASSES_AUTO, CLASSES_IND, classeAuto, classeInd, encCli, consignado, devolvido, precoDe, existDe, type Valz } from './mapa-stocks';
 import boxes from 'lucide-static/icons/boxes.svg?raw';
 import refresh from 'lucide-static/icons/refresh-cw.svg?raw';
@@ -80,7 +81,7 @@ const curto = (nome: string) => nome.replace('Armazém ', '');
 const sem = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '');
 
 /* ---------- as linhas ---------- */
-interface Linha { a: Artigo; fam: string; sub: string; exist: number; encCli: number; encFor: number; nominal: number; preco: number; valor: number; cons: number; vCons: number; dev: number; vDev: number }
+interface Linha { a: Artigo; fam: string; sub: string; v30: number; exist: number; encCli: number; encFor: number; nominal: number; preco: number; valor: number; cons: number; vCons: number; dev: number; vDev: number }
 const VALZ: { k: Valz; tecla: string; t: string; col: string; nota: string }[] = [
   { k: 'medio', tecla: 'F5', t: 'Preço médio', col: 'Pr. médio', nota: 'o preço médio ponderado dos movimentos (o mesmo do 77 e do 78)' },
   { k: 'ultimo', tecla: 'F6', t: 'Último preço', col: 'Últ. preço', nota: 'o último preço de compra do artigo' },
@@ -91,7 +92,7 @@ type Comp = 'inicio' | 'contem' | 'igual';
 type Vista = 'tabela' | 'cartoes' | 'analise' | 'hierarquia';
 type Grupo = 'stock' | 'enc' | 'valz' | 'esp';
 interface Est {
-  modo: Modo; comp: Comp; q: string; valz: Valz; armazem: string; cAuto: string; cInd: string; fam: string; sub: string; soCom: boolean; soNeg: boolean; soEnc: boolean; mais: boolean;
+  modo: Modo; comp: Comp; q: string; valz: Valz; armazem: string; cAuto: string; cInd: string; fam: string; sub: string; soCom: boolean; soNeg: boolean; soEnc: boolean; soBaixo: boolean; mais: boolean;
   ordem: { k: string; dir: 1 | -1 } | null; vista: Vista; grupos: Grupo[]; colsAberto: boolean; sel: string; jan: boolean; rel: boolean; abertos: string[];
   fase: 'ok' | 'carregar' | 'atualizar' | 'erro'; erro?: 'servidor' | 'offline' | 'sessao'; aviso: string; hora: Date; editor: boolean;
 }
@@ -100,7 +101,7 @@ const guardado = (): Partial<Est> => { try { return JSON.parse(localStorage.getI
 const TODOS_GRUPOS: Grupo[] = ['stock', 'enc', 'valz', 'esp'];
 const novo = (): Est => {
   const editor = document.body.classList.contains('editando'), g = editor ? {} : guardado();
-  return { modo: g.modo ?? 'artigo', comp: 'inicio', q: '', valz: g.valz ?? 'medio', armazem: '', cAuto: '', cInd: '', fam: '', sub: '', soCom: false, soNeg: false, soEnc: false, mais: false, ordem: null,
+  return { modo: g.modo ?? 'artigo', comp: 'inicio', q: '', valz: g.valz ?? 'medio', armazem: '', cAuto: '', cInd: '', fam: '', sub: '', soCom: false, soNeg: false, soEnc: false, soBaixo: false, mais: false, ordem: null,
     vista: g.vista ?? 'tabela', grupos: g.grupos?.length ? g.grupos : TODOS_GRUPOS.slice(), colsAberto: false, sel: '', jan: false, rel: false, abertos: [], fase: 'ok', aviso: '', hora: new Date(), editor };
 };
 const guardar = (e: Est) => { if (!e.editor) try { localStorage.setItem(CHAVE, JSON.stringify({ modo: e.modo, valz: e.valz, vista: e.vista, grupos: e.grupos })); } catch { /* */ } };
@@ -121,11 +122,11 @@ const subsDe = (fam: string) => [...new Set(ARTIGOS.filter((a) => !fam || famili
 function todas(e: Est): Linha[] {
   return ARTIGOS.map((a): Linha => {
     const exist = existDe(a, e.armazem), ec = encCli(a), ef = aCaminho(a.ref), p = precoDe(a, e.valz), cs = consignado(a), dv = devolvido(a);
-    return { a, fam: familiaDe(a.desc), sub: subfamiliaDe(a.desc), exist, encCli: ec, encFor: ef, nominal: exist - ec + ef, preco: p, valor: exist * p, cons: cs, vCons: cs * p, dev: dv, vDev: dv * p };
+    return { a, fam: familiaDe(a.desc), sub: subfamiliaDe(a.desc), v30: vendas30().get(a.ref) ?? 0, exist, encCli: ec, encFor: ef, nominal: exist - ec + ef, preco: p, valor: exist * p, cons: cs, vCons: cs * p, dev: dv, vDev: dv * p };
   });
 }
 function linhas(e: Est): Linha[] {
-  let ls = todas(e).filter((l) => (!e.cAuto || classeAuto(l.a) === e.cAuto) && (!e.cInd || classeInd(l.a) === e.cInd) && (!e.fam || l.fam === e.fam) && (!e.sub || l.sub === e.sub) && (!e.soCom || l.exist > 0) && (!e.soNeg || l.nominal < 0) && (!e.soEnc || l.encCli > 0 || l.encFor > 0)
+  let ls = todas(e).filter((l) => (!e.cAuto || classeAuto(l.a) === e.cAuto) && (!e.cInd || classeInd(l.a) === e.cInd) && (!e.fam || l.fam === e.fam) && (!e.sub || l.sub === e.sub) && (!e.soCom || l.exist > 0) && (!e.soNeg || l.nominal < 0) && (!e.soEnc || l.encCli > 0 || l.encFor > 0) && (!e.soBaixo || baixo(l))
     && (!e.q.trim() || (e.modo === 'artigo' ? compara(e.comp, l.a.ref, e.q) : e.modo === 'descricao' ? compara(e.comp, l.a.desc, e.q) : compara(e.comp, l.fam, e.q) || compara(e.comp, l.sub, e.q))));
   const base = (x: Linha, y: Linha) => e.modo === 'descricao' ? x.a.desc.localeCompare(y.a.desc, 'pt') || x.a.ref.localeCompare(y.a.ref) : e.modo === 'familia' ? x.fam.localeCompare(y.fam, 'pt') || x.sub.localeCompare(y.sub, 'pt') || x.a.ref.localeCompare(y.a.ref, 'pt', { numeric: true }) : x.a.ref.localeCompare(y.a.ref, 'pt', { numeric: true });
   ls.sort(base);
@@ -147,7 +148,13 @@ const COLS = (e: Est): Col[] => [
   { k: 'vDev', t: 'Valor dev.', w: 7, g: 'esp', eur: true },
 ].filter((c) => !c.g || e.grupos.includes(c.g as Grupo)) as Col[];
 const GRUPOS: [Grupo, string][] = [['stock', 'Stock (existências, nominal)'], ['enc', 'Encomendas (clientes, fornecedores)'], ['valz', 'Valorização (preço, valor)'], ['esp', 'Stock especial (consignado, devolvido)']];
+const SEM_PRECO = '<span class="is-nada" title="Sem preço: o artigo não tem movimentos nem preço de compra; o valor fica a zero">sem preço</span>';
+const precoTxt = (l: Linha) => (l.preco ? eur(l.preco) : SEM_PRECO);
 const nomQ = (l: Linha) => l.nominal < 0 ? `<span class="mst2-neg" title="Stock nominal negativo: as encomendas de clientes (${nf(l.encCli)}) passam as existências (${nf(l.exist)}) e o que vem dos fornecedores (${nf(l.encFor)}).">${L(alerta)}${nf(l.nominal)}</span>` : q0(l.nominal);
+/** As vendas líquidas (com as notas de crédito) de cada artigo nos 30 dias até hoje. */
+let v30: Map<string, number> | null = null;
+const vendas30 = () => { if (!v30) { const desde = new Date(Date.parse(HOJE) - 30 * 86400000).toISOString().slice(0, 10); v30 = new Map(); vendas().filter((x) => x.data > desde && x.data <= HOJE).forEach((x) => v30!.set(x.ref, (v30!.get(x.ref) ?? 0) + x.qtd)); } return v30; };
+const baixo = (l: Linha) => l.v30 > 0 && l.exist < l.v30;
 const encFornDe = (ref: string) => db().enc.filter((x) => ['Emitida', 'Parcialmente recebida'].includes(x.estado)).flatMap((x) => x.linhas.filter((l) => l.ref === ref && pendente(l) > 0).map((l) => ({ enc: x.ref, qtd: pendente(l), entrega: x.entrega })));
 
 /* ---------- a página ---------- */
@@ -185,8 +192,9 @@ function html(cen: string): string {
         <label><input type="checkbox" data-mst2-so="soCom"><span>com existências</span></label>
         <label><input type="checkbox" data-mst2-so="soNeg"><span>com stock nominal negativo</span></label>
         <label><input type="checkbox" data-mst2-so="soEnc"><span>com encomendas pendentes</span></label>
+        <label title="Existências menores do que o que se vendeu nos últimos 30 dias (vendas líquidas, com as notas de crédito)"><input type="checkbox" data-mst2-so="soBaixo"><span>com stock baixo (menos de um mês de vendas)</span></label>
       </fieldset>
-      <p class="mst2-nota">Stock baixo: o sistema ainda não tem um mínimo por artigo; quando tiver, entra aqui.</p>
+      <p class="mst2-nota">Stock baixo: menos existências do que as vendas dos últimos 30 dias. O sistema ainda não tem um mínimo por artigo; quando tiver, passa a usar esse.</p>
     </div>
   </form>
   <ul class="mva2-chips" data-mst2-chips aria-label="Filtros aplicados"></ul>
@@ -226,6 +234,7 @@ const linhaArt = (l: Linha) => `<span class="mva2-art-c"><b class="is-mono">${es
 function celula(l: Linha, c: Col): string {
   if (c.k === 'ref') return linhaArt(l);
   if (c.k === 'nominal') return nomQ(l);
+  if (c.k === 'preco') return precoTxt(l);
   const v = (l as unknown as Record<string, number>)[c.k];
   return c.eur ? e0(v) : q0(v);
 }
@@ -242,14 +251,14 @@ function tabela(e: Est, ls: Linha[]): string {
     <thead><tr>${cs.map((c) => `<th scope="col" class="${c.k === 'ref' ? '' : 'is-num'}${c.k === 'nominal' ? ' mst2-col-nom' : ''}" aria-sort="${sort(c.k)}"${c.titulo ? ` title="${esc(c.titulo)}"` : ''}><button type="button" data-mst2-ordenar="${c.k}">${esc(c.t)}${e.ordem?.k === c.k ? `<span class="lf2-ord">${L(e.ordem.dir === 1 ? arrowUp : arrowDown)}</span>` : ''}</button></th>`).join('')}</tr></thead>
     <tbody>${corpo}</tbody><tfoot>${tot(ls, `Total · ${pl(ls.length, 'artigo', 'artigos')}`, 'rc-total mac-total')}</tfoot></table>`;
 }
-const estadoArt = (l: Linha) => l.nominal < 0 ? ['is-neg', 'Nominal negativo'] : l.exist <= 0 ? ['is-sem', 'Sem existências'] : l.encFor > 0 ? ['is-enc', 'A chegar'] : ['is-com', 'Com stock'];
+const estadoArt = (l: Linha) => l.nominal < 0 ? ['is-neg', 'Nominal negativo'] : l.exist <= 0 ? ['is-sem', 'Sem existências'] : baixo(l) ? ['is-baixo', 'Stock baixo'] : l.encFor > 0 ? ['is-enc', 'A chegar'] : ['is-com', 'Com stock'];
 function cartoes(e: Est, ls: Linha[]): string {
   const v = VALZ.find((x) => x.k === e.valz)!;
   return `<div class="minv2-cartoes">${ls.map((l) => { const [cls, t] = estadoArt(l); return `<article class="minv2-cartao mst2-cartao${l.a.ref === e.sel ? ' is-ativo' : ''}" data-mst2-art="${esc(l.a.ref)}" tabindex="${l.a.ref === e.sel ? 0 : -1}" aria-selected="${l.a.ref === e.sel}" aria-label="${esc(`${l.a.ref} · ${l.a.desc}`)}">
     <header><b class="is-mono">${esc(l.a.ref)}</b><span class="mst2-est ${cls}"><i aria-hidden="true"></i>${t}</span></header>
     <h3 title="${esc(l.a.desc)}">${esc(l.a.desc)}</h3><p class="minv2-fam">${esc(l.fam)} › ${esc(l.sub)}</p>
     <dl class="mst2-q"><div><dt>Existências</dt><dd>${q0(l.exist)} <small>${esc(l.a.un)}</small></dd></div><div><dt>Enc. clientes</dt><dd>${q0(l.encCli)}</dd></div><div><dt>Enc. fornecedores</dt><dd>${q0(l.encFor)}</dd></div><div class="is-nom"><dt>Stock nominal</dt><dd>${nomQ(l)}</dd></div></dl>
-    <dl class="minv2-nums"><div><dt>${v.t}</dt><dd>${eur(l.preco)}</dd></div><div class="is-valor"><dt>Valor</dt><dd>${e0(l.valor)}</dd></div></dl>
+    <dl class="minv2-nums"><div><dt>${v.t}</dt><dd>${precoTxt(l)}</dd></div><div class="is-valor"><dt>Valor</dt><dd>${e0(l.valor)}</dd></div></dl>
     <footer><button type="button" class="ak-btn ak-btn--linha" data-mst2-ver="${esc(l.a.ref)}">${L(eye)}<span>Ver artigo</span></button></footer></article>`; }).join('')}</div>`;
 }
 /** Barras horizontais simples (HTML), com o valor escrito: legíveis e acessíveis sem biblioteca. */
@@ -310,9 +319,9 @@ function tudo(r: HTMLElement, e: Est, revelar = false): void {
   const q = r.querySelector<HTMLInputElement>('[data-mst2-q]')!; if (q.value !== e.q && document.activeElement !== q) q.value = e.q; q.placeholder = MODOS.find((m) => m.k === e.modo)!.ph;
   const sub = r.querySelector<HTMLSelectElement>('[data-mst2-f="sub"]')!; if (sub.dataset.fam !== e.fam || !sub.options.length) { sub.innerHTML = op('', 'Todas') + subsDe(e.fam).map((s) => op(s, s)).join(''); sub.dataset.fam = e.fam; }
   (['armazem', 'fam', 'sub', 'cAuto', 'cInd'] as const).forEach((k) => { const s = r.querySelector<HTMLSelectElement>(`[data-mst2-f="${k}"]`)!; s.value = e[k]; s.closest('.ak-campo')?.classList.toggle('is-ativo', !!e[k]); });
-  (['soCom', 'soNeg', 'soEnc'] as const).forEach((k) => { r.querySelector<HTMLInputElement>(`[data-mst2-so="${k}"]`)!.checked = e[k]; });
+  (['soCom', 'soNeg', 'soEnc', 'soBaixo'] as const).forEach((k) => { r.querySelector<HTMLInputElement>(`[data-mst2-so="${k}"]`)!.checked = e[k]; });
   r.querySelector<HTMLElement>('[data-mst2-mais]')!.hidden = !e.mais;
-  const nMais = [e.sub, e.cAuto, e.cInd, e.soCom, e.soNeg, e.soEnc].filter(Boolean).length, mb = r.querySelector<HTMLElement>('[data-mst2-acao="mais"]')!;
+  const nMais = [e.sub, e.cAuto, e.cInd, e.soCom, e.soNeg, e.soEnc, e.soBaixo].filter(Boolean).length, mb = r.querySelector<HTMLElement>('[data-mst2-acao="mais"]')!;
   mb.setAttribute('aria-expanded', String(e.mais)); mb.querySelector('span')!.textContent = nMais ? `Mais filtros (${nMais})` : 'Mais filtros';
   /* os filtros aplicados */
   const chips: [string, string][] = [];
@@ -320,7 +329,7 @@ function tudo(r: HTMLElement, e: Est, revelar = false): void {
   if (e.armazem) chips.push(['armazem', `Armazém ${curto(ARMAZENS.find((a) => a.cod === e.armazem)!.nome)}`]);
   if (e.fam) chips.push(['fam', e.fam]); if (e.sub) chips.push(['sub', e.sub]);
   if (e.cAuto) chips.push(['cAuto', `Classe ${e.cAuto}`]); if (e.cInd) chips.push(['cInd', `Classe ${e.cInd}`]);
-  if (e.soCom) chips.push(['soCom', 'Com existências']); if (e.soNeg) chips.push(['soNeg', 'Nominal negativo']); if (e.soEnc) chips.push(['soEnc', 'Com encomendas pendentes']);
+  if (e.soCom) chips.push(['soCom', 'Com existências']); if (e.soNeg) chips.push(['soNeg', 'Nominal negativo']); if (e.soEnc) chips.push(['soEnc', 'Com encomendas pendentes']); if (e.soBaixo) chips.push(['soBaixo', 'Stock baixo']);
   const ch = r.querySelector<HTMLElement>('[data-mst2-chips]')!; ch.hidden = !chips.length;
   ch.innerHTML = chips.map(([k, t]) => `<li><button type="button" data-mst2-tirar="${k}" title="Tirar este filtro">${esc(t)}${L(xIc)}</button></li>`).join('');
   r.querySelector<HTMLElement>('[data-mst2-acao="limpar"]')!.setAttribute('aria-disabled', String(!chips.length));
@@ -368,18 +377,19 @@ function janela(r: HTMLElement, e: Est): void {
   } else {
     const movs = todosMovimentos().filter((m) => m.ref === a.ref && m.cod !== 'SI').slice(-4).reverse();
     corpo = `<div class="minv2-jan-id"><p class="minv2-jan-desc">${esc(a.desc)}</p><p class="minv2-fam">${esc(a.marca)} · ${esc(l.fam)} › ${esc(l.sub)}${fo && fo.nome !== a.marca ? ` · fornecedor ${esc(fo.nome)}` : ''}</p></div>
-      <dl class="minv2-nums minv2-jan-nums"><div><dt>Existências</dt><dd>${nf(l.exist)} <small>${esc(a.un)}</small></dd></div><div><dt>${v.t}</dt><dd>${eur(l.preco)}</dd></div><div class="is-valor"><dt>Valor</dt><dd>${eur(l.valor)}</dd></div></dl>
+      <dl class="minv2-nums minv2-jan-nums"><div><dt>Existências</dt><dd>${nf(l.exist)} <small>${esc(a.un)}</small></dd></div><div><dt>${v.t}</dt><dd>${precoTxt(l)}</dd></div><div class="is-valor"><dt>Valor</dt><dd>${eur(l.valor)}</dd></div></dl>
       <h4 class="minv2-jan-t">${L(scale)}Stock nominal</h4>
       <p class="mst2-conta">${nf(l.exist)} existências − ${nf(l.encCli)} enc. clientes + ${nf(l.encFor)} enc. fornecedores = <b class="${l.nominal < 0 ? 'mst2-neg' : ''}">${nf(l.nominal)} ${esc(a.un)}</b></p>
       ${encs.length ? `<ul class="minv2-movs">${encs.map((x) => `<li><span class="minv2-mov-d">${esc(x.enc)}</span><span class="minv2-mov-t">Encomenda a fornecedor<small>entrega prevista ${dia(x.entrega)}</small></span><b class="is-ent">+${nf(x.qtd)}</b></li>`).join('')}</ul>` : ''}
+      <p class="mst2-conta">Vendas dos últimos 30 dias: <b>${nf(l.v30)} ${esc(a.un)}</b>${l.v30 > 0 ? ` · o stock dá para cerca de ${nf(Math.round((l.exist / l.v30) * 30))} dias${baixo(l) ? ' — <b class="mst2-neg">stock baixo</b>' : ''}` : ' · sem vendas, não se calcula a cobertura'}</p>
       <h4 class="minv2-jan-t">${L(warehouse)}Por armazém</h4>
       <ul class="minv2-arms">${arms.map(([z, q]) => `<li class="${q ? '' : 'is-zero'}${e.armazem === z.cod ? ' is-escolhido' : ''}"><span>${esc(curto(z.nome))}</span><i style="--p:${(q / max) * 100}%" aria-hidden="true"></i><b>${nf(q)}</b><small>${q ? eur(q * l.preco) : '—'}</small></li>`).join('')}</ul>
       <h4 class="minv2-jan-t">${L(pkg)}Stock especial <small>(de exemplo)</small></h4>
       <dl class="minv2-nums"><div><dt>Consignado</dt><dd>${q0(l.cons)}</dd></div><div><dt>Devolvido</dt><dd>${q0(l.dev)}</dd></div><div class="is-valor"><dt>Valor</dt><dd>${e0(l.vCons + l.vDev)}</dd></div></dl>
       <h4 class="minv2-jan-t">${L(history)}Últimos movimentos</h4>
       ${movs.length ? `<ul class="minv2-movs">${movs.map((m) => `<li><span class="minv2-mov-d">${dia(m.data)}</span><span class="minv2-mov-t">${esc(designacao(m))}<small>${esc(m.docCompleto === '—' ? '' : m.docCompleto)}</small></span><b class="${m.qtd > 0 ? 'is-ent' : ''}">${m.qtd > 0 ? '+' : m.qtd < 0 ? '−' : ''}${m.qtd ? nf(Math.abs(m.qtd)) : 'valor'}</b></li>`).join('')}</ul>` : '<p class="minv2-jan-nada">Só o stock de partida.</p>'}
-      <p class="minv2-jan-nota">Os movimentos todos e o extrato estão no 77 · Movimentos de artigos.</p>
-      <p class="mva2-jan-acoes"><button type="button" class="ak-btn" data-mst2-acao="relacoes">${L(network)}<span>Ver relações</span></button></p>`;
+      <p class="mva2-jan-acoes"><button type="button" class="ak-btn" data-mst2-ir="mov">${L(history)}<span>Ver movimentos</span></button><button type="button" class="ak-btn" data-mst2-ir="ext">${L(scale)}<span>Ver extrato</span></button><button type="button" class="ak-btn" data-mst2-acao="relacoes">${L(network)}<span>Ver relações</span></button></p>
+      <p class="minv2-jan-nota">Os movimentos e o extrato abrem no 77 · Movimentos de artigos, noutro separador; este mapa fica como está.</p>`;
   }
   c.innerHTML = `<section data-por-cima class="lf2-jan minv2-jan" data-mst2-jan role="dialog" aria-label="Artigo ${esc(a.ref)}" tabindex="-1" style="left:${x}px;top:${y}px;width:${w}px;max-height:min(660px, calc(100vh - ${y + 12}px))">
     <header class="lf2-jan-cab">${L(e.rel ? network : boxes)}<h3>${e.rel ? 'Relações' : 'Artigo'} · <b>${esc(a.ref)}</b></h3><span class="lf2-jan-bts"><button type="button" data-mst2-acao="fechar-jan" data-lf2-jan-acao="fechar" aria-label="Fechar (Esc)" title="Fechar (Esc)">${L(xIc)}</button></span></header>
@@ -407,7 +417,7 @@ function exportar(r: HTMLElement, e: Est): void {
   catch { e.aviso = 'A exportação falhou; tenta outra vez.'; }
   tudo(r, e); toast(r, e.aviso);
 }
-const limpar = (e: Est) => Object.assign(e, { q: '', armazem: '', cAuto: '', cInd: '', fam: '', sub: '', soCom: false, soNeg: false, soEnc: false });
+const limpar = (e: Est) => Object.assign(e, { q: '', armazem: '', cAuto: '', cInd: '', fam: '', sub: '', soCom: false, soNeg: false, soEnc: false, soBaixo: false });
 const chaves = (ls: Linha[]) => [...new Set(ls.flatMap((l) => [l.fam, `${l.fam}|${l.sub}`]))];
 
 /* ---------- os cenários ---------- */
@@ -429,6 +439,7 @@ function armar(r: HTMLElement): void {
   if (cen === 'so-com') { e.soCom = true; e.armazem = '60'; }
   if (cen === 'negativo') e.soNeg = true;
   if (cen === 'encomendas') { e.soEnc = true; e.mais = true; }
+  if (cen === 'baixo') { e.soBaixo = true; e.mais = true; }
   if (cen === 'ordenado') e.ordem = { k: 'valor', dir: -1 };
   if (cen === 'colunas') { e.colsAberto = true; e.grupos = ['stock', 'valz']; }
   if (cen === 'cartoes') e.vista = 'cartoes';
@@ -461,6 +472,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-mst2-ordenar]'))) { const k = b.dataset.mst2Ordenar!; e.ordem = e.ordem?.k === k ? (e.ordem.dir === 1 ? { k, dir: -1 } : null) : { k, dir: 1 }; tudo(r, e); r.querySelector<HTMLElement>(`[data-mst2-ordenar="${k}"]`)?.focus(); return; }
     if ((b = t.closest('[data-mst2-abrir]'))) { const k = b.dataset.mst2Abrir!; e.abertos = e.abertos.includes(k) ? e.abertos.filter((x) => x !== k) : [...e.abertos, k]; tudo(r, e); r.querySelector<HTMLElement>(`[data-mst2-abrir="${CSS.escape(k)}"]`)?.focus(); return; }
     if ((b = t.closest('[data-mst2-migalha]'))) { const [tp, ...xs] = b.dataset.mst2Migalha!.split('|'); e.sel = ''; e.jan = false; if (tp === 'raiz') e.abertos = []; else if (tp === 'fam') e.abertos = [xs[0]]; else if (tp === 'sub') e.abertos = [xs[0], `${xs[0]}|${xs[1]}`]; tudo(r, e); return; }
+    if ((b = t.closest('[data-mst2-ir]'))) { const aba = b.dataset.mst2Ir!; abrirEcra('stocks.mapa-movimentos', 'stocks-mapa-movimentos', `aba=${aba};art=${e.sel};ano=${HOJE.slice(0, 4)}`, 'Movimentos de artigos'); toast(r, aba === 'ext' ? `O extrato de ${e.sel} abre no 77.` : `Os movimentos de ${e.sel} abrem no 77.`); return; }
     if ((b = t.closest('[data-mst2-ver]'))) { escolher(r, e, b.dataset.mst2Ver!, true); r.querySelector<HTMLElement>('[data-mst2-jan]')?.focus(); return; }
     if ((b = t.closest('[data-mst2-acao]'))) {
       const k = b.dataset.mst2Acao!;
@@ -534,6 +546,7 @@ const ESTADOS: [string, string, string][] = [
   ['so-com', 'Só com existências', 'No armazém 60, só os artigos que lá estão.'],
   ['negativo', 'Stock nominal negativo', 'Tocar no indicador do nominal: só os artigos abaixo de zero, com o porquê no título.'],
   ['encomendas', 'Com encomendas pendentes', 'Só os artigos com encomendas de clientes ou a fornecedores.'],
+  ['baixo', 'Stock baixo', 'Mais filtros: as existências não chegam para as vendas dos últimos 30 dias.'],
   ['ordenado', 'Ordenado pelo valor', 'Tocar no título de uma coluna ordena; outra vez inverte, a terceira tira.'],
   ['colunas', 'Colunas por grupos', 'Só Stock e Valorização; fica guardado.'],
   ['cartoes', 'Vista cartões', 'Um cartão por artigo: existências, encomendas, nominal, preço e valor, e o estado.'],
