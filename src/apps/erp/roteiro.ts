@@ -196,37 +196,73 @@ registarCaso('erp-mapas-2', 'Mapas: guias, recapitulativo, comparativos, fornece
   { legenda: '' },
 ], SEM);
 
-/* 18 nov.: os casos de Stocks — os documentos de stock (inventário, transferência, ajuste, acréscimo, perda) e os mapas.
-   Os ecrãs de Stocks levam mais tempo a abrir no separador: o rato espera que o ecrã esteja lá */
+/* 18 nov.: os Stocks. 19 nov. (ela: «na gravação do stock junta tudo numa só opção e apresenta vários cenários do screen,
+   erros, criar, editar, filtrar… várias opções de ver uma coisa»; e «a transferência podia ser mais dinâmica: quando for
+   para fazer transferência, se for possível fazer a mesma»): um só caso, «Stocks», pela ordem do menu. Em cada ecrã:
+   indicadores e filtros (e tirá-los), uma pesquisa sem resultados, as vistas, a janela do documento e os separadores,
+   Editar com alterações e o «descartar», Novo e Gravar vazio (o erro de validação), Lançar onde não se pode (o aviso) e
+   Lançar/Anular até à confirmação (cancelada, para os dados de exemplo ficarem). Nas Transferências o rato faz mesmo uma:
+   Novo, destino, artigo e quantidade, Gravar e Lançar no stock — e vê-a nos Fluxos. Os ecrãs de Stocks levam mais tempo a
+   abrir no separador: o rato espera que o ecrã esteja lá. */
 const menuS = (rota: string): Passo => ({ ...menu(rota), pausa: 3400 });
-const STOCKS_DOCS: Passo[] = [
+const escS = (campo: string, valor: string, pausa = 900): Passo => ({ legenda: '', escolher: [campo, valor], separador: true, pausa });
+const escrS = (campo: string, texto: string, pausa = 900): Passo => ({ legenda: '', escrever: [campo, texto], separador: true, pausa });
+/** O que se repete nos documentos de stock (o motor das listas): a janela, os separadores e fechar. */
+const janelaDoc = (linha: string, tabs: string[]): Passo[] => [sep(linha, 1000), ...tabs.map((t) => sep(`[data-dv2-jan-tab="${t}"]`, 900)), sep('[data-dv2-jan-acao="fechar"]', 500)];
+/** Novo e Gravar sem nada: o erro de validação; depois Cancelar. */
+const novoVazio: Passo[] = [sep('[data-dv2-acao="novo"]', 1200), sep('[data-dv2-ficha] [data-dv2-acao="gravar"]', 1800), sep('[data-dv2-ficha] [data-dv2-acao="fechar-ficha"]', 800)];
+/** Editar o rascunho, mudar a quantidade da primeira linha e fechar: pergunta; descarta-se. */
+const editarDescartar = (linha: string, qtd: string): Passo[] => [sep(linha, 600), sep('[data-dv2-jan-acao="fechar"]', 300), sep('[data-dv2-acao="editar"]', 1200), escrS('[data-dv2-ficha] [data-dv2-l="qtd"]', qtd, 900), sep('[data-dv2-ficha] [data-dv2-acao="fechar-ficha"]', 1200), sep('[data-dv2-acao="descartar"]', 900)];
+/** Pesquisar algo que não existe (o estado sem resultados) e limpar. */
+const semResultados = (texto: string): Passo[] => [escrS('[data-dv2-q]', texto, 1400), sep('[data-dv2-ativos] [data-dv2-acao="limpar"]', 900)];
+const STOCKS: Passo[] = [
   { ecra: 'inicio', legenda: '', pausa: 1500 },
+  /* 70 · Inventário inicial */
   menuS('stocks.inventario-inicial'),
-  sep('tbody tr[data-dv2-id]', 1000),
-  sep('[data-dv2-jan-tab="linhas"]', 900),
-  sep('[data-dv2-jan-tab="stock"]', 1000),
-  sep('[data-dv2-jan-acao="fechar"]'),
+  sep('[data-inv2-k="rasc"]', 1200), sep('[data-inv2-k="rasc"]', 600),
+  escS('[data-inv2-per]', 'ano-1', 1200), sep('[data-dv2-tirar="periodo"]', 700),
+  ...semResultados('9999'),
+  sep('[data-dv2-vista="cartoes"]', 1400), sep('[data-dv2-vista="armazem"]', 1400), sep('.inv2-arv tr.inv2-d .inv2-seta', 1400), sep('[data-dv2-vista="docs"]', 900),
+  ...janelaDoc('tr[data-dv2-id="II 2026/0003"]', ['linhas', 'stock', 'detalhes']),
+  sep('tr[data-dv2-id="II 2026/0001"]', 500), sep('[data-dv2-jan-acao="fechar"]', 300), sep('[data-dv2-acao="lancar"]', 1800),
+  sep('tr[data-dv2-id="II 2026/0002"]', 500), sep('[data-dv2-jan-acao="fechar"]', 300), sep('[data-dv2-acao="lancar"]', 1800), sep('[data-dv2-dlg-fechar]', 600),
+  ...editarDescartar('tr[data-dv2-id="II 2026/0002"]', '500'),
+  ...novoVazio,
+  /* 71 · Transferências: as vistas, os erros, e uma transferência feita do princípio ao fim */
   menuS('stocks.transf-armazens'),
-  sep('tbody tr[data-dv2-id]', 1000),
-  sep('[data-dv2-jan-tab="linhas"]', 900),
-  sep('[data-dv2-jan-tab="stock"]', 1000),
-  sep('[data-dv2-jan-acao="fechar"]'),
+  escS('[data-tra2-dest]', '1', 1200), sep('[data-dv2-tirar="x:dest"]', 700),
+  sep('[data-inv2-k="anul"]', 1200), sep('[data-inv2-k="anul"]', 600),
+  sep('[data-dv2-vista="cartoes"]', 1400),
+  sep('[data-dv2-vista="armazem"]', 1200), sep('[data-dv2-acao="arm-por"][data-tra2-v="destino"]', 1400),
+  sep('[data-dv2-vista="fluxos"]', 1400), sep('path.tra2-lig', 1600), sep('[data-dv2-acao="fl-met"][data-tra2-v="valor"]', 1200), sep('[data-dv2-acao="fl-incl"][data-tra2-v="rasc"]', 1400), sep('[data-dv2-acao="fl-incl"][data-tra2-v="rasc"]', 400),
+  sep('[data-dv2-vista="docs"]', 900),
+  ...janelaDoc('tr[data-dv2-id="TA 2026/0011"]', ['linhas', 'stock']),
+  sep('tr[data-dv2-id="TA 2026/0015"]', 500), sep('[data-dv2-jan-acao="fechar"]', 300), sep('[data-dv2-acao="lancar"]', 1800),
+  ...novoVazio,
+  sep('[data-dv2-acao="novo"]', 1200),
+  escS('[data-dv2-ficha] [data-dv2-ff="destino"]', '1', 700),
+  escrS('[data-dv2-ficha] [data-dv2-l="ref"]', '6205-2Z', 700),
+  escrS('[data-dv2-ficha] [data-dv2-l="qtd"]', '4', 700),
+  escrS('[data-dv2-ficha] [data-dv2-ff="notas"]', 'Reposição do Porto', 600),
+  sep('[data-dv2-ficha] [data-dv2-acao="gravar"]', 1600),
+  sep('[data-dv2-acao="lancar"]', 1600), sep('[data-dv2-acao="lancar-sim"]', 1800),
+  sep('[data-dv2-vista="fluxos"]', 1800),
+  sep('[data-dv2-vista="docs"]', 600),
+  /* 72 · Ajustamento em valor, 73 · Acréscimos, 74 · Perdas */
   menuS('stocks.ajuste-valor'),
-  sep('tbody tr[data-dv2-id]', 1000),
-  sep('[data-dv2-jan-tab="linhas"]', 1000),
-  sep('[data-dv2-jan-acao="fechar"]'),
+  escS('select[data-dv2-f="estado"]', 'lanc', 1000), sep('[data-dv2-tirar="estado"]', 600),
+  ...janelaDoc('tbody tr[data-dv2-id]', ['linhas']),
+  ...novoVazio,
   menuS('stocks.acrescimos'),
-  sep('[data-dv2-acao="novo"]', 1400),
-  sep('[data-dv2-acao="fechar-ficha"]'),
+  sep('[data-dv2-modo="descricao"]', 600), ...semResultados('zzz'), sep('[data-dv2-modo="numero"]', 500),
+  ...janelaDoc('tbody tr[data-dv2-id]', ['linhas', 'anexos']),
+  ...novoVazio,
   menuS('stocks.perdas'),
-  sep('tbody tr[data-dv2-id]', 1000),
-  sep('[data-dv2-jan-tab="linhas"]', 1400),
-  { legenda: '' },
-];
-registarCaso('erp-stocks-documentos', 'Stocks: inventário, transferência, ajuste, acréscimo e perda', STOCKS_DOCS, SEM);
+  sep('[data-dv2-acao="mais-filtros"]', 900), sep('[data-dv2-acao="mais-filtros"]', 400),
+  ...janelaDoc('tbody tr[data-dv2-id]', ['linhas']),
+  sep('tbody tr[data-dv2-id]', 500), sep('[data-dv2-jan-acao="fechar"]', 300), sep('[data-dv2-acao="anular"]', 1600), sep('[data-dv2-dlg-fechar]', 600),
+  /* 75 · Artigos/clientes, 76 · Mapa de stocks, 77 · Movimentos, 78 · Inventário */
 
-const STOCKS_MAPAS: Passo[] = [
-  { ecra: 'inicio', legenda: '', pausa: 1500 },
   menuS('stocks.mapa-artigos-clientes'),
   sep('.mac2-ini-b', 1600),
   sep('[data-mac2-trocar]', 1600),
@@ -249,11 +285,7 @@ const STOCKS_MAPAS: Passo[] = [
   sep('[data-minv2-ver]', 1600),
   { legenda: '' },
 ];
-registarCaso('erp-stocks-mapas', 'Stocks: quem comprou, o stock, os movimentos e o inventário', STOCKS_MAPAS, SEM);
-/* 19 nov. (ela, com o menu Stocks do Explorador: «quero um button para apenas produzir o fluxo disto»): o menu Stocks
-   inteiro — os documentos e os mapas seguidos, sem voltar ao Início a meio. Toca-se pelo ▷ da pasta Stocks no Explorador
-   (ide/vista.ts, FLUXO_PASTA) e também aparece na barra da demonstração. Não entra no «Tudo» (já lá estão os dois). */
-registarRoteiro('erp-stocks', 'Stocks: todo o menu (documentos e mapas)', [...STOCKS_DOCS, ...STOCKS_MAPAS.filter((x) => !x.ecra)], SEM);
+registarCaso('erp-stocks', 'Stocks: todos os ecrãs, cenários e uma transferência feita', STOCKS, SEM);
 
 /* os percursos com explicação (nome e objetivo de cada um): os estados do Início, e todos os ecrãs e estados do ERP */
 registarRoteiro('erp-estados-inicio', 'Os estados da área de trabalho, um a um', () => percurso((e) => e.dataset.ecra === 'inicio' || e.dataset.estadoDe === 'inicio'));

@@ -174,7 +174,8 @@ async function escreverEm(el: HTMLInputElement, texto: string): Promise<void> {
 async function clicar(el: HTMLElement): Promise<void> {
   rato!.classList.remove('is-clique'); void rato!.offsetWidth; rato!.classList.add('is-clique');
   el.classList.add('demo-alvo'); await dormir(quieto() ? 80 : 260); el.classList.remove('demo-alvo');
-  el.click();
+  /* 19 nov.: um elemento de SVG (as ligações dos Fluxos) não tem click(): manda-se o evento */
+  if (typeof el.click === 'function') el.click(); else el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 }
 function escrever(i: number, n: number, t: string, titulo: string): void {
   legenda!.querySelector('.demo-legenda__passo')!.textContent = `${titulo} · ${i} de ${n}`;
