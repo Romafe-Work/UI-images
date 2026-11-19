@@ -174,7 +174,7 @@ function vistas(r: HTMLElement, e: EstDoc): boolean {
   g.hidden = outra; vg.hidden = !outra; r.dataset.dv2VistaAtual = v.k;
   if (outra) vg.innerHTML = v.tabela!(r, e);
   /* nas outras vistas a pesquisa procura em toda a linha */
-  const q = r.querySelector<HTMLInputElement>('[data-dv2-q]'); if (q) { q.dataset.dv2Ph ??= q.placeholder; q.placeholder = outra ? 'Procura em toda a linha: encomenda, fornecedor, artigo, cliente…' : q.dataset.dv2Ph; }
+  const q = r.querySelector<HTMLInputElement>('[data-dv2-q]'); if (q && !c.vistasComPesquisa) { q.dataset.dv2Ph ??= q.placeholder; q.placeholder = outra ? 'Procura em toda a linha: encomenda, fornecedor, artigo, cliente…' : q.dataset.dv2Ph; }
   return outra;
 }
 export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
@@ -224,12 +224,13 @@ export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
 function resumo(r: HTMLElement, e: EstDoc): void {
   const p = r.querySelector<HTMLElement>('[data-dv2-resumo]')!, v = cfgDe(r).vistas?.find((x) => x.k === vistaDe(e));
   p.innerHTML = e.fase === 'ok' || e.fase === 'atualizar' ? (v?.resumo && v.k !== 'docs' ? v.resumo(e) : cfgDe(r).resumo(filtradas(r, e))) : '';
+  const k = r.querySelector<HTMLElement>('[data-dv2-kpis]'); if (k) k.innerHTML = cfgDe(r).kpis!(r, e);
 }
 function estado(r: HTMLElement, e: EstDoc): void {
   const c = cfgDe(r), ok = e.fase === 'ok' || e.fase === 'atualizar', ls = ok ? filtradas(r, e) : [], todas = ok && !e.vazia ? c.linhas(e).length : 0, m = MODOS.find((x) => x.k === e.modo)!, d = ativoDe(r, e);
   const fase = e.fase === 'carregar' ? 'A carregar…' : e.fase === 'atualizar' ? 'A atualizar…' : e.fase === 'erro' ? 'Sem dados' : e.ocupado ? String(e.extra.ocupadoTexto ?? 'A gravar…') : e.ficha?.sujo ? 'Alterações por gravar' : 'Pronto';
   const livre = e.fase === 'ok' && !e.ocupado;
-  r.querySelector<HTMLElement>('[data-dv2-estado]')!.innerHTML = `<span>${c.um[0].toUpperCase()}${c.um.slice(1)}s <b>${nf(ls.length)}</b>${todas && todas !== ls.length ? ` de ${nf(todas)}` : ''}</span><span>Escolhidos <b>${nf(e.sel.size)}</b></span><span>${c.vistas && vistaDe(e) !== 'docs' ? 'Procura em <b>toda a linha</b>' : `Pesquisar por <b>${esc(m.t)}</b> · ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`}</span><span>Utilizador <b>${esc(PERFIS[e.perfil].pessoa)}</b></span><span class="ak-estado-f is-${livre && !e.ficha?.sujo ? 'ok' : 'a-gerar'}">${livre ? '' : L(loader)}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
+  r.querySelector<HTMLElement>('[data-dv2-estado]')!.innerHTML = `<span>${c.um[0].toUpperCase()}${c.um.slice(1)}s <b>${nf(ls.length)}</b>${todas && todas !== ls.length ? ` de ${nf(todas)}` : ''}</span><span>Escolhidos <b>${nf(e.sel.size)}</b></span><span>${c.vistas && vistaDe(e) !== 'docs' && !c.vistasComPesquisa ? 'Procura em <b>toda a linha</b>' : `Pesquisar por <b>${esc(m.t)}</b> · ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`}</span><span>Utilizador <b>${esc(PERFIS[e.perfil].pessoa)}</b></span><span class="ak-estado-f is-${livre && !e.ficha?.sujo ? 'ok' : 'a-gerar'}">${livre ? '' : L(loader)}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
   const porque: Record<string, string> = {
     novo: e.ficha ? 'Já há uma ficha aberta.' : c.porque.novo(e),
     editar: e.ficha?.modo === 'editar' ? (comJanelas(r) ? `Já estás a editar ${e.ficha.ref} numa janela: grava ou fecha primeiro.` : 'A ficha já está em edição.') : c.porque.editar(e, d),

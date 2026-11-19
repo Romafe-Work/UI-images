@@ -21,7 +21,8 @@ import { comEstadosCp } from './compras/estados-cp';
 import { ecrasMenuAntigo } from './compras/menu-antigo';
 import { ecrasCompras2, VERSAO_COMPRAS_V2 } from './compras/ecras';
 import { ecrasFase2 } from './compras/ecras2';
-import { ecrasStocks, DESCRICAO_STOCKS } from './stocks/inventario-inicial';
+import { DESCRICAO_STOCKS } from './stocks/inventario-inicial';
+import { ecrasInventarioInicial } from './stocks/inventario-inicial-v2';
 import { ecrasTransferencias } from './stocks/transferencias';
 import { ecrasAjustamentos } from './stocks/ajustamentos';
 import { ecrasMovimentos } from './stocks/movimentos';
@@ -72,7 +73,7 @@ export const erp: App<IdErp> = {
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
   /* 27 out. (ela: «sim», tirar): a Receção de encomendas, as Guias de transporte e as Devoluções passaram a vistas das Encomendas e das Guias */
-  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasStocks(), ...ecrasTransferencias(), ...ecrasAjustamentos(), ...ecrasMovimentos(), ...ecrasMapaArtigosClientes(), ...ecrasMapaStocks(), ...ecrasMapaMovimentos(), ...ecrasMapaInventario(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
+  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasInventarioInicial(), ...ecrasTransferencias(), ...ecrasAjustamentos(), ...ecrasMovimentos(), ...ecrasMapaArtigosClientes(), ...ecrasMapaStocks(), ...ecrasMapaMovimentos(), ...ecrasMapaInventario(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
 };
 
 /* 28 out. 2026 (ela: «no erp tenho ecrãs diferentes, não fazem sentido; por agora no menu lateral só quero início e as

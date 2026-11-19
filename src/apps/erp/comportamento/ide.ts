@@ -836,7 +836,7 @@ function barraAcoes(): void {
   };
   const docE = docBarra ? (() => { try { return frames.get(docBarra)?.contentDocument ?? null; } catch { return null; } })() : null;
   const grupos = docE ? [...docE.querySelectorAll<HTMLElement>(GRUPOS_VIS)].filter((g) => !g.closest('[hidden], [role="dialog"], .lf2-jan') && (g.parentElement?.getClientRects().length ?? 0) > 0) : [];
-  if (docE && docE.body !== obsGruposEm) { obsGrupos?.disconnect(); obsGruposEm = docE.body; obsGrupos = new MutationObserver(() => { cancelAnimationFrame(barraT); barraT = requestAnimationFrame(barraAcoes); }); obsGrupos.observe(docE.body, { subtree: true, attributes: true, attributeFilter: ['aria-checked', 'hidden'] }); }
+  if (docE?.body && docE.body !== obsGruposEm) { obsGrupos?.disconnect(); obsGruposEm = docE.body; obsGrupos = new MutationObserver(() => { cancelAnimationFrame(barraT); barraT = requestAnimationFrame(barraAcoes); }); obsGrupos.observe(docE.body, { subtree: true, attributes: true, attributeFilter: ['aria-checked', 'hidden'] }); }
   const corpoB = b ? [...b.children].map((c) => filho(c as HTMLElement)).join('') : '', gs = grupos.map(grupo).join('');
   const corpo = corpoB.includes('ide-cmds-fim') ? corpoB.replace('<span class="ide-cmds-fim"></span>', `${gs}<span class="ide-cmds-fim"></span>`) : corpoB + gs;
   el.innerHTML = it ? `<span class="ide-doc-ativo" title="As ações vão para este ecrã">${iconeItem(it)}<span>${esc(it.titulo)}</span></span><i class="ide-cmds-sep" aria-hidden="true"></i>${corpo || `<span class="ide-ac-tx">${aCarregar.has(docBarra) ? 'A abrir…' : 'Este ecrã não tem ações.'}</span>`}` : '<span class="ide-ac-tx">Abre um ecrã para ver as ações dele.</span>';

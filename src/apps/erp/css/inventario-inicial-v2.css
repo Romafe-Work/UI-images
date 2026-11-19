@@ -1,0 +1,146 @@
+/* =========================================================
+   ERP — Stocks: 70 · Inventário inicial v2 (19 nov. 2026). Ver stocks/inventario-inicial-v2.ts.
+   Sobre o motor das listas (docs-v2.css, faltas-v2.css), os indicadores e os cartões do 78 v2 (mapa-inventario-v2.css)
+   e as vistas em cima das Encomendas (encomendas-v5.css). Claro e escuro pelos --h-*; verde só no lançado, vermelho só
+   no anulado, laranja só na ação.
+   ========================================================= */
+.dv2--inv2 { --minv2-gap: 12px; }
+
+/* os indicadores: três que filtram (estados) e dois de valor (só os lançados) */
+.dv2--inv2 .dv2-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, .8fr)) repeat(2, minmax(0, 1.25fr)); gap: var(--minv2-gap); margin: 12px clamp(16px, 2vw, 28px) 0; }
+.dv2--inv2 .dv2-kpis:empty { display: none; }
+.dv2--inv2 .inv2-k-anul .minv2-kpi-ic { background: color-mix(in srgb, var(--h-erro) 11%, transparent); color: var(--h-erro); }
+.dv2--inv2 .inv2-k-rasc .minv2-kpi-ic { background: color-mix(in srgb, var(--h-tinta-3) 14%, transparent); color: var(--h-tinta-2); }
+.dv2--inv2 .minv2-kpi b { font-size: 20px; }
+.dv2--inv2 .minv2-kpi.is-total b { font-size: 22px; }
+
+/* a tabela: as observações numa linha, inteiras ao passar */
+.dv2--inv2 .inv2-notas { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* cartões */
+.dv2--inv2 [data-dv2-vista-g] { padding: 12px; }
+.inv2-c-cab { display: flex; justify-content: flex-end; margin: 0 0 10px; }
+.inv2-ord { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--h-tinta-2); }
+.inv2-ord select { height: 32px; }
+.inv2-cartao { grid-template-rows: auto auto auto 1fr auto auto; }
+.inv2-cartao .minv2-nums { align-self: end; }
+.inv2-cartao .minv2-nums dd { overflow: visible; white-space: normal; }
+.inv2-c-qtd dd { line-height: 1.25; }
+.inv2-cartao > p.inv2-papel { margin: 8px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inv2-c-notas { margin: 6px 0 0; overflow: hidden; font-size: 14px; color: var(--h-tinta-2); text-overflow: ellipsis; white-space: nowrap; }
+.inv2-cartao > footer { flex-wrap: wrap; align-items: center; gap: 6px; }
+.inv2-cartao > footer:empty { display: none; }
+.inv2-cartao.is-revertido, .inv2-cartao.is-sem-efeito { background: color-mix(in srgb, var(--h-sup-2) 55%, var(--h-sup)); }
+.inv2-cartao.is-revertido .minv2-nums dd, .inv2-cartao.is-sem-efeito .minv2-nums dd { color: var(--h-tinta-3); }
+.inv2-papel { font-size: 13px; color: var(--h-tinta-3); }
+.inv2-papel.is-vigor { color: color-mix(in srgb, var(--h-ok) 80%, var(--h-tinta)); font-weight: 650; }
+.inv2-papel.is-espera { color: color-mix(in srgb, var(--h-laranja) 80%, var(--h-tinta)); }
+.dv2--inv2 .inv2-pag { margin: 12px -12px -12px; }
+
+/* por armazém: a árvore */
+.inv2-arv { width: 100%; table-layout: fixed; }
+.inv2-arv td { vertical-align: middle; }
+.inv2-arv th.is-num { text-align: right; }
+.inv2-arv td small { display: block; font-size: 13px; color: var(--h-tinta-3); font-weight: 500; }
+.inv2-arv td.is-num small { white-space: nowrap; }
+.inv2-a-n { display: inline-grid; min-width: 0; vertical-align: middle; }
+.inv2-a-n b, .inv2-a-n small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inv2-seta { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 6px; padding: 0; border: 0; border-radius: var(--r-md, 6px); background: none; color: var(--h-tinta-2); vertical-align: middle; cursor: pointer; }
+.inv2-seta:hover { background: var(--h-sup-2); }
+.inv2-seta:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.inv2-seta svg { width: 16px; height: 16px; transition: transform .14s ease; }
+.inv2-seta[aria-expanded="true"] svg { transform: rotate(90deg); }
+.inv2-arv tr.inv2-a > td { background: var(--h-sup-2); }
+.inv2-arv tr.inv2-a b { font-size: 15px; }
+.inv2-arv tr.inv2-y > td { padding-left: 34px; }
+.inv2-arv tr.inv2-y b { margin-right: 8px; }
+.inv2-arv tr.inv2-y small { display: inline; }
+.inv2-arv tr.inv2-d > td:first-child { padding-left: 62px; }
+.inv2-arv tr.inv2-d { cursor: pointer; }
+.inv2-arv tr.inv2-d:hover > td { background: color-mix(in srgb, var(--h-azul) 5%, transparent); }
+.inv2-arv tr.inv2-d.is-ativo > td { background: color-mix(in srgb, var(--h-azul) 9%, transparent); }
+.inv2-arv tr.inv2-d:focus-visible { outline: 2px solid var(--h-azul); outline-offset: -2px; }
+.inv2-arv tr.inv2-d:is(.is-revertido, .is-sem-efeito) td.is-num { color: var(--h-tinta-3); }
+.inv2-arv tr.inv2-l > td { font-size: 14px; }
+.inv2-arv tr.inv2-l > td:first-child { padding-left: 122px; }
+.inv2-cont { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 13.5px; color: var(--h-tinta-2); }
+.inv2-arv td.inv2-cont { display: table-cell; } .inv2-cont span { display: inline-block; margin-right: 10px; }
+
+/* o detalhe: a rastreabilidade */
+.inv2-rastro { margin: 14px 0 0; }
+.inv2-rastro h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 14.5px; }
+.inv2-rastro h3 svg { width: 16px; height: 16px; color: rgb(0, 99, 170); }
+.inv2-rastro ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.inv2-rastro li { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; align-items: baseline; gap: 2px 10px; padding: 6px 0; border-top: 1px solid var(--h-borda); font-size: 14px; }
+.inv2-rastro li > span { font-weight: 700; color: var(--h-tinta-2); }
+.inv2-rastro li > b { font-weight: 600; }
+.inv2-rastro li time { font-variant-numeric: tabular-nums; color: var(--h-tinta-3); }
+.inv2-rastro li small { grid-column: 2 / -1; color: var(--h-tinta-3); }
+.inv2-rastro li .ak-btn { height: 30px; font-size: 13.5px; }
+.inv2-mov { height: 28px; font-size: 13.5px; white-space: nowrap; }
+
+/* lançar: o resumo antes de confirmar */
+.inv2-lanc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 14px; margin: 10px 0 12px; }
+.inv2-lanc dt { font-size: 12.5px; font-weight: 700; color: var(--h-tinta-3); }
+.inv2-lanc dd { margin: 1px 0 0; font-size: 14.5px; }
+.inv2-lanc-ef { grid-column: 1 / -1; }
+
+/* tablet e telemóvel */
+/* (as regras dos indicadores do 78 para ecrãs estreitos são globais: aqui repõe-se a ordem e a largura) */
+.dv2--inv2 .dv2-kpis > .minv2-kpi { order: 0; grid-column: auto; }
+@media (max-width: 1180px) {
+  .dv2--inv2 .dv2-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .dv2--inv2 .dv2-kpis > .minv2-kpi { grid-column: span 2; }
+  .dv2--inv2 .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: span 3; }
+}
+@media (max-width: 720px) {
+  .dv2--inv2 .dv2-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dv2--inv2 .dv2-kpis > .minv2-kpi, .dv2--inv2 .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: span 1; }
+  .dv2--inv2 .dv2-kpis > .minv2-kpi.is-total { grid-column: 1 / -1; }
+  .inv2-arv col:nth-child(2), .inv2-arv col:nth-child(3) { width: 0 !important; }
+  /* (escondidas sem sair da tabela: com display: none as células seguintes passavam às colunas de largura 0) */
+  .inv2-arv tr:not(.inv2-y) > :is(th, td):is(:nth-child(2), :nth-child(3)) { visibility: hidden; padding: 0; border-left: 0; border-right: 0; overflow: hidden; white-space: nowrap; }
+  .inv2-arv tr.inv2-d > td:first-child { padding-left: 10px; }
+  .inv2-arv tr.inv2-y > td { padding-left: 4px; }
+  .inv2-seta { width: 20px; margin-right: 2px; }
+  .inv2-arv b.is-mono { font-size: 13px; }
+  .inv2-arv tr.inv2-l > td:first-child { padding-left: 32px; }
+  .inv2-a-n { max-width: calc(100% - 24px); }
+  .inv2-arv tr.inv2-l .inv2-a-n { max-width: 100%; }
+  .inv2-a-n b, .inv2-a-n small { white-space: normal; overflow-wrap: break-word; text-overflow: clip; }
+  .inv2-arv td.is-num, .inv2-arv td.is-num small { white-space: normal; text-overflow: clip; font-size: 13.5px; }
+  .inv2-arv tr:not(.inv2-y) > :is(th, td):is(:nth-child(2), :nth-child(3)) > * { display: none; }
+  .inv2-lanc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media print { .dv2--inv2 :is(.dv2-kpis, .dv2c-vistas-zona, .inv2-pag, .inv2-c-cab) { display: none !important; } .inv2-cartao footer .ak-btn { display: none; } }
+
+/* os filtros rápidos têm mais um campo (o Período): Série · Pesquisa · Armazém · Estado · Período · Mais filtros */
+.dv2--inv2 .dv2-rapidos { grid-template-columns: minmax(110px, 140px) minmax(420px, 1fr) minmax(150px, 210px) minmax(140px, 180px) minmax(150px, 200px) auto; }
+@media (max-width: 1599px) {
+  .dv2--inv2 .dv2-rapidos { grid-template-columns: minmax(100px, 150px) minmax(140px, 1fr) minmax(130px, 200px) minmax(150px, 200px) auto; }
+  .dv2--inv2 .dv2-rapidos .lf2-mais-f { grid-column: 5; grid-row: 1; }
+}
+/* tablet estreito: a tabela perde as observações (veem-se no documento) */
+@media (max-width: 900px) {
+  .dv2--inv2 [data-dv2-grelha] col[data-dv2-w="notas"] { width: 0 !important; }
+  .dv2--inv2 [data-dv2-grelha] :is(th[data-dv2-col="notas"], td[data-col="notas"]) { display: none; }
+}
+/* telemóvel: abre nos cartões (o .ts escolhe-os); filtros em duas colunas, a pesquisa numa linha própria (os modos por
+   cima da caixa); a tabela, se se escolher, rola de lado dentro da sua caixa */
+@media (max-width: 760px) {
+  .dv2--inv2 .dv2-rapidos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dv2--inv2 .dv2-rapidos > * { grid-column: auto !important; grid-row: auto !important; min-width: 0; }
+  .dv2--inv2 .dv2-rapidos > .dv2-pesquisa, .dv2--inv2 .dv2-rapidos > .lf2-mais-f { grid-column: 1 / -1 !important; }
+  .dv2--inv2 .dv2-rapidos > .lf2-mais-f { justify-self: start; }
+  .dv2--inv2 .dv2-pq { flex-wrap: wrap; height: auto; }
+  .dv2--inv2 .dv2-pq .dv2-modos { flex: 1 1 100%; overflow-x: auto; }
+  .dv2--inv2 .dv2-pq .lf2-pq-in { flex: 1 1 100%; min-height: 32px; border-top: 1px solid var(--h-borda); }
+  .dv2--inv2 .dv2-pq .lf2-comp { border-top: 1px solid var(--h-borda); }
+  .dv2--inv2 [data-dv2-grelha] { overflow-x: auto; }
+  .dv2--inv2 [data-dv2-grelha] > table { min-width: 620px; }
+  .dv2--inv2 .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: 1 / -1; }
+  .dv2--inv2 .dv2c-vistas button span { display: none; }
+  .dv2--inv2 .dv2c-vistas button { padding: 0 12px; }
+  .inv2-arv col:nth-child(1) { width: 52% !important; } .inv2-arv col:nth-child(4) { width: 20% !important; } .inv2-arv col:nth-child(5) { width: 28% !important; }
+  .dv2--inv2 .dv2-kpis > .minv2-kpi b { white-space: normal; font-size: 18px; }
+}

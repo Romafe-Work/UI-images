@@ -37,7 +37,7 @@ import arrowDownToLine from 'lucide-static/icons/arrow-down-to-line.svg?raw';
 
 /* ---------- as linhas: um documento de inventário inicial por linha ---------- */
 const pessoa = (p: string) => PERFIS[p as keyof typeof PERFIS]?.pessoa ?? p;
-function linhas(e: EstDoc): Doc[] {
+export function linhas(e: EstDoc): Doc[] {
   return inventarios().map((d): Doc => {
     const anulado = d.estado === 'Anulado' || e.extra.anuladoSim === d.ref;
     /* no estado «Lançado» do editor, o rascunho mostra-se como lançado sem gravar nada */
@@ -47,10 +47,10 @@ function linhas(e: EstDoc): Doc[] {
       uIns: pessoa(d.criador), uAlt: pessoa(d.alterado), moeda: 'EUR' };
   });
 }
-const doc = (d: Doc) => inventario(String(d.ref))!;
+export const doc = (d: Doc) => inventario(String(d.ref))!;
 
 /* ---------- a configuração ---------- */
-const COLS: CfgDoc['cols'] = [
+export const COLS: CfgDoc['cols'] = [
   { k: 'numero', t: 'Número', tipo: 'mono', w: 130, presa: true, antiga: true },
   { k: 'data', t: 'Data de emissão', tipo: 'data', w: 120, antiga: true },
   { k: 'armazem', t: 'Armazém', tipo: 'txt', w: 170 },
@@ -63,8 +63,8 @@ const COLS: CfgDoc['cols'] = [
   { k: 'uIns', t: 'Utilizador de inserção', tipo: 'txt', w: 160 },
   { k: 'uAlt', t: 'Utilizador de alteração', tipo: 'txt', w: 160 },
 ];
-const badge = (cls: string, ic: string, t: string, title = '') => `<span class="lf2-b ${cls}"${title ? ` title="${esc(title)}"` : ''}>${L(ic)}${t}</span>`;
-function celula(d: Doc, k: string): string {
+export const badge = (cls: string, ic: string, t: string, title = '') => `<span class="lf2-b ${cls}"${title ? ` title="${esc(title)}"` : ''}>${L(ic)}${t}</span>`;
+export function celula(d: Doc, k: string): string {
   switch (k) {
     case 'numero': return `<span class="lf2-art"><b>${esc(String(d.numero))}</b></span>`;
     case 'data': return dia(String(d.data));
@@ -75,13 +75,13 @@ function celula(d: Doc, k: string): string {
     default: return esc(String(d[k] ?? '')) || '<span class="is-nada">—</span>';
   }
 }
-function valor(d: Doc, k: string): string | number { return (d[k] as string | number) ?? ''; }
-const editavel = (e: EstDoc, d: Doc | undefined) => !!d && !d.anulado && !d.lancado && podeInv(e.perfil, 'editar');
-const porqueLancar_ = (e: EstDoc, d: Doc | undefined) => d?.anulado ? 'O documento está anulado.' : porqueLancar(e.perfil, d ? doc(d) : undefined);
+export function valor(d: Doc, k: string): string | number { return (d[k] as string | number) ?? ''; }
+export const editavel = (e: EstDoc, d: Doc | undefined) => !!d && !d.anulado && !d.lancado && podeInv(e.perfil, 'editar');
+export const porqueLancar_ = (e: EstDoc, d: Doc | undefined) => d?.anulado ? 'O documento está anulado.' : porqueLancar(e.perfil, d ? doc(d) : undefined);
 
 /* ---------- o painel do documento escolhido ---------- */
 const dd = (t: string, v: string, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${t}</dt><dd>${v}</dd></div>`;
-function painel(e: EstDoc, d: Doc | undefined, tab: string): string {
+export function painel(e: EstDoc, d: Doc | undefined, tab: string): string {
   if (!d) return '';
   const x = doc(d);
   if (tab === '_alvo') return `<b>${esc(x.ref)}</b><span>${esc(armazemDe(x.armazem))} · ${nf(x.linhas.length)} ${x.linhas.length === 1 ? 'artigo' : 'artigos'} · ${euros(valorTotal(x))}</span>`;
@@ -173,7 +173,7 @@ function recalcular(r: HTMLElement): void {
 }
 
 /* ---------- lançar no stock (Ctrl+F2) ---------- */
-function dlgLancar(r: HTMLElement, e: EstDoc, erro = ''): void {
+export function dlgLancar(r: HTMLElement, e: EstDoc, erro = ''): void {
   const d = ativoDe(r, e); if (!d) return;
   const porque = porqueLancar_(e, d); if (porque && !erro) { toast(r, porque); return; }
   const x = doc(d), nome = armazemDe(x.armazem);
@@ -201,7 +201,7 @@ async function lancar(r: HTMLElement, e: EstDoc, b: HTMLElement): Promise<void> 
 }
 
 /* ---------- registar ---------- */
-const CFG = registar({
+export const CFG = registar({
   k: 'inv', titulo: 'Inventário Inicial', sub: 'Documentos de stock com as quantidades e os custos de partida de cada armazém.', icone: packagePlus, um: 'documento', o: 'o',
   caminho: [['ERP', 'inicio'], ['Stocks', 'stocks'], ['Inventário inicial', '']],
   cols: COLS, verIniciais: ['numero', 'data', 'armazem', 'notas', 'qtd', 'valor', 'estado'], ajustar: true,

@@ -94,6 +94,9 @@ export interface CfgDoc {
   /** 18 nov. (ela: «não quero scroll lateral na tabela»): a tabela cabe na largura — as colunas repartem-na em proporção da
    *  largura de cada uma e o texto comprido corta com «…»; nunca há barra de lado */
   ajustar?: boolean;
+  /** 19 nov. (Inventário Inicial v2): indicadores entre os filtros e a lista (reagem aos filtros); campos a mais nos filtros
+   *  rápidos e nos avançados; e as outras vistas com a mesma pesquisa, filtros e ordem da lista (não «toda a linha») */
+  kpis?(r: HTMLElement, e: EstDoc): string; rapidos?(id: (x: string) => string): string; avancados?(id: (x: string) => string): string; vistasComPesquisa?: boolean;
 }
 export interface Vista { k: string; t: string; ic: string; tecla: string; titulo: string; tabela?(r: HTMLElement, e: EstDoc): string; resumo?(e: EstDoc): string }
 export const CFGS = new Map<string, CfgDoc>();
@@ -154,17 +157,20 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
       ${c.construtor ? '' : pesquisaModos(id)}
       ${campo('forn', c.rotuloForn ?? 'Fornecedor', `<select id="${id('forn')}" data-dv2-f="forn" data-dv2-campo>${op('', 'Todos')}${fornecedores.map(([v, t]) => op(v, t)).join('')}</select>`)}
       ${campo('estado', 'Estado', `<select id="${id('estado')}" data-dv2-f="estado" data-dv2-campo>${c.estados.map(([v, t]) => op(v, t)).join('')}</select>`)}
+      ${c.rapidos?.(id) ?? ''}
       <button type="button" class="lf2-mais-f" data-dv2-acao="mais-filtros" aria-expanded="false" aria-controls="${id('av')}">${L(sliders)}<span>Mais filtros</span><small data-dv2-n-av></small>${L(chevronDown, 'lf2-seta')}</button>
     </div>
     ${c.construtor ? c.construtor(cen) : ''}
     <div class="lf2-avancados dv2-avancados" id="${id('av')}" data-dv2-av hidden>
       <div class="ak-campo dv2-periodo" role="group" aria-labelledby="${id('per')}"><span id="${id('per')}">Período</span><span class="ak2-per"><input type="date" id="${id('de')}" data-dv2-f="de" data-dv2-campo aria-label="Período — de"><i>a</i><input type="date" id="${id('ate')}" data-dv2-f="ate" data-dv2-campo aria-label="Período — até"></span></div>
       ${campo('moeda', 'Moeda', `<select id="${id('moeda')}" data-dv2-f="moeda" data-dv2-campo>${op('', 'Todas')}${op('EUR', 'EUR · euro')}</select>`)}
+      ${c.avancados?.(id) ?? ''}
       <p class="lf2-av-dica">${esc(c.dica)}</p>
     </div>
     <div class="lf2-ativos" data-dv2-ativos aria-live="polite"></div>
   </section>
 
+  ${c.kpis ? '<section class="dv2-kpis" data-dv2-kpis aria-label="Resumo"></section>' : ''}
   <section class="lf2-lista dv2-lista" aria-labelledby="${id('lista-t')}">
     ${c.vistas && !c.vistasEmCima ? `<div class="dv2-vistas" role="tablist" aria-label="Ver">${botoesVista(c.vistas)}</div>` : ''}
     <div class="lf2-lista-cab"><h2 id="${id('lista-t')}" data-dv2-lista-t>${esc(c.titulo)}</h2><p class="lf2-resumo" data-dv2-resumo></p></div>
