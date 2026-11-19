@@ -1,0 +1,79 @@
+/* =========================================================
+   ERP — Stocks ▸ Mapas ▸ 77 · Movimentos de artigos v2 (19 nov. 2026). Ver stocks/mapa-movimentos-v2.ts.
+   Assenta no do 78 v2 (css/mapa-inventario-v2.css: indicadores, cartões, vista, janela) e no dos outros mapas.
+   ========================================================= */
+.mva2 [data-mva2-p] > :is(.minv2-filtros, .minv2-kpis, .mva2-chips, .mva2-crit, .mva2-ctx, .mva2-graf, .mva2-conta) { margin-inline: var(--minv2-m); }
+.mva2 section[data-mva2-p][hidden] { display: none; }
+.mva2-barra [data-mva2-so] { display: inline-flex; gap: 6px; } .mva2-barra [data-mva2-so][hidden] { display: none; }
+
+/* a pesquisa: os modos e o comparar (no IDE vão para a barra de cima) e o campo */
+.mva2-filtros { grid-template-columns: minmax(320px, 2.4fr) repeat(2, minmax(150px, 1fr)) auto; }
+.mva2-pq { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mva2-pq .minv2-pesq-c { flex: 1 1 220px; }
+.mva2-pq .dv2-modos button kbd { display: none; }
+.mva2-mais { display: grid !important; grid-template-columns: minmax(220px, 1.4fr) minmax(280px, 1fr); gap: 8px 12px; }
+.mva2-mais[hidden] { display: none !important; }
+@media (max-width: 1180px) { .mva2-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mva2-pesq { grid-column: 1 / -1; } .mva2-filtros .minv2-filtros-bts { grid-column: 1 / -1; justify-content: flex-end; } .mva2-mais { grid-template-columns: 1fr; } }
+
+/* os filtros aplicados */
+.mva2-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 0; padding: 0; list-style: none; }
+.mva2-chips[hidden] { display: none; }
+.mva2-chips button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 6px 0 10px; border: 1px solid color-mix(in srgb, var(--h-azul) 40%, var(--h-borda)); border-radius: var(--r-md, 6px); background: color-mix(in srgb, var(--h-azul) 6%, var(--h-sup)); color: var(--h-tinta); font: inherit; font-size: 13.5px; cursor: pointer; }
+.mva2-chips button svg { width: 14px; height: 14px; color: var(--h-tinta-3); }
+.mva2-chips button:hover svg { color: var(--h-erro); }
+.mva2-chips button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.mva2-kpis.is-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1180px) { .mva2-kpis.is-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mva2-kpis.is-4 .minv2-kpi { grid-column: span 1; order: 0; } }
+.mva2-conta { grid-column: 1 / -1; margin: -2px 0 0; font-size: 13.5px; color: var(--h-tinta-2); font-variant-numeric: tabular-nums; }
+.mva2-conta-erro { color: var(--h-erro); font-weight: 700; }
+
+/* o tipo de movimento: um ícone discreto que diz se entra, sai, muda de armazém ou só de valor */
+.mva2-tipo { display: inline-flex; align-items: flex-start; gap: 6px; min-width: 0; }
+.mva2-tipo > svg { flex: none; width: 15px; height: 15px; margin-top: 2px; color: var(--h-tinta-3); }
+.mva2-tipo > span { display: grid; min-width: 0; } .mva2-tipo small { font-size: 12.5px; color: var(--h-tinta-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mva2-tipo.is-ent > svg { color: var(--h-ok); } .mva2-tipo.is-tra > svg { color: var(--h-azul); } .mva2-tipo.is-anul > span { color: var(--h-erro); }
+.mva2-art-c { display: grid; min-width: 0; } .mva2-art-c small { overflow: hidden; font-size: 13px; color: var(--h-tinta-3); text-overflow: ellipsis; white-space: nowrap; }
+.mva2-tab tbody tr.mva-linha.is-ativo td { background: color-mix(in srgb, var(--h-azul) 10%, var(--h-sup)); }
+.mva2-tab tbody tr.mva-linha.is-ativo td:first-child { box-shadow: inset 3px 0 0 var(--h-azul); }
+.mva2-tab tr.mva2-novo-art td { border-top: 2px solid var(--h-borda-forte); }
+.mva2-tab tr.mva2-final td { background: color-mix(in srgb, var(--h-azul) 7%, var(--h-sup-2)) !important; }
+.mva2-tab tfoot small, .mva2-tab .mva-abertura small { font-weight: 500; color: var(--h-tinta-3); }
+.mva2-cartao .mva2-tipo { font-size: 13px; color: var(--h-tinta-2); } .mva2-cartao .mva2-tipo > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.mva2-q.is-ent { color: var(--h-ok) !important; }
+.mva2-mes > header svg { width: 16px; height: 16px; color: var(--h-tinta-3); }
+.mva2-mes { cursor: default; }
+
+/* extrato e saldo: critérios numa linha e o cabeçalho do resultado */
+.mva2-crit { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 8px); background: var(--h-sup); }
+.mva2-crit[hidden], .mva2-ctx[hidden] { display: none; }
+.mva2-crit .ak-campo { min-width: 180px; } .mva2-crit-art { flex: 1 1 360px; max-width: 560px; } .mva2-crit-ano { min-width: 130px !important; }
+.mva2-crit .ak-campo :is(input, select) { font-size: 14px; }
+.mva2-crit-bts { display: inline-flex; gap: 6px; } .mva2-crit-bts .ak-btn { height: 32px; } .mva2-crit-bts .ak-btn[hidden] { display: none; }
+.mva2-crit .minv2-erro { position: static !important; flex-basis: 100%; margin: 0 !important; transform: none !important; }
+.mva2-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 12px; padding: 9px 12px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 8px); background: var(--h-sup); font-size: 14px; color: var(--h-tinta-2); }
+.mva2-ctx-id { display: inline-flex; align-items: baseline; gap: 8px; color: var(--h-tinta); } .mva2-ctx-id > b { font-size: 15px; } .mva2-ctx-id > span { font-weight: 600; }
+.mva2-ctx-i { display: inline-flex; align-items: center; gap: 5px; } .mva2-ctx-i svg { width: 15px; height: 15px; color: var(--h-tinta-3); }
+.mva2-ctx .ak-btn { margin-left: auto; height: 30px; }
+.mva2-lista.is-pendente .minv2-g { opacity: .55; }
+
+/* a evolução do stock */
+.mva2-graf { margin-top: 12px; padding: 10px 14px 6px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 8px); background: var(--h-sup); }
+.mva2-graf[hidden] { display: none; }
+.mva2-graf-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.mva2-graf-cab h3 { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 14.5px; } .mva2-graf-cab h3 svg { width: 16px; height: 16px; color: var(--h-azul); }
+.mva2-graf-cab .minv2-vistas { margin-left: auto; }
+.mva2-graf-cab p { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--h-tinta-3); }
+.mva2-graf svg.mva2-svg { display: block; width: 100% !important; height: auto !important; max-width: none; margin-top: 4px; overflow: visible; }
+.mva2-svg-g { stroke: var(--h-borda); stroke-width: 1; }
+.mva2-svg-y, .mva2-svg-x { fill: var(--h-tinta-3); font-size: 11px; font-family: inherit; } .mva2-svg-y { text-anchor: end; }
+.mva2-svg-l { fill: none; stroke: var(--h-azul); stroke-width: 2; }
+.mva2-svg-p { fill: var(--h-sup); stroke: var(--h-azul); stroke-width: 2; }
+
+/* a janela do movimento */
+.mva2-dl { display: grid; gap: 6px; margin: 10px 0 0; } .mva2-dl div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.mva2-dl dt { color: var(--h-tinta-3); font-weight: 600; } .mva2-dl dd { margin: 0; }
+.mva2-jan-acoes { margin: 14px 0 0; }
+.mva2-g-abrir { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; padding: 0; }
+.mva2-g-abrir > svg { width: 15px; height: 15px; transition: transform .15s; } .mva2-g-abrir[aria-expanded="false"] > svg { transform: rotate(-90deg); }
+.mva2-grupo-c { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; } .mva2-grupo-c[hidden] { display: none; } .mva2-grupo-c .ak-btn { height: 30px; } .mva2-grupo-c .ak-btn[hidden] { display: none; }
+@media print { .mva2 :is(.minv2-filtros, .mva2-chips, .minv2-kpis, .mva2-crit, .mva2-graf, .minv2-pag, [data-mva2-janela]) { display: none !important; } }

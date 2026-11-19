@@ -77,7 +77,7 @@ button.minv2-kpi[aria-pressed="true"] { border-color: var(--h-azul); background:
 .minv2-pag .ak-btn { width: 32px; height: 30px; padding: 0; justify-content: center; }
 .minv2-pag .ak-btn:disabled { opacity: .45; cursor: default; }
 .minv2-pag-n { margin-right: auto; font-variant-numeric: tabular-nums; }
-.minv2-pp { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; font-weight: 600; }
+.minv2-pp { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; font-weight: 600; white-space: nowrap; }
 
 /* a tabela */
 .minv2-tab td, .minv2-tab th { font-size: 14.5px; }

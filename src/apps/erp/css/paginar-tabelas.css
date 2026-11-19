@@ -6,6 +6,6 @@ tr.is-pag-fora { display: none !important; }
 .pag-t .ak-btn { display: inline-grid; place-items: center; width: 32px; height: 30px; padding: 0; }
 .pag-t .ak-btn svg { width: 16px; height: 16px; }
 .pag-t .ak-btn:disabled { opacity: .45; cursor: default; }
-.pag-t-pp { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; font-weight: 600; }
+.pag-t-pp { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; font-weight: 600; white-space: nowrap; }
 .pag-t-pp select { height: 30px; padding: 0 8px; border: 1px solid var(--h-borda-forte); border-radius: var(--r-md, 6px); background: var(--h-sup); color: var(--h-tinta); font: inherit; font-size: 14px; font-weight: 500; }
 @media print { .pag-t { display: none !important; } tr.is-pag-fora { display: table-row !important; } }

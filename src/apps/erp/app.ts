@@ -27,7 +27,7 @@ import { ecrasAjustamentos } from './stocks/ajustamentos';
 import { ecrasMovimentos } from './stocks/movimentos';
 import { ecrasMapaArtigosClientes } from './stocks/mapa-artigos-clientes';
 import { ecrasMapaStocks } from './stocks/mapa-stocks';
-import { ecrasMapaMovimentos } from './stocks/mapa-movimentos';
+import { ecrasMapaMovimentos } from './stocks/mapa-movimentos-v2';
 import { ecrasMapaInventario } from './stocks/mapa-inventario-v2';
 import { ecrasCarregarErp, ecrasErroErp, DESCRICAO_CARREGAR_ERP, DESCRICAO_ERROS_ERP } from './estados';
 
