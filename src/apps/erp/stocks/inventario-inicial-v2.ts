@@ -45,14 +45,14 @@ import searchX from 'lucide-static/icons/search-x.svg?raw';
 const K = 'inv2';
 /* os números com o separador dos milhares também com quatro algarismos (1 216,40 €), como nos mapas v2 */
 const AG = { useGrouping: 'always' } as unknown as Intl.NumberFormatOptions;
-const nf = (n: number) => n.toLocaleString('pt-PT', AG);
-const euros = (c: number) => `${(c / 100).toLocaleString('pt-PT', { ...AG, minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+export const nf = (n: number) => n.toLocaleString('pt-PT', AG);
+export const euros = (c: number) => `${(c / 100).toLocaleString('pt-PT', { ...AG, minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 /** O que vem feito da v1 (o painel dos detalhes, as linhas do «Stock») com os milhares separados. */
-const milhares = (h: string) => h.replace(/(\d)(\d{3}),(\d{2}) €/g, '$1\u00a0$2,$3 €').replace(/>(-?\+?)(\d)(\d{3})</g, '>$1$2\u00a0$3<').replace(/(\d)(\d{3}) unidades/g, '$1\u00a0$2 unidades');
+export const milhares = (h: string) => h.replace(/(\d)(\d{3}),(\d{2}) €/g, '$1\u00a0$2,$3 €').replace(/>(-?\+?)(\d)(\d{3})</g, '>$1$2\u00a0$3<').replace(/(\d)(\d{3}) unidades/g, '$1\u00a0$2 unidades');
 const ok = (e: EstDoc) => e.fase === 'ok' || e.fase === 'atualizar';
 
 /* ---------- as linhas: as da v1, com o filtro Criado por ---------- */
-const resp = (e: EstDoc) => String(e.extra.resp ?? '');
+export const resp = (e: EstDoc) => String(e.extra.resp ?? '');
 function linhas(e: EstDoc): Doc[] { const r = resp(e); return linhasV1(e).filter((d) => !r || d.uIns === r); }
 const pessoas = () => [...new Set(linhasV1({ extra: {} } as EstDoc).map((d) => String(d.uIns)))].sort((a, b) => a.localeCompare(b, 'pt'));
 
@@ -67,9 +67,9 @@ function papel(d: Doc): { k: string; t: string } {
 const estadoB = (d: Doc) => d.anulado ? badge('lf2-b--rutura', ban, 'Anulado') : d.lancado ? badge('lf2-b--pend', circleCheck, 'Lançado') : badge('lf2-b--enc', clock, 'Rascunho', 'Ainda não entrou no stock');
 
 /** Quantidades por unidade (un. e jogos não se somam). */
-function porUnidade(ls: { ref: string; qtd: number }[], sep = ' · '): string {
+export function porUnidade(ls: { ref: string; qtd: number }[], sep = ' · '): string {
   const m = new Map<string, number>(); ls.forEach((l) => { const u = artigo(l.ref)?.un ?? 'un.'; m.set(u, (m.get(u) ?? 0) + l.qtd); });
-  return [...m].map(([u, q]) => `${nf(q)} ${u === 'jogo' ? (q === 1 ? 'jogo' : 'jogos') : esc(u)}`).join(sep) || '0';
+  return [...m].sort(([a], [b]) => (a === 'un.' ? 0 : 1) - (b === 'un.' ? 0 : 1)).map(([u, q]) => `${nf(q)} ${u === 'jogo' ? (q === 1 ? 'jogo' : 'jogos') : esc(u)}`).join(sep) || '0';
 }
 const linhasDe = (ds: Doc[]) => ds.flatMap((d) => doc(d).linhas);
 
@@ -101,16 +101,18 @@ function kpis(r: HTMLElement, e: EstDoc): string {
 }
 
 /* ---------- o Período (rápido) e Criado por (nos avançados) ---------- */
-const ANO = HOJE.slice(0, 4);
+export const ANO = HOJE.slice(0, 4);
 const menos = (dias: number) => new Date(Date.parse(HOJE) - dias * 86_400_000).toISOString().slice(0, 10);
-const PERIODOS: [string, string, string, string][] = [
+export const PERIODOS: [string, string, string, string][] = [
   ['mes', 'Este mês', `${HOJE.slice(0, 7)}-01`, HOJE], ['90', 'Últimos 90 dias', menos(90), HOJE],
   ['ano', `Este ano (${ANO})`, `${ANO}-01-01`, `${ANO}-12-31`], ['ano-1', String(+ANO - 1), `${+ANO - 1}-01-01`, `${+ANO - 1}-12-31`],
 ];
-const rapidos = (id: (x: string) => string) => `<label class="ak-campo" for="${id('per2')}"><span>Período</span><select id="${id('per2')}" data-inv2-per data-dv2-campo><option value="">Todos</option>${PERIODOS.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}<option value="outro" hidden>Datas escolhidas</option></select></label>`;
-const avancados = (id: (x: string) => string) => `<label class="ak-campo" for="${id('resp')}"><span>Criado por</span><select id="${id('resp')}" data-inv2-resp data-dv2-campo><option value="">Todos</option>${pessoas().map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}</select></label>`;
+export const campoPeriodo = (id: (x: string) => string) => `<label class="ak-campo" for="${id('per2')}"><span>Período</span><select id="${id('per2')}" data-inv2-per data-dv2-campo><option value="">Todos</option>${PERIODOS.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}<option value="outro" hidden>Datas escolhidas</option></select></label>`;
+export const campoCriadoPor = (id: (x: string) => string, ps: string[]) => `<label class="ak-campo" for="${id('resp')}"><span>Criado por</span><select id="${id('resp')}" data-inv2-resp data-dv2-campo><option value="">Todos</option>${ps.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}</select></label>`;
+const rapidos = campoPeriodo;
+const avancados = (id: (x: string) => string) => campoCriadoPor(id, pessoas());
 /** Os dois campos novos seguem o estado (as datas mudadas à mão em Mais filtros, Limpar, tirar a etiqueta). */
-function sincronizar(r: HTMLElement, e: EstDoc): void {
+export function sincronizar(r: HTMLElement, e: EstDoc): void {
   const per = r.querySelector<HTMLSelectElement>('[data-inv2-per]'), rs = r.querySelector<HTMLSelectElement>('[data-inv2-resp]');
   if (per) { const p = PERIODOS.find(([, , a, b]) => a === e.f.de && b === e.f.ate); const v = p ? p[0] : e.f.de || e.f.ate ? 'outro' : ''; if (per.value !== v) per.value = v; }
   if (rs && rs.value !== resp(e)) rs.value = resp(e);
@@ -119,10 +121,10 @@ function sincronizar(r: HTMLElement, e: EstDoc): void {
 }
 
 /* ---------- Cartões: os mesmos documentos, filtros e ordem; paginados como as tabelas ---------- */
-const OPCOES = [10, 25, 50, 0];
-const porPagina = () => { try { const v = localStorage.getItem('erp:por-pagina'); return v !== null && OPCOES.includes(Number(v)) ? Number(v) : 25; } catch { return 25; } };
+export const OPCOES = [10, 25, 50, 0];
+export const porPagina = () => { try { const v = localStorage.getItem('erp:por-pagina'); return v !== null && OPCOES.includes(Number(v)) ? Number(v) : 25; } catch { return 25; } };
 const ORDENS: [string, string][] = [['', 'Número (mais recente)'], ['data:-1', 'Data de emissão (mais recente)'], ['data:1', 'Data de emissão (mais antiga)'], ['valor:-1', 'Valor (maior)'], ['armazem:1', 'Armazém']];
-const vazio = (t: string, d: string) => `<div class="ak-vazio lf2-vazio">${L(searchX)}<p><b>${t}</b>${d}</p><button type="button" class="ak-btn" data-dv2-acao="limpar"><span>Limpar filtros</span></button></div>`;
+export const vazio = (t: string, d: string) => `<div class="ak-vazio lf2-vazio">${L(searchX)}<p><b>${t}</b>${d}</p><button type="button" class="ak-btn" data-dv2-acao="limpar"><span>Limpar filtros</span></button></div>`;
 function cartao(e: EstDoc, d: Doc): string {
   const p = papel(d), pode = editavel(e, d), lancar = !porqueLancar_(e, d);
   return `<article role="listitem" class="minv2-cartao inv2-cartao is-${p.k}${e.ativo === d.id ? ' is-ativo' : ''}" data-dv2-vjan="${esc(d.id)}|detalhes" tabindex="0" aria-label="${esc(`${d.numero} · ${d.armazemNome} · ${d.estado}`)}">
@@ -140,19 +142,11 @@ function cartao(e: EstDoc, d: Doc): string {
 function cartoes(r: HTMLElement, e: EstDoc): string {
   const ls = filtradas(r, e);
   if (!ls.length) return vazio('Nenhum documento com estes filtros.', 'Tira um filtro, ou limpa-os.');
-  const pp = Number(e.extra.ppC ?? porPagina()), n = Math.max(1, pp ? Math.ceil(ls.length / pp) : 1), pg = Math.max(0, Math.min(n - 1, Number(e.extra.pagC ?? 0)));
-  e.extra.pagC = pg;
-  const de_ = pp ? pg * pp : 0, ate = pp ? Math.min(ls.length, de_ + pp) : ls.length;
-  const o = e.ordem[0], ord = o ? `${o.k}:${o.dir}` : '';
-  const lanc = ls.filter((d) => d.lancado);
-  return `<div class="inv2-c-cab"><label class="inv2-ord"><span>Ordenar</span><select data-inv2-ord aria-label="Ordenar os cartões">${ORDENS.map(([v, t]) => `<option value="${v}"${v === ord ? ' selected' : ''}>${esc(t)}</option>`).join('')}${ORDENS.some(([v]) => v === ord) ? '' : `<option value="${esc(ord)}" selected>Como na tabela</option>`}</select></label></div>
-    <div class="minv2-cartoes inv2-cartoes" role="list">${ls.slice(de_, ate).map((d) => cartao(e, d)).join('')}</div>
+  const pg = paginas(e, ls.length), lanc = ls.filter((d) => d.lancado);
+  return `${ordenarCartoes(e, ORDENS)}
+    <div class="minv2-cartoes inv2-cartoes" role="list">${ls.slice(pg.de, pg.ate).map((d) => cartao(e, d)).join('')}</div>
     <p class="minv2-c-total"><span>Lançados · ${nf(lanc.length)} de ${nf(ls.length)} documentos</span><b>${porUnidade(linhasDe(lanc))}</b><b>${euros(lanc.reduce((s, d) => s + (d.valor as number), 0))}</b></p>
-    <nav class="pag-t inv2-pag" aria-label="Páginas dos cartões"><span class="pag-t-n">${nf(de_ + 1)}–${nf(ate)} de ${nf(ls.length)}</span>
-      <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="pagc" data-inv2-ir="-1" ${pg === 0 ? 'disabled' : ''} aria-label="Página anterior" title="Página anterior">${L(chevL)}</button>
-      <span class="pag-t-p">Página <b>${pg + 1}</b> de ${n}</span>
-      <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="pagc" data-inv2-ir="1" ${pg >= n - 1 ? 'disabled' : ''} aria-label="Página seguinte" title="Página seguinte">${L(chevR)}</button>
-      <label class="pag-t-pp"><span>Por página</span><select data-inv2-pp aria-label="Cartões por página">${OPCOES.map((x) => `<option value="${x}"${x === pp ? ' selected' : ''}>${x || 'Todos'}</option>`).join('')}</select></label></nav>`;
+    ${pg.html}`;
 }
 
 /* ---------- Por armazém: armazém → ano → documento → linhas ---------- */
@@ -229,6 +223,31 @@ function resumoLancar(r: HTMLElement, e: EstDoc): void {
   r.querySelectorAll<HTMLElement>('[data-dv2-dlg] td.is-num, [data-dv2-dlg] td.is-num b').forEach((c) => { if (!c.children.length && c.textContent) c.textContent = c.textContent.replace(/(\d)(\d{3})(?!\d)/g, '$1\u00a0$2'); });
 }
 
+/** As ações comuns aos documentos de stock v2: o indicador do estado, as páginas dos cartões, Criado por e Limpar. */
+export function acaoComum(r: HTMLElement, e: EstDoc, k: string, b: HTMLElement): boolean | null {
+  if (k === 'kpi') { const v = b.dataset.inv2K!; e.f.estado = e.f.estado === v ? '' : v; e.extra.pagC = 0; tudo(r, e, true); r.querySelector<HTMLElement>(`[data-inv2-k="${v}"]`)?.focus(); return true; }
+  if (k === 'pagc') { e.extra.pagC = Number(e.extra.pagC ?? 0) + Number(b.dataset.inv2Ir); tudo(r, e); r.querySelector<HTMLElement>(`[data-inv2-ir="${b.dataset.inv2Ir}"]:not(:disabled)`)?.focus(); return true; }
+  if (k === 'tirar' && b.dataset.dv2Tirar === 'x:resp') { e.extra.resp = ''; tudo(r, e, true); return true; }
+  if (k === 'limpar') { e.extra.resp = ''; e.extra.pagC = 0; return false; }
+  return null;
+}
+/** As páginas dos cartões (o mesmo aspeto da paginação das tabelas). */
+export function paginas(e: EstDoc, total: number): { de: number; ate: number; html: string } {
+  const pp = Number(e.extra.ppC ?? porPagina()), n = Math.max(1, pp ? Math.ceil(total / pp) : 1), pg = Math.max(0, Math.min(n - 1, Number(e.extra.pagC ?? 0)));
+  e.extra.pagC = pg;
+  const de = pp ? pg * pp : 0, ate = pp ? Math.min(total, de + pp) : total;
+  return { de, ate, html: `<nav class="pag-t inv2-pag" aria-label="Páginas dos cartões"><span class="pag-t-n">${nf(de + 1)}–${nf(ate)} de ${nf(total)}</span>
+      <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="pagc" data-inv2-ir="-1" ${pg === 0 ? 'disabled' : ''} aria-label="Página anterior" title="Página anterior">${L(chevL)}</button>
+      <span class="pag-t-p">Página <b>${pg + 1}</b> de ${n}</span>
+      <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="pagc" data-inv2-ir="1" ${pg >= n - 1 ? 'disabled' : ''} aria-label="Página seguinte" title="Página seguinte">${L(chevR)}</button>
+      <label class="pag-t-pp"><span>Por página</span><select data-inv2-pp aria-label="Cartões por página">${OPCOES.map((x) => `<option value="${x}"${x === pp ? ' selected' : ''}>${x || 'Todos'}</option>`).join('')}</select></label></nav>` };
+}
+/** Ordenar os cartões: as mesmas ordens da tabela. */
+export function ordenarCartoes(e: EstDoc, ordens: [string, string][]): string {
+  const o = e.ordem[0], ord = o ? `${o.k}:${o.dir}` : '';
+  return `<div class="inv2-c-cab"><label class="inv2-ord"><span>Ordenar</span><select data-inv2-ord aria-label="Ordenar os cartões">${ordens.map(([v, t]) => `<option value="${v}"${v === ord ? ' selected' : ''}>${esc(t)}</option>`).join('')}${ordens.some(([v]) => v === ord) ? '' : `<option value="${esc(ord)}" selected>Como na tabela</option>`}</select></label></div>`;
+}
+
 /* ---------- registar ---------- */
 const CFG2: CfgDoc = registar({
   ...V1, k: K,
@@ -245,11 +264,8 @@ const CFG2: CfgDoc = registar({
   ],
   chips: (e) => resp(e) ? [['x:resp', `Criado por ${resp(e)}`]] : [],
   acao(r, e, k, b) {
-    if (k === 'kpi') { const v = b.dataset.inv2K!; e.f.estado = e.f.estado === v ? '' : v; e.extra.pagC = 0; tudo(r, e, true); r.querySelector<HTMLElement>(`[data-inv2-k="${v}"]`)?.focus(); return true; }
+    const c = acaoComum(r, e, k, b); if (c !== null) return c;
     if (k === 'arv') { const x = b.dataset.inv2K!, s = x.startsWith('d:') ? abertos(e) : fechados(e); if (s.has(x)) s.delete(x); else s.add(x); tudo(r, e); r.querySelector<HTMLElement>(`[data-inv2-k="${CSS.escape(x)}"]`)?.focus(); return true; }
-    if (k === 'tirar') { if (b.dataset.dv2Tirar === 'x:resp') { e.extra.resp = ''; tudo(r, e, true); } return true; }
-    if (k === 'limpar') { e.extra.resp = ''; e.extra.pagC = 0; return false; }
-    if (k === 'pagc') { e.extra.pagC = Number(e.extra.pagC ?? 0) + Number(b.dataset.inv2Ir); tudo(r, e); r.querySelector<HTMLElement>(`[data-inv2-ir="${b.dataset.inv2Ir}"]:not(:disabled)`)?.focus(); return true; }
     if (k === 'c-editar' || k === 'c-lancar') {
       const id = b.dataset.inv2Id!; escolher(r, e, id, false); const d = ativoDe(r, e); if (!d) return true;
       if (k === 'c-editar') abrirFicha(r, e, 'editar', d); else { dlgLancar(r, e); resumoLancar(r, e); }
@@ -274,7 +290,8 @@ const CFG2: CfgDoc = registar({
 });
 
 /* ---------- o comportamento próprio (o resto é do motor) ---------- */
-const raiz = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTMLElement>(`[data-dv2="${K}"]`) ?? null;
+/* (servem também o 71 · Transferências v2, que usa os mesmos campos: Período, Criado por, Ordenar, Por página) */
+const raiz = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTMLElement>(`:is([data-dv2="${K}"], [data-dv2="tra2"])`) ?? null;
 export function iniciar(): void {
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLSelectElement, r = raiz(t); if (!r) return; const e = de(r);

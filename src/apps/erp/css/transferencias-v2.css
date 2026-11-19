@@ -1,0 +1,95 @@
+/* =========================================================
+   ERP — Stocks: 71 · Transferências entre armazéns v2 (19 nov. 2026). Ver stocks/transferencias-v2.ts.
+   O comum com o 70 v2 (indicadores, cartões, árvore, rastreabilidade) está em inventario-inicial-v2.css. Aqui: o
+   percurso origem → destino, os alternadores e os fluxos. Azul ROMAFE nas lançadas, cinzento tracejado nos rascunhos,
+   vermelho pontilhado nas anuladas; laranja só na ação.
+   ========================================================= */
+
+/* o percurso «60 Coimbra → 1 Porto» */
+.tra2-rota { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; min-width: 0; font-size: 14.5px; }
+.tra2-rota > span { white-space: nowrap; }
+.tra2-rota b.is-mono { font-size: 13.5px; color: var(--h-tinta-2); }
+.tra2-rota > svg { width: 15px; height: 15px; flex: none; color: rgb(0, 99, 170); }
+:root[data-theme="dark"] .tra2-rota > svg { color: var(--h-azul); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tra2-rota > svg { color: var(--h-azul); } }
+.tra2-cartao { grid-template-rows: auto auto auto auto 1fr auto auto; }
+.tra2-cartao > .tra2-rota { margin: 6px 0 0; padding: 6px 8px; border-radius: var(--r-md, 6px); background: var(--h-sup-2); }
+
+/* alternadores (Origem | Destino; Quantidade | Valor | Documentos; Rascunhos, Anuladas) */
+.tra2-alt, .tra2-fl-ctl { justify-content: flex-start; flex-wrap: wrap; gap: 8px 16px; }
+.tra2-seg { display: inline-flex; padding: 2px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 6px); background: var(--h-sup-2); }
+.tra2-seg button { height: 28px; padding: 0 11px; border: 0; border-radius: var(--r-md, 5px); background: none; color: var(--h-tinta-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.tra2-seg button[aria-pressed="true"] { background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-azul); }
+.tra2-seg button:disabled { cursor: default; }
+.tra2-seg button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.tra2-seg button.is-anul[aria-pressed="true"] { box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-erro); }
+.tra2-seg button.is-rasc[aria-pressed="true"] { box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-tinta-3); }
+
+/* a árvore: a linha do «para onde» */
+.inv2-arv tr.tra2-c > td:first-child { padding-left: 34px; }
+.inv2-arv tr.tra2-c b { font-weight: 650; }
+.inv2-arv tr.tra2-c small { display: block; }
+.inv2-arv tr.inv2-d.is-sem-efeito td.is-num { color: var(--h-tinta-3); }
+
+/* os fluxos */
+.tra2-fig { margin: 0; padding: 8px 4px 0; }
+.tra2-svg { display: block; width: 100% !important; height: auto !important; max-width: 980px; margin: 0 auto; overflow: visible; }
+.tra2-col { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; fill: var(--h-tinta-3); }
+.tra2-no rect { fill: var(--h-sup); stroke: var(--h-borda-forte, var(--h-borda)); stroke-width: 1; }
+.tra2-no text { font-size: 14px; font-weight: 650; fill: var(--h-tinta); }
+.tra2-no tspan.is-mono { font-family: var(--f-mono); fill: var(--h-tinta-2); }
+.tra2-no .tra2-no-s { font-size: 12px; font-weight: 500; fill: var(--h-tinta-3); }
+.tra2-lig { fill: none; stroke: rgb(0, 99, 170); stroke-opacity: .55; stroke-linecap: butt; cursor: pointer; transition: stroke-opacity .12s ease; }
+:root[data-theme="dark"] .tra2-lig { stroke: var(--h-azul); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tra2-lig { stroke: var(--h-azul); } }
+.tra2-lig:hover, .tra2-lig:focus-visible { stroke-opacity: .85; outline: none; }
+.tra2-lig.is-rasc { stroke: var(--h-tinta-3); stroke-dasharray: 8 6; }
+.tra2-lig.is-anul { stroke: var(--h-erro); stroke-dasharray: 2 5; stroke-opacity: .6; }
+.tra2-lig.is-sel { stroke-opacity: 1; }
+.tra2-lig.is-fundo { stroke-opacity: .18; }
+.tra2-leg { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin: 8px 0 4px; font-size: 13.5px; color: var(--h-tinta-2); }
+.tra2-leg span { display: inline-flex; align-items: center; gap: 6px; }
+.tra2-leg span[class]::before { content: ''; width: 22px; height: 0; border-top: 4px solid rgb(0, 99, 170); }
+.tra2-leg .is-rasc::before { border-top: 3px dashed var(--h-tinta-3) !important; }
+.tra2-leg .is-anul::before { border-top: 3px dotted var(--h-erro) !important; }
+
+/* o percurso escolhido e a lista dos percursos */
+.tra2-rota-det { margin: 12px 0 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--h-azul) 45%, var(--h-borda)); border-radius: var(--r-md, 8px); background: var(--h-sup); }
+.tra2-rota-det > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tra2-rota-det h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; font-size: 15.5px; }
+.tra2-rota-det h3 small { font-size: 13px; font-weight: 600; color: var(--h-tinta-3); }
+.tra2-rota-det > header .ak-btn { width: 32px; padding: 0; justify-content: center; }
+.tra2-rota-det .inv2-lanc { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tra2-rota-g { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 14px; }
+.tra2-rota-g h4 { margin: 0 0 6px; font-size: 13.5px; color: var(--h-tinta-2); }
+.tra2-docs { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.tra2-doc { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; width: 100%; padding: 6px 8px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 6px); background: none; color: var(--h-tinta); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.tra2-doc:hover { border-color: color-mix(in srgb, var(--h-azul) 45%, var(--h-borda)); }
+.tra2-doc:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.tra2-doc span { color: var(--h-tinta-3); font-size: 13px; }
+.tra2-lista { width: 100%; margin: 14px 0 0; }
+.tra2-lista .tra2-doc { border: 0; padding: 2px 0; }
+.tra2-lista .tra2-doc[aria-pressed="true"] .tra2-rota { text-decoration: underline; text-decoration-color: var(--h-azul); text-underline-offset: 4px; }
+.tra2-lista tr.is-sem-efeito td { color: var(--h-tinta-3); }
+.tra2-lista th.is-num { text-align: right; }
+
+@media (max-width: 900px) {
+  .tra2-rota-g { grid-template-columns: 1fr; }
+  .tra2-rota-det .inv2-lanc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .tra2-lista { min-width: 560px; }
+  .dv2--tra2 [data-dv2-vista-g] { overflow-x: auto; }
+  .dv2--tra2 .dv2-rapidos { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .tra2-svg .tra2-no text { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .tra2-lig { transition: none; } }
+@media print { .dv2--tra2 :is(.tra2-alt, .tra2-fl-ctl) { display: none !important; } }
+
+/* os filtros rápidos: Série · Pesquisa · Origem · Estado · Destino · Período · Mais filtros */
+.dv2.dv2--tra2 .dv2-rapidos { grid-template-columns: minmax(100px, 130px) minmax(380px, 1fr) minmax(150px, 200px) minmax(120px, 160px) minmax(150px, 200px) minmax(130px, 180px) auto; }
+@media (max-width: 1599px) {
+  .dv2.dv2--tra2 .dv2-rapidos { grid-template-columns: minmax(90px, 140px) minmax(140px, 1fr) minmax(120px, 170px) minmax(140px, 1fr) minmax(130px, 180px) auto; }
+  .dv2.dv2--tra2 .dv2-rapidos .lf2-mais-f { grid-column: 6; grid-row: 1; }
+}
+.tra2-lista :is(th, td):last-child { padding-left: 18px; }

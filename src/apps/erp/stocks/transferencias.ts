@@ -38,8 +38,8 @@ import triangleAlert from 'lucide-static/icons/triangle-alert.svg?raw';
 
 /* ---------- as linhas: uma transferência por linha ---------- */
 const pessoa = (p: string) => PERFIS[p as keyof typeof PERFIS]?.pessoa ?? p;
-const curto = (cod: string) => armazemDe(cod).split(' · ')[1] ?? cod;
-function linhas(e: EstDoc): Doc[] {
+export const curto = (cod: string) => armazemDe(cod).split(' · ')[1] ?? cod;
+export function linhas(e: EstDoc): Doc[] {
   return transferencias().map((d): Doc => {
     const anulado = d.estado === 'Anulado' || e.extra.anuladoSim === d.ref;
     const lancado = !anulado && (d.estado === 'Lançado' || e.extra.lancadoSim === d.ref);
@@ -48,10 +48,10 @@ function linhas(e: EstDoc): Doc[] {
       uIns: pessoa(d.criador), uAlt: pessoa(d.alterado), moeda: 'EUR' };
   });
 }
-const doc = (d: Doc) => transferencia(String(d.ref))!;
+export const doc = (d: Doc) => transferencia(String(d.ref))!;
 
 /* ---------- a configuração ---------- */
-const COLS: CfgDoc['cols'] = [
+export const COLS: CfgDoc['cols'] = [
   { k: 'numero', t: 'Número', tipo: 'mono', w: 130, presa: true, antiga: true },
   { k: 'data', t: 'Data de emissão', tipo: 'data', w: 120, antiga: true },
   { k: 'notas', t: 'Observações', tipo: 'txt', w: 240, antiga: true },
@@ -64,9 +64,9 @@ const COLS: CfgDoc['cols'] = [
   { k: 'uIns', t: 'Utilizador de inserção', tipo: 'txt', w: 160 },
   { k: 'uAlt', t: 'Utilizador de alteração', tipo: 'txt', w: 160 },
 ];
-const badge = (cls: string, ic: string, t: string, title = '') => `<span class="lf2-b ${cls}"${title ? ` title="${esc(title)}"` : ''}>${L(ic)}${t}</span>`;
+export const badge = (cls: string, ic: string, t: string, title = '') => `<span class="lf2-b ${cls}"${title ? ` title="${esc(title)}"` : ''}>${L(ic)}${t}</span>`;
 const arm = (cod: string, nome: string) => `<span class="is-mono">${esc(cod)}</span> ${esc(nome)}`;
-function celula(d: Doc, k: string): string {
+export function celula(d: Doc, k: string): string {
   switch (k) {
     case 'numero': return `<span class="lf2-art"><b>${esc(String(d.numero))}</b></span>`;
     case 'data': return dia(String(d.data));
@@ -83,12 +83,12 @@ function valor(d: Doc, k: string): string | number {
   if (k === 'destino') return `${d.destino} ${d.destinoNome}`;
   return (d[k] as string | number) ?? '';
 }
-const editavel = (e: EstDoc, d: Doc | undefined) => !!d && !d.anulado && !d.lancado && podeInv(e.perfil, 'editar');
-const porqueLancar_ = (e: EstDoc, d: Doc | undefined) => d?.anulado ? 'A transferência está anulada.' : d?.lancado ? `Já foi lançada no stock${doc(d).lancado ? ` a ${doc(d).lancado}` : ''}.` : porqueLancarTr(e.perfil, d ? doc(d) : undefined);
+export const editavel = (e: EstDoc, d: Doc | undefined) => !!d && !d.anulado && !d.lancado && podeInv(e.perfil, 'editar');
+export const porqueLancar_ = (e: EstDoc, d: Doc | undefined) => d?.anulado ? 'A transferência está anulada.' : d?.lancado ? `Já foi lançada no stock${doc(d).lancado ? ` a ${doc(d).lancado}` : ''}.` : porqueLancarTr(e.perfil, d ? doc(d) : undefined);
 
 /* ---------- o painel ---------- */
 const dd = (t: string, v: string, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><dt>${t}</dt><dd>${v}</dd></div>`;
-function painel(e: EstDoc, d: Doc | undefined, tab: string): string {
+export function painel(e: EstDoc, d: Doc | undefined, tab: string): string {
   if (!d) return '';
   const x = doc(d);
   if (tab === '_alvo') return `<b>${esc(x.ref)}</b><span>${esc(x.origem)} ${esc(curto(x.origem))} → ${esc(x.destino)} ${esc(curto(x.destino))} · ${nf(quantidadeTr(x))} un. · ${euros(valorTr(x))}</span>`;
@@ -181,7 +181,7 @@ function recalcular(r: HTMLElement): void {
 }
 
 /* ---------- lançar (Ctrl+F2) ---------- */
-function dlgLancar(r: HTMLElement, e: EstDoc, erro = ''): void {
+export function dlgLancar(r: HTMLElement, e: EstDoc, erro = ''): void {
   const d = ativoDe(r, e); if (!d) return;
   const porque = porqueLancar_(e, d); if (porque && !erro) { toast(r, porque); return; }
   const x = doc(d), o = armazemDe(x.origem), de = armazemDe(x.destino);
@@ -209,7 +209,7 @@ async function lancar(r: HTMLElement, e: EstDoc, b: HTMLElement): Promise<void> 
 }
 
 /* ---------- registar ---------- */
-const CFG = registar({
+export const CFG = registar({
   k: 'tra', titulo: 'Transferências entre Armazéns', sub: 'Documentos de stock que passam artigos de um armazém para outro.', icone: arrowLeftRight, um: 'transferência', o: 'a',
   caminho: [['ERP', 'inicio'], ['Stocks', 'stocks'], ['Transferências entre armazéns', '']],
   cols: COLS, verIniciais: ['numero', 'data', 'notas', 'origem', 'destino', 'qtd', 'valor', 'estado'], ajustar: true,
