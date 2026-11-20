@@ -14,7 +14,7 @@
    o anel interior tenta rodar e volta, sem bloquear nada). O rato inclina o rolamento com inércia e
    desloca a câmara; com um campo em foco, tudo abranda. Tempos: câmara ~0,8 s, peças ~1 s.
    ========================================================= */
-import { WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, BoxGeometry, MeshBasicMaterial, Object3D, Vector2, Vector3, Matrix4, Color, ACESFilmicToneMapping, SRGBColorSpace, type MeshPhysicalMaterial } from 'three';
+import { WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, BoxGeometry, MeshBasicMaterial, Object3D, Vector2, Vector3, Matrix4, ACESFilmicToneMapping, SRGBColorSpace, type MeshPhysicalMaterial } from 'three';
 import { R, N_ESFERAS, criarRolamento, ambiente, type Rolamento } from './rolamento-3d';
 
 export type Estado = 'entrada' | 'palavra' | 'empresa' | 'ajuda' | 'completo';
@@ -57,7 +57,7 @@ export class CenaEntrar {
   private cotas = new Map<string, Cotas>();
 
   constructor(readonly canvas: HTMLCanvasElement, private fundo: () => string) {
-    this.r = new WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+    this.r = new WebGLRenderer({ canvas, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' });
     this.r.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.5 : 2));
     this.r.toneMapping = ACESFilmicToneMapping; this.r.toneMappingExposure = 1.05; this.r.outputColorSpace = SRGBColorSpace;
     ambiente(this.r, this.cena);
@@ -85,7 +85,9 @@ export class CenaEntrar {
   /** O «Entrar» bem-sucedido: completa-se, e a câmara atravessa o centro do rolamento. */
   atravessar(): void { this.irPara('completo'); this.voo = this.t + 0.7; }
   ligarCotas(m: Map<string, Cotas>): void { this.cotas = m; }
-  pintarFundo(): void { this.cena.background = new Color(this.fundo()); }
+  /** (20 nov.) o canvas é transparente: o rolamento fica sobre o fundo da página, seja ele qual for (grafite, azul…),
+     sem o quadrado da cor da cena à volta. */
+  pintarFundo(): void { this.cena.background = null; this.r.setClearColor(0x000000, 0); void this.fundo; }
   /** Salta para o estado (sem animação): «reduzir movimento», ou ao chegar diretamente a um ecrã. */
   saltarPara(e: Estado): void { this.irPara(e); this.v = { ...ALVOS[e] }; this.voo = Infinity; }
 
