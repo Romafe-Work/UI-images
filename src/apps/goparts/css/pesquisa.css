@@ -345,3 +345,29 @@
 .gar__nota { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--i3-tinta-3); }
 .gar__nota svg { width: 16px; height: 16px; }
 @media (max-width: 767.98px) { .gar { padding: 16px; } .gar__titulo { font-size: 22px; } }
+
+/* =========================================================
+   (25 nov.) 18 · Pesquisar peças v2: «Em destaque», ao lado das Peças frequentes (portal/pesquisa-destaques.ts).
+   As frequentes ocupam duas filas à direita; Continuar e Em destaque ficam um por cima do outro à esquerda.
+   ========================================================= */
+.pq--destaques .ini4__bloco--continuar { grid-column: 1; grid-row: 1; }
+.pq--destaques .ini4__bloco--destaques { grid-column: 1; grid-row: 2; }
+.pq--destaques .ini4__bloco--frequentes { grid-column: 2; grid-row: 1 / span 2; }
+@media (max-width: 900px) { .pq--destaques :is(.ini4__bloco--continuar, .ini4__bloco--destaques, .ini4__bloco--frequentes) { grid-column: auto; grid-row: auto; } .pq--destaques .ini4__bloco--destaques { order: 0 !important; } }
+.pqd__lista { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.pqd__item { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 10px 8px 8px; border: 0; border-radius: var(--r-md); background: none; font: inherit; text-align: left; color: var(--i3-tinta); cursor: pointer; transition: background-color 150ms ease; }
+.pqd__item:hover, .pqd__item:focus-visible { background: var(--i3-sup-2); }
+.pqd__icone { display: grid; place-items: center; width: 34px; height: 34px; border-radius: var(--r-md); background: color-mix(in srgb, var(--pqd-cor) 12%, transparent); color: var(--pqd-cor); }
+.pqd__icone svg { width: 17px; height: 17px; }
+.pqd--azul { --pqd-cor: var(--i3-azul); }
+.pqd--verde { --pqd-cor: #1a8a4a; }
+.pqd--laranja { --pqd-cor: var(--c-acao); }
+.pqd--vermelho { --pqd-cor: #c2410c; }
+.pqd__texto { display: grid; gap: 2px; min-width: 0; }
+.pqd__texto b { font-size: 14px; }
+.pqd__texto span { font-size: 12.5px; color: var(--i3-tinta-2); }
+.pqd__acao { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--c-acao); white-space: nowrap; }
+.pqd__acao svg { width: 15px; height: 15px; transition: transform 140ms ease; }
+.pqd__item:hover .pqd__acao svg, .pqd__item:focus-visible .pqd__acao svg { transform: translateX(2px); }
+@media (max-width: 640px) { .pqd__item { grid-template-columns: 34px minmax(0, 1fr); } .pqd__acao { grid-column: 2; } }
+@media (prefers-reduced-motion: reduce) { .pqd__item, .pqd__acao svg { transition: none; } }

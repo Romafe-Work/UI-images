@@ -24,7 +24,7 @@ const ONDE: Record<string, [IdGoParts, string]> = {
 /* 14 out. 2026 (o briefing dos 17 estados do Início): no Peça A Peça, estes estados passam a ser do Início v3, na
    mesma linguagem mecânica (o rolamento); a moldura comum fica para o GoShop */
 const ini3 = (est: EstadoInicio) => () => {
-  const html = portal('pesquisa', inicioV3(est), undefined, { menu: true, rodape: false });
+  const html = portal('pesquisa', inicioV3(est, { destaques: true }), undefined, { menu: true, rodape: false });
   /* com o diálogo da sessão expirada (modal), o resto da página fica inerte */
   return est === 'sessao' ? html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__lado"', '<nav class="portal__lado" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3') : html;
 };

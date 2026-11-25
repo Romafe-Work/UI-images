@@ -1120,7 +1120,7 @@ const e = (id: IdGoParts, nome: string, objetivo: string, html: () => string): E
 /* 14 out. 2026: o Início v3 (o espaço de trabalho de todos os dias) traz os seus próprios estados, tirados do
    mesmo desenho (inicio-v3.ts); os do v2.2 saíram com ele */
 const ini3 = (est: EstadoInicio) => () => {
-  const html = portal('pesquisa', inicioV3(est), undefined, { menu: true, rodape: false });
+  const html = portal('pesquisa', inicioV3(est, { destaques: true }), undefined, { menu: true, rodape: false });
   /* com a pesquisa global aberta (modal), o resto da página fica inerte, como o comportamento faz */
   /* com a gaveta ou o diálogo abertos (modais), o resto da página fica inerte */
   if (est === 'personalizar' || est === 'arrastar' || est === 'repetir') return html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__abas"', '<nav class="portal__abas" inert aria-hidden="true"').replace('<main class="ini3', '<main inert aria-hidden="true" class="ini3');

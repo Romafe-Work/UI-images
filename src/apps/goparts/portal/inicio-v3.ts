@@ -15,6 +15,7 @@
      nem movimento contínuo. Os dados são os de exemplo do resto do protótipo.
    Comportamento: comportamento/inicio-v3.ts. CSS: css/inicio-v3-trabalho.css.
    ========================================================= */
+import { destaquesHtml } from './pesquisa-destaques';
 import { REFERENCIAS, euros, MODELOS, veiculosDe } from './catalogo-dados';
 import { resultadosHtml, FILTROS } from './pesquisa-resultados';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
@@ -257,7 +258,7 @@ export function manutencaoV3(): string {
 </div>`;
 }
 
-export function inicioV3(e: EstadoInicio = ''): string {
+export function inicioV3(e: EstadoInicio = '', opt: { destaques?: boolean } = {}): string {
   const M1 = ['sugestoes-marca', 'marca', 'modelos-carga', 'modelos-nada', 'veic-escolhido'], M2 = ['sugestoes', 'pesquisa', 'sem-resultados', 'resultados', 'filtros', 'servico'];
   const atual = M2.includes(e) ? 2 : M1.includes(e) ? 1 : 0;
   /* (20 out., V6) os três cartões de escolha: ícone, título, o que faz e a ação */
@@ -279,7 +280,7 @@ export function inicioV3(e: EstadoInicio = ''): string {
   /* (20 out., V5) o ecrã «Pesquisar peças»; (V6) os três cartões de escolha em cima, um só formulário por baixo
      (no painel ligado ao cartão escolhido), os resultados a seguir, e o que ajuda a pesquisar. */
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--ini4 portal--pq">
-  <main class="ini3 ini4 pq${e === 'rede' ? ' is-offline' : ''}${e === 'vazio' ? ' is-guia' : ''}${comResultados ? ' is-com-resultados' : ''}" data-modo="${atual}"${e ? ` data-estado="${e}"` : ''} data-densidade="${d.prefs.densidade}">
+  <main class="ini3 ini4 pq${opt.destaques ? ' pq--destaques' : ''}${e === 'rede' ? ' is-offline' : ''}${e === 'vazio' ? ' is-guia' : ''}${comResultados ? ' is-com-resultados' : ''}" data-modo="${atual}"${e ? ` data-estado="${e}"` : ''} data-densidade="${d.prefs.densidade}">
     ${e === '404' || e === '500' ? paginaErro(e) : e === 'pecas' ? pecasACarregar() : `
     ${e === 'rede' ? semLigacao() : ''}
     <header class="pq__cabeca" data-entra="0">
@@ -316,7 +317,7 @@ export function inicioV3(e: EstadoInicio = ''): string {
       </details>
       ${e === 'vazio' ? guia() : ''}
     </section>
-    ${blocosPesquisa(d, ee)}`}
+    ${opt.destaques && !['carga', 'esqueleto', 'vazio'].includes(e) ? blocosPesquisa(d, ee).replace(/<\/div>\s*$/, `${destaquesHtml()}</div>`) : blocosPesquisa(d, ee)}`}
   </main>
   ${COMANDO(e === 'comando')}${e === 'sessao' ? sessao() : ''}
   <p class="ini3__aviso" role="status" aria-live="polite"></p>
