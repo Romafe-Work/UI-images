@@ -1,0 +1,48 @@
+/* =========================================================
+   PEÇA A PEÇA — o menu de lado, leve (25 nov. 2026)
+   Ela, com o menu do Tern na imagem: «é assim que quero aqui… com opção de abrir e fechar, quero a UI mais leve
+   e prática». Aberto: sem caixas nem fundo, os nomes em maiúsculas espaçadas (monoespaçada) encostados à direita,
+   com o número ao lado, junto ao traço que separa o menu do ecrã; o ativo acende e leva o traço laranja em cima
+   do separador. Os grupos ficam só como espaço. Fechado (68 px): como era, com os ícones e as dicas.
+   Abrir e fechar: o botão no fundo (e a escolha fica guardada, lado.ts). Só transform, opacidade e cor animam.
+   ========================================================= */
+.portal--lateral .portal__lado { background: transparent; border-right: 1px solid var(--c-borda); }
+.portal--lateral .lado__pe { border-top: 0; }
+.lado__n { display: none; }
+
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__rolo { padding: 28px 0 12px; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__grupo { height: 0; min-height: 0; margin: 22px 0 0; padding: 0; border: 0; font-size: 0; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__grupo--primeiro { margin-top: 0; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__lista { gap: 0; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item {
+  justify-content: flex-end; gap: 18px; height: 38px; padding: 0 22px 0 14px; border-radius: 0;
+  font-family: var(--f-mono); font-size: 13px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--c-texto-3); transition: color 160ms ease;
+}
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item > svg { display: none; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item::before { display: none; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__n { display: inline; flex: none; min-width: 2ch; font-size: 12.5px; letter-spacing: .06em; color: var(--c-texto-3); opacity: .7; transition: color 160ms ease, opacity 160ms ease; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item:hover:not(:disabled) { color: var(--c-texto); }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item:hover:not(:disabled) .lado__n { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  :root:not(.gp-lado-recolhido) .portal--lateral .lado__item:hover:not(:disabled):not([aria-current="page"]) .lado__rotulo { transform: translateX(-4px); }
+}
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item[aria-current="page"] { color: var(--c-texto); font-weight: 700; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item[aria-current="page"] .lado__n { color: var(--gp-laranja, #f58214); opacity: 1; }
+/* o ativo: o traço laranja em cima do separador, à direita (desliza de ecrã para ecrã, lado.ts) */
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__ativo { left: auto; right: 0; width: 2px; border-radius: 0; background: var(--gp-laranja, #f58214); }
+/* fechar o menu: pequeno, como os outros, encostado à direita */
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__recolher { justify-content: flex-end; gap: 10px; height: 36px; padding: 0 22px 0 14px; border-radius: 0; font-family: var(--f-mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--c-texto-3); }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__recolher .lado__rotulo { order: -1; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__recolher > svg { display: block; width: 16px; height: 16px; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__recolher:hover { color: var(--c-texto); }
+.portal--lateral .lado__recolher::before { display: none; }
+/* fechado: os ícones, sem fundo nas caixas; o ativo acende */
+:root.gp-lado-recolhido .portal--lateral .lado__item::before { display: none; }
+:root.gp-lado-recolhido .portal--lateral .lado__item:hover:not(:disabled) > svg { color: var(--c-texto); }
+:root.gp-lado-recolhido .portal--lateral .lado__ativo { left: auto; right: 0; width: 2px; border-radius: 0; }
+:root.gp-lado-recolhido .portal--lateral .lado__grupo::before { background: transparent; }
+@media (prefers-reduced-motion: reduce) { .portal--lateral .lado__item, .portal--lateral .lado__n { transition: none; } }
+/* sem caixas: nem no ativo nem ao passar (aberto e fechado) */
+.portal--lateral .portal__lado .lado__item, .portal--lateral .portal__lado .lado__item:hover:not(:disabled), .portal--lateral .portal__lado .lado__item[aria-current="page"] { background: transparent !important; }
+:root.gp-lado-recolhido .portal--lateral .lado__item[aria-current="page"] > svg { color: var(--gp-laranja, #f58214); }

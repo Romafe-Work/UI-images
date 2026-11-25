@@ -35,7 +35,7 @@ function marcarBotoes(): void {
   const r = recolhido();
   document.querySelectorAll<HTMLElement>('[data-lado-recolher]').forEach((b) => {
     b.setAttribute('aria-expanded', String(!r));
-    b.setAttribute('aria-label', r ? 'Abrir o menu' : 'Recolher o menu');
+    b.setAttribute('aria-label', r ? 'Abrir o menu' : 'Fechar o menu');
   });
 }
 
