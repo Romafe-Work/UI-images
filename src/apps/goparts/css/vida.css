@@ -21,20 +21,21 @@
 
 /* =========================================================
    (25 nov.) o fundo da app. Ela: «mais vida no bg… azul Romafe e laranja»; «o bg é feio» (duas vezes) e «quero algo
-   mais moderno». Terceira versão, na linha do Tern que ela mostrou:
+   mais moderno». Terceira versão, na linha do Tern que ela mostrou (e logo «quero algo mais leve»: menos de metade da
+   intensidade, a aurora só no topo, pontos e grão quase invisíveis):
    - quase preto, com grão fino de película por cima de tudo (ruído SVG, muito leve);
    - no topo, uma aurora: o azul ROMAFE largo, um azul mais claro e um fio de laranja, que rodam devagar (60 s);
    - uma malha de pontos (24 px) que só se vê na metade de cima e desaparece para baixo.
    Atrás do conteúdo; os cartões ficam limpos. No claro, a mesma coisa em tons suaves. Com movimento reduzido, parada.
    ========================================================= */
-.portal--lateral { isolation: isolate; --au-a: .55; --au-b: .30; --au-c: .22; --pontos: rgba(90, 169, 230, .16); --grao: .06; }
-:root:not([data-theme="dark"]) .portal--lateral { --au-a: .20; --au-b: .14; --au-c: .12; --pontos: rgba(0, 99, 170, .12); --grao: .035; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --au-a: .55; --au-b: .30; --au-c: .22; --pontos: rgba(90, 169, 230, .16); --grao: .06; } }
-[data-theme="dark"] .portal--lateral { --au-a: .55; --au-b: .30; --au-c: .22; --pontos: rgba(90, 169, 230, .16); --grao: .06; }
+.portal--lateral { isolation: isolate; --au-a: .24; --au-b: .12; --au-c: .08; --pontos: rgba(90, 169, 230, .08); --grao: .03; }
+:root:not([data-theme="dark"]) .portal--lateral { --au-a: .10; --au-b: .07; --au-c: .05; --pontos: rgba(0, 99, 170, .07); --grao: .02; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --au-a: .24; --au-b: .12; --au-c: .08; --pontos: rgba(90, 169, 230, .08); --grao: .03; } }
+[data-theme="dark"] .portal--lateral { --au-a: .24; --au-b: .12; --au-c: .08; --pontos: rgba(90, 169, 230, .08); --grao: .03; }
 /* a aurora (uma camada grande que roda, presa ao topo) */
 .portal--lateral::before {
   content: ""; position: fixed; z-index: -1; pointer-events: none;
-  left: 50%; top: -70vh; width: 160vw; height: 120vh; margin-left: -80vw;
+  left: 50%; top: -80vh; width: 150vw; height: 110vh; margin-left: -75vw;
   background:
     radial-gradient(closest-side at 38% 62%, rgb(0 99 170 / var(--au-a)), transparent),
     radial-gradient(closest-side at 62% 58%, rgb(42 143 216 / var(--au-b)), transparent),
@@ -45,7 +46,7 @@
 .portal--lateral::after {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E"),
     radial-gradient(var(--pontos) 1px, transparent 1.4px);
   background-size: 160px 160px, 24px 24px;
   -webkit-mask-image: linear-gradient(#000, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .15));
