@@ -56,3 +56,17 @@
    explicam o desenho ou repetem o título: a faixa «Escolha uma marca…» das Marcas (o subtítulo já o diz), a nota da
    garagem e a explicação por baixo do Resumo das faturas («com IVA» já está no total) */
 .portal--lateral :is(.cat4__faixa[data-so="marcas"], .gar__nota, .fat2__resumo .lst__custo) { display: none !important; }
+
+/* (25 nov.) ela: «tudo começa no início da linha e coloca no centro»: os nomes alinhados à esquerda e a lista ao meio
+   da altura (como no Tern); o «Fechar o menu» também à esquerda */
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__rolo { display: flex; flex-direction: column; justify-content: center; padding-top: 12px; }
+:root:not(.gp-lado-recolhido) .portal--lateral :is(.lado__item, .lado__recolher) { justify-content: flex-start; padding: 0 16px 0 28px; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__recolher .lado__rotulo { order: 0; }
+@media (hover: hover) and (pointer: fine) {
+  :root:not(.gp-lado-recolhido) .portal--lateral .lado__item:hover:not(:disabled):not([aria-current="page"]) .lado__rotulo { transform: translateX(4px); }
+}
+
+/* (25 nov.) ela: «coloca ícones aqui na mesma»: aberto, o ícone antes do nome, pequeno e do tom do texto */
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item > svg { display: block; width: 17px; height: 17px; flex: none; opacity: .8; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item { gap: 14px; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item[aria-current="page"] > svg { color: var(--gp-laranja, #f58214); opacity: 1; }

@@ -36,6 +36,13 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
   /* num separador da área de trabalho só se vê o ecrã pedido: os outros constroem-se só se forem mostrados (ecras.ts) */
   const pedido = new URLSearchParams(location.search).has('separador') ? new URLSearchParams(location.hash.slice(1)).get('ecra') : null;
   const soUm = !!pedido && app.ecras.some((e) => e.id === pedido);
+  /* 25 nov. (ela: «mais dinâmico e mais rápido o figma»): no protótipo (#so=ecra) constrói-se só o ecrã que se vê; os
+     outros guardam o HTML e constroem-se quando forem mostrados (o ERP levava 22 s a abrir os 878 ecrãs, 34 MB de HTML).
+     O editor e o mapa continuam a construir tudo (precisam das miniaturas). */
+  const hash = new URLSearchParams(location.hash.slice(1));
+  const inicial = hash.get('ecra');
+  const preguica = !soUm && hash.get('so') === 'ecra';
+  const primeiro = inicial && app.ecras.some((e) => e.id === inicial) ? inicial : app.ecras[0]?.id;
   const frag = document.createDocumentFragment();
   app.ecras.forEach((e, i) => {
     const div = document.createElement('div');
@@ -58,7 +65,7 @@ export function montar(app: App, comportamentos: Array<() => void> = []): void {
       dv.dataset.nota = v.nota;
       dv.hidden = j < e.versoes.length - 1;
       if (locais.has(e.id + '|' + v.id)) dv.dataset.local = '1';
-      if (soUm && e.id !== pedido) adiar(dv, v.html); else dv.innerHTML = v.html;
+      if ((soUm && e.id !== pedido) || (preguica && e.id !== primeiro)) adiar(dv, v.html); else dv.innerHTML = v.html;
       div.appendChild(dv);
     });
     frag.appendChild(div);

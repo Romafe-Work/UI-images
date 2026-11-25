@@ -51,6 +51,7 @@ import './css/limpo.css';
 import './css/montra.css';
 import './css/montra-continuar.css';
 import './css/lado-leve.css';
+import './css/moderno.css';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';

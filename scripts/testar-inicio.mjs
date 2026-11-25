@@ -115,7 +115,7 @@ await caso('montra: os mais pesquisados e as mais compradas levam à pesquisa; �
   await p.click(`${M} .mt__comp:not([aria-hidden]) .mt__comp-card >> nth=0`, { force: true }); await p.waitForTimeout(1200);
   certo(['pesquisa', 'catalogo'].includes(await ecra(p)), `a mais comprada foi a ${await ecra(p)}`);
   await p.goBack(); await p.waitForTimeout(700);
-  await p.click(`${M} .mt__cc[data-abrir-pedido]`, { force: true }); await p.waitForTimeout(900);
+  await p.click(`${M} :is(.mt__cc, .mtc)[data-abrir-pedido]`, { force: true }); await p.waitForTimeout(900);
   certo(await ecra(p) === 'pedidos', 'o pedido em curso não abriu os Pedidos');
   await p.goBack(); await p.waitForTimeout(700);
   await p.click(`${M} .mt__conta-item--urgente`, { force: true }); await p.waitForTimeout(900);

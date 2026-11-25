@@ -1,0 +1,50 @@
+/* =========================================================
+   PEÇA A PEÇA — mais moderno (25 nov. 2026)
+   Ela: «mais moderno» (os passos do catálogo) e «todo o conteúdo de todas as páginas mais moderno». Uma camada por
+   cima de todas as páginas do portal, sem mudar o que cada uma faz:
+   - as abas e os passos numa calha, com o escolhido em pílula invertida (claro no escuro, escuro no claro);
+   - os campos com ícone: uma só caixa, o ícone dentro, sem a divisória nem o fundo do ícone; foco com o anel azul;
+   - os cartões de filtros: só o título, sem o funil nem a frase por baixo; os filtros numa linha que se ajusta;
+   - os títulos mais justos (espaçamento negativo), como nos sites de produto de hoje.
+   Cantos md em tudo (cantos-md); só transform, opacidade e cor animam.
+   ========================================================= */
+/* ---------- abas e passos ---------- */
+.portal--lateral .cat2__passos { display: flex; }
+.portal--lateral .cat5__passos { display: inline-flex !important; flex-wrap: wrap; gap: 2px; padding: 4px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.portal--lateral .cat5__passos > li { list-style: none; }
+.portal--lateral .cat2__passo { height: 34px; padding: 0 14px !important; border: 0 !important; border-radius: calc(var(--r-md) - 2px) !important; background: transparent !important; color: var(--c-texto-2); font-weight: 600; transition: background-color 180ms ease, color 180ms ease, transform 120ms ease; }
+.portal--lateral .cat2__passo:hover:not(:disabled):not([aria-current]) { color: var(--c-texto); background: var(--c-superficie-2) !important; }
+.portal--lateral .cat2__passo:active:not(:disabled) { transform: scale(.97); }
+.portal--lateral .cat2__passo[aria-current] { background: var(--c-texto) !important; color: var(--c-portal-fundo, #101113) !important; }
+.portal--lateral .cat2__passo:disabled { opacity: .38; }
+.portal--lateral .i3-risca-abas { display: none; }
+
+/* ---------- campos com ícone ---------- */
+.portal--lateral .campo__caixa { border-radius: var(--r-md); background: var(--c-superficie); transition: border-color 150ms ease, box-shadow 150ms ease; }
+.portal--lateral .campo__caixa .campo__chip:not(.campo__chip--pais) { border: 0 !important; background: transparent !important; color: var(--c-texto-3) !important; }
+.portal--lateral .campo__caixa:focus-within { border-color: var(--c-marca, #147dc0); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-marca, #147dc0) 22%, transparent); }
+.portal--lateral .campo__caixa:focus-within .campo__chip:not(.campo__chip--pais) { color: var(--c-marca, #147dc0) !important; }
+.portal--lateral .campo__label { font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--c-texto-2); }
+
+/* ---------- cartões de filtros ---------- */
+.portal--lateral :is(.cat5__cartao-sub, .cat5__funil) { display: none; }
+.portal--lateral .cat5__cartao-titulo { font-size: 16px; letter-spacing: -.01em; }
+.portal--lateral .cat5__filtros:not(.cat5__filtros--modelos) { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important; gap: 10px 12px; }
+
+/* ---------- títulos ---------- */
+.portal--lateral main :is(h1, h2) { letter-spacing: -.015em; }
+@media (prefers-reduced-motion: reduce) { .portal--lateral :is(.cat2__passo, .campo__caixa) { transition: none; } }
+.portal--lateral .cat2__passo[aria-current] { box-shadow: none !important; }
+/* os códigos do modelo já estão no nome («Golf VII (5G1, BQ1…)»): fora, que se sobrepunham ao título */
+.portal--lateral .cat4__codigo { display: none !important; }
+/* a caixa é que tem a borda; o ícone e o campo ficam lá dentro, sem bordas próprias */
+.portal--lateral .campo__caixa { display: flex; align-items: center; min-width: 0; border: 1px solid var(--c-borda); overflow: hidden; }
+.portal--lateral .campo__caixa > :is(.input, input, select) { flex: 1; min-width: 0; border: 0 !important; background-color: transparent !important; box-shadow: none !important; outline: none; }
+.portal--lateral .campo__caixa > .campo__chip { flex: none; display: grid; place-items: center; width: 38px; align-self: stretch; }
+
+/* (25 nov., ela: «quero isto mais dinâmico e mais rápido»): ao mudar de ecrã, o conteúdo entra curto (220 ms, de 8 px
+   abaixo); o topo e o menu ficam quietos. Os ecrãs agora constroem-se quando aparecem (comum/pagina.ts). */
+@media (prefers-reduced-motion: no-preference) {
+  .ecra:not([hidden]) > .versao:not([hidden]) .portal--lateral > main { animation: pap-entra 220ms cubic-bezier(.22, 1, .36, 1) both; }
+}
+@keyframes pap-entra { from { opacity: 0; transform: translateY(8px); } }

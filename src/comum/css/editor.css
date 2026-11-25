@@ -352,6 +352,10 @@
 /* (25 nov., ela: «que confusão é esta… melhora») sem editor: os estados num botão da pílula das versões, com a lista
    numa caixa que abre por baixo (procura, ↑ ↓, Enter, Esc). A pílula fica discreta até se passar o rato. */
 .versoes { opacity: .62; transition: opacity 160ms ease; }
+/* (25 nov.) a pílula tapava a pesquisa do topo dos ecrãs: vai para o canto de baixo, à direita, e a lista abre para cima */
+.versoes:not(.versoes--topo):not(.versoes--painel) { top: auto; bottom: 14px; left: auto; right: 14px; transform: none; }
+.versoes-est--so { top: auto !important; bottom: 14px; left: auto !important; right: 14px; transform: none !important; }
+body:has(.demo-barra:not([hidden])) .versoes:not(.versoes--topo):not(.versoes--painel), body:has(.demo-barra:not([hidden])) .versoes-est--so { bottom: 96px; }
 .versoes:hover, .versoes:focus-within, .versoes-est--so:hover { opacity: 1; }
 .versoes__nota { max-width: 220px; }
 .versoes-est { position: relative; display: flex; align-items: center; }
@@ -364,7 +368,7 @@
 .versoes-est__botao small { padding: 2px 6px; border-radius: 999px; background: rgba(255, 255, 255, .12); font-size: 10.5px; }
 .versoes-est__botao svg { opacity: .7; transition: transform 160ms ease; }
 .versoes-est__botao[aria-expanded="true"] svg { transform: rotate(180deg); }
-.versoes-est__caixa { position: absolute; top: calc(100% + 8px); right: 0; z-index: 901; display: grid; gap: 6px; width: 280px; padding: 8px; border-radius: 12px; background: rgba(28, 29, 31, .97); color: #fff; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.versoes-est__caixa { position: absolute; bottom: calc(100% + 8px); right: 0; z-index: 901; display: grid; gap: 6px; width: 280px; padding: 8px; border-radius: 12px; background: rgba(28, 29, 31, .97); color: #fff; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
 .versoes-est__caixa[hidden] { display: none; }
 .versoes-est__procura { width: 100%; height: 32px; padding: 0 10px; border: 1px solid rgba(255, 255, 255, .16); border-radius: 8px; background: rgba(255, 255, 255, .06); color: #fff; font: inherit; font-size: 13px; }
 .versoes-est__procura:focus { outline: 2px solid var(--c-acao, #f07c12); outline-offset: -1px; }
