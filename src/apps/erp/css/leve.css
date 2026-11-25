@@ -40,3 +40,22 @@
 .ak-cab p { font-size: 13.5px; color: var(--h-tinta-3) !important; }
 .ide-topo { position: relative; }
 .ide-topo::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, #0063aa 25%, #2a8fd8 50%, #f58214 80%, transparent); opacity: .6; pointer-events: none; }
+
+
+/* =========================================================
+   (25 nov.) ela: «faz» — o resto do Peça A Peça também no ERP, sempre com cara de ERP:
+   - o rolamento do fundo gira devagar como no Peça A Peça (parado com movimento reduzido);
+   - no explorador, as pastas (Vendas, Compras, Stocks…) em maiúsculas espaçadas monoespaçadas, como o menu do Peça
+     A Peça; os ecrãs dentro delas ficam como no Visual Studio;
+   - as vistas dos ecrãs numa calha com a escolhida em pílula invertida (sem a risca laranja);
+   - os números dos indicadores contam até ao valor ao abrir o ecrã (comportamento/vida.ts).
+   A mudança de página continua sem animação (movimento calmo).
+   ========================================================= */
+@media (prefers-reduced-motion: no-preference) { .hm::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' fill='none' stroke='%232a8fd8' stroke-width='0.55' stroke-opacity='0.55'%3E%3Ccircle r='97'/%3E%3Ccircle r='82'/%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' from='0' to='360' dur='90s' repeatCount='indefinite'/%3E%3Ccircle r='68' stroke-dasharray='1.5 3' stroke-opacity='0.35'/%3E%3Ccircle cx='68.00' cy='0.00' r='9.5' stroke=%22%23f58214%22 stroke-opacity=%220.9%22/%3E%3Ccircle cx='58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='0.00' cy='68.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='-58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='-68.00' cy='0.00' r='9.5'/%3E%3Ccircle cx='-58.89' cy='-34.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='-0.00' cy='-68.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='58.89' cy='-34.00' r='9.5'/%3E%3C/g%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' from='0' to='-360' dur='60s' repeatCount='indefinite'/%3E%3Ccircle r='54'/%3E%3Ccircle r='40'/%3E%3Cpath d='M0-54v6M0 48v6M-54 0h6M48 0h6' stroke-opacity='0.4'/%3E%3C/g%3E%3Ccircle r='28' stroke-opacity='0.35'/%3E%3C/svg%3E"); } }
+.ide-x-gt { font-family: var(--f-mono); font-size: 13px !important; font-weight: 500 !important; letter-spacing: .1em; text-transform: uppercase; }
+.ide-x-gt .ide-x-gt, .ide-x-g .ide-x-g .ide-x-gt { font-family: inherit; text-transform: none; letter-spacing: 0; font-size: inherit !important; }
+.dv2-vistas { background: var(--h-sup) !important; padding: 4px !important; }
+.dv2-vistas button[aria-selected="true"] { background: var(--h-tinta) !important; color: var(--h-fundo) !important; box-shadow: none !important; }
+.dv2-vistas button[aria-selected="true"] svg { color: inherit !important; }
+.dv2-vistas button[aria-selected="true"] small { background: color-mix(in srgb, var(--h-fundo) 20%, transparent) !important; color: inherit !important; }
+.dv2c-vistas-ind { display: none !important; }
