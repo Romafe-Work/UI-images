@@ -14,7 +14,7 @@
    Movimento só em transform/opacity; com «reduzir movimento», muda logo.
    ========================================================= */
 import { FICHA_PARA } from '../espaco';
-import { CFGS, MODOS, F0, L, esc, type CfgDoc, type Doc, type EstDoc, type Ficha, type Modo, type ColDoc } from './docs-v2';
+import { CFGS, MODOS, modosDe, F0, L, esc, type CfgDoc, type Doc, type EstDoc, type Ficha, type Modo, type ColDoc } from './docs-v2';
 import { anexosDe, anexar, removerAnexo, anexo, tamanho, podeVer, MAX_ANEXO } from './anexos';
 import { dia, pode, Recusa } from './dominio';
 import { perfilDaSessao } from '../sessao';
@@ -70,7 +70,7 @@ const texto = (c: CfgDoc, d: Doc, k: string) => { const v = c.valor(d, k); retur
 
 /** As linhas que passam na pesquisa e nos filtros, pela ordem pedida (ou pela do modo). */
 export function filtradas(r: HTMLElement, e: EstDoc): Doc[] {
-  const c = cfgDe(r), f = e.f, q = norm(e.q), campo = c.campos[e.modo];
+  const c = cfgDe(r), f = e.f, q = norm(e.q), campo = c.campos[e.modo] ?? c.campos.numero;
   const ls = (e.vazia ? [] : c.linhas(e)).filter((d) => (!f.serie || c.serieDe(d) === f.serie) && (!f.forn || c.fornDe(d) === f.forn)
     && (!f.estado || c.estadoPassa(d, f.estado)) && (!f.de || c.dataDe(d) >= f.de) && (!f.ate || c.dataDe(d) <= f.ate) && (!f.moeda || c.moedaDe(d) === f.moeda)
     && (c.filtrar ? c.filtrar(e, d) : !q || (e.extra.geral ? vis(c, e).some((x) => norm(texto(c, d, x.k)).includes(q)) : false) || (!e.extra.geral && (() => { const v = norm(e.modo === 'data' ? dia(String(c.valor(d, campo))) : String(c.valor(d, campo) ?? '')); return e.comp === 'inicio' ? v.startsWith(q) : v.includes(q); })()))
@@ -126,10 +126,10 @@ export function abrirDoc(b: HTMLElement | null, rota: string, titulo: string, ec
 function filtrosNaPagina(r: HTMLElement, e: EstDoc): void {
   const s = (k: string, v: string) => { const el = r.querySelector<HTMLInputElement | HTMLSelectElement>(`[data-dv2-f="${k}"]`); if (el && el.value !== v) el.value = v; };
   (Object.keys(e.f) as (keyof EstDoc['f'])[]).forEach((k) => s(k, e.f[k]));
-  const m = MODOS.find((x) => x.k === e.modo)!, q = r.querySelector<HTMLInputElement>('[data-dv2-q]');
+  const m = modosDe(cfgDe(r)).find((x) => x.k === e.modo) ?? MODOS[0], q = r.querySelector<HTMLInputElement>('[data-dv2-q]');
   if (q) {
   if (q.value !== e.q) q.value = e.q;
-  q.placeholder = e.extra.geral ? 'Procura em todas as colunas à vista' : e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? cfgDe(r).phCodigo ?? 'Código do fornecedor, ex.: bosch' : 'Descrição ou notas';
+  q.placeholder = e.extra.geral ? 'Procura em todas as colunas à vista' : e.modo === 'numero' ? 'Número, ex.: 2026/04' : e.modo === 'data' ? 'Data, ex.: 12/10/2026' : e.modo === 'codigo' ? cfgDe(r).phCodigo ?? 'Código do fornecedor, ex.: bosch' : e.modo === 'consulta' ? 'Nr. Consulta, ex.: PC 2026/0150' : 'Descrição ou notas';
   q.setAttribute('aria-label', `Pesquisar por ${m.t.toLowerCase()}, ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`);
   }
   r.querySelectorAll<HTMLElement>('[data-dv2-modo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.dv2Modo === e.modo)));
@@ -146,7 +146,7 @@ function etiquetas(r: HTMLElement, e: EstDoc): void {
   const ch: [string, string][] = [];
   if (f.serie) ch.push(['serie', `Série ${f.serie}`]); if (f.forn) ch.push(['forn', nome('forn')]); if (f.estado) ch.push(['estado', nome('estado')]);
   if (f.de || f.ate) ch.push(['periodo', `${f.de ? dia(f.de) : '…'} a ${f.ate ? dia(f.ate) : '…'}`]); if (f.moeda) ch.push(['moeda', f.moeda]);
-  if (e.q) ch.push(['q', `${MODOS.find((m) => m.k === e.modo)!.t} ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'} «${e.q}»`]);
+  if (e.q) ch.push(['q', `${(modosDe(cfgDe(r)).find((m) => m.k === e.modo) ?? MODOS[0]).t} ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'} «${e.q}»`]);
   ch.push(...(cfgDe(r).chips?.(e) ?? []));
   const ncol = Object.values(e.filtrosCol).filter((v) => v.trim()).length; if (ncol) ch.push(['colunas', `${ncol} ${ncol === 1 ? 'filtro de coluna' : 'filtros de coluna'}`]);
   const antes = new Set([...caixa.querySelectorAll<HTMLElement>('[data-dv2-chip]')].map((x) => x.dataset.dv2Chip));
@@ -192,8 +192,8 @@ export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
   if (!todas.length) { g.innerHTML = vazio(inbox, `Ainda não há ${c.um}s.`, `${c.o === 'a' ? 'A primeira' : 'O primeiro'} cria-se com Novo (F5).`, BT('novo', check, `Novo ${c.um}`, ' ak-btn--acao')); return; }
   if (!cs.length) { g.innerHTML = vazio(funnel, 'Não há colunas à vista.', 'Escolhe pelo menos uma em Mais ações.', BT('todas-colunas', check, 'Mostrar as colunas iniciais')); return; }
   if (!ls.length) {
-    const m = MODOS.find((x) => x.k === e.modo)!;
-    g.innerHTML = e.q ? vazio(searchX, `Nada encontrado para «${esc(e.q)}».`, `Procura-se em «${m.t}», ${e.comp === 'inicio' ? 'no início' : 'em qualquer parte'}. Experimenta Contendo (Shift+F2) ou outro modo (F1, F2, F10, F12).`, BT('limpar-q', xIc, 'Limpar a pesquisa'))
+    const m = modosDe(cfgDe(r)).find((x) => x.k === e.modo) ?? MODOS[0];
+    g.innerHTML = e.q ? vazio(searchX, `Nada encontrado para «${esc(e.q)}».`, `Procura-se em «${m.t}», ${e.comp === 'inicio' ? 'no início' : 'em qualquer parte'}. Experimenta Contendo (Shift+F2) ou outro modo (${modosDe(cfgDe(r)).map((x) => x.tecla).join(', ')}).`, BT('limpar-q', xIc, 'Limpar a pesquisa'))
       : vazio(searchX, `Nenhum ${c.um} com estes filtros.`, `Há ${nf(todas.length)} sem eles. Tira um filtro, ou limpa-os.`, BT('limpar', undo, 'Limpar filtros'));
     return;
   }
@@ -202,7 +202,7 @@ export function grelha(r: HTMLElement, e: EstDoc, animar = false): void {
   const sc = g.scrollTop, sl = g.scrollLeft, w = (x: ColDoc) => e.larg[x.k] ?? x.w;
   const ord = (k: string) => { const i = e.ordem.findIndex((o) => o.k === k); return i < 0 ? '' : `<span class="lf2-ord">${L(e.ordem[i].dir === 1 ? arrowUp : arrowDown)}${e.ordem.length > 1 ? `<i>${i + 1}</i>` : ''}</span>`; };
   const sort = (k: string) => { const o = e.ordem.find((x) => x.k === k); return o ? (o.dir === 1 ? 'ascending' : 'descending') : 'none'; };
-  const campoModo = c.campos[e.modo], num = (x: ColDoc) => x.tipo === 'n' || x.tipo === 'eur';
+  const campoModo = c.campos[e.modo] ?? c.campos.numero, num = (x: ColDoc) => x.tipo === 'n' || x.tipo === 'eur';
   const cab = `<tr><th class="lf2-th-sel is-presa"><input type="checkbox" aria-label="Escolher todas" data-dv2-todas${ls.every((d) => e.sel.has(d.id)) ? ' checked' : ''}></th>${cs.map((x) => `<th scope="col" class="${x.presa ? 'is-presa is-presa2 ' : ''}${num(x) ? 'is-num ' : ''}${x.k === campoModo ? 'is-modo' : ''}" aria-sort="${sort(x.k)}" draggable="${!x.presa}" data-dv2-col="${x.k}"><button type="button" data-dv2-ordenar="${x.k}" title="Ordenar (Shift junta outra ordem)">${esc(x.t)}${ord(x.k)}</button><i class="lf2-redim" data-dv2-redim="${x.k}" aria-hidden="true"></i></th>`).join('')}</tr>`
     + (e.filtrosAbertos ? `<tr class="lf2-filtros-col"><th class="is-presa"></th>${cs.map((x) => `<th class="${x.presa ? 'is-presa is-presa2' : ''}"><input type="search" data-dv2-fcol="${x.k}" value="${esc(e.filtrosCol[x.k] ?? '')}" aria-label="Filtrar ${esc(x.t)}" placeholder="Filtrar…"></th>`).join('')}</tr>` : '');
   const hl = e.dens === 'compacta' ? 34 : 42, virtual = ls.length > VLIM;
@@ -227,7 +227,7 @@ function resumo(r: HTMLElement, e: EstDoc): void {
   const k = r.querySelector<HTMLElement>('[data-dv2-kpis]'); if (k) k.innerHTML = cfgDe(r).kpis!(r, e);
 }
 function estado(r: HTMLElement, e: EstDoc): void {
-  const c = cfgDe(r), ok = e.fase === 'ok' || e.fase === 'atualizar', ls = ok ? filtradas(r, e) : [], todas = ok && !e.vazia ? c.linhas(e).length : 0, m = MODOS.find((x) => x.k === e.modo)!, d = ativoDe(r, e);
+  const c = cfgDe(r), ok = e.fase === 'ok' || e.fase === 'atualizar', ls = ok ? filtradas(r, e) : [], todas = ok && !e.vazia ? c.linhas(e).length : 0, m = modosDe(c).find((x) => x.k === e.modo) ?? MODOS[0], d = ativoDe(r, e);
   const fase = e.fase === 'carregar' ? 'A carregar…' : e.fase === 'atualizar' ? 'A atualizar…' : e.fase === 'erro' ? 'Sem dados' : e.ocupado ? String(e.extra.ocupadoTexto ?? 'A gravar…') : e.ficha?.sujo ? 'Alterações por gravar' : 'Pronto';
   const livre = e.fase === 'ok' && !e.ocupado;
   r.querySelector<HTMLElement>('[data-dv2-estado]')!.innerHTML = `<span>${c.um[0].toUpperCase()}${c.um.slice(1)}s <b>${nf(ls.length)}</b>${todas && todas !== ls.length ? ` de ${nf(todas)}` : ''}</span><span>Escolhidos <b>${nf(e.sel.size)}</b></span><span>${c.vistas && vistaDe(e) !== 'docs' && !c.vistasComPesquisa ? 'Procura em <b>toda a linha</b>' : `Pesquisar por <b>${esc(m.t)}</b> · ${e.comp === 'inicio' ? 'iniciado por' : 'contendo'}`}</span><span>Utilizador <b>${esc(PERFIS[e.perfil].pessoa)}</b></span><span class="ak-estado-f is-${livre && !e.ficha?.sujo ? 'ok' : 'a-gerar'}">${livre ? '' : L(loader)}${fase}</span>${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
@@ -736,7 +736,7 @@ export function iniciar(): void {
     if (/^F\d+$/.test(ev.key) && !ev.altKey && !ev.metaKey) {
       if (ev.shiftKey && !ev.ctrlKey) { if (!c.construtor && (ev.key === 'F1' || ev.key === 'F2')) { ev.preventDefault(); if (!e.ficha) mudarComp(r, e, ev.key === 'F1' ? 'inicio' : 'contem'); } return; }
       if (ev.ctrlKey || ev.shiftKey) return;
-      const m = MODOS.find((x) => x.tecla === ev.key);
+      const m = modosDe(c).find((x) => x.tecla === ev.key);
       if (m && !c.construtor) { ev.preventDefault(); if (e.ficha) toast(r, 'Fecha a ficha para pesquisar (Esc).'); else mudarModo(r, e, m.k); return; }
       if (ev.key === 'F4') { ev.preventDefault(); const s = r.querySelector<HTMLSelectElement>('[data-dv2-f="serie"]'); if (s && !e.ficha) s.dispatchEvent(new Event('esel:abrir', { bubbles: true })); return; }
       const barra: Record<string, string> = { F5: 'novo', F6: 'editar', F8: 'anular', F9: 'atualizar', F11: 'imprimir' };

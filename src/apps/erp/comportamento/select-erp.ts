@@ -147,6 +147,9 @@ export function iniciar(): void {
   }, true);
   /* o foco que vá parar ao <select> escondido passa para o botão dele */
   document.addEventListener('focusin', (ev) => { const s = ev.target as HTMLSelectElement; if (s.classList?.contains('esel__nativo')) botoes.get(s)?.focus({ preventScroll: true }); });
+  /* 25 nov. (a ficha da Orçamentação mostrava «Escolhe o cliente…» depois de escolhido): quem muda a opção por outro
+     caminho (option.selected, preenchimento automático) dispara «change»/«input» — o botão acompanha também aí */
+  for (const tipo of ['change', 'input']) document.addEventListener(tipo, (ev) => { const s = ev.target; if (s instanceof HTMLSelectElement && botoes.has(s)) pintar(s); }, true);
   window.addEventListener('resize', () => fechar());
   document.addEventListener('scroll', (ev) => { if (aberta && !(ev.target as HTMLElement).closest?.('.esel__lista')) posicionar(); }, true);
 }

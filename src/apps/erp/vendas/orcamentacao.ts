@@ -354,7 +354,7 @@ const CFG = registar({
   k: 'orcv', titulo: 'Orçamentação', sub: 'Orçamentos a clientes, base e avançados: da consulta ao fecho.', icone: fileSpreadsheet, um: 'orçamento', o: 'o',
   caminho: [['ERP', 'inicio'], ['Vendas', ''], ['Orçamentação', '']],
   cols: COLS, verIniciais: ['numero', 'data', 'consulta', 'cliente', 'nomeCli', 'tipo', 'fase', 'aceite', 'valor', 'uIns'], ajustar: true,
-  campos: { numero: 'n', data: 'data', codigo: 'cliente', descricao: 'nome' },
+  campos: { numero: 'n', data: 'data', consulta: 'consulta', codigo: 'cliente', descricao: 'nomeCli' },
   rotuloForn: 'Cliente', phCodigo: 'Número do cliente, ex.: 10231',
   linhas: (e) => linhas(e).filter((d) => !tipoF(e) || d.tipo === tipoF(e)),
   series: () => [...new Set(orcamentos().map((d) => d.ref.split('/')[0]))], serieDe: (d) => String(d.serie), fornDe: (d) => String(d.cliente), dataDe: (d) => String(d.data), moedaDe: (d) => String(d.moeda),
@@ -405,6 +405,10 @@ const CFG = registar({
     if (cen === 'so-base') e.extra.tipo = 'Base';
     if (cen === 'so-avancada') e.extra.tipo = 'Avançada';
     if (cen === 'historico') e.f.estado = 'hist';
+    /* 25 nov.: as outras opções do submenu Orçamentação abrem este ecrã já filtrado */
+    if (cen === 'neg-base') { e.extra.tipo = 'Base'; e.f.estado = 'neg'; }
+    if (cen === 'neg-avancada') { e.extra.tipo = 'Avançada'; e.f.estado = 'neg'; }
+    if (cen === 'fecho') e.f.estado = 'abertos';
     if (cen === 'editar' && aberto) e.ativo = aberto.id;
     if (cen === 'criar-avancada') e.extra.tipoNovo = 'Avançada';
     if ((cen === 'janela' || cen === 'linhas-avancada') && av) { e.ativo = av.id; if (cen === 'linhas-avancada') e.tab = 'linhas'; }
@@ -423,6 +427,9 @@ const ESTADOS: [string, string, string][] = [
   ['so-base', '80.1 · Só os orçamentos base', 'O filtro Tipo em Base.'],
   ['so-avancada', '80.2 · Só os avançados', 'O filtro Tipo em Avançada: a margem de cada um.'],
   ['historico', '80.3 · Histórico', 'Os fechados e os anulados (o «Histórico…» do submenu do antigo).'],
+  ['neg-base', '80.17 · Negociação base', 'Vendas ▸ Orçamentação ▸ Negociação Base: os orçamentos base em negociação.'],
+  ['neg-avancada', '80.18 · Negociação avançada', 'Vendas ▸ Orçamentação ▸ Negociação Avançada: os avançados em negociação, com a margem.'],
+  ['fecho', '80.19 · Fecho', 'Vendas ▸ Orçamentação ▸ Fecho: os orçamentos em aberto, para fechar com Ctrl+F2 (aceite ou não).'],
   ['janela', '80.4 · Um orçamento numa janela', 'Detalhes, Linhas e Anexos; a lista fica à vista.'],
   ['linhas-avancada', '80.5 · As linhas de um avançado', 'Desconto 1 e 2, custo, margem e prazo por linha.'],
   ['criar', '80.6 · Novo orçamento (base)', 'Novo (F5): cliente, consulta, validade e artigos; o preço vem da tabela.'],

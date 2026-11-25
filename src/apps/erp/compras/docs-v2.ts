@@ -27,6 +27,7 @@ import hash from 'lucide-static/icons/hash.svg?raw';
 import calendar from 'lucide-static/icons/calendar.svg?raw';
 import building from 'lucide-static/icons/building-2.svg?raw';
 import textIc from 'lucide-static/icons/text.svg?raw';
+import messageSquare from 'lucide-static/icons/message-square-text.svg?raw';
 import type { IdPerfil } from '../inicio-dados';
 
 export { L, esc };
@@ -34,11 +35,14 @@ export { L, esc };
 export interface Doc { id: string; [k: string]: unknown }
 export type TipoCol = 'txt' | 'mono' | 'n' | 'eur' | 'data' | 'sim' | 'estado';
 export interface ColDoc { k: string; t: string; tipo: TipoCol; w: number; presa?: boolean; antiga?: boolean }
-export type Modo = 'numero' | 'data' | 'codigo' | 'descricao';
+export type Modo = 'numero' | 'data' | 'consulta' | 'codigo' | 'descricao';
 export const MODOS: { k: Modo; tecla: string; t: string; ic: string }[] = [
   { k: 'numero', tecla: 'F1', t: 'Número', ic: hash }, { k: 'data', tecla: 'F2', t: 'Data', ic: calendar },
   { k: 'codigo', tecla: 'F10', t: 'Código', ic: building }, { k: 'descricao', tecla: 'F12', t: 'Descrição', ic: textIc },
 ];
+/** 25 nov. (Orçamentação, o F7 do antigo): «Nr. Consulta» só nos ecrãs que o têm (campos.consulta); fica entre Data e Código, como no antigo. */
+const MODO_CONSULTA = { k: 'consulta' as Modo, tecla: 'F7', t: 'Nr. Consulta', ic: messageSquare };
+export const modosDe = (c: Pick<CfgDoc, 'campos'>) => c.campos.consulta ? [MODOS[0], MODOS[1], MODO_CONSULTA, MODOS[2], MODOS[3]] : MODOS;
 export interface Filtros { serie: string; forn: string; estado: string; de: string; ate: string; moeda: string }
 export const F0 = (): Filtros => ({ serie: '', forn: '', estado: '', de: '', ate: '', moeda: '' });
 export interface Ord { k: string; dir: 1 | -1 }
@@ -56,7 +60,7 @@ export interface EstDoc {
 export interface CfgDoc {
   k: string; titulo: string; sub: string; icone: string; um: string; o: 'o' | 'a'; caminho: [string, string][];
   cols: ColDoc[]; verIniciais: string[];
-  campos: Record<Modo, string>;
+  campos: Record<Exclude<Modo, 'consulta'>, string> & { consulta?: string };
   linhas(e: EstDoc): Doc[];
   series(): string[]; serieDe(d: Doc): string; fornDe(d: Doc): string; dataDe(d: Doc): string; moedaDe(d: Doc): string;
   estados: [string, string][]; estadoPassa(d: Doc, v: string): boolean;
@@ -107,11 +111,11 @@ export const BTN = (k: string, ic: string, t: string, tecla: string, extra = '',
 const op = (v: string, t: string) => `<option value="${esc(v)}">${esc(t)}</option>`;
 
 /** A pesquisa do ERP antigo por modos (F1 Número, F2 Data, F10 Código, F12 Descrição) e como compara (Shift+F1/F2). */
-function pesquisaModos(id: (x: string) => string): string {
+function pesquisaModos(id: (x: string) => string, c: Pick<CfgDoc, 'campos'>): string {
   return `<div class="ak-campo dv2-pesquisa" role="group" aria-labelledby="${id('pq-t')}">
         <span id="${id('pq-t')}">Pesquisar por</span>
         <div class="dv2-pq">
-          <span class="dv2-modos" role="radiogroup" aria-label="Pesquisar por">${MODOS.map((m, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-dv2-modo="${m.k}" title="Visualizar por ${m.t.toLowerCase()} (${m.tecla})">${L(m.ic)}<span>${m.t}</span><kbd>${m.tecla}</kbd></button>`).join('')}</span>
+          <span class="dv2-modos" role="radiogroup" aria-label="Pesquisar por">${modosDe(c).map((m, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-dv2-modo="${m.k}" title="Visualizar por ${m.t.toLowerCase()} (${m.tecla})">${L(m.ic)}<span>${m.t}</span><kbd>${m.tecla}</kbd></button>`).join('')}</span>
           <span class="lf2-comp" role="radiogroup" aria-label="Como compara">
             <button type="button" role="radio" aria-checked="true" data-dv2-comp="inicio" title="Pesquisa iniciada por (Shift+F1)">Iniciado por</button>
             <button type="button" role="radio" aria-checked="false" data-dv2-comp="contem" title="Pesquisa contendo (Shift+F2)">Contendo</button>
@@ -154,7 +158,7 @@ export function paginaDoc(c: CfgDoc, cen: string, fornecedores: [string, string]
   <section class="lf-filtros lf2-filtros dv2-filtros" aria-label="Pesquisa e filtros">
     <div class="dv2-rapidos">
       ${campo('serie', 'Série <kbd>F4</kbd>', `<select id="${id('serie')}" data-dv2-f="serie" data-dv2-campo>${op('', 'Todas')}${c.series().map((s) => op(s, s)).join('')}</select>`)}
-      ${c.construtor ? '' : pesquisaModos(id)}
+      ${c.construtor ? '' : pesquisaModos(id, c)}
       ${campo('forn', c.rotuloForn ?? 'Fornecedor', `<select id="${id('forn')}" data-dv2-f="forn" data-dv2-campo>${op('', 'Todos')}${fornecedores.map(([v, t]) => op(v, t)).join('')}</select>`)}
       ${campo('estado', 'Estado', `<select id="${id('estado')}" data-dv2-f="estado" data-dv2-campo>${c.estados.map(([v, t]) => op(v, t)).join('')}</select>`)}
       ${c.rapidos?.(id) ?? ''}

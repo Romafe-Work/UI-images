@@ -168,8 +168,9 @@ export const MENU_ERP: LinhaMenu[] = [
   V('vendas-orcamentacao', 'vendas', 'Orçamentação', 'scale', 10),
   /* 25 nov. (ela: «base e avançado no mesmo screen»): as duas abrem o 80 · Orçamentação */
   V('vendas-orc-base', 'vendas-orcamentacao', 'Orçamentação Base', 'file-spreadsheet', 10, false, 'vendas.orcamentacao'), V('vendas-orc-avancada', 'vendas-orcamentacao', 'Orçamentação Avançada', 'file-spreadsheet', 20, false, 'vendas.orcamentacao-avancada'),
-  V('vendas-neg-base', 'vendas-orcamentacao', 'Negociação Base', '', 30, true), V('vendas-neg-avancada', 'vendas-orcamentacao', 'Negociação Avançada', '', 40),
-  V('vendas-orc-fecho', 'vendas-orcamentacao', 'Fecho', '', 50, true), V('vendas-orc-historico', 'vendas-orcamentacao', 'Histórico', '', 60, true),
+  /* 25 nov.: a Negociação, o Fecho e o Histórico também abrem o 80, já filtrados (a fase e o tipo) */
+  V('vendas-neg-base', 'vendas-orcamentacao', 'Negociação Base', 'file-spreadsheet', 30, true, 'vendas.negociacao-base'), V('vendas-neg-avancada', 'vendas-orcamentacao', 'Negociação Avançada', 'file-spreadsheet', 40, false, 'vendas.negociacao-avancada'),
+  V('vendas-orc-fecho', 'vendas-orcamentacao', 'Fecho', 'file-spreadsheet', 50, true, 'vendas.orcamentacao-fecho'), V('vendas-orc-historico', 'vendas-orcamentacao', 'Histórico', 'file-spreadsheet', 60, true, 'vendas.orcamentacao-historico'),
   V('vendas-proforma', 'vendas', 'Faturas Proforma', 'file-text', 20, true),
   V('vendas-contratos', 'vendas', 'Simulação de Contratos', 'file-check', 30, true),
   V('vendas-pedidos', 'vendas', 'Pedidos de Clientes', 'clipboard-list', 40, true),
@@ -238,6 +239,10 @@ export const ROTAS: Record<string, Rota> = {
   /* 25 nov.: Vendas ▸ Orçamentação (Base e Avançada no mesmo ecrã; a Avançada abre já filtrada) */
   'vendas.orcamentacao': { ecra: 'vendas-orcamentacao', titulo: 'Orçamentação', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
   'vendas.orcamentacao-avancada': { ecra: 'orcv-so-avancada', titulo: 'Orçamentação avançada', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
+  'vendas.negociacao-base': { ecra: 'orcv-neg-base', titulo: 'Negociação base', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
+  'vendas.negociacao-avancada': { ecra: 'orcv-neg-avancada', titulo: 'Negociação avançada', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
+  'vendas.orcamentacao-fecho': { ecra: 'orcv-fecho', titulo: 'Fecho de orçamentos', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
+  'vendas.orcamentacao-historico': { ecra: 'orcv-historico', titulo: 'Histórico de orçamentos', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
   'stocks.transf-armazens': { ecra: 'stocks-transf-armazens', titulo: 'Transferências entre armazéns', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },
