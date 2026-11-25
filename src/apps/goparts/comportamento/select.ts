@@ -147,6 +147,8 @@ function melhorar(sel: HTMLSelectElement): void {
 
 export function iniciar(): void {
   document.querySelectorAll<HTMLSelectElement>('.portal--v22 select.input').forEach(melhorar);
+  /* os ecrãs construídos depois (comum/pagina.ts) */
+  document.addEventListener('romafe:construido', () => document.querySelectorAll<HTMLSelectElement>('.portal--v22 select.input').forEach(melhorar));
   /* No editor (ela, 13 out.: «quero animações nos selects»): o primeiro clique escolhe a
      peça, como sempre; clicar outra vez numa lista já escolhida abre-a, a animar.
      Corre antes do editor (na janela, em captura) e só nesse caso lhe tira o clique. */

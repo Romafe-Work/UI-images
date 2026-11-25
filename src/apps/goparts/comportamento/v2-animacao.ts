@@ -40,8 +40,10 @@ function pousar(m: HTMLElement, alvo: HTMLElement | null): void {
   } else risca.style.opacity = '1';
 }
 
+let menusLigados = false;
 function ligarMenus(): void {
   document.querySelectorAll<HTMLElement>(`:is(${V2}) :is(${MENUS})`).forEach((m) => {
+    if (m.classList.contains('com-risca')) return;
     m.classList.add('com-risca');
     const risca = document.createElement('span');
     risca.className = 'risca';
@@ -57,6 +59,9 @@ function ligarMenus(): void {
   });
   /* as medidas só existem quando o ecrã se vê: repor ao trocar de ecrã, de versão e de tamanho */
   const repor = () => document.querySelectorAll<HTMLElement>('.com-risca').forEach((m) => pousar(m, escolhido(m)));
+  if (menusLigados) { requestAnimationFrame(repor); return; }
+  menusLigados = true;
+  document.addEventListener('romafe:construido', () => ligarMenus());
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(repor)));
   window.addEventListener('resize', repor);
   window.addEventListener('hashchange', () => requestAnimationFrame(repor));

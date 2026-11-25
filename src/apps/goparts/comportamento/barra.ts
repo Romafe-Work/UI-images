@@ -570,6 +570,7 @@ export function iniciar(): void {
     if (aberta?.tipo === 'carrinho') { const f = document.activeElement?.closest('.bc-carr__linha') ? `[data-ref="${CSS.escape(linhaDe(document.activeElement!))}"] [data-campo="qtd"]` : undefined; pintarCarrinho(aberta.el, f); }
   });
   const armar = () => requestAnimationFrame(() => pintarSelos());
+  document.addEventListener('romafe:construido', () => pintarSelos());
   ['romafe:versao', 'romafe:ecra'].forEach((e) => document.addEventListener(e, () => { if (aberta && !aberta.el.isConnected) aberta = null; armar(); }));
   window.addEventListener('hashchange', armar);
   armar();

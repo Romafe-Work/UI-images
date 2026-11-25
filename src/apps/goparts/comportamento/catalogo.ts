@@ -137,6 +137,7 @@ function fecharModelos(c: HTMLElement): void {
 
 export function iniciar(): void {
   document.querySelectorAll<HTMLElement>('[data-catalogo]').forEach(aplicar);
+  document.addEventListener('romafe:construido', (ev) => (ev as CustomEvent<HTMLElement>).detail.querySelectorAll<HTMLElement>('[data-catalogo]').forEach(aplicar));
   v3.iniciar();
   document.addEventListener('click', (ev) => {
     if (editando()) return;

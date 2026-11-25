@@ -211,7 +211,10 @@ export function pintarBarra(): void {
 const adiados = new Map<HTMLElement, string>();
 export function adiar(versao: HTMLElement, html: string): void { adiados.set(versao, html); }
 function construir(ecra: Element | null): void {
-  ecra?.querySelectorAll<HTMLElement>(':scope > .versao').forEach((v) => { const h = adiados.get(v); if (h !== undefined) { v.innerHTML = h; adiados.delete(v); } });
+  let feito = false;
+  ecra?.querySelectorAll<HTMLElement>(':scope > .versao').forEach((v) => { const h = adiados.get(v); if (h !== undefined) { v.innerHTML = h; adiados.delete(v); feito = true; } });
+  /* 25 nov.: o que cada app liga no arranque a elementos dos ecrãs (as listas, os selos, as riscas) liga-se também aqui */
+  if (feito && ecra) document.dispatchEvent(new CustomEvent('romafe:construido', { detail: ecra }));
 }
 
 export function mostrar(nome: string): boolean {

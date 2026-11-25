@@ -48,3 +48,34 @@
   .ecra:not([hidden]) > .versao:not([hidden]) .portal--lateral > main { animation: pap-entra 220ms cubic-bezier(.22, 1, .36, 1) both; }
 }
 @keyframes pap-entra { from { opacity: 0; transform: translateY(8px); } }
+
+/* =========================================================
+   (25 nov., outra vez «mais moderno pfv», com os passos e o caminho BMW › 1 (E87) › 118d)
+   - os passos são um percurso: os já feitos levam um visto, o atual em pílula, os de depois esbatidos;
+   - fora a risca laranja solta que ainda andava por baixo;
+   - o caminho do veículo deixa de ser uma caixa: uma linha leve, logótipo pequeno, separadores «/», o atual a
+     negrito sem fundo nem risca.
+   ========================================================= */
+.portal--lateral :is(.cat2__passos, .cat5__passos) .risca, .portal--lateral .cat2__passos.com-risca > .risca { display: none !important; }
+.portal--lateral .cat2__passo { display: inline-flex; align-items: center; gap: 7px; }
+.portal--lateral .cat5__passos > li:has(~ li > [aria-current]) > .cat2__passo { color: var(--c-texto); }
+.portal--lateral .cat5__passos > li:has(~ li > [aria-current]) > .cat2__passo::before {
+  content: ""; width: 16px; height: 16px; flex: none; border-radius: 50%;
+  background: color-mix(in srgb, var(--c-marca, #147dc0) 22%, transparent);
+  -webkit-mask: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2 7 10.6l4.6-5' fill='none' stroke='%235aa9e6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 16px; background-repeat: no-repeat;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .portal--lateral .cat2__passo[aria-current] { animation: pap-passo 260ms cubic-bezier(.22, 1, .36, 1); }
+}
+@keyframes pap-passo { from { transform: scale(.92); opacity: .6; } }
+
+.portal--lateral .cat6__contexto { padding: 4px 0; border: 0; background: transparent; gap: 10px 12px; }
+.portal--lateral .cat6__ctx-logo { width: 36px; height: 36px; }
+.portal--lateral .cat6__ctx-logo .cat2__logo svg { width: 22px; height: 22px; }
+.portal--lateral .cat6__ctx-carro { width: 56px; opacity: .8; }
+.portal--lateral .cat6__ctx-caminho li + li::before { content: "/"; margin: 0 4px; color: var(--c-texto-3); opacity: .6; }
+.portal--lateral .cat6__ctx-parte { padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--c-texto-2); background: transparent !important; }
+.portal--lateral .cat6__ctx-parte[aria-current] { box-shadow: none; color: var(--c-texto); font-weight: 700; background: transparent; }
+@media (hover: hover) and (pointer: fine) { .portal--lateral .cat6__ctx-parte:hover:not([aria-current]) { color: var(--c-texto); text-decoration: underline; text-underline-offset: 4px; } }
