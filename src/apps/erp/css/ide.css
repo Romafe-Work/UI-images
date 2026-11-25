@@ -473,3 +473,9 @@
 .ide-x-fluxo:hover, .ide-x-fluxo:focus-visible { background: var(--i-tab-h); color: #f28c28; }
 .ide-x-fluxo:focus-visible { outline: 2px solid var(--h-azul, #3d8fd1); outline-offset: 1px; }
 body.demo-a-tocar .ide-x-fluxo { color: #f28c28; }
+
+/* 25 nov. (ela: «isto está muito confuso»): os botões de cada grupo (dividir, lista, mais, afixar, maximizar, fechar)
+   só aparecem quando o rato passa pelo grupo ou o foco lá está; num ecrã tátil ficam sempre à vista */
+.ide-g-acoes { opacity: 0; transition: opacity .12s ease; }
+.ide-g:hover .ide-g-acoes, .ide-g:focus-within .ide-g-acoes, .ide-g-acoes:has([aria-expanded="true"]) { opacity: 1; }
+@media (hover: none) { .ide-g-acoes { opacity: 1; } }

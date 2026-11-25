@@ -143,7 +143,7 @@ export function grupo(d: Disposicao, g: Grupo): string {
       ${ferr ? `<div class="ide-g-tit" data-ide-tit="${esc(g.ativo)}" title="${esc(it?.titulo ?? '')} — arrasta para acoplar noutro sítio">${iconeItem(it)}<span>${esc(it?.titulo ?? '')}</span></div>` : tabs}
       <div class="ide-g-acoes">
         ${!ferr && !vazio && !fl ? `<button type="button" class="ide-g-b" data-ide-g-acao="dividir" title="Dividir à direita (Ctrl \\)">${L(columns2)}</button>` : ''}
-        ${g.itens.length > 1 || !ferr ? `<button type="button" class="ide-g-b" data-ide-g-acao="lista" aria-haspopup="true" title="Separadores abertos (Ctrl K Ctrl P)">${L(chevronDown)}</button>` : ''}
+        ${g.itens.length > 1 ? `<button type="button" class="ide-g-b" data-ide-g-acao="lista" aria-haspopup="true" title="Separadores abertos (Ctrl K Ctrl P)">${L(chevronDown)}</button>` : ''}
         ${!ferr && !vazio ? `<button type="button" class="ide-g-b" data-ide-g-acao="mais" aria-haspopup="true" title="Mais ações">${L(ellipsis)}</button>` : ''}
         ${ferr && !fl ? `<button type="button" class="ide-g-b" data-ide-g-acao="ocultar" title="Ocultar automaticamente">${L(pin)}</button>` : ''}
         ${!fl && !vazio ? `<button type="button" class="ide-g-b" data-ide-g-acao="max" title="${d.max === g.id ? 'Restaurar' : 'Maximizar'} (duplo clique na barra)">${L(d.max === g.id ? minimize2 : maximize2)}</button>` : ''}
@@ -151,7 +151,7 @@ export function grupo(d: Disposicao, g: Grupo): string {
       </div>
     </div>
     <div class="ide-g-corpo" data-ide-corpo="${g.id}">${vazio ? vazioHtml() : ''}</div>
-    ${ferr && g.itens.length > 1 ? `<div class="ide-g-pe">${tabs}</div>` : ''}
+    ${''/* 25 nov.: as janelas de ferramenta já não têm separadores em baixo — a barra de atividade e a lista (⌄) trocam de vista */}
   </section>`;
 }
 const vazioHtml = () => `<div class="ide-vazio">${L(layoutTemplate)}<p><b>Sem documentos abertos</b>Abre um ecrã em Módulos, arrasta um separador para aqui ou aplica uma disposição.</p></div>`;
@@ -203,8 +203,8 @@ export function menu(itens: ItemMenu[]): string {
    ========================================================= */
 export interface InfoEstado { ligado: boolean; perfil: IdPerfil; doc: string; sujos: number; carregar: number; disposicao: string; alterada: boolean; acorde?: string }
 export function estado(s: InfoEstado): string {
-  return `<span class="ide-e${s.ligado ? ' is-ok' : ' is-erro'}">${L(s.ligado ? wifi : wifiOff)}${s.ligado ? 'Ligado' : 'Sem ligação'}</span>
-    <span class="ide-e ide-e-doc">${s.doc ? `${L(eye)}${esc(s.doc)}` : 'Nenhum documento ativo'}</span>
+  /* 25 nov. (ela: «isto está muito confuso»): o nome do documento já está no separador e «Ligado» não diz nada — só aparece a falha */
+  return `${s.ligado ? '' : `<span class="ide-e is-erro">${L(wifiOff)}Sem ligação</span>`}
     ${s.acorde ? `<span class="ide-e is-acorde">(${esc(s.acorde)}) à espera da segunda tecla…</span>` : ''}
     ${s.sujos ? `<span class="ide-e is-aviso"><i class="ide-tab-sujo"></i>${s.sujos === 1 ? '1 documento com alterações por guardar' : `${s.sujos} documentos com alterações por guardar`}</span>` : ''}
     ${s.carregar ? `<span class="ide-e">${L(loader, 'ide-roda')}A abrir ${s.carregar === 1 ? '1 ecrã' : `${s.carregar} ecrãs`}…</span>` : ''}
@@ -303,11 +303,13 @@ function explorador(d: DadosFerr): string {
   /* 19 nov. (ela: «quero um button para apenas produzir o fluxo disto», do menu Stocks): as pastas com um roteiro do
      rato próprio têm um ▷ que o toca (roteiro.ts) */
   const FLUXO_PASTA: Record<string, string> = { stocks: 'erp-stocks' };
+  /* 25 nov.: por omissão só se abre a pasta que tem um ecrã aberto (antes abria tudo e o menu Vendas enchia o painel) */
+  const temAberto = (n: NoNav): boolean => (!!n.rota && d.abertos.has(n.rota)) || n.filhos.some(temAberto);
   const ramo = (ns: NoNav[], nivel: number): string => ns.map((n) => {
     if (n.antigo) return '';
     if (n.filhos.length) {
       const dentro = ramo(n.filhos, nivel + 1); if (q && !dentro) return '';
-      const aberto = q ? true : d.abertosExp[n.id] !== false;
+      const aberto = q ? true : d.abertosExp[n.id] ?? temAberto(n);
       const fluxo = FLUXO_PASTA[n.id];
       return `<div class="ide-x-g${aberto ? ' is-aberto' : ''}${fluxo ? ' com-fluxo' : ''}" style="--n:${nivel}"><button type="button" class="ide-x-gt" data-ide-exp-g="${esc(n.id)}" aria-expanded="${aberto}">${L(chevronRight, 'ide-x-seta')}${L(folder)}<span>${esc(n.rotulo)}</span></button>${fluxo ? `<button type="button" class="ide-x-fluxo" data-ide-fluxo="${fluxo}" title="Reproduzir o fluxo de ${esc(n.rotulo)} com o rato (tocar outra vez para)" aria-label="Reproduzir o fluxo de ${esc(n.rotulo)} com o rato">${L(play)}</button>` : ''}<div class="ide-x-l"${aberto ? '' : ' hidden'}>${dentro}</div></div>`;
     }
@@ -317,12 +319,10 @@ function explorador(d: DadosFerr): string {
   const arv = ramo(navegacao(d.perfil).filter((n) => ['vendas', 'compras', 'stocks'].includes(n.id)), 0);
   const favs = d.favoritos.filter((f) => ROTAS[f.rota] && passa(f.titulo));
   const recs = d.recentes.filter((f) => ROTAS[f.rota] && passa(f.titulo)).slice(0, 5);
-  /* como no VS Code: os editores abertos em cima, com o ativo marcado, o ● das alterações e o × para fechar */
-  const eds = (d.editores ?? []).filter((e) => passa(e.titulo));
-  const abertosH = eds.length ? `<p class="ide-x-t">${L(fileText)}Editores abertos <small>${eds.length}</small></p>${eds.map((e) => `<div class="ide-x-f ide-x-ed${e.ativo ? ' is-ativo' : ''}" style="--n:0"><button type="button" class="ide-x-i" data-ide-ir="${esc(e.id)}">${icone(e.rota ? ROTAS[e.rota]?.icone ?? 'file-text' : 'file-text')}<span>${esc(e.titulo)}</span></button>${e.sujo ? '<i class="ide-tab-sujo" aria-label="Alterações por guardar"></i>' : ''}<button type="button" class="ide-x-fav ide-x-x" data-ide-fechar-item="${esc(e.id)}" aria-label="Fechar ${esc(e.titulo)}">${L(x)}</button></div>`).join('')}` : '';
-  return `${abertosH}${favs.length ? `<p class="ide-x-t">${L(star)}Favoritos</p>${favs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
+  /* 25 nov.: saiu «Editores abertos» — repetia os separadores */
+  return `${favs.length ? `<p class="ide-x-t">${L(star)}Favoritos</p>${favs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
     ${recs.length ? `<p class="ide-x-t">${L(clock)}Abertos há pouco</p>${recs.map((f) => folha(f.rota, f.titulo, ROTAS[f.rota].icone, 0)).join('')}` : ''}
-    <p class="ide-x-t">${L(folderTree)}Módulos</p>
+    ${favs.length || recs.length ? `<p class="ide-x-t">${L(folderTree)}Módulos</p>` : ''}
     ${arv || nada(q ? `Nada nos módulos com «${esc(d.q)}».` : 'A tua conta ainda não tem módulos no ERP novo. Pede o acesso ao administrador; até lá, continua no ERP antigo.')}`;
 }
 
