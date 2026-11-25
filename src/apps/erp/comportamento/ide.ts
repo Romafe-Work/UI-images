@@ -841,7 +841,18 @@ function barraAcoes(): void {
   const corpoB = b ? [...b.children].map((c) => filho(c as HTMLElement)).join('') : '', gs = grupos.map(grupo).join('');
   const corpo = corpoB.includes('ide-cmds-fim') ? corpoB.replace('<span class="ide-cmds-fim"></span>', `${gs}<span class="ide-cmds-fim"></span>`) : corpoB + gs;
   el.innerHTML = it ? `<span class="ide-doc-ativo" title="As ações vão para este ecrã">${iconeItem(it)}<span>${esc(it.titulo)}</span></span><i class="ide-cmds-sep" aria-hidden="true"></i>${corpo || `<span class="ide-ac-tx">${aCarregar.has(docBarra) ? 'A abrir…' : 'Este ecrã não tem ações.'}</span>`}` : '<span class="ide-ac-tx">Abre um ecrã para ver as ações dele.</span>';
+  compactar(el);
 }
+/* 25 nov. (ela, no 80 · Orçamentação: «tem muitas coisas»): a barra nunca corta o fim (o «Contendo» e o «Mais ações»
+   ficavam fora). Quando não cabe, simplifica-se por fases até caber: 1) saem as teclas (ficam no título do botão) e o
+   nome do ecrã; 2) os modos de pesquisa só com o ícone; 3) os botões só com o ícone, menos a ação principal (laranja). */
+const FASES = ['is-c1', 'is-c2', 'is-c3'];
+function compactar(el: HTMLElement): void {
+  el.classList.remove(...FASES);
+  for (const f of FASES) { if (el.scrollWidth <= el.clientWidth + 1) return; el.classList.add(f); }
+}
+let compT = 0;
+window.addEventListener('resize', () => { cancelAnimationFrame(compT); compT = requestAnimationFrame(() => { const el = $('[data-ide-acoes]'); if (el) compactar(el); }); });
 let barraT = 0;
 /** Um botão da barra: carrega no do ecrã; se abre um menu, mostra-o aqui com os itens dele. */
 function cliqueAcao(b: HTMLElement): void {
