@@ -142,8 +142,8 @@ function resolver(v: string): string {
 }
 
 /* ---------- a página ---------- */
-function html(cen: string): string {
-  const id = (x: string) => `mva2-${x}-${cen}`;
+function html(cen: string, simples = false): string {
+  const id = (x: string) => `mva2-${x}-${cen}${simples ? '-s' : ''}`;
   const B = (k: string, ic: string, t: string, tecla: string, cls = '') => BTN(k, ic, t, tecla, '', cls).replace('data-dv2-acao', 'data-mva2-acao');
   const lista = `<datalist id="${id('arts')}">${ARTIGOS.map((a) => `<option value="${esc(`${a.ref} · ${a.desc}`)}"></option>`).join('')}</datalist>`;
   const listaRef = `<datalist id="${id('refs')}">${ARTIGOS.map((a) => `<option value="${esc(a.ref)}">${esc(a.desc)}</option>`).join('')}</datalist>`;
@@ -157,7 +157,7 @@ function html(cen: string): string {
     </form>
     <div class="mva2-ctx" data-mva2-ctx="${k}" hidden></div>`;
   const lst = (k: Tab, titulo: string, extra = '') => `<section class="lf2-lista dv2-lista minv2-lista mva2-lista"><div class="lf2-lista-cab minv2-lista-cab"><h2 data-mva2-t="${k}">${titulo}</h2><p class="lf2-resumo" data-mva2-resumo="${k}"></p>${extra}</div><div class="lf2-grelha lf2-grelha--ajusta minv2-g" data-mva2-g="${k}" tabindex="-1"></div>${k === 'mov' ? '<nav class="minv2-pag" data-mva2-pag aria-label="Páginas"></nav>' : ''}</section>`;
-  return `<div class="hm ak lf2 dv2 mac mst mva minv2 mva2" data-hm data-mva2 data-mva2-cenario="${cen}" data-teclas="F1 F2 F3 F4 F5 F9 F10 F11 F12 Escape">
+  return `<div class="hm ak lf2 dv2 mac mst mva minv2 mva2" data-hm data-mva2 data-mva2-cenario="${cen}"${simples ? ' data-mva2-simples' : ''} data-teclas="F1 F2 F3 F4 F5 F9 F10 F11 F12 Escape">
   ${topoErp([['ERP', 'inicio'], ['Stocks', ''], ['Mapas', ''], ['Movimentos de artigos', '']])}
   <header class="ak-cab lf2-cab"><span class="ak-cab-ic">${L(arrowLeftRight)}</span>
     <div><h1>Movimentos de artigos</h1><p>As entradas e saídas de cada artigo, o extrato com o stock a cada passo e o saldo por artigo.</p></div></header>
@@ -181,6 +181,7 @@ function html(cen: string): string {
         </div></div>
       <label class="ak-campo"><span>Armazém</span><select data-mva2-f="armazem">${op('', 'Todos os armazéns')}${ARMAZENS.map((a) => op(a.cod, curto(a.nome))).join('')}</select></label>
       <label class="ak-campo"><span>Tipo de movimento</span><select data-mva2-f="tipo">${op('', 'Todos')}${(Object.keys(NOME_TIPO) as Cod[]).map((k) => op(k, `${k} · ${NOME_TIPO[k]}`)).join('')}</select></label>
+      ${simples ? '<label class="ak-campo mva2-ordem-f"><span>Ordenar</span><select data-mva2-ordem></select></label>' : ''}
       <span class="minv2-filtros-bts"><button type="button" class="ak-btn ak-btn--linha" data-mva2-acao="limpar">${L(funnelX)}<span>Limpar filtros</span></button><button type="button" class="ak-btn ak-btn--linha" data-mva2-acao="mais" aria-expanded="false">${L(sliders)}<span>Mais filtros</span></button></span>
       <div class="minv2-mais mva2-mais" data-mva2-mais hidden>
         <label class="ak-campo mva2-art"><span>Artigo</span><div class="minv2-pesq-c">${L(search)}<input type="text" data-mva2-f="art" list="${id('arts')}" placeholder="Referência ou descrição" autocomplete="off"></div></label>
@@ -189,7 +190,7 @@ function html(cen: string): string {
     </form>
     <ul class="mva2-chips" data-mva2-chips="mov" aria-label="Filtros aplicados"></ul>
     <section class="minv2-kpis mva2-kpis" data-mva2-kpis="mov" aria-label="Resumo"></section>
-    ${lst('mov', 'Movimentos', `<label class="minv2-ordem"><span>Ordenar</span><select data-mva2-ordem aria-label="Ordenar por"></select></label>`)}
+    ${lst('mov', 'Movimentos', simples ? '' : `<label class="minv2-ordem"><span>Ordenar</span><select data-mva2-ordem aria-label="Ordenar por"></select></label>`)}
   </section>
   <section role="tabpanel" id="${id('p-ext')}" aria-labelledby="${id('tab-ext')}" data-mva2-p="ext" hidden>
     ${crit('ext')}
@@ -232,6 +233,9 @@ function cols(todos: Mov[]): Record<string, Col> {
     qStk: { k: 'qStk', t: 'Qt. stock', w: 6.5, n: true, titulo: 'O stock do artigo (todos os armazéns) depois do movimento', cel: (m) => `<b>${q0(m.saldoArt)}</b>`, v: (m) => m.saldoArt },
     vStk: { k: 'vStk', t: 'Valor stock', w: 8.5, n: true, cel: (m) => e0(m.valorArt), v: (m) => m.valorArt },
     nrdoc: { k: 'nrdoc', t: 'Nr. doc.', w: 10, cel: (m) => `<b class="is-mono">${esc(m.docCompleto)}</b>`, v: (m) => m.docCompleto },
+    qtd: { k: 'qtd', t: 'Quantidade', w: 8, n: true, cel: (m) => m.qtd > 0 ? `+${nf(m.qtd)}` : m.qtd < 0 ? `−${nf(-m.qtd)}` : zero('0'), v: (m) => m.qtd },
+    valor: { k: 'valor', t: 'Valor', w: 10, n: true, cel: (m) => { const v = m.vEnt - m.vSai; return v > 0 ? `+${eur(v)}` : v < 0 ? eur(v) : zero(eur(0)); }, v: (m) => m.vEnt - m.vSai },
+    tipoS: { k: 'tipo', t: 'Tipo de movimento', w: 15, cel: (m) => { const n = nat(m); return `<span class="mva2-tipo is-${n}${m.anulacao ? ' is-anul' : ''}" title="${esc(designacao(m))}">${L(IC_NAT[n])}<span>${esc(designacao(m))}</span></span>`; }, v: (m) => designacao(m) },
     cod: { k: 'cod', t: 'Tipo', w: 4.5, cel: (m) => `<span class="is-mono">${m.cod}</span>`, v: (m) => m.cod },
   };
 }
@@ -253,9 +257,11 @@ function filtrarMov(e: Est, todos = todosMovimentos()): Mov[] {
     .sort((a, b) => e.modo === 'descricao' ? (artigo(a.ref)?.desc ?? '').localeCompare(artigo(b.ref)?.desc ?? '', 'pt') || a.n - b.n : e.modo === 'armazem' ? a.armazem.localeCompare(b.armazem) || a.n - b.n : e.modo === 'artigo' ? a.ref.localeCompare(b.ref, 'pt', { numeric: true }) || a.n - b.n : e.modo === 'documento' ? `${a.serie}${a.doc}`.localeCompare(`${b.serie}${b.doc}`, 'pt', { numeric: true }) : b.n - a.n);
 }
 const nFiltrosMov = (e: Est) => [e.q.trim(), e.armazem, e.art.trim(), e.tipo, e.de, e.ate].filter(Boolean).length;
+const ORDENS_S: [string, string][] = [['', 'Pela pesquisa'], ['data:-1', 'Data (mais recente primeiro)'], ['data:1', 'Data (mais antiga primeiro)'], ['artigo:1', 'Artigo (A–Z)'], ['valor:-1', 'Valor (maior primeiro)'], ['qtd:-1', 'Quantidade (maior primeiro)'], ['tipo:1', 'Tipo de movimento'], ['armazem:1', 'Armazém']];
 const ORDENS: [string, string][] = [['', 'A da visualização'], ['data:-1', 'Data (mais recente primeiro)'], ['data:1', 'Data (mais antiga primeiro)'], ['artigo:1', 'Artigo (A–Z)'], ['vEnt:-1', 'Valor entradas (maior primeiro)'], ['vSai:-1', 'Valor saídas (maior primeiro)'], ['qEnt:-1', 'Qt. entrada (maior primeiro)'], ['qSai:-1', 'Qt. saída (maior primeiro)'], ['tipo:1', 'Tipo de movimento'], ['armazem:1', 'Armazém'], ['doc:1', 'Documento']];
 function desenharMov(r: HTMLElement, e: Est, revelar = false): void {
-  const todos = todosMovimentos(), C = cols(todos), cs = [C.artigo, C.armazem, C.data, C.serie, C.doc, C.preco, C.tipo, C.qEnt, C.qSai, C.vEnt, C.vSai];
+  const S = r.hasAttribute('data-mva2-simples');
+  const todos = todosMovimentos(), C = cols(todos), cs = S ? [C.artigo, C.armazem, C.data, { ...C.nrdoc, t: 'Documento', w: 11 }, C.tipoS, C.qtd, C.valor] : [C.artigo, C.armazem, C.data, C.serie, C.doc, C.preco, C.tipo, C.qEnt, C.qSai, C.vEnt, C.vSai];
   const ms = ordenar(e, filtrarMov(e, todos), cs), g = r.querySelector<HTMLElement>('[data-mva2-g="mov"]')!, pagEl = r.querySelector<HTMLElement>('[data-mva2-pag]')!;
   g.dataset.vista = e.vista.mov; pagEl.innerHTML = '';
   /* os filtros aplicados, cada um com o seu × */
@@ -271,13 +277,16 @@ function desenharMov(r: HTMLElement, e: Est, revelar = false): void {
   const k = r.querySelector<HTMLElement>('[data-mva2-kpis="mov"]')!, emp = daEmpresa(ms, !!e.armazem), tra = ms.filter((m) => m.cod === 'TA' && !e.armazem), av = ms.filter((m) => m.cod === 'AV');
   const docs = new Set(ms.map((m) => m.docCompleto).filter((x) => x !== '—')).size;
   k.hidden = !ms.length;
+  if (S) { const ec = emp.filter((m) => m.cod !== 'AV');
+    k.innerHTML = ms.length ? `${kpi('is-com', entraIc, 'Entradas', `${nf(soma(emp, ent))} un.`, eur(soma(ec, (m) => m.vEnt)))}${kpi('', saiIc, 'Saídas', `${nf(soma(emp, sai))} un.`, eur(soma(ec, (m) => m.vSai)))}${kpi('', fileText, 'Movimentos', nf(ms.length), pl(docs, 'documento', 'documentos'))}` : ''; void tra; void av;
+  } else
   k.innerHTML = ms.length ? `${kpi('is-com', entraIc, 'Entradas', `${nf(soma(emp, ent))} un.`, `${eur(soma(emp.filter((m) => m.cod !== 'AV'), (m) => m.vEnt))} · ${pl(emp.filter((m) => ent(m) > 0).length, 'movimento', 'movimentos')}`)}
     ${kpi('', saiIc, 'Saídas', `${nf(soma(emp, sai))} un.`, `${eur(soma(emp.filter((m) => m.cod !== 'AV'), (m) => m.vSai))} · ${pl(emp.filter((m) => sai(m) > 0).length, 'movimento', 'movimentos')}`)}
     ${kpi('', boxes, 'Artigos movimentados', nf(new Set(ms.map((m) => m.ref)).size), `de ${nf(ARTIGOS.length)} artigos`)}
     ${kpi('', fileText, 'Movimentos', nf(ms.length), pl(docs, 'documento', 'documentos'))}
     ${e.armazem ? kpi('', repeat, 'Transferências', nf(ms.filter((m) => m.cod === 'TA').length), 'contam como entradas e saídas deste armazém') : kpi('', repeat, 'Não contam', `${pl(tra.length / 2, 'transferência', 'transferências')}`, `${nf(soma(tra, ent))} un. entre armazéns${av.length ? ` · ${pl(av.length, 'ajuste', 'ajustes')} em valor ${eur(soma(av, (m) => m.vEnt - m.vSai))}` : ''}`)}` : '';
   r.querySelector<HTMLElement>('[data-mva2-resumo="mov"]')!.innerHTML = `<span><b>${nf(ms.length)}</b> ${ms.length === 1 ? 'movimento' : 'movimentos'}</span>${e.art && ARTIGOS.some((a) => a.ref === resolver(e.art)) ? `<span>Pr. médio de ${esc(resolver(e.art))} <b>${eur(todos.filter((m) => m.ref === resolver(e.art)).pop()?.pm ?? artigo(resolver(e.art))?.preco ?? 0)}</b></span>` : ''}`;
-  const os = r.querySelector<HTMLSelectElement>('[data-mva2-ordem]')!; if (!os.options.length) os.innerHTML = ORDENS.map(([v, t]) => op(v, t)).join(''); os.value = e.ordem ? `${e.ordem.k}:${e.ordem.dir}` : ''; os.closest('label')!.hidden = !ms.length;
+  const os = r.querySelector<HTMLSelectElement>('[data-mva2-ordem]')!; if (!os.options.length) os.innerHTML = (S ? ORDENS_S : ORDENS).map(([v, t]) => op(v, t)).join(''); os.value = e.ordem ? `${e.ordem.k}:${e.ordem.dir}` : ''; if (!S) os.closest('label')!.hidden = !ms.length;
   if (!ms.length) { g.innerHTML = e.comp === 'encomenda' && e.q ? vazio(searchX, `Nenhuma receção da encomenda «${esc(e.q)}» lançada no stock.`, 'As receções das Compras entram aqui quando se lançam.', `<button type="button" class="ak-btn" data-mva2-acao="limpar">${L(funnelX)}<span>Limpar a pesquisa</span></button>`)
     : vazio(searchX, 'Nenhum movimento com estes filtros.', e.q ? `Nada ${e.comp === 'inicio' ? 'começa por' : e.comp === 'igual' ? 'é exatamente' : 'contém'} «${esc(e.q)}».` : 'Alarga o período ou tira um filtro.', `<button type="button" class="ak-btn" data-mva2-acao="limpar">${L(funnelX)}<span>Limpar filtros</span></button>`); return; }
   const pp = e.pp || ms.length, nPags = Math.max(1, Math.ceil(ms.length / pp)); e.pagina = Math.max(0, Math.min(nPags - 1, e.pagina));
@@ -285,7 +294,7 @@ function desenharMov(r: HTMLElement, e: Est, revelar = false): void {
   if (e.vista.mov === 'cartoes') g.innerHTML = `<div class="minv2-cartoes" role="list">${pag.map((m) => cartaoMov(e, m, todos)).join('')}</div><p class="minv2-c-total"><span>Total · ${pl(ms.length, 'movimento', 'movimentos')}</span><b>+${nf(soma(ms, ent))} / −${nf(soma(ms, sai))} un.</b><b>${eur(soma(ms, (m) => m.vEnt))} / ${eur(soma(ms, (m) => m.vSai))}</b></p>`;
   else {
     const corpo = pag.map((m) => `<tr class="mva-linha${m.anulacao ? ' is-anulado' : ''}${String(m.n) === e.sel ? ' is-ativo' : ''}" data-mva2-n="${m.n}" data-mva2-ref="${esc(m.ref)}" data-mva2-ano="${m.data.slice(0, 4)}" tabindex="${String(m.n) === e.sel ? 0 : -1}" aria-selected="${String(m.n) === e.sel}">${cs.map((c) => `<td class="${c.n ? 'is-num' : ''}">${c.cel(m)}</td>`).join('')}</tr>`).join('');
-    const rod = `<tr class="rc-total mac-total"><td colspan="7"><b>Total · ${pl(ms.length, 'movimento', 'movimentos')}</b></td><td class="is-num"><b>${nf(soma(ms, ent))}</b></td><td class="is-num"><b>${nf(soma(ms, sai))}</b></td><td class="is-num"><b>${eur(soma(ms, (m) => m.vEnt))}</b></td><td class="is-num"><b>${eur(soma(ms, (m) => m.vSai))}</b></td></tr>`;
+    const rod = S ? `<tr class="rc-total mac-total"><td colspan="5"><b>Total · ${pl(ms.length, 'movimento', 'movimentos')}</b></td><td class="is-num"><b>+${nf(soma(ms, ent))} / −${nf(soma(ms, sai))}</b></td><td class="is-num"><b>${eur(soma(ms, (m) => m.vEnt - m.vSai))}</b></td></tr>` : `<tr class="rc-total mac-total"><td colspan="7"><b>Total · ${pl(ms.length, 'movimento', 'movimentos')}</b></td><td class="is-num"><b>${nf(soma(ms, ent))}</b></td><td class="is-num"><b>${nf(soma(ms, sai))}</b></td><td class="is-num"><b>${eur(soma(ms, (m) => m.vEnt))}</b></td><td class="is-num"><b>${eur(soma(ms, (m) => m.vSai))}</b></td></tr>`;
     g.innerHTML = tab(e, cs, corpo, rod, 'Movimentos', ' data-paginada');
     if (!g.querySelector('tr[tabindex="0"]')) g.querySelector<HTMLElement>('tr[data-mva2-n]')?.setAttribute('tabindex', '0');
   }
@@ -673,7 +682,8 @@ export function iniciar(): void {
 }
 
 /* ---------- os ecrãs ---------- */
-const NOTA = 'Movimentos de artigos v2 (19 nov., do briefing «Redesign do módulo Movimentos de Artigos»): os três separadores com filtros compactos (os aplicados à vista), indicadores e resultados em tabela ou cartões. Movimentos: a Visualização de antes (F1–F5, Shift+F1/F2/F3/F6, que o IDE leva para a barra de cima), armazém, tipo, artigo e período; entradas e saídas sem as transferências internas; o detalhe de cada movimento numa janela. Extrato: artigo (referência ou descrição) e ano, início + entradas − saídas = fim, a evolução em quantidade ou valor, cartões por mês e por armazém. Saldo: intervalo de artigos, agrupar por artigo, armazém, tipo ou mês com grupos que abrem e fecham, cartões por artigo. Paginação em todas as tabelas.';
+export const NOTA_V2 = 'Movimentos de artigos v2 (19 nov., do briefing «Redesign do módulo Movimentos de Artigos»): os três separadores com filtros compactos (os aplicados à vista), indicadores e resultados em tabela ou cartões. Movimentos: a Visualização de antes (F1–F5, Shift+F1/F2/F3/F6, que o IDE leva para a barra de cima), armazém, tipo, artigo e período; entradas e saídas sem as transferências internas; o detalhe de cada movimento numa janela. Extrato: artigo (referência ou descrição) e ano, início + entradas − saídas = fim, a evolução em quantidade ou valor, cartões por mês e por armazém. Saldo: intervalo de artigos, agrupar por artigo, armazém, tipo ou mês com grupos que abrem e fecham, cartões por artigo. Paginação em todas as tabelas.';
+const NOTA3 = 'Movimentos de artigos v3 (25 nov., ela: «este também» — muita coisa, confuso): a v2 com menos, nos Movimentos. O Ordenar passa aos filtros; Limpar filtros só quando há filtros; sem as etiquetas repetidas dos filtros; três indicadores (entradas, saídas, movimentos); a tabela com sete colunas — artigo, armazém, data, documento (série e número juntos), tipo, quantidade (+ entra, − sai) e valor; o preço e as colunas de entradas e saídas separadas saem. O Extrato e o Saldo ficam como na v2. A v2 sai da lista.';
 const ESTADOS: [string, string, string][] = [
   ['artigo', 'Um artigo', 'Mais filtros ▸ Artigo: só os movimentos do 6205-2Z, e o preço médio dele.'],
   ['descricao', 'Por descrição (F2)', 'A lista pela descrição do artigo.'],
@@ -707,7 +717,7 @@ const ESTADOS: [string, string, string][] = [
 ];
 export type IdMapaMov = 'stocks-mapa-movimentos' | `mva-${string}`;
 export function ecrasMapaMovimentos(): Ecra<IdErp>[] {
-  const v = (cen: string) => ({ id: 'v2', nota: NOTA, html: html(cen) });
+  const v = (cen: string) => ({ id: 'v3', nota: NOTA3, html: html(cen, true) });
   return [
     { id: 'stocks-mapa-movimentos', nome: '77 · Movimentos de artigos', fluxo: 'Stocks', objetivo: 'Os movimentos, o extrato por artigo e o saldo, com os mesmos filtros, indicadores e vistas.', versoes: [v('inicial')] as Ecra<IdErp>['versoes'] },
     ...ESTADOS.map(([cen, nome, objetivo], i) => ({ id: `mva-${cen}` as IdErp, nome: `77.${i + 1} · ${nome}`, fluxo: 'Stocks', estadoDe: 'stocks-mapa-movimentos' as IdErp, objetivo, versoes: [v(cen)] as Ecra<IdErp>['versoes'] })),

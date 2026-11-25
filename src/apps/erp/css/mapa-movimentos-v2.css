@@ -78,3 +78,11 @@
 .mva2-grupo-c { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; } .mva2-grupo-c[hidden] { display: none; } .mva2-grupo-c .ak-btn { height: 30px; } .mva2-grupo-c .ak-btn[hidden] { display: none; }
 @media print { .mva2 :is(.minv2-filtros, .mva2-chips, .minv2-kpis, .mva2-crit, .mva2-graf, .minv2-pag, [data-mva2-janela]) { display: none !important; } }
 .mva2-jan-acoes { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* v3 (25 nov.): menos coisas — Ordenar nos filtros, sem etiquetas repetidas, Limpar só com filtros, três indicadores */
+.mva2[data-mva2-simples] .mva2-filtros { grid-template-columns: minmax(320px, 2.4fr) repeat(3, minmax(150px, 1fr)) auto; }
+.mva2[data-mva2-simples] [data-mva2-chips], .mva2[data-mva2-simples] [data-mva2-acao="limpar"][aria-disabled="true"] { display: none !important; }
+.mva2[data-mva2-simples] [data-mva2-kpis="mov"] { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+@media (max-width: 1180px) { .mva2[data-mva2-simples] .mva2-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .mva2[data-mva2-simples] [data-mva2-kpis="mov"] { grid-template-columns: minmax(0, 1fr) !important; } }
+.mva2[data-mva2-simples] [data-mva2-kpis="mov"] > .minv2-kpi { grid-column: auto !important; order: 0 !important; }

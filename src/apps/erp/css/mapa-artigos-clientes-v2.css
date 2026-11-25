@@ -62,3 +62,17 @@
 .mac2-doc { font-size: 13.5px; }
 @media (max-width: 1500px) { .mac2-filtros { grid-template-columns: minmax(300px, 1.4fr) minmax(170px, 1fr) auto; } .mac2-filtros .mva2-pesq { grid-column: 1 / -1; } }
 @media (max-width: 1280px) { .mac2-tab .mac2-doc { font-size: 12.5px; } .mac2-tab td { padding-inline: 6px; } }
+
+/* v3 (25 nov.): menos coisas — os filtros numa zona só (Artigo, Período, Tipo, Cliente, Ordenar), sem etiquetas repetidas */
+.mac2[data-mac2-simples] .mac2-filtros { grid-template-columns: minmax(300px, 2fr) minmax(250px, 1.3fr) repeat(3, minmax(150px, 1fr)) auto; }
+.mac2[data-mac2-simples] .mac2-mais { display: contents !important; }
+.mac2[data-mac2-simples] .mac2-filtros .minv2-filtros-bts { grid-column: -2; grid-row: 1; }
+.mac2[data-mac2-simples] [data-mac2-acao="limpar"][aria-disabled="true"] { display: none; }
+.mac2[data-mac2-simples] .mva2-chips, .mac2[data-mac2-simples] [data-mac2-acao="faixas"] { display: none !important; }
+.mac2[data-mac2-simples] .mac2-ordem-f[hidden] { display: grid; visibility: hidden; }
+@media (max-width: 1180px) { .mac2[data-mac2-simples] .mac2-filtros { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); } .mac2[data-mac2-simples] .mac2-filtros .minv2-filtros-bts { grid-column: auto; grid-row: auto; } }
+.mac2[data-mac2-simples] .mac2-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+@media (max-width: 720px) { .mac2[data-mac2-simples] .mac2-kpis { grid-template-columns: minmax(0, 1fr) !important; } }
+.mac2[data-mac2-simples] .mac2-kpis > .minv2-kpi { grid-column: auto !important; order: 0 !important; }
+.mac2[data-mac2-simples] .minv2-filtros-bts:has(> [aria-disabled="true"]) { display: none; }
+@media (max-width: 1180px) { .mac2[data-mac2-simples] .mac2-filtros .dv2-periodo { grid-column: span 2; } }

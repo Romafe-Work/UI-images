@@ -94,7 +94,7 @@ const novo = (): Est => {
   const editor = document.body.classList.contains('editando'), g = editor ? {} : guardado();
   return { modo: g.modo ?? 'artigo', comp: 'inicio', q: '', art: '', cli: '', outro: '', de: '', ate: '', tipo: '', fam: '', hip: 0, sugAberta: false, vista: g.vista ?? 'tabela', ordemG: 'valor', fechadas: [], abertos: [], grupos: g.grupos ?? ['req', 'desc'], colsAberto: false, antes: null, jan: null, fase: 'ok', aviso: '', editor };
 };
-const guardar = (e: Est) => { if (!e.editor) try { localStorage.setItem(CHAVE, JSON.stringify({ modo: e.modo, vista: e.vista, grupos: e.grupos })); } catch { /* */ } };
+const guardar = (e: Est, simples = false) => { if (!e.editor) try { const g = guardado() as Record<string, unknown>; localStorage.setItem(CHAVE, JSON.stringify({ ...g, modo: e.modo, vista: e.vista, [simples ? 'gruposS' : 'grupos']: e.grupos })); } catch { /* */ } };
 const estados = new WeakMap<HTMLElement, Est>();
 const de = (r: HTMLElement) => { let e = estados.get(r); if (!e) { e = novo(); estados.set(r, e); } return e; };
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -126,11 +126,11 @@ function gruposDe(e: Est, ls: LinhaVenda[]): [string, LinhaVenda[]][] {
 
 /* ---------- a página ---------- */
 const op = (v: string, t: string) => `<option value="${esc(v)}">${esc(t)}</option>`;
-function html(cen: string): string {
-  const id = (x: string) => `mac2-${x}-${cen}`;
+function html(cen: string, simples = false): string {
+  const id = (x: string) => `mac2-${x}-${cen}${simples ? '-s' : ''}`;
   const B = (k: string, ic: string, t: string, tecla: string, cls = '') => BTN(k, ic, t, tecla, '', cls).replace('data-dv2-acao', 'data-mac2-acao');
   const VIS: [Vista, string, string][] = [['tabela', 'Tabela', table], ['cartoes', 'Cartões', grid], ['hierarquia', 'Hierarquia', folderTree], ['analise', 'Análise', chartBar]];
-  return `<div class="hm ak lf2 dv2 mac minv2 mva2 mst2 mac2" data-hm data-mac2 data-mac2-cenario="${cen}" data-teclas="F9 F11 Escape">
+  return `<div class="hm ak lf2 dv2 mac minv2 mva2 mst2 mac2" data-hm data-mac2 data-mac2-cenario="${cen}"${simples ? ' data-mac2-simples' : ''} data-teclas="F9 F11 Escape">
   ${topoErp([['ERP', 'inicio'], ['Stocks', ''], ['Mapas', ''], ['Artigos/Clientes', '']])}
   <header class="ak-cab lf2-cab"><span class="ak-cab-ic">${L(usersIc)}</span>
     <div><h1>Artigos / Clientes</h1><p>Analise as relações comerciais entre artigos, clientes e documentos de venda.</p></div></header>
@@ -153,6 +153,7 @@ function html(cen: string): string {
     <span class="minv2-filtros-bts"><button type="button" class="ak-btn ak-btn--linha" data-mac2-acao="limpar">${L(funnelX)}<span>Limpar filtros</span></button></span>
     <div class="minv2-mais mac2-mais">
       <label class="ak-campo" data-mac2-outro-c><span data-mac2-outro-t>Cliente</span><select data-mac2-f="outro"></select></label>
+      ${simples ? `<label class="ak-campo mac2-ordem-f" data-mac2-ordem-c><span>Ordenar</span><select data-mac2-ordem>${op('valor', 'Valor (maior primeiro)')}${op('qtd', 'Quantidade (maior primeiro)')}${op('data', 'Última compra (mais recente)')}${op('nome', 'Nome (A–Z)')}</select></label>` : ''}
       <label class="ak-campo" data-mac2-fam-c hidden><span>Família</span><select data-mac2-f="fam">${op('', 'Todas')}${[...new Set(ARTIGOS.map((a) => familiaDe(a.desc)))].sort((a, b) => a.localeCompare(b, 'pt')).map((f) => op(f, f)).join('')}</select></label>
     </div>
   </form>
@@ -160,9 +161,9 @@ function html(cen: string): string {
   <section class="minv2-kpis mac2-kpis" data-mac2-kpis aria-label="Resumo"></section>
   <section class="lf2-lista dv2-lista minv2-lista mac2-lista">
     <div class="lf2-lista-cab minv2-lista-cab"><h2 data-mac2-t>Vendas</h2><p class="lf2-resumo" data-mac2-resumo></p>
-      <label class="minv2-ordem" data-mac2-ordem-c><span>Ordenar</span><select data-mac2-ordem aria-label="Ordenar as faixas">${op('valor', 'Valor (maior primeiro)')}${op('qtd', 'Quantidade (maior primeiro)')}${op('data', 'Última compra (mais recente)')}${op('nome', 'Nome (A–Z)')}</select></label>
+      ${simples ? '' : `<label class="minv2-ordem" data-mac2-ordem-c><span>Ordenar</span><select data-mac2-ordem aria-label="Ordenar as faixas">${op('valor', 'Valor (maior primeiro)')}${op('qtd', 'Quantidade (maior primeiro)')}${op('data', 'Última compra (mais recente)')}${op('nome', 'Nome (A–Z)')}</select></label>`}
       <span class="mst2-cols-c" data-mac2-cols-c><button type="button" class="ak-btn ak-btn--linha" data-mac2-acao="colunas" aria-expanded="false">${L(columns)}<span>Colunas</span></button>
-        <div data-por-cima class="mst2-cols" data-mac2-cols role="group" aria-label="Grupos de colunas" hidden><label><input type="checkbox" data-mac2-gcol="req" checked><span>Requisição e unidade</span></label><label><input type="checkbox" data-mac2-gcol="desc" checked><span>Descontos e IVA</span></label></div></span>
+        <div data-por-cima class="mst2-cols" data-mac2-cols role="group" aria-label="Grupos de colunas" hidden><label><input type="checkbox" data-mac2-gcol="req" checked><span>Requisição e unidade</span></label><label><input type="checkbox" data-mac2-gcol="desc" checked><span>${simples ? 'Preço, descontos e IVA' : 'Descontos e IVA'}</span></label></div></span>
       <button type="button" class="ak-btn ak-btn--linha" data-mac2-acao="faixas" hidden><span>Fechar todas</span></button></div>
     <nav class="mst2-migalhas" data-mac2-migalhas aria-label="Caminho" hidden></nav>
     <div class="lf2-grelha lf2-grelha--ajusta minv2-g mac2-g" data-mac2-g tabindex="-1"></div>
@@ -194,6 +195,10 @@ function kpis(r: HTMLElement, e: Est, ls: LinhaVenda[]): void {
   const porTipo = (Object.keys(NOME_VENDA) as TipoVenda[]).map((t) => [t, new Set(ls.filter((l) => l.tipo === t).map((l) => l.doc)).size] as const).filter(([, n]) => n).map(([t, n]) => `${n} ${t}`).join(' · ');
   const gs = gruposDe({ ...e, ordemG: 'valor' }, ls), maior = gs[0], lqs = ls.filter((l) => l.tipo !== 'NC').map((l) => l.liq);
   const top3 = gs.slice(0, 3).reduce((s, [, x]) => s + somaV(x), 0);
+  if (r.hasAttribute('data-mac2-simples')) {
+    k.innerHTML = `${kpi('is-total', euroIc, 'Valor vendido', eur(v), 'sem IVA')}${kpi('', boxes, 'Quantidade', qtdTxt(ls), `em ${pl(docs(ls), 'documento', 'documentos')}`)}${kpi('', e.modo === 'artigo' ? usersIc : pkg, e.modo === 'artigo' ? 'Clientes' : 'Artigos', nf(outros), `última venda ${dia(u.data)}`)}`;
+    void porTipo; void top3; void lqs; void nc; return;
+  }
   k.innerHTML = `${kpi('is-total', euroIc, 'Valor líquido vendido', eur(v), `sem IVA (com IVA ${eur(comIva(ls))})${nc.length ? ` · notas de crédito ${eur(somaV(nc))} já abatidas` : ''}`)}
     ${kpi('', boxes, 'Quantidade vendida', qtdTxt(ls), nc.length ? `líquida: ${nf(somaQ(nc))} devolvidas` : 'líquida')}
     ${kpi('', e.modo === 'artigo' ? usersIc : pkg, e.modo === 'artigo' ? 'Clientes compradores' : 'Artigos comprados', nf(outros), e.modo === 'artigo' ? 'clientes distintos' : 'artigos distintos')}
@@ -201,15 +206,15 @@ function kpis(r: HTMLElement, e: Est, ls: LinhaVenda[]): void {
     <p class="mst2-sec"><span>${L(fileText)}Documentos <b>${nf(docs(ls))}</b> <small>${porTipo}</small></span><span>${L(calendar)}Última venda <b>${dia(u.data)}</b> ${docBtn(u)}</span></p>
     ${maior ? `<p class="mac2-info">${L(lightbulb)}<span><b>${esc(e.modo === 'artigo' ? cliente(maior[0])?.nome ?? '' : maior[0])}</b> é ${e.modo === 'artigo' ? 'quem mais comprou' : 'o artigo mais comprado'}: ${eur(somaV(maior[1]))} (${pct(somaV(maior[1]), v)} do valor).</span>${gs.length > 3 ? `<span>Os 3 maiores somam ${pct(top3, v)} do valor.</span>` : ''}${e.modo === 'artigo' && lqs.length > 1 ? `<span>Preço líquido entre ${eur(Math.min(...lqs))} e ${eur(Math.max(...lqs))} no período.</span>` : ''}</p>` : ''}`;
 }
-function tabela(e: Est, ls: LinhaVenda[]): string {
+function tabela(e: Est, ls: LinhaVenda[], simples = false): string {
   const req = e.grupos.includes('req'), dsc = e.grupos.includes('desc');
-  const cs: [string, string, boolean, string?][] = [['doc', 'Nr. doc.', false], ['data', 'Data', false], ['tipo', 'Tipo', false], ...(req ? [['req', 'Req. cliente', false], ['un', 'Un.', false]] as [string, string, boolean][] : []), ['qtd', 'Qt.', true], ['preco', 'Pr. unit.', true, 'Preço de venda unitário, sem IVA'], ...(dsc ? [['d1', 'Desc. 1', true], ['d2', 'Desc. 2', true, 'Aplicado depois do desconto 1'], ['iva', 'IVA', true]] as [string, string, boolean, string?][] : []), ['liq', 'Pr. unit. líq.', true, 'Preço unitário com os dois descontos, sem IVA'], ['valor', 'Valor', true, 'Preço líquido × quantidade, sem IVA']];
+  const cs: [string, string, boolean, string?][] = [['doc', 'Nr. doc.', false], ['data', 'Data', false], ['tipo', 'Tipo', false], ...(req ? [['req', 'Req. cliente', false], ['un', 'Un.', false]] as [string, string, boolean][] : []), ['qtd', 'Qt.', true], ...(!simples || dsc ? [['preco', 'Pr. unit.', true, 'Preço de venda unitário, sem IVA']] as [string, string, boolean, string?][] : []), ...(dsc ? [['d1', 'Desc. 1', true], ['d2', 'Desc. 2', true, 'Aplicado depois do desconto 1'], ['iva', 'IVA', true]] as [string, string, boolean, string?][] : []), ['liq', 'Pr. unit. líq.', true, 'Preço unitário com os dois descontos, sem IVA'], ['valor', 'Valor', true, 'Preço líquido × quantidade, sem IVA']];
   const cel = (l: LinhaVenda, k: string) => k === 'doc' ? docBtn(l) : k === 'data' ? dia(l.data) : k === 'tipo' ? tipoTxt(l) : k === 'req' ? esc(l.req || '—') : k === 'un' ? esc(l.un) : k === 'qtd' ? nf(l.qtd) : k === 'preco' ? eur(l.preco) : k === 'd1' ? (l.d1 ? `${l.d1} %` : '<span class="is-nada">—</span>') : k === 'd2' ? (l.d2 ? `${l.d2} %` : '<span class="is-nada">—</span>') : k === 'iva' ? `${l.iva / 100} %` : k === 'liq' ? eur(l.liq) : eur(l.valor);
   const corpo = gruposDe(e, ls).map(([k, xs]) => {
     const f = e.fechadas.includes(k), u = ultima(xs)!, c = cliente(k), a = artigo(k);
     return `<tr class="mac-g mac2-g-l"><td colspan="${cs.length}"><div class="mac-g-c"><button type="button" class="mac-g-abrir mva2-g-abrir" data-mac2-faixa="${esc(k)}" aria-expanded="${!f}">${L(chevD)}<b class="${e.modo === 'cliente' ? 'is-mono' : ''}">${esc(e.modo === 'artigo' ? `${k} · ${c?.nome ?? k}` : k)}</b><small>${esc(e.modo === 'artigo' ? c?.cidade ?? '' : a?.desc ?? '')}</small></button>
       <span class="mac-g-n">${pl(docs(xs), 'documento', 'documentos')} · ${qtdTxt(xs)} · <b>${eur(somaV(xs))}</b> · última ${dia(u.data)}</span>
-      <span class="mac2-g-acoes"><button type="button" class="ak-btn ak-btn--linha" data-mac2-entidade="${esc(k)}">${L(e.modo === 'artigo' ? user : pkg)}<span>Detalhe</span></button><button type="button" class="ak-btn ak-btn--linha" data-mac2-trocar="${esc(k)}">${L(arrowLeftRight)}<span>${e.modo === 'artigo' ? 'Ver o que comprou' : 'Ver quem comprou'}</span></button></span></div></td></tr>
+      <span class="mac2-g-acoes">${simples ? '' : `<button type="button" class="ak-btn ak-btn--linha" data-mac2-entidade="${esc(k)}">${L(e.modo === 'artigo' ? user : pkg)}<span>Detalhe</span></button>`}<button type="button" class="ak-btn ak-btn--linha" data-mac2-trocar="${esc(k)}">${L(arrowLeftRight)}<span>${e.modo === 'artigo' ? 'Ver o que comprou' : 'Ver quem comprou'}</span></button></span></div></td></tr>
       ${xs.map((l) => `<tr class="mac2-linha${l.tipo === 'NC' ? ' is-nc' : ''}" data-mac2-linha="${esc(l.id)}" tabindex="-1"${f ? ' hidden' : ''}>${cs.map(([k2, , n]) => `<td class="${n ? 'is-num' : ''}">${cel(l, k2)}</td>`).join('')}</tr>`).join('')}
       <tr class="rc-g-soma"${f ? ' hidden' : ''}><td colspan="${cs.findIndex((c) => c[0] === 'qtd')}"><b>Subtotal · ${esc(e.modo === 'artigo' ? c?.nome ?? k : k)}</b></td><td class="is-num"><b>${nf(somaQ(xs))}</b></td><td colspan="${cs.length - cs.findIndex((c) => c[0] === 'qtd') - 2}"></td><td class="is-num"><b>${eur(somaV(xs))}</b></td></tr>`;
   }).join('');
@@ -331,7 +336,7 @@ function tudo(r: HTMLElement, e: Est, revelar = false): void {
   else if (e.fase === 'erro') { const tentar = `<button type="button" class="ak-btn ak-btn--acao" data-mac2-acao="atualizar">${L(refresh)}<span>Tentar outra vez</span></button>`; g.innerHTML = e.erro === 'offline' ? vazio(wifiOff, 'Sem ligação à rede.', 'A pesquisa e os filtros ficam; atualiza (F9) quando voltar.', tentar) : e.erro === 'sessao' ? vazio(logIn, 'A sessão terminou.', 'Volta a entrar; a pesquisa fica.', `<button type="button" class="ak-btn ak-btn--acao" data-login>${L(logIn)}<span>Voltar a entrar</span></button>`) : e.erro === 'permissao' ? vazio(lock, 'Sem permissão para os mapas de Stocks.', 'Pede o acesso a quem gere os perfis.') : vazio(circleAlert, 'O servidor das vendas não respondeu.', 'A pesquisa e os filtros ficam; tenta outra vez.', tentar); }
   else if (!id) g.innerHTML = inicial(e);
   else if (!ls.length) g.innerHTML = vendas().some((l) => (e.modo === 'artigo' ? l.ref === id : l.cli === id)) ? vazio(searchX, 'Sem linhas com estes filtros.', 'Alarga o período ou tira um filtro; o escolhido fica.', `<button type="button" class="ak-btn" data-mac2-acao="limpar">${L(funnelX)}<span>Limpar filtros</span></button>`) : vazio(searchX, e.modo === 'artigo' ? `${esc(id)} ainda não se vendeu este ano.` : 'Este cliente ainda não comprou este ano.', 'Escolhe outro.', `<button type="button" class="ak-btn" data-mac2-acao="trocar-esc">${L(xIc)}<span>Trocar</span></button>`);
-  else g.innerHTML = e.vista === 'cartoes' ? cartoes(e, ls) : e.vista === 'hierarquia' ? hierarquia(e, ls) : e.vista === 'analise' ? analise(e, ls) : tabela(e, ls);
+  else g.innerHTML = e.vista === 'cartoes' ? cartoes(e, ls) : e.vista === 'hierarquia' ? hierarquia(e, ls) : e.vista === 'analise' ? analise(e, ls) : tabela(e, ls, r.hasAttribute('data-mac2-simples'));
   janela(r, e);
   r.querySelector<HTMLElement>('[data-mac2-estado]')!.innerHTML = `<span>${e.modo === 'artigo' ? 'Por artigo' : 'Por cliente'}${id ? ` · <b>${esc(e.modo === 'artigo' ? id : cliente(id)?.nome ?? id)}</b>` : ''}</span><span>Valores sem IVA</span><span>Vista ${({ tabela: 'tabela', cartoes: 'cartões', hierarquia: 'hierarquia', analise: 'análise' })[e.vista]}</span>${e.fase === 'atualizar' || e.fase === 'carregar' ? `<span class="ak-estado-f">${L(loader)}A atualizar…</span>` : e.fase === 'erro' ? '<span class="ak-estado-f is-erro">Sem dados</span>' : '<span class="ak-estado-f is-ok">Pronto</span>'}${e.aviso ? `<span class="ak-estado-aviso">${esc(e.aviso)}</span>` : ''}`;
   const ip = r.querySelector<HTMLElement>('[data-mac2-impressao]'); if (ip) ip.innerHTML = `<h1>Artigos/Clientes · ${esc(id ? (e.modo === 'artigo' ? id : cliente(id)?.nome ?? id) : '')}</h1><p>${chips.map((c) => c[1]).join(' · ') || 'Todo o ano'} · valores sem IVA · impresso a ${new Date().toLocaleString('pt-PT')}</p>`;
@@ -399,7 +404,8 @@ const chavesArv = (e: Est, ls: LinhaVenda[]) => { const id = escolhido(e); retur
 function armar(r: HTMLElement): void {
   if (estados.has(r)) return;
   const e = de(r), cen = r.dataset.mac2Cenario ?? 'inicial';
-  if (e.editor) Object.assign(e, { modo: 'artigo', vista: 'tabela', grupos: ['req', 'desc'] });
+  if (r.hasAttribute('data-mac2-simples') && !e.editor) e.grupos = (guardado() as { gruposS?: GCol[] }).gruposS ?? [];
+  if (e.editor) Object.assign(e, { modo: 'artigo', vista: 'tabela', grupos: r.hasAttribute('data-mac2-simples') ? [] : ['req', 'desc'] });
   if (cen.startsWith('cliente') || cen === 'por-cliente') e.modo = 'cliente';
   if (['por-artigo', 'filtro-cliente', 'periodo', 'notas-credito', 'faixas-fechadas', 'cartoes', 'hierarquia', 'analise', 'detalhe-doc', 'detalhe-cliente', 'colunas', 'trocado', 'a-atualizar', 'exportado'].includes(cen)) e.art = '6206-2RSH';
   if (['por-cliente', 'cliente-filtro', 'cliente-cartoes', 'cliente-hierarquia', 'cliente-analise'].includes(cen)) { e.modo = 'cliente'; e.cli = '10388'; }
@@ -475,7 +481,7 @@ export function iniciar(): void {
     const t = ev.target as HTMLInputElement, r = raiz(t); if (!r || editando()) return; const e = de(r);
     if (t.matches('[data-mac2-f]')) { (e as unknown as Record<string, string>)[t.dataset.mac2F!] = t.value; tudo(r, e); r.querySelector<HTMLElement>(`[data-mac2-f="${t.dataset.mac2F}"]`)?.focus(); }
     if (t.matches('[data-mac2-ordem]')) { e.ordemG = t.value as Est['ordemG']; tudo(r, e); r.querySelector<HTMLElement>('[data-mac2-ordem]')?.focus(); }
-    if (t.matches('[data-mac2-gcol]')) { const g = t.dataset.mac2Gcol as GCol; e.grupos = t.checked ? [...e.grupos, g] : e.grupos.filter((x) => x !== g); guardar(e); tudo(r, e); r.querySelector<HTMLElement>(`[data-mac2-gcol="${g}"]`)?.focus(); }
+    if (t.matches('[data-mac2-gcol]')) { const g = t.dataset.mac2Gcol as GCol; e.grupos = t.checked ? [...e.grupos, g] : e.grupos.filter((x) => x !== g); guardar(e, r.hasAttribute('data-mac2-simples')); tudo(r, e); r.querySelector<HTMLElement>(`[data-mac2-gcol="${g}"]`)?.focus(); }
   });
   document.addEventListener('submit', (ev) => { if (raiz(ev.target as HTMLElement)) ev.preventDefault(); });
   document.addEventListener('keydown', (ev) => {
@@ -513,7 +519,8 @@ export function iniciar(): void {
 }
 
 /* ---------- os ecrãs ---------- */
-const NOTA = 'Artigos/Clientes v2 (19 nov., do briefing «Redesign do módulo Artigos/Clientes»): Por artigo (Ctrl+F1) e Por cliente (Ctrl+F2); Iniciado por / Contendo / Igual a (Shift+F1–F3), que o IDE leva para a barra de cima; hipóteses enquanto se escreve; o escolhido à vista com Trocar; período, tipo de documento, o outro campo e a família (por cliente), aplicados à vista; indicadores (valor líquido sem IVA com as NC abatidas, quantidade, clientes ou artigos, preço médio líquido, documentos, última venda) e informação factual; vistas Tabela (faixas, colunas por grupos), Cartões, Hierarquia e Análise; o detalhe do cliente, do artigo ou do documento numa janela; Ver o que comprou / Voltar; F9, F11, Excel.';
+export const NOTA_V2 = 'Artigos/Clientes v2 (19 nov., do briefing «Redesign do módulo Artigos/Clientes»): Por artigo (Ctrl+F1) e Por cliente (Ctrl+F2); Iniciado por / Contendo / Igual a (Shift+F1–F3), que o IDE leva para a barra de cima; hipóteses enquanto se escreve; o escolhido à vista com Trocar; período, tipo de documento, o outro campo e a família (por cliente), aplicados à vista; indicadores (valor líquido sem IVA com as NC abatidas, quantidade, clientes ou artigos, preço médio líquido, documentos, última venda) e informação factual; vistas Tabela (faixas, colunas por grupos), Cartões, Hierarquia e Análise; o detalhe do cliente, do artigo ou do documento numa janela; Ver o que comprou / Voltar; F9, F11, Excel.';
+const NOTA3 = 'Artigos/Clientes v3 (25 nov., ela: «este screen tem muita coisa, está muito confuso»): a v2 com menos. Os filtros numa só zona, com o Ordenar; Limpar filtros só quando há filtros; sem as etiquetas repetidas dos filtros; três indicadores (valor, quantidade, clientes ou artigos) e nada por baixo deles; na tabela, por omissão, só documento, data, tipo, quantidade, preço líquido e valor (o resto em Colunas); em cada faixa só «Ver o que comprou»; sem «Fechar todas». A v2 sai da lista.';
 const ESTADOS: [string, string, string][] = [
   ['por-artigo', 'Por artigo', 'O 6206-2RSH: uma faixa por cliente com as linhas, ordenadas pelo valor; os indicadores e a informação.'],
   ['sugestoes', 'Hipóteses da pesquisa', '«pastilhas» contendo: os artigos que servem; ↑ ↓ e Enter escolhem.'],
@@ -549,7 +556,7 @@ const ESTADOS: [string, string, string][] = [
 ];
 export type IdMapaAc = 'stocks-mapa-artigos-clientes' | `mac-${string}`;
 export function ecrasMapaArtigosClientes(): Ecra<IdErp>[] {
-  const v = (cen: string) => ({ id: 'v2', nota: NOTA, html: html(cen) });
+  const v = (cen: string) => ({ id: 'v3', nota: NOTA3, html: html(cen, true) });
   return [
     { id: 'stocks-mapa-artigos-clientes', nome: '75 · Artigos/Clientes', fluxo: 'Stocks', objetivo: 'Quem comprou um artigo e o que comprou um cliente: quanto, quando, a que preço; em tabela, cartões, hierarquia ou análise.', versoes: [v('inicial')] as Ecra<IdErp>['versoes'] },
     ...ESTADOS.map(([cen, nome, objetivo], i) => ({ id: `mac-${cen}` as IdErp, nome: `75.${i + 1} · ${nome}`, fluxo: 'Stocks', estadoDe: 'stocks-mapa-artigos-clientes' as IdErp, objetivo, versoes: [v(cen)] as Ecra<IdErp>['versoes'] })),
