@@ -79,3 +79,16 @@
 .portal--lateral .cat6__ctx-parte { padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--c-texto-2); background: transparent !important; }
 .portal--lateral .cat6__ctx-parte[aria-current] { box-shadow: none; color: var(--c-texto); font-weight: 700; background: transparent; }
 @media (hover: hover) and (pointer: fine) { .portal--lateral .cat6__ctx-parte:hover:not([aria-current]) { color: var(--c-texto); text-decoration: underline; text-underline-offset: 4px; } }
+
+/* =========================================================
+   (25 nov.) ela: «os títulos parecem iguais ao texto e subtexto». Três níveis claros em todas as páginas:
+   - o título da página grande e pesado (até 40 px, 800, justo);
+   - o subtítulo por baixo mais pequeno e apagado;
+   - os títulos das secções (h2, o mês nas listas) a 18–20 px, 700; o texto corrente fica como estava.
+   ========================================================= */
+.portal--lateral > main h1 { font-size: clamp(28px, 2.5vw, 40px) !important; font-weight: 800 !important; line-height: 1.08 !important; letter-spacing: -.028em !important; color: var(--c-texto); }
+.portal--lateral > main h1 + p, .portal--lateral > main :is(h1 + p, h1 ~ .pq__sub, .ped4__sub) { margin-top: 6px; font-size: 15px !important; font-weight: 400 !important; color: var(--c-texto-3) !important; }
+.portal--lateral > main h2:not(.sr-only) { font-weight: 700; letter-spacing: -.015em; }
+.portal--lateral .ped4__mes-t { font-size: 19px !important; font-weight: 750 !important; letter-spacing: -.015em; }
+.portal--lateral .ped4__mes-t > :first-child { font-size: 19px; font-weight: 750; color: var(--c-texto); }
+.portal--lateral .ped4__mes-t > :not(:first-child) { font-size: 13px; font-weight: 500; color: var(--c-texto-3); }

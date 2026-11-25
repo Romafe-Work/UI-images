@@ -8,39 +8,57 @@
      emite uma onda;
    - os números do topo contam até ao valor (comportamento/vida.ts) e a risca por baixo enche-se.
    ========================================================= */
-.portal--lateral .ped4__c-item { --vd: var(--c-marca, #5aa9e6); }
-.portal--lateral .ped4__c-item:has(.gui3__etapa--entregue) { --vd: #2fbf7f; }
-.portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) { --vd: var(--c-acao, #f58214); }
-.portal--lateral .ped4__c-item:has(.gui3__etapa--devolucao) { --vd: #e9a23b; }
-
-.portal--lateral .ped4__c-cartao { position: relative; overflow: hidden; isolation: isolate;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--vd) 10%, transparent) 0, transparent 38%), var(--c-superficie);
-  transition: border-color 200ms ease, box-shadow 220ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1); }
-.portal--lateral .ped4__c-cartao::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--vd); opacity: .85; }
-@media (hover: hover) and (pointer: fine) {
-  .portal--lateral .ped4__c-cartao:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--vd) 55%, var(--c-borda)); box-shadow: 0 10px 28px -12px color-mix(in srgb, var(--vd) 45%, transparent); }
-}
-.portal--lateral .ped4__c-item .ped4__c-marca { border-color: var(--vd) !important; }
-.portal--lateral .ped4__c-item.is-passado .ped4__c-marca { background: color-mix(in srgb, var(--vd) 22%, var(--c-portal-fundo)) !important; color: var(--vd); }
-
+/* (25 nov.) ela: «não gosto deste brilho» — saíram a luz de cor nos cartões, o reflexo, a sombra de cor e a onda;
+   a vida passa para o fundo da app (mais abaixo). Fica só o cartão a subir 2 px ao passar o rato. */
+.portal--lateral .ped4__c-cartao { transition: border-color 200ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1); }
+@media (hover: hover) and (pointer: fine) { .portal--lateral .ped4__c-cartao:hover { transform: translateY(-2px); } }
 @media (prefers-reduced-motion: no-preference) {
-  /* em curso: o reflexo e a onda */
-  .portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) .ped4__c-cartao::after {
-    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-    background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--vd) 14%, transparent) 50%, transparent 65%);
-    transform: translateX(-100%); animation: vd-reflexo 3.6s cubic-bezier(.45, 0, .2, 1) infinite;
-  }
-  .portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) .ped4__c-marca::after {
-    content: ""; position: absolute; inset: -5px; border: 2px solid var(--vd); border-radius: 50%; animation: vd-onda 1.8s cubic-bezier(.2, .7, .3, 1) infinite;
-  }
-  .portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) .ped4__c-marca svg { animation: vd-anda 1.2s ease-in-out infinite; }
-  /* a risca dos números enche-se ao chegar */
   .portal--lateral .ped4__kpi > div::after { transform-origin: left; animation: vd-enche 900ms cubic-bezier(.22, 1, .36, 1) 200ms both; }
 }
-.portal--lateral .ped4__c-marca { position: relative; }
-@keyframes vd-reflexo { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
-@keyframes vd-onda { from { transform: scale(.7); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
-@keyframes vd-anda { 50% { transform: translateX(1.5px); } }
 @keyframes vd-enche { from { transform: scaleX(0); } }
 /* os números: um pouco mais de presença */
 .portal--lateral .ped4__kpi dd { letter-spacing: -.01em; }
+
+/* =========================================================
+   (25 nov.) o fundo da app. Ela: «quero mais vida no bg, no tema da app em geral, em que as cores principais são o
+   azul Romafe e laranja»; e depois, das manchas desfocadas e do fundo liso: «o bg é feio».
+   Agora: uma grelha técnica fina (como uma planta de engenharia, 40 px) que se esbate para as margens, uma luz azul
+   ROMAFE larga no topo, por trás do cabeçalho, e uma laranja no canto de baixo. A luz azul respira devagar (opacidade,
+   12 s). Atrás do conteúdo: os cartões ficam limpos. Com movimento reduzido, parada.
+   ========================================================= */
+.portal--lateral { isolation: isolate; --bg-azul: .16; --bg-laranja: .10; --bg-grelha: rgba(0, 99, 170, .07); }
+[data-theme="dark"] .portal--lateral { --bg-azul: .34; --bg-laranja: .16; --bg-grelha: rgba(90, 169, 230, .07); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --bg-azul: .34; --bg-laranja: .16; --bg-grelha: rgba(90, 169, 230, .07); } }
+.portal--lateral::before, .portal--lateral::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+/* a grelha, esbatida para as margens */
+.portal--lateral::after {
+  background-image: linear-gradient(var(--bg-grelha) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grelha) 1px, transparent 1px);
+  background-size: 40px 40px; background-position: -1px -1px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 55% 30%, #000 30%, transparent 85%);
+          mask-image: radial-gradient(ellipse 80% 70% at 55% 30%, #000 30%, transparent 85%);
+}
+/* as luzes */
+.portal--lateral::before {
+  background:
+    radial-gradient(70vw 46vh at 55% -12vh, rgb(0 99 170 / var(--bg-azul)), transparent 72%),
+    radial-gradient(40vw 40vh at 104% 108%, rgb(245 130 20 / var(--bg-laranja)), transparent 70%);
+}
+@media (prefers-reduced-motion: no-preference) { .portal--lateral::before { animation: vd-respira 12s ease-in-out infinite alternate; } }
+@keyframes vd-respira { from { opacity: .75; } to { opacity: 1; } }
+
+/* =========================================================
+   (25 nov.) a barra de cima. Ela: «feio também». Transparente sobre o fundo (a luz azul vê-se por trás), sem a linha
+   cinzenta: por baixo, um traço fino azul → laranja; a pesquisa em pílula com borda fina e o Ctrl K discreto; os
+   ícones em botões redondos que acendem; o avatar com o anel azul.
+   ========================================================= */
+.portal--lateral > .portal__topo { position: relative; background: color-mix(in srgb, var(--c-portal-fundo) 55%, transparent) !important; border-bottom: 0 !important; box-shadow: none !important; -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); }
+.portal--lateral > .portal__topo::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, #0063aa 25%, #2a8fd8 50%, #f58214 80%, transparent); opacity: .55; }
+.portal--lateral .portal__topo .procura { border-radius: 999px !important; border: 1px solid color-mix(in srgb, var(--c-texto) 12%, transparent) !important; background: color-mix(in srgb, var(--c-superficie) 70%, transparent) !important; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.portal--lateral .portal__topo .procura:hover { border-color: color-mix(in srgb, #2a8fd8 45%, transparent) !important; }
+.portal--lateral .portal__topo .procura:focus-within { border-color: #2a8fd8 !important; box-shadow: 0 0 0 3px rgb(42 143 216 / .22); }
+.portal--lateral .portal__topo .procura__atalho { border-radius: 999px !important; background: transparent !important; border: 1px solid color-mix(in srgb, var(--c-texto) 14%, transparent) !important; color: var(--c-texto-3) !important; }
+.portal--lateral .portal__topo .portal__icone { width: 40px; height: 40px; border-radius: 50% !important; transition: background-color 160ms ease, color 160ms ease; }
+.portal--lateral .portal__topo .portal__icone:hover { background: color-mix(in srgb, var(--c-texto) 9%, transparent) !important; color: var(--c-texto); }
+.portal--lateral .portal__topo .conta { border-radius: 999px !important; transition: background-color 160ms ease; }
+.portal--lateral .portal__topo .conta:hover { background: color-mix(in srgb, var(--c-texto) 7%, transparent) !important; }
+.portal--lateral .portal__topo .conta__inicial { box-shadow: 0 0 0 2px var(--c-portal-fundo), 0 0 0 3.5px #2a8fd8; }
