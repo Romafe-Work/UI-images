@@ -1,0 +1,46 @@
+/* =========================================================
+   PEÇA A PEÇA — brilho e vida nas listas de documentos (25 nov. 2026)
+   Ela, nas Guias de remessa v3: «falta brilho e vida». Vale para as listas com a linha do tempo (Guias, Pedidos,
+   Faturas: ped4__c-*). Só transform, opacidade e cor animam; com movimento reduzido fica tudo parado.
+   - cada cartão leva a cor do seu estado: uma luz suave à esquerda e a borda dessa cor ao passar o rato, que o
+     levanta 2 px com uma sombra da mesma cor;
+   - o que está em curso (Em entrega) respira: um reflexo passa devagar pelo cartão e o ponto da linha do tempo
+     emite uma onda;
+   - os números do topo contam até ao valor (comportamento/vida.ts) e a risca por baixo enche-se.
+   ========================================================= */
+.portal--lateral .ped4__c-item { --vd: var(--c-marca, #5aa9e6); }
+.portal--lateral .ped4__c-item:has(.gui3__etapa--entregue) { --vd: #2fbf7f; }
+.portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) { --vd: var(--c-acao, #f58214); }
+.portal--lateral .ped4__c-item:has(.gui3__etapa--devolucao) { --vd: #e9a23b; }
+
+.portal--lateral .ped4__c-cartao { position: relative; overflow: hidden; isolation: isolate;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--vd) 10%, transparent) 0, transparent 38%), var(--c-superficie);
+  transition: border-color 200ms ease, box-shadow 220ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1); }
+.portal--lateral .ped4__c-cartao::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--vd); opacity: .85; }
+@media (hover: hover) and (pointer: fine) {
+  .portal--lateral .ped4__c-cartao:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--vd) 55%, var(--c-borda)); box-shadow: 0 10px 28px -12px color-mix(in srgb, var(--vd) 45%, transparent); }
+}
+.portal--lateral .ped4__c-item .ped4__c-marca { border-color: var(--vd) !important; }
+.portal--lateral .ped4__c-item.is-passado .ped4__c-marca { background: color-mix(in srgb, var(--vd) 22%, var(--c-portal-fundo)) !important; color: var(--vd); }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* em curso: o reflexo e a onda */
+  .portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) .ped4__c-cartao::after {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--vd) 14%, transparent) 50%, transparent 65%);
+    transform: translateX(-100%); animation: vd-reflexo 3.6s cubic-bezier(.45, 0, .2, 1) infinite;
+  }
+  .portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) .ped4__c-marca::after {
+    content: ""; position: absolute; inset: -5px; border: 2px solid var(--vd); border-radius: 50%; animation: vd-onda 1.8s cubic-bezier(.2, .7, .3, 1) infinite;
+  }
+  .portal--lateral .ped4__c-item:has(.gui3__etapa--em-entrega) .ped4__c-marca svg { animation: vd-anda 1.2s ease-in-out infinite; }
+  /* a risca dos números enche-se ao chegar */
+  .portal--lateral .ped4__kpi > div::after { transform-origin: left; animation: vd-enche 900ms cubic-bezier(.22, 1, .36, 1) 200ms both; }
+}
+.portal--lateral .ped4__c-marca { position: relative; }
+@keyframes vd-reflexo { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+@keyframes vd-onda { from { transform: scale(.7); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+@keyframes vd-anda { 50% { transform: translateX(1.5px); } }
+@keyframes vd-enche { from { transform: scaleX(0); } }
+/* os números: um pouco mais de presença */
+.portal--lateral .ped4__kpi dd { letter-spacing: -.01em; }
