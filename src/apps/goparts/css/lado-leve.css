@@ -51,3 +51,8 @@
 .portal--lateral .lado__n { display: none !important; }
 :root:not(.gp-lado-recolhido) .portal--lateral .lado__item { letter-spacing: .1em; padding-left: 8px; }
 :root:not(.gp-lado-recolhido) .portal--lateral .lado__rotulo { overflow: visible; }
+
+/* (25 nov., ela: «melhora também o conteúdo de cada página e torna as coisas mais leves») fora as frases que só
+   explicam o desenho ou repetem o título: a faixa «Escolha uma marca…» das Marcas (o subtítulo já o diz), a nota da
+   garagem e a explicação por baixo do Resumo das faturas («com IVA» já está no total) */
+.portal--lateral :is(.cat4__faixa[data-so="marcas"], .gar__nota, .fat2__resumo .lst__custo) { display: none !important; }

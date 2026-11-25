@@ -152,6 +152,8 @@
    abaixo de 1180 px sobe para cima da lista, com as linhas lado a lado.
    ========================================================= */
 .portal--fat2 { --i3-sup: var(--c-superficie); --i3-sup-2: var(--c-superficie-2); --i3-borda: var(--c-borda); --i3-borda-forte: var(--c-borda-forte, var(--c-borda)); --i3-tinta: var(--c-texto); --i3-tinta-2: var(--c-texto-2); --i3-tinta-3: var(--c-texto-3); --i3-azul: var(--c-marca); }
+/* (25 nov.) no escuro o Resumo ficava branco com o texto claro por cima: as cores do portal no próprio cartão */
+.portal--fat2 .fat2__resumo { --i3-sup: var(--c-superficie); --i3-sup-2: var(--c-superficie-2); --i3-borda: var(--c-borda); --i3-tinta: var(--c-texto); --i3-tinta-2: var(--c-texto-2); --i3-tinta-3: var(--c-texto-3); background: var(--c-superficie); color: var(--c-texto); }
 .fat2__corpo { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
 .fat2__resumo { animation: ped4-entrar 300ms var(--p4-curva) 120ms both; }
 .fat2__resumo dd.is-mudou { animation: kpi-mudou 420ms ease-out; }
