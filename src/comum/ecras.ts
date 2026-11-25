@@ -187,13 +187,11 @@ export function pintarBarra(): void {
   if (topo) topo.insertBefore(barra, topo.firstChild);
   else document.body.appendChild(barra);
 
-  if (!topo) {
-    const rot = document.createElement('span');
-    rot.className = 'versoes__rotulo';
-    rot.textContent = 'Versões';
-    barra.appendChild(rot);
-  }
+  /* 25 nov. (ela: «remove Versões v1 A garagem como ecrã…»): sem o rótulo nem a nota; os botões das versões só quando
+     há mais do que uma (a nota fica na dica de cada uma) */
+  const umaSo = versoes.length < 2;
   versoes.forEach((x) => {
+    if (umaSo && !topo) return;
     const b = document.createElement('button');
     b.type = 'button';
     b.className = topo ? 'segmented__btn' : 'versoes__aba';
@@ -203,13 +201,9 @@ export function pintarBarra(): void {
     b.addEventListener('click', () => mostrarVersao(x.dataset.versao || ''));
     barra!.appendChild(b);
   });
-  if (!topo) {
-    const nota = document.createElement('span');
-    nota.className = 'versoes__nota';
-    nota.textContent = actual?.dataset.nota || '';
-    barra.appendChild(nota);
-  }
   pintarEstados();
+  /* sem versões para escolher nem estados, a pílula não aparece */
+  barra.hidden = !topo && !barra.children.length;
 }
 
 /* 29 out. (ela: «porque a minha demonstração do erp é tão lenta?»): num separador da área de trabalho (?separador=1) só

@@ -356,7 +356,8 @@
 .versoes__nota { max-width: 220px; }
 .versoes-est { position: relative; display: flex; align-items: center; }
 .versoes-est--so { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 900; padding: 4px; border-radius: 999px; background: rgba(28, 29, 31, .92); color: #fff; font: 500 12px/1 var(--f-base, system-ui); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
-.versoes:not(.versoes--topo) > .versoes-est { margin-left: 2px; padding-left: 6px; border-left: 1px solid rgba(255, 255, 255, .16); }
+.versoes:not(.versoes--topo) > .versoes__aba ~ .versoes-est { margin-left: 2px; padding-left: 6px; border-left: 1px solid rgba(255, 255, 255, .16); }
+.versoes:not(.versoes--topo):has(> .versoes-est:only-child) { padding: 4px; }
 .versoes-est__botao { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
 .versoes-est__botao:hover, .versoes-est__botao[aria-expanded="true"] { background: rgba(255, 255, 255, .12); }
 .versoes-est__botao b { max-width: 180px; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
