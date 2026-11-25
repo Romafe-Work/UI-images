@@ -1024,7 +1024,7 @@ function itensMenu(k: string): ItemMenu[] {
       /* 18 nov. (ela: «cria o menu» de Stocks): Compras e Stocks, cada um no seu submenu; o que ainda não tem ecrã novo
          aparece desligado, como no menu do ERP antigo */
       const ramo = (ns: NoNav[]): ItemMenu[] => ns.map((n) => n.filhos.length ? { t: n.rotulo, ic: L(I.folder), sub: ramo(n.filhos) } : { cmd: `abrir:${n.rota}`, t: n.rotulo, off: n.antigo || !(n.rota && ROTAS[n.rota]) }).filter((x) => !x.sub || x.sub.length);
-      return ramo(navegacao(perfil).filter((n) => n.id === 'compras' || n.id === 'stocks'));
+      return ramo(navegacao(perfil).filter((n) => ['vendas', 'compras', 'stocks'].includes(n.id)));
     }
     case 'janela': {
       const docs = Object.values(d.itens).filter((i) => grupoDe(d, i.id));

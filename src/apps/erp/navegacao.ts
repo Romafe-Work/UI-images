@@ -31,6 +31,12 @@ export const NAV_ERP: LinhaNav[] = [
   F('ficheiros-familias', 'ficheiros', 'Famílias', 'folder-tree', 'ficheiros.familias', 30, 3),
   F('ficheiros-marcas', 'ficheiros', 'Marcas', 'tag', 'ficheiros.marcas', 40, 4),
   F('ficheiros-unidades', 'ficheiros', 'Unidades de medida', 'ruler', 'ficheiros.unidades', 50, 5),
+  /* 25 nov. (ela, com o print do menu Vendas do ERP antigo: «faz estas opções de menu para vendas»): Vendas antes das
+     Compras, como no ERP antigo, com as linhas de MENU_ERP debaixo de Vendas; ainda sem ecrãs, por isso vêm «antigas»
+     (desligadas) no menu Módulos e não aparecem no Explorador */
+  { ...G('vendas', 'Vendas', 'trending-up', 25), permissoes: MENU_ERP.find((l) => l.id === 'vendas')!.permissoes },
+  ...MENU_ERP.filter((l) => { for (let p = l.pai; p; p = MENU_ERP.find((m) => m.id === p)?.pai ?? null) if (p === 'vendas') return true; return false; })
+    .map((l): LinhaNav => ({ id: l.id, app: 'erp', pai: l.pai, rotulo: l.rotulo, icone: l.icone, rota: l.rota, ordem: l.om ?? l.ordem, permissoes: l.permissoes, ativo: l.ativo, sep: l.sep, antigo: !(l.rota && ROTAS[l.rota]) && !MENU_ERP.some((m) => m.pai === l.id) })),
   { ...G('compras', 'Compras', 'shopping-cart', 30), permissoes: MENU_ERP.find((l) => l.id === 'compras')!.permissoes },
   /* Compras (23 out., ela mostrou o menu do ERP antigo): todas as linhas de MENU_ERP debaixo de Compras, pela ordem do
      menu antigo (om), com os separadores e os Mapas em submenus; o que ainda não tem ecrã novo vem «antigo» (desligado).

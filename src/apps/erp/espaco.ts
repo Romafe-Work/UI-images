@@ -114,10 +114,12 @@ const M = (id: string, rotulo: string, icone: string, ordem: number, ativo = fal
 const A = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai, rotulo, icone, rota: null, ordem: om, permissoes: '*', ativo: true, so: 'menu', om, sep });
 /** 18 nov. (Stocks): uma linha do menu Stocks do ERP antigo; com rota, já tem ecrã novo. */
 const T = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false, rota: string | null = null): LinhaMenu => ({ id, app: 'erp', modulo: 'stocks', pai, rotulo, icone, rota, ordem: om, permissoes: '*', ativo: true, so: rota ? undefined : 'menu', om, sep });
+/** 25 nov. (Vendas): uma linha do menu Vendas do ERP antigo; ainda sem ecrãs novos, só no menu. */
+const V = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false): LinhaMenu => ({ id, app: 'erp', modulo: 'vendas', pai, rotulo, icone, rota: null, ordem: om, permissoes: '*', ativo: true, so: 'menu', om, sep });
 const S = (id: string, rotulo: string, icone: string, rota: string, ordem: number, permissoes: IdPerfil[] | '*' = '*'): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai: 'compras', rotulo, icone, rota, ordem, permissoes, ativo: true });
 /** Os módulos do ERP antigo (a referência da migração) e, em Compras, o que já existe. */
 export const MENU_ERP: LinhaMenu[] = [
-  M('ficheiros', 'Ficheiros', 'file', 10), M('tabelas', 'Tabelas', 'table', 20), M('vendas', 'Vendas', 'trending-up', 30), { ...M('stocks', 'Stocks', 'boxes', 40, true), permissoes: ['armazem', 'compras', 'financeiro', 'admin'] },
+  M('ficheiros', 'Ficheiros', 'file', 10), M('tabelas', 'Tabelas', 'table', 20), { ...M('vendas', 'Vendas', 'trending-up', 30, true), permissoes: ['vendas', 'compras', 'armazem', 'financeiro', 'admin'] }, { ...M('stocks', 'Stocks', 'boxes', 40, true), permissoes: ['armazem', 'compras', 'financeiro', 'admin'] },
   { ...M('compras', 'Compras', 'shopping-cart', 50, true), permissoes: ['compras', 'armazem', 'financeiro', 'admin'] },
   M('cobrancas', 'Cobranças', 'hand-coins', 60), M('pagamentos', 'Pagamentos', 'wallet', 70), M('bancos', 'Bancos', 'landmark', 80), M('servicos', 'Serviços', 'wrench', 90),
   M('crm', 'CRM', 'users', 100), M('bi', 'BI', 'chart-column', 110), M('relatorios', 'Relatórios', 'file-text', 120), M('configuracoes', 'Configurações', 'sliders-horizontal', 130),
@@ -160,6 +162,33 @@ export const MENU_ERP: LinhaMenu[] = [
      artigos — saldo são separadores dos Movimentos de artigos e saem do menu */
   T('stocks-mapa-movimentos', 'stocks-mapas', 'Movimentos de artigos', '', 30, true, 'stocks.mapa-movimentos'),
   T('stocks-mapa-inventario', 'stocks-mapas', 'Inventário', '', 60, true, 'stocks.mapa-inventario'),
+  /* 25 nov. (ela, com o print do menu Vendas do ERP antigo: «faz estas opções de menu para vendas»): a mesma ordem, os
+     mesmos separadores e o submenu da Orçamentação; ainda sem ecrãs, por isso ficam desligados, como nas Compras */
+  V('vendas-orcamentacao', 'vendas', 'Orçamentação', 'scale', 10),
+  V('vendas-orc-base', 'vendas-orcamentacao', 'Orçamentação Base', '', 10), V('vendas-orc-avancada', 'vendas-orcamentacao', 'Orçamentação Avançada', '', 20),
+  V('vendas-neg-base', 'vendas-orcamentacao', 'Negociação Base', '', 30, true), V('vendas-neg-avancada', 'vendas-orcamentacao', 'Negociação Avançada', '', 40),
+  V('vendas-orc-fecho', 'vendas-orcamentacao', 'Fecho', '', 50, true), V('vendas-orc-historico', 'vendas-orcamentacao', 'Histórico', '', 60, true),
+  V('vendas-proforma', 'vendas', 'Faturas Proforma', 'file-text', 20, true),
+  V('vendas-contratos', 'vendas', 'Simulação de Contratos', 'file-check', 30, true),
+  V('vendas-pedidos', 'vendas', 'Pedidos de Clientes', 'clipboard-list', 40, true),
+  V('vendas-ne', 'vendas', 'Nota de Embalagem', 'package-check', 50, true),
+  V('vendas-ne-consignacao', 'vendas', 'Notas de Embalagem Consignação', 'package-check', 60),
+  V('vendas-ne-transporte', 'vendas', 'Notas de Embalagem Transporte (Diversos)', 'package-check', 70),
+  V('vendas-guias', 'vendas', 'Guias de Transporte', 'truck', 80, true),
+  V('vendas-consignacoes', 'vendas', 'Tratamento de Consignações', '', 90, true),
+  V('vendas-devolucoes', 'vendas', 'Tratamento de Devoluções', '', 100),
+  V('vendas-faturas-geral', 'vendas', 'Faturas (Geral)', 'receipt', 110, true),
+  V('vendas-faturas-servicos', 'vendas', 'Faturas (Serviços)', 'receipt', 120),
+  V('vendas-faturas-balcao', 'vendas', 'Faturas (Balcão)', 'receipt', 130),
+  V('vendas-faturas-outros', 'vendas', 'Faturas (Outros)', 'receipt', 140),
+  V('vendas-notas-debito', 'vendas', 'Notas de Débito', 'file-input', 150, true),
+  V('vendas-notas-credito', 'vendas', 'Notas de Crédito', 'file-minus', 160),
+  V('vendas-portes', 'vendas', 'Tratamento de Portes', '', 170, true),
+  V('vendas-fat-diferida', 'vendas', 'Faturação Diferida', 'hourglass', 180, true),
+  V('vendas-fat-diferida-cliente', 'vendas', 'Faturação Diferida / Cliente', '', 190),
+  V('vendas-mapas', 'vendas', 'Mapas', 'chart-bar', 200, true),
+  V('vendas-graficos', 'vendas', 'Gráficos', 'chart-column', 210),
+  V('vendas-erros-primavera', 'vendas', 'Erros Integração Primavera', '', 220, true),
 ];
 /* a ordem do ERP antigo para os ecrãs que já existem (Orçamentos → Cotações; Recepção → Receções; Guias de devolução → Devoluções) */
 /* 26 out. (ela mandou outra vez o print do menu): sem linha entre as Guias de transporte e as de devolução, nem entre as Faturas e as Notas de
