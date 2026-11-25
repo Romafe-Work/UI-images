@@ -31,7 +31,9 @@ export const ecrasPortal: EcraGoParts[] = [
      atividade e a pesquisa de peças vai para o seu ecrã (18 · Pesquisar peças, logo a seguir). Uma só versão por
      ecrã: a v3 (o espaço de trabalho com a pesquisa) saiu daqui — o código dela é o da Pesquisar peças. */
   { id: 'inicio', nome: '10 · Início', fluxo: FLUXO, versoes: [
-    { id: 'v7', nota: 'A montra (21 out., V10, briefings «The Living Machine» e «Beyond the Dashboard»): «A peça certa. À primeira.», «Encontrar peças» e «Explorar catálogo», os atalhos Matrícula/Veículo/Referência e, discreto, o que está em curso; à direita o SKF 6206 em 3D, que o scroll desmonta e monta; depois as categorias do catálogo, uma peça em destaque com dados reais, «Continuar de onde ficaste» e a pesquisa no fim. O painel de números, gráfico e atalhos saiu do Início', html: portal('inicio', montraHtml(), undefined, { menu: true, rodape: false }) }],
+    { id: 'v7', nota: 'A montra (21 out., V10, briefings «The Living Machine» e «Beyond the Dashboard»): «A peça certa. À primeira.», «Encontrar peças» e «Explorar catálogo», os atalhos Matrícula/Veículo/Referência e, discreto, o que está em curso; à direita o SKF 6206 em 3D, que o scroll desmonta e monta; depois as categorias do catálogo, uma peça em destaque com dados reais, «Continuar de onde ficaste» e a pesquisa no fim. O painel de números, gráfico e atalhos saiu do Início', html: portal('inicio', montraHtml(), undefined, { menu: true, rodape: false }) },
+    /* 25 nov. (ela: «quero esta parte mais wow»): a v8 muda o «Continuar de onde ficaste»; a v7 sai da lista */
+    { id: 'v8', nota: 'A montra com «Continuar de onde ficaste» mais wow (25 nov.): o pedido em curso grande, com a rota do armazém à oficina e as horas reais de cada etapa — a carrinha anda até onde o pedido está quando a secção entra no ecrã, e o que ainda falta por baixo; o carro favorito em traço, que se desenha e roda as rodas, com a matrícula portuguesa; a lista em leque, que abre ao passar o rato, com o total e quantas peças há no Porto', html: portal('inicio', montraHtml('', { cont2: true }), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v7') as EcraGoParts['versoes'],
     objetivo: 'Perceber de relance a atividade da conta e agir: quanto se comprou e quando, onde está cada encomenda, o que pede uma ação (faturas vencidas, recolhas, devoluções), os últimos pedidos e documentos, e os atalhos para o resto do portal. Pesquisar peças é no ecrã seguinte.' },
   ...estadosPainel(),
   { id: 'pesquisa', nome: '18 · Pesquisar peças', fluxo: FLUXO, versoes: [
@@ -101,7 +103,7 @@ function estadosPainel(): EcraGoParts[] {
     ['sessao', 'painel-sessao', '10.6 · Sessão expirada', 'A página fica atrás, inerte; o diálogo pede para entrar outra vez.'],
   ];
   return E.map(([est, id, nome, objetivo]) => {
-    let html = portal('inicio', montraHtml(est).replace('class="portal ', 'class="portal portal--estado '), undefined, { menu: true, rodape: false });
+    let html = portal('inicio', montraHtml(est, { cont2: true }).replace('class="portal ', 'class="portal portal--estado '), undefined, { menu: true, rodape: false });
     if (est === 'sessao') html = html.replace('<header class="portal__topo"', '<header class="portal__topo" inert aria-hidden="true"').replace('<nav class="portal__lado"', '<nav class="portal__lado" inert aria-hidden="true"');
     return { id, nome, fluxo: FLUXO, estadoDe: 'inicio' as EcraGoParts['id'], objetivo, versoes: [{ id: 'v1', nota: 'A montra (21 out., V10)', html }] };
   });

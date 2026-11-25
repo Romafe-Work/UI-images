@@ -21,6 +21,7 @@ import { GARAGEM, nomeCarro, saudacao, liquido, L, carrocariaDe } from './inicio
 import { imagemModelo } from './carros';
 import { LISTAS } from './lista';
 import { azulejoPeca } from './pecas-img';
+import { continuarV2 } from './montra-continuar';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
 import search from 'lucide-static/icons/search.svg?raw';
@@ -246,12 +247,12 @@ const final = () => `<section class="mt__sec mt__final" aria-labelledby="mt-fim-
     </div>
   </section>`;
 
-export function montraHtml(e: EstadoMontra = ''): string {
+export function montraHtml(e: EstadoMontra = '', opt: { cont2?: boolean } = {}): string {
   const aviso = e === 'offline' ? `<p class="mt__aviso" role="status">${L(wifiOff)}<span><b>Sem ligação.</b> Os preços e o stock são os da última vez que a página carregou.</span></p>` : '';
   const sessao = e === 'sessao' ? `<div class="mt__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="mt-s-t"><div class="mt__veu"></div><div class="mt__dialogo"><span class="mt__dialogo-icone">${L(lock)}</span><h2 id="mt-s-t">A tua sessão expirou.</h2><p>Por segurança, entra outra vez. Voltas a esta página.</p><button type="button" class="btn btn--acao mt__btn" data-login>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Iniciar sessão</span></button></div></div>` : '';
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--mt">
   <main class="mt${e === 'sem-3d' ? ' is-sem-3d' : ''}" data-ex="rolamento"${e ? ` data-estado="${e}"` : ''}${e === 'sessao' ? ' inert aria-hidden="true"' : ''}>
-    ${aviso}${abertura(e)}${maisPesquisados(e)}${compradas(e)}${continuar(e)}${final()}
+    ${aviso}${abertura(e)}${maisPesquisados(e)}${compradas(e)}${opt.cont2 && e !== 'primeira' && e !== 'parcial' ? continuarV2() : continuar(e)}${final()}
   </main>${sessao}
   <p class="sr-only" role="status" aria-live="polite" data-mt-aviso></p>
 </div>`;
