@@ -8,7 +8,7 @@
        são só das lançadas (as unidades por unidade: un. e jogos não se somam), com os movimentos que geraram (uma saída e
        uma entrada por linha) e os artigos distintos à parte;
      - filtros: o Destino e o Período nos rápidos (a Origem já lá estava); Artigo e Criado por em Mais filtros;
-     - as vistas Tabela | Cartões | Por armazém | Fluxos (Alt+1…4), com a mesma pesquisa, filtros e ordem;
+     - as vistas Tabela | Cartões | Por armazém | Fluxos | Transferir (Alt+1…5), com a mesma pesquisa, filtros e ordem;
      - Por armazém: pela origem ou pelo destino — armazém → o outro armazém → documentos → artigos; os totais só das
        lançadas, os rascunhos à parte;
      - Fluxos: origens à esquerda, destinos à direita, uma ligação por percurso com a espessura pela quantidade, pelo
@@ -22,11 +22,11 @@
 import type { Ecra } from '../../../comum/tipos';
 import type { IdErp } from '../ids';
 import { registar, paginaDoc, L, esc, type CfgDoc, type Doc, type EstDoc } from '../compras/docs-v2';
-import { tudo, ativoDe, filtradas, escolher, abrirFicha, de } from '../compras/docs-v2-comportamento';
+import { tudo, ativoDe, filtradas, escolher, abrirFicha, de, toast } from '../compras/docs-v2-comportamento';
 import { CFG as V1, COLS, linhas as linhasV1, doc, celula as celulaV1, painel as painelV1, editavel, porqueLancar_, dlgLancar, badge, curto, ESTADOS_TRA } from './transferencias';
-import { ARMAZENS, armazemDe, artigo, ARTIGOS, custoDe } from './dominio';
+import { ARMAZENS, armazemDe, artigo, ARTIGOS, custoDe, stockEm, criarTr, lancarTr, podeInv, HOJE, Recusa } from './dominio';
 import { dia } from '../compras/dominio';
-import { nf, euros, milhares, porUnidade, resp, sincronizar, campoPeriodo, campoCriadoPor, vazio, acaoComum, paginas, ordenarCartoes } from './inventario-inicial-v2';
+import { nf, euros, milhares, porUnidade, resp, sincronizar, campoPeriodo, campoCriadoPor, campoOrdenar, vazio, acaoComum, paginas } from './inventario-inicial-v2';
 import table from 'lucide-static/icons/table.svg?raw';
 import grid from 'lucide-static/icons/layout-grid.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
@@ -45,6 +45,14 @@ import arrowLeftRight from 'lucide-static/icons/arrow-left-right.svg?raw';
 import chevR from 'lucide-static/icons/chevron-right.svg?raw';
 import history from 'lucide-static/icons/history.svg?raw';
 import x_ from 'lucide-static/icons/x.svg?raw';
+import move from 'lucide-static/icons/move.svg?raw';
+import grip from 'lucide-static/icons/grip-vertical.svg?raw';
+import arrowRightLeft from 'lucide-static/icons/arrow-right-left.svg?raw';
+import save from 'lucide-static/icons/save.svg?raw';
+import trash from 'lucide-static/icons/trash-2.svg?raw';
+import search from 'lucide-static/icons/search.svg?raw';
+import packageOpen from 'lucide-static/icons/package-open.svg?raw';
+import eraser from 'lucide-static/icons/eraser.svg?raw';
 
 const K = 'tra2';
 const ok = (e: EstDoc) => e.fase === 'ok' || e.fase === 'atualizar';
@@ -91,7 +99,7 @@ function kpis(r: HTMLElement, e: EstDoc): string {
 }
 
 /* ---------- filtros: Destino e Período (rápidos); Artigo e Criado por (Mais filtros) ---------- */
-const rapidos = (id: (x: string) => string) => `<label class="ak-campo" for="${id('dest')}"><span>Armazém de destino</span><select id="${id('dest')}" data-tra2-dest data-dv2-campo><option value="">Todos</option>${ARMAZENS.map((a) => `<option value="${a.cod}">${esc(a.cod)} · ${esc(curto(a.cod))}</option>`).join('')}</select></label>${campoPeriodo(id)}`;
+const rapidos = (id: (x: string) => string) => `<label class="ak-campo" for="${id('dest')}"><span>Armazém de destino</span><select id="${id('dest')}" data-tra2-dest data-dv2-campo><option value="">Todos</option>${ARMAZENS.map((a) => `<option value="${a.cod}">${esc(a.cod)} · ${esc(curto(a.cod))}</option>`).join('')}</select></label>${campoPeriodo(id)}${campoOrdenar(id, ORDENS)}`;
 const avancados = (id: (x: string) => string) => `<label class="ak-campo" for="${id('art')}"><span>Artigo</span><input type="search" id="${id('art')}" list="${id('art-l')}" data-tra2-art data-dv2-campo placeholder="Referência, ex.: 6205-2Z" autocomplete="off"><datalist id="${id('art-l')}">${ARTIGOS.map((a) => `<option value="${esc(a.ref)}">${esc(a.desc)}</option>`).join('')}</datalist></label>${campoCriadoPor(id, pessoas())}`;
 function sincronizar2(r: HTMLElement, e: EstDoc): void {
   const s = r.querySelector<HTMLSelectElement>('[data-tra2-dest]'); if (s && s.value !== dest(e)) s.value = dest(e);
@@ -120,8 +128,7 @@ function cartoes(r: HTMLElement, e: EstDoc): string {
   const ls = filtradas(r, e);
   if (!ls.length) return vazio('Nenhuma transferência com estes filtros.', 'Tira um filtro, ou limpa-os.');
   const pg = paginas(e, ls.length), lanc = ls.filter((d) => d.lancado);
-  return `${ordenarCartoes(e, ORDENS)}
-    <div class="minv2-cartoes inv2-cartoes" role="list">${ls.slice(pg.de, pg.ate).map((d) => cartao(e, d)).join('')}</div>
+  return `<div class="minv2-cartoes inv2-cartoes" role="list">${ls.slice(pg.de, pg.ate).map((d) => cartao(e, d)).join('')}</div>
     <p class="minv2-c-total"><span>Lançadas · ${nf(lanc.length)} de ${nf(ls.length)} transferências</span><b>${porUnidade(linhasDe(lanc))}</b><b>${euros(lanc.reduce((s, d) => s + (d.valor as number), 0))}</b></p>
     ${pg.html}`;
 }
@@ -217,6 +224,87 @@ function fluxos(r: HTMLElement, e: EstDoc): string {
   return ctl + svg + detalhe + lista;
 }
 
+/* ---------- Transferir (25 nov., ela: «seleciono a origem e o destino e depois faço drop de um artigo para o outro»):
+   escolhe-se a origem e o destino; os artigos com stock na origem arrastam-se para o destino (ou «Levar», no teclado e
+   no telemóvel); a quantidade acerta-se na linha; Criar rascunho ou Transferir agora (cria e lança). Arrastar de volta
+   para a origem tira o artigo. ---------- */
+const mvO = (e: EstDoc) => String(e.extra.mvO ?? '60'), mvD = (e: EstDoc) => String(e.extra.mvD ?? '1');
+const cesto = (e: EstDoc) => (e.extra.mvC ??= {}) as Record<string, number>;
+const haEm = (ref: string, cod: string) => stockEm(ref, armazemDe(cod));
+const unDe = (ref: string) => artigo(ref)?.un ?? 'un.';
+function transferir(_r: HTMLElement, e: EstDoc): string {
+  const o = mvO(e), d = mvD(e), c = cesto(e), refs = Object.keys(c), mesmo = o === d, q = String(e.extra.mvQ ?? '');
+  const opArm = (sel: string) => ARMAZENS.map((a) => `<option value="${a.cod}"${a.cod === sel ? ' selected' : ''}>${esc(a.cod)} · ${esc(curto(a.cod))}</option>`).join('');
+  const naOrigem = ARTIGOS.map((a) => ({ a, ha: haEm(a.ref, o) })).filter((x) => x.ha > 0);
+  const filtra = (ref: string, desc: string) => !q || `${ref} ${desc}`.toLowerCase().includes(q.toLowerCase());
+  const lis = naOrigem.map(({ a, ha }) => { const lev = c[a.ref] ?? 0, fica = ha - lev;
+    return `<li class="tra2-mv-a${lev ? ' is-levado' : ''}" draggable="true" data-tra2-arr="${esc(a.ref)}" data-tra2-de="origem"${filtra(a.ref, a.desc) ? '' : ' hidden'} data-tra2-txt="${esc(`${a.ref} ${a.desc}`.toLowerCase())}">
+      <span class="tra2-mv-grip" aria-hidden="true">${L(grip)}</span>
+      <span class="tra2-mv-n"><b class="is-mono">${esc(a.ref)}</b><small>${esc(a.desc)}</small></span>
+      <span class="tra2-mv-q"><b>${nf(fica)} ${esc(a.un)}</b><small>${lev ? `${nf(lev)} a levar` : `no ${esc(d)}: ${nf(haEm(a.ref, d))}`}</small></span>
+      <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="mv-levar" data-tra2-ref="${esc(a.ref)}" ${fica <= 0 || mesmo ? 'disabled' : ''} aria-label="Levar 1 ${esc(a.un)} de ${esc(a.ref)} para o ${esc(d)}" title="Levar para o ${esc(d)} (ou arrastar)">${L(arrowRight)}</button></li>`; }).join('');
+  const linhas_ = refs.map((ref) => { const n = c[ref], ha = haEm(ref, o), falta = n > ha;
+    return `<li class="tra2-mv-l${falta ? ' is-falta' : ''}${e.extra.mvNovo === ref ? ' is-novo' : ''}" draggable="true" data-tra2-arr="${esc(ref)}" data-tra2-de="destino">
+      <span class="tra2-mv-grip" aria-hidden="true">${L(grip)}</span>
+      <span class="tra2-mv-n"><b class="is-mono">${esc(ref)}</b><small>${esc(artigo(ref)?.desc ?? '')}</small></span>
+      <label class="tra2-mv-qtd"><span class="sr">Quantidade de ${esc(ref)}</span><input type="number" inputmode="numeric" min="1" max="${ha}" step="1" value="${n}" data-tra2-qtd="${esc(ref)}"><i>${esc(unDe(ref))}</i></label>
+      <span class="tra2-mv-q"><small>${falta ? `<b class="is-erro">Só há ${nf(ha)} no ${esc(o)}</b>` : `fica ${nf(ha - n)} no ${esc(o)}`}</small><small>${esc(d)} passa a ${nf(haEm(ref, d) + n)}</small></span>
+      <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="mv-tirar" data-tra2-ref="${esc(ref)}" aria-label="Tirar ${esc(ref)}" title="Tirar (ou arrastar de volta)">${L(trash)}</button></li>`; }).join('');
+  const ls = refs.map((ref) => ({ ref, qtd: c[ref] })), falta = ls.some((l) => l.qtd > haEm(l.ref, o)), pode = podeInv(e.perfil, 'criar') && podeInv(e.perfil, 'lancar');
+  const porque = !pode ? 'O teu perfil só consulta os documentos de stock.' : mesmo ? 'A origem e o destino são o mesmo armazém.' : !refs.length ? 'Arrasta pelo menos um artigo para o destino.' : '';
+  const porqueLancar = porque || (falta ? 'Há linhas com mais do que o stock da origem: acerta a quantidade, ou cria só o rascunho.' : '');
+  return `<div class="tra2-mv" data-tra2-mv>
+    <div class="tra2-mv-cab">
+      <label class="ak-campo"><span>Armazém de origem</span><select data-tra2-mvo>${opArm(o)}</select></label>
+      <button type="button" class="ak-btn ak-btn--linha tra2-mv-trocar" data-dv2-acao="mv-trocar" title="Trocar a origem e o destino">${L(arrowRightLeft)}<span>Trocar</span></button>
+      <label class="ak-campo"><span>Armazém de destino</span><select data-tra2-mvd>${opArm(d)}</select></label>
+      ${mesmo ? `<p class="tra2-mv-aviso" role="alert">A origem e o destino são o mesmo armazém: escolhe outro.</p>` : ''}
+    </div>
+    <div class="tra2-mv-g">
+      <section class="tra2-mv-col" data-tra2-zona="origem" aria-label="Artigos com stock no ${esc(armazemDe(o))}">
+        <header><h3><span><b class="is-mono">${esc(o)}</b> ${esc(curto(o))}</span><small>${nf(naOrigem.length)} ${naOrigem.length === 1 ? 'artigo' : 'artigos'} com stock</small></h3>
+          <label class="tra2-mv-proc">${L(search)}<input type="search" data-tra2-mvq value="${esc(q)}" placeholder="Procurar artigo" aria-label="Procurar artigo na origem" autocomplete="off"></label></header>
+        ${naOrigem.length ? `<ul class="tra2-mv-lista" role="list">${lis}</ul>` : `<p class="tra2-mv-vazio">${L(packageOpen)}<span>O ${esc(armazemDe(o))} não tem stock de nenhum artigo.</span></p>`}
+      </section>
+      <section class="tra2-mv-col is-destino${refs.length ? '' : ' is-vazio'}" data-tra2-zona="destino" aria-label="A levar para o ${esc(armazemDe(d))}">
+        <header><h3><span><b class="is-mono">${esc(d)}</b> ${esc(curto(d))}</span><small>${refs.length ? `${nf(refs.length)} ${refs.length === 1 ? 'artigo' : 'artigos'} a levar` : 'a levar'}</small></h3></header>
+        ${refs.length ? `<ul class="tra2-mv-lista" role="list">${linhas_}</ul>` : `<p class="tra2-mv-largar">${L(move)}<span>Arrasta os artigos da origem para aqui</span></p>`}
+        <footer class="tra2-mv-pe">
+          ${refs.length ? `<p class="tra2-mv-tot"><span>${nf(refs.length)} ${refs.length === 1 ? 'artigo' : 'artigos'}</span><b>${porUnidade(ls)}</b><b>${euros(valorDe(ls))}</b></p>` : ''}
+          <label class="ak-campo"><span>Observações</span><input type="text" data-tra2-mvn value="${esc(String(e.extra.mvN ?? ''))}" maxlength="200" placeholder="Opcional, ex.: reposição do Porto"></label>
+          <div class="tra2-mv-acoes">
+            <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="mv-limpar" ${refs.length ? '' : 'disabled'}>${L(eraser)}<span>Limpar</span></button>
+            <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="mv-criar" aria-disabled="${!!porque}" title="${esc(porque || 'Fica em rascunho: ainda não mexe no stock')}">${L(save)}<span>Criar rascunho</span></button>
+            <button type="button" class="ak-btn ak-btn--acao" data-dv2-acao="mv-lancar" aria-disabled="${!!porqueLancar}" title="${esc(porqueLancar || 'Cria a transferência e lança-a no stock')}">${L(arrowDownToLine)}<span>Transferir agora</span></button>
+          </div>
+        </footer>
+      </section>
+    </div>
+  </div>`;
+}
+/** Levar um artigo (largado ou «Levar»): mais 1, até ao que há na origem. */
+function levar(r: HTMLElement, e: EstDoc, ref: string): void {
+  if (mvO(e) === mvD(e)) { toast(r, 'A origem e o destino são o mesmo armazém.'); return; }
+  const c = cesto(e), ha = haEm(ref, mvO(e)); if ((c[ref] ?? 0) >= ha) { toast(r, `Já levas todo o stock de ${ref} no ${mvO(e)}.`); return; }
+  c[ref] = (c[ref] ?? 0) + 1; e.extra.mvNovo = ref; tudo(r, e);
+  r.querySelector<HTMLInputElement>(`[data-tra2-qtd="${CSS.escape(ref)}"]`)?.focus({ preventScroll: true });
+  setTimeout(() => { if (e.extra.mvNovo === ref) e.extra.mvNovo = ''; }, 0);
+}
+function tirar(r: HTMLElement, e: EstDoc, ref: string): void { delete cesto(e)[ref]; tudo(r, e); }
+function fazerTransferencia(r: HTMLElement, e: EstDoc, lancar: boolean): void {
+  const b = r.querySelector<HTMLElement>(`[data-dv2-acao="${lancar ? 'mv-lancar' : 'mv-criar'}"]`);
+  if (b?.getAttribute('aria-disabled') === 'true') { toast(r, b.title); return; }
+  const c = cesto(e), o = mvO(e), d = mvD(e);
+  try {
+    const x = criarTr(e.perfil, { data: HOJE, origem: o, destino: d, notas: String(e.extra.mvN ?? ''), linhas: Object.entries(c).map(([ref, qtd]) => ({ ref, qtd })) });
+    if (lancar) lancarTr(e.perfil, x.ref);
+    const n = Object.values(c).reduce((s, q) => s + q, 0);
+    e.extra.mvC = {}; e.extra.mvN = ''; e.ativo = x.ref;
+    e.aviso = lancar ? `${x.ref} lançada: ${nf(n)} unidades passaram do ${o} para o ${d}.` : `${x.ref} criada em rascunho (${o} → ${d}): ainda não mexe no stock.`;
+    tudo(r, e, true); toast(r, e.aviso);
+  } catch (err) { toast(r, err instanceof Recusa ? err.message : 'Não foi possível criar a transferência.'); }
+}
+
 /* ---------- o detalhe: a rastreabilidade; em Linhas, os movimentos de cada artigo ---------- */
 function rastreio(d: Doc): string {
   const x = doc(d), cri = x.historico[0], lan = x.historico.find((h) => h.acao === 'Lançou no stock'), anu = x.historico.find((h) => h.acao === 'Anulou');
@@ -262,6 +350,7 @@ const CFG2: CfgDoc = registar({
     { k: 'cartoes', t: 'Cartões', ic: grid, tecla: 'Alt+2', titulo: 'Transferências', tabela: cartoes },
     { k: 'armazem', t: 'Por armazém', ic: warehouse, tecla: 'Alt+3', titulo: 'Por armazém', tabela: arvore },
     { k: 'fluxos', t: 'Fluxos', ic: network, tecla: 'Alt+4', titulo: 'Fluxos entre armazéns', tabela: fluxos },
+    { k: 'transferir', t: 'Transferir', ic: move, tecla: 'Alt+5', titulo: 'Transferir artigos', tabela: transferir },
   ],
   chips: (e) => [...(dest(e) ? [['x:dest', `Destino ${dest(e)} · ${curto(dest(e))}`]] : []), ...(art(e) ? [['x:art', `Artigo ${art(e)}`]] : []), ...(resp(e) ? [['x:resp', `Criada por ${resp(e)}`]] : [])] as [string, string][],
   acao(r, e, k, b) {
@@ -279,6 +368,11 @@ const CFG2: CfgDoc = registar({
       if (k === 'c-editar') abrirFicha(r, e, 'editar', d); else { dlgLancar(r, e); resumoLancar(r, e); }
       return true;
     }
+    if (k === 'mv-levar') { levar(r, e, b.dataset.tra2Ref!); return true; }
+    if (k === 'mv-tirar') { const ref = b.dataset.tra2Ref!; tirar(r, e, ref); r.querySelector<HTMLElement>(`[data-dv2-acao="mv-levar"][data-tra2-ref="${CSS.escape(ref)}"]`)?.focus(); return true; }
+    if (k === 'mv-trocar') { [e.extra.mvO, e.extra.mvD] = [mvD(e), mvO(e)]; e.extra.mvC = {}; tudo(r, e); r.querySelector<HTMLElement>('[data-dv2-acao="mv-trocar"]')?.focus(); return true; }
+    if (k === 'mv-limpar') { e.extra.mvC = {}; tudo(r, e); return true; }
+    if (k === 'mv-criar' || k === 'mv-lancar') { fazerTransferencia(r, e, k === 'mv-lancar'); return true; }
     const feito = V1.acao(r, e, k, b);
     if (k === 'lancar') resumoLancar(r, e);
     return feito;
@@ -292,6 +386,8 @@ const CFG2: CfgDoc = registar({
     if (cen === 'armazem-destino') { e.extra.vista = 'armazem'; e.extra.porArm = 'destino'; }
     if (cen === 'armazem-linhas') { e.extra.vista = 'armazem'; const d = ls.find((x) => x.lancado); if (d) { abertos(e).add(`d:${d.id}`); e.ativo = d.id; } }
     if (cen === 'fluxos-rota') { e.extra.vista = 'fluxos'; e.extra.rota = `${top}|lanc`; }
+    if (cen === 'transferir') e.extra.vista = 'transferir';
+    if (cen === 'transferir-cesto') { e.extra.vista = 'transferir'; e.extra.mvC = Object.fromEntries(ARTIGOS.map((a) => [a.ref, haEm(a.ref, '60')]).filter(([, h]) => (h as number) > 0).slice(0, 2).map(([ref, h]) => [ref, Math.min(10, h as number)])); }
     if (cen === 'fluxos-todos') { e.extra.vista = 'fluxos'; incl(e).add('rasc'); incl(e).add('anul'); e.extra.met = 'docs'; }
     V1.cenario(r, e, cen);
     /* a v1 escolhia o primeiro rascunho, mesmo sem stock na origem (e então o Lançar só avisava): aqui, um que se lança */
@@ -311,8 +407,37 @@ export function iniciar(): void {
   document.addEventListener('change', (ev) => {
     const t = ev.target as HTMLInputElement, r = raiz(t); if (!r) return; const e = de(r);
     if (t.matches('[data-tra2-dest]')) { e.extra.dest = t.value; e.extra.pagC = 0; tudo(r, e, true); return; }
-    if (t.matches('[data-tra2-art]')) { e.extra.art = t.value.trim(); e.extra.pagC = 0; tudo(r, e, true); }
+    if (t.matches('[data-tra2-art]')) { e.extra.art = t.value.trim(); e.extra.pagC = 0; tudo(r, e, true); return; }
+    if (t.matches('[data-tra2-mvo], [data-tra2-mvd]')) { e.extra[t.matches('[data-tra2-mvo]') ? 'mvO' : 'mvD'] = t.value; e.extra.mvC = {}; tudo(r, e); r.querySelector<HTMLElement>(t.matches('[data-tra2-mvo]') ? '[data-tra2-mvo]' : '[data-tra2-mvd]')?.focus(); return; }
+    if (t.matches('[data-tra2-qtd]')) { const ref = t.dataset.tra2Qtd!, n = Math.floor(Number(t.value)); if (n > 0) cesto(e)[ref] = n; else delete cesto(e)[ref]; tudo(r, e); r.querySelector<HTMLElement>(`[data-tra2-qtd="${CSS.escape(ref)}"]`)?.focus(); }
   });
+  document.addEventListener('input', (ev) => {
+    const t = ev.target as HTMLInputElement, r = raiz(t); if (!r) return;
+    if (t.matches('[data-tra2-mvn]')) { de(r).extra.mvN = t.value; return; }
+    if (t.matches('[data-tra2-mvq]')) { const q = t.value.trim().toLowerCase(); de(r).extra.mvQ = t.value; r.querySelectorAll<HTMLElement>('[data-tra2-zona="origem"] [data-tra2-txt]').forEach((li) => { li.hidden = !!q && !li.dataset.tra2Txt!.includes(q); }); }
+  });
+  /* arrastar: da origem para o destino leva 1; do destino para a origem tira */
+  let arr: { ref: string; de: string } | null = null;
+  const zonaDe = (t: EventTarget | null) => (t as HTMLElement | null)?.closest?.<HTMLElement>('[data-tra2-zona]') ?? null;
+  const limpar = () => document.querySelectorAll('.tra2-mv.is-arrastar, .tra2-mv-col.is-alvo, .tra2-mv-a.is-agarrado, .tra2-mv-l.is-agarrado').forEach((x) => x.classList.remove('is-arrastar', 'is-alvo', 'is-agarrado'));
+  document.addEventListener('dragstart', (ev) => {
+    const li = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-tra2-arr]'); if (!li || !raiz(li)) return;
+    arr = { ref: li.dataset.tra2Arr!, de: li.dataset.tra2De! };
+    ev.dataTransfer?.setData('text/plain', arr.ref); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move';
+    li.classList.add('is-agarrado'); li.closest('.tra2-mv')?.classList.add('is-arrastar');
+  });
+  document.addEventListener('dragover', (ev) => {
+    const z = zonaDe(ev.target); if (!arr || !z || z.dataset.tra2Zona === arr.de) return;
+    ev.preventDefault(); if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move';
+    if (!z.classList.contains('is-alvo')) { document.querySelectorAll('.tra2-mv-col.is-alvo').forEach((x) => x.classList.remove('is-alvo')); z.classList.add('is-alvo'); }
+  });
+  document.addEventListener('dragleave', (ev) => { const z = zonaDe(ev.target); if (z && !z.contains(ev.relatedTarget as Node | null)) z.classList.remove('is-alvo'); });
+  document.addEventListener('drop', (ev) => {
+    const z = zonaDe(ev.target), r = raiz(z); if (!arr || !z || !r || z.dataset.tra2Zona === arr.de) return;
+    ev.preventDefault(); const x = arr; arr = null; limpar();
+    if (z.dataset.tra2Zona === 'destino') levar(r, de(r), x.ref); else tirar(r, de(r), x.ref);
+  });
+  document.addEventListener('dragend', () => { arr = null; limpar(); });
   document.addEventListener('keydown', (ev) => {
     const t = ev.target as Element; if (!raiz(t) || !(ev.key === 'Enter' || ev.key === ' ') || !t.matches('path[data-tra2-r]')) return;
     ev.preventDefault(); t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -332,6 +457,8 @@ const NOVOS: [string, string, string][] = [
   ['kpi-rascunhos', '71.47 · Só os rascunhos', 'Tocar no indicador Rascunhos filtra; diz quantos estão prontos a lançar.'],
   ['filtro-destino', '71.48 · Filtro pelo destino', 'Só as transferências para o Armazém 1 · Porto.'],
   ['filtro-artigo', '71.49 · Filtro pelo artigo', 'Mais filtros ▸ Artigo: as transferências que levam 6205-2Z.'],
+  ['transferir', '71.50 · Transferir (arrastar)', 'Escolher a origem e o destino e arrastar os artigos da origem para o destino; a quantidade acerta-se na linha; Criar rascunho ou Transferir agora.'],
+  ['transferir-cesto', '71.51 · Transferir com artigos a levar', 'Dois artigos já largados no destino, com o que fica na origem e o que o destino passa a ter.'],
 ];
 export function ecrasTransferenciasV2(): Ecra<IdErp>[] {
   const armazens = ARMAZENS.map((a): [string, string] => [a.cod, `${a.cod} · ${curto(a.cod)}`]);

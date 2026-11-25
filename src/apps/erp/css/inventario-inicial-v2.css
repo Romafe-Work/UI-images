@@ -145,3 +145,5 @@
   .inv2-arv col:nth-child(1) { width: 52% !important; } .inv2-arv col:nth-child(4) { width: 20% !important; } .inv2-arv col:nth-child(5) { width: 28% !important; }
   .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi b { white-space: normal; font-size: 18px; }
 }
+/* Ordenar nos filtros (25 nov.): o texto da ordem cabe inteiro */
+.dv2-rapidos > .ak-campo:has(select[data-inv2-ord]) { grid-column: span 2; width: min(100%, 280px); }

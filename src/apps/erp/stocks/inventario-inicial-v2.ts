@@ -109,13 +109,17 @@ export const PERIODOS: [string, string, string, string][] = [
 ];
 export const campoPeriodo = (id: (x: string) => string) => `<label class="ak-campo" for="${id('per2')}"><span>Período</span><select id="${id('per2')}" data-inv2-per data-dv2-campo><option value="">Todos</option>${PERIODOS.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}<option value="outro" hidden>Datas escolhidas</option></select></label>`;
 export const campoCriadoPor = (id: (x: string) => string, ps: string[]) => `<label class="ak-campo" for="${id('resp')}"><span>Criado por</span><select id="${id('resp')}" data-inv2-resp data-dv2-campo><option value="">Todos</option>${ps.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('')}</select></label>`;
-const rapidos = campoPeriodo;
+/** Ordenar fica nos filtros (25 nov., ela: «ordenar fica nos filtros»): a mesma ordem para a tabela e os cartões. */
+export const campoOrdenar = (id: (x: string) => string, ordens: [string, string][]) => `<label class="ak-campo" for="${id('ord')}"><span>Ordenar</span><select id="${id('ord')}" data-inv2-ord data-dv2-campo>${ordens.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}<option value="_tabela" hidden>Como na tabela</option></select></label>`;
+const rapidos = (id: (x: string) => string) => `${campoPeriodo(id)}${campoOrdenar(id, ORDENS)}`;
 const avancados = (id: (x: string) => string) => campoCriadoPor(id, pessoas());
 /** Os dois campos novos seguem o estado (as datas mudadas à mão em Mais filtros, Limpar, tirar a etiqueta). */
 export function sincronizar(r: HTMLElement, e: EstDoc): void {
   const per = r.querySelector<HTMLSelectElement>('[data-inv2-per]'), rs = r.querySelector<HTMLSelectElement>('[data-inv2-resp]');
   if (per) { const p = PERIODOS.find(([, , a, b]) => a === e.f.de && b === e.f.ate); const v = p ? p[0] : e.f.de || e.f.ate ? 'outro' : ''; if (per.value !== v) per.value = v; }
   if (rs && rs.value !== resp(e)) rs.value = resp(e);
+  const os = r.querySelector<HTMLSelectElement>('[data-inv2-ord]');
+  if (os) { const o = e.ordem[0], v = o ? `${o.k}:${o.dir}` : '', w = [...os.options].some((x) => x.value === v) ? v : '_tabela'; if (os.value !== w) os.value = w; }
   const n = r.querySelector<HTMLElement>('[data-dv2-n-av]');
   if (n) { const k = [...r.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-dv2-av] [data-dv2-f]')].filter((x) => !!x.value).length + (resp(e) ? 1 : 0); n.textContent = k ? String(k) : ''; }
 }
@@ -143,8 +147,7 @@ function cartoes(r: HTMLElement, e: EstDoc): string {
   const ls = filtradas(r, e);
   if (!ls.length) return vazio('Nenhum documento com estes filtros.', 'Tira um filtro, ou limpa-os.');
   const pg = paginas(e, ls.length), lanc = ls.filter((d) => d.lancado);
-  return `${ordenarCartoes(e, ORDENS)}
-    <div class="minv2-cartoes inv2-cartoes" role="list">${ls.slice(pg.de, pg.ate).map((d) => cartao(e, d)).join('')}</div>
+  return `<div class="minv2-cartoes inv2-cartoes" role="list">${ls.slice(pg.de, pg.ate).map((d) => cartao(e, d)).join('')}</div>
     <p class="minv2-c-total"><span>Lançados · ${nf(lanc.length)} de ${nf(ls.length)} documentos</span><b>${porUnidade(linhasDe(lanc))}</b><b>${euros(lanc.reduce((s, d) => s + (d.valor as number), 0))}</b></p>
     ${pg.html}`;
 }
@@ -242,11 +245,6 @@ export function paginas(e: EstDoc, total: number): { de: number; ate: number; ht
       <button type="button" class="ak-btn ak-btn--linha" data-dv2-acao="pagc" data-inv2-ir="1" ${pg >= n - 1 ? 'disabled' : ''} aria-label="Página seguinte" title="Página seguinte">${L(chevR)}</button>
       <label class="pag-t-pp"><span>Por página</span><select data-inv2-pp aria-label="Cartões por página">${OPCOES.map((x) => `<option value="${x}"${x === pp ? ' selected' : ''}>${x || 'Todos'}</option>`).join('')}</select></label></nav>` };
 }
-/** Ordenar os cartões: as mesmas ordens da tabela. */
-export function ordenarCartoes(e: EstDoc, ordens: [string, string][]): string {
-  const o = e.ordem[0], ord = o ? `${o.k}:${o.dir}` : '';
-  return `<div class="inv2-c-cab"><label class="inv2-ord"><span>Ordenar</span><select data-inv2-ord aria-label="Ordenar os cartões">${ordens.map(([v, t]) => `<option value="${v}"${v === ord ? ' selected' : ''}>${esc(t)}</option>`).join('')}${ordens.some(([v]) => v === ord) ? '' : `<option value="${esc(ord)}" selected>Como na tabela</option>`}</select></label></div>`;
-}
 
 /* ---------- registar ---------- */
 const CFG2: CfgDoc = registar({
@@ -297,7 +295,7 @@ export function iniciar(): void {
     const t = ev.target as HTMLSelectElement, r = raiz(t); if (!r) return; const e = de(r);
     if (t.matches('[data-inv2-per]')) { const p = PERIODOS.find(([k]) => k === t.value); if (t.value !== 'outro') { e.f.de = p?.[2] ?? ''; e.f.ate = p?.[3] ?? ''; } e.extra.pagC = 0; tudo(r, e, true); return; }
     if (t.matches('[data-inv2-resp]')) { e.extra.resp = t.value; e.extra.pagC = 0; tudo(r, e, true); return; }
-    if (t.matches('[data-inv2-ord]')) { const [k, d] = t.value.split(':'); e.ordem = k ? [{ k, dir: (Number(d) === -1 ? -1 : 1) as 1 | -1 }] : []; tudo(r, e); r.querySelector<HTMLElement>('[data-inv2-ord]')?.focus(); return; }
+    if (t.matches('[data-inv2-ord]')) { if (t.value === '_tabela') return; const [k, d] = t.value.split(':'); e.ordem = k ? [{ k, dir: (Number(d) === -1 ? -1 : 1) as 1 | -1 }] : []; tudo(r, e); r.querySelector<HTMLElement>('[data-inv2-ord]')?.focus(); return; }
     if (t.matches('[data-inv2-pp]')) { e.extra.ppC = Number(t.value); e.extra.pagC = 0; try { localStorage.setItem('erp:por-pagina', t.value); } catch { /* sem armazenamento */ } tudo(r, e); r.querySelector<HTMLElement>('[data-inv2-pp]')?.focus(); }
   });
   document.addEventListener('click', (ev) => {
