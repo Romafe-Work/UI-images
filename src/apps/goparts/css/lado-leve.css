@@ -46,3 +46,8 @@
 /* sem caixas: nem no ativo nem ao passar (aberto e fechado) */
 .portal--lateral .portal__lado .lado__item, .portal--lateral .portal__lado .lado__item:hover:not(:disabled), .portal--lateral .portal__lado .lado__item[aria-current="page"] { background: transparent !important; }
 :root.gp-lado-recolhido .portal--lateral .lado__item[aria-current="page"] > svg { color: var(--gp-laranja, #f58214); }
+
+/* (25 nov.) ela: «remove os números no menu»; e os nomes compridos cortavam-se à esquerda: menos espaçamento, sem corte */
+.portal--lateral .lado__n { display: none !important; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item { letter-spacing: .1em; padding-left: 8px; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__rotulo { overflow: visible; }

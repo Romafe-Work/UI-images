@@ -101,29 +101,58 @@ function pintarEstados(): void {
     });
     return;
   }
-  /* sem editor: uma linha de botões por baixo da barra das versões */
-  estadosBarra.className = 'versoes versoes--estados';
-  document.body.appendChild(estadosBarra);
-  const rot = document.createElement('span');
-  rot.className = 'versoes__rotulo';
-  rot.textContent = 'Estados';
-  estadosBarra.appendChild(rot);
+  /* sem editor (25 nov., ela: «que confusão é esta… melhora»): em vez da caixa com todos os estados por cima do ecrã,
+     um botão «Estado: Normal ▾» dentro da pílula das versões; abre uma lista com pesquisa (↑ ↓ Enter, Esc fecha). */
+  estadosBarra.className = 'versoes-est';
+  const pilula = barra && barra.classList.contains('versoes') && !barra.classList.contains('versoes--topo') ? barra : null;
+  if (pilula) pilula.appendChild(estadosBarra); else { estadosBarra.classList.add('versoes-est--so'); document.body.appendChild(estadosBarra); }
+  const nomeDe = (x: HTMLElement) => x === base ? 'Normal' : (x.dataset.nome || '').replace(/^\d+(?:\.\d+)?\s*·\s*/, '');
+  const botao = document.createElement('button');
+  botao.type = 'button';
+  botao.className = 'versoes-est__botao';
+  botao.setAttribute('aria-haspopup', 'listbox');
+  botao.setAttribute('aria-expanded', 'false');
+  botao.innerHTML = '<span class="versoes__rotulo">Estado</span><b></b><small></small><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  botao.querySelector('b')!.textContent = atual ? nomeDe(atual) : 'Normal';
+  botao.querySelector('small')!.textContent = String(lista.length);
+  botao.title = 'Estados deste ecrã (' + lista.length + ')';
+  const caixa = document.createElement('div');
+  caixa.className = 'versoes-est__caixa';
+  caixa.hidden = true;
+  caixa.innerHTML = '<input type="search" class="versoes-est__procura" placeholder="Procurar estado…" aria-label="Procurar estado" autocomplete="off"><ul class="versoes-est__lista" role="listbox" aria-label="Estados"></ul>';
+  const ul = caixa.querySelector('ul')!, procura = caixa.querySelector('input')!;
   lista.forEach((x) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'versoes__aba';
-    const nome = x === base ? 'Normal' : (x.dataset.nome || '');
-    b.textContent = x === base ? 'Normal' : nome.replace(/^\d+(?:\.\d+)?\s*·\s*/, '');
-    b.title = x.dataset.objetivo || '';
-    b.setAttribute('aria-pressed', String(x === atual));
-    b.addEventListener('click', () => { if (x.dataset.ecra) mostrar(x.dataset.ecra); });
-    estadosBarra!.appendChild(b);
+    const li = document.createElement('li');
+    li.setAttribute('role', 'option');
+    li.setAttribute('aria-selected', String(x === atual));
+    li.tabIndex = -1;
+    li.textContent = nomeDe(x);
+    li.title = x.dataset.objetivo || '';
+    li.addEventListener('click', () => { fechar(); if (x.dataset.ecra) mostrar(x.dataset.ecra); });
+    ul.appendChild(li);
   });
+  const visiveis = () => Array.from(ul.querySelectorAll<HTMLElement>('li:not([hidden])'));
+  const fora = (ev: Event) => { if (!estadosBarra!.contains(ev.target as Node)) fechar(); };
+  function fechar(): void { caixa.hidden = true; botao.setAttribute('aria-expanded', 'false'); document.removeEventListener('pointerdown', fora, true); }
+  function abrir(): void {
+    caixa.hidden = false; botao.setAttribute('aria-expanded', 'true'); procura.value = ''; visiveis().forEach((li) => { li.hidden = false; });
+    procura.focus(); ul.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+    document.addEventListener('pointerdown', fora, true);
+  }
+  botao.addEventListener('click', () => (caixa.hidden ? abrir() : fechar()));
+  procura.addEventListener('input', () => { const q = procura.value.trim().toLowerCase(); ul.querySelectorAll<HTMLElement>('li').forEach((li) => { li.hidden = !!q && !(li.textContent || '').toLowerCase().includes(q); }); });
+  caixa.addEventListener('keydown', (ev) => {
+    const vs = visiveis(), i = vs.indexOf(document.activeElement as HTMLElement);
+    if (ev.key === 'Escape') { ev.preventDefault(); fechar(); botao.focus(); }
+    else if (ev.key === 'ArrowDown') { ev.preventDefault(); vs[Math.min(vs.length - 1, i + 1)]?.focus(); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); if (i <= 0) procura.focus(); else vs[i - 1].focus(); }
+    else if (ev.key === 'Enter') { ev.preventDefault(); (document.activeElement?.matches('li') ? document.activeElement as HTMLElement : vs[0])?.click(); }
+  });
+  estadosBarra.append(botao, caixa);
 }
 
 export function pintarBarra(): void {
-  pintarEstados();
-  if (!barra) return;
+  if (!barra) { pintarEstados(); return; }
   const e = ecraActual();
   const versoes = e ? Array.from(e.querySelectorAll<HTMLElement>(':scope > .versao')) : [];
   const actual = versoes.find((x) => !x.hidden);
@@ -148,6 +177,7 @@ export function pintarBarra(): void {
       b.addEventListener('click', () => mostrarVersao(x.dataset.versao || ''));
       barra!.appendChild(b);
     });
+    pintarEstados();
     return;
   }
   const topo = actual?.querySelector<HTMLElement>('.topo__accoes');
@@ -179,6 +209,7 @@ export function pintarBarra(): void {
     nota.textContent = actual?.dataset.nota || '';
     barra.appendChild(nota);
   }
+  pintarEstados();
 }
 
 /* 29 out. (ela: «porque a minha demonstração do erp é tão lenta?»): num separador da área de trabalho (?separador=1) só

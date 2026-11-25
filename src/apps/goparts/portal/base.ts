@@ -101,10 +101,9 @@ const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'garagem', 'pes
 const NOME_LADO: Partial<Record<IdPortal, string>> = { tecnica: 'Informação técnica' };
 function lado(ativa: IdPortal | null, p: Produto): string {
   const todas = [...ABAS, PESQUISA, GARAGEM];
-  /* (25 nov.) ela: «é assim que quero» (o menu de lado do Tern): o nome em maiúsculas e o número à direita */
-  let n = 0;
-  const item = ([id, nome0, d, ic]: typeof ABAS[number]) => { const nome = (id && NOME_LADO[id]) || nome0, sub = id ? SUB[id] : undefined; n++;
-    return `<li><button type="button" class="lado__item${sub ? ' lado__item--sub' : ''}"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}${sub ? `<small class="lado__sub">${sub}</small>` : ''}</span><span class="lado__n" aria-hidden="true">${String(n).padStart(2, '0')}</span></button></li>`; };
+  /* (25 nov.) ela: «é assim que quero» (o menu de lado do Tern): o nome em maiúsculas; os números saíram («remove os números») */
+  const item = ([id, nome0, d, ic]: typeof ABAS[number]) => { const nome = (id && NOME_LADO[id]) || nome0, sub = id ? SUB[id] : undefined;
+    return `<li><button type="button" class="lado__item${sub ? ' lado__item--sub' : ''}"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}${sub ? `<small class="lado__sub">${sub}</small>` : ''}</span></button></li>`; };
   return `<nav class="portal__lado" aria-label="Secções" data-lado>
     <div class="lado__rolo">
       ${GRUPOS.map(([g, ids], i) => `<p class="lado__grupo${i === 0 ? ' lado__grupo--primeiro' : ''}" id="lado-g${i}"><span class="lado__rotulo">${g}</span></p>
