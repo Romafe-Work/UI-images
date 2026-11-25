@@ -1,0 +1,20 @@
+/* =========================================================
+   ERP — mais leve (25 nov. 2026)
+   Ela: «o mesmo para ERP mas mantém a ideia de VStudio» (depois de «torna as coisas mais leves» no Peça A Peça).
+   A área de trabalho continua a do Visual Studio (barra de atividade, explorador, separadores, painéis, barra de
+   estado); muda o peso: superfícies quase no fundo, bordas de tom mais suave, os títulos das secções do explorador
+   e dos menus em maiúsculas espaçadas monoespaçadas (como o menu do Peça A Peça), e nos ecrãs os filtros deixam de
+   ser uma caixa dentro da página.
+   ========================================================= */
+/* a casca (IDE) */
+.ide { --i-borda: #dde3ea; --i-sup-2: #f6f8fa; }
+[data-theme="dark"] .ide { --i-fundo: #07090c; --i-barra: #0c1015; --i-sup: #0e1318; --i-sup-2: #12181e; --i-tabs: #0b0f13; --i-tab-h: #151c23; --i-borda: #1b232c; --i-borda-forte: #2a3440; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ide { --i-fundo: #07090c; --i-barra: #0c1015; --i-sup: #0e1318; --i-sup-2: #12181e; --i-tabs: #0b0f13; --i-tab-h: #151c23; --i-borda: #1b232c; --i-borda-forte: #2a3440; } }
+.ide-x-t, .ide-menu-tit { font-family: var(--f-mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; }
+
+/* os ecrãs */
+.hm { --h-fundo: #f6f8fa; --h-borda: #e5eaef; --h-borda-forte: #cdd6df; --h-sup-2: #f7f9fb; }
+[data-theme="dark"] .hm { --h-fundo: #0b1118; --h-sup: #0f1720; --h-sup-2: #131d28; --h-borda: #1c2836; --h-borda-forte: #2b3a4c; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hm { --h-fundo: #0b1118; --h-sup: #0f1720; --h-sup-2: #131d28; --h-borda: #1c2836; --h-borda-forte: #2b3a4c; } }
+/* os filtros: sem a caixa à volta, só os campos */
+.lf2-filtros, .lf-filtros { border-color: transparent !important; background: transparent !important; padding-left: 0; padding-right: 0; }

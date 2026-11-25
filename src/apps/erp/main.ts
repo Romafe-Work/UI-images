@@ -74,6 +74,7 @@ import { iniciar as dataErp } from './comportamento/data-erp';
 import './css/data-erp.css';
 import './css/encomendas-v5.css';
 import './css/calmo.css';
+import './css/leve.css';
 import { iniciar as calmo } from './comportamento/calmo';
 import { iniciar as rececoes2 } from './compras/rececoes-v2';
 import { iniciar as guias3 } from './compras/guias-v3';
