@@ -20,31 +20,40 @@
 .portal--lateral .ped4__kpi dd { letter-spacing: -.01em; }
 
 /* =========================================================
-   (25 nov.) o fundo da app. Ela: «quero mais vida no bg, no tema da app em geral, em que as cores principais são o
-   azul Romafe e laranja»; e depois, das manchas desfocadas e do fundo liso: «o bg é feio».
-   Agora: uma grelha técnica fina (como uma planta de engenharia, 40 px) que se esbate para as margens, uma luz azul
-   ROMAFE larga no topo, por trás do cabeçalho, e uma laranja no canto de baixo. A luz azul respira devagar (opacidade,
-   12 s). Atrás do conteúdo: os cartões ficam limpos. Com movimento reduzido, parada.
+   (25 nov.) o fundo da app. Ela: «mais vida no bg… azul Romafe e laranja»; «o bg é feio» (duas vezes) e «quero algo
+   mais moderno». Terceira versão, na linha do Tern que ela mostrou:
+   - quase preto, com grão fino de película por cima de tudo (ruído SVG, muito leve);
+   - no topo, uma aurora: o azul ROMAFE largo, um azul mais claro e um fio de laranja, que rodam devagar (60 s);
+   - uma malha de pontos (24 px) que só se vê na metade de cima e desaparece para baixo.
+   Atrás do conteúdo; os cartões ficam limpos. No claro, a mesma coisa em tons suaves. Com movimento reduzido, parada.
    ========================================================= */
-.portal--lateral { isolation: isolate; --bg-azul: .16; --bg-laranja: .10; --bg-grelha: rgba(0, 99, 170, .07); }
-[data-theme="dark"] .portal--lateral { --bg-azul: .34; --bg-laranja: .16; --bg-grelha: rgba(90, 169, 230, .07); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --bg-azul: .34; --bg-laranja: .16; --bg-grelha: rgba(90, 169, 230, .07); } }
-.portal--lateral::before, .portal--lateral::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-/* a grelha, esbatida para as margens */
-.portal--lateral::after {
-  background-image: linear-gradient(var(--bg-grelha) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grelha) 1px, transparent 1px);
-  background-size: 40px 40px; background-position: -1px -1px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 55% 30%, #000 30%, transparent 85%);
-          mask-image: radial-gradient(ellipse 80% 70% at 55% 30%, #000 30%, transparent 85%);
-}
-/* as luzes */
+.portal--lateral { isolation: isolate; --au-a: .55; --au-b: .30; --au-c: .22; --pontos: rgba(90, 169, 230, .16); --grao: .06; }
+:root:not([data-theme="dark"]) .portal--lateral { --au-a: .20; --au-b: .14; --au-c: .12; --pontos: rgba(0, 99, 170, .12); --grao: .035; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --au-a: .55; --au-b: .30; --au-c: .22; --pontos: rgba(90, 169, 230, .16); --grao: .06; } }
+[data-theme="dark"] .portal--lateral { --au-a: .55; --au-b: .30; --au-c: .22; --pontos: rgba(90, 169, 230, .16); --grao: .06; }
+/* a aurora (uma camada grande que roda, presa ao topo) */
 .portal--lateral::before {
+  content: ""; position: fixed; z-index: -1; pointer-events: none;
+  left: 50%; top: -70vh; width: 160vw; height: 120vh; margin-left: -80vw;
   background:
-    radial-gradient(70vw 46vh at 55% -12vh, rgb(0 99 170 / var(--bg-azul)), transparent 72%),
-    radial-gradient(40vw 40vh at 104% 108%, rgb(245 130 20 / var(--bg-laranja)), transparent 70%);
+    radial-gradient(closest-side at 38% 62%, rgb(0 99 170 / var(--au-a)), transparent),
+    radial-gradient(closest-side at 62% 58%, rgb(42 143 216 / var(--au-b)), transparent),
+    radial-gradient(closest-side at 74% 70%, rgb(245 130 20 / var(--au-c)), transparent 70%);
+  filter: blur(40px); transform-origin: 50% 60%;
 }
-@media (prefers-reduced-motion: no-preference) { .portal--lateral::before { animation: vd-respira 12s ease-in-out infinite alternate; } }
-@keyframes vd-respira { from { opacity: .75; } to { opacity: 1; } }
+/* os pontos e o grão */
+.portal--lateral::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(var(--pontos) 1px, transparent 1.4px);
+  background-size: 160px 160px, 24px 24px;
+  -webkit-mask-image: linear-gradient(#000, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .15));
+          mask-image: linear-gradient(#000, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .15));
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) { .portal--lateral::before { animation: au-roda 60s linear infinite; } }
+@keyframes au-roda { to { transform: rotate(360deg); } }
 
 /* =========================================================
    (25 nov.) a barra de cima. Ela: «feio também». Transparente sobre o fundo (a luz azul vê-se por trás), sem a linha
