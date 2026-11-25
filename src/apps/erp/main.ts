@@ -54,6 +54,7 @@ import { iniciar as mapaMov } from './stocks/mapa-movimentos-v2';
 import { iniciar as mapaInv } from './stocks/mapa-inventario-v2';
 import { iniciar as invV2 } from './stocks/inventario-inicial-v2';
 import { iniciar as traV2 } from './stocks/transferencias-v2';
+import { iniciar as orcV } from './vendas/orcamentacao';
 import { iniciar as paginar } from './comportamento/paginar-tabelas';
 import './css/paginar-tabelas.css';
 import { iniciar as setasTabelas } from './comportamento/setas-tabelas';
@@ -61,6 +62,7 @@ import './css/mapa-movimentos.css';
 import './css/mapa-inventario-v2.css';
 import './css/inventario-inicial-v2.css';
 import './css/transferencias-v2.css';
+import './css/orcamentacao.css';
 import './css/mapa-movimentos-v2.css';
 import './css/mapa-stocks-v2.css';
 import './css/mapa-artigos-clientes-v2.css';
@@ -82,7 +84,7 @@ import { iniciar as comparativo } from './compras/comparativo-comportamento';
 calmo();
 rececoes2();
 guias3();
-montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, invV2, traV2, recap2, mapaAc, mapaStk, mapaMov, mapaInv, setasTabelas, paginar, selectErp, dataErp, moldura, espaco, ide, inicio, compras, compras2, ficheiros, automatico, comparativo]);
+montar(erp, [entrar, rede, abertura, abertura2, abertura4, abertura6, inicio2, faltas, faltas2, docs2, invV2, traV2, orcV, recap2, mapaAc, mapaStk, mapaMov, mapaInv, setasTabelas, paginar, selectErp, dataErp, moldura, espaco, ide, inicio, compras, compras2, ficheiros, automatico, comparativo]);
 
 /* 18 nov. (ela: «aqui quero um rolamento para fazer scroll e não este scroll»): a página e os painéis da área de trabalho rolam com um rolamento */
 iniciarRolamento('.ide-ferr-corpo');

@@ -24,6 +24,7 @@ import { ecrasFase2 } from './compras/ecras2';
 import { DESCRICAO_STOCKS } from './stocks/inventario-inicial';
 import { ecrasInventarioInicial } from './stocks/inventario-inicial-v2';
 import { ecrasTransferenciasV2 } from './stocks/transferencias-v2';
+import { ecrasOrcamentacao } from './vendas/orcamentacao';
 import { ecrasAjustamentos } from './stocks/ajustamentos';
 import { ecrasMovimentos } from './stocks/movimentos';
 import { ecrasMapaArtigosClientes } from './stocks/mapa-artigos-clientes-v2';
@@ -73,7 +74,7 @@ export const erp: App<IdErp> = {
      versões até à v11, os estados da rede), a 06 · Escolher a empresa e a 07 · Escolher a aplicação — isso é da
      Identity. O código fica (entrar.ts, entrar-rede.ts, entrar-central.ts). */
   /* 27 out. (ela: «sim», tirar): a Receção de encomendas, as Guias de transporte e as Devoluções passaram a vistas das Encomendas e das Guias */
-  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasInventarioInicial(), ...ecrasTransferenciasV2(), ...ecrasAjustamentos(), ...ecrasMovimentos(), ...ecrasMapaArtigosClientes(), ...ecrasMapaStocks(), ...ecrasMapaMovimentos(), ...ecrasMapaInventario(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
+  ecras: soInicioECompras(semJuntados([soAberturaV3(ecraAbertura()), ...estadosAberturaV6(), ...comInicioV2(ecrasInicio()), ...estadosIde(), ...comEncomendasV5(comEncomendasV4(comEncomendasV3(comV2(ecrasCompras())))), ...comEstadosCp(ecrasCompras2()), ...comEstadosCp(comOrcamentosV2(ecrasFase2())), ...ecrasFaltasV2(), ...comGuiasV3(comGuiasV2(comRecapV2(comFaturasV3(comFaturasV2(ecrasMenuAntigo()))))), ...ecrasInventarioInicial(), ...ecrasTransferenciasV2(), ...ecrasAjustamentos(), ...ecrasMovimentos(), ...ecrasMapaArtigosClientes(), ...ecrasMapaStocks(), ...ecrasMapaMovimentos(), ...ecrasMapaInventario(), ...ecrasOrcamentacao(), ...ecrasFicheiros(), ...ecrasCarregarErp(), ...ecrasErroErp()])),
 };
 
 /* 28 out. 2026 (ela: «no erp tenho ecrãs diferentes, não fazem sentido; por agora no menu lateral só quero início e as
@@ -94,6 +95,8 @@ function menuCompras(): [string, string | null][] {
   /* 18 nov. 2026 (ela, com o print do menu Stocks do ERP antigo: «o primeiro screen é o stock inventário, e cria o menu»):
      o menu Stocks, a seguir às Compras; o Inventário inicial é o primeiro ecrã, os outros itens ainda não têm ecrã */
   ['stocks-inventario-inicial', '70 · Inventário inicial'], ['stocks-transf-armazens', '71 · Transferências entre armazéns'], ['stocks-ajuste-valor', '72 · Ajustamento em valor'], ['stocks-acrescimos', '73 · Acréscimos'], ['stocks-perdas', '74 · Perdas'], ['stocks-mapa-artigos-clientes', '75 · Artigos/clientes'], ['stocks-mapa-stocks', '76 · Mapa de stocks'], ['stocks-mapa-movimentos', '77 · Movimentos de artigos'], ['stocks-mapa-inventario', '78 · Mapa de inventário'],
+  /* 25 nov. (ela: «para a parte da orçamentação em vendas, base e avançado no mesmo screen»): o primeiro ecrã de Vendas */
+  ['vendas-orcamentacao', '80 · Orçamentação'],
   ];
 }
 /* 28 out. (ela: «quero os ecrãs assim, e não assim — remove todos estes últimos do erp»): saem todas as versões e
@@ -112,7 +115,7 @@ function soInicioECompras<T extends string>(todos: Ecra<T>[]): Ecra<T>[] {
   const raiz = (e: Ecra<T>) => !e.estadoDe;
   const listados = MENU.flatMap(([id, nome]) => {
     const e = ecras.find((x) => x.id === id && raiz(x)); if (!e) return [];
-    return [{ ...e, nome: nome ?? e.nome, fluxo: id === 'inicio' ? 'Início' : id.startsWith('stocks-') ? 'Stocks' : 'Compras' }, ...ecras.filter((x) => x.estadoDe === id)];
+    return [{ ...e, nome: nome ?? e.nome, fluxo: id === 'inicio' ? 'Início' : id.startsWith('stocks-') ? 'Stocks' : id.startsWith('vendas-') ? 'Vendas' : 'Compras' }, ...ecras.filter((x) => x.estadoDe === id)];
   });
   const resto = ecras.filter((x) => !(raiz(x) ? fica.has(x.id) : fica.has(x.estadoDe!))).map((x) => raiz(x) ? { ...x, foraDaLista: true } : x);
   return [...listados, ...resto];

@@ -1,0 +1,26 @@
+/* =========================================================
+   ERP — Vendas: 80 · Orçamentação (25 nov. 2026). Ver vendas/orcamentacao.ts. O resto é do motor das listas (docs-v2).
+   ========================================================= */
+.orcv-tipo { display: inline-block; padding: 1px 8px; border-radius: var(--r-md, 6px); font-size: 13.5px; font-weight: 600; background: var(--h-sup-2); color: var(--h-tinta-2); }
+.orcv-tipo.is-av { background: color-mix(in srgb, var(--h-azul) 14%, var(--h-sup)); color: var(--h-tinta); }
+.orcv-sim, .orcv-nao { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+.orcv-sim svg, .orcv-nao svg { width: 15px; height: 15px; }
+.orcv-sim { color: var(--h-ok, #1f8a4c); } .orcv-nao { color: var(--h-tinta-3); }
+/* a ficha: Base esconde as colunas da Avançada */
+.orcv-ficha:not(.is-avancada) .is-av { display: none; }
+.orcv-seg { display: inline-flex; padding: 2px; border: 1px solid var(--h-borda); border-radius: var(--r-md, 6px); background: var(--h-sup-2); }
+.orcv-seg button { height: 30px; padding: 0 14px; border: 0; border-radius: var(--r-md, 5px); background: none; color: var(--h-tinta-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.orcv-seg button[aria-checked="true"] { background: var(--h-sup); color: var(--h-tinta); box-shadow: 0 1px 2px rgba(10, 20, 30, .14), inset 0 -2px 0 var(--h-azul); }
+.orcv-seg button:disabled { cursor: default; }
+.orcv-seg button:focus-visible { outline: 2px solid var(--h-azul); outline-offset: 1px; }
+.orcv-linhas input.is-num { width: 100%; min-width: 64px; }
+/* o fluxo do documento */
+.orcv-fluxo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0; padding: 0; list-style: none; }
+.orcv-fluxo > svg { width: 16px; height: 16px; color: var(--h-tinta-3); flex: none; }
+.orcv-fluxo li { display: grid; gap: 2px; min-width: 120px; padding: 8px 10px; border: 1px dashed var(--h-borda-forte, var(--h-borda)); border-radius: var(--r-md, 6px); color: var(--h-tinta-3); }
+.orcv-fluxo li b { font-size: 14px; } .orcv-fluxo li small { font-size: 13px; }
+.orcv-fluxo li.is-feito { border-style: solid; color: var(--h-tinta); }
+.orcv-fluxo li.is-atual { border: 2px solid var(--h-azul); color: var(--h-tinta); }
+.dv2.dv2--orcv .dv2-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.dv2.dv2--orcv .dv2-kpis > .minv2-kpi { grid-column: auto !important; order: 0 !important; }
+@media (max-width: 720px) { .dv2.dv2--orcv .dv2-kpis { grid-template-columns: minmax(0, 1fr) !important; } }

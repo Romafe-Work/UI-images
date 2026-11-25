@@ -82,6 +82,7 @@ import sigma from 'lucide-static/icons/sigma.svg?raw';
 import listIc from 'lucide-static/icons/list.svg?raw';
 import fileCheck from 'lucide-static/icons/file-check.svg?raw';
 import hourglass from 'lucide-static/icons/hourglass.svg?raw';
+import fileSpreadsheetIc from 'lucide-static/icons/file-spreadsheet.svg?raw';
 import fileMinus from 'lucide-static/icons/file-minus.svg?raw';
 import receipt from 'lucide-static/icons/receipt.svg?raw';
 import truck from 'lucide-static/icons/truck.svg?raw';
@@ -115,7 +116,7 @@ const A = (id: string, pai: string, rotulo: string, icone: string, om: number, s
 /** 18 nov. (Stocks): uma linha do menu Stocks do ERP antigo; com rota, já tem ecrã novo. */
 const T = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false, rota: string | null = null): LinhaMenu => ({ id, app: 'erp', modulo: 'stocks', pai, rotulo, icone, rota, ordem: om, permissoes: '*', ativo: true, so: rota ? undefined : 'menu', om, sep });
 /** 25 nov. (Vendas): uma linha do menu Vendas do ERP antigo; ainda sem ecrãs novos, só no menu. */
-const V = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false): LinhaMenu => ({ id, app: 'erp', modulo: 'vendas', pai, rotulo, icone, rota: null, ordem: om, permissoes: '*', ativo: true, so: 'menu', om, sep });
+const V = (id: string, pai: string, rotulo: string, icone: string, om: number, sep = false, rota: string | null = null): LinhaMenu => ({ id, app: 'erp', modulo: 'vendas', pai, rotulo, icone, rota, ordem: om, permissoes: '*', ativo: true, so: rota ? undefined : 'menu', om, sep });
 const S = (id: string, rotulo: string, icone: string, rota: string, ordem: number, permissoes: IdPerfil[] | '*' = '*'): LinhaMenu => ({ id, app: 'erp', modulo: 'compras', pai: 'compras', rotulo, icone, rota, ordem, permissoes, ativo: true });
 /** Os módulos do ERP antigo (a referência da migração) e, em Compras, o que já existe. */
 export const MENU_ERP: LinhaMenu[] = [
@@ -165,7 +166,8 @@ export const MENU_ERP: LinhaMenu[] = [
   /* 25 nov. (ela, com o print do menu Vendas do ERP antigo: «faz estas opções de menu para vendas»): a mesma ordem, os
      mesmos separadores e o submenu da Orçamentação; ainda sem ecrãs, por isso ficam desligados, como nas Compras */
   V('vendas-orcamentacao', 'vendas', 'Orçamentação', 'scale', 10),
-  V('vendas-orc-base', 'vendas-orcamentacao', 'Orçamentação Base', '', 10), V('vendas-orc-avancada', 'vendas-orcamentacao', 'Orçamentação Avançada', '', 20),
+  /* 25 nov. (ela: «base e avançado no mesmo screen»): as duas abrem o 80 · Orçamentação */
+  V('vendas-orc-base', 'vendas-orcamentacao', 'Orçamentação Base', 'file-spreadsheet', 10, false, 'vendas.orcamentacao'), V('vendas-orc-avancada', 'vendas-orcamentacao', 'Orçamentação Avançada', 'file-spreadsheet', 20, false, 'vendas.orcamentacao-avancada'),
   V('vendas-neg-base', 'vendas-orcamentacao', 'Negociação Base', '', 30, true), V('vendas-neg-avancada', 'vendas-orcamentacao', 'Negociação Avançada', '', 40),
   V('vendas-orc-fecho', 'vendas-orcamentacao', 'Fecho', '', 50, true), V('vendas-orc-historico', 'vendas-orcamentacao', 'Histórico', '', 60, true),
   V('vendas-proforma', 'vendas', 'Faturas Proforma', 'file-text', 20, true),
@@ -195,7 +197,7 @@ export const MENU_ERP: LinhaMenu[] = [
    crédito; Fornecedores e Requisições não estão no ERP antigo e vão para depois dos Mapas */
 const OM: Record<string, [number, boolean]> = { 'compras-faltas': [10, false], 'compras-cotacoes': [20, true], 'compras-encomendas': [40, true], 'compras-rececoes': [45, false], 'compras-devolucoes': [70, false], 'compras-fornecedores': [210, true], 'compras-requisicoes': [220, false] };
 MENU_ERP.forEach((l) => { const o = OM[l.id]; if (o) { l.om = o[0]; l.sep = o[1]; } });
-const ICONES: Record<string, string> = { sigma, list: listIc, 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
+const ICONES: Record<string, string> = { 'file-spreadsheet': fileSpreadsheetIc, sigma, list: listIc, 'layout-grid': layoutGrid, file, table, 'trending-up': trendingUp, boxes, 'hand-coins': handCoins, wallet, landmark, wrench, users, 'chart-column': chartColumn, 'file-text': fileText, 'sliders-horizontal': slidersHorizontal, 'monitor-cog': monitorCog, 'life-buoy': lifeBuoy, 'shopping-cart': shoppingCart, 'package-x': packageX, 'clipboard-list': clipboardList, scale, 'package-check': packageCheck, 'undo-2': undo2, 'folder-open': folderOpen, 'calendar-clock': calendarClock, 'user-star': userStar, 'file-input': fileInput, truck, receipt, 'file-minus': fileMinus, hourglass, 'file-check': fileCheck, 'chart-bar': chartBar,
   /* Ficheiros (23 out., Início v6) */
   package: packageIc, warehouse, 'folder-tree': folderTree, tag, ruler, house, keyboard: keyboardIc,
   /* Stocks (18 nov.) */
@@ -233,6 +235,9 @@ export const ROTAS: Record<string, Rota> = {
   'stocks.mapa-stocks': { ecra: 'stocks-mapa-stocks', titulo: 'Mapa de stocks', icone: 'boxes', acoes: ['atualizar', 'imprimir'] },
   'stocks.mapa-movimentos': { ecra: 'stocks-mapa-movimentos', titulo: 'Movimentos de artigos', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   'stocks.mapa-inventario': { ecra: 'stocks-mapa-inventario', titulo: 'Mapa de inventário', icone: 'clipboard-list', acoes: ['atualizar', 'imprimir'] },
+  /* 25 nov.: Vendas ▸ Orçamentação (Base e Avançada no mesmo ecrã; a Avançada abre já filtrada) */
+  'vendas.orcamentacao': { ecra: 'vendas-orcamentacao', titulo: 'Orçamentação', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
+  'vendas.orcamentacao-avancada': { ecra: 'orcv-so-avancada', titulo: 'Orçamentação avançada', icone: 'file-spreadsheet', acoes: ['atualizar', 'imprimir'] },
   'stocks.transf-armazens': { ecra: 'stocks-transf-armazens', titulo: 'Transferências entre armazéns', icone: 'arrow-left-right', acoes: ['atualizar', 'imprimir'] },
   /* os documentos (abrem a partir das listas, dos recentes e da paleta) */
   'compras.encomenda': { ecra: 'compras-encomenda', titulo: 'Encomenda', icone: 'file-text', acoes: ['editar', 'eliminar', 'atualizar', 'imprimir'] },
@@ -249,7 +254,7 @@ MENU_ANTIGO.forEach((id) => {
 });
 /* 26 out. (ela: «existe redundância»): os ecrãs com barra própria não levam a barra da área de trabalho por cima */
 /* 29 out. (ela: «título, subtítulo, atalhos e options»): todos os relatórios em tabela (cm-…) e os Ficheiros têm agora a barra deles, por baixo do título */
-const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-.+|ficheiros-.+|stocks-.+)$/;
+const BARRA_PROPRIA = /^(compras-faltas|compras-cotacoes|compras|cm-.+|ficheiros-.+|stocks-.+|vendas-.+|orcv-.+)$/;
 Object.values(ROTAS).forEach((r) => { if (BARRA_PROPRIA.test(r.ecra)) r.propria = true; });
 /* os dois itens que passaram a vistas das Encomendas: quem os tinha nos favoritos ou nos recentes abre as Encomendas na vista deles */
 ROTAS['compras.compras-agendamento'] = { ...ROTAS['compras.encomendas'], titulo: 'Encomendas', alias: 'compras.encomendas', modo: 'agenda' };

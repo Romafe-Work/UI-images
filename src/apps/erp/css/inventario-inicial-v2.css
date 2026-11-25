@@ -5,21 +5,21 @@
    e as vistas em cima das Encomendas (encomendas-v5.css). Claro e escuro pelos --h-*; verde só no lançado, vermelho só
    no anulado, laranja só na ação.
    ========================================================= */
-.dv2:is(.dv2--inv2, .dv2--tra2) { --minv2-gap: 12px; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) { --minv2-gap: 12px; }
 
 /* os indicadores: três que filtram (estados) e dois de valor (só os lançados) */
-.dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, .8fr)) repeat(2, minmax(0, 1.25fr)); gap: var(--minv2-gap); margin: 12px clamp(16px, 2vw, 28px) 0; }
-.dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis:empty { display: none; }
-.dv2:is(.dv2--inv2, .dv2--tra2) .inv2-k-anul .minv2-kpi-ic { background: color-mix(in srgb, var(--h-erro) 11%, transparent); color: var(--h-erro); }
-.dv2:is(.dv2--inv2, .dv2--tra2) .inv2-k-rasc .minv2-kpi-ic { background: color-mix(in srgb, var(--h-tinta-3) 14%, transparent); color: var(--h-tinta-2); }
-.dv2:is(.dv2--inv2, .dv2--tra2) .minv2-kpi b { font-size: 20px; }
-.dv2:is(.dv2--inv2, .dv2--tra2) .minv2-kpi.is-total b { font-size: 22px; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, .8fr)) repeat(2, minmax(0, 1.25fr)); gap: var(--minv2-gap); margin: 12px clamp(16px, 2vw, 28px) 0; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis:empty { display: none; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .inv2-k-anul .minv2-kpi-ic { background: color-mix(in srgb, var(--h-erro) 11%, transparent); color: var(--h-erro); }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .inv2-k-rasc .minv2-kpi-ic { background: color-mix(in srgb, var(--h-tinta-3) 14%, transparent); color: var(--h-tinta-2); }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .minv2-kpi b { font-size: 20px; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .minv2-kpi.is-total b { font-size: 22px; }
 
 /* a tabela: as observações numa linha, inteiras ao passar */
-.dv2:is(.dv2--inv2, .dv2--tra2) .inv2-notas { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .inv2-notas { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* cartões */
-.dv2:is(.dv2--inv2, .dv2--tra2) [data-dv2-vista-g] { padding: 12px; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) [data-dv2-vista-g] { padding: 12px; }
 .inv2-c-cab { display: flex; justify-content: flex-end; margin: 0 0 10px; }
 .inv2-ord { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--h-tinta-2); }
 .inv2-ord select { height: 32px; }
@@ -36,7 +36,7 @@
 .inv2-papel { font-size: 13px; color: var(--h-tinta-3); }
 .inv2-papel.is-vigor { color: color-mix(in srgb, var(--h-ok) 80%, var(--h-tinta)); font-weight: 650; }
 .inv2-papel.is-espera { color: color-mix(in srgb, var(--h-laranja) 80%, var(--h-tinta)); }
-.dv2:is(.dv2--inv2, .dv2--tra2) .inv2-pag { margin: 12px -12px -12px; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .inv2-pag { margin: 12px -12px -12px; }
 
 /* por armazém: a árvore */
 .inv2-arv { width: 100%; table-layout: fixed; }
@@ -88,16 +88,16 @@
 
 /* tablet e telemóvel */
 /* (as regras dos indicadores do 78 para ecrãs estreitos são globais: aqui repõe-se a ordem e a largura) */
-.dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi { order: 0; grid-column: auto; }
+.dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi { order: 0; grid-column: auto; }
 @media (max-width: 1180px) {
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi { grid-column: span 2; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: span 3; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi { grid-column: span 2; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: span 3; }
 }
 @media (max-width: 720px) {
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi, .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: span 1; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi.is-total { grid-column: 1 / -1; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi, .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: span 1; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi.is-total { grid-column: 1 / -1; }
   .inv2-arv col:nth-child(2), .inv2-arv col:nth-child(3) { width: 0 !important; }
   /* (escondidas sem sair da tabela: com display: none as células seguintes passavam às colunas de largura 0) */
   .inv2-arv tr:not(.inv2-y) > :is(th, td):is(:nth-child(2), :nth-child(3)) { visibility: hidden; padding: 0; border-left: 0; border-right: 0; overflow: hidden; white-space: nowrap; }
@@ -113,7 +113,7 @@
   .inv2-arv tr:not(.inv2-y) > :is(th, td):is(:nth-child(2), :nth-child(3)) > * { display: none; }
   .inv2-lanc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media print { .dv2:is(.dv2--inv2, .dv2--tra2) :is(.dv2-kpis, .dv2c-vistas-zona, .inv2-pag, .inv2-c-cab) { display: none !important; } .inv2-cartao footer .ak-btn { display: none; } }
+@media print { .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) :is(.dv2-kpis, .dv2c-vistas-zona, .inv2-pag, .inv2-c-cab) { display: none !important; } .inv2-cartao footer .ak-btn { display: none; } }
 
 /* os filtros rápidos têm mais um campo (o Período): Série · Pesquisa · Armazém · Estado · Período · Mais filtros */
 .dv2.dv2--inv2 .dv2-rapidos { grid-template-columns: minmax(110px, 140px) minmax(420px, 1fr) minmax(150px, 210px) minmax(140px, 180px) minmax(150px, 200px) auto; }
@@ -123,27 +123,27 @@
 }
 /* tablet estreito: a tabela perde as observações (veem-se no documento) */
 @media (max-width: 900px) {
-  .dv2:is(.dv2--inv2, .dv2--tra2) [data-dv2-grelha] col[data-dv2-w="notas"] { width: 0 !important; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) [data-dv2-grelha] :is(th[data-dv2-col="notas"], td[data-col="notas"]) { display: none; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) [data-dv2-grelha] col[data-dv2-w="notas"] { width: 0 !important; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) [data-dv2-grelha] :is(th[data-dv2-col="notas"], td[data-col="notas"]) { display: none; }
 }
 /* telemóvel: abre nos cartões (o .ts escolhe-os); filtros em duas colunas, a pesquisa numa linha própria (os modos por
    cima da caixa); a tabela, se se escolher, rola de lado dentro da sua caixa */
 @media (max-width: 760px) {
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-rapidos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-rapidos > * { grid-column: auto !important; grid-row: auto !important; min-width: 0; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-rapidos > .dv2-pesquisa, .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-rapidos > .lf2-mais-f { grid-column: 1 / -1 !important; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-rapidos > .lf2-mais-f { justify-self: start; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-pq { flex-wrap: wrap; height: auto; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-pq .dv2-modos { flex: 1 1 100%; overflow-x: auto; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-pq .lf2-pq-in { flex: 1 1 100%; min-height: 32px; border-top: 1px solid var(--h-borda); }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-pq .lf2-comp { border-top: 1px solid var(--h-borda); }
-  .dv2:is(.dv2--inv2, .dv2--tra2) [data-dv2-grelha] { overflow-x: auto; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) [data-dv2-grelha] > table { min-width: 620px; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: 1 / -1; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2c-vistas button span { display: none; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2c-vistas button { padding: 0 12px; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-rapidos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-rapidos > * { grid-column: auto !important; grid-row: auto !important; min-width: 0; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-rapidos > .dv2-pesquisa, .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-rapidos > .lf2-mais-f { grid-column: 1 / -1 !important; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-rapidos > .lf2-mais-f { justify-self: start; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-pq { flex-wrap: wrap; height: auto; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-pq .dv2-modos { flex: 1 1 100%; overflow-x: auto; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-pq .lf2-pq-in { flex: 1 1 100%; min-height: 32px; border-top: 1px solid var(--h-borda); }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-pq .lf2-comp { border-top: 1px solid var(--h-borda); }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) [data-dv2-grelha] { overflow-x: auto; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) [data-dv2-grelha] > table { min-width: 620px; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi:nth-last-child(-n + 2) { grid-column: 1 / -1; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2c-vistas button span { display: none; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2c-vistas button { padding: 0 12px; }
   .inv2-arv col:nth-child(1) { width: 52% !important; } .inv2-arv col:nth-child(4) { width: 20% !important; } .inv2-arv col:nth-child(5) { width: 28% !important; }
-  .dv2:is(.dv2--inv2, .dv2--tra2) .dv2-kpis > .minv2-kpi b { white-space: normal; font-size: 18px; }
+  .dv2:is(.dv2--inv2, .dv2--tra2, .dv2--orcv) .dv2-kpis > .minv2-kpi b { white-space: normal; font-size: 18px; }
 }
 /* Ordenar nos filtros (25 nov.): o texto da ordem cabe inteiro */
 .dv2-rapidos > .ak-campo:has(select[data-inv2-ord]) { grid-column: span 2; width: min(100%, 280px); }
