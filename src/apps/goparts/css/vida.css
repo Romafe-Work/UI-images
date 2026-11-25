@@ -20,41 +20,23 @@
 .portal--lateral .ped4__kpi dd { letter-spacing: -.01em; }
 
 /* =========================================================
-   (25 nov.) o fundo da app. Ela: «mais vida no bg… azul Romafe e laranja»; «o bg é feio» (duas vezes) e «quero algo
-   mais moderno». Terceira versão, na linha do Tern que ela mostrou (e logo «quero algo mais leve»: menos de metade da
-   intensidade, a aurora só no topo, pontos e grão quase invisíveis):
-   - quase preto, com grão fino de película por cima de tudo (ruído SVG, muito leve);
-   - no topo, uma aurora: o azul ROMAFE largo, um azul mais claro e um fio de laranja, que rodam devagar (60 s);
-   - uma malha de pontos (24 px) que só se vê na metade de cima e desaparece para baixo.
-   Atrás do conteúdo; os cartões ficam limpos. No claro, a mesma coisa em tons suaves. Com movimento reduzido, parada.
+   (25 nov.) o fundo da app. Depois de «o bg é feio», «quero algo mais moderno», «mais leve» e, por fim, «dá-me um bg
+   wow, lindo e simples e com mais vida»: o rolamento da ROMAFE, desenhado em traço fino e grande, a sair pelo canto de
+   cima à direita, por trás de todas as páginas. As esferas giram devagar à volta (90 s), uma delas laranja; o anel de
+   dentro roda ao contrário (60 s). Por trás, só um toque de luz azul no topo. Nada mais: sem pontos, sem grão.
+   O movimento está dentro do próprio desenho (SVG); com movimento reduzido usa-se o desenho parado.
    ========================================================= */
-.portal--lateral { isolation: isolate; --au-a: .24; --au-b: .12; --au-c: .08; --pontos: rgba(90, 169, 230, .08); --grao: .03; }
-:root:not([data-theme="dark"]) .portal--lateral { --au-a: .10; --au-b: .07; --au-c: .05; --pontos: rgba(0, 99, 170, .07); --grao: .02; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --au-a: .24; --au-b: .12; --au-c: .08; --pontos: rgba(90, 169, 230, .08); --grao: .03; } }
-[data-theme="dark"] .portal--lateral { --au-a: .24; --au-b: .12; --au-c: .08; --pontos: rgba(90, 169, 230, .08); --grao: .03; }
-/* a aurora (uma camada grande que roda, presa ao topo) */
-.portal--lateral::before {
-  content: ""; position: fixed; z-index: -1; pointer-events: none;
-  left: 50%; top: -80vh; width: 150vw; height: 110vh; margin-left: -75vw;
-  background:
-    radial-gradient(closest-side at 38% 62%, rgb(0 99 170 / var(--au-a)), transparent),
-    radial-gradient(closest-side at 62% 58%, rgb(42 143 216 / var(--au-b)), transparent),
-    radial-gradient(closest-side at 74% 70%, rgb(245 130 20 / var(--au-c)), transparent 70%);
-  filter: blur(40px); transform-origin: 50% 60%;
-}
-/* os pontos e o grão */
-.portal--lateral::after {
-  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E"),
-    radial-gradient(var(--pontos) 1px, transparent 1.4px);
-  background-size: 160px 160px, 24px 24px;
-  -webkit-mask-image: linear-gradient(#000, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .15));
-          mask-image: linear-gradient(#000, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .15));
-  opacity: 1;
-}
-@media (prefers-reduced-motion: no-preference) { .portal--lateral::before { animation: au-roda 60s linear infinite; } }
-@keyframes au-roda { to { transform: rotate(360deg); } }
+.portal--lateral { isolation: isolate; --rl-op: .65; --luz: .20; }
+:root:not([data-theme="dark"]) .portal--lateral { --rl-op: .45; --luz: .08; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --rl-op: .65; --luz: .20; } }
+[data-theme="dark"] .portal--lateral { --rl-op: .65; --luz: .20; }
+.portal--lateral::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(60vw 50vh at 78% -6vh, rgb(0 99 170 / var(--luz)), transparent 70%); }
+.portal--lateral::after { content: ""; position: fixed; z-index: -1; pointer-events: none;
+  right: -9vmax; top: -12vmax; width: 46vmax; height: 46vmax; opacity: var(--rl-op);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' fill='none' stroke='%232a8fd8' stroke-width='0.55' stroke-opacity='0.55'%3E%3Ccircle r='97'/%3E%3Ccircle r='82'/%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' from='0' to='360' dur='90s' repeatCount='indefinite'/%3E%3Ccircle r='68' stroke-dasharray='1.5 3' stroke-opacity='0.35'/%3E%3Ccircle cx='68.00' cy='0.00' r='9.5' stroke=%22%23f58214%22 stroke-opacity=%220.9%22/%3E%3Ccircle cx='58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='0.00' cy='68.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='-58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='-68.00' cy='0.00' r='9.5'/%3E%3Ccircle cx='-58.89' cy='-34.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='-0.00' cy='-68.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='58.89' cy='-34.00' r='9.5'/%3E%3C/g%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' from='0' to='-360' dur='60s' repeatCount='indefinite'/%3E%3Ccircle r='54'/%3E%3Ccircle r='40'/%3E%3Cpath d='M0-54v6M0 48v6M-54 0h6M48 0h6' stroke-opacity='0.4'/%3E%3C/g%3E%3Ccircle r='28' stroke-opacity='0.35'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (prefers-reduced-motion: reduce) { .portal--lateral::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' fill='none' stroke='%232a8fd8' stroke-width='0.55' stroke-opacity='0.55'%3E%3Ccircle r='97'/%3E%3Ccircle r='82'/%3E%3Cg%3E%3Ccircle r='68' stroke-dasharray='1.5 3' stroke-opacity='0.35'/%3E%3Ccircle cx='68.00' cy='0.00' r='9.5' stroke=%22%23f58214%22 stroke-opacity=%220.9%22/%3E%3Ccircle cx='58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='0.00' cy='68.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='-58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='-68.00' cy='0.00' r='9.5'/%3E%3Ccircle cx='-58.89' cy='-34.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='-0.00' cy='-68.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='58.89' cy='-34.00' r='9.5'/%3E%3C/g%3E%3Cg%3E%3Ccircle r='54'/%3E%3Ccircle r='40'/%3E%3Cpath d='M0-54v6M0 48v6M-54 0h6M48 0h6' stroke-opacity='0.4'/%3E%3C/g%3E%3Ccircle r='28' stroke-opacity='0.35'/%3E%3C/svg%3E"); } }
+@media (max-width: 900px) { .portal--lateral::after { width: 90vmax; height: 90vmax; right: -40vmax; top: -30vmax; } }
 
 /* =========================================================
    (25 nov.) a barra de cima. Ela: «feio também». Transparente sobre o fundo (a luz azul vê-se por trás), sem a linha
