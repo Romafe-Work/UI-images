@@ -87,9 +87,34 @@ function desenharAlertas(m: HTMLElement): void {
     }).join('')}</tbody></table></div>`;
 }
 
+/* ---------- «Tenho interesse»: o alerta nasce onde a peça está sem stock (portal/interesse.ts) ---------- */
+function veiculoDoContexto(): string {
+  /* o veículo em uso na garagem, se a pessoa veio de lá; senão, nenhum */
+  try { return localStorage.getItem('goparts:garagem-em-uso:v1') || ''; } catch { return ''; }
+}
+function marcarInteresse(): void {
+  const refs = new Set(lerAlertas().map((a) => a.ref));
+  document.querySelectorAll<HTMLButtonElement>('[data-sg-interesse]').forEach((b) => {
+    const tem = refs.has(b.dataset.sgInteresse!); b.classList.toggle('is-registado', tem); b.setAttribute('aria-pressed', String(tem));
+    const r = b.querySelector('.btn__rotulo'); if (r) r.textContent = tem ? 'Interesse registado' : 'Tenho interesse';
+  });
+}
+function interesse(b: HTMLElement): void {
+  const ref = b.dataset.sgInteresse!, as = lerAlertas();
+  if (!as.some((a) => a.ref === ref)) { as.unshift({ ref, carro: veiculoDoContexto(), criado: new Date().toLocaleDateString('pt-PT') }); gravarAlertas(as); }
+  marcarInteresse();
+  const r = REFERENCIAS.find((x) => x[2] === ref);
+  document.querySelector('.sg__brinde')?.remove();
+  const t = document.createElement('div'); t.className = 'sg__brinde'; t.setAttribute('role', 'status'); t.dataset.porCima = '';
+  t.innerHTML = `<span><b>${esc(r ? `${r[1]} ${r[2]}` : ref)}</b> ficou nos alertas: avisamos quando houver stock ou o prazo mudar.</span><button type="button" data-sg-brinde-alertas>Ver alertas</button>`;
+  document.body.append(t); window.setTimeout(() => t.remove(), 6000);
+  const a = vivo('alertas'); if (a) desenharAlertas(a);
+}
+
 /* ---------- o assistente ---------- */
 const CHAVE_BOT = 'goparts:assistente:desligado';
-const botDesligado = () => { try { return localStorage.getItem(CHAVE_BOT) === '1'; } catch { return false; } };
+/* (26 nov.) ela: «no bot não quero o botão de desligar» e «ativa-o novamente»: está sempre ligado (a escolha antiga apaga-se) */
+const botDesligado = () => { try { localStorage.removeItem(CHAVE_BOT); } catch { /* nada */ } return false; };
 const ir = (ecra: string, txt: string, chave?: string, valor?: string) => `<button type="button" class="bot__ir" data-bot-ir="${ecra}"${chave ? ` data-bot-chave="${chave}" data-bot-valor="${esc(valor!)}"` : ''}>${txt} ›</button>`;
 function responder(p: string): string {
   const q = p.toLowerCase(), n = norm(p);
@@ -113,7 +138,7 @@ function montarBot(): void {
   bot.innerHTML = `<button type="button" class="bot__abrir" data-bot-abrir aria-expanded="false" aria-controls="bot-painel" title="Assistente">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></svg><span class="sr-only">Assistente</span></button>
     <section class="bot__painel" id="bot-painel" role="dialog" aria-labelledby="bot-t" hidden>
-      <header class="bot__topo"><h2 id="bot-t">Assistente <small>sugestão</small></h2><button type="button" class="bot__acao" data-bot-desligar>Desligar</button><button type="button" class="bot__acao" data-bot-fechar aria-label="Fechar">×</button></header>
+      <header class="bot__topo"><h2 id="bot-t">Assistente <small>sugestão</small></h2><button type="button" class="bot__acao" data-bot-fechar aria-label="Fechar">×</button></header>
       <ol class="bot__conversa" data-bot-conversa aria-live="polite"><li class="bot__msg">Olá! Respondo com os dados da sua conta: pedidos, faturas, stock, equivalentes, devoluções e garagem. Não invento — o que não sei, digo.</li></ol>
       <div class="bot__sugestoes">${['Onde está o P2024/001233?', 'Faturas por pagar', 'Equivalentes VKBA 6556', 'Stock 538 0001 10'].map((s) => `<button type="button" data-bot-perg="${s}">${s}</button>`).join('')}</div>
       <form class="bot__form" data-bot-form><label class="sr-only" for="bot-q">Pergunta</label><input id="bot-q" autocomplete="off" placeholder="Escreva a sua pergunta"><button type="submit" class="btn btn--acao">Enviar</button></form>
@@ -125,16 +150,13 @@ function perguntar(t: string): void {
   c.insertAdjacentHTML('beforeend', `<li class="bot__msg bot__msg--eu">${esc(t)}</li><li class="bot__msg">${responder(t)}</li>`);
   c.scrollTop = c.scrollHeight;
 }
-function ajudaComBot(): void {
-  const aj = document.querySelector('.bc-ajuda'); if (!aj || aj.querySelector('[data-bot-ligar]') || !botDesligado()) return;
-  aj.querySelector('.bc-ajuda__apoio')?.insertAdjacentHTML('beforebegin', '<p class="bot__religar"><button type="button" data-bot-ligar>Ligar outra vez o assistente</button></p>');
-}
 
 export function iniciar(): void {
   const armar = () => {
     const c = vivo('comparador'); if (c && !c.dataset.sgPronto) { c.dataset.sgPronto = '1'; comparar(c); }
     const a = vivo('alertas'); if (a && !a.dataset.sgPronto) { a.dataset.sgPronto = '1'; desenharAlertas(a); }
-    montarBot(); ajudaComBot();
+    if (a) { let r: string | null = null; try { r = sessionStorage.getItem('goparts:alerta-ref'); sessionStorage.removeItem('goparts:alerta-ref'); } catch { /* nada */ } if (r) { $<HTMLSelectElement>(a, '[data-sg-alerta-ref]')!.value = r; $<HTMLElement>(a, '[data-sg-alerta-criar]')!.focus(); } }
+    montarBot(); marcarInteresse();
   };
   let pedido = 0; new MutationObserver(() => { if (!pedido) pedido = requestAnimationFrame(() => { pedido = 0; armar(); }); }).observe(document.body, { childList: true, subtree: true });
   requestAnimationFrame(armar);
@@ -153,20 +175,21 @@ export function iniciar(): void {
     let b: HTMLElement | null;
     if ((b = t.closest('[data-sg-ficha]'))) { abrirFicha(b.dataset.sgFab!, b.dataset.sgFicha!); return; }
     if ((b = t.closest('[data-sg-pedir]'))) { void carrinho.adicionar(b.dataset.sgPedir!, 1); return; }
+    if ((b = t.closest('[data-sg-interesse]'))) { interesse(b); return; }
+    if (t.closest('[data-sg-brinde-alertas]')) { document.querySelector('.sg__brinde')?.remove(); mostrar('alertas'); return; }
+    if ((b = t.closest('[data-sg-ir-alertas]'))) { try { sessionStorage.setItem('goparts:alerta-ref', b.dataset.sgRefAlerta!); } catch { /* nada */ } mostrar('alertas'); return; }
     if (m && t.closest('[data-sg-ler]')) { lerTexto(m, $<HTMLTextAreaElement>(m, '[data-sg-colar]')!.value); return; }
     if (m && t.closest('[data-sg-exemplo]')) { const u = URL.createObjectURL(new Blob(['referencia;quantidade\nVKBA 6556;2\nVKMV 6PK1873;1\n6PK1873;2\n538 0001 10;1\nVKBA;1\nGDB1550;4\n'], { type: 'text/csv' })); const a = document.createElement('a'); a.href = u; a.download = 'encomenda-exemplo.csv'; a.click(); URL.revokeObjectURL(u); return; }
     if (m && t.closest('[data-sg-lote-carrinho]')) { const ok = lotes.get(m)!.filter((l) => l.estado === 'ok' && l.r); void Promise.all(ok.map((l) => carrinho.adicionar(l.r![2], l.qtd))).then(() => aviso(m, `${ok.length} artigos no carrinho.`)); return; }
     if (m && t.closest('[data-sg-procurar]')) { procurarCodigo(m); return; }
     if (m && t.closest('[data-sg-alerta-criar]')) { const as = lerAlertas(), ref = $<HTMLSelectElement>(m, '[data-sg-alerta-ref]')!.value, carro = $<HTMLSelectElement>(m, '[data-sg-alerta-carro]')!.value; if (as.some((a) => a.ref === ref && a.carro === carro)) { aviso(m, 'Esse alerta já existe.'); return; } as.unshift({ ref, carro, criado: new Date().toLocaleDateString('pt-PT') }); gravarAlertas(as); desenharAlertas(m); aviso(m, `Alerta criado para ${ref}.`); return; }
-    if (m && (b = t.closest('[data-sg-alerta-tirar]'))) { const i = Number(b.dataset.sgAlertaTirar); void import('./confirmar').then(({ confirmar }) => confirmar({ titulo: 'Apagar este alerta?', texto: 'Deixa de ser avisado quando esta peça voltar a ter stock.', sim: 'Apagar o alerta' })).then((sim) => { if (!sim) return; const as = lerAlertas(); as.splice(i, 1); gravarAlertas(as); desenharAlertas(m); }); return; }
+    if (m && (b = t.closest('[data-sg-alerta-tirar]'))) { const i = Number(b.dataset.sgAlertaTirar); void import('./confirmar').then(({ confirmar }) => confirmar({ titulo: 'Apagar este alerta?', texto: 'Deixa de ser avisado quando esta peça voltar a ter stock.', sim: 'Apagar o alerta' })).then((sim) => { if (!sim) return; const as = lerAlertas(); as.splice(i, 1); gravarAlertas(as); desenharAlertas(m); marcarInteresse(); }); return; }
     /* o assistente */
     const bot = t.closest('.bot');
-    if (t.closest('[data-bot-ligar]')) { try { localStorage.removeItem(CHAVE_BOT); } catch { /* nada */ } t.closest('.bot__religar')?.remove(); montarBot(); return; }
     if (!bot) return;
     const painel = bot.querySelector<HTMLElement>('.bot__painel')!, abrir = bot.querySelector<HTMLElement>('[data-bot-abrir]')!;
     if (t.closest('[data-bot-abrir]')) { painel.hidden = !painel.hidden; abrir.setAttribute('aria-expanded', String(!painel.hidden)); if (!painel.hidden) bot.querySelector<HTMLInputElement>('#bot-q')!.focus(); return; }
     if (t.closest('[data-bot-fechar]')) { painel.hidden = true; abrir.setAttribute('aria-expanded', 'false'); abrir.focus(); return; }
-    if (t.closest('[data-bot-desligar]')) { try { localStorage.setItem(CHAVE_BOT, '1'); } catch { /* nada */ } bot.remove(); return; }
     if ((b = t.closest('[data-bot-perg]'))) { perguntar(b.dataset.botPerg!); return; }
     if ((b = t.closest('[data-bot-ir]'))) { if (b.dataset.botChave) try { sessionStorage.setItem(b.dataset.botChave, b.dataset.botValor!); } catch { /* nada */ } painel.hidden = true; mostrar(b.dataset.botIr!); }
   });

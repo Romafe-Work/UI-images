@@ -60,6 +60,7 @@ import './css/historico.css';
 import './css/sugestoes.css';
 import './css/fundo-v4.css';
 import './css/tema-galaxia.css';
+import './css/paineis-v2.css';
 import './comportamento/garagem-v2';
 import '../../comum/css/editor.css';
 

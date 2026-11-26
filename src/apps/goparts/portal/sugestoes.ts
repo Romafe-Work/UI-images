@@ -10,6 +10,7 @@
    Os ecrãs usam as peças do histórico (css/historico.css) e as suas (css/sugestoes.css).
    ========================================================= */
 import { L, GARAGEM, nomeCarro } from './inicio-espaco';
+import { interesseBtn } from './interesse';
 import { REFERENCIAS, euros, saida, equivalentes, type Referencia } from './catalogo-dados';
 import search from 'lucide-static/icons/search.svg?raw';
 import upload from 'lucide-static/icons/upload.svg?raw';
@@ -44,14 +45,17 @@ export function comparacao(ref: string, carro: string, ordem: string): string {
   const todas = [r, ...equivalentes(r)].sort((a, b) => (ordem === 'prazo' ? prazo(a) - prazo(b) || liquido(a) - liquido(b) : ordem === 'stock' ? (b[6] + b[7]) - (a[6] + a[7]) : liquido(a) - liquido(b)));
   const barata = Math.min(...todas.map(liquido)), c = GARAGEM.find((g) => g.matricula === carro);
   if (todas.length === 1) return `<div class="hx__vazio"><div><b>${esc(r[1])} ${esc(r[2])} não tem equivalências no catálogo.</b><p>Escolha outra peça, ou procure no Catálogo por grupo de montagem.</p></div></div>`;
+  /* (26 nov.) ela: «quero em cards lado a lado para comparar» — um cartão por opção, as mesmas linhas à mesma altura
+     (subgrid): referência, características, preço, disponibilidade, compatibilidade, ação */
   return `<p class="hx__conta"><b>${todas.length}</b> opções para «${esc(r[3])}»${c ? ` · para o ${esc(nomeCarro(c))} (${c.matricula})` : ''}</p>
-    <div class="hx__tabela-caixa"><table class="hx__tabela sg__cmp"><thead><tr><th scope="col">Referência</th><th scope="col">Características</th><th scope="col" class="hx__num">Preço da conta</th><th scope="col">Disponibilidade</th><th scope="col">Compatibilidade</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead>
-    <tbody>${todas.map((x) => `<tr class="${x === r ? 'is-escolhida' : ''}"><td><b class="sg__fab">${esc(x[1])}</b> <span class="hx__ref sg__ref">${esc(x[2])}</span>${x === r ? '<small class="sg__nota">a que escolheu</small>' : ''}</td>
-      <td>${esc(x[3])}</td>
-      <td class="hx__num"><b>${euros(liquido(x))}</b>${liquido(x) === barata ? '<small class="sg__melhor">a mais barata</small>' : `<small>+${euros(liquido(x) - barata)}</small>`}<small>PVP ${euros(x[4])}</small></td>
-      <td>${x[6] + x[7] ? `<span class="hx__estado hx__estado--ok"><span>${saida(x[6], x[7])}</span></span><small>Porto ${x[6]} · Sacavém ${x[7]}</small>` : `<span class="hx__estado hx__estado--atencao"><span>${saida(0, 0)}</span></span><small>Sem stock</small>`}</td>
-      <td><small>${c ? 'Confirmar na ficha para esta versão' : 'Escolha o veículo para confirmar'}</small><button type="button" class="hx__limpar sg__ficha" data-sg-ficha="${esc(x[2])}" data-sg-fab="${esc(x[1])}">Abrir a ficha</button></td>
-      <td class="hx__num"><button type="button" class="btn hx__btn sg__pedir" data-sg-pedir="${esc(x[2])}"${x[6] + x[7] ? '' : ' disabled title="Sem stock: crie um alerta de disponibilidade"'}>${L(cart, 'btn__icone')}<span class="btn__rotulo">Adicionar</span></button></td></tr>`).join('')}</tbody></table></div>`;
+    <ul class="sg__cartoes" role="list">${todas.map((x) => { const tem = x[6] + x[7] > 0; return `<li class="sg__cartao${x === r ? ' is-escolhida' : ''}${liquido(x) === barata ? ' is-barata' : ''}">
+      <div class="sg__c-cab"><span class="sg__fab">${esc(x[1])}</span><b class="hx__ref sg__ref">${esc(x[2])}</b>${x === r ? '<span class="sg__etq">A que escolheu</span>' : ''}</div>
+      <p class="sg__c-desc">${esc(x[3])}</p>
+      <div class="sg__c-preco"><b>${euros(liquido(x))}</b>${liquido(x) === barata ? '<span class="sg__melhor">A mais barata</span>' : `<span>+${euros(liquido(x) - barata)} do que a mais barata</span>`}<small>PVP ${euros(x[4])} · −${x[5]} %</small></div>
+      <div class="sg__c-disp"><span class="hx__estado hx__estado--${tem ? 'ok' : 'atencao'}"><span>${tem ? saida(x[6], x[7]) : saida(0, 0)}</span></span><small>${tem ? `Porto ${x[6]} · Sacavém ${x[7]}` : 'Sem stock agora'}</small></div>
+      <div class="sg__c-compat"><small>${c ? 'Confirme na ficha para esta versão.' : 'Escolha o veículo para confirmar.'}</small><button type="button" class="hx__limpar sg__ficha" data-sg-ficha="${esc(x[2])}" data-sg-fab="${esc(x[1])}">Abrir a ficha</button></div>
+      <div class="sg__c-acao">${tem ? `<button type="button" class="btn btn--acao" data-sg-pedir="${esc(x[2])}">${L(cart, 'btn__icone')}<span class="btn__rotulo">Adicionar ao carrinho</span></button>` : interesseBtn(x[2])}</div>
+    </li>`; }).join('')}</ul>`;
 }
 
 /* ---------- 4 · Encomenda em lote ---------- */

@@ -10,6 +10,7 @@
    ========================================================= */
 
 /** nome · fabricado desde · até ('' = ainda se fabrica) · carroçaria */
+import { interesseBtn } from './interesse';
 export type Modelo = [string, string, string, string];
 /** nome · combustível · kW · cv · cc · códigos do motor */
 type Motor = [string, string, number, number, number, string];
@@ -202,7 +203,7 @@ export function linhaReferencia(r: Referencia, i: number, ic: { imagem: string; 
     + `<td data-r="Descrição">${esc(desc)}<span class="cat5__grupo">${esc(grupo)}</span></td>`
     + `<td class="erp-num" data-r="Preço">${euros(preco)}</td><td class="erp-num" data-r="Desc.">${d}%</td>`
     + `<td class="erp-num cat5__liquido" data-r="Líquido">${euros(liquido)}</td>`
-    + `<td data-r="Stock"><span class="cat5__stock cat5__stock--${estado}" title="Porto ${porto} · Sacavém ${sacavem}">${ic.caixa}${stock === 0 ? 'Sem stock' : `${stock} un.`}</span><span class="cat5__armazens">Porto ${porto} · Sacavém ${sacavem}</span></td>`
+    + `<td data-r="Stock"><span class="cat5__stock cat5__stock--${estado}" title="Porto ${porto} · Sacavém ${sacavem}">${ic.caixa}${stock === 0 ? 'Sem stock' : `${stock} un.`}</span><span class="cat5__armazens">Porto ${porto} · Sacavém ${sacavem}</span>${stock === 0 ? interesseBtn(ref, 'sg__interesse--linha') : ''}</td>`
     /* pedir sem ir à ficha (crítica de 13 out.: a oficina sabe muitas vezes que peça quer) */
     + (ic.pedir !== undefined ? `<td class="cat5__pedir-ref" data-r="Pedir">${ic.pedir}<span class="cat5__saida">${saida(porto, sacavem)}</span></td>` : '')
     + '</tr>';

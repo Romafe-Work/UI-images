@@ -15,6 +15,7 @@
      página (e ela não quer), por isso o painel desvanece e desce 6 px;
    - ordenar por Ano, kW, cv ou cc: as linhas deslizam para o sítio (220 ms).
    ========================================================= */
+import { interesseBtn } from '../portal/interesse';
 import { azulejoPeca } from '../portal/pecas-img';
 import { linhasVeiculos5, veiculosDe, REFERENCIAS, linhaReferencia, fabricantesDe, euros, fichaDe, equivalentes, type Referencia } from '../portal/catalogo-dados';
 import cart from 'lucide-static/icons/shopping-cart.svg?raw';
@@ -479,7 +480,7 @@ export function abrirDetalhes(main: HTMLElement, fab: string, ref: string): void
     <div class="cat5__peca-compra">
       <p class="cat5__peca-preco"><span class="cat5__riscado">${euros(preco)}</span><span class="cat5__menos">−${d}%</span></p>
       <p class="cat5__peca-liq">${euros(liq)}<span>líquido, sem IVA</span></p>
-      <p class="cat5__peca-stock">${pastilha(porto + sacavem)}<span>Porto ${porto} · Sacavém ${sacavem}</span></p>
+      <p class="cat5__peca-stock">${pastilha(porto + sacavem)}<span>Porto ${porto} · Sacavém ${sacavem}</span></p>${porto + sacavem ? '' : interesseBtn(ref)}
       <div class="cat5__peca-pedir">${quantidade()}<button type="button" class="btn btn--acao cat5__adicionar">${L(cart, 'btn__icone')}<span class="btn__rotulo">Adicionar ao carrinho</span></button></div>
       <button type="button" class="btn btn--ghost cat5__lista" aria-pressed="false">${L(star, 'btn__icone')}<span class="btn__rotulo">Adicionar à minha lista</span></button>
     </div>`;

@@ -1,0 +1,56 @@
+/* =========================================================
+   PEÇA A PEÇA — painéis e carrinho melhores, apagar a vermelho, galáxia sem a espiral (26 nov. 2026)
+   Ela: «melhora [o carrinho]», «quero esta UI dos dialogs melhor», «quero todos os [caixotes] a vermelho na app
+   toda», «quero o tema galáxia mas sem a galáxia ali». Carregado no fim.
+   ========================================================= */
+
+/* ---------- os painéis da barra (carrinho, avisos, ajuda, conta) e os diálogos: o mesmo acabamento ---------- */
+.bc__caixa { border-color: var(--c-borda-forte); box-shadow: 0 18px 44px rgb(0 0 0 / .28); }
+.bc-pop { border-radius: var(--r-md); overflow: hidden; }
+.bc-pop__topo, .bc-carr__topo { padding: 14px 18px !important; border-bottom: 1px solid var(--c-borda); }
+.bc-carr__topo h2, .bc-pop__topo h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 17px; font-weight: 800; }
+.bc__conta { margin-left: 4px; padding: 2px 8px; border-radius: var(--r-md); background: var(--c-superficie-2); font-size: 12.5px; font-weight: 600; color: var(--c-texto-2); }
+.bc__fechar { border: 1px solid var(--c-borda-forte) !important; border-radius: var(--r-md) !important; }
+
+/* ---------- o carrinho: cada artigo um cartão; o tirar no canto; quantidade à esquerda e preço à direita ---------- */
+.bc-carr__linhas { display: grid; gap: 10px; padding: 12px 14px !important; }
+.bc-carr__linha { grid-template-columns: 48px minmax(0, 1fr) 36px; grid-template-areas: "img id tirar" "img qtd preco" !important; gap: 8px 12px; padding: 12px !important; border: 1px solid var(--c-borda) !important; border-radius: var(--r-md); background: var(--c-superficie-2); }
+.bc-carr__linha:hover { border-color: var(--c-borda-forte) !important; }
+.bc-carr__img { width: 48px; height: 48px; border-radius: var(--r-md); }
+.bc-carr__id { grid-area: id; display: grid; gap: 1px; }
+.bc-carr__id small { font-size: 12px; color: var(--c-texto-3); }
+.bc-carr__id b { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 14.5px; }
+.bc-carr__id > span:not(.bc-carr__disp) { font-size: 13px; color: var(--c-texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-carr__tirar { grid-area: tirar; justify-self: end; align-self: start; }
+.bc-carr__qtd { grid-area: qtd; justify-self: start; }
+.bc-carr__preco { grid-area: preco; justify-self: end; display: grid; justify-items: end; }
+.bc-carr__preco b { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.bc-carr__preco small { font-size: 12px; color: var(--c-texto-3); white-space: nowrap; }
+.bc-carr__desfazer { margin: 12px 14px 0 !important; border-radius: var(--r-md); }
+.bc-carr__pe { gap: 12px !important; padding: 16px 18px calc(16px + env(safe-area-inset-bottom)) !important; }
+.bc-carr__pe dl { display: grid; gap: 6px; margin: 0; }
+.bc-carr__pe dl div { display: flex; justify-content: space-between; font-size: 14px; color: var(--c-texto-2); }
+.bc-carr__pe dd { margin: 0; font-variant-numeric: tabular-nums; color: var(--c-texto); }
+.bc-carr__total { padding-top: 8px; border-top: 1px solid var(--c-borda); }
+.bc-carr__total dt { font-weight: 700; color: var(--c-texto) !important; }
+.bc-carr__total dd { font-size: 22px; font-weight: 800; }
+.bc-carr__pe .btn { min-height: 46px; justify-content: center; border-radius: var(--r-md); font-weight: 700; }
+/* o assistente não tapa os painéis abertos */
+body:has(.bc .bc__caixa) .bot, body:has(dialog[open]) .bot { display: none; }
+
+/* ---------- tirar e apagar: a vermelho em toda a app ---------- */
+:is(.portal, .bc, dialog) :is(.bc-carr__tirar, [data-tirar].bc-carr__tirar, [data-remover], [data-remover-carro], [data-eliminar], .dev__c-tirar, [data-sg-alerta-tirar]),
+:is(.portal, .bc, dialog) button svg:is([data-i="trash-2"], [data-i="trash"]) { color: var(--c-erro) !important; }
+:is(.portal, .bc) :is(.bc-carr__tirar, [data-remover], .dev__c-tirar):hover { background: var(--c-erro-suave) !important; }
+
+/* ---------- tema galáxia sem a galáxia espiral (ficam as estrelas e as nebulosas) ---------- */
+:root.tema-galaxia .portal--lateral::after { content: none !important; display: none !important; animation: none !important; }
+
+/* ---------- as barras de scroll das caixas e painéis: finas e no tom do tema ---------- */
+:is(.portal, .bc, dialog) :is(textarea, .bc-carr__linhas, .hx__gaveta-corpo, .bot__conversa, .hx__tabela-caixa) { scrollbar-width: thin; scrollbar-color: var(--c-borda-forte) transparent; }
+:is(.portal, .bc, dialog) textarea { resize: vertical; }
+/* os artigos do carrinho do tamanho do conteúdo (a lista não os estica para encher o painel) */
+.bc-carr__linhas { align-content: start; grid-auto-rows: max-content; }
+.bc-carr__linha { align-items: center; }
+.bc-carr__id { align-self: start; }
+.sg__c-cab .sg__etq { margin-left: 0; }

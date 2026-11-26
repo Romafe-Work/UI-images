@@ -12,6 +12,7 @@
    Filtros que os dados permitem: marca, família e «só com stock». A compatibilidade com um veículo não está nas
    referências de exemplo: a ficha da peça é que a confirma, e diz-se isso em cada resultado.
    ========================================================= */
+import { interesseBtn } from './interesse';
 import { REFERENCIAS, equivalentes, saida, type Referencia } from './catalogo-dados';
 import { euros } from './pedidos-dados';
 import { azulejoPeca } from './pecas-img';
@@ -100,6 +101,7 @@ export function resultadoHtml(a: Achado, i: number): string {
       <div class="pr__preco"><b>${euros(liquido(a.r))}</b><small>PVP ${euros(pvp)} · −${desc100} %</small><small>sem IVA</small></div>
       <div class="pr__accoes">
         ${btn('Adicionar', cart, ` data-pr-pedir="${esc(ref)}"`, 'btn--acao')}
+        ${porto + sacavem ? '' : interesseBtn(ref)}
         ${btn('Ver ficha', fileText, ` data-pr-ficha="${esc(ref)}" data-pr-fab="${esc(fab)}"`)}
       </div>
     </article>
