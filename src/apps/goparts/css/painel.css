@@ -322,8 +322,11 @@
 .gp-vt .ecra:not([hidden]) > .versao:not([hidden]) :is(.pn__pesquisar, .pq__modos) { view-transition-name: gp-pesquisa; }
 .gp-vt::view-transition-group(gp-pesquisa) { animation-duration: 320ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
 .gp-vt::view-transition-old(gp-pesquisa), .gp-vt::view-transition-new(gp-pesquisa) { height: 100%; object-fit: fill; }
-.gp-vt::view-transition-old(root) { animation: gp-sai 140ms cubic-bezier(.4, 0, 1, 1) both; }
-.gp-vt::view-transition-new(root) { animation: gp-entra 260ms cubic-bezier(.22, 1, .36, 1) 40ms both; }
+/* (26 nov.) ela: «sempre que mudo a opção de menu parece que recarrego uma página» — o conteúdo já não sai a subir
+   nem entra por baixo (era o que parecia um recarregar): troca logo, com a moldura parada. Na primeira visita de
+   cada ecrã entra o esqueleto (esqueleto-entrada.ts). As passagens com nome (pesquisa, foto da peça) mantêm-se. */
+.gp-vt::view-transition-old(root) { animation: none; display: none; }
+.gp-vt::view-transition-new(root) { animation: none; }
 @keyframes gp-sai { to { opacity: 0; transform: translateY(-6px); } }
 @keyframes gp-entra { from { opacity: 0; transform: translateY(8px); } }
 

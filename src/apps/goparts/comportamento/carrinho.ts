@@ -60,6 +60,8 @@ function mudar(fazer: () => void, ref: string, texto: string): Promise<boolean> 
 }
 export function adicionar(ref: string, qtd = 1): Promise<boolean> {
   const r = referencia(ref); if (!r || qtd < 1) return Promise.resolve(false);
+  /* (26 nov.) o produto voa para o carrinho do topo (voar-carrinho.ts), venha de onde vier o «Adicionar» */
+  window.dispatchEvent(new CustomEvent('carrinho:adicionado', { detail: { ref, qtd } }));
   return mudar(() => {
     const l = linhas.find((x) => x.ref === ref);
     if (l) l.qtd += qtd; else linhas.push({ ref, qtd });

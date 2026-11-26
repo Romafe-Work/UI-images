@@ -99,7 +99,9 @@ export function iniciar(): void {
   marcarBotoes();
   requestAnimationFrame(entrada);
   requestAnimationFrame(() => posicionar(false));
-  ['romafe:ecra', 'romafe:versao'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(() => { marcarBotoes(); posicionar(true); entrada(); })));
+  ['romafe:ecra', 'romafe:versao'].forEach((e) => document.addEventListener(e, () => requestAnimationFrame(() => { marcarBotoes(); posicionar(true); })));
+  /* (26 nov.) ela: «sempre que mudo a opção de menu parece que recarrego uma página» — a cascata dos itens só
+     entra quando o portal abre; ao mudar de ecrã a barra fica parada e só o indicador desliza */
   window.addEventListener('resize', () => posicionar(false), { passive: true });
   /* sem escolha guardada, a barra segue a largura da janela */
   window.matchMedia(ESTREITA).addEventListener('change', () => { if (!escolhida()) { porOmissao(); marcarBotoes(); requestAnimationFrame(() => posicionar(false)); } });

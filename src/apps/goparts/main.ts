@@ -26,6 +26,7 @@ import './css/devolucoes.css';
 import './css/tecnica.css';
 import './css/imagens.css';
 import './css/faturas.css';
+import './css/esqueleto-e-carrinho.css';
 import './erros/erros.css';
 import '../../comum/carregar/carregar.css';
 import './css/estados.css';
@@ -107,5 +108,8 @@ import { iniciar as sugestoes } from './comportamento/sugestoes';
 import { iniciar as temaPortal } from './comportamento/tema-portal';
 import { iniciar as carros3d } from './comportamento/carros-3d';
 import { iniciar as rolar } from './comportamento/rolar';
+import { iniciar as voarCarrinho } from './comportamento/voar-carrinho';
+import { iniciar as iconesBotoes } from './comportamento/icones-botoes';
+import { iniciar as esqueletoEntrada } from './comportamento/esqueleto-entrada';
 
-montar(goparts, [barra, lado, navegar, filtroChegada, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, aberturaMovel, inicioV3, inicioEspaco, catalogoV6, lista, painel, pesquisa, rodaModos, montra, carros3d, enterSeguinte, filtroBarra, rolar, vida, historico, devolucaoNova, sugestoes, temaPortal]);
+montar(goparts, [barra, lado, navegar, filtroChegada, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, aberturaMovel, inicioV3, inicioEspaco, catalogoV6, lista, painel, pesquisa, rodaModos, montra, carros3d, enterSeguinte, filtroBarra, rolar, vida, historico, devolucaoNova, sugestoes, temaPortal, voarCarrinho, iconesBotoes, esqueletoEntrada]);

@@ -282,6 +282,22 @@ const SECCOES: Res[] = [
   { grupo: 'Ir para', titulo: 'Minhas listas', sub: 'Orçamentos guardados', ic: IC.estrela, chaves: [], acao: () => ir('lista', 'goparts:lista-vista', 'listas') },
 ];
 let resultados: Res[] = [];
+/* (26 nov.) ela: «quando faço pesquisar vem para o meio do screen em vez de ficar por baixo» — a caixa abre
+   colada por baixo do campo do topo, com a largura dele (no mínimo 560 px), sem sair da janela. No telemóvel
+   (≤ 640 px) continua a ocupar o ecrã todo. */
+function colarAoCampo(el: HTMLElement): void {
+  const caixa = el.querySelector<HTMLElement>('.bc-pal'); if (!caixa) return;
+  const vw = document.documentElement.clientWidth; if (vw <= 640) return;
+  const campo = el.closest('.portal')?.querySelector<HTMLElement>('.portal__topo .procura');
+  const r = campo?.getBoundingClientRect(); if (!r || !r.width) return;
+  const w = Math.min(vw - 16, Math.max(r.width, 560));
+  caixa.style.width = `${w}px`;
+  caixa.style.marginLeft = '0';
+  caixa.style.left = `${Math.round(Math.max(8, Math.min(r.left, vw - w - 8)))}px`;
+  caixa.style.top = `${Math.round(r.bottom + 6)}px`;
+  caixa.style.maxHeight = `min(560px, calc(100vh - ${Math.round(r.bottom + 24)}px))`;
+  caixa.style.transformOrigin = 'top center';
+}
 let consulta = '';
 function abrirPesquisa(de: HTMLElement | null, texto = ''): void {
   const html = `<div class="bc__caixa bc-pal" role="dialog" aria-modal="true" aria-label="Pesquisa global">
@@ -293,6 +309,7 @@ function abrirPesquisa(de: HTMLElement | null, texto = ''): void {
     <footer class="bc-pal__pe"><span><kbd>↑</kbd><kbd>↓</kbd> escolher</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span><span class="bc-pal__fonte">Procura nos dados deste portal (exemplo)</span></footer>
   </div>`;
   const el = abrir('pesquisa', de, html); if (!el) return;
+  colarAoCampo(el);
   const inp = el.querySelector<HTMLInputElement>('input')!;
   pintarPesquisa(el, texto);
   requestAnimationFrame(() => { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); });
