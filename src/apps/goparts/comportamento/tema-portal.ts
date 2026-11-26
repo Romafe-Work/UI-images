@@ -7,24 +7,26 @@
 import { aplicar, actual } from '../../../comum/tema';
 
 const CHAVE = 'goparts:tema-galaxia';
-const galaxia = () => { try { return localStorage.getItem(CHAVE) === '1'; } catch { return false; } };
+/* (26 nov.) ela: «o dark mode é o tema galáxia» — o escuro tem sempre o céu; a Galáxia deixou de ser um terceiro tema */
 function escolhido(): string {
-  if (galaxia()) return 'galaxia';
   const t = actual();
   return t === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
 }
 function marcar(): void {
   const v = escolhido();
-  document.documentElement.classList.toggle('tema-galaxia', v === 'galaxia');
+  document.documentElement.classList.toggle('tema-galaxia', v === 'dark');
+  /* (26 nov.) «a galáxia deve estar no light mode too» */
+  document.documentElement.classList.toggle('tema-galaxia-claro', v === 'light');
   document.querySelectorAll<HTMLElement>('[data-tema-p]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.temaP === v)));
 }
 function escolher(v: string): void {
-  try { localStorage.setItem(CHAVE, v === 'galaxia' ? '1' : '0'); } catch { /* sem armazenamento */ }
+  try { localStorage.removeItem(CHAVE); } catch { /* sem armazenamento */ }
   aplicar(v === 'light' ? 'light' : 'dark');
   marcar();
 }
 export function iniciar(): void {
   marcar();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', marcar);
   document.addEventListener('click', (ev) => { const b = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-tema-p]'); if (b) escolher(b.dataset.temaP!); });
   /* os ecrãs constroem-se quando aparecem: os botões novos ficam marcados */
   let pedido = 0; new MutationObserver(() => { if (!pedido) pedido = requestAnimationFrame(() => { pedido = 0; marcar(); }); }).observe(document.body, { childList: true, subtree: true });
