@@ -19,10 +19,11 @@ import { goshop } from '../apps/goshop/app';
 import { goparts } from '../apps/goparts/app';
 import { mobile } from '../apps/mobile/app';
 import { identidade } from '../apps/identidade/app';
+import { inventario } from '../apps/inventario/app';
 import { DIAGRAMAS, TIPOS, PDA, type Diagrama, type No, type Tipo } from './dados';
 import { verificar } from './verificar';
 
-const APPS = { erp, goshop, goparts, mobile, identidade } as unknown as Record<IdApp, App>;
+const APPS = { erp, goshop, goparts, mobile, identidade, inventario } as unknown as Record<IdApp, App>;
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const escuro = () => document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);

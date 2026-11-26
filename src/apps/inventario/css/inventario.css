@@ -1,0 +1,220 @@
+/* =========================================================
+   INVENTÁRIO — as cores e as peças da app Kotlin (App.kt, objeto Cor)
+   Topo azul-marinho com ROMAFE azul em Motor; a ação a laranja; o alternativo de contorno azul. Claro por omissão,
+   escuro pelo botão do tema ou pelo sistema. Cantos md; só as iniciais são redondas.
+   ========================================================= */
+.inv {
+  --i-marinho: #0e1621; --i-azul: #0063aa; --i-azul-suave: #e3eef8; --i-laranja: #ee7f1a; --i-laranja-suave: #fdebd9;
+  --i-fundo: #f3f5f8; --i-sup: #ffffff; --i-tinta: #14202b; --i-tinta-2: #55636f; --i-borda: #d5dce3;
+  --i-ok: #2e7d32; --i-ok-suave: #e6f2e7; --i-erro: #c62828; --i-erro-suave: #fbe9e9; --i-topo-sub: #afc0d0;
+  --i-ligado: var(--i-azul);
+}
+[data-theme="dark"] .inv {
+  --i-marinho: #070c12; --i-azul-suave: #14283b; --i-laranja-suave: #3a2612;
+  --i-fundo: #11171e; --i-sup: #1a222b; --i-tinta: #eef2f6; --i-tinta-2: #a5b2bf; --i-borda: #2d3946;
+  --i-ok: #7cc47f; --i-ok-suave: #16291a; --i-erro: #f08a84; --i-erro-suave: #33191a; --i-ligado: #3d8fd1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .inv {
+    --i-marinho: #070c12; --i-azul-suave: #14283b; --i-laranja-suave: #3a2612;
+    --i-fundo: #11171e; --i-sup: #1a222b; --i-tinta: #eef2f6; --i-tinta-2: #a5b2bf; --i-borda: #2d3946;
+    --i-ok: #7cc47f; --i-ok-suave: #16291a; --i-erro: #f08a84; --i-erro-suave: #33191a; --i-ligado: #3d8fd1;
+  }
+}
+
+.inv {
+  position: relative; display: flex; flex-direction: column; height: 100%; min-height: 100%;
+  background: var(--i-fundo); color: var(--i-tinta); font-family: var(--f-base); font-size: 15px; line-height: 1.35;
+}
+.inv svg { width: 20px; height: 20px; flex: none; }
+.inv p { margin: 0; }
+
+/* no telemóvel de verdade (sem moldura) a página enche a janela e o pé fica preso em baixo; quem rola é a página */
+@media (max-width: 600px) {
+  .tela-telemovel body > .ecra > .versao > .inv { height: auto; min-height: 100vh; }
+  .tela-telemovel .inv__corpo { overflow: visible; }
+  .tela-telemovel .inv__topo { position: sticky; top: 0; z-index: 3; }
+  .tela-telemovel .inv__pe { position: sticky; bottom: 0; z-index: 3; }
+  .tela-telemovel .inv__veu { position: fixed; }
+}
+
+/* ---------- topo ---------- */
+.inv__topo { display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--i-marinho); color: #fff; flex: none; }
+.inv__marca { font-family: var(--f-marca); color: var(--c-logotipo); font-size: 18px; padding: 0 6px 0 8px; }
+.inv__titulos { flex: 1; min-width: 0; }
+.inv__titulos h1 { margin: 0; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inv__titulos p { color: var(--i-topo-sub); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inv__voltar, .inv__icone-topo, .inv__trocar {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px;
+  background: none; border: 0; border-radius: var(--r-md); color: #fff; font: inherit; font-size: 14px; cursor: pointer; padding: 0 8px;
+}
+.inv__icone-topo { color: var(--i-topo-sub); }
+.inv__trocar svg { width: 18px; height: 18px; }
+.inv__voltar:hover, .inv__icone-topo:hover, .inv__trocar:hover { background: rgba(255,255,255,.08); }
+
+/* ---------- a prateleira em grande ---------- */
+.inv__posicao { display: flex; justify-content: space-between; padding: 6px 16px; background: var(--i-azul); color: #fff; flex: none; }
+.inv__posicao span { display: flex; flex-direction: column; align-items: center; }
+.inv__posicao small { color: #cfe2f3; font-size: 12px; }
+.inv__posicao b { font-family: var(--f-mono); font-size: 24px; font-weight: 900; line-height: 1.1; }
+
+/* ---------- corpo e pé ---------- */
+.inv__corpo { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.inv__pe { flex: none; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: var(--i-sup); border-top: 1px solid var(--i-borda); }
+.inv__par { display: flex; gap: 10px; }
+.inv__par > * { flex: 1; min-width: 0; }
+.inv__par > .inv__btn--largo { flex: 1.3; }
+
+/* ---------- botões: todos com ícone e texto ---------- */
+.inv__btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 0 14px;
+  border-radius: var(--r-md); font: inherit; font-weight: 700; cursor: pointer; text-align: center;
+  transition: background-color var(--tr), border-color var(--tr), transform 120ms var(--ease-out);
+}
+.inv__btn:active:not(:disabled) { transform: scale(.98); }
+.inv__btn--acao { min-height: 52px; background: var(--i-laranja); color: #fff; border: 0; font-size: 17px; }
+.inv__btn--acao:hover:not(:disabled) { background: var(--c-acao-premido); }
+.inv__btn--perigo { background: var(--i-erro); }
+.inv__btn--perigo:hover:not(:disabled) { background: var(--i-erro); filter: brightness(.92); }
+.inv__btn--sec { min-height: 48px; background: var(--i-sup); color: var(--i-azul); border: 1px solid var(--i-azul); font-size: 15px; }
+[data-theme="dark"] .inv__btn--sec { color: var(--i-ligado); border-color: var(--i-ligado); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .inv__btn--sec { color: var(--i-ligado); border-color: var(--i-ligado); } }
+.inv__btn--sec:hover:not(:disabled) { background: var(--i-azul-suave); }
+.inv__btn:disabled { background: var(--i-borda); color: var(--i-tinta-2); border-color: var(--i-borda); cursor: not-allowed; }
+.inv__btn--sec:disabled { background: var(--i-sup); }
+.inv__btn span { min-width: 0; }
+
+/* ---------- o alvo da leitura ---------- */
+.inv__alvo {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 112px; padding: 14px;
+  background: var(--i-sup); border: 2px solid var(--i-azul); border-radius: var(--r-md); text-align: center; cursor: pointer;
+  transition: background-color 100ms, border-color 100ms;
+}
+.inv__alvo.is-cresce { flex: 1; }
+.inv__alvo .inv__alvo-ic { width: 38px; height: 38px; color: var(--i-azul); margin-bottom: 4px; }
+.inv__alvo-titulo { font-size: 20px; font-weight: 900; }
+.inv__alvo-sub { color: var(--i-tinta-2); }
+.inv__alvo-dica { color: var(--i-tinta-2); font-size: 12px; margin-top: 2px !important; }
+.inv__alvo.is-lido { border-color: var(--i-laranja); background: var(--i-laranja-suave); }
+.inv__alvo.is-lido .inv__alvo-ic { color: var(--i-laranja); }
+.inv__alvo.is-erro { border-color: var(--i-erro); background: var(--i-erro-suave); }
+.inv__alvo.is-erro .inv__alvo-ic { color: var(--i-erro); }
+.inv__alvo.is-erro .inv__alvo-sub { color: var(--i-erro); font-weight: 700; }
+.inv__camara-btn {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 9px 14px; min-height: 44px;
+  background: none; border: 1px solid var(--i-azul); border-radius: var(--r-md); color: var(--i-azul); font: inherit; font-weight: 700; cursor: pointer;
+}
+
+/* ---------- cartões, linhas, números ---------- */
+.inv__rotulo { color: var(--i-tinta-2); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px !important; }
+.inv__cartao { background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); padding: 12px; }
+.inv__cartao[data-ir] { cursor: pointer; transition: border-color var(--tr); }
+.inv__cartao[data-ir]:hover { border-color: var(--i-azul); }
+.inv__linha { display: flex; align-items: center; gap: 10px; }
+.inv__cresce { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.inv__cresce small, .inv__direita small { color: var(--i-tinta-2); font-size: 13px; }
+.inv__direita { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+.inv__iniciais { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--i-azul); color: #fff; font-weight: 700; flex: none; }
+.inv__nome { flex: 1; font-size: 16px; }
+.inv__seta { color: var(--i-laranja); }
+.inv__mais { display: inline-flex; align-items: center; gap: 4px; color: var(--i-laranja); font-weight: 700; }
+.inv__codigo { font-family: var(--f-mono); font-weight: 700; font-size: 16px; overflow-wrap: anywhere; }
+.inv__codigo--grande { font-size: 18px; }
+.inv__texto { font-size: 15px; }
+.is-azul { color: var(--i-ligado); }
+.inv__est--ok { color: var(--i-ok) !important; } .inv__est--erro { color: var(--i-erro) !important; } .inv__est--meio { color: var(--i-laranja) !important; }
+
+.inv__numeros { display: flex; gap: 10px; }
+.inv__numero { flex: 1; min-width: 0; padding: 10px 12px; background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); display: flex; flex-direction: column; }
+.inv__numero b { font-size: 24px; font-weight: 900; line-height: 1.1; }
+.inv__numero span { color: var(--i-tinta-2); font-size: 13px; }
+.inv__numero.is-destaque { background: var(--i-laranja-suave); border-color: var(--i-laranja); }
+
+.inv__aviso { padding: 10px; border-radius: var(--r-md); font-size: 14px; }
+.inv__aviso--erro { background: var(--i-erro-suave); color: var(--i-erro); }
+.inv__aviso--ok { background: var(--i-ok-suave); color: var(--i-ok); }
+.inv__aviso--laranja { background: var(--i-laranja-suave); color: var(--i-tinta); }
+.inv__aviso--azul { background: var(--i-azul-suave); color: var(--i-tinta); }
+.inv__dica, .inv__info, .inv__nada { color: var(--i-tinta-2); font-size: 14px; }
+.inv__nada { padding: 6px 0; }
+
+.inv__ligada { display: flex; align-items: center; gap: 6px; padding: 6px 0; min-height: 44px; background: none; border: 0; font: inherit; color: var(--i-tinta-2); font-size: 13px; text-align: left; cursor: pointer; }
+.inv__ligada svg { width: 18px; height: 18px; }
+.inv__ligada span { flex: 1; }
+.inv__ligada b { color: var(--i-ligado); font-size: 14px; }
+
+.inv__feito { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--i-ok-suave); border-radius: var(--r-md); }
+.inv__feito > svg { width: 28px; height: 28px; color: var(--i-ok); }
+.inv__feito div { display: flex; flex-direction: column; }
+.inv__feito b { color: var(--i-ok); font-size: 16px; }
+.inv__feito span { color: var(--i-tinta-2); font-size: 14px; }
+.inv__feito strong { font-size: 14px; }
+
+/* ---------- as linhas contadas ---------- */
+.inv__cab-linhas { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.inv__cab-linhas b { color: var(--i-tinta-2); font-size: 14px; }
+.inv__linhas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.inv__lin { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); cursor: pointer; transition: background-color 140ms, border-color 140ms; }
+.inv__lin.is-ultima { background: var(--i-laranja-suave); border-color: var(--i-laranja); }
+.inv__qtd { font-size: 24px; font-weight: 900; color: var(--i-ligado); }
+.inv__lin.is-ultima .inv__qtd { color: var(--i-laranja); }
+.inv__lapis { width: 18px !important; height: 18px !important; color: var(--i-tinta-2); }
+.inv__linhas--resumo li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--i-sup); border-radius: var(--r-md); }
+.inv__linhas--resumo strong { font-size: 19px; font-weight: 900; color: var(--i-ligado); }
+
+/* ---------- fotografias ---------- */
+.inv__fotos { display: flex; gap: 10px; }
+.inv__foto { flex: 1; min-width: 0; min-height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px; background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); font: inherit; color: var(--i-tinta); cursor: pointer; text-align: center; }
+.inv__foto svg { width: 28px; height: 28px; color: var(--i-azul); }
+.inv__foto small { color: var(--i-tinta-2); font-size: 12px; }
+.inv__foto.is-obrigatoria { border: 2px solid var(--i-laranja); }
+.inv__foto.is-obrigatoria svg { color: var(--i-laranja); }
+.inv__foto.is-feita { background: var(--i-ok-suave); border-color: var(--i-ok); }
+.inv__foto.is-feita svg { color: var(--i-ok); }
+
+/* ---------- campos ---------- */
+.inv__campo { display: flex; flex-direction: column; gap: 4px; }
+.inv__campo span { font-size: 13px; color: var(--i-tinta-2); }
+.inv__campo input { min-height: 48px; padding: 0 12px; border: 1px solid var(--i-borda); border-radius: var(--r-md); background: var(--i-sup); color: var(--i-tinta); font: inherit; font-size: 16px; min-width: 0; width: 100%; box-sizing: border-box; }
+.inv__campo input:focus { outline: 2px solid var(--i-azul); outline-offset: -1px; border-color: var(--i-azul); }
+.inv__campo input.is-mono { font-family: var(--f-mono); }
+.inv__campo.is-erro input { border-color: var(--i-erro); }
+.inv__campo small { color: var(--i-erro); font-size: 12px; }
+
+.inv__interruptor { position: relative; width: 48px; height: 28px; flex: none; border-radius: 999px; background: var(--i-borda); cursor: pointer; transition: background-color var(--tr); }
+.inv__interruptor i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: var(--s-1); transition: transform 180ms var(--ease-out); }
+.inv__interruptor.is-ligado { background: var(--i-ligado); }
+.inv__interruptor.is-ligado i { transform: translateX(20px); }
+.inv__interruptor.is-inativo { opacity: .45; pointer-events: none; }
+
+/* ---------- diálogos e o «a falar com o ERP» ---------- */
+.inv__veu { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.55); animation: inv-veu 160ms ease-out; }
+.inv__dialogo { width: 100%; max-width: 360px; max-height: 100%; overflow-y: auto; box-sizing: border-box; padding: 18px; background: var(--i-sup); color: var(--i-tinta); border-radius: var(--r-md); box-shadow: var(--s-3); display: flex; flex-direction: column; gap: 12px; animation: inv-dialogo 180ms var(--ease-out); }
+.inv__dialogo h2 { margin: 0; font-size: 19px; }
+.inv__dialogo-corpo { display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.inv__dialogo-botoes { display: flex; flex-direction: column-reverse; gap: 8px; }
+.inv__passo { display: flex; align-items: center; gap: 10px; }
+.inv__passo input { flex: 1; min-width: 0; min-height: 52px; text-align: center; font: inherit; font-size: 26px; font-weight: 900; border: 1px solid var(--i-borda); border-radius: var(--r-md); background: var(--i-sup); color: var(--i-tinta); }
+.inv__quadrado { width: 52px; height: 52px; flex: none; display: grid; place-items: center; border: 1px solid var(--i-azul); border-radius: var(--r-md); background: none; color: var(--i-azul); cursor: pointer; }
+.inv__ocupado { display: flex; align-items: center; gap: 12px; padding: 18px; background: var(--i-marinho); color: #fff; font-weight: 700; font-size: 16px; border-radius: var(--r-md); }
+.inv__roda { width: 20px; height: 20px; flex: none; border: 3px solid rgba(255,255,255,.3); border-top-color: var(--i-laranja); border-radius: 50%; animation: inv-roda .8s linear infinite; }
+@keyframes inv-veu { from { opacity: 0; } }
+@keyframes inv-dialogo { from { opacity: 0; transform: scale(.96); } }
+@keyframes inv-roda { to { transform: rotate(360deg); } }
+
+/* ---------- a câmara ---------- */
+.inv--camara { background: #000; }
+.inv--camara .inv__corpo { padding: 0; }
+.inv__visor { flex: 1; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 45%, #2b3540 0%, #0b0f14 75%); }
+.inv__mira { position: relative; width: 82%; height: 150px; border: 3px solid #fff; border-radius: var(--r-md); overflow: hidden; transition: border-color 100ms; }
+.inv__mira.is-lido { border-color: var(--i-laranja); }
+.inv__feixe { position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: var(--i-laranja); box-shadow: 0 0 8px var(--i-laranja); animation: inv-feixe 2.2s ease-in-out infinite alternate; }
+@keyframes inv-feixe { from { transform: translateY(-50px); } to { transform: translateY(50px); } }
+.inv__lida { display: flex; align-items: center; gap: 10px; }
+.inv__lida .inv__codigo { flex: 1; font-size: 18px; }
+.inv__lida strong { font-size: 26px; font-weight: 900; color: var(--i-laranja); }
+
+@media (prefers-reduced-motion: reduce) {
+  .inv__feixe, .inv__roda { animation: none; }
+  .inv__veu, .inv__dialogo { animation: none; }
+}
