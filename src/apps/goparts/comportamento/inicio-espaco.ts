@@ -364,8 +364,43 @@ function redesenharGaragem(ini: HTMLElement, mudar: (g: Carro[]) => void, depois
   });
   depois?.(novo);
 }
+/* (26 nov.) garagem v3: mudar a ordem dos lugares (arrastar, ou «Passar para…»); o lugar 01 é o favorito */
+function moverCarro(ini: HTMLElement, id: string, para: number): void {
+  redesenharGaragem(ini, (g) => {
+    const de = g.findIndex((x) => x.id === id); if (de < 0) return;
+    const [c] = g.splice(de, 1); g.splice(Math.max(0, Math.min(para, g.length)), 0, c);
+    g.forEach((x, i) => { x.favorito = i === 0; });
+  }, (b) => {
+    b.querySelector<HTMLElement>(`[data-carro="${id}"] [data-menu-carro]`)?.focus({ preventScroll: true });
+    const n = Array.from(b.querySelectorAll('.gar3__lugar[data-carro]')).findIndex((x) => (x as HTMLElement).dataset.carro === id) + 1;
+    brinde(ini, `<b>${b.querySelector(`[data-carro="${id}"] [data-nome]`)?.textContent ?? ''}</b> passou para o lugar ${String(n).padStart(2, '0')}${n === 1 ? ' (favorito)' : ''}.`);
+  });
+}
+let arrastado = '';
+document.addEventListener('dragstart', (ev) => {
+  const li = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-gar3] .gar3__lugar[data-carro]'); if (!li) return;
+  arrastado = li.dataset.carro!; ev.dataTransfer?.setData('text/plain', arrastado); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move';
+  li.classList.add('is-a-arrastar');
+});
+document.addEventListener('dragover', (ev) => {
+  if (!arrastado) return;
+  const li = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-gar3] .gar3__lugar:not(.gar3__lugar--vazio)'); if (!li) return;
+  ev.preventDefault(); if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move';
+  li.closest('.gar3__lugares')?.querySelectorAll('.is-alvo').forEach((x) => x !== li && x.classList.remove('is-alvo')); li.classList.add('is-alvo');
+});
+document.addEventListener('dragend', () => { arrastado = ''; document.querySelectorAll('.gar3__lugar.is-alvo, .gar3__lugar.is-a-arrastar').forEach((x) => x.classList.remove('is-alvo', 'is-a-arrastar')); });
+document.addEventListener('drop', (ev) => {
+  if (!arrastado) return;
+  const li = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-gar3] .gar3__lugar:not(.gar3__lugar--vazio)'); if (!li) return;
+  ev.preventDefault();
+  const ini = li.closest<HTMLElement>('.ini4')!, lugares = Array.from(li.parentElement!.querySelectorAll<HTMLElement>('.gar3__lugar[data-carro]'));
+  const para = li.dataset.carro ? lugares.indexOf(li) : lugares.length - 1, id = arrastado; arrastado = '';
+  document.querySelectorAll('.gar3__lugar.is-alvo, .gar3__lugar.is-a-arrastar').forEach((x) => x.classList.remove('is-alvo', 'is-a-arrastar'));
+  if (lugares.findIndex((x) => x.dataset.carro === id) !== para) moverCarro(ini, id, para);
+});
 function favorito(ini: HTMLElement, li: HTMLElement): void {
   const id = li.dataset.carro!;
+  if (ini.hasAttribute('data-gar3')) { li.closest<HTMLElement>('.ini4')!.querySelector('.ini4__menu:not([hidden])')?.setAttribute('hidden', ''); if (li.previousElementSibling) moverCarro(ini, id, 0); return; }
   let agora = false;
   /* (26 nov.) um só favorito: é o do lugar 01 (ela: «todas as ações devem fazer sentido») */
   redesenharGaragem(ini, (g) => { const c = g.find((x) => x.id === id); if (c) { c.favorito = !c.favorito; agora = c.favorito; if (agora) g.forEach((x) => { if (x !== c) x.favorito = false; }); } }, (b) => {
@@ -683,6 +718,7 @@ export function iniciar(): void {
     /* garagem */
     if ((b = q('[data-favorito]'))) { favorito(ini, b.closest<HTMLElement>('.ini4__carro')!); return; }
     if ((b = q('[data-menu-carro]'))) { const m = b.nextElementSibling as HTMLElement, abrir = m.hidden; ini.querySelectorAll<HTMLElement>('.ini4__menu').forEach((x) => { x.hidden = true; x.previousElementSibling?.setAttribute('aria-expanded', 'false'); }); m.hidden = !abrir; b.setAttribute('aria-expanded', String(abrir)); if (abrir) { m.querySelector<HTMLElement>('[role="menuitem"]')?.focus(); entrar(m, 140, 'translateY(-4px)'); } return; }
+    if ((b = q('[data-gar3-mover]'))) { const li = b.closest<HTMLElement>('.ini4__carro')!; b.closest<HTMLElement>('.ini4__menu')!.hidden = true; const i = Array.from(li.parentElement!.querySelectorAll('.gar3__lugar[data-carro]')).indexOf(li); moverCarro(ini, li.dataset.carro!, i + Number(b.dataset.gar3Mover)); return; }
     if ((b = q('[data-renomear]'))) { const li = b.closest<HTMLElement>('.ini4__carro')!; b.closest<HTMLElement>('.ini4__menu')!.hidden = true; renomear(li); return; }
     /* (26 nov.) ela: apagar pergunta sempre primeiro (comportamento/confirmar.ts) */
     if ((b = q('[data-remover-carro]'))) {

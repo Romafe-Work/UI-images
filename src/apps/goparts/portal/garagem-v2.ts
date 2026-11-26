@@ -15,6 +15,7 @@
 import { L, IC, type Carro, type Dados, versaoDe, marcaNome, modeloCurto, carrocariaDe } from './inicio-espaco';
 import { silhueta } from './carros';
 import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
+import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const btn = (texto: string, icone: string, extra = '', cls = '') => `<button type="button" class="btn ini4__btn gar2__btn${cls ? ` ${cls}` : ''}"${extra}>${L(icone, 'btn__icone')}<span class="btn__rotulo">${texto}</span></button>`;
@@ -120,16 +121,16 @@ function deCima(c: Carro): string {
 }
 const lugarN = (i: number) => String(i + 1).padStart(2, '0');
 
-function lugarV3(c: Carro, i: number): string {
+function lugarV3(c: Carro, i: number, n = 1): string {
   const v = versaoDe(c), base = `${marcaNome(c.marca)} ${modeloCurto(c.marca, c.modelo)}`, nome = c.nome || base, idNome = `gar3-n-${c.id}`;
   const ficha: [string, string][] = [['Ano', String(c.ano)]];
   if (v) ficha.push(['Combustível', v.combustivel], ['Potência', `${v.kw} kW · ${v.cv} cv`], ['Cilindrada', `${v.cc.toLocaleString('pt-PT')} cm³`], ['Motor', v.motor.split(',')[0]]);
-  const fav = c.favorito ? 'Favorito: fica no lugar 01 (tirar)' : 'Marcar como favorito: passa para o lugar 01';
-  return `<li class="ini4__carro gar2__carro gar3__lugar" data-carro="${c.id}" data-matricula="${c.matricula}" aria-labelledby="${idNome}">
+  const fav = i === 0 ? 'Favorito: está no lugar 01' : 'Pôr no lugar 01 (favorito)';
+  return `<li class="ini4__carro gar2__carro gar3__lugar" data-carro="${c.id}" data-matricula="${c.matricula}" aria-labelledby="${idNome}" draggable="true">
     <div class="gar3__canto">
-      <button type="button" class="gar2__icone gar3__icone ini4__estrela" data-favorito aria-pressed="${!!c.favorito}" aria-label="${fav}" title="${fav}">${L(IC.star)}</button>
+      <button type="button" class="gar2__icone gar3__icone ini4__estrela" data-favorito data-gar3-lugar1 aria-pressed="${i === 0}" aria-label="${fav}" title="${fav}">${L(IC.star)}</button>
       <div class="ini4__menu-sitio gar2__menu-sitio"><button type="button" class="gar2__icone gar3__icone ini4__carro-mais" data-menu-carro aria-haspopup="menu" aria-expanded="false" aria-label="Mais ações para ${c.matricula}" title="Mudar o nome ou tirar da garagem">${L(IC.ellipsis)}</button>
-        <ul class="ini4__menu" role="menu" hidden><li role="none"><button type="button" role="menuitem" data-renomear>${L(IC.pencil)}Mudar o nome</button></li><li role="none"><button type="button" role="menuitem" data-remover-carro>${L(IC.trash)}Tirar da garagem</button></li></ul></div>
+        <ul class="ini4__menu" role="menu" hidden>${i > 0 ? `<li role="none"><button type="button" role="menuitem" data-gar3-mover="-1">${L(arrowLeft)}Passar para o lugar ${lugarN(i - 1)}</button></li>` : ''}${i < n - 1 ? `<li role="none"><button type="button" role="menuitem" data-gar3-mover="1">${L(IC.arrowRight)}Passar para o lugar ${lugarN(i + 1)}</button></li>` : ''}<li role="none"><button type="button" role="menuitem" data-renomear>${L(IC.pencil)}Mudar o nome</button></li><li role="none"><button type="button" role="menuitem" data-remover-carro>${L(IC.trash)}Tirar da garagem</button></li></ul></div>
     </div>
     <div class="gar3__chao" data-gar3-abrir title="Ver as peças compatíveis com ${esc(nome)}">
       <span class="gar3__luz" aria-hidden="true"></span>
@@ -165,9 +166,10 @@ function livreV3(i: number): string {
   </li>`;
 }
 export function garagemV3Html(d: Dados): string {
-  const carros = d.garagem.slice().sort((a, b) => Number(!!b.favorito) - Number(!!a.favorito)), n = carros.length;
+  /* (26 nov.) a ordem é a da pessoa (arrastar, ou «Passar para…» no «…»); o lugar 01 é o favorito */
+  const carros = d.garagem.slice(), n = carros.length;
   return `<section class="ini4__bloco gar2__bloco gar3__bloco" data-bloco="garagem" aria-labelledby="gar3-lista-t">
     <h2 id="gar3-lista-t" class="sr-only">Veículos na garagem</h2>
-    <ul class="ini4__garagem gar2__lista gar3__lugares" aria-label="${n} ${n === 1 ? 'veículo' : 'veículos'} na garagem">${carros.map((c, i) => lugarV3(c, i)).join('')}${livreV3(n)}</ul>
+    <ul class="ini4__garagem gar2__lista gar3__lugares" aria-label="${n} ${n === 1 ? 'veículo' : 'veículos'} na garagem">${carros.map((c, i) => lugarV3(c, i, n)).join('')}${livreV3(n)}</ul>
   </section>`;
 }

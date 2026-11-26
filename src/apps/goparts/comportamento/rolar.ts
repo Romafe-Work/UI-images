@@ -63,7 +63,17 @@ function medirFaixas(portal: HTMLElement): void {
     let janela = sec.querySelector<HTMLElement>(':scope > .rl-janela');
     if (!janela) { janela = document.createElement('div'); janela.className = 'rl-janela'; janela.dataset.faixa = ''; janela.append(...Array.from(sec.childNodes)); sec.append(janela); }
     const ligar = !quieto() && !editando() && window.matchMedia('(min-width: 768px)').matches && !sec.closest('[data-estado]');
-    sec.classList.toggle('rl-horizontal', ligar);
+    /* (26 nov.) ela: «isto deve andar sozinha» — a faixa anda em contínuo (css/rolar.css, .rl-anda), não com o scroll;
+       uma cópia das categorias (escondida aos leitores e fora do Tab) fecha o ciclo; para com o rato ou o foco */
+    sec.classList.toggle('rl-anda', ligar);
+    if (ligar && !pista.dataset.copia) {
+      pista.dataset.copia = '1';
+      const n = pista.children.length;
+      Array.from(pista.children).forEach((li) => { const c = li.cloneNode(true) as HTMLElement; c.setAttribute('aria-hidden', 'true'); c.querySelectorAll('button, a').forEach((b) => b.setAttribute('tabindex', '-1')); pista.append(c); });
+      pista.style.setProperty('--rl-n', String(n));
+    }
+    sec.classList.remove('rl-horizontal'); sec.style.removeProperty('height'); pista.style.transform = '';
+    if (ligar) return;
     pista.style.transform = '';
     if (!ligar) { sec.style.removeProperty('height'); return; }
     const cs = getComputedStyle(janela), livre = janela.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);

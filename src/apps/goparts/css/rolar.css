@@ -45,3 +45,15 @@
   .rl-progresso, .pn__ola, .ini4__veiculo-img svg, .ini4__carro-img svg { animation: none !important; }
   .rl-progresso { display: none; }
 }
+/* (26 nov.) ela: «isto deve andar sozinha» — as categorias da Pesquisar peças andam em contínuo para a esquerda
+   (meia pista = um ciclo, porque a segunda metade é a cópia); param com o rato ou o foco; sem movimento: paradas */
+.rl-anda .rl-janela { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.rl-anda .ini4__categorias { display: flex; width: max-content; flex-wrap: nowrap; gap: 12px; animation: rl-anda calc(var(--rl-n, 10) * 4s) linear infinite; }
+.rl-anda .ini4__categorias > li { flex: none; width: 170px; }
+.rl-anda .ini4__categoria { width: 100%; }
+.rl-anda .rl-janela:hover .ini4__categorias, .rl-anda .rl-janela:focus-within .ini4__categorias { animation-play-state: paused; }
+@keyframes rl-anda { to { transform: translateX(calc(-50% - 6px)); } }
+@media (prefers-reduced-motion: reduce) { .rl-anda .ini4__categorias { animation: none; } .rl-anda .rl-janela { overflow-x: auto; } }
+.rl-anda .rl-janela { -webkit-mask-image: none; mask-image: none; }
+.rl-anda .ini4__categoria { min-height: 120px; }
+.rl-anda .ini4__categoria svg:first-child { width: 44px; height: 44px; }

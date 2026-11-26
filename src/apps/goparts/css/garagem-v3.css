@@ -138,3 +138,34 @@
 .gar3 .gar3__ficha dd { font-size: 13.5px; white-space: nowrap; overflow-wrap: normal; }
 .gar3 .gar3__ficha div:nth-child(3) { grid-column: 1 / -1; }
 .gar3 .gar3__ficha div:last-child:nth-child(5) { grid-column: auto; }
+
+/* =========================================================
+   (26 nov.) ela: «quero tudo alinhado», «dá espaço nos cards», «só quero 5 per row», «all buttons devem estar
+   alinhados». Cada lugar ocupa 6 linhas da grelha (o chão + 5 da placa: nome, versão, ficha, última pesquisa,
+   ações) e partilha-as com os vizinhos por subgrid — o mesmo texto, à mesma altura, em todos os lugares da fila.
+   No máximo 5 lugares por fila (minmax(max(210px, 20%), 1fr)).
+   ========================================================= */
+.gar3 .gar3__lugares.ini4__garagem { grid-template-columns: repeat(auto-fill, minmax(max(210px, 20%), 1fr)); row-gap: 0; }
+.gar3 .gar3__lugares > .gar3__lugar { grid-row: span 6; display: grid; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); }
+.gar3 .gar3__lugares > .gar3__lugar > .gar3__chao { grid-row: 1; }
+.gar3 .gar3__lugares > .gar3__lugar > .gar3__info { grid-row: 2 / span 5; display: grid; grid-template-rows: subgrid; align-content: stretch; gap: 0; padding: 18px 20px 20px; }
+.gar3 .gar3__info > .gar2__linha1 { padding-bottom: 4px; }
+.gar3 .gar3__info > .gar2__versao { padding-bottom: 14px; }
+.gar3 .gar3__info > .gar3__ficha { margin: 0; padding-bottom: 14px; row-gap: 10px; }
+.gar3 .gar3__info > .gar2__ultima { margin: 0; padding-bottom: 18px; align-self: start; }
+.gar3 .gar3__info > .gar3__acoes { margin: 0; align-self: end; }
+/* o lugar livre nas mesmas linhas: título, ajuda, matrícula (e o erro por baixo), botão alinhado com os outros */
+.gar3 .gar3__novo > .gar3__novo-t { grid-row: 1; padding-bottom: 4px; }
+.gar3 .gar3__novo > #gar3-novo-ajuda { grid-row: 2; padding-bottom: 14px; }
+.gar3 .gar3__novo > .gar3__placa { grid-row: 3; align-self: start; }
+.gar3 .gar3__novo > .gar3__erro { grid-row: 4; align-self: start; padding-top: 6px; }
+.gar3 .gar3__novo > .gar3__identificar { grid-row: 5; align-self: end; width: 100%; }
+/* arrastar para mudar a ordem */
+.gar3 .gar3__lugar[draggable="true"] .gar3__chao { cursor: grab; }
+.gar3 .gar3__lugar.is-a-arrastar { opacity: .45; }
+.gar3 .gar3__lugar.is-alvo .gar3__chao { box-shadow: inset 0 0 0 3px var(--gar2-azul); }
+@media (max-width: 767.98px) { .gar3 .gar3__lugares.ini4__garagem { grid-template-columns: minmax(0, 1fr); } }
+.gar3 .gar3__info > :not(.gar3__acoes):not(.gar3__identificar) { align-self: start; }
+.gar3 .gar3__identificar.btn .btn__rotulo, .gar3 .gar3__acoes .btn .btn__rotulo { white-space: nowrap; }
+.gar3 .gar3__identificar.btn { justify-content: center; }
+.gar3 .gar3__acoes .btn, .gar3 .gar3__identificar.btn { height: 40px; min-height: 40px; }

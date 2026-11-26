@@ -14,6 +14,7 @@
    Os desenhos das peças são ilustrativos (pecas-img.ts); não há fotografias inventadas nem especificações a mais.
    Comportamento: comportamento/montra.ts. CSS: css/montra.css.
    ========================================================= */
+import { destaquesHtml } from './pesquisa-destaques';
 import { REFERENCIAS, saida } from './catalogo-dados';
 import { LINHAS_TODAS, ETAPAS, alertasPn, euros } from './painel-dados';
 import { PEDIDOS } from './pedidos-dados';
@@ -257,12 +258,12 @@ const final = () => `<section class="mt__sec mt__final" aria-labelledby="mt-fim-
     </div>
   </section>`;
 
-export function montraHtml(e: EstadoMontra = '', opt: { cont2?: boolean } = {}): string {
+export function montraHtml(e: EstadoMontra = '', opt: { cont2?: boolean; destaques?: boolean } = {}): string {
   const aviso = e === 'offline' ? `<p class="mt__aviso" role="status">${L(wifiOff)}<span><b>Sem ligação.</b> Os preços e o stock são os da última vez que a página carregou.</span></p>` : '';
   const sessao = e === 'sessao' ? `<div class="mt__sessao" data-por-cima role="alertdialog" aria-modal="true" aria-labelledby="mt-s-t"><div class="mt__veu"></div><div class="mt__dialogo"><span class="mt__dialogo-icone">${L(lock)}</span><h2 id="mt-s-t">A tua sessão expirou.</h2><p>Por segurança, entra outra vez. Voltas a esta página.</p><button type="button" class="btn btn--acao mt__btn" data-login>${L(logIn, 'btn__icone')}<span class="btn__rotulo">Iniciar sessão</span></button></div></div>` : '';
   return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--mt">
   <main class="mt${e === 'sem-3d' ? ' is-sem-3d' : ''}" data-ex="rolamento"${e ? ` data-estado="${e}"` : ''}${e === 'sessao' ? ' inert aria-hidden="true"' : ''}>
-    ${aviso}${abertura(e)}${maisPesquisados(e)}${compradas(e)}${opt.cont2 && e !== 'primeira' && e !== 'parcial' ? continuarV2() : continuar(e)}${final()}
+    ${aviso}${abertura(e)}${opt.destaques && !['primeira', 'carga'].includes(e) ? destaquesHtml() : ''}${maisPesquisados(e)}${compradas(e)}${opt.cont2 && e !== 'primeira' && e !== 'parcial' ? continuarV2() : continuar(e)}${final()}
   </main>${sessao}
   <p class="sr-only" role="status" aria-live="polite" data-mt-aviso></p>
 </div>`;

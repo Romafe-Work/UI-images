@@ -433,7 +433,7 @@ export function garagemHtml(d: Dados, e: EstadoEspaco = '', escolhida = ''): str
 const CATS = ['Travagem', 'Suspensão', 'Óleo motor', 'Bateria', 'Filtros', 'Iluminação', 'Correias', 'Embraiagem', 'Direção', 'Ar condicionado'];
 export function categoriasHtml(d: Dados, e: EstadoEspaco = ''): string {
   return bloco('categorias', `<ul class="ini4__categorias">${e === 'carga' || e === 'esqueleto' ? esq(10, 'ini3__categoria') : CATS.map((n) => `<li><button type="button" class="ini3__categoria ini4__categoria" data-categoria="${n}">${CAT_SVG[n]}<span>${n}</span>${L(arrowUpRight, 'ini4__cat-seta')}</button></li>`).join('')}</ul>`, d,
-    `<a href="#" class="ini4__mais" data-ir="catalogo">Todas as categorias${L(chevronRight)}</a>`);
+    `<button type="button" class="ini4__mais" data-pq-universal>Todas as categorias${L(chevronRight)}</button>`);
 }
 
 /* ---------- Peças que compras frequentemente ---------- */

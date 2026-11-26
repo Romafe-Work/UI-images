@@ -15,6 +15,7 @@
    - Os botões levam aos ecrãs verdadeiros (pesquisa no modo certo e já escrita, catálogo num grupo ou numa
      referência, pedido, veículo, lista); «Adicionar ao carrinho» usa o carrinho a sério.
    ========================================================= */
+import { versaoDe } from '../portal/inicio-espaco';
 import { Scene, PerspectiveCamera, WebGLRenderer, Object3D, Vector3, Vector2, Raycaster, Color, ACESFilmicToneMapping, SRGBColorSpace, type Mesh, type MeshPhysicalMaterial } from 'three';
 import { ambiente } from './rolamento-3d';
 import { criarModelo, EXEMPLOS, type IdExemplo, type Modelo } from './modelos-3d';
@@ -229,7 +230,7 @@ export function iniciar(): void {
     if ((b = t.closest('[data-mt-grupo]'))) { abrirCatalogo({ tipo: 'grupo', grupo: b.dataset.mtGrupo! }); return; }
     if ((b = t.closest('[data-mt-ficha]'))) { abrirCatalogo({ tipo: 'ref', fab: b.dataset.mtFab!, ref: b.dataset.mtFicha! }); return; }
     if ((b = t.closest('[data-mt-pedir]'))) { void pedir1(b as HTMLButtonElement); return; }
-    if ((b = t.closest('[data-pecas-matricula]'))) { const c = garagem().find((g) => g.matricula === b!.dataset.pecasMatricula); if (c) abrirCatalogo({ tipo: 'modelo', marca: c.marca, modelo: c.modelo }); return; }
+    if ((b = t.closest('[data-pecas-matricula]'))) { const c = garagem().find((g) => g.matricula === b!.dataset.pecasMatricula); if (c) { const v = versaoDe(c)?.versao; abrirCatalogo({ tipo: 'modelo', marca: c.marca, modelo: c.modelo, ...(v ? { versao: v } : {}) }); } return; }
     if ((b = t.closest('[data-abrir-pedido]'))) { try { sessionStorage.setItem('goparts:abrir-pedido', b.dataset.abrirPedido!); } catch { /* abre os pedidos */ } irPara('pedidos'); return; }
     if ((b = t.closest('[data-ir-doc]'))) { if (b.dataset.chave) try { sessionStorage.setItem(b.dataset.chave, b.dataset.valor ?? ''); } catch { /* abre só o ecrã */ } irPara(b.dataset.irDoc!); }
   });
