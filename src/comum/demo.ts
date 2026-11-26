@@ -15,7 +15,6 @@
    sai e entra). Sem ela, ou com «reduzir movimento», a troca é instantânea.
    ========================================================= */
 import { ler, mostrar, mostrarVersao, definirTransicao, transitar, type Sentido } from './ecras';
-import { actual as temaActual } from './tema';
 import './css/demo.css';
 import { temRoteiro, roteiros, roteirosDoEcra, tocar as tocarRato, iniciar as iniciarRato } from './demo-rato';
 
@@ -182,7 +181,6 @@ export function iniciar(): void {
     <label class="demo-barra__anim"><span>Animação</span>
       <select class="demo-barra__select">${opcoesAnimacao(inicial)}</select>
     </label>
-    <div class="demo-barra__tema" role="group" aria-label="Tema">${([['light', 'Claro', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'], ['dark', 'Escuro', '<path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z"/>'], ['auto', 'Auto', '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>']] as const).map(([k, n, d]) => `<button type="button" class="segmented__btn demo-barra__tema-btn" data-tema="${k}" aria-pressed="${temaActual() === k}" title="Tema ${n.toLowerCase()}">${I(d)}<span>${n}</span></button>`).join('')}</div>
     <button type="button" class="demo-barra__botao" data-demo="ant">${I('<path d="m15 5-7 7 7 7"/>')}<span>Anterior</span></button>
     <span class="demo-barra__onde" aria-live="polite"></span>
     <button type="button" class="demo-barra__botao" data-demo="seg"><span>Seguinte</span>${I('<path d="m9 5 7 7-7 7"/>')}</button>

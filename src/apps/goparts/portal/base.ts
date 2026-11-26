@@ -7,7 +7,7 @@
    ========================================================= */
 import type { IdGoParts } from '../ids';
 
-export type IdPortal = Extract<IdGoParts, 'garagem' | 'inicio' | 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica'>;
+export type IdPortal = Extract<IdGoParts, 'garagem' | 'inicio' | 'pesquisa' | 'catalogo' | 'pedidos' | 'guias' | 'faturas' | 'lista' | 'devolucoes' | 'tecnica' | 'comparador' | 'lote' | 'foto' | 'alertas'>;
 
 /** De que produto é o portal: o Peça A Peça, ou o GoShop, que usa a mesma moldura
     (8 out. 2026, para os ecrãs de carregamento das duas apps). `ligar` diz se
@@ -52,6 +52,11 @@ function topo(p: Produto, menu = false, definicoes = false): string {
       <button type="button" class="portal__icone portal__lupa-movel" data-barra="pesquisa" aria-label="Pesquisar" aria-haspopup="dialog">${I('<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', ' data-i="search"')}</button>
       <button type="button" class="portal__icone" data-barra="avisos" aria-label="Mensagens" aria-haspopup="dialog" aria-expanded="false" data-dica="Mensagens e avisos">${I('<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 6 9-6"/>', ' data-i="mail"')}<span class="portal__ponto" aria-hidden="true"></span></button>
       <button type="button" class="portal__icone" data-barra="ajuda" aria-label="Ajuda" aria-haspopup="dialog" aria-expanded="false" data-dica="Ajuda">${I('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.6 2.6 0 1 1 3.4 2.5c-.7.3-1 .8-1 1.6v.3"/><path d="M12 17.4h.01"/>', ' data-i="circle-help"')}</button>
+      <div class="portal__temas" role="group" aria-label="Tema">
+        <button type="button" class="portal__tema" data-tema-p="light" aria-pressed="false" aria-label="Tema claro" data-dica="Claro">${I('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}</button>
+        <button type="button" class="portal__tema" data-tema-p="dark" aria-pressed="false" aria-label="Tema escuro" data-dica="Escuro">${I('<path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z"/>')}</button>
+        <button type="button" class="portal__tema" data-tema-p="galaxia" aria-pressed="false" aria-label="Tema galáxia" data-dica="Galáxia">${I('<path d="M12 3c-4 0-7 2.5-7 5.5S8 13 12 13s7 2.5 7 5.5-3 3.5-7 3.5"/><circle cx="12" cy="12" r="1.5"/><path d="M19 3v2M18 4h2M5 19v2M4 20h2"/>')}</button>
+      </div>
       <button type="button" class="portal__icone" data-barra="carrinho" aria-label="Carrinho, 3 artigos" aria-haspopup="dialog" aria-expanded="false" data-dica="Carrinho">${I('<path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 7H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>', ' data-i="shopping-cart"')}<span class="portal__selo" aria-hidden="true">3</span></button>
       ${definicoes ? `<button type="button" class="portal__icone" data-barra="definicoes" aria-label="Definições" aria-haspopup="dialog" aria-expanded="false" data-dica="Definições">${I('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>', ' data-i="settings"')}</button>` : ''}
       <button type="button" class="conta" data-barra="conta" aria-haspopup="menu" aria-expanded="false" aria-label="Conta de Fernando F. França, Porto">
@@ -96,11 +101,18 @@ function rodape(): string {
 const GARAGEM: typeof ABAS[number] = ['garagem', 'A minha garagem', '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>', 'car'];
 const PESQUISA: typeof ABAS[number] = ['pesquisa', 'Pesquisar peças', '<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>', 'search'];
 /* (21 out.) ela: «só título mesmo» — saíram os subtítulos do Início e da Pesquisa */
-const SUB: Partial<Record<IdPortal, string>> = {};
-const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'garagem', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']]];
+/* (26 nov.) as quatro sugestões, por baixo da Minha lista, com «(sugestão)» por baixo do nome */
+const SUB: Partial<Record<IdPortal, string>> = { comparador: '(sugestão)', lote: '(sugestão)', foto: '(sugestão)', alertas: '(sugestão)' };
+const SUGESTOES: typeof ABAS[number][] = [
+  ['comparador', 'Comparador', '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>', 'arrow-left-right'],
+  ['lote', 'Encomenda em lote', '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2M14 13h2M8 17h2M14 17h2"/>', 'file-spreadsheet'],
+  ['foto', 'Pesquisa por foto', '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/><circle cx="12" cy="13" r="3"/>', 'camera'],
+  ['alertas', 'Alertas de stock', '<path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/><path d="M15 8h6M18 5v6"/><path d="M20.4 14.5c.4 1.1 1 1.6 1.6 2.5H2c1.3-1.4 2.6-2.7 2.6-7.4A7.4 7.4 0 0 1 14 4.3"/>', 'bell-plus'],
+];
+const GRUPOS: [string, IdPortal[]][] = [['Principal', ['inicio', 'garagem', 'pesquisa', 'catalogo']], ['Documentos', ['pedidos', 'guias', 'faturas', 'devolucoes']], ['Ferramentas', ['tecnica', 'lista']], ['Sugestões', ['comparador', 'lote', 'foto', 'alertas']]];
 const NOME_LADO: Partial<Record<IdPortal, string>> = { tecnica: 'Informação técnica' };
 function lado(ativa: IdPortal | null, p: Produto): string {
-  const todas = [...ABAS, PESQUISA, GARAGEM];
+  const todas = [...ABAS, PESQUISA, GARAGEM, ...SUGESTOES];
   /* (25 nov.) ela: «é assim que quero» (o menu de lado do Tern): o nome em maiúsculas; os números saíram («remove os números») */
   const item = ([id, nome0, d, ic]: typeof ABAS[number]) => { const nome = (id && NOME_LADO[id]) || nome0, sub = id ? SUB[id] : undefined;
     return `<li><button type="button" class="lado__item${sub ? ' lado__item--sub' : ''}"${id && p.ligar ? ` data-ir="${id}"` : ' disabled'} data-lado-item="${id}" data-dica="${nome}"${id && id === ativa ? ' aria-current="page"' : ''}>${I(d, ic ? ` data-i="${ic}"` : '')}<span class="lado__rotulo">${nome}${sub ? `<small class="lado__sub">${sub}</small>` : ''}</span></button></li>`; };

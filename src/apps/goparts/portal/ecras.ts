@@ -25,6 +25,7 @@ import { catalogoV5 } from './catalogo-v5';
 export const catalogoV6 = () => catalogoV5.replace('class="portal ', 'class="portal portal--ini3 portal--cat6 ').replace('<main class="cat2 cat3 cat4 cat5"', '<main class="cat2 cat3 cat4 cat5 cat6"');
 import { pedidosV4 } from './pedidos-v4';
 import { pedidosV6 } from './pedidos-v6';
+import { comparadorHtml, loteHtml, fotoHtml, alertasHtml } from './sugestoes';
 
 const FLUXO = 'Portal';
 
@@ -105,6 +106,11 @@ export const ecrasPortal: EcraGoParts[] = [
   { id: 'tecnica', nome: '17 · Informações técnicas', fluxo: FLUXO, versoes: [{ id: 'v2', nota: 'Do segundo briefing (15 out., «Automotive Engineering Workspace») e da nota dela («usaria o modelo 3D como porta de entrada»): três áreas — a navegação (recolhe-se a ícones), o conteúdo e o contexto (fecha-se); o carro em 3D na Visão geral (ilustrativo; a câmara vai ao sistema escolhido, exterior/técnica); a vista explodida do rolamento 6206; esquemas e fusíveis em galeria; o visor com as miniaturas; ao ler, o documento fica com o espaço', html: portal('tecnica', tecnicaV1(), undefined, { menu: true, rodape: false }) }],
     objetivo: 'Consultar a informação técnica de um veículo: escolhê-lo pela marca, modelo ou código do motor, e depois a manutenção, a reparação, o diagnóstico e os esquemas do WorkshopData, com o veículo sempre à vista.' },
   ...estadosTecnica(),
+  /* 26 nov. — quatro sugestões (ela colou as ideias e pediu-as no menu, por baixo da Minha lista, «(sugestão)») */
+  { id: 'comparador', nome: '19 · Comparador de alternativas (sugestão)', fluxo: FLUXO, objetivo: 'Escolher entre referências equivalentes de fabricantes diferentes por preço, disponibilidade, prazo e características, sem perder a confirmação da compatibilidade.', versoes: [{ id: 'v1', nota: 'Sugestão (26 nov.): a peça e as equivalências do catálogo lado a lado; ordenar por preço, prazo ou stock; a compatibilidade confirma-se na ficha', html: portal('comparador', comparadorHtml(), undefined, { menu: true, rodape: false }) }] },
+  { id: 'lote', nome: '20 · Encomenda em lote (sugestão)', fluxo: FLUXO, objetivo: 'Carregar uma lista de referências e quantidades (CSV ou colada do Excel) e preparar o carrinho: encontrados, a confirmar e não encontrados.', versoes: [{ id: 'v1', nota: 'Sugestão (26 nov.): CSV, arrastar ou colar do Excel; cada linha encontrada, a confirmar (parecida, sem stock suficiente, quantidade errada) ou não encontrada; corrigir no sítio e pôr no carrinho', html: portal('lote', loteHtml(), undefined, { menu: true, rodape: false }) }] },
+  { id: 'foto', nome: '21 · Pesquisa por fotografia (sugestão)', fluxo: FLUXO, objetivo: 'Fotografar a etiqueta ou a referência gravada, ler o código, confirmá-lo e procurar no catálogo.', versoes: [{ id: 'v1', nota: 'Sugestão (26 nov.): câmara ou ficheiro; lê o texto onde o navegador o permite (TextDetector), senão escreve-se; confirma-se antes de ver os resultados', html: portal('foto', fotoHtml(), undefined, { menu: true, rodape: false }) }] },
+  { id: 'alertas', nome: '22 · Alertas de disponibilidade (sugestão)', fluxo: FLUXO, objetivo: 'Pedir para ser avisado quando uma peça sem stock voltar a ter, com o veículo e o acesso rápido à encomenda.', versoes: [{ id: 'v1', nota: 'Sugestão (26 nov.): criar o alerta (peça e veículo), ver o estado pelo stock dos dados, pôr no carrinho quando houver, ver alternativas, apagar (com confirmação)', html: portal('alertas', alertasHtml(), undefined, { menu: true, rodape: false }) }] },
 ];
 
 /** (20 out., V5) os estados do painel (10.1…). */

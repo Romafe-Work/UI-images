@@ -57,7 +57,9 @@ import './css/garagem-v2.css';
 import './css/confirmar.css';
 import './css/garagem-v3.css';
 import './css/historico.css';
+import './css/sugestoes.css';
 import './css/fundo-v4.css';
+import './css/tema-galaxia.css';
 import './comportamento/garagem-v2';
 import '../../comum/css/editor.css';
 
@@ -99,7 +101,9 @@ import { iniciar as montra } from './comportamento/montra';
 import { iniciar as vida } from './comportamento/vida';
 import { iniciar as historico } from './comportamento/historico';
 import { iniciar as devolucaoNova } from './comportamento/devolucao-nova';
+import { iniciar as sugestoes } from './comportamento/sugestoes';
+import { iniciar as temaPortal } from './comportamento/tema-portal';
 import { iniciar as carros3d } from './comportamento/carros-3d';
 import { iniciar as rolar } from './comportamento/rolar';
 
-montar(goparts, [barra, lado, navegar, filtroChegada, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, aberturaMovel, inicioV3, inicioEspaco, catalogoV6, lista, painel, pesquisa, rodaModos, montra, carros3d, enterSeguinte, filtroBarra, rolar, vida, historico, devolucaoNova]);
+montar(goparts, [barra, lado, navegar, filtroChegada, entrar, carrossel, entrada, v2animacao, catalogoV2, catalogoV4, pedidosV2, pedidosV3, pedidosV4, guiasV2, guiasV3, faturas, faturasV2, devolucoes, tecnica, selects, entrar3d, abertura, aberturaMovel, inicioV3, inicioEspaco, catalogoV6, lista, painel, pesquisa, rodaModos, montra, carros3d, enterSeguinte, filtroBarra, rolar, vida, historico, devolucaoNova, sugestoes, temaPortal]);
