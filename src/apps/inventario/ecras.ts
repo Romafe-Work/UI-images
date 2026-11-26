@@ -26,7 +26,6 @@ import entrada from 'lucide-static/icons/arrow-down-to-line.svg?raw';
 import saida from 'lucide-static/icons/arrow-up-from-line.svg?raw';
 import acerto from 'lucide-static/icons/sliders-horizontal.svg?raw';
 import cloudUpload from 'lucide-static/icons/cloud-upload.svg?raw';
-import list from 'lucide-static/icons/list.svg?raw';
 import settings from 'lucide-static/icons/settings.svg?raw';
 import keyboard from 'lucide-static/icons/keyboard.svg?raw';
 import trash2 from 'lucide-static/icons/trash-2.svg?raw';
@@ -50,8 +49,9 @@ const QUEM = 'Inês Costa';
 /** 26 nov. (ela: «só o gestor fará isso»): os acertos são do gestor; a operadora não vê «Acertar». */
 const GESTOR = 'Pedro Santos';
 /** O estado da prateleira, como vem da API. */
-const estadoPrat = (e: 'ABERTA' | 'EM_CONTAGEM' | 'FECHADA', msg?: string) => {
-  const [t, ic, cls] = e === 'FECHADA' ? ['Fechada · trancada até ao acerto', lock, 'fechada'] : e === 'EM_CONTAGEM' ? ['Em contagem · ninguém mexe', scanBarcode, 'contagem'] : ['Aberta', lockOpen, 'aberta'];
+/** 26 nov. (ela: «quero o termo trancar»): Livre → Trancada a contar → Trancada para o acerto → Liberta. */
+const estadoPrat = (e: 'LIVRE' | 'TRANCADA_A_CONTAR' | 'TRANCADA_PARA_ACERTO', msg?: string) => {
+  const [t, ic, cls] = e === 'TRANCADA_PARA_ACERTO' ? ['Trancada para o acerto', lock, 'fechada'] : e === 'TRANCADA_A_CONTAR' ? ['Trancada · a contar', lock, 'contagem'] : ['Livre · separação e expedição', lockOpen, 'aberta'];
   return `<div class="inv__estado-prat is-${cls}">${L(ic)}<div><b>${t}</b>${msg ? `<small>${msg}</small>` : ''}</div></div>`;
 };
 const RECENTES = ['Inês Costa', 'Joana Matos', 'Tiago Reis'];
@@ -131,7 +131,7 @@ const campo = (rot: string, valor = '', o: { mono?: boolean; erro?: string; tipo
 const INV = 'Inventário 26/11/2026';
 type Sec = { nome: string; zona: string; est: 'por' | 'dec' | 'fim'; txt: string; acertar?: number };
 const SECCOES: Sec[] = [
-  { nome: 'Óleos', zona: '80', est: 'dec', txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar · 3 fechadas à espera do acerto', acertar: 5 },
+  { nome: 'Óleos', zona: '80', est: 'dec', txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar · 3 trancadas à espera do acerto', acertar: 5 },
   { nome: 'Auto', zona: '30', est: 'dec', txt: 'A decorrer desde as 09:30 · 3 prateleiras' },
   { nome: 'Rolamentos', zona: '10, 11, 20, 21, 22', est: 'fim', txt: 'Terminada às 10:12 · 14 prateleiras' },
 ];
@@ -202,8 +202,8 @@ function prateleira(e: EstPrat = ''): string {
     : e === 'artigo' ? 'Isso é um artigo (Óleo motor 15W40 · bidão 5 L). Pica primeiro a etiqueta da prateleira: começa por 60.'
     : e === 'ficar' ? 'Pica uma prateleira de Auto (zona 30).'
     : e === 'sem-rede' ? 'Sem rede: a 60800102 não abre, porque é o servidor que a bloqueia para mais ninguém a contar. Pica outra vez quando a rede voltar.' : undefined;
-  const banner = feito ? `<div class="inv__feito">${L(circleCheck)}<div><b>60800101 fechada</b><span>42 un. · 2 códigos · 2 min 05 s</span>
-      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Sem diferenças.' : e === 'por-fechar' ? 'Por fechar: sem rede. Fica no PDA e fecha-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong></div></div>` : '';
+  const banner = feito ? `<div class="inv__feito">${L(circleCheck)}<div><b>60800101 trancada</b><span>42 un. · 2 códigos · 2 min 05 s</span>
+      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s, à espera do acerto do gestor. Sem diferenças.' : e === 'por-fechar' ? 'Por fechar: sem rede. Fica no PDA e fecha-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong></div></div>` : '';
   const sobre = e === 'escrever' ? dialogo('Escrever a prateleira', `${campo('O código da prateleira', '', { mono: true, dica: 'Ex.: 60300102' })}`,
       acao('Contar', check, ` ${ir('contar')}`), sec('Voltar', arrowLeft, ` ${ir('prateleira')}`))
     : e === 'a-abrir' ? ocupado('A abrir a prateleira 60800101…')
@@ -211,10 +211,10 @@ function prateleira(e: EstPrat = ''): string {
       '<p>Estás a contar Auto (zona 30), e a 60800101 é da zona 80, de Óleos. Mudas para Óleos no PDA, ou vais à zona 30 no armazém?</p>',
       acao('Mudar para Óleos', arrowLeftRight, ` ${ir('contar')}`), sec('Vou à zona 30', arrowLeft, ` ${ir('prateleira-ficar')}`)) : '';
   // 26 nov. (ela: «relatar os vários estados de acordo com o que está a acontecer — isso recebo da DB»)
-  const estadoApi = e === 'ocupada' ? estadoPrat('EM_CONTAGEM', 'A 60800102 está a ser contada por Joana Matos desde as 09:42: ninguém mexe nela.')
-    : e === 'ja-contada' ? estadoPrat('FECHADA', 'A 60800101 está fechada: foi contada e tem 3 diferenças por acertar. Abre depois do acerto.')
-    : e === 'fechada-acertos' ? estadoPrat('FECHADA', 'A 60800101 está fechada: foi contada e tem 2 diferenças por acertar. Abre depois do acerto.')
-    : e === 'fechada' ? estadoPrat('ABERTA', 'A 60800101 está aberta: já foi contada neste inventário e não tem nada por acertar.') : '';
+  const estadoApi = e === 'ocupada' ? estadoPrat('TRANCADA_A_CONTAR', 'A 60800102 está trancada: a ser contada por Joana Matos desde as 09:42. Ninguém mexe nela.')
+    : e === 'ja-contada' ? estadoPrat('TRANCADA_PARA_ACERTO', 'A 60800101 está trancada para o acerto: foi contada por Joana Matos e tem 3 diferenças. Só fica liberta depois de o gestor acertar.')
+    : e === 'fechada-acertos' ? estadoPrat('TRANCADA_PARA_ACERTO', 'A 60800101 está trancada para o acerto: foi contada por Inês Costa e tem 2 diferenças. Só fica liberta depois de o gestor acertar.')
+    : e === 'fechada' ? estadoPrat('TRANCADA_PARA_ACERTO', 'A 60800101 está trancada para o acerto: foi contada por Inês Costa e não tem diferenças. Só fica liberta depois de o gestor acertar.') : '';
   // entra-se por «Continuar Auto» (a secção fica escolhida); o 03 normal vem de «Continuar Óleos»
   const auto = e === 'outra-seccao' || e === 'ficar';
   return pagina({
@@ -237,14 +237,14 @@ const LINHAS_O: Linha[] = [
 ];
 const nomeDe = (l: Linha) => l.nome || '<span class="inv__fora">Código que não está no stock</span>';
 
-type EstContar = '' | 'sem-rede' | 'lido' | 'ja-picado' | 'escrever' | 'corrigir' | 'parece-prateleira' | 'mesma' | 'sair' | 'descartar';
+type EstContar = '' | 'sem-rede' | 'lido' | 'escrever' | 'corrigir' | 'parece-prateleira' | 'mesma' | 'sair' | 'descartar';
 function contar(e: EstContar = ''): string {
   const ls = e === '' ? [] : LINHAS_O;
   const rede = e === 'sem-rede';
   const ultima = e === 'lido' ? '5601234567892' : undefined;
-  const picado = e === 'ja-picado';
+  const picado = false;  // 26 nov. (ela): «o já picado não deve ser botão» — a lista vê-se ao trancar
   const erro = e === 'mesma' ? `Já estás na prateleira ${PO}. Pica os artigos.`
-    : e === 'sair' ? `Acaba a ${PO} antes de sair: «Fechar prateleira» ou «Prateleira vazia».` : undefined;
+    : e === 'sair' ? `Acaba a ${PO} antes de sair: «Trancar prateleira» ou «Vazia».` : undefined;
   const direita = `<span class="inv__relogio" aria-label="Tempo de prateleira">${L(timer)}<b>${e === '' ? '00:04' : '01:52'}</b></span>
     <button type="button" class="inv__icone-topo" aria-label="Descartar esta contagem" ${ir('contar-descartar')}>${L(trash2)}</button>`;
   const linhas = ls.length === 0
@@ -264,7 +264,7 @@ function contar(e: EstContar = ''): string {
       acao('Guardar', check, ` ${ir('contar-lido')}`), sec('Voltar', arrowLeft, ` ${ir('contar-lido')}`))
     : e === 'parece-prateleira' ? dialogo('60800102 é uma prateleira',
       `<p>Acabaste a ${PO}? Podes fechá-la e passar à 60800102, ou contar este código como um artigo.</p>`,
-      acao('Fechar e passar', check, ` ${ir('prateleira-fechada-acertos')}`), sec('Contar como artigo', plus, ` ${ir('contar-lido')}`))
+      acao('Trancar e passar', lock, ` ${ir('prateleira-fechada-acertos')}`), sec('Contar como artigo', plus, ` ${ir('contar-lido')}`))
     : e === 'descartar' ? dialogo('Descartar esta contagem?',
       `<p>Apaga o que já contaste na ${PO} e desbloqueia-a. A prateleira fica por contar.</p>`,
       acao('Descartar', trash2, ` ${ir('inicio')}`, 'inv__btn--perigo'), sec('Voltar', arrowLeft, ` ${ir('contar-lido')}`))
@@ -273,12 +273,12 @@ function contar(e: EstContar = ''): string {
     k: `contar${e ? `-${e}` : ''}`,
     topo: topo('Óleos', QUEM, undefined, direita),
     posicao: PO,
-    corpo: `${estadoPrat('EM_CONTAGEM', `A ${PO} está a ser contada por ${QUEM} desde as 10:24: ninguém mexe nela.`)}${picado ? '' : alvo(ls.length ? 'Pica o próximo artigo' : 'Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', lido: !!ultima, destino: 'contar-lido' })}
+    corpo: `${estadoPrat('TRANCADA_A_CONTAR', `A ${PO} está trancada: a ser contada por ${QUEM} desde as 10:24. Ninguém mexe nela.`)}${picado ? '' : alvo(ls.length ? 'Pica o próximo artigo' : 'Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', lido: !!ultima, destino: 'contar-lido' })}
       <div class="inv__cab-linhas">${rotulo('Já picado')}<b>${un(ls)} un. · ${codigos(ls.length)}</b></div>
       ${linhas}`,
     // no CK62 o ecrã é baixo: «Já picado» e «Escrever» lado a lado, para a lista ter espaço
-    pe: pe(`<div class="inv__par">${ls.length ? sec(picado ? 'Picar' : 'Já picado', picado ? scanBarcode : list, ` ${ir(picado ? 'contar-lido' : 'contar-ja-picado')}`) : ''}${sec('Escrever', keyboard, ` ${ir('contar-escrever')}`)}</div>
-      ${ls.length ? acao('Fechar prateleira', check, ` ${ir(rede ? 'prateleira-por-fechar' : 'resumo')}`) : sec('Prateleira vazia', inbox, ` ${ir('resumo-vazia')}`)}`),
+    pe: pe(`<div class="inv__par">${sec('Escrever', keyboard, ` ${ir('contar-escrever')}`)}${ls.length ? '' : sec('Vazia', inbox, ` ${ir('resumo-vazia')}`)}</div>
+      ${ls.length ? acao('Trancar prateleira', lock, ` ${ir(rede ? 'prateleira-por-fechar' : 'resumo')}`) : ''}`),
     sobre,
     semRede: rede ? REDE.contar : undefined,
   });
@@ -298,7 +298,7 @@ type EstResumo = '' | 'vazia' | 'a-fechar';
 function resumo(e: EstResumo = ''): string {
   const ver = false, vazia = e === 'vazia';
   const ls = vazia ? [] : LINHAS_O;
-  const titulo = ver ? `Prateleira ${PO}` : vazia ? 'Prateleira vazia?' : `Fechar ${PO}?`;
+  const titulo = ver ? `Prateleira ${PO}` : vazia ? 'Prateleira vazia?' : `Trancar ${PO}?`;
   const sub = ver ? `${QUEM} · 26/11/2026 10:26` : vazia ? 'Viste a prateleira toda e não tem nada?' : 'Vê se está tudo';
   return pagina({
     k: `resumo${e ? `-${e}` : ''}`,
@@ -308,7 +308,7 @@ function resumo(e: EstResumo = ''): string {
       ${ls.some((l) => l.escrito) ? aviso('1 código foi escrito à mão: confirma que está certo.', 'laranja') : ''}
       ${!ver && !vazia ? '<p class="inv__dica">Ao fechar guardam-se as diferenças; o stock só muda com «Acertar Óleos», no Início.</p>' : ''}
       ${ls.length ? `<ul class="inv__linhas inv__linhas--resumo">${ls.map((l) => `<li><div class="inv__cresce"><b class="inv__nome-art">${nomeDe(l)}</b><small class="inv__codigo-peq">${l.codigo}</small></div><strong>${l.n}</strong></li>`).join('')}</ul>` : ''}`,
-    pe: ver ? undefined : pe(`<div class="inv__par">${sec('Continuar', scanBarcode, ` ${ir(vazia ? 'contar' : 'contar-lido')}`)}${acao(vazia ? 'Está vazia' : 'Fechar', vazia ? inbox : check, ` ${ir(vazia ? 'prateleira-fechada' : 'resumo-a-fechar')}`, 'inv__btn--largo')}</div>`),
+    pe: ver ? undefined : pe(`<div class="inv__par">${sec('Continuar', scanBarcode, ` ${ir(vazia ? 'contar' : 'contar-lido')}`)}${acao(vazia ? 'Está vazia' : 'Trancar', vazia ? inbox : lock, ` ${ir(vazia ? 'prateleira-fechada' : 'resumo-a-fechar')}`, 'inv__btn--largo')}</div>`),
     sobre: e === 'a-fechar' ? ocupado(`A fechar a ${PO}…`) : '',
   });
 }
@@ -325,9 +325,9 @@ function acertarPicar(e: EstAcPicar = ''): string {
   return pagina({
     k: `acertar-picar${e ? `-${e}` : ''}`,
     topo: topo('Acertar Óleos', `${GESTOR} · zona 80`, 'inicio-gestor'),
-    corpo: `${e === 'feito' ? aviso('60800101 acertada: 3 acertos feitos. A prateleira está aberta.', 'ok') + estadoPrat('ABERTA', 'A 60800101 está aberta: já foi contada neste inventário e não tem nada por acertar.') : ''}
+    corpo: `${e === 'feito' ? aviso('60800101 acertada: 3 acertos feitos. A prateleira está liberta para a separação e a expedição.', 'ok') + estadoPrat('LIVRE', 'A 60800101 está liberta: foi contada e acertada. Pode ser usada na separação e na expedição.') : ''}
       ${alvo('Pica a prateleira', 'Uma prateleira de Óleos já contada: vês o que se contou e o stock, e acertas.', { erro, leitor: 'gatilho', destino: 'acertar' })}
-      <div class="inv__cab-linhas">${rotulo('Fechadas à espera do acerto')}<b>${e === 'feito' ? 2 : 3}</b></div>
+      <div class="inv__cab-linhas">${rotulo('Trancadas à espera do acerto')}<b>${e === 'feito' ? 2 : 3}</b></div>
       <ul class="inv__linhas">${(e === 'feito' ? FECHADAS.slice(1) : FECHADAS).map(([p, n, quem]) => `<li class="inv__lin" ${ir('acertar')} role="button" tabindex="0">${L(lock, 'inv__cadeado')}
         <div class="inv__cresce"><b class="inv__codigo">${p}</b><small>${n} ${n === 1 ? "diferença" : "diferenças"} · contada por ${quem}</small></div>${L(chevronRight, 'inv__lapis')}</li>`).join('')}</ul>`,
     pe: pe(sec('Escrever o código da prateleira', keyboard, ` ${ir('acertar')}`)),
@@ -369,7 +369,7 @@ function acertarEcra(e: EstAc = ''): string {
     k: `acertar${e ? `-${e}` : ''}`,
     topo: topo('Acertar 60800101', 'Óleos · contada por Joana Matos', 'acertar-picar'),
     posicao: PO,
-    corpo: `${e === 'sem-rede' ? aviso('Sem rede: o acerto não foi feito. O que mudaste continua aqui; carrega outra vez em «Acertar prateleira» quando a rede voltar.', 'erro') : ''}${estadoPrat('FECHADA')}<div class="inv__cab-linhas">${rotulo('Contado · stock')}<b class="${difs ? 'is-laranja' : 'is-ok'}">${difs ? `${difs} diferenças` : 'Bate com o stock'}</b></div>
+    corpo: `${e === 'sem-rede' ? aviso('Sem rede: o acerto não foi feito. O que mudaste continua aqui; carrega outra vez em «Acertar prateleira» quando a rede voltar.', 'erro') : ''}${estadoPrat('TRANCADA_PARA_ACERTO')}<div class="inv__cab-linhas">${rotulo('Contado · stock')}<b class="${difs ? 'is-laranja' : 'is-ok'}">${difs ? `${difs} diferenças` : 'Bate com o stock'}</b></div>
       <p class="inv__dica">Pica um artigo para somar 1 · toca numa linha para mudar.</p>${linhas}`,
     pe: pe(`<div class="inv__par">${sec('Picar de novo', rotateCcw, ` ${ir('acertar-de-novo')}`)}${sec('Escrever', keyboard, ` ${ir('acertar-lido')}`)}</div>
       ${acao(`Acertar prateleira (${difs})`, acerto, ` ${ir('acertar-confirmar')}`)}`),
@@ -422,7 +422,7 @@ function historicoEcra(e: EstHist = ''): string {
     k: `historico${e ? `-${e}` : ''}`,
     topo: topo('Histórico', sub, 'inicio'),
     corpo: `<div class="inv__par">${escolha('Prateleira', prat, 'historico-prateleira')}${escolha('Artigo', !prat, 'historico-artigo')}</div>
-      ${blocos.length ? `<p class="inv__titulo-hist">${e === 'artigo' ? 'OLEO-15W40-5L' : 'Prateleira 60800101'}</p><p class="inv__dica">${e === 'artigo' ? 'Óleo motor 15W40 · bidão 5 L' : 'Óleos'}</p>${e === 'prateleira' ? estadoPrat('ABERTA', 'A 60800101 está aberta: já foi contada neste inventário e não tem nada por acertar.') : e === 'vazio' ? estadoPrat('ABERTA', 'A 60800101 está aberta: ainda não foi contada neste inventário.') : ''}
+      ${blocos.length ? `<p class="inv__titulo-hist">${e === 'artigo' ? 'OLEO-15W40-5L' : 'Prateleira 60800101'}</p><p class="inv__dica">${e === 'artigo' ? 'Óleo motor 15W40 · bidão 5 L' : 'Óleos'}</p>${e === 'prateleira' ? estadoPrat('LIVRE', 'A 60800101 está liberta: foi contada e acertada. Pode ser usada na separação e na expedição.') : e === 'vazio' ? estadoPrat('LIVRE', 'A 60800101 está livre: ainda não foi contada neste inventário.') : ''}
         ${blocos.map((b) => `<div class="inv__cab-linhas">${rotulo(b.t)}${b.ls.length ? `<b>${b.ls.filter((a) => !a.dentro).length}</b>` : ''}</div>
           ${b.ls.length ? `<ul class="inv__hist">${b.ls.map(linha).join('')}</ul>` : `<p class="inv__nada">${b.vazio}</p>`}`).join('')}`
         : alvo('Pica a etiqueta', prat ? 'Da prateleira.' : 'Do artigo.', { leitor: 'gatilho', destino: 'historico-prateleira', erro: e === 'sem-rede' ? 'Sem ligação ao servidor (127.0.0.1:5198). Confirma a rede e tenta outra vez.' : undefined })}`,
@@ -450,7 +450,7 @@ function ligacao(e: EstLig = ''): string {
 /* =========================================================
    A lista — 26 nov.: só a última versão (v3 = a 2.0.7); a v2 (2.0.0) saiu, como antes a 1.8.1
    ========================================================= */
-const NOTA = 'Como a app Kotlin 2.1.3 (26 nov., testada no CK62): só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
+const NOTA = 'Como a app Kotlin 2.1.4 (26 nov., testada no CK62): trancar — livre, trancada a contar, trancada para o acerto, liberta;: só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
 const v = (html: string): EcraInventario['versoes'] => [{ id: 'v3', nota: NOTA, html }];
 const F = { ENTRAR: 'Entrar', INVENTARIO: 'Inventário e secções', CONTAR: 'Contar', ACERTAR: 'Acertar', HIST: 'Histórico' };
 const est = (id: IdInventario, de: IdInventario, nome: string, fluxo: string, objetivo: string, html: string, noFluxo?: string): EcraInventario =>
@@ -483,13 +483,12 @@ export function ecrasInventario(): EcraInventario[] {
     est('prateleira-artigo', 'prateleira', '03.8 · Picou um artigo', F.CONTAR, 'As etiquetas das prateleiras começam sempre por 60: um artigo aqui é recusado e diz-se qual é.', prateleira('artigo')),
     est('prateleira-outra-seccao', 'prateleira', '03.9 · Prateleira de outra secção', F.CONTAR, 'A contar Auto, picou-se uma prateleira de Óleos: muda-se para Óleos no PDA (ou «Iniciar Óleos e mudar»), ou vai-se à zona 30.', prateleira('outra-seccao'), 'Diálogo aberto'),
     est('prateleira-ficar', 'prateleira', '03.10 · Fica na zona', F.CONTAR, 'Escolheu-se ir à zona 30: pede uma prateleira da Auto.', prateleira('ficar')),
-    est('prateleira-fechada', 'prateleira', '03.6 · Fechada sem diferenças', F.CONTAR, 'Fechada com o tempo de prateleira; bateu com o stock, nenhum acerto.', prateleira('fechada')),
-    est('prateleira-fechada-acertos', 'prateleira', '03.7 · Fechada com diferenças', F.CONTAR, 'As diferenças ficam por acertar (botão «Acertar Óleos» no Início); um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
+    est('prateleira-fechada', 'prateleira', '03.6 · Trancada sem diferenças', F.CONTAR, 'Trancada com o tempo de prateleira. Mesmo sem diferenças, fica trancada para o acerto até o gestor acertar.', prateleira('fechada')),
+    est('prateleira-fechada-acertos', 'prateleira', '03.7 · Trancada com diferenças', F.CONTAR, 'Trancada para o acerto, com as diferenças por acertar; só o gestor a liberta («Acertar Óleos»). Um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
 
     { id: 'contar', nome: '04 · Contar', fluxo: F.CONTAR, objetivo: 'Cada leitura soma 1; o escrito à mão leva a quantidade. O tempo de prateleira corre no topo. Sem pausa: só se sai a fechar, a confirmar vazia ou a descartar.', versoes: v(contar()) },
     est('contar-lido', 'contar', '04.1 · A contar', F.CONTAR, 'Cada linha com o nome do artigo e o código; a última leitura fica a laranja e sobe para o topo; toca-se numa linha para corrigir.', contar('lido')),
     est('contar-sem-rede', 'contar', '04.9 · Sem rede a contar', F.CONTAR, 'A meio da prateleira a rede cai: continua-se a picar (fica no PDA); ao fechar, espera pela rede.', contar('sem-rede')),
-    est('contar-ja-picado', 'contar', '04.8 · Já picado', F.CONTAR, '«Já picado» troca o alvo pela lista do que se picou nesta prateleira (no CK62 não cabia); picar continua a contar; «Picar» volta.', contar('ja-picado')),
     est('contar-escrever', 'contar', '04.2 · Escrever artigo', F.CONTAR, 'Artigo sem etiqueta ou que não lê: código e quantidade (1 a 9999); fica «Escrito à mão».', contar('escrever'), 'Diálogo aberto'),
     est('contar-corrigir', 'contar', '04.3 · Corrigir a quantidade', F.CONTAR, 'Menos, mais ou escrever o número; ou tirar da contagem. A correção fica no registo.', contar('corrigir'), 'Diálogo aberto'),
     est('contar-parece-prateleira', 'contar', '04.4 · É uma prateleira', F.CONTAR, 'Picou-se outra etiqueta de prateleira: fechar e passar, ou contar como artigo.', contar('parece-prateleira'), 'Diálogo aberto'),
@@ -500,7 +499,7 @@ export function ecrasInventario(): EcraInventario[] {
     { id: 'camara', nome: '05 · Ler com a câmara', fluxo: F.CONTAR, objetivo: 'No PDA ao lado do gatilho, no telemóvel em vez dele: fica aberta da prateleira aos artigos; a mesma etiqueta só conta passados 2 s.', versoes: v(camaraEcra(false)) },
     est('camara-lido', 'camara', '05.1 · Lido', F.CONTAR, 'O que se leu aparece em baixo com a quantidade.', camaraEcra(true)),
 
-    { id: 'resumo', nome: '06 · Fechar a prateleira', fluxo: F.CONTAR, objetivo: 'Ver se está tudo, com o tempo de prateleira. Fechar grava o contado à parte do stock e faz os acertos só onde há diferença.', versoes: v(resumo()) },
+    { id: 'resumo', nome: '06 · Trancar a prateleira', fluxo: F.CONTAR, objetivo: 'Aqui vê-se o que se picou (o «Já picado» deixou de ser botão). Trancar grava o contado à parte do stock e as diferenças; a prateleira fica trancada para o acerto até o gestor acertar.', versoes: v(resumo()) },
     est('resumo-vazia', 'resumo', '06.1 · Prateleira vazia', F.CONTAR, 'A vazia passa pelo mesmo resumo.', resumo('vazia')),
     est('resumo-a-fechar', 'resumo', '06.2 · A fechar no servidor', F.CONTAR, 'Enquanto o servidor fecha e acerta, não se lê nada.', resumo('a-fechar')),
 
