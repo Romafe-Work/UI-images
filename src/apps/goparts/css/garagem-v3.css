@@ -169,3 +169,16 @@
 .gar3 .gar3__identificar.btn .btn__rotulo, .gar3 .gar3__acoes .btn .btn__rotulo { white-space: nowrap; }
 .gar3 .gar3__identificar.btn { justify-content: center; }
 .gar3 .gar3__acoes .btn, .gar3 .gar3__identificar.btn { height: 40px; min-height: 40px; }
+
+/* (26 nov.) ela: «o espaço entre os cards??? eu pedi-te» — eu tinha percebido espaço DENTRO dos lugares. Agora
+   cada lugar é um cartão à parte, com 16 px entre eles (colunas) e entre filas; cada um com as suas riscas em U */
+.gar3 .gar3__lugares.ini4__garagem { column-gap: 16px; row-gap: 0; border: 0; background: none; }
+.gar3 .gar3__lugares > .gar3__lugar { margin-bottom: 16px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); overflow: hidden; row-gap: 0; }
+.gar3 .gar3__lugares > .gar3__lugar > .gar3__info { border-right: 0; }
+.gar3 .gar3__lugares > .gar3__lugar .gar3__chao { border-radius: 0; }
+.gar3 .gar3__lugares > .gar3__lugar .gar3__chao::before { left: 10px; right: 10px; border-left: 4px solid var(--risca); border-right: 4px solid var(--risca); }
+.gar3 .gar3__lugares > .gar3__lugar--livre .gar3__chao::before { border-left-style: dashed; border-right-style: dashed; }
+.gar3 .gar3__lugares > .gar3__lugar > .gar3__canto { right: 20px !important; }
+.gar3 .gar3__lugares > .gar3__lugar--vazio { background: color-mix(in srgb, var(--c-superficie) 50%, transparent); }
+.gar3 .gar3__lugares .gar3__lugar.gar2__carro.ini4__carro, .gar3 .gar3__lugares .gar3__lugar { margin-bottom: 16px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); overflow: hidden; }
+.gar3 .gar3__lugares .gar3__lugar.gar3__lugar--vazio { background: color-mix(in srgb, var(--c-superficie) 50%, transparent); }
