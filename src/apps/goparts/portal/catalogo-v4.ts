@@ -50,7 +50,8 @@ const heroi = `
 const filtrarModelos = `
       <div class="cat3__cartao cat4__filtrar" data-so="modelos" hidden>
         <h2 class="cat4__filtrar-titulo">${L(search)}Filtrar modelos</h2>
-        <div class="cat4__procura"><input class="input" type="search" id="cat4-modelo" placeholder="Pesquisar modelo" aria-label="Pesquisar modelo" data-filtro="texto"><span class="cat4__procura-lupa" aria-hidden="true">${L(search)}</span></div>
+        <!-- (26 nov.) ela: «aqui devia ser um select de acordo àquilo que foi selecionado» — os modelos da marca escolhida -->
+        <div class="campo__caixa cat4__modelo-sel"><span class="campo__chip" aria-hidden="true">${L(search)}</span><select class="input" id="cat4-modelo" aria-label="Modelo" data-filtro="modelo"><option value="">Todos os modelos</option></select></div>
         <fieldset class="cat4__grupo"><legend>Ano de fabrico</legend>
           <div class="cat4__de-ate">
             <div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(calendar)}</span><select class="input" id="cat4-de" aria-label="Fabricado de" data-filtro="de"><option value="">De</option></select></div>

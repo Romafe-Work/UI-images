@@ -207,11 +207,11 @@ const filtrarModelos = `
       <div class="cat3__cartao cat5__cartao cat4__filtrar" data-so="modelos" hidden>
         <div class="cat5__cartao-cabeca">
           <span class="cat5__funil" aria-hidden="true">${L(funnel)}</span>
-          <div><h2 class="cat5__cartao-titulo">Filtrar modelos</h2><p class="cat5__cartao-sub">Encontre o modelo pelo nome, pelo ano de fabrico ou pela carroçaria.</p></div>
+          <div><h2 class="cat5__cartao-titulo">Filtrar modelos</h2><p class="cat5__cartao-sub">Escolha o modelo da marca, o ano de fabrico ou a carroçaria.</p></div>
           <button type="button" class="btn btn--ghost cat3__limpar cat5__limpar">${L(rotateCcw, 'btn__icone')}<span class="btn__rotulo">Limpar filtros</span></button>
         </div>
         <div class="cat5__filtros cat5__filtros--modelos">
-          <div class="campo"><label class="campo__label" for="cat5-modelo">Modelo</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(search)}</span><input class="input" type="search" id="cat5-modelo" placeholder="Pesquisar modelo" data-filtro="texto"></div></div>
+          <div class="campo"><label class="campo__label" for="cat5-modelo">Modelo</label><div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(search)}</span><select class="input" id="cat5-modelo" data-filtro="modelo"><option value="">Todos os modelos</option></select></div></div>
           <div class="campo"><span class="campo__label" id="cat5-ano-rotulo">Ano de fabrico</span>
             <div class="cat4__de-ate" role="group" aria-labelledby="cat5-ano-rotulo">
               <div class="campo__caixa"><span class="campo__chip" aria-hidden="true">${L(calendar)}</span><select class="input" id="cat5-de" aria-label="Fabricado de" data-filtro="de"><option value="">De</option></select></div>

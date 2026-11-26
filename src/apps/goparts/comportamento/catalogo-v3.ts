@@ -85,7 +85,9 @@ function encherModelos4(main: HTMLElement, marca: string): void {
   $<HTMLSelectElement>(cartao, 'select[data-filtro="ate"]').innerHTML = '<option value="">Até</option>' + anosM.map((a) => `<option>${a}</option>`).join('');
   $(cartao, '.cat4__tipos').innerHTML = carrocarias(marca).map(([t, n], i) =>
     `<li><label class="cat4__tipo-opcao"><input type="checkbox" value="${t}" data-filtro="carrocaria" id="cat4-tipo-${i}"><span>${t}</span><span class="cat4__n">${n}</span></label></li>`).join('');
-  $<HTMLInputElement>(cartao, 'input[data-filtro="texto"]').value = '';
+  /* (26 nov.) o modelo escolhe-se de uma lista com os modelos desta marca */
+  const selModelo = cartao.querySelector<HTMLSelectElement>('select[data-filtro="modelo"]');
+  if (selModelo) selModelo.innerHTML = '<option value="">Todos os modelos</option>' + m.map((x) => `<option value="${x[0].replace(/"/g, '&quot;')}">${x[0]}</option>`).join('');
   const ordem = main.querySelector<HTMLSelectElement>('[data-ordem]');
   if (ordem && ordem.value !== 'az') { ordem.value = 'az'; ordem.dispatchEvent(new Event('change', { bubbles: true })); }
   contar(vista);
@@ -175,6 +177,7 @@ function filtrar(main: HTMLElement): void {
     const nome = (l.dataset.modelo || l.dataset.nome || '').toLowerCase();
     let ver = !texto || nome.includes(texto);
     if (versao) ver = ver && l.dataset.versao === versao;
+    const modelo = valor('modelo'); if (modelo) ver = ver && l.dataset.modelo === modelo;
     if (a) ver = ver && Number(l.dataset.desde) <= a && a <= Number(l.dataset.ate);
     if (de) ver = ver && Number(l.dataset.ate) >= de;
     if (ate) ver = ver && Number(l.dataset.desde) <= ate;
