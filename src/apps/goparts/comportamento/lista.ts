@@ -700,6 +700,9 @@ export function iniciar(): void {
     else if (vista === 'listas' && lst.dataset.vista !== 'listas') guarda(() => verListas(vivo()!));
     /* (16 out.) o atalho «Criar lista» do Início */
     else if (vista === 'nova') guarda(() => mostrarLista(vivo()!, listaHtml('', NOVA())));
+    /* (26 nov.) ela: «quando clico em Minha lista é isto que deve aparecer» — sem pedido nenhum, abre «Minhas listas»
+       (a não ser que venham peças do Catálogo para juntar à lista aberta, ou que a pessoa já esteja a mexer nela) */
+    else if (!vista && !lst.dataset.mexida && lst.dataset.vista !== 'listas' && (() => { try { return !JSON.parse(sessionStorage.getItem(CHAVE) || '[]').length; } catch { return true; } })()) verListas(lst);
     lst = vivo()!;
     if (!lst.dataset.armada) { lst.dataset.armada = '1'; recalcular(lst); }
     receberDoCatalogo();

@@ -255,3 +255,20 @@ th[aria-sort="ascending"] .hx__ordenar svg, th[aria-sort="descending"] .hx__orde
   .hx__resumo div { flex: 1 1 30%; border-top: 1px solid var(--c-borda); margin-top: -1px; }
   .hx__resumo dd { font-size: 16px; }
 }
+
+/* =========================================================
+   (26 nov.) ela: «o botão dos filtros deve ser igual em todos os ecrãs, borders md». Um só aspeto para os botões
+   de filtro de todo o portal (as pílulas de estado da Minha lista, da Informação técnica, dos Pedidos antigos, da
+   pesquisa, e as etiquetas dos filtros ativos): cantos md, 38 px, a superfície dos campos da barra; o escolhido
+   com a borda e um fundo azul ROMAFE (como as etiquetas ativas), não laranja nem a cor do texto.
+   ========================================================= */
+.portal :is(.lst__pilula, .lst__chip, .ini3__filtro, .ped4__etapa-f, .tec__pilula) {
+  display: inline-flex; align-items: center; gap: 6px; height: 38px; min-height: 38px; padding: 0 12px;
+  border: 1px solid var(--c-borda-forte); border-radius: var(--r-md); background: var(--c-superficie-2);
+  color: var(--c-texto-2); font-size: 13.5px; font-weight: 600; transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease; }
+.portal :is(.lst__pilula, .lst__chip, .ini3__filtro, .ped4__etapa-f, .tec__pilula):hover { border-color: var(--c-texto-3); color: var(--c-texto); }
+.portal :is(.lst__pilula, .ped4__etapa-f, .tec__pilula, .ini3__filtro)[aria-pressed="true"],
+.portal :is(.lst__chip, .ini3__filtro)[aria-selected="true"] {
+  border-color: color-mix(in srgb, #147dc0 70%, var(--c-borda)); background: color-mix(in srgb, #147dc0 14%, var(--c-superficie-2)); color: var(--c-texto); }
+.portal :is(.lst__pilula, .tec__pilula) :is(span, small) { font-variant-numeric: tabular-nums; }
+.portal .hx__chips li { border-radius: var(--r-md); height: 32px; }
