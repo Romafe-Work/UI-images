@@ -245,3 +245,12 @@
 .inv__semrede button { background: none; border: 0; color: #fff; font: inherit; font-weight: 700; font-size: 14px; padding: 8px; cursor: pointer; }
 .inv__feito strong.is-erro { color: var(--i-erro); }
 .inv__semrede .inv__cresce b, .inv__semrede .inv__cresce small { color: #fff; }
+
+/* 2.1.2: o estado da prateleira (vem da API) e as fechadas à espera do acerto */
+.inv__estado-prat { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--r-md); }
+.inv__estado-prat > svg { width: 18px; height: 18px; flex: none; }
+.inv__estado-prat b { display: block; font-size: 14px; } .inv__estado-prat small { display: block; font-size: 13px; color: var(--i-tinta-2); }
+.inv__estado-prat.is-fechada { background: var(--i-laranja-suave); color: var(--i-laranja); }
+.inv__estado-prat.is-contagem { background: var(--i-azul-suave); color: var(--i-azul); }
+.inv__estado-prat.is-aberta { background: var(--i-ok-suave); color: var(--i-ok); }
+.inv__cadeado { width: 20px; height: 20px; color: var(--i-laranja); flex: none; }
