@@ -210,12 +210,17 @@ function prateleira(e: EstPrat = ''): string {
     : e === 'outra-seccao' ? dialogo('Prateleira de Óleos',
       '<p>Estás a contar Auto (zona 30), e a 60800101 é da zona 80, de Óleos. Mudas para Óleos no PDA, ou vais à zona 30 no armazém?</p>',
       acao('Mudar para Óleos', arrowLeftRight, ` ${ir('contar')}`), sec('Vou à zona 30', arrowLeft, ` ${ir('prateleira-ficar')}`)) : '';
+  // 26 nov. (ela: «relatar os vários estados de acordo com o que está a acontecer — isso recebo da DB»)
+  const estadoApi = e === 'ocupada' ? estadoPrat('EM_CONTAGEM', 'A 60800102 está a ser contada por Joana Matos desde as 09:42: ninguém mexe nela.')
+    : e === 'ja-contada' ? estadoPrat('FECHADA', 'A 60800101 está fechada: foi contada e tem 3 diferenças por acertar. Abre depois do acerto.')
+    : e === 'fechada-acertos' ? estadoPrat('FECHADA', 'A 60800101 está fechada: foi contada e tem 2 diferenças por acertar. Abre depois do acerto.')
+    : e === 'fechada' ? estadoPrat('ABERTA', 'A 60800101 está aberta: já foi contada neste inventário e não tem nada por acertar.') : '';
   // entra-se por «Continuar Auto» (a secção fica escolhida); o 03 normal vem de «Continuar Óleos»
   const auto = e === 'outra-seccao' || e === 'ficar';
   return pagina({
     k: `prateleira${e ? `-${e}` : ''}`,
     topo: topo('Contar uma prateleira', `${QUEM} · ${auto ? 'Auto · zona 30' : 'Óleos · zona 80'}`, 'inicio'),
-    corpo: `${banner}${alvo(feito ? 'Pica a próxima prateleira' : 'Pica a prateleira', 'Cada prateleira conta-se uma vez neste inventário.', { erro, leitor: 'gatilho', destino: 'prateleira-a-abrir', cresce: true })}`,
+    corpo: `${estadoApi}${banner}${alvo(feito ? 'Pica a próxima prateleira' : 'Pica a prateleira', 'Cada prateleira conta-se uma vez neste inventário.', { erro, leitor: 'gatilho', destino: 'prateleira-a-abrir', cresce: true })}`,
     pe: pe(sec('Escrever o código da prateleira', keyboard, ` ${ir('prateleira-escrever')}`)),
     sobre,
     semRede: e === 'sem-rede' || e === 'por-fechar' ? REDE.geral : undefined,
@@ -268,7 +273,7 @@ function contar(e: EstContar = ''): string {
     k: `contar${e ? `-${e}` : ''}`,
     topo: topo('Óleos', QUEM, undefined, direita),
     posicao: PO,
-    corpo: `${picado ? '' : alvo(ls.length ? 'Pica o próximo artigo' : 'Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', lido: !!ultima, destino: 'contar-lido' })}
+    corpo: `${estadoPrat('EM_CONTAGEM', `A ${PO} está a ser contada por ${QUEM} desde as 10:24: ninguém mexe nela.`)}${picado ? '' : alvo(ls.length ? 'Pica o próximo artigo' : 'Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', lido: !!ultima, destino: 'contar-lido' })}
       <div class="inv__cab-linhas">${rotulo('Já picado')}<b>${un(ls)} un. · ${codigos(ls.length)}</b></div>
       ${linhas}`,
     // no CK62 o ecrã é baixo: «Já picado» e «Escrever» lado a lado, para a lista ter espaço
@@ -320,7 +325,7 @@ function acertarPicar(e: EstAcPicar = ''): string {
   return pagina({
     k: `acertar-picar${e ? `-${e}` : ''}`,
     topo: topo('Acertar Óleos', `${GESTOR} · zona 80`, 'inicio-gestor'),
-    corpo: `${e === 'feito' ? aviso('60800101 acertada: 3 acertos feitos. A prateleira está aberta.', 'ok') : ''}
+    corpo: `${e === 'feito' ? aviso('60800101 acertada: 3 acertos feitos. A prateleira está aberta.', 'ok') + estadoPrat('ABERTA', 'A 60800101 está aberta: já foi contada neste inventário e não tem nada por acertar.') : ''}
       ${alvo('Pica a prateleira', 'Uma prateleira de Óleos já contada: vês o que se contou e o stock, e acertas.', { erro, leitor: 'gatilho', destino: 'acertar' })}
       <div class="inv__cab-linhas">${rotulo('Fechadas à espera do acerto')}<b>${e === 'feito' ? 2 : 3}</b></div>
       <ul class="inv__linhas">${(e === 'feito' ? FECHADAS.slice(1) : FECHADAS).map(([p, n, quem]) => `<li class="inv__lin" ${ir('acertar')} role="button" tabindex="0">${L(lock, 'inv__cadeado')}
@@ -417,7 +422,7 @@ function historicoEcra(e: EstHist = ''): string {
     k: `historico${e ? `-${e}` : ''}`,
     topo: topo('Histórico', sub, 'inicio'),
     corpo: `<div class="inv__par">${escolha('Prateleira', prat, 'historico-prateleira')}${escolha('Artigo', !prat, 'historico-artigo')}</div>
-      ${blocos.length ? `<p class="inv__titulo-hist">${e === 'artigo' ? 'OLEO-15W40-5L' : 'Prateleira 60800101'}</p><p class="inv__dica">${e === 'artigo' ? 'Óleo motor 15W40 · bidão 5 L' : 'Óleos'}</p>${e === 'prateleira' ? estadoPrat('ABERTA', 'A 60800101 está aberta.') : e === 'vazio' ? estadoPrat('ABERTA', 'A 60800101 está aberta.') : ''}
+      ${blocos.length ? `<p class="inv__titulo-hist">${e === 'artigo' ? 'OLEO-15W40-5L' : 'Prateleira 60800101'}</p><p class="inv__dica">${e === 'artigo' ? 'Óleo motor 15W40 · bidão 5 L' : 'Óleos'}</p>${e === 'prateleira' ? estadoPrat('ABERTA', 'A 60800101 está aberta: já foi contada neste inventário e não tem nada por acertar.') : e === 'vazio' ? estadoPrat('ABERTA', 'A 60800101 está aberta: ainda não foi contada neste inventário.') : ''}
         ${blocos.map((b) => `<div class="inv__cab-linhas">${rotulo(b.t)}${b.ls.length ? `<b>${b.ls.filter((a) => !a.dentro).length}</b>` : ''}</div>
           ${b.ls.length ? `<ul class="inv__hist">${b.ls.map(linha).join('')}</ul>` : `<p class="inv__nada">${b.vazio}</p>`}`).join('')}`
         : alvo('Pica a etiqueta', prat ? 'Da prateleira.' : 'Do artigo.', { leitor: 'gatilho', destino: 'historico-prateleira', erro: e === 'sem-rede' ? 'Sem ligação ao servidor (127.0.0.1:5198). Confirma a rede e tenta outra vez.' : undefined })}`,
@@ -445,7 +450,7 @@ function ligacao(e: EstLig = ''): string {
 /* =========================================================
    A lista — 26 nov.: só a última versão (v3 = a 2.0.7); a v2 (2.0.0) saiu, como antes a 1.8.1
    ========================================================= */
-const NOTA = 'Como a app Kotlin 2.1.2 (26 nov., testada no CK62): só o gestor acerta, prateleira fechada até ao acerto;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
+const NOTA = 'Como a app Kotlin 2.1.3 (26 nov., testada no CK62): só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
 const v = (html: string): EcraInventario['versoes'] => [{ id: 'v3', nota: NOTA, html }];
 const F = { ENTRAR: 'Entrar', INVENTARIO: 'Inventário e secções', CONTAR: 'Contar', ACERTAR: 'Acertar', HIST: 'Histórico' };
 const est = (id: IdInventario, de: IdInventario, nome: string, fluxo: string, objetivo: string, html: string, noFluxo?: string): EcraInventario =>

@@ -1,6 +1,6 @@
 import { ligacoes, type Ecra } from '../../comum/tipos';
 
-/** Os ecrãs da app Inventário (Kotlin, 2.1.2 de 26 nov. 2026), como estão no PDA. */
+/** Os ecrãs da app Inventário (Kotlin, 2.1.3 de 26 nov. 2026), como estão no PDA. */
 export type IdInventario =
   | 'entrar' | 'entrar-primeira'
   | 'inicio' | 'inicio-gestor' | 'inicio-sem-inventario' | 'inicio-iniciar' | 'inicio-a-iniciar' | 'inicio-nenhuma-seccao' | 'inicio-terminar-seccao' | 'inicio-terminar' | 'inicio-por-fechar' | 'inicio-sem-servidor'
