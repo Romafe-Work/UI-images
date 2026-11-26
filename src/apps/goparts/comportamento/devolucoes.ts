@@ -14,6 +14,7 @@
      enviar) espera pela confirmação; só então a devolução entra no topo da cronologia.
    Com «reduzir movimento», tudo troca sem deslizar. Não há servidor: as esperas são de menos de 1 s.
    ========================================================= */
+import { confirmar } from './confirmar';
 import { DEVOLUCOES, estadoDev, unidades, NOME_ESTADO, type Devolucao } from '../portal/devolucoes-dados';
 import { devDe, cabecaDev, detalheDev, painelCriar, passoFatura, passoArtigos, passoRever, peCriar, linhaCesto, disponivel, cronologiaDev, tabelaDev, L } from '../portal/devolucoes';
 import { GUIAS } from '../portal/guias-dados';
@@ -424,7 +425,8 @@ export function iniciar(): void {
     if (og) { if (og.getAttribute('aria-disabled') === 'true') return; const r = rasc(main); if (r.origem !== og.dataset.origem) { r.origem = og.dataset.origem!; r.escolhidos = []; } $$(main, '.dev__c-guia').forEach((g) => g.setAttribute('aria-checked', String(g === og))); erroPasso(main, 0, ''); return; }
     const por = t.closest<HTMLButtonElement>('.dev__c-por'); if (por) { porNaDevolucao(main, por); return; }
     const li = t.closest<HTMLElement>('.dev__c-linha');
-    if (li && t.closest('.dev__c-tirar')) { tirarDaDevolucao(main, li); return; }
+    /* (26 nov.) ela: apagar pergunta sempre primeiro (comportamento/confirmar.ts) */
+    if (li && t.closest('.dev__c-tirar')) { const l = li; void confirmar({ titulo: 'Tirar o artigo da devolução?', texto: `${l.dataset.desc ?? 'O artigo'} sai desta devolução e volta a poder ser escolhido na lista da fatura.`, sim: 'Tirar da devolução' }).then((sim) => { if (sim && l.isConnected) tirarDaDevolucao(main, l); }); return; }
     if (li && t.closest('.dev__c-menos, .dev__c-mais')) { const i = $<HTMLInputElement>(li, '.dev__c-q')!; i.value = String(Math.max(1, (parseInt(i.value, 10) || 1) + (t.closest('.dev__c-mais') ? 1 : -1))); validarQtd(main, li); contarCesto(main); return; }
     if (t.closest('[data-c-seguir]')) { seguir(main); return; }
     if (t.closest('[data-c-voltar]')) { irPasso(main, Math.max(0, rasc(main).passo - 1)); return; }

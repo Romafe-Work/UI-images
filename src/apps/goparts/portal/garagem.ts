@@ -41,3 +41,22 @@ export function garagemPaginaV2(): string {
   <div class="ini4__brinde" data-por-cima role="status" aria-live="polite" hidden></div>
 </div>`;
 }
+
+/* ---------- v3 (26 nov. 2026): a garagem como uma garagem — portal/garagem-v2.ts (garagemV3Html) ---------- */
+import { garagemV3Html } from './garagem-v2';
+export function garagemPaginaV3(): string {
+  const d = dadosIniciais();
+  return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--ini4 portal--gar portal--gar2 portal--gar3">
+  <main class="ini3 ini4 gar gar2 gar3" data-garagem-pagina data-gar3>
+    <header class="gar2__cabeca">
+      <div class="gar2__titulos">
+        <h1 class="gar__titulo">A minha garagem</h1>
+        <p class="gar__sub">Escolha um veículo para ver as peças compatíveis com a versão exata.</p>
+      </div>
+    </header>
+    <div class="gar__corpo gar2__corpo" data-blocos>${garagemV3Html(d)}</div>
+  </main>
+  <p class="ini3__aviso" role="status" aria-live="polite"></p>
+  <div class="ini4__brinde" data-por-cima role="status" aria-live="polite" hidden></div>
+</div>`;
+}

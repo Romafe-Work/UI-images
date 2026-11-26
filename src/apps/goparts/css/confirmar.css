@@ -1,0 +1,23 @@
+/* PEÇA A PEÇA — o diálogo de confirmar antes de apagar (26 nov. 2026); o desenho do «Eliminar a lista» */
+.cf { width: min(460px, calc(100vw - 32px)); max-width: none; padding: 0; border: 1px solid var(--i3-borda-forte, var(--c-borda-forte)); border-radius: var(--r-md);
+  background: var(--i3-sup, var(--c-superficie)); color: var(--i3-tinta, var(--c-texto)); box-shadow: 0 24px 60px rgb(0 0 0 / .32); }
+.cf::backdrop { background: rgb(8 12 18 / .55); }
+.cf__caixa { display: grid; gap: 12px; padding: 22px; }
+.cf__ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--c-erro-suave, rgb(230 83 88 / .16)); color: var(--c-erro, #e65358); }
+.cf__ic svg { width: 20px; height: 20px; }
+.cf h2 { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.3; }
+.cf p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--i3-tinta-2, var(--c-texto-2)); }
+.cf__accoes { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.cf .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid var(--i3-borda-forte, var(--c-borda-forte)); border-radius: var(--r-md); background: transparent; color: inherit; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease; }
+.cf .btn__icone { width: 16px; height: 16px; }
+.cf .cf__nao:hover { background: var(--i3-sup-2, var(--c-superficie-2)); }
+.cf .cf__sim { background: var(--c-erro, #d23f45); border-color: var(--c-erro, #d23f45); color: #fff; font-weight: 700; }
+.cf .cf__sim:hover { filter: brightness(1.08); }
+.cf .btn:focus-visible { outline: 2px solid #4fa8e6; outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .cf[open] { animation: cf-entra 200ms cubic-bezier(.22, 1, .36, 1); }
+  .cf[open]::backdrop { animation: cf-fundo 200ms ease; }
+}
+@keyframes cf-entra { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+@keyframes cf-fundo { from { opacity: 0; } }
+@media (max-width: 479.98px) { .cf__accoes { flex-direction: column-reverse; } .cf .btn { justify-content: center; min-height: 44px; } }

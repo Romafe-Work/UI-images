@@ -54,6 +54,8 @@ import './css/lado-leve.css';
 import './css/moderno.css';
 import './css/vida.css';
 import './css/garagem-v2.css';
+import './css/confirmar.css';
+import './css/garagem-v3.css';
 import './comportamento/garagem-v2';
 import '../../comum/css/editor.css';
 

@@ -46,3 +46,29 @@ document.addEventListener('click', (ev) => {
     marcar(li.closest<HTMLElement>('.gar2__lista')!, li.dataset.matricula!, true);
   }
 }, true);
+
+/* (26 nov., v3) clicar no chão do lugar é o mesmo que «Ver peças compatíveis» */
+document.addEventListener('click', (ev) => {
+  const chao = (ev.target as HTMLElement).closest?.<HTMLElement>('[data-gar3] [data-gar3-abrir]'); if (!chao) return;
+  chao.closest('.gar3__lugar')?.querySelector<HTMLElement>('[data-pecas-matricula]')?.click();
+});
+
+/* (26 nov., v3) um veículo novo entra no lugar de marcha-atrás: o comportamento da garagem troca o bloco inteiro,
+   por isso compara-se com o que lá estava */
+const vistas = new WeakMap<HTMLElement, Set<string>>();
+function estacionar(main: HTMLElement): void {
+  const agora = new Set(Array.from(main.querySelectorAll<HTMLElement>('.gar3__lugar[data-matricula]')).map((l) => l.dataset.matricula!));
+  const antes = vistas.get(main); vistas.set(main, agora);
+  if (!antes || quieto()) return;
+  agora.forEach((m) => { if (antes.has(m)) return; main.querySelector(`.gar3__lugar[data-matricula="${m}"] .gar3__carro`)?.classList.add('is-a-entrar'); });
+}
+function vigiar(): void {
+  document.querySelectorAll<HTMLElement>('[data-gar3]').forEach((main) => {
+    if (vistas.has(main)) return;
+    estacionar(main);
+    new MutationObserver(() => estacionar(main)).observe(main, { childList: true, subtree: true });
+  });
+}
+document.addEventListener('romafe:ecra', vigiar); document.addEventListener('romafe:versao', vigiar);
+window.addEventListener('hashchange', () => window.setTimeout(vigiar, 50));
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => window.setTimeout(vigiar, 50)); else window.setTimeout(vigiar, 50);

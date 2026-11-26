@@ -500,7 +500,12 @@ function abrirPedido(main: HTMLElement): void {
   if (!o) return;
   if (o.tipo === 'ref' && REFERENCIAS.some((r) => r[2] === o!.ref)) { abrirDetalhes(main, o.fab, o.ref); ir(main, 'detalhes'); }
   else if (o.tipo === 'marca') { encherModelos(main, o.marca); ir(main, 'modelos'); }
-  else if (o.tipo === 'modelo') { encherModelos(main, o.marca); main.dataset.modelo = o.modelo; encherVeiculos(main, o.marca, o.modelo); ir(main, 'veiculos'); }
+  else if (o.tipo === 'modelo') {
+    encherModelos(main, o.marca); main.dataset.modelo = o.modelo; encherVeiculos(main, o.marca, o.modelo);
+    /* (26 nov.) da garagem vem a versão exata: escolhe-a e abre já o Grupo montagem (não se pede outra vez a versão) */
+    const linha = o.versao ? Array.from(main.querySelectorAll<HTMLElement>('.cat3__vista[data-so="veiculos"] tbody .cat3__linha')).find((l) => l.dataset.versao === o.versao) : undefined;
+    if (linha) { main.dataset.versao = o.versao!; linha.setAttribute('aria-selected', 'true'); ir(main, 'grupos' as Vista); } else ir(main, 'veiculos');
+  }
   else if (o.tipo === 'grupo') { abrirReferencias(main, o.grupo, [], 'universal'); ir(main, 'referencias'); }
   else if (o.tipo === 'vista' && o.vista === 'universal') ir(main, 'universal' as Vista);
 }

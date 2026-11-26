@@ -4,7 +4,7 @@
    (escolha · carroçaria · identidade · ficha · última pesquisa · ações). Só tokens (--c-*, --i3-*), por isso
    serve o claro e o escuro. Transições de 150–200 ms, só cor, sombra e transform; nada com movimento reduzido.
    ========================================================= */
-.gar2 { --gar2-azul: #147dc0; --gar2-azul-suave: rgb(20 125 192 / .14); gap: 16px; max-width: 1360px; }
+.gar2 { --gar2-azul: #147dc0; --gar2-azul-suave: rgb(20 125 192 / .14); gap: 16px; }
 [data-theme="dark"] .gar2 { --gar2-azul: #4fa8e6; --gar2-azul-suave: rgb(79 168 230 / .16); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gar2 { --gar2-azul: #4fa8e6; --gar2-azul-suave: rgb(79 168 230 / .16); } }
 

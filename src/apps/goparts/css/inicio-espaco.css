@@ -490,3 +490,6 @@
 /* (20 out., V4) o título da pesquisa, por cima dos três modos */
 .ini3__pesquisa-titulo { margin: 0 0 10px; font-family: var(--f-titulo); font-size: 20px; font-weight: 600; line-height: 1.2; color: var(--i3-tinta); }
 @media (max-width: 560px) { .ini3__pesquisa-titulo { font-size: 18px; } }
+/* (26 nov.) ela: o «+» e «Adicionar veículo» na mesma linha */
+.ini4__novo { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 10px; }
+.ini4__novo > :not(.ini4__novo-icone, label) { grid-column: 1 / -1; }

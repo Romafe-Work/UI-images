@@ -5,7 +5,7 @@
    ========================================================= */
 
 import { montraHtml, type EstadoMontra } from './montra';
-import { garagemPagina, garagemPaginaV2 } from './garagem';
+import { garagemPagina, garagemPaginaV2, garagemPaginaV3 } from './garagem';
 import type { EcraGoParts } from '../ids';
 import { portal } from './base';
 import { estadosInicio, estadosCatalogo, estadosPedidos, estadosGuias, estadosFaturas, estadosDevolucoes } from './estados';
@@ -28,7 +28,9 @@ export const ecrasPortal: EcraGoParts[] = [
   /* 21 out.: a garagem passa a ecrã próprio, o primeiro do menu (ela: «a minha garagem deve ser a primeira opção de menu») */
   { id: 'garagem', nome: '09 · A minha garagem', fluxo: FLUXO, objetivo: 'Os veículos com que a oficina trabalha: o favorito primeiro, marcar, mudar o nome, tirar e adicionar pela matrícula; «Peças compatíveis» abre o Catálogo com o veículo e «Usar na pesquisa» identifica-o na Pesquisar peças.', versoes: [{ id: 'v1', nota: 'A garagem como ecrã (21 out.), com o bloco que estava na Pesquisar peças', html: portal('garagem', garagemPagina(), undefined, { menu: true, rodape: false }) },
     /* 26 nov. (briefing «Premium B2B Automotive Portal»): a v2 em lista, com o veículo em uso; a v1 sai da lista (uma versão por ecrã) */
-    { id: 'v2', nota: 'A garagem como lista de trabalho (26 nov.): um veículo em uso (o círculo à esquerda; por omissão o favorito) com o único botão laranja; a identidade (matrícula, nome, versão) antes da ficha do catálogo (ano, combustível, potência, cilindrada, motor) e da última pesquisa; adicionar numa barra compacta pela matrícula, ou pela marca e modelo no Catálogo; a carroçaria em traço, parada', html: portal('garagem', garagemPaginaV2(), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v1') as EcraGoParts['versoes'] },
+    { id: 'v2', nota: 'A garagem como lista de trabalho (26 nov.): um veículo em uso (o círculo à esquerda; por omissão o favorito) com o único botão laranja; a identidade (matrícula, nome, versão) antes da ficha do catálogo (ano, combustível, potência, cilindrada, motor) e da última pesquisa; adicionar numa barra compacta pela matrícula, ou pela marca e modelo no Catálogo; a carroçaria em traço, parada', html: portal('garagem', garagemPaginaV2(), undefined, { menu: true, rodape: false }) },
+    /* 26 nov. (ela: «quero ter mesmo o efeito como se fosse mesmo uma garagem»): a v3; a v2 sai da lista */
+    { id: 'v3', nota: 'Uma garagem a sério (26 nov.): cada veículo num lugar visto de cima — chão, riscas pintadas, número do lugar, o carro em traço e a matrícula; a luz acende-se no lugar apontado; o lugar (ou «Ver peças compatíveis») abre o Grupo montagem da versão exata; a estrela põe-no no lugar 01; «…» muda o nome ou tira-o (com confirmação); o último lugar livre é onde se adiciona pela matrícula, e o carro entra de marcha-atrás', html: portal('garagem', garagemPaginaV3(), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v1' && v.id !== 'v2') as EcraGoParts['versoes'] },
   /* 20 out. 2026 (V5, briefing «New Command Dashboard & Separate Parts Search Workspace»): o Início passa a painel da
      atividade e a pesquisa de peças vai para o seu ecrã (18 · Pesquisar peças, logo a seguir). Uma só versão por
      ecrã: a v3 (o espaço de trabalho com a pesquisa) saiu daqui — o código dela é o da Pesquisar peças. */

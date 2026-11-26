@@ -20,6 +20,7 @@
    - O Catálogo («Adicionar à minha lista») deixa as referências em sessionStorage; ao abrir a lista, entram.
    Os estados do ecrã (15.x, .portal--estado) são parados: esta camada não lhes mexe.
    ========================================================= */
+import { confirmar } from './confirmar';
 import { mostrar } from '../../../comum/ecras';
 import { REFERENCIAS } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
@@ -592,7 +593,15 @@ export function iniciar(): void {
         novo.querySelector<HTMLElement>(`.lst__modo [data-modo="${mb.dataset.modo}"]`)?.focus();
         recalcular(lst); sujar(lst); return;
       }
-      if (t.closest('[data-remover]')) { remover(lst, li); return; }
+      /* (26 nov.) ela: apagar pergunta sempre primeiro (comportamento/confirmar.ts) */
+      if (t.closest('[data-remover]')) {
+        const tipo = li.dataset.tipo as Tipo;
+        const nome = tipo === 'peca' ? `${li.querySelector('.lst__marca')?.textContent ?? ''} ${li.dataset.ref ?? ''}`.trim() : (li.querySelector<HTMLInputElement>('.lst__texto')?.value.trim() || '');
+        const que = tipo === 'peca' ? `a peça ${nome}` : tipo === 'mao' ? (nome ? `o serviço «${nome}»` : 'este serviço') : (nome ? `o custo «${nome}»` : 'este custo');
+        void confirmar({ titulo: `Retirar ${que} da lista?`, texto: 'A linha sai da lista e os totais são recalculados. Pode desfazer logo a seguir, no aviso.', sim: 'Retirar da lista' })
+          .then((sim) => { if (sim && li.isConnected) remover(lst, li); });
+        return;
+      }
       if (t.closest('[data-duplicar]')) { const tipo = li.dataset.tipo as Tipo, i = Array.from(li.parentElement!.children).indexOf(li); const novo = inserir(lst, tipo, li.outerHTML.replace(' is-nova', ''), i + 1); novo.querySelector<HTMLElement>('[data-duplicar]')?.focus(); return; }
     }
   }, true);

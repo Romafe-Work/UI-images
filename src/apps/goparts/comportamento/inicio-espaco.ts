@@ -86,9 +86,11 @@ function aCarregar(b: HTMLElement, texto: string): () => void {
 }
 const espera = (ms: number) => new Promise((r) => window.setTimeout(r, quieto() ? Math.min(ms, 150) : ms));
 import { irFiltrado } from './filtro-chegada';
-import { garagemV2Html, emUsoDe } from '../portal/garagem-v2';
+import { confirmar } from './confirmar';
+import { garagemV2Html, garagemV3Html, emUsoDe } from '../portal/garagem-v2';
+import { versaoDe } from '../portal/inicio-espaco';
 /** (26 nov.) a garagem v2 desenha-se com o seu próprio HTML, com o veículo em uso */
-const garagemDe = (ini: HTMLElement, d: Dados, escolhida: string) => (ini.hasAttribute('data-gar2') ? garagemV2Html(d, emUsoDe(d.garagem)) : garagemHtml(d, '', escolhida));
+const garagemDe = (ini: HTMLElement, d: Dados, escolhida: string) => (ini.hasAttribute('data-gar3') ? garagemV3Html(d) : ini.hasAttribute('data-gar2') ? garagemV2Html(d, emUsoDe(d.garagem)) : garagemHtml(d, '', escolhida));
 function ir(id: string, chave?: string, valor?: string): void { if (chave) try { sessionStorage.setItem(chave, valor ?? ''); } catch { /* abre só o ecrã */ } mostrar(id); }
 const barra = (tipo: string) => document.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) [data-barra="${tipo}"]:not([hidden])`)?.click();
 
@@ -102,7 +104,9 @@ function registar(a: Omit<Atividade, 'quando'>): void {
 }
 function abrirVeiculoNoCatalogo(c: Pick<Carro, 'marca' | 'modelo' | 'matricula'> & Partial<Carro>, grupo = ''): void {
   registar({ tipo: 'veiculo', titulo: nomeCarro({ id: '', ano: 0, v: 0, ...c } as Carro), sub: `${grupo || 'Peças compatíveis'}${c.matricula ? ` · ${c.matricula}` : ''}`, dados: { matricula: c.matricula } });
-  ir('catalogo', 'goparts:catalogo-abrir', JSON.stringify({ tipo: 'modelo', marca: c.marca, modelo: c.modelo }));
+  /* (26 nov.) com a versão exata, quando se sabe (veículos da garagem): o Catálogo abre já nos grupos dela */
+  const versao = typeof c.v === 'number' ? versaoDe({ marca: c.marca, modelo: c.modelo, v: c.v })?.versao : undefined;
+  ir('catalogo', 'goparts:catalogo-abrir', JSON.stringify({ tipo: 'modelo', marca: c.marca, modelo: c.modelo, ...(versao ? { versao } : {}) }));
 }
 
 /* =========================================================
@@ -363,7 +367,8 @@ function redesenharGaragem(ini: HTMLElement, mudar: (g: Carro[]) => void, depois
 function favorito(ini: HTMLElement, li: HTMLElement): void {
   const id = li.dataset.carro!;
   let agora = false;
-  redesenharGaragem(ini, (g) => { const c = g.find((x) => x.id === id); if (c) { c.favorito = !c.favorito; agora = c.favorito; } }, (b) => {
+  /* (26 nov.) um só favorito: é o do lugar 01 (ela: «todas as ações devem fazer sentido») */
+  redesenharGaragem(ini, (g) => { const c = g.find((x) => x.id === id); if (c) { c.favorito = !c.favorito; agora = c.favorito; if (agora) g.forEach((x) => { if (x !== c) x.favorito = false; }); } }, (b) => {
     const est = b.querySelector<HTMLElement>(`[data-carro="${id}"] [data-favorito]`);
     est?.focus({ preventScroll: true });
     if (est && agora && !quieto()) est.querySelector('svg')?.animate([{ transform: 'scale(1) rotate(0)' }, { transform: 'scale(1.35) rotate(-18deg)' }, { transform: 'scale(1) rotate(0)' }], { duration: 420, easing: 'cubic-bezier(.3, 1.6, .5, 1)' });
@@ -679,7 +684,15 @@ export function iniciar(): void {
     if ((b = q('[data-favorito]'))) { favorito(ini, b.closest<HTMLElement>('.ini4__carro')!); return; }
     if ((b = q('[data-menu-carro]'))) { const m = b.nextElementSibling as HTMLElement, abrir = m.hidden; ini.querySelectorAll<HTMLElement>('.ini4__menu').forEach((x) => { x.hidden = true; x.previousElementSibling?.setAttribute('aria-expanded', 'false'); }); m.hidden = !abrir; b.setAttribute('aria-expanded', String(abrir)); if (abrir) { m.querySelector<HTMLElement>('[role="menuitem"]')?.focus(); entrar(m, 140, 'translateY(-4px)'); } return; }
     if ((b = q('[data-renomear]'))) { const li = b.closest<HTMLElement>('.ini4__carro')!; b.closest<HTMLElement>('.ini4__menu')!.hidden = true; renomear(li); return; }
-    if ((b = q('[data-remover-carro]'))) { remover(ini, b.closest<HTMLElement>('.ini4__carro')!); return; }
+    /* (26 nov.) ela: apagar pergunta sempre primeiro (comportamento/confirmar.ts) */
+    if ((b = q('[data-remover-carro]'))) {
+      const li = b.closest<HTMLElement>('.ini4__carro')!, menuB = li.querySelector<HTMLElement>('[data-menu-carro]');
+      b.closest<HTMLElement>('.ini4__menu')!.hidden = true; menuB?.setAttribute('aria-expanded', 'false');
+      const nome = li.querySelector('[data-nome]')?.textContent?.trim() ?? '';
+      void confirmar({ titulo: `Tirar ${nome} da garagem?`, texto: `O veículo ${li.dataset.matricula} deixa de aparecer na garagem e na pesquisa. Os pedidos feitos para ele não mudam.`, sim: 'Tirar da garagem', voltar: menuB })
+        .then((sim) => { if (sim) remover(ini, li); });
+      return;
+    }
     /* peças e stock */
     if ((b = q('[data-pecas-filtro]'))) { filtrarPecas(b.closest<HTMLElement>('[data-bloco]')!, b.dataset.pecasFiltro!); return; }
     if ((b = q('[data-favorita-peca]'))) { favoritaPeca(ini, b); return; }

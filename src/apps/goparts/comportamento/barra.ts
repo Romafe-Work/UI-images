@@ -17,6 +17,7 @@
    Esc fecha; clicar fora fecha; o foco volta ao botão; nas camadas modais o Tab fica dentro e a página não rola.
    Sem servidor: o que precisa dele está em LEIA-ME («A barra de topo»).
    ========================================================= */
+import { confirmar } from './confirmar';
 import { mostrar } from '../../../comum/ecras';
 import { irLogin } from './navegar';
 import { aplicar as aplicarTema, actual as temaActual, type Tema } from '../../../comum/tema';
@@ -579,6 +580,8 @@ export function iniciar(): void {
   window.addEventListener('click', (ev) => {
     if (editando()) return;
     const t = ev.target as Element;
+    /* (26 nov.) o diálogo de confirmar (confirmar.ts) por cima de um painel não conta como «clicar fora» */
+    if (t.closest?.('dialog.cf')) return;
     const qual = qualBotao(t);
     if (qual && !t.closest('.bc')) {
       const abre = QUAL[qual[0]]; if (!abre) return;
@@ -609,7 +612,11 @@ export function iniciar(): void {
     if (tirar) {
       const ref = linhaDe(tirar), indice = carrinho.todas().findIndex((x) => x.ref === ref), linha = carrinho.todas()[indice], li = tirar.closest<HTMLElement>('.bc-carr__linha')!;
       const feito = () => { desfazerCarrinho = { linha, indice }; void carrinho.tirar(ref); requestAnimationFrame(() => el.querySelector<HTMLElement>('[data-desfazer-carrinho]')?.focus()); };
-      if (quieto()) feito(); else li.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(16px)' }], { duration: 180, easing: 'ease-in', fill: 'forwards' }).onfinish = feito;
+      /* (26 nov.) ela: apagar pergunta sempre primeiro (comportamento/confirmar.ts) */
+      void confirmar({ titulo: 'Tirar a peça do carrinho?', texto: `${tirar.getAttribute('aria-label')?.replace(/^Tirar | do carrinho$/g, '') ?? ref} sai do carrinho (${linha?.qtd ?? 1} un.). Pode desfazer logo a seguir.`, sim: 'Tirar do carrinho' }).then((sim) => {
+        if (!sim || !li.isConnected) return;
+        if (quieto()) feito(); else li.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(16px)' }], { duration: 180, easing: 'ease-in', fill: 'forwards' }).onfinish = feito;
+      });
       return;
     }
     if (t.closest('[data-encomendar]')) { passoCarr = 'encomendar'; pintarEncomenda(el); el.querySelector<HTMLInputElement>('input[name="entrega"]:checked')?.focus(); return; }
@@ -651,6 +658,7 @@ export function iniciar(): void {
       return;
     }
     if (!aberta) return;
+    if (document.querySelector('dialog.cf[open]')) return; /* o Esc é do diálogo de confirmar */
     const el = aberta.el;
     if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); fechar(); return; }
     if (aberta.tipo === 'pesquisa' && (ev.target as Element).closest?.('.bc-pal')) {

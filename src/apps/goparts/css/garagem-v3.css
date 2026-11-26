@@ -1,0 +1,113 @@
+/* =========================================================
+   PEÇA A PEÇA — 09 · A minha garagem v3 (26 nov. 2026): uma garagem a sério
+   Lugares vistos de cima: chão de betão (um tom acima do fundo, com grão muito fino), riscas pintadas em U, o número
+   do lugar pintado, o carro em traço e a matrícula à frente. A luz do teto acende-se no veículo em uso (só opacidade).
+   Por baixo de cada lugar, a ficha e as ações. Claro e escuro só por tokens.
+   ========================================================= */
+.gar3 { --chao: color-mix(in srgb, var(--c-superficie-2) 70%, var(--c-portal-fundo));
+  --risca: color-mix(in srgb, #f2c94c 70%, var(--c-texto) 30%); --risca-op: .75;
+  --tinta-chao: color-mix(in srgb, var(--c-texto) 16%, transparent);
+  --carro: color-mix(in srgb, var(--c-texto) 55%, transparent); --luz-cor: 255 236 196; --luz-op: .16; }
+:root:not([data-theme="dark"]) .gar3 { --chao: #e9edf1; --risca: #d9a400; --risca-op: .85; --carro: #5b6b7b; --luz-cor: 255 214 120; --luz-op: .32; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gar3 { --chao: color-mix(in srgb, var(--c-superficie-2) 70%, var(--c-portal-fundo)); --risca: color-mix(in srgb, #f2c94c 70%, #f3f6f8 30%); --risca-op: .75; --carro: rgb(243 246 248 / .55); --luz-cor: 255 236 196; --luz-op: .16; } }
+[data-theme="dark"] .gar3 { --chao: color-mix(in srgb, var(--c-superficie-2) 70%, var(--c-portal-fundo)); --risca: color-mix(in srgb, #f2c94c 70%, #f3f6f8 30%); --risca-op: .75; --carro: rgb(243 246 248 / .55); --luz-cor: 255 236 196; --luz-op: .16; }
+
+/* a fila de lugares: um bloco de chão contínuo, com as riscas a separar os lugares */
+.gar3__lugares.ini4__garagem { display: grid; grid-template-columns: repeat(auto-fit, minmax(248px, 1fr)); gap: 0; margin: 0; padding: 0; list-style: none; overflow: visible;
+  border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.gar3__lugar.ini4__carro, .gar3__lugar { position: relative; display: grid; grid-template-rows: auto 1fr; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; cursor: pointer; flex: none; }
+.gar3__lugar:hover { background: none; }
+.gar3__lugar--livre { cursor: default; }
+
+/* o chão */
+.gar3__chao { position: relative; height: 270px; overflow: hidden; background-color: var(--chao);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+.gar3__lugar:first-child .gar3__chao { border-top-left-radius: calc(var(--r-md) - 1px); }
+/* as riscas: a de trás e as dos lados (a da esquerda só no primeiro de cada fila — as outras são partilhadas) */
+.gar3__chao::before { content: ""; position: absolute; inset: 14px 0 0 0; border-top: 4px solid var(--risca); border-right: 4px solid var(--risca); opacity: var(--risca-op); pointer-events: none; }
+.gar3__lugar:first-child .gar3__chao::before { border-left: 4px solid var(--risca); left: 10px; }
+/* o corredor: um traço de paragem tracejado à frente dos lugares */
+.gar3__chao::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--tinta-chao) 0 18px, transparent 18px 32px); }
+
+/* o número do lugar, pintado no chão */
+.gar3__n { position: absolute; left: 20px; bottom: 14px; font: 800 34px/1 var(--f-mono, ui-monospace, "SFMono-Regular", Menlo, monospace); letter-spacing: .04em; color: var(--tinta-chao); pointer-events: none; }
+.gar3__livre-t { position: absolute; inset: 0; display: grid; place-items: center; font: 800 22px/1 ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; color: var(--tinta-chao); }
+
+/* a luz do teto: um cone suave, aceso só no veículo em uso */
+.gar3__luz { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 220ms ease;
+  background: radial-gradient(70% 60% at 50% 0, rgb(var(--luz-cor) / var(--luz-op)), transparent 75%), linear-gradient(180deg, rgb(var(--luz-cor) / calc(var(--luz-op) * .5)), transparent 40%); }
+.gar3__luz::before { content: ""; position: absolute; top: 0; left: 50%; width: 64px; height: 5px; margin-left: -32px; border-radius: 0 0 4px 4px; background: rgb(var(--luz-cor) / .9); box-shadow: 0 0 18px 4px rgb(var(--luz-cor) / .35); }
+.gar3__lugar:not(.gar3__lugar--livre):focus-within .gar3__luz { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .gar3__lugar:not(.gar3__lugar--livre):hover .gar3__luz { opacity: 1; } }
+[data-gar3-abrir] { cursor: pointer; }
+
+/* o carro e a matrícula */
+.gar3__carro { position: absolute; left: 50%; top: 30px; width: 108px; margin-left: -54px; transition: transform 200ms ease; }
+.gar3__carro-svg { display: block; width: 100%; height: auto; fill: none; stroke: var(--carro); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; transition: stroke 220ms ease; }
+.gar3__corpo { fill: color-mix(in srgb, var(--c-superficie) 55%, transparent); }
+.gar3__vidro { fill: color-mix(in srgb, var(--c-texto) 8%, transparent); }
+.gar3__roda { fill: var(--carro); stroke: none; }
+.gar3__linha { stroke-width: 1.4; opacity: .7; }
+.gar3__farol { stroke-width: 3; }
+.gar3__lugar:is(:hover, :focus-within) .gar3__carro-svg { stroke: var(--gar2-azul); }
+.gar3__lugar:is(:hover, :focus-within) .gar3__roda { fill: var(--gar2-azul); }
+.gar3__lugar:is(:hover, :focus-within) .gar3__farol { stroke: rgb(var(--luz-cor)); }
+.gar3__matricula.gar2__matricula { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); }
+.gar3__escolha.gar2__escolha { position: absolute; top: 26px; right: 14px; }
+.gar3__lugar:first-child .gar3__escolha { right: 18px; }
+
+/* entrar de marcha-atrás */
+@media (prefers-reduced-motion: no-preference) {
+  .gar3__carro.is-a-entrar { animation: gar3-entra 900ms cubic-bezier(.22, 1, .36, 1) both; }
+}
+@keyframes gar3-entra { 0% { transform: translateY(150px) rotate(-8deg); opacity: 0; } 60% { transform: translateY(12px) rotate(-1deg); opacity: 1; } 100% { transform: none; } }
+
+/* por baixo do lugar: a placa com a ficha e as ações */
+.gar3__info { display: grid; align-content: start; gap: 6px; padding: 14px 16px 16px; border-top: 1px solid var(--c-borda); border-right: 1px solid var(--c-borda); }
+.gar3__lugar:last-child .gar3__info { border-right: 0; }
+.gar3__info .gar2__nome { margin: 0; }
+.gar3__ficha { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 6px 0 2px; }
+.gar3__ficha div { display: grid; gap: 1px; min-width: 0; }
+.gar3__ficha dt { font-size: 12px; color: var(--c-texto-3); }
+.gar3__ficha dd { margin: 0; font-size: 14px; font-weight: 600; color: var(--c-texto); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.gar3__ficha div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.gar3__info .gar2__ultima { margin-top: 4px; }
+.gar3__acoes { display: grid; grid-template-columns: minmax(0, 1fr) 38px 38px; gap: 6px; margin-top: 8px; }
+.gar3__acoes .gar2__principal { grid-column: 1 / -1; justify-content: center; }
+.gar3 .gar3__acoes .gar2__secundario.btn { justify-content: flex-start; padding: 0 10px; }
+
+/* o lugar livre */
+.gar3__novo { gap: 8px; }
+.gar3__novo-t { display: flex; align-items: center; gap: 8px; }
+.gar3__novo-t svg { width: 18px; height: 18px; color: var(--c-acao); }
+.gar3__novo-t b { font-size: 15px; color: var(--c-texto); }
+.gar3__placa.gar2__placa { width: 100%; }
+.gar3 .gar3__identificar.btn { justify-content: center; height: 40px; }
+.gar3__erro.gar2__erro { text-align: left; }
+.gar3__lugar--livre .gar3__chao::before { border-style: dashed; }
+.gar3__lugar--livre:focus-within .gar3__livre-t { color: color-mix(in srgb, var(--risca) 70%, transparent); }
+
+/* telemóvel: um lugar por linha, com o chão mais baixo */
+@media (max-width: 767.98px) {
+  .gar3__lugares.ini4__garagem { grid-template-columns: 1fr; }
+  .gar3__chao { height: 230px; }
+  .gar3__carro { width: 92px; margin-left: -46px; top: 28px; }
+  .gar3__info { border-right: 0; }
+  .gar3__lugar .gar3__chao::before { border-left: 4px solid var(--risca); left: 10px; right: 10px; }
+  .gar3__escolha.gar2__escolha { right: 20px; }
+  .gar3 .gar2__btn.btn, .gar3 .gar2__icone { min-height: 44px; height: 44px; }
+  .gar3__acoes { grid-template-columns: minmax(0, 1fr) 44px 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .gar3 *, .gar3 *::before { transition: none !important; } }
+
+/* (26 nov.) a grelha da v2 (.gar2__carro, colunas, áreas e container queries) não vale nos lugares */
+.gar3 .gar3__lugares .gar3__lugar.gar2__carro.ini4__carro { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: none; grid-template-rows: auto 1fr; gap: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; align-items: stretch; }
+.gar3 .gar3__lugar > * { grid-area: auto; }
+.gar3 .gar__corpo h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.gar3 .gar3__info .gar2__linha1 { flex-wrap: wrap; }
+.gar3 .gar3__info .gar2__ultima { display: flex; }
+.gar3 .gar3__info > *, .gar3 .gar3__acoes > * { grid-area: auto; }
+.gar3 .gar3__info { grid-template-columns: minmax(0, 1fr); }
+.gar3 .gar3__acoes .gar2__principal { grid-column: 1 / -1; }
+.gar3 .gar3__acoes .btn { width: 100%; min-width: 0; }
+.gar3 .gar3__acoes .ini4__estrela { grid-column: 2; } .gar3 .gar3__acoes .gar2__menu-sitio { grid-column: 3; }
