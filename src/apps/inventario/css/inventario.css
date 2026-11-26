@@ -162,15 +162,27 @@
 .inv__linhas--resumo li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--i-sup); border-radius: var(--r-md); }
 .inv__linhas--resumo strong { font-size: 19px; font-weight: 900; color: var(--i-ligado); }
 
-/* ---------- fotografias ---------- */
-.inv__fotos { display: flex; gap: 10px; }
-.inv__foto { flex: 1; min-width: 0; min-height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px; background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); font: inherit; color: var(--i-tinta); cursor: pointer; text-align: center; }
-.inv__foto svg { width: 28px; height: 28px; color: var(--i-azul); }
-.inv__foto small { color: var(--i-tinta-2); font-size: 12px; }
-.inv__foto.is-obrigatoria { border: 2px solid var(--i-laranja); }
-.inv__foto.is-obrigatoria svg { color: var(--i-laranja); }
-.inv__foto.is-feita { background: var(--i-ok-suave); border-color: var(--i-ok); }
-.inv__foto.is-feita svg { color: var(--i-ok); }
+/* ---------- 26 nov. (2.0.0): secções, tempo de prateleira, histórico ---------- */
+.inv__btn--fim { color: var(--i-erro) !important; border-color: var(--i-erro) !important; }
+.inv__btn--fim:hover:not(:disabled) { background: var(--i-erro-suave) !important; }
+.inv__seccao { display: flex; flex-direction: column; gap: 10px; }
+.inv__seccao small.is-decorrer { color: var(--i-laranja); font-weight: 700; }
+.inv__certo { color: var(--i-ok); }
+.inv__grande { font-size: 24px; font-weight: 900; color: var(--i-ligado); line-height: 1.1; }
+.inv__dica--pe { padding: 8px 0; font-size: 15px; }
+.inv__relogio { display: inline-flex; align-items: center; gap: 4px; color: #fff; padding: 0 4px; }
+.inv__relogio svg { width: 18px; height: 18px; color: var(--i-topo-sub); }
+.inv__relogio b { font-family: var(--f-mono); font-size: 15px; }
+.inv__escolha { min-height: 44px; border-radius: var(--r-md); border: 1px solid var(--i-borda); background: var(--i-sup); color: var(--i-tinta-2); font: inherit; font-weight: 700; cursor: pointer; }
+.inv__escolha.is-ativa { border: 2px solid var(--i-azul); color: var(--i-ligado); background: var(--i-azul-suave); }
+.inv__titulo-hist { font-family: var(--f-mono); font-size: 18px; font-weight: 900; }
+.inv__hist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.inv__hist li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); }
+.inv__hist li b { font-size: 14px; }
+.inv__hist li small { color: var(--i-tinta-2); font-size: 12px; }
+.inv__hist li strong { font-size: 16px; font-weight: 900; }
+.inv__hist .is-contagem > svg { color: var(--i-ligado); } .inv__hist .is-entrada > svg { color: var(--i-ok); }
+.inv__hist .is-acerto > svg { color: var(--i-laranja); } .inv__hist .is-saida > svg { color: var(--i-tinta-2); }
 
 /* ---------- campos ---------- */
 .inv__campo { display: flex; flex-direction: column; gap: 4px; }
@@ -181,11 +193,6 @@
 .inv__campo.is-erro input { border-color: var(--i-erro); }
 .inv__campo small { color: var(--i-erro); font-size: 12px; }
 
-.inv__interruptor { position: relative; width: 48px; height: 28px; flex: none; border-radius: 999px; background: var(--i-borda); cursor: pointer; transition: background-color var(--tr); }
-.inv__interruptor i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: var(--s-1); transition: transform 180ms var(--ease-out); }
-.inv__interruptor.is-ligado { background: var(--i-ligado); }
-.inv__interruptor.is-ligado i { transform: translateX(20px); }
-.inv__interruptor.is-inativo { opacity: .45; pointer-events: none; }
 
 /* ---------- diálogos e o «a falar com o ERP» ---------- */
 .inv__veu { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.55); animation: inv-veu 160ms ease-out; }
