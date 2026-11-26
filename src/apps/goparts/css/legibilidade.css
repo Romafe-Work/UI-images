@@ -1,0 +1,40 @@
+/* =========================================================
+   PEÇA A PEÇA — legibilidade e tema claro (26 nov. 2026). Carregado no fim.
+   Ela: «todas as letras estão muito pequeninas», «não gosto muito de letra cinza», «melhora o tema light mode» e
+   «se está selecionado coloca o texto a laranja» (o menu de lado).
+   ========================================================= */
+
+/* ---------- 1 · tudo um pouco maior: o conteúdo de cada ecrã a 110 % (o menu e a barra de cima têm os seus) ---------- */
+.portal--lateral > main, .portal--lateral > .portal__conteudo, .portal--lateral main.hx, .portal--lateral main.gar, .portal--lateral main.mt, .portal--lateral main.ini3 { zoom: 1.1; }
+.portal--lateral .portal__topo { font-size: 15px; }
+.portal--lateral .portal__topo .procura__campo { font-size: 15px; }
+
+/* ---------- 2 · menos cinzento: o texto secundário quase como o principal ---------- */
+:root { --g-tinta-2: #d2d9df; --g-tinta-3: #b4bec8; }
+[data-theme="dark"] :is(.portal--noite, .portal--ini3) { --c-texto-2: #d2d9df; --c-texto-3: #b4bec8; --i3-tinta-2: #d2d9df; --i3-tinta-3: #b4bec8; --gp-lado-tinta-2: #d2d9df; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.portal--noite, .portal--ini3) { --c-texto-2: #d2d9df; --c-texto-3: #b4bec8; --i3-tinta-2: #d2d9df; --i3-tinta-3: #b4bec8; --gp-lado-tinta-2: #d2d9df; } }
+
+/* ---------- 3 · o tema claro: fundo pérola, barra e menu brancos, cartões brancos com borda nítida, texto quase preto ---------- */
+:root:not([data-theme="dark"]) :is(.portal--noite, .portal--ini3) {
+  --c-portal-fundo: #f1f4f7; --c-superficie: #ffffff; --c-superficie-2: #f5f7fa; --c-superficie-3: #f5f7fa;
+  --c-borda: #dde3e9; --c-borda-forte: #c4cdd6;
+  --c-texto: #111b26; --c-texto-2: #2f3c4a; --c-texto-3: #475665;
+  --i3-fundo: #f1f4f7; --i3-sup: #ffffff; --i3-sup-2: #f5f7fa; --i3-borda: #dde3e9; --i3-borda-forte: #c4cdd6;
+  --i3-tinta: #111b26; --i3-tinta-2: #2f3c4a; --i3-tinta-3: #475665;
+  --gp-topo: #ffffff; --gp-lado: #ffffff; --gp-lado-ativo: #f1f4f7; --gp-lado-tinta: #111b26; --gp-lado-tinta-2: #2f3c4a;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) :is(.portal--noite, .portal--ini3) {
+  --c-portal-fundo: var(--g-fundo); --c-superficie: var(--g-sup-2); --c-superficie-2: var(--g-elevado); --c-borda: var(--g-borda); --c-borda-forte: var(--g-borda-forte);
+  --c-texto: var(--g-tinta); --i3-fundo: var(--g-fundo); --i3-sup: var(--g-sup-2); --i3-sup-2: var(--g-elevado); --i3-borda: var(--g-borda); --i3-borda-forte: var(--g-borda-forte); --i3-tinta: var(--g-tinta);
+  --gp-topo: var(--g-barra); --gp-lado: var(--g-barra); --gp-lado-ativo: var(--g-sup-2); --gp-lado-tinta: var(--g-tinta); } }
+/* no claro, os cartões levantam-se um pouco do fundo (uma sombra curta) */
+:root:not([data-theme="dark"]) .portal--lateral :is(.hx__cartao, .hx__barra, .hx__resumo, .hx__tabela-caixa, .gar3__lugar, .sg__cartao, .ini4__bloco, .mt__sec) { box-shadow: 0 1px 2px rgb(16 24 40 / .06); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) .portal--lateral :is(.hx__cartao, .hx__barra, .hx__resumo, .hx__tabela-caixa, .gar3__lugar, .sg__cartao, .ini4__bloco, .mt__sec) { box-shadow: none; } }
+
+/* ---------- 4 · o menu: o escolhido com o texto a laranja ---------- */
+.portal--lateral .lado__item[aria-current="page"], .portal--lateral .lado__item[aria-current="page"] .lado__rotulo { color: #f58220 !important; }
+:root:not([data-theme="dark"]) .portal--lateral .lado__item[aria-current="page"], :root:not([data-theme="dark"]) .portal--lateral .lado__item[aria-current="page"] .lado__rotulo { color: #d96a0b !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) .portal--lateral .lado__item[aria-current="page"] .lado__rotulo { color: #f58220 !important; } }
+/* o conteúdo nunca passa da largura da janela (a faixa das categorias anda por dentro); no telemóvel, sem aumento */
+.portal--lateral > main { overflow-x: clip; }
+@media (max-width: 767.98px) { .portal--lateral > main, .portal--lateral main.hx, .portal--lateral main.gar, .portal--lateral main.mt, .portal--lateral main.ini3 { zoom: 1; } }
