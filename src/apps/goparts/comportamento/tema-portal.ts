@@ -14,9 +14,8 @@ function escolhido(): string {
 }
 function marcar(): void {
   const v = escolhido();
-  document.documentElement.classList.toggle('tema-galaxia', v === 'dark');
-  /* (26 nov.) «a galáxia deve estar no light mode too» */
-  document.documentElement.classList.toggle('tema-galaxia-claro', v === 'light');
+  /* (26 nov.) ela: «esquece a galáxia, fica mal» — sem céu em nenhum tema (as classes antigas saem) */
+  document.documentElement.classList.remove('tema-galaxia', 'tema-galaxia-claro');
   document.querySelectorAll<HTMLElement>('[data-tema-p]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.temaP === v)));
 }
 function escolher(v: string): void {

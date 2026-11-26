@@ -38,3 +38,18 @@
 /* o conteúdo nunca passa da largura da janela (a faixa das categorias anda por dentro); no telemóvel, sem aumento */
 .portal--lateral > main { overflow-x: clip; }
 @media (max-width: 767.98px) { .portal--lateral > main, .portal--lateral main.hx, .portal--lateral main.gar, .portal--lateral main.mt, .portal--lateral main.ini3 { zoom: 1; } }
+
+/* =========================================================
+   (26 nov.) ela: «não gosto destas letras cinza claro, prefiro outra cor que fique bem, tipo preto ou branco bold».
+   Os textos secundários e os rótulos («Combustível», «Ano», «Processamento»…) passam à cor do texto principal
+   (branco no escuro, quase preto no claro) e a seminegrito; a hierarquia faz-se pelo tamanho e pelo peso.
+   ========================================================= */
+[data-theme="dark"] :is(.portal--noite, .portal--ini3), [data-theme="dark"] .bc, [data-theme="dark"] dialog { --c-texto-2: #f4f5f6; --c-texto-3: #e6eaee; --i3-tinta-2: #f4f5f6; --i3-tinta-3: #e6eaee; --gp-lado-tinta-2: #e6eaee; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.portal--noite, .portal--ini3, .bc) { --c-texto-2: #f4f5f6; --c-texto-3: #e6eaee; --i3-tinta-2: #f4f5f6; --i3-tinta-3: #e6eaee; --gp-lado-tinta-2: #e6eaee; } }
+:root:not([data-theme="dark"]) :is(.portal--noite, .portal--ini3) { --c-texto-2: #111b26; --c-texto-3: #1d2834; --i3-tinta-2: #111b26; --i3-tinta-3: #1d2834; --gp-lado-tinta-2: #1d2834; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) :is(.portal--noite, .portal--ini3) { --c-texto-2: #f4f5f6; --c-texto-3: #e6eaee; --i3-tinta-2: #f4f5f6; --i3-tinta-3: #e6eaee; } }
+/* rótulos a seminegrito, os valores a negrito */
+.portal--lateral :is(dt, .hx__outro-r, .gar2__rotulo, .hx__meta, .hx__nota, .gar2__versao, .hx__sub, .gar__sub, .sg__fab, .hx__mes-n, .hx__conta, .hx__dia, .sg__c-preco span, .hx__valor small, small) { font-weight: 600; }
+.portal--lateral :is(dd, .hx__estado--forte, .gar3__ficha dd, .hx__valor) { font-weight: 700; }
+/* os marcadores de texto dentro dos campos (placeholders) continuam mais leves, para não se confundirem com o que se escreve */
+.portal--lateral :is(input, textarea)::placeholder { color: color-mix(in srgb, var(--c-texto) 55%, transparent); font-weight: 400; }
