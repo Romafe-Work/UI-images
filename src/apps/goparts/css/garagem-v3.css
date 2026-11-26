@@ -13,7 +13,7 @@
 [data-theme="dark"] .gar3 { --chao: color-mix(in srgb, var(--c-superficie-2) 70%, var(--c-portal-fundo)); --risca: color-mix(in srgb, #f2c94c 70%, #f3f6f8 30%); --risca-op: .75; --carro: rgb(243 246 248 / .55); --luz-cor: 255 236 196; --luz-op: .16; }
 
 /* a fila de lugares: um bloco de chão contínuo, com as riscas a separar os lugares */
-.gar3__lugares.ini4__garagem { display: grid; grid-template-columns: repeat(auto-fit, minmax(248px, 1fr)); gap: 0; margin: 0; padding: 0; list-style: none; overflow: visible;
+.gar3__lugares.ini4__garagem { display: grid; grid-template-columns: repeat(auto-fill, minmax(224px, 1fr)); gap: 0; margin: 0; padding: 0; list-style: none; overflow: visible;
   border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
 .gar3__lugar.ini4__carro, .gar3__lugar { position: relative; display: grid; grid-template-rows: auto 1fr; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; cursor: pointer; flex: none; }
 .gar3__lugar:hover { background: none; }
@@ -111,3 +111,30 @@
 .gar3 .gar3__acoes .gar2__principal { grid-column: 1 / -1; }
 .gar3 .gar3__acoes .btn { width: 100%; min-width: 0; }
 .gar3 .gar3__acoes .ini4__estrela { grid-column: 2; } .gar3 .gar3__acoes .gar2__menu-sitio { grid-column: 3; }
+
+/* (26 nov.) ela: «mais pequenino» — lugares estreitos (auto-fill, ~224 px) e o resto da fila com lugares vazios
+   (comportamento/garagem-v2.ts acrescenta-os), para a garagem continuar a ocupar a largura toda */
+.gar3__chao { height: 236px; }
+.gar3__carro { top: 26px; width: 96px; margin-left: -48px; }
+.gar3__n { font-size: 28px; }
+.gar3__lugar--vazio { cursor: default; }
+.gar3__lugar--vazio .gar3__info { min-height: 100%; }
+.gar3__lugar--vazio .gar3__chao::before { opacity: calc(var(--risca-op) * .7); }
+@media (max-width: 767.98px) { .gar3__lugar--vazio { display: none; } }
+
+/* (26 nov.) ela: a estrela e o «…» dentro da garagem, no canto de cima à direita (por cima do chão, fora dele no
+   DOM para o menu não ficar cortado) */
+.gar3 .gar3__lugar > .gar3__canto { position: absolute; top: 24px; right: 12px; z-index: 3; display: flex; gap: 2px; grid-area: auto; }
+.gar3__lugar:first-child > .gar3__canto { right: 16px; }
+.gar3 .gar3__icone { width: 32px; height: 32px; border-radius: var(--r-md); background: color-mix(in srgb, var(--c-superficie) 72%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.gar3 .gar3__icone:hover { background: var(--c-superficie); }
+.gar3 .gar3__icone svg { width: 16px; height: 16px; }
+.gar3 .gar3__acoes { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 767.98px) { .gar3 .gar3__icone { width: 40px; height: 40px; } }
+.gar3 .gar3__lugar > .gar3__canto { flex-direction: column; top: 22px; right: 10px; }
+.gar3__lugar:first-child > .gar3__canto { right: 14px; }
+.gar3 .gar3__lugar .gar3__canto .ini4__menu { top: 0; right: calc(100% + 4px); }
+.gar3 .gar3__ficha { column-gap: 8px; }
+.gar3 .gar3__ficha dd { font-size: 13.5px; white-space: nowrap; overflow-wrap: normal; }
+.gar3 .gar3__ficha div:nth-child(3) { grid-column: 1 / -1; }
+.gar3 .gar3__ficha div:last-child:nth-child(5) { grid-column: auto; }

@@ -62,11 +62,27 @@ function estacionar(main: HTMLElement): void {
   if (!antes || quieto()) return;
   agora.forEach((m) => { if (antes.has(m)) return; main.querySelector(`.gar3__lugar[data-matricula="${m}"] .gar3__carro`)?.classList.add('is-a-entrar'); });
 }
+/* (26 nov.) encher a última fila com lugares vazios (só desenho), com o número seguinte */
+function encher(main: HTMLElement): void {
+  const ul = main.querySelector<HTMLElement>('.gar3__lugares'); if (!ul) return;
+  ul.querySelectorAll('.gar3__lugar--vazio').forEach((x) => x.remove());
+  const cols = getComputedStyle(ul).gridTemplateColumns.split(' ').filter(Boolean).length;
+  const n = ul.children.length, falta = cols > 1 ? (cols - (n % cols)) % cols : 0;
+  ul.dataset.cols = String(cols);
+  for (let i = 0; i < falta; i++) ul.insertAdjacentHTML('beforeend', `<li class="gar3__lugar gar3__lugar--vazio" aria-hidden="true"><div class="gar3__chao"><span class="gar3__n">${String(n + i + 1).padStart(2, '0')}</span></div><div class="gar3__info"></div></li>`);
+}
+const medidos = new WeakSet<HTMLElement>();
 function vigiar(): void {
+  document.querySelectorAll<HTMLElement>('[data-gar3]').forEach((main) => {
+    encher(main);
+    if (medidos.has(main)) return; medidos.add(main);
+    let pedido = 0; new ResizeObserver(() => { cancelAnimationFrame(pedido); pedido = requestAnimationFrame(() => encher(main)); }).observe(main);
+  });
   document.querySelectorAll<HTMLElement>('[data-gar3]').forEach((main) => {
     if (vistas.has(main)) return;
     estacionar(main);
-    new MutationObserver(() => estacionar(main)).observe(main, { childList: true, subtree: true });
+    /* o bloco redesenhado (adicionar, tirar, favorito) volta sem os lugares vazios: enche-se outra vez */
+    new MutationObserver(() => { estacionar(main); const ul = main.querySelector<HTMLElement>('.gar3__lugares'); if (ul && ul.dataset.cols === undefined) encher(main); }).observe(main, { childList: true, subtree: true });
   });
 }
 document.addEventListener('romafe:ecra', vigiar); document.addEventListener('romafe:versao', vigiar);

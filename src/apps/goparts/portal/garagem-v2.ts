@@ -126,6 +126,11 @@ function lugarV3(c: Carro, i: number): string {
   if (v) ficha.push(['Combustível', v.combustivel], ['Potência', `${v.kw} kW · ${v.cv} cv`], ['Cilindrada', `${v.cc.toLocaleString('pt-PT')} cm³`], ['Motor', v.motor.split(',')[0]]);
   const fav = c.favorito ? 'Favorito: fica no lugar 01 (tirar)' : 'Marcar como favorito: passa para o lugar 01';
   return `<li class="ini4__carro gar2__carro gar3__lugar" data-carro="${c.id}" data-matricula="${c.matricula}" aria-labelledby="${idNome}">
+    <div class="gar3__canto">
+      <button type="button" class="gar2__icone gar3__icone ini4__estrela" data-favorito aria-pressed="${!!c.favorito}" aria-label="${fav}" title="${fav}">${L(IC.star)}</button>
+      <div class="ini4__menu-sitio gar2__menu-sitio"><button type="button" class="gar2__icone gar3__icone ini4__carro-mais" data-menu-carro aria-haspopup="menu" aria-expanded="false" aria-label="Mais ações para ${c.matricula}" title="Mudar o nome ou tirar da garagem">${L(IC.ellipsis)}</button>
+        <ul class="ini4__menu" role="menu" hidden><li role="none"><button type="button" role="menuitem" data-renomear>${L(IC.pencil)}Mudar o nome</button></li><li role="none"><button type="button" role="menuitem" data-remover-carro>${L(IC.trash)}Tirar da garagem</button></li></ul></div>
+    </div>
     <div class="gar3__chao" data-gar3-abrir title="Ver as peças compatíveis com ${esc(nome)}">
       <span class="gar3__luz" aria-hidden="true"></span>
       <span class="gar3__n" aria-hidden="true">${lugarN(i)}</span>
@@ -135,16 +140,12 @@ function lugarV3(c: Carro, i: number): string {
     <div class="gar3__info">
       <div class="gar2__linha1">
         <b class="ini4__carro-nome gar2__nome" id="${idNome}" data-nome>${esc(nome)}</b>
-        ${c.favorito ? `<span class="gar2__selo gar2__selo--fav">${L(IC.star)}Favorito</span>` : ''}
       </div>
       <span class="gar2__versao">${esc(c.nome ? `${base} ` : '')}${esc(v?.versao ?? '')}${v ? ` · ${esc(v.carrocaria)}` : ''}</span>
       <dl class="gar3__ficha">${ficha.map(([k, val]) => `<div><dt>${k}</dt><dd>${esc(val)}</dd></div>`).join('')}</dl>
       <p class="gar2__ultima">${L(IC.history)}${c.ultima ? `<span><span class="gar2__rotulo">Última pesquisa</span>${esc(c.ultima)}${c.quando ? ` · ${esc(c.quando)}` : ''}</span>` : '<span>Ainda sem pesquisas</span>'}</p>
       <div class="gar3__acoes">
         ${btn('Ver peças compatíveis', IC.arrowRight, ` data-pecas-matricula="${c.matricula}"`, 'gar2__principal btn--acao')}
-        <button type="button" class="gar2__icone ini4__estrela" data-favorito aria-pressed="${!!c.favorito}" aria-label="${fav}" title="${fav}">${L(IC.star)}</button>
-        <div class="ini4__menu-sitio gar2__menu-sitio"><button type="button" class="gar2__icone ini4__carro-mais" data-menu-carro aria-haspopup="menu" aria-expanded="false" aria-label="Mais ações para ${c.matricula}" title="Mudar o nome ou tirar da garagem">${L(IC.ellipsis)}</button>
-          <ul class="ini4__menu" role="menu" hidden><li role="none"><button type="button" role="menuitem" data-renomear>${L(IC.pencil)}Mudar o nome</button></li><li role="none"><button type="button" role="menuitem" data-remover-carro>${L(IC.trash)}Tirar da garagem</button></li></ul></div>
       </div>
     </div>
   </li>`;
