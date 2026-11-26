@@ -53,3 +53,15 @@
 .portal--lateral :is(dd, .hx__estado--forte, .gar3__ficha dd, .hx__valor) { font-weight: 700; }
 /* os marcadores de texto dentro dos campos (placeholders) continuam mais leves, para não se confundirem com o que se escreve */
 .portal--lateral :is(input, textarea)::placeholder { color: color-mix(in srgb, var(--c-texto) 55%, transparent); font-weight: 400; }
+
+/* =========================================================
+   (26 nov.) ela: «not white bold, escolhe outro». Os rótulos (o --c-texto-3: «Combustível», «Ano», PVP, armazéns,
+   notas pequenas) passam a azul ROMAFE suave, de peso normal — azul-claro #8EC5EC no escuro, azul ROMAFE escuro
+   #1D5F96 no claro; as descrições e subtítulos (o --c-texto-2) ficam na cor do texto, sem negrito.
+   ========================================================= */
+[data-theme="dark"] :is(.portal--noite, .portal--ini3), [data-theme="dark"] .bc, [data-theme="dark"] dialog { --c-texto-3: #8ec5ec; --i3-tinta-3: #8ec5ec; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.portal--noite, .portal--ini3, .bc) { --c-texto-3: #8ec5ec; --i3-tinta-3: #8ec5ec; } }
+:root:not([data-theme="dark"]) :is(.portal--noite, .portal--ini3) { --c-texto-3: #1d5f96; --i3-tinta-3: #1d5f96; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) :is(.portal--noite, .portal--ini3) { --c-texto-3: #8ec5ec; --i3-tinta-3: #8ec5ec; } }
+.portal--lateral :is(dt, .hx__outro-r, .gar2__rotulo, .hx__meta, .hx__nota, .gar2__versao, .hx__sub, .gar__sub, .sg__fab, .hx__mes-n, .hx__conta, .hx__dia, .sg__c-preco span, .hx__valor small, small) { font-weight: 400; }
+.portal--lateral :is(dt, .hx__outro-r, .gar2__rotulo, .hx__valor small, small, .sg__fab) { color: var(--c-texto-3); }
