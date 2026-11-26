@@ -73,3 +73,7 @@
 /* (26 nov.) ela: «não gosto como o menu fica fechado… quero no centro como se tivesse aberto» — os ícones do menu
    fechado também ao meio da altura */
 :root.gp-lado-recolhido .portal--lateral .lado__rolo { display: flex; flex-direction: column; justify-content: center; }
+/* (26 nov.) ela: «aumenta um pouco o tamanho das letras» — os nomes do menu de 13 para 14,5 px (o espaçamento das
+   letras desce um pouco para «INFORMAÇÃO TÉCNICA» continuar a caber) e cada item um pouco mais alto */
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__item { font-size: 14.5px; letter-spacing: .1em; height: 42px; }
+:root:not(.gp-lado-recolhido) .portal--lateral .lado__recolher { font-size: 13.5px; }
