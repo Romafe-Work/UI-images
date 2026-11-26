@@ -13,14 +13,18 @@ import { devolucoesV1 } from './devolucoes';
 import { tecnicaV1 } from './tecnica';
 import { estadosTecnica } from './tecnica-estados';
 import { faturasV2 } from './faturas-v2';
+import { faturasV3 } from './faturas-v3';
+import { devolucoesV2 } from './devolucoes-v2';
 import { listaHtml, type EstadoLista } from './lista';
 import { guiasV3 } from './guias-v3';
+import { guiasV4 } from './guias-v4';
 import { inicioV3 } from './inicio-v3';
 import { catalogoV5 } from './catalogo-v5';
 
 /** O catálogo v6: o da v5 com as classes do desenho novo (o Início v3) e do motor de transições. */
 export const catalogoV6 = () => catalogoV5.replace('class="portal ', 'class="portal portal--ini3 portal--cat6 ').replace('<main class="cat2 cat3 cat4 cat5"', '<main class="cat2 cat3 cat4 cat5 cat6"');
 import { pedidosV4 } from './pedidos-v4';
+import { pedidosV6 } from './pedidos-v6';
 
 const FLUXO = 'Portal';
 
@@ -61,20 +65,26 @@ export const ecrasPortal: EcraGoParts[] = [
   { id: 'pedidos', nome: '12 · Histórico de pedidos', fluxo: FLUXO, versoes: [
     /* 15 out. 2026: do briefing dela («Histórico de Pedidos»); uma só versão por ecrã — saíram a v2 e a v3 (o código fica) */
     /* 15 out. (tarde): o segundo briefing dela, «Order journey» — a cronologia passa a ser o ecrã; a tabela fica como alternativa */
-    { id: 'v5', nota: 'Cronologia: os pedidos do mais recente para o mais antigo, por mês, numa linha vertical que se desenha com o scroll; o pedido ativo a laranja; cada cartão abre-se no sítio (resumo, percurso só com os passos confirmados, artigos, entrega, documentos). Filtros compactos com etiquetas; «Tabela» como alternativa.', html: portal('pedidos', pedidosV4(), undefined, { menu: true, rodape: false }) }],
+    { id: 'v5', nota: 'Cronologia: os pedidos do mais recente para o mais antigo, por mês, numa linha vertical que se desenha com o scroll; o pedido ativo a laranja; cada cartão abre-se no sítio (resumo, percurso só com os passos confirmados, artigos, entrega, documentos). Filtros compactos com etiquetas; «Tabela» como alternativa.', html: portal('pedidos', pedidosV4(), undefined, { menu: true, rodape: false }) },
+    /* 26 nov. (briefing «Redesign premium do Histórico de pedidos»): a v6 no motor comum dos documentos; a v5 sai da lista */
+    { id: 'v6', nota: 'Os meus pedidos (26 nov.): cronologia compacta por mês (recolhível) com colunas fixas — pedido, data, artigos e armazém; estado da encomenda, processamento e modalidade separados, com ícone e texto; total sem IVA; uma barra de filtros com etiquetas e contagem; a mesma lista em Tabela ordenável; o painel à direita com o percurso real, os artigos pedidos e servidos, a entrega e a guia, a fatura e as devoluções que existem', html: portal('pedidos', pedidosV6(), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v5') as EcraGoParts['versoes'],
     objetivo: 'Os pedidos feitos: filtros por datas, número, referência e estado; os totais em cima e a lista com o estado de cada um.' },
   ...estadosPedidos(),
   /* 13 out. 2026: ela não gostou da v1 (a do Figma-WebShop-GoParts) — fica só a v2 */
   { id: 'guias', nome: '13 · Guias de remessa', fluxo: FLUXO, versoes: [
     /* 13 out. 2026: ela, «faz este screen com exemplos e animações» e «coloca animações e todos os estados possíveis» */
     /* 15 out. 2026: do briefing dela («Logistics Document Center») e «a guias faz tipo histórico também»: uma só versão — saiu a v2 (o código fica) */
-    { id: 'v3', nota: 'Como o Histórico de pedidos (15 out.): as guias por ano e mês numa linha que se desenha com o scroll; cada guia abre-se no sítio com o percurso documental (Pedido → Guia → Fatura ou Nota de crédito, só as ligações que existem), a entrega, os valores e os artigos; o documento num painel com descarga; a Tabela com as colunas todas como alternativa', html: portal('guias', guiasV3(), undefined, { menu: true, rodape: false }) }],
+    { id: 'v3', nota: 'Como o Histórico de pedidos (15 out.): as guias por ano e mês numa linha que se desenha com o scroll; cada guia abre-se no sítio com o percurso documental (Pedido → Guia → Fatura ou Nota de crédito, só as ligações que existem), a entrega, os valores e os artigos; o documento num painel com descarga; a Tabela com as colunas todas como alternativa', html: portal('guias', guiasV3(), undefined, { menu: true, rodape: false }) },
+    /* 26 nov. (briefing «Redesign das Guias de remessa»): a v4 no motor comum, como os Pedidos v6; a v3 sai da lista */
+    { id: 'v4', nota: 'Guias de remessa (26 nov.): a cronologia compacta dos Pedidos; estado da entrega (só o que o percurso do pedido diz), tipo de guia e documento financeiro separados; valor da guia com IVA; filtros por estado, tipo e armazém; Tabela ordenável; o painel com destino, artigos, base, IVA e total, as ligações reais (pedido, fatura ou nota de crédito, devoluções, guia de origem) e «Imprimir ou guardar em PDF»', html: portal('guias', guiasV4(), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v3') as EcraGoParts['versoes'],
     objetivo: 'As guias de remessa e as notas de crédito: filtros, os totais faturados e a lista com bruto, desconto, portes e IVA.' },
   ...estadosGuias(),
   /* 13 out. 2026: ela, com a imagem das faturas do GO REPAIR: «para as faturas» (como nas guias) */
   /* 15 out. 2026: do briefing dela («Financial Document Center») e da nota («manteria a ordem cronológica, tal como nos
      Pedidos e Guias […] daria maior destaque ao desdobramento dos impostos»): uma só versão — saiu a v1 (o código fica) */
-  { id: 'faturas', nome: '14 · Faturas', fluxo: FLUXO, versoes: [{ id: 'v2', nota: 'Como os Pedidos e as Guias (15 out.): as faturas e as notas de crédito por ano e mês, o pagamento por baixo da data; clicar abre o painel com a discriminação (valores comerciais, IVA por taxa, total), o pagamento, Pedido → Guia → Fatura, a entrega e os artigos; Tabela com as colunas todas do GO REPAIR', html: portal('faturas', faturasV2(), undefined, { menu: true, rodape: false }) }],
+  { id: 'faturas', nome: '14 · Faturas', fluxo: FLUXO, versoes: [{ id: 'v2', nota: 'Como os Pedidos e as Guias (15 out.): as faturas e as notas de crédito por ano e mês, o pagamento por baixo da data; clicar abre o painel com a discriminação (valores comerciais, IVA por taxa, total), o pagamento, Pedido → Guia → Fatura, a entrega e os artigos; Tabela com as colunas todas do GO REPAIR', html: portal('faturas', faturasV2(), undefined, { menu: true, rodape: false }) },
+    /* 26 nov. (briefing «Redesign de Faturas e Devoluções»): a v3 no motor comum; a v2 sai da lista */
+    { id: 'v3', nota: 'Faturas (26 nov.): faturas e notas de crédito como documentos próprios; o pagamento dos dados (paga, em aberto, vencida, crédito emitido); resumo com faturado, em aberto, vencido e créditos; a cronologia e a Tabela dos Pedidos; o painel com valores, pago e por pagar, artigos, ligações reais e «Imprimir ou guardar em PDF»', html: portal('faturas', faturasV3(), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v2') as EcraGoParts['versoes'],
     objetivo: 'As faturas e as notas de crédito: filtros, o total e o que está por pagar, e a lista com os valores e o estado do pagamento.' },
   ...estadosFaturas(),
   /* 14 out. 2026: do briefing dela, a Minha lista — peças e mão de obra, o resumo ao vivo, guardar e enviar.
@@ -84,7 +94,9 @@ export const ecrasPortal: EcraGoParts[] = [
   ...estadosLista(),
   /* 15 out. 2026: do briefing dela («Returns Management Center») e da nota («daria prioridade à criação de devoluções
      num fluxo guiado e à visualização cronológica»): o ecrã novo, da família dos Pedidos, Guias e Faturas */
-  { id: 'devolucoes', nome: '16 · Devoluções', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'Como os Pedidos, as Guias e as Faturas (15 out.): as devoluções por ano e mês, o estado por baixo da data (Por enviar, Enviada, Creditada — só o que os dados dizem); clicar abre o painel com os artigos devolvidos, o percurso confirmado (a caixa desce uma vez), Pedido → Guia → Devolução → Nota de crédito; «Criar devolução» em três passos, com os artigos a passar da fatura para a devolução', html: portal('devolucoes', devolucoesV1(), undefined, { menu: true, rodape: false }) }],
+  { id: 'devolucoes', nome: '16 · Devoluções', fluxo: FLUXO, versoes: [{ id: 'v1', nota: 'Como os Pedidos, as Guias e as Faturas (15 out.): as devoluções por ano e mês, o estado por baixo da data (Por enviar, Enviada, Creditada — só o que os dados dizem); clicar abre o painel com os artigos devolvidos, o percurso confirmado (a caixa desce uma vez), Pedido → Guia → Devolução → Nota de crédito; «Criar devolução» em três passos, com os artigos a passar da fatura para a devolução', html: portal('devolucoes', devolucoesV1(), undefined, { menu: true, rodape: false }) },
+    /* 26 nov. (briefing «Redesign de Faturas e Devoluções»): a v2 no motor comum, com a «Nova devolução» em quatro passos; a v1 sai da lista */
+    { id: 'v2', nota: 'Devoluções (26 nov.): os estados dos dados (Por enviar, Enviada, Creditada) e o próximo passo; o acompanhamento com os eventos que existem (criada, enviada, nota de crédito); «Nova devolução» em quatro passos — guia, artigos e quantidades (até ao elegível), motivo escrito, confirmar e submeter', html: portal('devolucoes', devolucoesV2(), undefined, { menu: true, rodape: false }) }].filter((v) => v.id !== 'v1') as EcraGoParts['versoes'],
     objetivo: 'Criar, procurar e acompanhar as devoluções: filtros por datas, número e referência; a cronologia com o estado de cada uma; o painel com os artigos, o percurso e os documentos; a criação guiada a partir da fatura.' },
   ...estadosDevolucoes(),
   /* 15 out. 2026: v2 por cima da v1 (uma só versão por ecrã). Do briefing dela («Automotive Technical Intelligence Center») e da nota («seleção do veículo mais
