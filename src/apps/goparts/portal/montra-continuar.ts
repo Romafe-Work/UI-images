@@ -18,6 +18,7 @@ import truck from 'lucide-static/icons/truck.svg?raw';
 import warehouse from 'lucide-static/icons/warehouse.svg?raw';
 import wrench from 'lucide-static/icons/wrench.svg?raw';
 import { LINHAS_TODAS, euros } from './painel-dados';
+import { PEDIDOS } from './pedidos-dados';
 import { GARAGEM, nomeCarro, L } from './inicio-espaco';
 import { LISTAS } from './lista';
 import { azulejoPeca } from './pecas-img';
@@ -36,7 +37,11 @@ const CARRO = `<svg class="mtc-carro" viewBox="0 0 300 124" fill="none" aria-hid
 
 export function continuarV2(): string {
   const pedido = LINHAS_TODAS.find((x) => x.etapa.k !== 'concluido');
-  const carro = GARAGEM.find((c) => c.favorito) ?? GARAGEM[0];
+  /* (26 nov.) ela: «isto não faz sentido […] pode ser o veículo com mais gasto em peças»: em vez do favorito, o veículo
+     da garagem em que mais se gastou, somado dos pedidos que levam a sua matrícula */
+  const gastos = GARAGEM.map((c) => { const ps = PEDIDOS.filter((p) => p.matricula === c.matricula); return { c, n: ps.length, total: ps.reduce((s, p) => s + p.artigos.reduce((t, a) => t + a[3], 0), 0), ultimo: ps[0] }; })
+    .filter((g) => g.n).sort((a, b) => b.total - a.total);
+  const top = gastos[0], carro = top?.c;
   const lista = LISTAS.find((l) => l.estado === 'rascunho');
   const cartoes: string[] = [];
 
@@ -62,9 +67,9 @@ export function continuarV2(): string {
   if (carro) {
     const [a, b] = carro.matricula.split(/-(.*)/s);
     cartoes.push(`<li class="mtc-veiculo"><button type="button" class="mtc" data-pecas-matricula="${carro.matricula}">
-      <span class="mtc-topo">${L(carFront)}${carro.favorito ? 'Veículo favorito' : 'Na tua garagem'}</span>
+      <span class="mtc-topo">${L(carFront)}Mais gasto em peças</span>
       <span class="mtc-visual">${CARRO}</span>
-      <span class="mtc-linha"><span><b class="mtc-t">${esc(nomeCarro(carro))}</b><span class="mtc-meta">${esc(carro.marca)} ${esc(carro.modelo)}</span></span>
+      <span class="mtc-linha"><span><b class="mtc-t">${esc(nomeCarro(carro))}</b><span class="mtc-meta"><b>${euros(top.total)}</b> em ${top.n} ${top.n === 1 ? 'pedido' : 'pedidos'} · o último a ${top.ultimo.percurso[0][1].slice(0, 5)}/${top.ultimo.num.slice(1, 5)}</span></span>
         <span class="mtc-matricula" aria-label="Matrícula ${carro.matricula}"><i>P</i>${a}-${b}</span></span>
       <span class="mtc-acao">Ver peças compatíveis${L(arrowRight, 'mt__seta')}</span>
     </button></li>`);
