@@ -182,3 +182,19 @@
 .gar3 .gar3__lugares > .gar3__lugar--vazio { background: color-mix(in srgb, var(--c-superficie) 50%, transparent); }
 .gar3 .gar3__lugares .gar3__lugar.gar2__carro.ini4__carro, .gar3 .gar3__lugares .gar3__lugar { margin-bottom: 16px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); overflow: hidden; }
 .gar3 .gar3__lugares .gar3__lugar.gar3__lugar--vazio { background: color-mix(in srgb, var(--c-superficie) 50%, transparent); }
+
+/* (26 nov.) ela: «coloca mais pequenos em termos de height» — o chão mais baixo e o carro mais pequeno, a ficha
+   mais compacta (a potência volta a partilhar a linha) e menos espaço entre as linhas */
+.gar3 .gar3__chao { height: 170px; }
+.gar3 .gar3__carro { top: 18px; width: 64px; margin-left: -32px; }
+.gar3 .gar3__matricula.gar2__matricula { bottom: 10px; }
+.gar3 .gar3__n { font-size: 24px; bottom: 10px; }
+.gar3 .gar3__lugar > .gar3__canto { top: 18px; }
+.gar3 .gar3__livre-t { font-size: 18px; }
+.gar3 .gar3__lugares > .gar3__lugar > .gar3__info { padding: 12px 16px 14px; }
+.gar3 .gar3__info > .gar2__versao { padding-bottom: 8px; }
+.gar3 .gar3__info > .gar3__ficha { padding-bottom: 8px; row-gap: 6px; }
+.gar3 .gar3__ficha div:nth-child(3) { grid-column: auto; }
+.gar3 .gar3__ficha dd { font-size: 13px; }
+.gar3 .gar3__info > .gar2__ultima { padding-bottom: 10px; }
+.gar3 .gar3__novo > #gar3-novo-ajuda { padding-bottom: 8px; }
