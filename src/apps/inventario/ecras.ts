@@ -110,9 +110,9 @@ const campo = (rot: string, valor = '', o: { mono?: boolean; erro?: string; tipo
    Os ecrãs
    ========================================================= */
 const INV = 'Inventário 26/11/2026';
-type Sec = { nome: string; zona: string; est: 'por' | 'dec' | 'fim'; txt: string };
+type Sec = { nome: string; zona: string; est: 'por' | 'dec' | 'fim'; txt: string; acertar?: number };
 const SECCOES: Sec[] = [
-  { nome: 'Óleos', zona: '80', est: 'dec', txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar' },
+  { nome: 'Óleos', zona: '80', est: 'dec', txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar · 5 por acertar', acertar: 5 },
   { nome: 'Auto', zona: '30', est: 'dec', txt: 'A decorrer desde as 09:30 · 3 prateleiras' },
   { nome: 'Rolamentos', zona: '10, 11, 20, 21, 22', est: 'fim', txt: 'Terminada às 10:12 · 14 prateleiras' },
 ];
@@ -131,18 +131,20 @@ function entrar(primeira: boolean): string {
 
 function seccao(s: Sec, estado: Sec['est'] = s.est, txt = s.txt): string {
   const botao = estado === 'por' ? sec(`Iniciar ${s.nome}`, play, ` ${ir('inicio')}`)
-    : estado === 'dec' ? `${acao(`Continuar ${s.nome}`, play, ` ${ir('prateleira')}`)}${fim(`Terminar ${s.nome}`, ` ${ir('inicio-terminar-seccao')}`)}` : '';
+    // 26 nov. (ela: «o botão de acertar óleos por baixo do continuar óleos, e é assim que se fazem os acertos»)
+    : estado === 'dec' ? `${acao(`Continuar ${s.nome}`, play, ` ${ir('prateleira')}`)}${sec(s.acertar ? `Acertar ${s.nome} (${s.acertar})` : `Acertar ${s.nome}`, acerto, s.acertar ? ` ${ir('inicio-acertar')}` : ' disabled')}${fim(`Terminar ${s.nome}`, ` ${ir('inicio-terminar-seccao')}`)}` : '';
   return `<div class="inv__cartao inv__seccao">
     <div class="inv__linha"><div class="inv__cresce"><b class="inv__nome">${s.nome}</b><small class="${estado === 'dec' ? 'is-decorrer' : ''}">${txt}</small></div>${estado === 'fim' ? L(circleCheck, 'inv__certo') : ''}</div>
     ${botao}</div>`;
 }
 
-type EstInicio = '' | 'sem-inventario' | 'iniciar' | 'nenhuma-seccao' | 'terminar-seccao' | 'terminar' | 'por-fechar' | 'sem-servidor' | 'a-iniciar';
+type EstInicio = '' | 'acertar' | 'acertado' | 'sem-inventario' | 'iniciar' | 'nenhuma-seccao' | 'terminar-seccao' | 'terminar' | 'por-fechar' | 'sem-servidor' | 'a-iniciar';
 function inicio(e: EstInicio = ''): string {
   const trocar = `<button type="button" class="inv__trocar" ${ir('entrar')}>${L(logOut)}<span>Trocar</span></button>`;
   const semInv = e === 'sem-inventario' || e === 'iniciar' || e === 'a-iniciar';
   const nenhuma = e === 'nenhuma-seccao';
-  const seccoes = nenhuma ? [seccao(SECCOES[0], 'por', 'Por iniciar · zona 80'), seccao(SECCOES[1]), seccao(SECCOES[2], 'por', 'Por iniciar · zonas 10, 11, 20, 21, 22')] : SECCOES.map((s) => seccao(s));
+  const lista = e === 'acertado' ? [{ ...SECCOES[0], txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar', acertar: 0 }, SECCOES[1], SECCOES[2]] : SECCOES;
+  const seccoes = nenhuma ? [seccao(SECCOES[0], 'por', 'Por iniciar · zona 80'), seccao(SECCOES[1]), seccao(SECCOES[2], 'por', 'Por iniciar · zonas 10, 11, 20, 21, 22')] : lista.map((s) => seccao(s));
   const cabInv = cartao(`<div class="inv__linha"><div class="inv__cresce"><b class="inv__nome">${INV}</b><small>Desde hoje às 08:00 · Joana Matos</small></div>
       <div class="inv__direita"><strong class="inv__grande">${nenhuma ? 0 : 20}</strong><small>contadas</small></div></div>`);
   const ligado = `<button type="button" class="inv__ligada" ${ir('ligacao')}>${L(settings)}<span>Servidor: 127.0.0.1:5198</span><b>Mudar</b></button>`;
@@ -156,13 +158,15 @@ function inicio(e: EstInicio = ''): string {
     corpo = `${cartao('<b class="inv__nome">Nenhum inventário a decorrer</b><small class="inv__dica">O último: Inventário 12/11/2026, terminado a 12/11/2026 17:40 por Pedro Santos · 212 prateleiras</small>')}${comuns}${ligado}`;
     rodape = acao('Iniciar inventário', play, ` ${ir('inicio-iniciar')}`);
   } else {
-    corpo = `${cabInv}
+    corpo = `${e === 'acertado' ? aviso('Óleos: 5 acertos feitos em 3 prateleiras.', 'ok') : ''}${cabInv}
       ${nenhuma ? '' : alvo('Pica uma prateleira', 'De Óleos, Auto.', { destino: 'prateleira' })}
       ${rotulo('Secções')}${seccoes.join('')}
       ${comuns}${fim('Terminar inventário', ` ${ir('inicio-terminar')}`)}${ligado}`;
     rodape = nenhuma ? '<p class="inv__dica inv__dica--pe">Inicia uma secção para contar.</p>' : acao('Contar uma prateleira', scanBarcode, ` ${ir('prateleira')}`);
   }
-  const sobre = e === 'iniciar' ? dialogo('Iniciar o inventário?', '<p>Começa o inventário de hoje. As secções ficam por iniciar: cada uma começa com o seu botão (ex.: «Iniciar Óleos»).</p>',
+  const sobre = e === 'acertar' ? dialogo('Acertar Óleos?', '<p>Faz no stock as 5 diferenças das prateleiras de Óleos já contadas (o stock fica igual ao contado). Cada acerto fica no registo.</p>',
+      acao('Acertar Óleos', acerto, ` ${ir('inicio-acertado')}`), sec('Voltar', arrowLeft, ` ${ir('inicio')}`))
+    : e === 'iniciar' ? dialogo('Iniciar o inventário?', '<p>Começa o inventário de hoje. As secções ficam por iniciar: cada uma começa com o seu botão (ex.: «Iniciar Óleos»).</p>',
       acao('Iniciar inventário', play, ` ${ir('inicio-nenhuma-seccao')}`), sec('Voltar', arrowLeft, ` ${ir('inicio-sem-inventario')}`))
     : e === 'terminar-seccao' ? dialogo('Terminar Óleos?', '<p>Depois de terminar, as prateleiras de Óleos já não se contam neste inventário (6 prateleiras contadas).</p>',
       acao('Terminar Óleos', square, ` ${ir('inicio')}`, 'inv__btn--perigo'), sec('Voltar', arrowLeft, ` ${ir('inicio')}`))
@@ -181,7 +185,7 @@ function prateleira(e: EstPrat = ''): string {
     : e === 'artigo' ? 'Isso é um artigo (Óleo motor 15W40 · bidão 5 L). Pica primeiro a etiqueta da prateleira: começa por 60.'
     : e === 'ficar' ? 'Pica uma prateleira de Auto (zona 30).' : undefined;
   const banner = feito ? `<div class="inv__feito">${L(circleCheck)}<div><b>60800101 fechada</b><span>42 un. · 2 códigos · 2 min 05 s</span>
-      <strong class="${e === 'fechada' ? '' : 'is-azul'}">${e === 'fechada' ? 'Sem diferenças: nenhum acerto.' : '1 acerto feito · 1 para o Gestor ver'}</strong></div></div>` : '';
+      <strong class="${e === 'fechada' ? '' : 'is-azul'}">${e === 'fechada' ? 'Sem diferenças.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong></div></div>` : '';
   const sobre = e === 'escrever' ? dialogo('Escrever a prateleira', `${campo('O código da prateleira', '', { mono: true, dica: 'Ex.: 60300102' })}`,
       acao('Contar', check, ` ${ir('contar')}`), sec('Voltar', arrowLeft, ` ${ir('prateleira')}`))
     : e === 'a-abrir' ? ocupado('A abrir a prateleira 60800101…')
@@ -276,7 +280,7 @@ function resumo(e: EstResumo = ''): string {
     posicao: PO,
     corpo: `<div class="inv__numeros inv__numeros--3">${numero('Códigos', ls.length)}${numero('Unidades', un(ls))}${numero('Tempo', '02:01')}</div>
       ${ls.some((l) => l.escrito) ? aviso('1 código foi escrito à mão: confirma que está certo.', 'laranja') : ''}
-      ${!ver && !vazia ? '<p class="inv__dica">Ao fechar, o que bate com o stock fica como está; as diferenças acertam-se sozinhas ou vão ao Gestor.</p>' : ''}
+      ${!ver && !vazia ? '<p class="inv__dica">Ao fechar guardam-se as diferenças; o stock só muda com «Acertar Óleos», no Início.</p>' : ''}
       ${ls.length ? `<ul class="inv__linhas inv__linhas--resumo">${ls.map((l) => `<li><div class="inv__cresce"><b class="inv__nome-art">${nomeDe(l)}</b><small class="inv__codigo-peq">${l.codigo}</small></div><strong>${l.n}</strong></li>`).join('')}</ul>` : ''}`,
     pe: ver ? undefined : pe(`<div class="inv__par">${sec('Continuar', scanBarcode, ` ${ir(vazia ? 'contar' : 'contar-lido')}`)}${acao(vazia ? 'Está vazia' : 'Fechar', vazia ? inbox : check, ` ${ir(vazia ? 'prateleira-fechada' : 'resumo-a-fechar')}`, 'inv__btn--largo')}</div>`),
     sobre: e === 'a-fechar' ? ocupado(`A fechar a ${PO}…`) : '',
@@ -299,7 +303,7 @@ function historicoEcra(e: EstHist = ''): string {
       { tom: 'dentro', t: 'Código que não está no stock', sub: '5600000000014', v: '1', dentro: true },
     ] },
     { t: 'Acertos', vazio: 'Sem acertos.', ls: [
-      { ic: acerto, tom: 'acerto', t: 'Óleo motor 15W40 · bidão 5 L · 26/11/2026 10:26', sub: 'Feito ao fechar', v: '-2' },
+      { ic: acerto, tom: 'acerto', t: 'Óleo motor 15W40 · bidão 5 L · 26/11/2026 11:40', sub: 'Feito no «Acertar Óleos» · Pedro Santos', v: '-2' },
       { ic: acerto, tom: 'acerto', t: 'Código que não está no stock · 26/11/2026 10:26', sub: 'Por rever pelo Gestor · Código que não existe no stock.', v: '+1' },
     ] },
     { t: 'Entradas e saídas', vazio: 'Sem entradas nem saídas.', ls: [
@@ -312,7 +316,7 @@ function historicoEcra(e: EstHist = ''): string {
       { ic: scanBarcode, tom: 'contagem', t: 'Prateleira 60800202 · 26/11/2026 10:41', sub: 'Inês Costa', v: '2 un.' },
     ] },
     { t: 'Acertos', vazio: 'Sem acertos.', ls: [
-      { ic: acerto, tom: 'acerto', t: 'Prateleira 60800101 · 26/11/2026 10:26', sub: 'Feito ao fechar', v: '-2' },
+      { ic: acerto, tom: 'acerto', t: 'Prateleira 60800101 · 26/11/2026 11:40', sub: 'Feito no «Acertar Óleos» · Pedro Santos', v: '-2' },
     ] },
     { t: 'Entradas e saídas', vazio: 'Sem entradas nem saídas.', ls: [
       { ic: entrada, tom: 'entrada', t: 'Entrada · 25/11/2026 10:30', sub: '60800101 · Receção RC 2026/0412 · Sistema', v: '+2' },
@@ -352,7 +356,7 @@ function ligacao(e: EstLig = ''): string {
 /* =========================================================
    A lista — 26 nov.: só a última versão (v3 = a 2.0.7); a v2 (2.0.0) saiu, como antes a 1.8.1
    ========================================================= */
-const NOTA = 'Como a app Kotlin 2.0.7 (26 nov., testada no CK62): Continuar por secção, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
+const NOTA = 'Como a app Kotlin 2.0.8 (26 nov., testada no CK62): Continuar e Acertar por secção, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
 const v = (html: string): EcraInventario['versoes'] => [{ id: 'v3', nota: NOTA, html }];
 const F = { ENTRAR: 'Entrar', INVENTARIO: 'Inventário e secções', CONTAR: 'Contar', HIST: 'Histórico' };
 const est = (id: IdInventario, de: IdInventario, nome: string, fluxo: string, objetivo: string, html: string, noFluxo?: string): EcraInventario =>
@@ -363,7 +367,9 @@ export function ecrasInventario(): EcraInventario[] {
     { id: 'entrar', nome: '01 · Entrar', fluxo: F.ENTRAR, objetivo: 'Sem função nem palavra-passe: quem já entrou neste PDA toca no nome; outra pessoa escreve o seu.', versoes: v(entrar(false)) },
     est('entrar-primeira', 'entrar', '01.1 · Primeira vez no PDA', F.ENTRAR, 'Ainda ninguém entrou neste PDA: só o campo do nome.', entrar(true)),
 
-    { id: 'inicio', nome: '02 · Início', fluxo: F.INVENTARIO, objetivo: 'O inventário a decorrer e as secções. Por iniciar: «Iniciar Óleos». A decorrer: «Continuar Óleos» (vai contar nessa secção) por cima de «Terminar Óleos». No fim, «Terminar inventário». Sem pausa do inventário nem «Ver as contagens deste PDA».', versoes: v(inicio()) },
+    { id: 'inicio', nome: '02 · Início', fluxo: F.INVENTARIO, objetivo: 'O inventário a decorrer e as secções. Por iniciar: «Iniciar Óleos». A decorrer: «Continuar Óleos» (vai contar), por baixo «Acertar Óleos (n)» (faz no stock as diferenças das prateleiras já contadas — é assim que se acerta) e «Terminar Óleos». No fim, «Terminar inventário». Sem pausa do inventário nem «Ver as contagens deste PDA».', versoes: v(inicio()) },
+    est('inicio-acertar', 'inicio', '02.9 · Acertar uma secção', F.INVENTARIO, 'Fechar a prateleira só guarda as diferenças; «Acertar Óleos» fá-las todas no stock, uma por movimento no registo.', inicio('acertar'), 'Diálogo aberto'),
+    est('inicio-acertado', 'inicio', '02.10 · Acertada', F.INVENTARIO, 'Diz quantos acertos fez e em quantas prateleiras; o botão fica sem número até haver mais prateleiras fechadas com diferenças.', inicio('acertado')),
     est('inicio-sem-inventario', 'inicio', '02.1 · Nenhum inventário', F.INVENTARIO, 'Sem inventário a decorrer: um botão só, «Iniciar inventário».', inicio('sem-inventario')),
     est('inicio-iniciar', 'inicio', '02.2 · Iniciar o inventário', F.INVENTARIO, 'Confirma antes de começar; as secções ficam por iniciar.', inicio('iniciar'), 'Diálogo aberto'),
     est('inicio-a-iniciar', 'inicio', '02.3 · A iniciar no servidor', F.INVENTARIO, 'Enquanto o servidor responde, não se lê nada.', inicio('a-iniciar')),
@@ -383,7 +389,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('prateleira-outra-seccao', 'prateleira', '03.9 · Prateleira de outra secção', F.CONTAR, 'A contar Auto, picou-se uma prateleira de Óleos: muda-se para Óleos no PDA (ou «Iniciar Óleos e mudar»), ou vai-se à zona 30.', prateleira('outra-seccao'), 'Diálogo aberto'),
     est('prateleira-ficar', 'prateleira', '03.10 · Fica na zona', F.CONTAR, 'Escolheu-se ir à zona 30: pede uma prateleira da Auto.', prateleira('ficar')),
     est('prateleira-fechada', 'prateleira', '03.6 · Fechada sem diferenças', F.CONTAR, 'Fechada com o tempo de prateleira; bateu com o stock, nenhum acerto.', prateleira('fechada')),
-    est('prateleira-fechada-acertos', 'prateleira', '03.7 · Fechada com acertos', F.CONTAR, 'Fechar fez o acerto automático; o que não se acerta sozinho vai ao Gestor.', prateleira('fechada-acertos')),
+    est('prateleira-fechada-acertos', 'prateleira', '03.7 · Fechada com diferenças', F.CONTAR, 'As diferenças ficam por acertar (botão «Acertar Óleos» no Início); um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
 
     { id: 'contar', nome: '04 · Contar', fluxo: F.CONTAR, objetivo: 'Cada leitura soma 1; o escrito à mão leva a quantidade. O tempo de prateleira corre no topo. Sem pausa: só se sai a fechar, a confirmar vazia ou a descartar.', versoes: v(contar()) },
     est('contar-lido', 'contar', '04.1 · A contar', F.CONTAR, 'Cada linha com o nome do artigo e o código; a última leitura fica a laranja e sobe para o topo; toca-se numa linha para corrigir.', contar('lido')),
