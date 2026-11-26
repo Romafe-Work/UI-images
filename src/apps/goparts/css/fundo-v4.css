@@ -1,0 +1,65 @@
+/* =========================================================
+   PEÇA A PEÇA — fundo v4 «Industrial soft dark» (26 nov. 2026)
+   Briefing «Background redesign V4»: «um dark mode confortável durante 8 horas, não um dashboard que impressione
+   durante 8 segundos». Carregado no fim (main.ts), por isso manda sobre tudo o que veio antes.
+   - Tokens globais por camadas, neutros (não azul-escuro): 1 fundo #191E24 · 2 barra e menu #20262D ·
+     3 superfícies #252C34 · 4 cartões e tabelas #2B333C · 5 elevados (menus, diálogos) #323C46 · bordas #3B4651.
+     Texto #F4F5F6 / #ADB7C1 / #959FAA (≥ 4,5:1 sobre os cartões). O azul e o laranja ROMAFE não mudam.
+   - Sai do fundo tudo o que era só decoração: o rolamento em traço do canto, o brilho azul, a linha azul → laranja
+     da barra de cima, a barra transparente com desfoque, o céu de estrelas do menu, a grelha com círculos atrás do
+     3D do Início e a do cabeçalho do painel. Não entra nada no lugar deles.
+   - O menu e a barra de cima têm a mesma tonalidade (um «L» ligeiramente acima do fundo), separados por um traço
+     de borda; sem sombras nem linhas luminosas.
+   No claro, as mesmas regras: sem decoração; as cores do claro ficam as de antes.
+   ========================================================= */
+
+/* ---------- tokens (escuro) ---------- */
+:root {
+  --g-fundo: #191e24; --g-barra: #20262d; --g-sup: #252c34; --g-sup-2: #2b333c; --g-elevado: #323c46;
+  --g-borda: #343e48; --g-borda-forte: #3b4651;
+  --g-tinta: #f4f5f6; --g-tinta-2: #adb7c1; --g-tinta-3: #959faa;
+}
+[data-theme="dark"] :is(.portal--noite, .portal--ini3) {
+  --c-portal-fundo: var(--g-fundo); --c-superficie: var(--g-sup-2); --c-superficie-2: var(--g-elevado); --c-superficie-3: var(--g-elevado);
+  --c-borda: var(--g-borda); --c-borda-forte: var(--g-borda-forte);
+  --c-texto: var(--g-tinta); --c-texto-2: var(--g-tinta-2); --c-texto-3: var(--g-tinta-3);
+  --i3-fundo: var(--g-fundo); --i3-sup: var(--g-sup-2); --i3-sup-2: var(--g-elevado); --i3-borda: var(--g-borda); --i3-borda-forte: var(--g-borda-forte);
+  --i3-tinta: var(--g-tinta); --i3-tinta-2: var(--g-tinta-2); --i3-tinta-3: var(--g-tinta-3);
+  --gp-topo: var(--g-barra); --gp-lado: var(--g-barra); --gp-lado-ativo: var(--g-sup-2); --gp-lado-tinta: var(--g-tinta); --gp-lado-tinta-2: var(--g-tinta-2);
+  --noite-barra: var(--g-barra);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) :is(.portal--noite, .portal--ini3) {
+    --c-portal-fundo: var(--g-fundo); --c-superficie: var(--g-sup-2); --c-superficie-2: var(--g-elevado); --c-superficie-3: var(--g-elevado);
+    --c-borda: var(--g-borda); --c-borda-forte: var(--g-borda-forte);
+    --c-texto: var(--g-tinta); --c-texto-2: var(--g-tinta-2); --c-texto-3: var(--g-tinta-3);
+    --i3-fundo: var(--g-fundo); --i3-sup: var(--g-sup-2); --i3-sup-2: var(--g-elevado); --i3-borda: var(--g-borda); --i3-borda-forte: var(--g-borda-forte);
+    --i3-tinta: var(--g-tinta); --i3-tinta-2: var(--g-tinta-2); --i3-tinta-3: var(--g-tinta-3);
+    --gp-topo: var(--g-barra); --gp-lado: var(--g-barra); --gp-lado-ativo: var(--g-sup-2); --gp-lado-tinta: var(--g-tinta); --gp-lado-tinta-2: var(--g-tinta-2);
+    --noite-barra: var(--g-barra);
+  }
+}
+
+/* ---------- 1 · o fundo: liso; sem rolamento, sem brilho ---------- */
+.portal--lateral { background: var(--c-portal-fundo); }
+.portal--lateral::before, .portal--lateral::after { content: none !important; display: none !important; }
+.mt__cena::before, .portal--pn9 .pn__cabeca::before { content: none !important; display: none !important; }
+
+/* ---------- 2 · barra de cima e menu: a mesma tonalidade, um traço de borda, sem luz ---------- */
+.portal--lateral > .portal__topo { background: var(--gp-topo, var(--c-superficie)) !important; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: 1px solid var(--c-borda) !important; box-shadow: none !important; }
+.portal--lateral > .portal__topo::after { content: none !important; }
+.portal--lateral .portal__lado { background: var(--gp-lado, var(--c-superficie)) !important; border-right: 1px solid var(--c-borda); }
+.portal--lateral .portal__topo .procura { background: var(--c-portal-fundo) !important; border-color: var(--c-borda-forte) !important; }
+.portal--lateral .portal__topo .conta__inicial { box-shadow: none; }
+/* o item ativo do menu: texto forte, o traço laranja já existente; ao passar, um fundo discreto */
+@media (hover: hover) and (pointer: fine) { .portal--lateral .lado__item:hover:not(:disabled) { color: var(--c-texto) !important; } }
+
+/* ---------- 3–5 · superfícies: cartões e tabelas sem brilhos nem vidro; menus e diálogos um nível acima ---------- */
+.portal--lateral :is(.hx__gaveta, .cf, .ini4__menu, .dvn) { background: var(--g-elevado-claro, var(--c-superficie-2)); }
+[data-theme="dark"] .portal--lateral :is(.hx__gaveta, .cf, .ini4__menu, .dvn), [data-theme="dark"] :is(.hx__gaveta, .cf) { background: var(--g-elevado); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.hx__gaveta, .cf, .ini4__menu, .dvn) { background: var(--g-elevado); } }
+.hx__tabela th { background: var(--c-superficie-2); }
+.hx__linha:hover td { background: color-mix(in srgb, var(--c-texto) 4%, transparent); }
+/* o claro: o fundo do protótipo liso também */
+:root:not([data-theme="dark"]) .portal--lateral .portal__lado { background: var(--gp-lado, #f7f9fb) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) .portal--lateral .portal__lado { background: var(--g-barra) !important; } }

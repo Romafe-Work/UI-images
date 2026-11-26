@@ -57,6 +57,7 @@ import './css/garagem-v2.css';
 import './css/confirmar.css';
 import './css/garagem-v3.css';
 import './css/historico.css';
+import './css/fundo-v4.css';
 import './comportamento/garagem-v2';
 import '../../comum/css/editor.css';
 
