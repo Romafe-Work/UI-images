@@ -226,3 +226,11 @@ body.demo-sem-texto .demo-legenda { display: none !important; }
 .demo-rato.is-preso > svg { transform: scale(.9); }
 .demo-rato.is-preso::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: rgba(239, 123, 16, .45); }
 .demo-tecla { position: fixed; inset: 0 auto auto 0; margin: 0; padding: 6px 10px; border: 1px solid rgba(255, 255, 255, .25); border-radius: 10px; background: #0e1621; color: #fff; font: 700 15px/1.2 var(--f-mono, monospace); letter-spacing: .02em; pointer-events: none; z-index: 2147483646; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); overflow: visible; }
+/* (26 nov.) ela: «permite dark mode e light mode … coloca isso no próprio Figma» — o tema muda-se na barra do protótipo
+   (Claro · Escuro · Auto), o mesmo que o editor guarda (comum/tema.ts) */
+.demo-barra__tema { display: inline-flex; padding: 2px; border: 1px solid rgba(255,255,255,.2); border-radius: 10px; background: rgba(255,255,255,.06); }
+.demo-barra .demo-barra__tema-btn { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border: 0; border-radius: 8px; background: none; color: rgba(255,255,255,.72); font: inherit; font-weight: 600; cursor: pointer; box-shadow: none; }
+.demo-barra .demo-barra__tema-btn svg { width: 15px; height: 15px; }
+.demo-barra .demo-barra__tema-btn:hover { color: #fff; }
+.demo-barra .demo-barra__tema-btn[aria-pressed="true"] { background: rgba(255,255,255,.16); color: #fff; }
+.demo-barra .demo-barra__tema-btn:focus-visible { outline: 2px solid #ef7b10; outline-offset: 1px; }
