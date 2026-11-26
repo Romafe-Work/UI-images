@@ -446,7 +446,7 @@ export function pecaHtml(f: Frequente, favorita: boolean, o: { semPreco?: boolea
       <span class="ini4__peca-vezes">${vezes}<button type="button" class="ini4__estrela ini4__estrela--peca" data-favorita-peca aria-pressed="${favorita}">${L(star)}<span>${favorita ? 'Favorita' : 'Marcar'}</span></button></span></div>
     <div class="ini4__peca-preco">${o.semPreco ? `<span class="ini4__sem-preco">${L(shieldAlert)}Sem acesso</span>` : `<b>${euros(liquido(f.r))}</b><small>PVP ${euros(pvp)}</small>`}</div>
     <span class="ini4__stock${porto ? ' is-hoje' : sacavem ? ' is-amanha' : ' is-encomenda'}">${saida(porto, sacavem)}</span>
-    <div class="ini4__peca-accoes">${btn('Stock', warehouse, ` data-ver-stock="${ref}"`, 'ini4__btn--leve')}${o.semPreco ? '' : acao('Adicionar', cart, ` data-pedir="${ref}"`, 'ini4__pedir')}</div>
+    <div class="ini4__peca-accoes">${/* (26 nov.) sem «Stock»: mostrava a Disponibilidade por armazém, que saiu; a linha já diz onde há e quando sai */ ''}${o.semPreco ? '' : acao('Adicionar', cart, ` data-pedir="${ref}"`, 'ini4__pedir')}</div>
   </li>`;
 }
 export function frequentesHtml(d: Dados, e: EstadoEspaco = ''): string {
@@ -534,11 +534,13 @@ export function repetirHtml(num: string, aberto = false): string {
 /** (20 out., V5) Os blocos do ecrã «Pesquisar peças»: só os que ajudam a pesquisar, pela ordem de origem (o painel
     da atividade — atenção, resumo, pedidos, atalhos — passou ao Início, painel.ts). */
 /* (21 out.) a garagem saiu da Pesquisar peças (ela: «isto desaparece do ecrã de pesquisar peças»): tem o seu ecrã */
-export const ORDEM_PESQUISA: IdBloco[] = ['continuar', 'frequentes', 'disponibilidade', 'categorias'];
+/* (26 nov.) ela: «remove aqui o atualizar e disponibilidade por armazém… não percebi porque aí está se primeiro tenho de
+   selecionar uma matrícula»: a disponibilidade por armazém sai da Pesquisar peças (vê-se nos resultados e na ficha) */
+export const ORDEM_PESQUISA: IdBloco[] = ['continuar', 'frequentes', 'categorias'];
 export function blocosPesquisa(d: Dados, e: EstadoEspaco = ''): string {
   const dd: Dados = { ...d, prefs: { ...d.prefs, ordem: [...ORDEM_PESQUISA, ...ORDEM.filter((b) => !ORDEM_PESQUISA.includes(b))], escondidos: [] } };
   return `<div class="ini4__blocos" data-blocos data-densidade="${d.prefs.densidade}">
-    ${continuarHtml(dd, e)}${frequentesHtml(dd, e)}${disponibilidadeHtml(dd, e)}${categoriasHtml(dd, e)}
+    ${continuarHtml(dd, e)}${frequentesHtml(dd, e)}${categoriasHtml(dd, e)}
   </div>`;
 }
 /** Os blocos todos, pela ordem das preferências (o CSS põe-nos no sítio com `order`). */
