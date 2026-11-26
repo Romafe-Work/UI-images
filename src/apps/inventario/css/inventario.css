@@ -232,3 +232,16 @@
 .inv__fora { color: var(--i-erro); }
 .inv__hist .is-dentro { margin-left: 18px; padding-block: 6px; }
 .inv__hist .is-dentro b { font-size: 13.5px; }
+
+/* 2.0.9: acertar — a diferença a laranja ao lado do contado; o resumo verde quando bate */
+.inv__dif { color: var(--i-laranja); font-weight: 800; font-size: 15px; margin-right: 4px; }
+.inv__cab-linhas b.is-laranja { color: var(--i-laranja); } .inv__cab-linhas b.is-ok { color: var(--i-ok); }
+
+/* 2.1.0: a faixa «Sem rede», por cima de todos os ecrãs */
+.inv__semrede { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--i-erro); color: #fff; }
+.inv__semrede > svg { width: 20px; height: 20px; flex: none; }
+.inv__semrede b { display: block; font-size: 15px; }
+.inv__semrede small { display: block; font-size: 13px; opacity: .95; }
+.inv__semrede button { background: none; border: 0; color: #fff; font: inherit; font-weight: 700; font-size: 14px; padding: 8px; cursor: pointer; }
+.inv__feito strong.is-erro { color: var(--i-erro); }
+.inv__semrede .inv__cresce b, .inv__semrede .inv__cresce small { color: #fff; }
