@@ -1,0 +1,164 @@
+/* =========================================================
+   PEÇA A PEÇA — 09 · A minha garagem v2 (26 nov. 2026)
+   A garagem como lista de trabalho: um cartão largo por veículo, com as colunas sempre no mesmo sítio
+   (escolha · carroçaria · identidade · ficha · última pesquisa · ações). Só tokens (--c-*, --i3-*), por isso
+   serve o claro e o escuro. Transições de 150–200 ms, só cor, sombra e transform; nada com movimento reduzido.
+   ========================================================= */
+.gar2 { --gar2-azul: #147dc0; --gar2-azul-suave: rgb(20 125 192 / .14); gap: 16px; max-width: 1360px; }
+[data-theme="dark"] .gar2 { --gar2-azul: #4fa8e6; --gar2-azul-suave: rgb(79 168 230 / .16); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gar2 { --gar2-azul: #4fa8e6; --gar2-azul-suave: rgb(79 168 230 / .16); } }
+
+/* ---------- cabeçalho ---------- */
+.gar2__cabeca { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.gar2__titulos { display: grid; gap: 4px; }
+
+/* ---------- adicionar: uma barra compacta ---------- */
+.gar2__novo { display: grid; grid-template-columns: minmax(180px, 1fr) auto; grid-template-areas: "texto campo" "manual erro"; align-items: center; gap: 8px 24px;
+  padding: 16px 20px; border: 1px solid var(--c-borda); border-radius: var(--r-md); background: var(--c-superficie); }
+.gar2__novo-texto { grid-area: texto; display: grid; gap: 2px; }
+.gar2__novo-texto b { font-size: 15px; font-weight: 700; color: var(--c-texto); }
+.gar2__novo-texto span { font-size: 14px; color: var(--c-texto-2); }
+.gar2__novo-campo { grid-area: campo; display: flex; gap: 8px; }
+.gar2__placa { display: flex; align-items: stretch; height: 40px; width: 200px; border: 1px solid var(--c-borda-forte); border-radius: var(--r-md); background: var(--c-superficie-2); overflow: hidden; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.gar2__placa i, .gar2__matricula i { display: grid; place-items: center; width: 22px; background: #003399; color: #fff; font: 700 11px/1 var(--f-sans, system-ui); font-style: normal; }
+.gar2__placa input { flex: 1; min-width: 0; border: 0; padding: 0 12px; background: transparent; color: var(--c-texto); font: 600 15px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; outline: none; }
+.gar2__placa input::placeholder { color: var(--c-texto-3); font-weight: 500; }
+.gar2__placa:focus-within { border-color: var(--gar2-azul); box-shadow: 0 0 0 3px var(--gar2-azul-suave); }
+.gar2__placa:has(input[aria-invalid="true"]) { border-color: var(--c-erro); }
+.gar2 .gar2__identificar.btn { height: 40px; border-color: var(--c-texto-2); font-weight: 600; }
+.gar2__manual { grid-area: manual; justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--gar2-azul); cursor: pointer; }
+.gar2__manual svg { width: 16px; height: 16px; }
+.gar2__manual:hover { text-decoration: underline; text-underline-offset: 3px; }
+.gar2__erro { grid-area: erro; margin: 0; font-size: 14px; color: var(--c-erro); text-align: right; }
+.gar2__erro:empty { display: none; }
+
+/* ---------- a lista ---------- */
+.gar2__bloco { display: grid; gap: 12px; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+.gar2__bloco-cabeca { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+.gar2__bloco-cabeca h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--c-texto); }
+.gar2__contagem { font-size: 14px; color: var(--c-texto-2); }
+.gar2__dica { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 13px; color: var(--c-texto-3); }
+.gar2__dica svg { width: 14px; height: 14px; }
+.gar2__lista.ini4__garagem { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 0; padding: 0; list-style: none; overflow: visible; }
+
+.gar2__lista.ini4__garagem { container: gar2 / inline-size; }
+.gar2__carro.ini4__carro { position: relative; display: grid; align-items: center; gap: 10px 20px;
+  grid-template-columns: 24px 96px minmax(0, 1fr) 170px 236px;
+  grid-template-areas: "escolha figura id ultima acoes" "escolha figura ficha ultima acoes";
+  min-height: 0; padding: 16px 16px 16px 18px; border: 1px solid var(--c-borda); border-radius: var(--r-md);
+  background: var(--c-superficie); box-shadow: 0 1px 2px rgb(0 0 0 / .04); cursor: pointer; flex: none;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 180ms ease; }
+@media (hover: hover) and (pointer: fine) { .gar2__carro.ini4__carro:hover { border-color: var(--c-borda-forte); background: var(--c-superficie-2); } }
+.gar2__carro.is-em-uso { border-color: color-mix(in srgb, var(--gar2-azul) 55%, var(--c-borda)); box-shadow: inset 3px 0 0 var(--gar2-azul); cursor: default; }
+.gar2__carro.is-em-uso:hover { background: var(--c-superficie); }
+
+/* o círculo de escolha (um rádio verdadeiro, desenhado) */
+.gar2__escolha { grid-area: escolha; position: relative; display: grid; place-items: center; width: 24px; height: 24px; cursor: pointer; }
+.gar2__escolha input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.gar2__radio { width: 18px; height: 18px; border: 2px solid var(--c-borda-forte); border-radius: 50%; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.gar2__escolha:hover .gar2__radio { border-color: var(--gar2-azul); }
+.gar2__escolha input:checked + .gar2__radio { border-color: var(--gar2-azul); box-shadow: inset 0 0 0 3px var(--c-superficie), inset 0 0 0 9px var(--gar2-azul); }
+.gar2__escolha input:focus-visible + .gar2__radio { outline: 2px solid var(--gar2-azul); outline-offset: 3px; }
+
+/* a carroçaria em traço */
+.gar2__figura { grid-area: figura; display: grid; place-items: center; height: 52px; }
+.gar2__silhueta { width: 96px; height: auto; fill: none; stroke: var(--c-texto-3); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.gar2__silhueta .cat6__chao { stroke: var(--c-borda-forte); stroke-width: 1.5; }
+.gar2__silhueta .cat6__janelas, .gar2__silhueta .cat6__raios { stroke-width: 1.6; opacity: .7; }
+.gar2__carro.is-em-uso .gar2__silhueta { stroke: var(--gar2-azul); }
+
+/* identidade */
+.gar2__id { grid-area: id; align-self: end; display: grid; gap: 4px; min-width: 0; }
+.gar2__linha1 { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; }
+.gar2__matricula { display: inline-flex; align-items: stretch; height: 24px; border: 1px solid var(--c-borda-forte); border-radius: 4px; overflow: hidden; background: #fff; color: #111; font: 700 13px/22px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: .08em; }
+.gar2__matricula i { width: 16px; font-size: 9px; }
+.gar2__matricula { padding-right: 8px; gap: 7px; }
+.gar2__selo { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.gar2__selo svg { width: 13px; height: 13px; }
+.gar2__selo--fav { color: var(--c-texto-2); background: var(--c-superficie-2); }
+.gar2__selo--fav svg { fill: var(--c-acao); stroke: var(--c-acao); }
+.gar2__selo--uso { color: var(--gar2-azul); background: var(--gar2-azul-suave); }
+.gar2__selo[hidden] { display: none; }
+.gar2__nome.ini4__carro-nome { margin: 2px 0 0; font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--c-texto); overflow-wrap: anywhere; }
+.gar2__versao { font-size: 14px; line-height: 1.4; color: var(--c-texto-2); }
+.gar2 .ini4__renomear { height: 32px; font-size: 15px; }
+
+/* a ficha do catálogo: rótulo por cima, valor por baixo, colunas iguais */
+/* colunas fixas, para os valores ficarem alinhados de cartão para cartão */
+.gar2__ficha { grid-area: ficha; align-self: start; display: grid; grid-template-columns: 44px 84px 124px 92px minmax(72px, 1fr); gap: 8px 16px; margin: 0; }
+.gar2__ficha div { display: grid; gap: 2px; min-width: 0; }
+.gar2__ficha dt { font-size: 12px; color: var(--c-texto-3); }
+.gar2__ficha dd { margin: 0; font-size: 14px; font-weight: 600; color: var(--c-texto); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+/* contexto */
+.gar2__ultima { grid-area: ultima; display: flex; align-items: flex-start; gap: 8px; margin: 0; font-size: 14px; line-height: 1.4; color: var(--c-texto); }
+.gar2__ultima > svg { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--c-texto-3); }
+.gar2__ultima > span { display: grid; }
+.gar2__rotulo { font-size: 12px; color: var(--c-texto-3); }
+
+/* ações: uma principal (laranja só no veículo em uso), uma secundária, e dois ícones */
+.gar2__acoes { grid-area: acoes; display: grid; grid-template-columns: minmax(0, 1fr) 38px 38px; gap: 8px 6px; }
+.gar2__acoes .gar2__principal { grid-column: 1 / -1; }
+.gar2 .gar2__secundario.btn { justify-content: flex-start; padding: 0 10px; }
+.gar2 .gar2__btn.btn { min-height: 38px; white-space: nowrap; font-weight: 600; }
+.gar2 .gar2__principal.btn:not(.btn--acao) { border-color: var(--c-borda-forte); background: var(--c-superficie-2); }
+.gar2 .gar2__secundario.btn { border-color: transparent; }
+@media (hover: hover) and (pointer: fine) {
+  .gar2 .gar2__btn.btn:not(.btn--acao):hover { border-color: var(--c-texto-3); background: var(--c-superficie-2); }
+  .gar2 .gar2__btn.btn--acao:hover { background: var(--c-acao-premido, var(--c-acao)); border-color: var(--c-acao-premido, var(--c-acao)); }
+}
+.gar2__icone { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid transparent; border-radius: var(--r-md); background: none; color: var(--c-texto-2); cursor: pointer; transition: background-color 160ms ease, color 160ms ease; }
+.gar2__icone svg { width: 18px; height: 18px; }
+.gar2__icone:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+.gar2__icone[aria-pressed="true"] svg { fill: var(--c-acao); stroke: var(--c-acao); }
+.gar2__icone[aria-expanded="true"] { background: var(--c-superficie-2); color: var(--c-texto); }
+.gar2 :is(.gar2__icone, .gar2__btn, .gar2__manual, .gar2__identificar):focus-visible { outline: 2px solid var(--gar2-azul); outline-offset: 2px; }
+.gar2__menu-sitio .ini4__menu { right: 0; }
+
+/* vazio */
+.gar2__vazio { display: flex; align-items: flex-start; gap: 16px; padding: 28px 24px; border: 1px dashed var(--c-borda-forte); border-radius: var(--r-md); }
+.gar2__vazio > svg { flex: none; width: 28px; height: 28px; color: var(--c-texto-3); }
+.gar2__vazio b { font-size: 15px; color: var(--c-texto); }
+.gar2__vazio p { margin: 4px 0 0; max-width: 560px; font-size: 14px; line-height: 1.5; color: var(--c-texto-2); }
+
+/* a nota da v1 e a regra da v1 que esconde o h2 não valem aqui */
+.gar2 .gar__corpo [data-bloco="garagem"] h2 { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+
+/* ---------- larguras ----------
+   Pela largura da lista (container query), não da janela: o menu lateral aberto ou fechado muda o espaço. */
+@container gar2 (max-width: 999.98px) {
+  .gar2__carro.ini4__carro { grid-template-columns: 24px 80px minmax(0, 1fr) 236px; grid-template-areas: "escolha figura id acoes" "escolha figura ficha acoes" "escolha figura ultima acoes"; }
+  .gar2__silhueta { width: 80px; }
+}
+@container gar2 (max-width: 759.98px) {
+  .gar2__carro.ini4__carro { grid-template-columns: 24px minmax(0, 1fr) auto; grid-template-areas: "escolha id figura" "ficha ficha ficha" "ultima ultima ultima" "acoes acoes acoes"; gap: 12px; padding: 14px; }
+  .gar2__figura { height: 36px; }
+  .gar2__silhueta { width: 72px; }
+  .gar2__ficha { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-top: 12px; border-top: 1px solid var(--c-borda); }
+  .gar2__acoes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px 44px; }
+  .gar2__acoes .gar2__principal { grid-column: 1 / 3; }
+  .gar2 .gar2__secundario.btn { grid-column: 1 / 3; grid-row: 2; justify-content: center; border-color: var(--c-borda-forte); }
+  .gar2__acoes .gar2__icone { grid-row: 1; }
+}
+@container gar2 (max-width: 479.98px) {
+  .gar2__ficha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gar2__acoes { grid-template-columns: minmax(0, 1fr) 44px 44px; }
+  .gar2__acoes .gar2__principal { grid-column: 1 / -1; grid-row: 1; }
+  .gar2 .gar2__secundario.btn { grid-column: 1; grid-row: 2; }
+  .gar2__acoes .gar2__icone { grid-row: 2; }
+}
+@media (max-width: 1099.98px) {
+  .gar2__novo { grid-template-columns: 1fr; grid-template-areas: "texto" "campo" "erro" "manual"; }
+  .gar2__erro { text-align: left; }
+  .gar2__dica { margin-left: 0; width: 100%; }
+}
+@media (max-width: 767.98px) {
+  .gar2 { gap: 12px; }
+  .gar2 .gar2__btn.btn, .gar2__icone { min-height: 44px; height: 44px; }
+  .gar2__icone { width: 44px; }
+  .gar2__novo { padding: 14px; }
+  .gar2__novo-campo { flex-direction: column; }
+  .gar2__placa { width: 100%; height: 44px; }
+  .gar2 .gar2__identificar.btn { height: 44px; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .gar2 *, .gar2 *::before { transition: none !important; } }

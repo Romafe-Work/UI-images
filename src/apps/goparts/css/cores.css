@@ -20,11 +20,15 @@
      deixa o azul-carvão e passa ao grafite do login — fundo #101113, topo #121417, barra lateral #17191C,
      superfícies #1B1D20 / #24272B, bordas #34383D, texto #F5F5F5 / #A7ADB5. O azul e o laranja ficam. */
   /* (25 nov., «mais leves») as superfícies quase no fundo e as bordas mais suaves (antes #1b1d20 / #24272b / #34383d / #4a4f56) */
-  --g-fundo: #101113; --g-barra: #121315; --g-sup: #141518; --g-sup-2: #1b1d20; --g-borda: #25282c; --g-borda-forte: #3a3e44;
+  /* (26 nov., briefing «Premium B2B Automotive Portal»: «o escuro está demasiado preto, plano e sem vida») o grafite
+     passa a ardósia: fundo #151B22, barra lateral #111820, superfície elevada #1D2630, cartões #222D38, hover #2A3743,
+     bordas #34424F (a suave entre o fundo e a borda). Antes: #101113 / #121315 / #141518 / #1b1d20 / #25282c / #3a3e44. */
+  --g-fundo: #151b22; --g-barra: #131a21; --g-sup: #1d2630; --g-sup-2: #222d38; --g-borda: #2c3844; --g-borda-forte: #3d4c5a;
   /* (22 out.) ela: «se o fundo é preto, as letras devem estar mais percetíveis» — o texto secundário e o terciário
      sobem (≈ 9:1 e 6,5:1 sobre #1B1D20) e o azul do texto aclara */
-  --g-tinta: #f5f5f5; --g-tinta-2: #ccd1d8; --g-tinta-3: #a9afb8;
-  --g-azul: #147dc0; --g-azul-tinta: #6cb4ec; --g-azul-suave: rgba(20, 125, 192, .18); --g-laranja: #f58214;
+  /* (26 nov.) texto #F3F6F8 / #AEBCC9 (≈ 8,4:1 sobre #222D38) e o terciário #93A3B3 (≈ 5,6:1); azul #087CC1 */
+  --g-tinta: #f3f6f8; --g-tinta-2: #b8c5d1; --g-tinta-3: #93a3b3;
+  --g-azul: #087cc1; --g-azul-tinta: #5cb0ea; --g-azul-suave: rgba(8, 124, 193, .18); --g-laranja: #f58220;
 }
 .portal--noite, .portal--ini3 {
   /* (21 out.) o claro do briefing: fundo #F4F7FA, topo branco, barra lateral #F7F9FB, superfícies branca e #EDF2F6,
@@ -43,16 +47,16 @@
   --azul-fundo: #147dc0;
 }
 [data-theme="dark"] .portal--noite, [data-theme="dark"] .portal--ini3 {
-  --gp-topo: var(--g-barra); --gp-lado: #17191c; --gp-lado-ativo: #24272b; --gp-lado-tinta: #f5f5f5; --gp-lado-tinta-2: #ccd1d8;
+  --gp-topo: var(--g-barra); --gp-lado: #111820; --gp-lado-ativo: #2a3743; --gp-lado-tinta: #f3f6f8; --gp-lado-tinta-2: #b8c5d1;
   --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
-  --c-acao: #f58214; --c-acao-premido: #ff922b; --gp-azul-vivo: #3a9ad8;
+  --c-acao: #f58220; --c-acao-premido: #ff9136; --gp-azul-vivo: #3a9ad8;
   --i3-azul: var(--g-azul-tinta);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .portal--noite, :root:not([data-theme="light"]) .portal--ini3 {
-    --gp-topo: var(--g-barra); --gp-lado: #17191c; --gp-lado-ativo: #24272b; --gp-lado-tinta: #f5f5f5; --gp-lado-tinta-2: #ccd1d8;
+    --gp-topo: var(--g-barra); --gp-lado: #111820; --gp-lado-ativo: #2a3743; --gp-lado-tinta: #f3f6f8; --gp-lado-tinta-2: #b8c5d1;
     --c-ok: #16a873; --c-ok-suave: rgba(22, 168, 115, .16); --c-aviso: #e9a23b; --c-aviso-suave: rgba(233, 162, 59, .16); --c-erro: #e65358; --c-erro-suave: rgba(230, 83, 88, .16);
-    --c-acao: #f58214; --c-acao-premido: #ff922b; --gp-azul-vivo: #3a9ad8;
+    --c-acao: #f58220; --c-acao-premido: #ff9136; --gp-azul-vivo: #3a9ad8;
     --i3-azul: var(--g-azul-tinta);
   }
 }

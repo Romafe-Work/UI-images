@@ -26,17 +26,22 @@
    dentro roda ao contrário (60 s). Por trás, só um toque de luz azul no topo. Nada mais: sem pontos, sem grão.
    O movimento está dentro do próprio desenho (SVG); com movimento reduzido usa-se o desenho parado.
    ========================================================= */
-.portal--lateral { isolation: isolate; --rl-op: .65; --luz: .20; }
-:root:not([data-theme="dark"]) .portal--lateral { --rl-op: .45; --luz: .08; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --rl-op: .65; --luz: .20; } }
-[data-theme="dark"] .portal--lateral { --rl-op: .65; --luz: .20; }
+/* (26 nov., briefing «Premium B2B Automotive Portal»: «nada de rodas dentadas gigantes nem fundos a mexer sem
+   necessidade; profundidade quase invisível») o rolamento fica, mas parado, mais pequeno e mais apagado; por trás,
+   camadas de luz muito suaves: um véu mais claro na zona do cabeçalho e um toque de azul ROMAFE no canto. Antes: as
+   esferas giravam (90 s) e o anel de dentro ao contrário (60 s), a 46vmax e .65 de opacidade no escuro. */
+.portal--lateral { isolation: isolate; --rl-op: .30; --luz: .14; --veu: .035; }
+:root:not([data-theme="dark"]) .portal--lateral { --rl-op: .32; --luz: .06; --veu: .5; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .portal--lateral { --rl-op: .30; --luz: .14; --veu: .035; } }
+[data-theme="dark"] .portal--lateral { --rl-op: .30; --luz: .14; --veu: .035; }
 .portal--lateral::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(60vw 50vh at 78% -6vh, rgb(0 99 170 / var(--luz)), transparent 70%); }
+  background:
+    radial-gradient(56vw 44vh at 82% -8vh, rgb(8 124 193 / var(--luz)), transparent 70%),
+    linear-gradient(180deg, rgb(255 255 255 / var(--veu)) 0, transparent 280px); }
 .portal--lateral::after { content: ""; position: fixed; z-index: -1; pointer-events: none;
-  right: -9vmax; top: -12vmax; width: 46vmax; height: 46vmax; opacity: var(--rl-op);
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' fill='none' stroke='%232a8fd8' stroke-width='0.55' stroke-opacity='0.55'%3E%3Ccircle r='97'/%3E%3Ccircle r='82'/%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' from='0' to='360' dur='90s' repeatCount='indefinite'/%3E%3Ccircle r='68' stroke-dasharray='1.5 3' stroke-opacity='0.35'/%3E%3Ccircle cx='68.00' cy='0.00' r='9.5' stroke=%22%23f58214%22 stroke-opacity=%220.9%22/%3E%3Ccircle cx='58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='0.00' cy='68.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='-58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='-68.00' cy='0.00' r='9.5'/%3E%3Ccircle cx='-58.89' cy='-34.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='-0.00' cy='-68.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='58.89' cy='-34.00' r='9.5'/%3E%3C/g%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' from='0' to='-360' dur='60s' repeatCount='indefinite'/%3E%3Ccircle r='54'/%3E%3Ccircle r='40'/%3E%3Cpath d='M0-54v6M0 48v6M-54 0h6M48 0h6' stroke-opacity='0.4'/%3E%3C/g%3E%3Ccircle r='28' stroke-opacity='0.35'/%3E%3C/svg%3E") center / contain no-repeat; }
-@media (prefers-reduced-motion: reduce) { .portal--lateral::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' fill='none' stroke='%232a8fd8' stroke-width='0.55' stroke-opacity='0.55'%3E%3Ccircle r='97'/%3E%3Ccircle r='82'/%3E%3Cg%3E%3Ccircle r='68' stroke-dasharray='1.5 3' stroke-opacity='0.35'/%3E%3Ccircle cx='68.00' cy='0.00' r='9.5' stroke=%22%23f58214%22 stroke-opacity=%220.9%22/%3E%3Ccircle cx='58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='0.00' cy='68.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='-58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='-68.00' cy='0.00' r='9.5'/%3E%3Ccircle cx='-58.89' cy='-34.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='-0.00' cy='-68.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='58.89' cy='-34.00' r='9.5'/%3E%3C/g%3E%3Cg%3E%3Ccircle r='54'/%3E%3Ccircle r='40'/%3E%3Cpath d='M0-54v6M0 48v6M-54 0h6M48 0h6' stroke-opacity='0.4'/%3E%3C/g%3E%3Ccircle r='28' stroke-opacity='0.35'/%3E%3C/svg%3E"); } }
-@media (max-width: 900px) { .portal--lateral::after { width: 90vmax; height: 90vmax; right: -40vmax; top: -30vmax; } }
+  right: -8vmax; top: -10vmax; width: 34vmax; height: 34vmax; opacity: var(--rl-op);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' fill='none' stroke='%232a8fd8' stroke-width='0.55' stroke-opacity='0.55'%3E%3Ccircle r='97'/%3E%3Ccircle r='82'/%3E%3Cg%3E%3Ccircle r='68' stroke-dasharray='1.5 3' stroke-opacity='0.35'/%3E%3Ccircle cx='68.00' cy='0.00' r='9.5' stroke=%22%23f58214%22 stroke-opacity=%220.9%22/%3E%3Ccircle cx='58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='0.00' cy='68.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='58.89' r='9.5'/%3E%3Ccircle cx='-58.89' cy='34.00' r='9.5'/%3E%3Ccircle cx='-68.00' cy='0.00' r='9.5'/%3E%3Ccircle cx='-58.89' cy='-34.00' r='9.5'/%3E%3Ccircle cx='-34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='-0.00' cy='-68.00' r='9.5'/%3E%3Ccircle cx='34.00' cy='-58.89' r='9.5'/%3E%3Ccircle cx='58.89' cy='-34.00' r='9.5'/%3E%3C/g%3E%3Cg%3E%3Ccircle r='54'/%3E%3Ccircle r='40'/%3E%3Cpath d='M0-54v6M0 48v6M-54 0h6M48 0h6' stroke-opacity='0.4'/%3E%3C/g%3E%3Ccircle r='28' stroke-opacity='0.35'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (max-width: 900px) { .portal--lateral::after { width: 60vmax; height: 60vmax; right: -28vmax; top: -22vmax; } }
 
 /* =========================================================
    (25 nov.) a barra de cima. Ela: «feio também». Transparente sobre o fundo (a luz azul vê-se por trás), sem a linha

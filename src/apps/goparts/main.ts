@@ -53,6 +53,8 @@ import './css/montra-continuar.css';
 import './css/lado-leve.css';
 import './css/moderno.css';
 import './css/vida.css';
+import './css/garagem-v2.css';
+import './comportamento/garagem-v2';
 import '../../comum/css/editor.css';
 
 import { montar } from '../../comum/pagina';

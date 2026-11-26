@@ -86,6 +86,9 @@ function aCarregar(b: HTMLElement, texto: string): () => void {
 }
 const espera = (ms: number) => new Promise((r) => window.setTimeout(r, quieto() ? Math.min(ms, 150) : ms));
 import { irFiltrado } from './filtro-chegada';
+import { garagemV2Html, emUsoDe } from '../portal/garagem-v2';
+/** (26 nov.) a garagem v2 desenha-se com o seu próprio HTML, com o veículo em uso */
+const garagemDe = (ini: HTMLElement, d: Dados, escolhida: string) => (ini.hasAttribute('data-gar2') ? garagemV2Html(d, emUsoDe(d.garagem)) : garagemHtml(d, '', escolhida));
 function ir(id: string, chave?: string, valor?: string): void { if (chave) try { sessionStorage.setItem(chave, valor ?? ''); } catch { /* abre só o ecrã */ } mostrar(id); }
 const barra = (tipo: string) => document.querySelector<HTMLElement>(`.ecra:not([hidden]) > .versao:not([hidden]) [data-barra="${tipo}"]:not([hidden])`)?.click();
 
@@ -116,7 +119,7 @@ function desenhar(ini: HTMLElement): void {
   ini.querySelector('[data-blocos]')?.setAttribute('data-densidade', d.prefs.densidade);
   const ola = ini.querySelector('.ini4__ola'); if (ola) { const t = document.createElement('template'); t.innerHTML = olaHtml(d).trim(); ola.replaceWith(t.content.firstElementChild!); }
   const escolhida = ini.querySelector<HTMLElement>('.ini4__veiculo-caixa[data-matricula]')?.dataset.matricula ?? '';
-  trocar(ini, 'atencao', atencaoHtml(d)); trocar(ini, 'resumo', resumoHtml(d)); trocar(ini, 'atalhos', atalhosHtml(d)); trocar(ini, 'continuar', continuarHtml(d)); trocar(ini, 'garagem', garagemHtml(d, '', escolhida)); trocar(ini, 'frequentes', frequentesHtml(d));
+  trocar(ini, 'atencao', atencaoHtml(d)); trocar(ini, 'resumo', resumoHtml(d)); trocar(ini, 'atalhos', atalhosHtml(d)); trocar(ini, 'continuar', continuarHtml(d)); trocar(ini, 'garagem', garagemDe(ini, d, escolhida)); trocar(ini, 'frequentes', frequentesHtml(d));
   aplicarPrefs(ini, prefsDoEcra(ini, d.prefs));
 }
 /** (20 out., V5) No ecrã «Pesquisar peças» os blocos ficam pela ordem de origem e todos à vista: a personalização
@@ -348,7 +351,7 @@ function redesenharGaragem(ini: HTMLElement, mudar: (g: Carro[]) => void, depois
   const escolhida = ini.querySelector<HTMLElement>('.ini4__carro.is-escolhido')?.dataset.matricula ?? '';
   const antes = new Map(Array.from(bloco.querySelectorAll<HTMLElement>('.ini4__carro[data-carro]')).map((c) => [c.dataset.carro!, c.getBoundingClientRect()]));
   const d = { ...dados(), garagem: real(ini) ? garagem() : g };
-  const novo = trocar(ini, 'garagem', garagemHtml(d, '', escolhida))!;
+  const novo = trocar(ini, 'garagem', garagemDe(ini, d, escolhida))!;
   novo.style.order = bloco.style.order; novo.hidden = bloco.hidden;
   if (!quieto()) novo.querySelectorAll<HTMLElement>('.ini4__carro[data-carro]').forEach((c) => {
     const a = antes.get(c.dataset.carro!); if (!a) { entrar(c, 320, 'scale(.96)'); return; }

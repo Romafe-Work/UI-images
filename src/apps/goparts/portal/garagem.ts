@@ -22,3 +22,22 @@ export function garagemPagina(): string {
   <div class="ini4__brinde" data-por-cima role="status" aria-live="polite" hidden></div>
 </div>`;
 }
+
+/* ---------- v2 (26 nov. 2026): a garagem como lista de trabalho — ver portal/garagem-v2.ts ---------- */
+import { garagemV2Html, novoV2Html } from './garagem-v2';
+export function garagemPaginaV2(): string {
+  return `<div class="portal portal--v3 portal--v22 portal--noite portal--ini3 portal--ini4 portal--gar portal--gar2">
+  <main class="ini3 ini4 gar gar2" data-garagem-pagina data-gar2>
+    <header class="gar2__cabeca">
+      <div class="gar2__titulos">
+        <h1 class="gar__titulo">A minha garagem</h1>
+        <p class="gar__sub">Os veículos com que trabalha. O veículo em uso abre as peças compatíveis e acompanha a pesquisa.</p>
+      </div>
+    </header>
+    ${novoV2Html()}
+    <div class="gar__corpo gar2__corpo" data-blocos>${garagemV2Html(dadosIniciais())}</div>
+  </main>
+  <p class="ini3__aviso" role="status" aria-live="polite"></p>
+  <div class="ini4__brinde" data-por-cima role="status" aria-live="polite" hidden></div>
+</div>`;
+}

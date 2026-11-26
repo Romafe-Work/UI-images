@@ -177,11 +177,21 @@ function maisPesquisados(e: EstadoMontra): string {
    Uma faixa de cartões que anda sozinha (para com o rato, o foco ou «reduzir movimento»). Cada cartão: a peça,
    quantas unidades e em quantos pedidos, e as que foram nos mesmos pedidos. As do catálogo abrem a ficha; as
    outras, a pesquisa já escrita. */
-type Comprada = { desc: string; qtd: number; pedidos: number; juntas: string[] };
+/* (26 nov.) ela: «aqui quero as mais compradas pelo cliente». Antes, quase tudo empatava em «1 pedido» (a ordem era
+   a do ficheiro) e o «Costuma ir com» eram os dois primeiros artigos do pedido. Agora: a ordem é a do cliente — em
+   quantos pedidos entrou, depois quanto gastou nela, depois as unidades; e as que a acompanham são as que foram
+   mais vezes nos mesmos pedidos (com o número de vezes), e, no empate, as de maior valor nesse pedido. */
+type Comprada = { desc: string; qtd: number; pedidos: number; valor: number; juntas: { desc: string; vezes: number }[] };
 export function maisCompradas(): Comprada[] {
-  const m = new Map<string, Comprada>();
-  PEDIDOS.forEach((p) => p.artigos.forEach(([q, , d]) => { const c = m.get(d) ?? { desc: d, qtd: 0, pedidos: 0, juntas: [] }; c.qtd += q; c.pedidos++; p.artigos.forEach(([, , o]) => { if (o !== d && !c.juntas.includes(o)) c.juntas.push(o); }); m.set(d, c); }));
-  return [...m.values()].sort((a, b) => b.pedidos - a.pedidos || b.qtd - a.qtd).slice(0, 8);
+  const m = new Map<string, Comprada & { com: Map<string, { vezes: number; valor: number }> }>();
+  PEDIDOS.forEach((p) => p.artigos.forEach(([q, , d, v]) => {
+    const c = m.get(d) ?? { desc: d, qtd: 0, pedidos: 0, valor: 0, juntas: [], com: new Map() };
+    c.qtd += q; c.pedidos++; c.valor += v;
+    p.artigos.forEach(([, , o, vo]) => { if (o === d) return; const j = c.com.get(o) ?? { vezes: 0, valor: 0 }; j.vezes++; j.valor += vo; c.com.set(o, j); });
+    m.set(d, c);
+  }));
+  return [...m.values()].sort((a, b) => b.pedidos - a.pedidos || b.valor - a.valor || b.qtd - a.qtd).slice(0, 8)
+    .map(({ com, ...c }) => ({ ...c, juntas: [...com].sort((a, b) => b[1].vezes - a[1].vezes || b[1].valor - a[1].valor).slice(0, 2).map(([desc, j]) => ({ desc, vezes: j.vezes })) }));
 }
 const doCatalogo = (desc: string) => REFERENCIAS.find((r) => desc.includes(r[2]));
 function comprada(c: Comprada, i: number, copia = false): string {
@@ -189,10 +199,10 @@ function comprada(c: Comprada, i: number, copia = false): string {
   const acao = r ? ` data-mt-ficha="${esc(r[2])}" data-mt-fab="${esc(r[1])}"` : ` data-mt-pesquisar="${esc(c.desc)}" data-mt-modo="2"`;
   return `<li class="mt__comp" style="--i:${i}"${copia ? ' aria-hidden="true"' : ''}><button type="button" class="mt__comp-card"${acao}${copia ? ' tabindex="-1"' : ''}>
     <span class="mt__comp-img">${azulejoPeca(c.desc, 'mt__comp-azulejo', r?.[2] ?? '')}</span>
-    <span class="mt__comp-n">${L(trendingUp)}${c.qtd} ${c.qtd === 1 ? 'unidade' : 'unidades'} · ${c.pedidos} ${c.pedidos === 1 ? 'pedido' : 'pedidos'}</span>
+    <span class="mt__comp-n"><span class="mt__comp-pos">${(i % 8) + 1}.º</span>${L(trendingUp)}${c.pedidos} ${c.pedidos === 1 ? 'pedido' : 'pedidos'} · ${c.qtd} ${c.qtd === 1 ? 'unidade' : 'unidades'} · ${euros(c.valor)}</span>
     <b class="mt__comp-nome">${esc(c.desc)}</b>
     ${r ? `<span class="mt__comp-preco">${euros(liquido(r))} <small>sem IVA · ${saida(r[6], r[7])}</small></span>` : '<span class="mt__comp-preco mt__comp-preco--sem">Pesquisar o preço</span>'}
-    ${c.juntas.length ? `<span class="mt__comp-juntas"><small>Costuma ir com</small>${c.juntas.slice(0, 2).map((j) => `<em>${esc(j)}</em>`).join('')}</span>` : ''}
+    ${c.juntas.length ? `<span class="mt__comp-juntas"><small>${c.juntas[0].vezes > 1 ? 'Costuma ir com' : 'Foi no mesmo pedido'}</small>${c.juntas.map((j) => `<em>${esc(j.desc)}${j.vezes > 1 ? ` <b>${j.vezes}×</b>` : ''}</em>`).join('')}</span>` : ''}
   </button></li>`;
 }
 function compradas(e: EstadoMontra): string {
@@ -200,8 +210,8 @@ function compradas(e: EstadoMontra): string {
   const l = maisCompradas();
   const faixa = l.map((c, i) => comprada(c, i)).join(''), copia = l.map((c, i) => comprada(c, i + l.length, true)).join('');
   return `<section class="mt__sec mt__compradas" aria-labelledby="mt-comp-t">
-    <header class="mt__sec-cabeca"><div><h2 class="mt__sec-t" id="mt-comp-t">As mais compradas.</h2><p class="mt__sec-sub">${L(packageIcon)}Contado dos teus pedidos, com o que costuma ir no mesmo pedido</p></div><button type="button" class="mt__mais" data-pn-ir="pedidos">Os meus pedidos${L(arrowRight)}</button></header>
-    <div class="mt__faixa" data-mt-faixa tabindex="0" aria-label="As mais compradas; passa sozinha, para com o rato ou o foco"><ul class="mt__faixa-pista" role="list">${faixa}${copia}</ul></div>
+    <header class="mt__sec-cabeca"><div><h2 class="mt__sec-t" id="mt-comp-t">As mais compradas pelo cliente.</h2><p class="mt__sec-sub">${L(packageIcon)}Contadas nos ${PEDIDOS.length} pedidos da conta, com o que costuma ir no mesmo pedido</p></div><button type="button" class="mt__mais" data-pn-ir="pedidos">Os meus pedidos${L(arrowRight)}</button></header>
+    <div class="mt__faixa" data-mt-faixa tabindex="0" aria-label="As mais compradas pelo cliente; passa sozinha, para com o rato ou o foco"><ul class="mt__faixa-pista" role="list">${faixa}${copia}</ul></div>
   </section>`;
 }
 

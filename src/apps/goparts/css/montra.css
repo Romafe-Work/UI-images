@@ -283,3 +283,6 @@
 .mt__cc-mais { display: grid; place-items: center; font-weight: 700; color: var(--i3-tinta-2); }
 @media (prefers-reduced-motion: reduce) { .mt__cc, .mt__cc-pecas > * { transition: none; } .mt__cc:hover { transform: none; } .mt__cc-etapas .is-atual i, .mt__cc:hover .mt__cc-carro { animation: none; } }
 @media (max-width: 900px) { .mt__cc-lista { grid-template-columns: minmax(0, 1fr); } }
+/* (26 nov.) as mais compradas pelo cliente: a posição e as vezes que a companheira foi no mesmo pedido */
+.mt__comp-pos { margin-right: 2px; padding: 1px 6px; border-radius: 999px; background: var(--c-superficie-2, rgb(127 127 127 / .14)); color: var(--c-texto); font-variant-numeric: tabular-nums; }
+.mt__comp-juntas em b { font-style: normal; font-weight: 700; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
