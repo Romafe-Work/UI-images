@@ -398,6 +398,10 @@ function acertarPicar(e: EstAcPicar = ''): string {
       <ul class="inv__linhas">${(e === 'feito' ? FECHADAS.slice(1) : FECHADAS).map(([p, n, quem]) => `<li class="inv__lin" ${ir('acertar')} role="button" tabindex="0">${L(lock, 'inv__cadeado')}
         <div class="inv__cresce"><b class="inv__codigo">${p}</b><small>${n} ${n === 1 ? "diferença" : "diferenças"} · contada por ${quem}</small></div>${L(chevronRight, 'inv__lapis')}</li>`).join('')}</ul>`,
     pe: pe(sec('Escrever o código da prateleira', keyboard, ` ${ir('acertar')}`)),
+    // 27 nov. (ela: «depois de acertar a prateleira pergunta se quer continuar o inventário ou voltar ao menu inicial»)
+    sobre: e === 'feito' ? dialogo('A 60800101 ficou acertada', `<p>O stock do sistema ficou igual ao que picaste (3 acertos):</p>${difLinhas(DIFS_ACERTO)}
+      <p class="inv__ok-forte">A prateleira está liberta para a separação e a expedição.</p><p>Queres continuar o inventário ou voltar ao Início?</p>`,
+      acao('Continuar Óleos', play, ` ${ir('prateleira')}`), sec('Voltar ao Início', home, ` ${ir('inicio-gestor')}`)) : undefined,
     semRede: e === 'sem-rede' ? REDE.geral : undefined,
   });
 }
@@ -572,7 +576,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('resumo-a-fechar', 'resumo', '06.2 · A trancar no servidor', F.CONTAR, 'Enquanto o servidor tranca a prateleira e grava as diferenças, não se lê nada.', resumo('a-fechar')),
 
     { id: 'acertar-picar', nome: '07 · Acertar Óleos', fluxo: F.ACERTAR, objetivo: 'Só o gestor. Do «Acertar Óleos»: pica-se a prateleira, ou toca-se numa das trancadas à espera do acerto (contadas, trancadas até ao acerto).', versoes: v(acertarPicar()) },
-    est('acertar-picar-feito', 'acertar-picar', '07.1 · Prateleira acertada', F.ACERTAR, 'Volta-se aqui depois de acertar, com quantos acertos se fizeram, para picar a próxima.', acertarPicar('feito')),
+    est('acertar-picar-feito', 'acertar-picar', '07.1 · Prateleira acertada', F.ACERTAR, 'Depois de acertar, um diálogo mostra o que mudou e pergunta: continuar o inventário (Continuar Óleos) ou voltar ao Início. Fechado o diálogo, fica aqui para acertar a próxima.', acertarPicar('feito')),
     est('acertar-picar-nao-contada', 'acertar-picar', '07.2 · Ainda não contada', F.ACERTAR, 'Só se acerta uma prateleira que já foi contada neste inventário.', acertarPicar('nao-contada')),
     est('acertar-picar-sem-rede', 'acertar-picar', '07.4 · Sem rede', F.ACERTAR, 'Sem rede não se vê a prateleira (o stock e o contado estão no servidor).', acertarPicar('sem-rede')),
     est('acertar-picar-outra', 'acertar-picar', '07.3 · De outra secção', F.ACERTAR, 'A prateleira é de outra secção: acerta-se pelo botão dessa secção.', acertarPicar('outra')),

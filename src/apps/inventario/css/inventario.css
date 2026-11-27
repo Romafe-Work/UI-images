@@ -335,3 +335,5 @@
 .inv__trancadas-cont { column-gap: 12px; }
 .inv__trancadas-cont i { display: inline-flex; align-items: center; gap: 4px; font-style: normal; white-space: nowrap; }
 .inv__trancadas-cont small { color: var(--i-tinta-2); font-size: 14px; }
+
+.inv__ok-forte { color: var(--i-ok, #1f8a4c); font-weight: 700; }
