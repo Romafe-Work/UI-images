@@ -273,3 +273,29 @@
 .inv__totais b { flex: 1; font-size: 18px; font-weight: 900; }
 .inv__totais span { display: inline-flex; align-items: center; gap: 4px; color: var(--i-tinta-2); font-family: var(--f-mono); font-weight: 700; }
 .inv__totais svg { width: 18px; height: 18px; }
+
+/* 27 nov.: a faixa do gestor (age logo), a linha das trancadas e libertas no cartão da secção, e o ecrã das prateleiras */
+.inv__aviso-gestor { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 14px; border: 0; background: var(--i-laranja); color: #fff; text-align: left; font: inherit; cursor: pointer; }
+.inv__aviso-gestor > svg { width: 20px; height: 20px; flex: none; }
+.inv__aviso-gestor b { display: block; font-size: 15px; }
+.inv__aviso-gestor small { display: block; font-size: 13px; color: #fff; }
+.inv__aviso-gestor em { font-style: normal; font-weight: 900; border: 1px solid #fff; border-radius: var(--r-md); padding: 4px 10px; }
+.inv__trancadas { display: flex; align-items: center; gap: 4px; width: 100%; padding: 8px 10px; border: 0; border-radius: var(--r-md); background: var(--i-fundo); color: var(--i-tinta); font: inherit; font-size: 14px; cursor: pointer; text-align: left; }
+.inv__trancadas svg { width: 16px; height: 16px; color: var(--i-tinta-2); flex: none; }
+.inv__trancadas svg.is-laranja { color: var(--i-laranja); }
+.inv__trancadas svg.is-verde { color: var(--i-ok); margin-left: 8px; }
+.inv__trancadas span { color: var(--i-azul); font-weight: 700; }
+.inv__trancadas > svg:last-child { color: var(--i-azul); }
+.inv__prats { gap: 6px; }
+.inv__prat { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; background: var(--i-sup); border: 1px solid var(--i-borda); border-radius: var(--r-md); }
+.inv__prat.is-liberta { border-color: var(--i-ok); }
+.inv__prat small { color: var(--i-tinta-2); font-size: 13px; line-height: 1.25; }
+.inv__prat-est { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; color: var(--i-tinta-2); }
+.inv__prat-est svg { width: 16px; height: 16px; }
+.inv__prat-est.is-laranja { color: var(--i-laranja); }
+.inv__prat-est.is-azul { color: var(--i-azul); }
+.inv__prat-est.is-verde { color: var(--i-ok); }
+.inv__feito .inv__btn { margin-top: 8px; }
+.inv__feito .inv__btn span, .inv__feito .inv__btn svg { color: #fff; }
+.inv__trancadas b { white-space: nowrap; }
+.inv__trancadas span { margin-left: auto; padding-left: 8px; }

@@ -100,6 +100,26 @@ function alvoCompacto(titulo: string, o: { erro?: string; lido?: boolean; destin
 }
 
 /** 27 nov.: a posição numa faixa fina com o cadeado, a contar depois do primeiro artigo (a lista do picado tem espaço no CK62). */
+/** 27 nov. (ela: «na app tenho de ver quando fica destrancada»): as prateleiras da secção e o estado de cada uma (vem da base
+ *  de dados, atualiza de 5 em 5 s): vê-se a prateleira passar de trancada a liberta quando o gestor acerta. */
+const PRATS: [string, 'TRANCADA_PARA_ACERTO' | 'TRANCADA_A_CONTAR' | 'LIBERTA' | 'LIVRE', string][] = [
+  ['60800103', 'TRANCADA_PARA_ACERTO', 'A 60800103 está trancada para o acerto: foi contada por Inês Costa e tem 2 diferenças. Só fica liberta depois de o gestor acertar.'],
+  ['60800201', 'TRANCADA_PARA_ACERTO', 'A 60800201 está trancada para o acerto: foi contada por Joana Matos e não tem diferenças. Só fica liberta depois de o gestor acertar.'],
+  ['60800202', 'TRANCADA_A_CONTAR', 'A 60800202 está trancada: a ser contada por Tiago Reis desde as 10:31. Ninguém mexe nela.'],
+  ['60800101', 'LIBERTA', 'A 60800101 está liberta: contada por Inês Costa e acertada por Pedro Santos às 10:29. Pode ser usada na separação e na expedição.'],
+  ['60800102', 'LIBERTA', 'A 60800102 está liberta: contada por Joana Matos e acertada por Pedro Santos às 10:12. Pode ser usada na separação e na expedição.'],
+  ['60800203', 'LIVRE', ''], ['60800301', 'LIVRE', ''], ['60800302', 'LIVRE', ''],
+];
+function prateleirasEcra(): string {
+  const rot = { TRANCADA_PARA_ACERTO: ['Trancada para o acerto', lock, 'is-laranja'], TRANCADA_A_CONTAR: ['Trancada · a contar', lock, 'is-azul'], LIBERTA: ['Liberta', lockOpen, 'is-verde'], LIVRE: ['Livre · por contar', lockOpen, ''] } as const;
+  return pagina({
+    k: 'prateleiras',
+    topo: topo('Prateleiras de Óleos', 'Atualiza sozinha', 'inicio'),
+    corpo: `<ul class="inv__linhas inv__prats">${PRATS.map(([p, e, m]) => `<li class="inv__prat${e === 'LIBERTA' ? ' is-liberta' : ''}">
+      <div class="inv__linha"><b class="inv__codigo inv__cresce">${p}</b><span class="inv__prat-est ${rot[e][2]}">${L(rot[e][1])}${rot[e][0]}</span></div>${m ? `<small>${m}</small>` : ''}</li>`).join('')}</ul>`,
+  });
+}
+
 function posicaoFaixa(codigo: string): string {
   const partes: [string, string][] = [['Arm.', codigo.slice(0, 2)], ['Zona', codigo.slice(2, 4)], ['Col.', codigo.slice(4, 6)], ['Prat.', codigo.slice(6, 8)]];
   return `<div class="inv__posicao inv__posicao--faixa" aria-label="Prateleira ${codigo}, trancada a contar">${partes.map(([r, v]) => `<span><small>${r}</small><b>${v}</b></span>`).join('')}${L(lock, 'inv__posicao-cadeado')}</div>`;
@@ -114,9 +134,9 @@ const cartao = (dentro: string, destino?: IdInventario) => `<div class="inv__car
 const pe = (dentro: string) => `<footer class="inv__pe">${dentro}</footer>`;
 
 /** A página: o topo, (a posição), o corpo que rola e o pé; por cima, um diálogo ou o «a falar com o servidor». */
-function pagina(o: { k: string; topo: string; posicao?: string; faixa?: boolean; corpo: string; pe?: string; sobre?: string; escuro?: boolean; semRede?: string }): string {
+function pagina(o: { k: string; topo: string; posicao?: string; faixa?: boolean; corpo: string; pe?: string; sobre?: string; escuro?: boolean; semRede?: string; aviso?: string }): string {
   return `<div class="inv${o.escuro ? ' inv--camara' : ''}" data-inv="${o.k}" data-ir-ultima>
-    ${o.semRede ? semRede(o.semRede) : ''}${o.topo}${o.posicao ? (o.faixa ? posicaoFaixa(o.posicao) : posicaoGrande(o.posicao)) : ''}
+    ${o.semRede ? semRede(o.semRede) : ''}${o.aviso ?? ''}${o.topo}${o.posicao ? (o.faixa ? posicaoFaixa(o.posicao) : posicaoGrande(o.posicao)) : ''}
     <main class="inv__corpo">${o.corpo}</main>
     ${o.pe ?? ''}${o.sobre ?? ''}
   </div>`;
@@ -127,6 +147,8 @@ function pagina(o: { k: string; topo: string; posicao?: string; faixa?: boolean;
  * por cima de todos os ecrãs (menos Entrar e Ligação); a app tenta sozinha de 5 em 5 s.
  */
 const REDE = { geral: 'O servidor não responde. A tentar outra vez…', contar: 'Continua a picar: fica no PDA. Ao trancar, espera pela rede.', acertar: 'O que mudares fica aqui; o acerto só se faz com rede.' };
+/** 27 nov. (ela: «ele deve agir logo»): a faixa do gestor — o PDA vibra e mostra a prateleira trancada, em qualquer ecrã. Sem tempos. */
+const avisoGestor = `<button type="button" class="inv__aviso-gestor" ${ir('acertar')}>${L(lock)}<span class="inv__cresce"><b>60800103 trancada para o acerto</b><small>por Inês Costa · 2 diferenças · a separação precisa dela · +2</small></span><em>Acertar</em></button>`;
 const semRede = (t: string) => `<div class="inv__semrede" role="status">${L(wifiOff)}<div class="inv__cresce"><b>Sem rede</b><small>${t}</small></div><button type="button">Tentar</button></div>`;
 
 /* ---------- diálogos (AlertDialog) ---------- */
@@ -144,11 +166,11 @@ const campo = (rot: string, valor = '', o: { mono?: boolean; erro?: string; tipo
    Os ecrãs
    ========================================================= */
 const INV = 'Inventário 26/11/2026';
-type Sec = { nome: string; zona: string; est: 'por' | 'dec' | 'fim'; txt: string; acertar?: number };
+type Sec = { nome: string; zona: string; est: 'por' | 'dec' | 'fim'; txt: string; acertar?: number; tr?: number; lib?: number };
 const SECCOES: Sec[] = [
-  { nome: 'Óleos', zona: '80', est: 'dec', txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar · 3 trancadas à espera do acerto', acertar: 5 },
-  { nome: 'Auto', zona: '30', est: 'dec', txt: 'A decorrer desde as 09:30 · 3 prateleiras' },
-  { nome: 'Rolamentos', zona: '10, 11, 20, 21, 22', est: 'fim', txt: 'Terminada às 10:12 · 14 prateleiras' },
+  { nome: 'Óleos', zona: '80', est: 'dec', txt: 'A decorrer desde as 08:05 · 6 prateleiras · 1 a contar · 3 trancadas à espera do acerto', acertar: 5, tr: 3, lib: 2 },
+  { nome: 'Auto', zona: '30', est: 'dec', txt: 'A decorrer desde as 09:30 · 3 prateleiras', tr: 0, lib: 3 },
+  { nome: 'Rolamentos', zona: '10, 11, 20, 21, 22', est: 'fim', txt: 'Terminada às 10:12 · 14 prateleiras', tr: 0, lib: 14 },
 ];
 
 function entrar(primeira: boolean): string {
@@ -170,16 +192,17 @@ function seccao(s: Sec, estado: Sec['est'] = s.est, txt = s.txt, gestor = false)
     : estado === 'dec' ? `${acao(`Continuar ${s.nome}`, play, ` ${ir('prateleira')}`)}<div class="inv__par">${gestor ? sec(s.acertar ? `Acertar (${s.acertar})` : 'Acertar', acerto, ` ${ir('acertar-picar')}`) : ''}${fim('Terminar', ` ${ir('inicio-terminar-seccao')}`)}</div>` : '';
   return `<div class="inv__cartao inv__seccao">
     <div class="inv__linha"><div class="inv__cresce"><b class="inv__nome">${s.nome}</b><small class="${estado === 'dec' ? 'is-decorrer' : ''}">${txt}</small></div>${estado === 'fim' ? L(circleCheck, 'inv__certo') : ''}</div>
+    ${estado !== 'por' ? `<button type="button" class="inv__trancadas" ${ir('prateleiras')}>${L(lock, s.tr ? 'is-laranja' : '')}<b>${s.tr ?? 0} ${s.tr === 1 ? 'trancada' : 'trancadas'}</b>${L(lockOpen, 'is-verde')}<b class="inv__cresce">${s.lib ?? 0} ${s.lib === 1 ? 'liberta' : 'libertas'}</b><span>Prateleiras</span>${L(chevronRight)}</button>` : ''}
     ${botao}</div>`;
 }
 
-type EstInicio = '' | 'gestor' | 'sem-inventario' | 'iniciar' | 'nenhuma-seccao' | 'terminar-seccao' | 'terminar' | 'por-fechar' | 'sem-servidor' | 'a-iniciar';
+type EstInicio = '' | 'gestor' | 'gestor-aviso' | 'sem-inventario' | 'iniciar' | 'nenhuma-seccao' | 'terminar-seccao' | 'terminar' | 'por-fechar' | 'sem-servidor' | 'a-iniciar';
 function inicio(e: EstInicio = ''): string {
   const trocar = `<button type="button" class="inv__trocar" ${ir('entrar')}>${L(logOut)}<span>Trocar</span></button>`;
   const semInv = e === 'sem-inventario' || e === 'iniciar' || e === 'a-iniciar';
   const nenhuma = e === 'nenhuma-seccao';
   const lista = SECCOES;
-  const seccoes = nenhuma ? [seccao(SECCOES[0], 'por', 'Por iniciar · zona 80'), seccao(SECCOES[1]), seccao(SECCOES[2], 'por', 'Por iniciar · zonas 10, 11, 20, 21, 22')] : lista.map((s) => seccao(s, s.est, s.txt, e === 'gestor'));
+  const seccoes = nenhuma ? [seccao(SECCOES[0], 'por', 'Por iniciar · zona 80'), seccao(SECCOES[1]), seccao(SECCOES[2], 'por', 'Por iniciar · zonas 10, 11, 20, 21, 22')] : lista.map((s) => seccao(s, s.est, s.txt, e === 'gestor' || e === 'gestor-aviso'));
   const cabInv = cartao(`<div class="inv__linha"><div class="inv__cresce"><b class="inv__nome">${INV}</b><small>Desde hoje às 08:00 · Joana Matos</small></div>
       <div class="inv__direita"><strong class="inv__grande">${nenhuma ? 0 : 20}</strong><small>contadas</small></div></div>`);
   const ligado = `<button type="button" class="inv__ligada" ${ir('ligacao')}>${L(settings)}<span>Servidor: 127.0.0.1:5198</span><b>Mudar</b></button>`;
@@ -206,12 +229,12 @@ function inicio(e: EstInicio = ''): string {
     : e === 'terminar' ? dialogo('Terminar o inventário?', '<p>Depois de terminar não se conta mais nenhuma prateleira neste inventário. As secções a decorrer (Óleos, Auto) terminam também.</p>',
       acao('Terminar inventário', square, ` ${ir('inicio-sem-inventario')}`, 'inv__btn--perigo'), sec('Voltar', arrowLeft, ` ${ir('inicio')}`))
     : e === 'a-iniciar' ? ocupado('A iniciar o inventário…') : '';
-  return pagina({ k: `inicio${e ? `-${e}` : ''}`, topo: topo('Inventário', e === 'gestor' ? GESTOR : QUEM, undefined, trocar), corpo, pe: rodape ? pe(rodape) : undefined, sobre, semRede: e === 'sem-servidor' || e === 'por-fechar' ? REDE.geral : undefined });
+  return pagina({ k: `inicio${e ? `-${e}` : ''}`, topo: topo('Inventário', e === 'gestor' || e === 'gestor-aviso' ? GESTOR : QUEM, undefined, trocar), corpo, aviso: e === 'gestor-aviso' ? avisoGestor : undefined, pe: rodape ? pe(rodape) : undefined, sobre, semRede: e === 'sem-servidor' || e === 'por-fechar' ? REDE.geral : undefined });
 }
 
-type EstPrat = '' | 'sem-rede' | 'por-fechar' | 'escrever' | 'ocupada' | 'ja-contada' | 'nao-iniciada' | 'a-abrir' | 'fechada' | 'fechada-acertos' | 'artigo' | 'outra-seccao' | 'ficar';
+type EstPrat = '' | 'gestor' | 'sem-rede' | 'por-fechar' | 'escrever' | 'ocupada' | 'ja-contada' | 'nao-iniciada' | 'a-abrir' | 'fechada' | 'fechada-acertos' | 'artigo' | 'outra-seccao' | 'ficar';
 function prateleira(e: EstPrat = ''): string {
-  const feito = e === 'fechada' || e === 'fechada-acertos' || e === 'por-fechar';
+  const feito = e === 'fechada' || e === 'fechada-acertos' || e === 'por-fechar' || e === 'gestor';
   const erro = e === 'ocupada' ? 'A 60800102 está a ser contada por Joana Matos desde as 09:42 (EDA61K-3896).'
     : e === 'ja-contada' ? 'A 60800101 já foi contada neste inventário, hoje às 08:15, por Joana Matos. Não se conta duas vezes.'
     : e === 'nao-iniciada' ? 'A 60100102 é da secção Rolamentos, que ainda não começou. Inicia-a no Início.'
@@ -219,7 +242,7 @@ function prateleira(e: EstPrat = ''): string {
     : e === 'ficar' ? 'Pica uma prateleira de Auto (zona 30).'
     : e === 'sem-rede' ? 'Sem rede: a 60800102 não abre, porque é o servidor que a tranca para mais ninguém a contar. Pica outra vez quando a rede voltar.' : undefined;
   const banner = feito ? `<div class="inv__feito">${L(circleCheck)}<div><b>60800101 trancada</b><span>42 un. · 2 códigos · 2 min 05 s</span>
-      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s, à espera do acerto do gestor. Sem diferenças.' : e === 'por-fechar' ? 'Por trancar: sem rede. Fica no PDA e tranca-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong></div></div>` : '';
+      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s, à espera do acerto do gestor. Sem diferenças.' : e === 'por-fechar' ? 'Por trancar: sem rede. Fica no PDA e tranca-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong>${e === 'gestor' ? acao('Acertar agora', acerto, ` ${ir('acertar')}`) : ''}</div></div>` : '';
   const sobre = e === 'escrever' ? dialogo('Escrever a prateleira', `${campo('O código da prateleira', '', { mono: true, dica: 'Ex.: 60300102' })}`,
       acao('Contar', check, ` ${ir('contar')}`), sec('Voltar', arrowLeft, ` ${ir('prateleira')}`))
     : e === 'a-abrir' ? ocupado('A abrir a prateleira 60800101…')
@@ -235,7 +258,7 @@ function prateleira(e: EstPrat = ''): string {
   const auto = e === 'outra-seccao' || e === 'ficar';
   return pagina({
     k: `prateleira${e ? `-${e}` : ''}`,
-    topo: topo('Contar uma prateleira', `${QUEM} · ${auto ? 'Auto · zona 30' : 'Óleos · zona 80'}`, 'inicio'),
+    topo: topo('Contar uma prateleira', `${e === 'gestor' ? GESTOR : QUEM} · ${auto ? 'Auto · zona 30' : 'Óleos · zona 80'}`, 'inicio'),
     corpo: `${feito ? '' : estadoApi}${banner}${alvo(feito ? 'Pica a próxima prateleira' : 'Pica a prateleira', 'Cada prateleira conta-se uma vez neste inventário.', { erro, leitor: 'gatilho', destino: 'prateleira-a-abrir', cresce: true })}`,
     pe: pe(sec('Escrever o código da prateleira', keyboard, ` ${ir('prateleira-escrever')}`)),
     sobre,
@@ -469,7 +492,7 @@ function ligacao(e: EstLig = ''): string {
 /* =========================================================
    A lista — 26 nov.: só a última versão (v3 = a 2.0.7); a v2 (2.0.0) saiu, como antes a 1.8.1
    ========================================================= */
-const NOTA = 'Como a app Kotlin 2.1.4 (26 nov., testada no CK62): trancar — livre, trancada a contar, trancada para o acerto, liberta;: só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
+const NOTA = 'Como a app Kotlin 2.3.0 (27 nov., testada no CK62; o gestor é avisado e acerta logo, e vê-se quando a prateleira fica liberta): trancar — livre, trancada a contar, trancada para o acerto, liberta;: só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
 const v = (html: string): EcraInventario['versoes'] => [{ id: 'v3', nota: NOTA, html }];
 const F = { ENTRAR: 'Entrar', INVENTARIO: 'Inventário e secções', CONTAR: 'Contar', ACERTAR: 'Acertar', HIST: 'Histórico' };
 const est = (id: IdInventario, de: IdInventario, nome: string, fluxo: string, objetivo: string, html: string, noFluxo?: string): EcraInventario =>
@@ -481,6 +504,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('entrar-primeira', 'entrar', '01.1 · Primeira vez no PDA', F.ENTRAR, 'Ainda ninguém entrou neste PDA: só o campo do nome.', entrar(true)),
 
     { id: 'inicio', nome: '02 · Início', fluxo: F.INVENTARIO, objetivo: 'O inventário a decorrer e as secções, visto pela operadora. Por iniciar: «Iniciar Óleos». A decorrer: «Continuar Óleos» e, por baixo, «Terminar» (e «Acertar», ao gestor, ao lado), e quantas prateleiras estão trancadas à espera do acerto. «Acertar» só o gestor vê (02.9). No fim, «Terminar inventário». Sem pausa do inventário nem «Ver as contagens deste PDA».', versoes: v(inicio()) },
+    est('inicio-gestor-aviso', 'inicio', '02.10 · Uma prateleira trancada (gestor)', F.ACERTAR, 'O gestor age logo: quando uma prateleira fica trancada para o acerto, o PDA dele vibra e mostra esta faixa em qualquer ecrã (menos a contar e a acertar). Primeiro as que a separação já tentou usar. Sem tempos no ecrã.', inicio('gestor-aviso')),
     est('inicio-gestor', 'inicio', '02.9 · O gestor', F.INVENTARIO, 'Só o gestor acerta: a ele aparece «Acertar Óleos» entre «Continuar» e «Terminar». A lista de gestores vem da API.', inicio('gestor')),
     est('inicio-sem-inventario', 'inicio', '02.1 · Nenhum inventário', F.INVENTARIO, 'Sem inventário a decorrer: um botão só, «Iniciar inventário».', inicio('sem-inventario')),
     est('inicio-iniciar', 'inicio', '02.2 · Iniciar o inventário', F.INVENTARIO, 'Confirma antes de começar; as secções ficam por iniciar.', inicio('iniciar'), 'Diálogo aberto'),
@@ -502,6 +526,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('prateleira-artigo', 'prateleira', '03.8 · Picou um artigo', F.CONTAR, 'As etiquetas das prateleiras começam sempre por 60: um artigo aqui é recusado e diz-se qual é.', prateleira('artigo')),
     est('prateleira-outra-seccao', 'prateleira', '03.9 · Prateleira de outra secção', F.CONTAR, 'A contar Auto, picou-se uma prateleira de Óleos: muda-se para Óleos no PDA (ou «Iniciar Óleos e mudar»), ou vai-se à zona 30.', prateleira('outra-seccao'), 'Diálogo aberto'),
     est('prateleira-ficar', 'prateleira', '03.10 · Fica na zona', F.CONTAR, 'Escolheu-se ir à zona 30: pede uma prateleira da Auto.', prateleira('ficar')),
+    est('prateleira-gestor', 'prateleira', '03.13 · Trancada por um gestor', F.ACERTAR, 'Quem contou é gestor: «Acertar agora» abre logo o acerto — o ciclo da prateleira faz-se seguido.', prateleira('gestor')),
     est('prateleira-fechada', 'prateleira', '03.6 · Trancada sem diferenças', F.CONTAR, 'Trancada com o tempo de prateleira. Mesmo sem diferenças, fica trancada para o acerto até o gestor acertar.', prateleira('fechada')),
     est('prateleira-fechada-acertos', 'prateleira', '03.7 · Trancada com diferenças', F.CONTAR, 'Trancada para o acerto, com as diferenças por acertar; só o gestor a liberta («Acertar Óleos»). Um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
 
@@ -543,6 +568,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('historico-sem-rede', 'historico', '09.5 · Sem rede', F.HIST, 'O histórico vem do servidor: sem rede, diz-se e tenta-se outra vez.', historicoEcra('sem-rede')),
     est('historico-escrever', 'historico', '09.3 · Escrever o código', F.HIST, 'A etiqueta não lê: escreve-se.', historicoEcra('escrever'), 'Diálogo aberto'),
 
+    { id: 'prateleiras', nome: '11 · Prateleiras da secção', fluxo: F.INVENTARIO, objetivo: 'Do cartão da secção («3 trancadas · 2 libertas › Prateleiras»): todas as prateleiras com o estado que vem da base de dados, as trancadas primeiro; atualiza de 5 em 5 s, por isso vê-se quando o gestor a liberta.', versoes: v(prateleirasEcra()) },
     { id: 'ligacao', nome: '10 · Ligação ao servidor', fluxo: F.HIST, objetivo: 'O endereço do servidor do inventário (endpoints inventados; base de dados num Excel no PC). Saiu o ERP de demonstração.', versoes: v(ligacao()) },
     est('ligacao-testada', 'ligacao', '10.1 · Testada', F.HIST, 'O servidor respondeu e diz se há inventário a decorrer.', ligacao('testada')),
     est('ligacao-ocupada', 'ligacao', '10.2 · Com prateleiras abertas', F.HIST, 'Não se muda de servidor com prateleiras a meio ou por fechar.', ligacao('ocupada')),
