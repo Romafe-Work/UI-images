@@ -62,7 +62,8 @@ function medirFaixas(portal: HTMLElement): void {
     /* o conteúdo numa janela que fica presa (uma vez) */
     let janela = sec.querySelector<HTMLElement>(':scope > .rl-janela');
     if (!janela) { janela = document.createElement('div'); janela.className = 'rl-janela'; janela.dataset.faixa = ''; janela.append(...Array.from(sec.childNodes)); sec.append(janela); }
-    const ligar = !quieto() && !editando() && window.matchMedia('(min-width: 768px)').matches && !sec.closest('[data-estado]');
+    /* (27 nov.) ela: «as categorias estão fora do sítio» — passam a grelha parada (css/pesquisa.css); a faixa não liga */
+    const ligar = false && !quieto() && !editando() && !sec.closest('[data-estado]');
     /* (26 nov.) ela: «isto deve andar sozinha» — a faixa anda em contínuo (css/rolar.css, .rl-anda), não com o scroll;
        uma cópia das categorias (escondida aos leitores e fora do Tab) fecha o ciclo; para com o rato ou o foco */
     sec.classList.toggle('rl-anda', ligar);

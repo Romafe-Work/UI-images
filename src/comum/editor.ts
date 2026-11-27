@@ -44,6 +44,7 @@ type Passo =
 let APP = 'app';
 /** os guiões de uso em Word, por app (os ficheiros vivem em public/documentos) */
 const GUIOES: Record<string, string> = { goparts: 'PecaAPeca-Guiao-de-uso.docx', mobile: 'Pick-Guiao.docx' };
+const GUIAS_UI: Record<string, string> = { goparts: 'PecaAPeca-Guia-de-interface.docx' };
 let MARCA = 'ROMAFE';
 let CHAVE = 'romafe:app:editor:v1';
 const CHAVE_PAINEIS = 'romafe:editor:paineis';
@@ -1223,6 +1224,18 @@ function montar(): void {
     }, 'Descarrega o guião desta app: como se usa cada página, os diagramas do fluxo e todos os estados');
     bGuiao.classList.add('ed-guiao');
     peE.appendChild(bGuiao);
+  }
+  /* (27 nov.) o guia de interface do Peça A Peça: regras de botões, texto, cores, letra, movimento e fluxos */
+  const guia = GUIAS_UI[APP];
+  if (guia) {
+    const bGuia = botaoIcone('Guia de interface (.docx)', I_EXPORTAR, function () {
+      const a = document.createElement('a');
+      a.href = '../documentos/' + guia;
+      a.download = guia;
+      a.click();
+    }, 'Descarrega as regras de interface desta app: botões, texto, cores, letra, movimento e os fluxos a seguir');
+    bGuia.classList.add('ed-guiao');
+    peE.appendChild(bGuia);
   }
 
   const partilha = el('div', 'ed-degraus ed-partilha');

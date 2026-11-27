@@ -1,0 +1,19 @@
+/* =========================================================
+   PEÇA A PEÇA — desligar as animações (27 nov. 2026; comportamento/animacoes.ts)
+   Com o botão do Início, e sempre nos passos Referências e Detalhes do Catálogo: nada anima nem desliza.
+   ========================================================= */
+html[data-animacoes="nao"] *, html[data-animacoes="nao"] *::before, html[data-animacoes="nao"] *::after,
+:is(main[data-vista="referencias"], main[data-vista="detalhes"]) :is(*, *::before, *::after) {
+  animation-duration: 1ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important;
+  transition-duration: 0s !important; transition-delay: 0s !important; scroll-behavior: auto !important;
+}
+html[data-animacoes="nao"]::view-transition-group(*), html[data-animacoes="nao"]::view-transition-old(*), html[data-animacoes="nao"]::view-transition-new(*) { animation: none !important; }
+html[data-animacoes="nao"] .rl-espera { opacity: 1 !important; }
+
+/* o botão, no Início, por baixo dos atalhos */
+.mt__movimento { margin: 14px 0 0; }
+.mt__anim { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border: 1px solid var(--c-borda-forte); border-radius: var(--r-md); background: var(--c-superficie); font: inherit; font-size: 14px; font-weight: 600; color: var(--c-marca); cursor: pointer; }
+.mt__anim svg { width: 16px; height: 16px; flex: none; }
+.mt__anim:hover { border-color: var(--c-marca); }
+.mt__anim:focus-visible { outline: 2px solid var(--c-marca); outline-offset: 2px; }
+.mt__anim[aria-pressed="true"] { background: var(--c-marca-suave); border-color: var(--c-marca); }

@@ -227,7 +227,9 @@ export function ir(main: HTMLElement, vista: Vista): void {
     mostrar(main, vista); partilhado.depois?.(main, antes, vista);
     return;
   }
-  if (main.classList.contains('cat6') && doc.startViewTransition && !quieto() && main.isConnected) {
+  /* (27 nov.) ela: Referências e Detalhes nunca animam — nem a chegada, nem a saída (comportamento/animacoes.ts) */
+  const parado = quieto() || ['referencias', 'detalhes'].includes(vista) || ['referencias', 'detalhes'].includes(antes);
+  if (main.classList.contains('cat6') && doc.startViewTransition && !parado && main.isConnected) {
     document.documentElement.dataset.catSentido = frente ? 'frente' : 'tras';
     partilhado.antes?.(main, antes, vista);
     const t = doc.startViewTransition(() => { if (v5.eV5(main)) v5.fluxo(main, vista); mostrar(main, vista); partilhado.depois?.(main, antes, vista); });
@@ -237,7 +239,7 @@ export function ir(main: HTMLElement, vista: Vista): void {
   if (v5.eV5(main)) v5.fluxo(main, vista);
   const baixo = $(main, '.cat2__marcas');
   const conteudo = $$(main, '.cat2__pesquisa > [data-so]');
-  if (quieto()) { mostrar(main, vista); partilhado.depois?.(main, antes, vista); return; }
+  if (parado) { mostrar(main, vista); partilhado.depois?.(main, antes, vista); partilhado.fim?.(main); return; }
   /* v5: 20 px e 280 ms a entrar (a proposta dela); antes, 24 px e 220 ms */
   const e5 = v5.eV5(main);
   const dx = (frente ? 1 : -1) * (e5 ? 20 : 24);

@@ -20,7 +20,7 @@
 .pq .ini3__separador.pq__modo { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "icone texto" "icone acao"; align-items: start; gap: 6px 14px; height: auto; min-height: 112px; padding: 16px 18px; border: 1.5px solid var(--i3-borda-forte); border-radius: var(--pq-r); background: var(--i3-sup); color: var(--i3-tinta); text-align: left; white-space: normal; cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, transform 120ms ease; }
 .pq .pq__modo:active { transform: scale(.985); }
 .pq__modo-icone { grid-area: icone; display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-md); background: var(--c-logotipo); color: #fff; transition: transform 160ms var(--pq-curva); }
-.pq__modo[data-modo="2"] .pq__modo-icone { background: #d4700f; }
+
 .pq .pq__modo .pq__modo-icone svg { width: 22px; height: 22px; color: #fff; }
 .pq__modo-texto { grid-area: texto; display: grid; gap: 3px; min-width: 0; }
 .pq__modo-texto b { font-size: 16px; font-weight: 700; }
@@ -29,7 +29,7 @@
 .pq .pq__modo-acao svg { width: 15px; height: 15px; color: currentColor; transition: transform 140ms ease; }
 /* o escolhido: a borda e o fundo do azul da Romafe (o laranja do terceiro), a ação a laranja */
 .pq .pq__modo[aria-selected="true"] { border-color: var(--c-logotipo); background: color-mix(in srgb, var(--c-logotipo) 7%, var(--i3-sup)); box-shadow: inset 0 0 0 1px var(--c-logotipo); }
-.pq .pq__modo[data-modo="2"][aria-selected="true"] { border-color: #d4700f; background: color-mix(in srgb, #d4700f 7%, var(--i3-sup)); box-shadow: inset 0 0 0 1px #d4700f; }
+
 .pq .pq__modo[aria-selected="true"] .pq__modo-acao { color: var(--c-acao); }
 .pq .pq__modo[aria-selected="true"] svg { color: inherit; }
 .pq .pq__modo:focus-visible { outline: 2px solid var(--c-acao); outline-offset: 2px; }
@@ -323,13 +323,13 @@
    (comportamento/roda-modos.ts). Só transform e opacity; com «reduzir movimento» ou no telemóvel, ficam quietos.
    ========================================================= */
 .pq .ini3__separador.pq__modo { --m: #0063aa; border: 0; background: var(--m); color: #fff; box-shadow: none; transition: transform 160ms cubic-bezier(.22, 1, .36, 1), opacity 160ms ease; }
-.pq .ini3__separador.pq__modo[data-modo="2"] { --m: #d4700f; }
+/* (27 nov.) ela: «a referência tem um círculo laranja que as outras não têm; quero contorno azul» — os três azuis */
 .pq .pq__modo .pq__modo-icone, .pq .pq__modo[data-modo="2"] .pq__modo-icone { background: rgba(255, 255, 255, .16); }
 .pq .pq__modo .pq__modo-texto b { color: #fff; }
 .pq .pq__modo .pq__modo-texto span { color: rgba(255, 255, 255, .88); }
 .pq .pq__modo .pq__modo-acao, .pq .pq__modo[aria-selected="true"] .pq__modo-acao { color: #fff; }
 .pq .pq__modo:not([aria-selected="true"]) { opacity: .78; }
-.pq .pq__modo[aria-selected="true"], .pq .pq__modo[data-modo="2"][aria-selected="true"] { background: var(--m); box-shadow: 0 0 0 3px var(--i3-fundo, var(--c-portal-fundo)), 0 0 0 5px var(--m); }
+.pq .pq__modo[aria-selected="true"], .pq .pq__modo[data-modo="2"][aria-selected="true"] { background: var(--m); box-shadow: 0 0 0 3px var(--i3-fundo, var(--c-portal-fundo)), 0 0 0 5px #0063aa; }
 @media (hover: hover) and (pointer: fine) { .pq .pq__modo:not([aria-selected="true"]):hover { opacity: 1; border: 0; } }
 .pq .pq__modo:focus-visible { outline: 2px solid #fff; outline-offset: -5px; }
 .pq.is-a-rodar .pq__painel::before { left: calc(50% - 8px); }
@@ -371,3 +371,18 @@
 .pqd__item:hover .pqd__acao svg, .pqd__item:focus-visible .pqd__acao svg { transform: translateX(2px); }
 @media (max-width: 640px) { .pqd__item { grid-template-columns: 34px minmax(0, 1fr); } .pqd__acao { grid-column: 2; } }
 @media (prefers-reduced-motion: reduce) { .pqd__item, .pqd__acao svg { transition: none; } }
+
+/* =========================================================
+   (27 nov.) ela: «as categorias estão um pouco fora do sítio» — deixam de andar em faixa (o primeiro cartão
+   aparecia cortado) e passam a uma grelha parada de 5 × 2, por baixo de «Continuar onde fiquei», a encher o
+   vazio ao lado das Peças frequentes; alinhadas com tudo o resto
+   ========================================================= */
+@media (min-width: 901px) {
+  .pq .ini4__bloco--continuar { grid-column: 1; grid-row: 1; }
+  .pq .ini4__bloco--categorias { grid-column: 1; grid-row: 2; }
+  .pq .ini4__bloco--frequentes { grid-column: 2; grid-row: 1 / span 2; }
+}
+.pq .ini4__categorias { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
+.pq .ini4__categoria { width: 100%; min-height: 104px; }
+.pq .ini4__categoria svg:first-child { width: 36px; height: 36px; }
+@media (max-width: 560px) { .pq .ini4__categorias { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

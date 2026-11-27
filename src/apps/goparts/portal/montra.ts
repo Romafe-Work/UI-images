@@ -70,6 +70,7 @@ function abertura(e: EstadoMontra): string {
             <button type="button" class="mt__atalho" data-pn-modo="1">${L(car)}Veículo</button>
             <button type="button" class="mt__atalho" data-pn-modo="2">${L(hash)}Referência</button></p>
           ${conta}
+          <p class="mt__movimento"><button type="button" class="mt__anim" data-animacoes-botao aria-pressed="false"><span>Desligar animações</span></button></p>
         </div>
         ${ids.map((ex) => EXEMPLOS_TEXTO[ex].passos.map(([t, x], i) => passo(ex, i + 1, t, x)).join('')).join('')}
         ${ids.map((ex) => { const [t, x, b, attr] = EXEMPLOS_TEXTO[ex].fim; return `<div class="mt__fim" data-mt-fim data-ex="${ex}" aria-hidden="true"><h2 class="mt__fim-t">${t}</h2><p>${x}</p>${btn(b, arrowRight, `${attr} tabindex="-1"`, 'btn--acao mt__btn--grande')}</div>`; }).join('')}
