@@ -16,6 +16,7 @@ import { L } from '../goparts/portal/inicio-espaco';
 import scanBarcode from 'lucide-static/icons/scan-barcode.svg?raw';
 import logOut from 'lucide-static/icons/log-out.svg?raw';
 import play from 'lucide-static/icons/play.svg?raw';
+import home from 'lucide-static/icons/house.svg?raw';
 import check from 'lucide-static/icons/check.svg?raw';
 import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
 import square from 'lucide-static/icons/square.svg?raw';
@@ -67,6 +68,19 @@ const sec = (t: string, ic: string, extra = '', cls = '') => `<button type="butt
 /** O que acaba alguma coisa (terminar a secção ou o inventário): contorno vermelho, com ícone e texto. */
 const fim = (t: string, extra = '') => sec(t, square, extra, 'inv__btn--fim');
 const rotulo = (t: string) => `<p class="inv__rotulo">${t}</p>`;
+/** 27 nov. (ela: «tens de dizer o que significa −2, +1»): cada diferença com a frase que vem da API. */
+type Dif = [number, string, string];
+const DIFS_FECHO: Dif[] = [
+  [-2, 'Óleo motor 15W40 · bidão 5 L', 'O sistema tem 7, contaste 5: faltam 2 na prateleira. O acerto tira 2 ao stock.'],
+  [1, 'Óleo hidráulico ISO 46 · 20 L', 'O sistema tem 3, contaste 4: há 1 a mais na prateleira. O acerto soma 1 ao stock.'],
+  [1, 'Código que não está no stock', 'Código que não está no stock: contaste 1. Vai ao gestor para ver que artigo é.'],
+];
+const DIFS_ACERTO: Dif[] = [
+  [-2, 'Óleo motor 15W40 · bidão 5 L', 'O stock tinha 7, estão 5: tirou 2 ao stock (faltavam na prateleira).'],
+  [1, 'Óleo hidráulico ISO 46 · 20 L', 'O stock tinha 3, estão 4: somou 1 ao stock (havia a mais na prateleira).'],
+  [-1, 'Óleo de engrenagens 80W90 · 5 L', 'O stock tinha 1, estão 0: tirou 1 ao stock (faltava na prateleira).'],
+];
+const difLinhas = (ds: Dif[]) => `<ul class="inv__difs">${ds.map(([n, a, t]) => `<li><b>${n > 0 ? `+${n}` : n}</b><span><strong>${a}</strong><small>${t}</small></span></li>`).join('')}</ul>`;
 const aviso = (t: string, tom: 'erro' | 'ok' | 'laranja' | 'azul') => `<p class="inv__aviso inv__aviso--${tom}">${t}</p>`;
 
 function topo(titulo: string, sub?: string, voltar?: IdInventario, direita = ''): string {
@@ -242,8 +256,10 @@ function prateleira(e: EstPrat = ''): string {
     : e === 'ficar' ? 'Pica uma prateleira de Auto (zona 30).'
     : e === 'sem-rede' ? 'Sem rede: a 60800102 não abre, porque é o servidor que a tranca para mais ninguém a contar. Pica outra vez quando a rede voltar.' : undefined;
   const banner = feito ? `<div class="inv__feito">${L(circleCheck)}<div><b>60800101 trancada</b><span>42 un. · 2 códigos · 2 min 05 s</span>
-      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s, à espera do acerto do gestor. Sem diferenças.' : e === 'por-fechar' ? 'Por trancar: sem rede. Fica no PDA e tranca-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong>${e === 'gestor' ? acao('Acertar agora', acerto, ` ${ir('acertar')}`) : ''}</div></div>` : '';
-  const sobre = e === 'escrever' ? dialogo('Escrever a prateleira', `${campo('O código da prateleira', '', { mono: true, dica: 'Ex.: 60300102' })}`,
+      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s: bate com o stock, não precisa de acerto. Ficou liberta.' : e === 'por-fechar' ? 'Por trancar: sem rede. Fica no PDA e tranca-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong>${e === 'fechada-acertos' || e === 'gestor' ? difLinhas(DIFS_FECHO) : ''}${e === 'gestor' ? acao('Acertar agora', acerto, ` ${ir('acertar')}`) : ''}</div></div>` : '';
+  const sobre = e === 'fechada' ? dialogo('A 60800101 bate com o stock', '<p>Não precisa de acerto: ficou liberta para a separação e a expedição.</p>',
+      acao('Continuar Óleos', play, ` ${ir('prateleira')}`), sec('Voltar ao Início', home, ` ${ir('inicio')}`))
+    : e === 'escrever' ? dialogo('Escrever a prateleira', `${campo('O código da prateleira', '', { mono: true, dica: 'Ex.: 60300102' })}`,
       acao('Contar', check, ` ${ir('contar')}`), sec('Voltar', arrowLeft, ` ${ir('prateleira')}`))
     : e === 'a-abrir' ? ocupado('A abrir a prateleira 60800101…')
     : e === 'outra-seccao' ? dialogo('Prateleira de Óleos',
@@ -368,7 +384,7 @@ function acertarPicar(e: EstAcPicar = ''): string {
   return pagina({
     k: `acertar-picar${e ? `-${e}` : ''}`,
     topo: topo('Acertar Óleos', `${GESTOR} · zona 80`, 'inicio-gestor'),
-    corpo: `${e === 'feito' ? aviso('60800101 acertada: 3 acertos feitos. A prateleira está liberta para a separação e a expedição.', 'ok') : ''}
+    corpo: `${e === 'feito' ? `<div class="inv__aviso inv__aviso--ok">60800101 acertada: 3 acertos feitos. A prateleira está liberta para a separação e a expedição.${difLinhas(DIFS_ACERTO)}</div>` : ''}
       ${alvoCompacto('Pica a prateleira ou toca numa', { erro, destino: 'acertar' })}
       <div class="inv__cab-linhas">${rotulo('Trancadas à espera do acerto')}<b>${e === 'feito' ? 2 : 3}</b></div>
       <ul class="inv__linhas">${(e === 'feito' ? FECHADAS.slice(1) : FECHADAS).map(([p, n, quem]) => `<li class="inv__lin" ${ir('acertar')} role="button" tabindex="0">${L(lock, 'inv__cadeado')}
@@ -396,7 +412,7 @@ function acertarEcra(e: EstAc = ''): string {
     const d = l.contado - l.stock;
     return `<li class="inv__lin${l.codigo === ultima ? ' is-ultima' : ''}" ${ir('acertar-mudar')} role="button" tabindex="0">
       <div class="inv__cresce"><b class="inv__nome-art">${l.nome || '<span class="inv__fora">Código que não está no stock</span>'}</b><small class="inv__codigo-peq">${l.codigo} · stock ${l.stock}</small></div>
-      ${d ? `<b class="inv__dif">${d > 0 ? `+${d}` : d}</b>` : ''}<strong class="inv__qtd">${l.contado}</strong>${L(pencil, 'inv__lapis')}</li>`;
+      ${d ? `<b class="inv__dif">${d > 0 ? `+${d}` : d}<small>${d > 0 ? 'a mais' : d === -1 ? 'falta' : 'faltam'}</small></b>` : ''}<strong class="inv__qtd">${l.contado}</strong>${L(pencil, 'inv__lapis')}</li>`;
   }).join('')}</ul>`;
   const sobre = e === 'mudar' ? dialogo('Corrigir a quantidade',
       `<p class="inv__codigo inv__codigo--grande">5601234567892</p><p class="inv__dica">Óleo motor 15W40 · bidão 5 L · stock 5</p>
@@ -492,7 +508,7 @@ function ligacao(e: EstLig = ''): string {
 /* =========================================================
    A lista — 26 nov.: só a última versão (v3 = a 2.0.7); a v2 (2.0.0) saiu, como antes a 1.8.1
    ========================================================= */
-const NOTA = 'Como a app Kotlin 2.3.0 (27 nov., testada no CK62; o gestor é avisado e acerta logo, e vê-se quando a prateleira fica liberta): trancar — livre, trancada a contar, trancada para o acerto, liberta;: só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
+const NOTA = 'Como a app Kotlin 2.4.0 (27 nov., testada no CK62; o gestor é avisado e acerta logo, a que bate com o stock fica liberta, e o −2 / +1 diz-se em palavras): trancar — livre, trancada a contar, trancada para o acerto, liberta;: só o gestor acerta, o estado da prateleira vem da API em cada passo;: Continuar e Acertar (prateleira a prateleira) por secção, estados sem rede, prateleira começa por 60, outra secção, Já picado, histórico por blocos';
 const v = (html: string): EcraInventario['versoes'] => [{ id: 'v3', nota: NOTA, html }];
 const F = { ENTRAR: 'Entrar', INVENTARIO: 'Inventário e secções', CONTAR: 'Contar', ACERTAR: 'Acertar', HIST: 'Histórico' };
 const est = (id: IdInventario, de: IdInventario, nome: string, fluxo: string, objetivo: string, html: string, noFluxo?: string): EcraInventario =>
@@ -527,8 +543,8 @@ export function ecrasInventario(): EcraInventario[] {
     est('prateleira-outra-seccao', 'prateleira', '03.9 · Prateleira de outra secção', F.CONTAR, 'A contar Auto, picou-se uma prateleira de Óleos: muda-se para Óleos no PDA (ou «Iniciar Óleos e mudar»), ou vai-se à zona 30.', prateleira('outra-seccao'), 'Diálogo aberto'),
     est('prateleira-ficar', 'prateleira', '03.10 · Fica na zona', F.CONTAR, 'Escolheu-se ir à zona 30: pede uma prateleira da Auto.', prateleira('ficar')),
     est('prateleira-gestor', 'prateleira', '03.13 · Trancada por um gestor', F.ACERTAR, 'Quem contou é gestor: «Acertar agora» abre logo o acerto — o ciclo da prateleira faz-se seguido.', prateleira('gestor')),
-    est('prateleira-fechada', 'prateleira', '03.6 · Trancada sem diferenças', F.CONTAR, 'Trancada com o tempo de prateleira. Mesmo sem diferenças, fica trancada para o acerto até o gestor acertar.', prateleira('fechada')),
-    est('prateleira-fechada-acertos', 'prateleira', '03.7 · Trancada com diferenças', F.CONTAR, 'Trancada para o acerto, com as diferenças por acertar; só o gestor a liberta («Acertar Óleos»). Um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
+    est('prateleira-fechada', 'prateleira', '03.6 · Bate com o stock', F.CONTAR, 'Trancada sem diferenças: não precisa de acerto e fica liberta logo (27 nov.). O diálogo pergunta: continuar Óleos ou voltar ao Início.', prateleira('fechada'), 'Diálogo aberto'),
+    est('prateleira-fechada-acertos', 'prateleira', '03.7 · Trancada com diferenças', F.CONTAR, 'Trancada para o acerto. Cada diferença diz o que significa («faltam 2 na prateleira: o acerto tira 2 ao stock»); só o gestor a liberta. Um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
 
     { id: 'contar', nome: '04 · Contar', fluxo: F.CONTAR, objetivo: 'Cada leitura soma 1; o escrito à mão leva a quantidade. O tempo de prateleira corre no topo. Sem pausa: só se sai a trancar, a confirmar vazia ou a descartar.', versoes: v(contar()) },
     est('contar-lido', 'contar', '04.1 · A contar', F.CONTAR, 'Enquanto se pica vê-se o que já se picou nesta prateleira: depois do primeiro artigo o alvo passa a uma faixa (o gatilho lê na mesma) e a lista fica com o ecrã. A última leitura fica a laranja e sobe para o topo; toca-se numa linha para corrigir.', contar('lido')),

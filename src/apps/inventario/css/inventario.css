@@ -299,3 +299,12 @@
 .inv__feito .inv__btn span, .inv__feito .inv__btn svg { color: #fff; }
 .inv__trancadas b { white-space: nowrap; }
 .inv__trancadas span { margin-left: auto; padding-left: 8px; }
+
+/* 27 nov. (ela: «tens de dizer o que significa −2, +1»): cada diferença em palavras */
+.inv__difs { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.inv__difs li { display: flex; gap: 8px; align-items: flex-start; }
+.inv__difs li > b { width: 30px; flex: none; color: var(--i-laranja); font-weight: 900; font-size: 15px; }
+.inv__difs strong { display: block; color: var(--i-tinta); font-size: 13px; }
+.inv__difs small { display: block; color: var(--i-tinta-2); font-size: 12px; line-height: 1.25; font-weight: 400; }
+.inv__dif { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.05; }
+.inv__dif small { font-size: 11px; font-weight: 400; }
