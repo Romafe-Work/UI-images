@@ -22,21 +22,35 @@ function conteudo(portal: HTMLElement): HTMLElement[] {
     && c.offsetHeight > 0);
 }
 
-type Caixa = { x: number; y: number; w: number; h: number; r: string };
+type Caixa = { x: number; y: number; w: number; h: number; r: string; fundo?: boolean };
 function medir(raizes: HTMLElement[]): Caixa[] {
-  const caixas: Caixa[] = [], vh = innerHeight * 1.5;
+  const caixas: Caixa[] = [], fundos: Caixa[] = [], vh = innerHeight * 1.5;
   const dentro = (r: DOMRect) => r.width > 3 && r.height > 3 && r.bottom > 0 && r.top < vh;
-  const add = (r: DOMRect, raio: string) => { if (caixas.length < MAX && dentro(r)) caixas.push({ x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height, r: raio }); };
+  /* 27 nov. (ela: «organiza melhor, mais brilhantes e bem separados»): nenhuma barra toca noutra — a que chega
+     depois e se sobrepõe a uma que já lá está (com folga de 4 px) fica de fora; as peças encolhem 2 px de cada lado */
+  const FOLGA = 4;
+  const choca = (a: Caixa, b: Caixa) => a.x < b.x + b.w + FOLGA && b.x < a.x + a.w + FOLGA && a.y < b.y + b.h + FOLGA && b.y < a.y + a.h + FOLGA;
+  const add = (r: DOMRect, raio: string, encolher = 0) => {
+    if (caixas.length >= MAX || !dentro(r)) return;
+    const c = { x: r.left + scrollX + encolher, y: r.top + scrollY + encolher, w: r.width - encolher * 2, h: r.height - encolher * 2, r: raio };
+    if (c.w < 4 || c.h < 4 || caixas.some((o) => choca(o, c))) return;
+    caixas.push(c);
+  };
   const folha = 'img, canvas, video, svg, input, select, textarea, button, .btn, [role="button"], .chip, kbd';
   for (const raiz of raizes) {
     /* as peças «cheias»: imagens, campos, botões (um bloco cada, com os cantos deles) */
+    const leaves: { r: DOMRect; raio: string }[] = [];
     raiz.querySelectorAll<HTMLElement | SVGElement>(folha).forEach((el) => {
       if (el.parentElement?.closest(folha)) return; // o ícone de um botão vai com o botão
       const r = el.getBoundingClientRect(); if (!r.width) return;
       const cs = getComputedStyle(el);
       if (cs.display === 'none' || el.closest('[hidden]')) return;
-      add(r, el.matches('svg') && r.width < 28 ? '50%' : cs.borderRadius && cs.borderRadius !== '0px' ? cs.borderRadius : 'var(--r-sm)');
+      /* desenhos de fundo (a rota, o carro em traço) não viram um bloco cinzento a tapar o cartão */
+      if (el.matches('svg, canvas') && r.width * r.height > 60000) { if (dentro(r)) fundos.push({ x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height, r: 'var(--r-md)', fundo: true }); return; }
+      leaves.push({ r, raio: el.matches('svg') && r.width < 28 ? '50%' : cs.borderRadius && cs.borderRadius !== '0px' ? cs.borderRadius : 'var(--r-md)' });
     });
+    /* as maiores primeiro: um botão ganha ao ícone solto que esteja por cima dele */
+    leaves.sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height).forEach((l) => add(l.r, l.raio, 2));
     /* o texto: uma barra por linha, da largura do que lá está escrito */
     const tw = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue?.trim() && !(n.parentElement?.closest(folha)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
     const rg = document.createRange(), linhas: DOMRect[] = [];
@@ -52,9 +66,11 @@ function medir(raizes: HTMLElement[]): Caixa[] {
         else linhas.push(DOMRect.fromRect(r));
       }
     }
-    for (const r of linhas) { const h = Math.min(r.height * .62, 26), y = r.top + (r.height - h) / 2; add(new DOMRect(r.left, y, r.width, h), '4px'); }
+    /* uma barra por linha, mais baixa que a linha (o ar entre linhas fica à vista) */
+    for (const r of linhas) { const h = Math.max(6, Math.min(r.height * .5, 18)), y = r.top + (r.height - h) / 2; add(new DOMRect(r.left, y, r.width, h), '999px'); }
   }
-  return caixas;
+  /* os desenhos grandes ficam como um painel suave por baixo das barras (não contam para os choques) */
+  return [...fundos.slice(0, 3), ...caixas];
 }
 
 let acabar: (() => void) | null = null;
@@ -75,7 +91,7 @@ function desenhar(portal: HTMLElement, raizes: HTMLElement[]): void {
   const camada = document.createElement('div');
   camada.className = 'esq-camada' + (quieto() ? ' esq-camada--quieta' : '');
   camada.setAttribute('aria-hidden', 'true');
-  const pintar = (cx: Caixa[]) => { camada.innerHTML = cx.map((c, i) => `<span class="esq-camada__b" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px;width:${c.w.toFixed(1)}px;height:${c.h.toFixed(1)}px;border-radius:${c.r};animation-delay:${(i % 12) * 30}ms"></span>`).join(''); };
+  const pintar = (cx: Caixa[]) => { camada.innerHTML = cx.map((c) => `<span class="esq-camada__b${c.fundo ? ' esq-camada__b--fundo' : ''}" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px;width:${c.w.toFixed(1)}px;height:${c.h.toFixed(1)}px;border-radius:${c.r};animation-delay:${Math.round(c.y / 6)}ms"></span>`).join(''); };
   pintar(caixas);
   document.body.appendChild(camada);
   portal.setAttribute('aria-busy', 'true');

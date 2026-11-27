@@ -8,14 +8,21 @@
 .esq-entrar ::placeholder { color: transparent !important; }
 .esq-entrar :is(img, canvas, video, svg, input, select, textarea, button, .btn, [role="button"], .chip, kbd) { visibility: hidden !important; }
 .esq-camada { position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 40; pointer-events: none; }
+.esq-camada {
+  /* 27 nov.: barras mais claras e com contraste em claro e escuro (antes eram superficie-2/-3, iguais no claro) */
+  --esq-base: #dde5ee; --esq-luz: #f6f9fc;
+}
+[data-theme="dark"] .esq-camada { --esq-base: rgb(255 255 255 / .11); --esq-luz: rgb(255 255 255 / .26); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .esq-camada { --esq-base: rgb(255 255 255 / .11); --esq-luz: rgb(255 255 255 / .26); } }
 .esq-camada__b {
   position: absolute; display: block;
-  background: linear-gradient(90deg, var(--c-superficie-3) 0%, var(--c-superficie-2) 50%, var(--c-superficie-3) 100%);
-  background-size: 200% 100%;
-  animation: esq-entrada-brilho 1.3s ease-in-out infinite;
+  background: linear-gradient(100deg, var(--esq-base) 30%, var(--esq-luz) 50%, var(--esq-base) 70%) var(--esq-base);
+  background-size: 300% 100%;
+  animation: esq-entrada-brilho 1.4s ease-in-out infinite;
 }
 .esq-camada--quieta .esq-camada__b { animation: none; }
-@keyframes esq-entrada-brilho { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.esq-camada__b--fundo { opacity: .45; animation-duration: 2.2s; }
+@keyframes esq-entrada-brilho { from { background-position: 100% 0; } to { background-position: 0% 0; } }
 
 /* ---------- o produto a voar (voar-carrinho.ts) ---------- */
 .voar-carrinho {
