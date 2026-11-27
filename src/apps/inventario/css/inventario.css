@@ -280,6 +280,14 @@
 .inv__aviso-gestor b { display: block; font-size: 15px; }
 .inv__aviso-gestor small { display: block; font-size: 13px; color: #fff; }
 .inv__aviso-gestor em { font-style: normal; font-weight: 900; border: 1px solid #fff; border-radius: var(--r-md); padding: 4px 10px; }
+.inv__cartao-gestor { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 14px; border: 0; border-radius: var(--r-md); background: var(--i-laranja); color: #fff; text-align: left; font: inherit; cursor: pointer; }
+.inv__cartao-gestor .inv__linha { gap: 8px; }
+.inv__cartao-gestor .inv__linha svg { width: 22px; height: 22px; flex: none; }
+.inv__cartao-gestor b { font-size: 18px; font-weight: 900; }
+.inv__cartao-gestor p { margin: 0; font-size: 15px; line-height: 19px; color: #fff; }
+.inv__cartao-gestor small { font-size: 14px; color: #fff; }
+.inv__cartao-gestor em { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 6px; padding: 10px; border-radius: var(--r-md); background: #fff; color: var(--i-laranja); font-style: normal; font-weight: 900; font-size: 16px; }
+.inv__cartao-gestor em svg { width: 20px; height: 20px; }
 .inv__trancadas { display: flex; align-items: center; gap: 4px; width: 100%; padding: 8px 10px; border: 0; border-radius: var(--r-md); background: var(--i-fundo); color: var(--i-tinta); font: inherit; font-size: 14px; cursor: pointer; text-align: left; }
 .inv__trancadas svg { width: 16px; height: 16px; color: var(--i-tinta-2); flex: none; }
 .inv__trancadas svg.is-laranja { color: var(--i-laranja); }

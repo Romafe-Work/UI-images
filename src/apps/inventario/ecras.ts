@@ -162,7 +162,14 @@ function pagina(o: { k: string; topo: string; posicao?: string; faixa?: boolean;
  */
 const REDE = { geral: 'O servidor não responde. A tentar outra vez…', contar: 'Continua a picar: fica no PDA. Ao trancar, espera pela rede.', acertar: 'O que mudares fica aqui; o acerto só se faz com rede.' };
 /** 27 nov. (ela: «ele deve agir logo»): a faixa do gestor — o PDA vibra e mostra a prateleira trancada, em qualquer ecrã. Sem tempos. */
-const avisoGestor = `<button type="button" class="inv__aviso-gestor" ${ir('acertar')}>${L(lock)}<span class="inv__cresce"><b>60800103 trancada para o acerto</b><small>por Inês Costa · 2 diferenças · a separação precisa dela · +2</small></span><em>Acertar</em></button>`;
+// 27 nov. (ela: «o acertar deve aparecer no screen principal e não acima»; «mantém sempre em cor laranja até à próxima ação»; «sê mais explícito»)
+const cartaoGestor = `<button type="button" class="inv__cartao-gestor" ${ir('acertar')}>
+  <span class="inv__linha">${L(lock)}<b>Tens de acertar a 60800103</b></span>
+  <p>Inês Costa contou-a e trancou-a: tem 2 diferenças entre o que está na prateleira e o stock do sistema.</p>
+  <p>Enquanto não a acertares, ninguém pode separar nem expedir desta prateleira.</p>
+  <p><strong>A separação já tentou tirar artigos daqui e foi recusada: está à espera de ti.</strong></p>
+  <small>Depois desta, há mais 2 prateleiras à espera do acerto.</small>
+  <em>${L(acerto)}<span>Acertar a 60800103 agora</span></em></button>`;
 const semRede = (t: string) => `<div class="inv__semrede" role="status">${L(wifiOff)}<div class="inv__cresce"><b>Sem rede</b><small>${t}</small></div><button type="button">Tentar</button></div>`;
 
 /* ---------- diálogos (AlertDialog) ---------- */
@@ -230,7 +237,7 @@ function inicio(e: EstInicio = ''): string {
     corpo = `${cartao('<b class="inv__nome">Nenhum inventário a decorrer</b><small class="inv__dica">O último: Inventário 12/11/2026, terminado a 12/11/2026 17:40 por Pedro Santos · 212 prateleiras</small>')}${comuns}${ligado}`;
     rodape = acao('Iniciar inventário', play, ` ${ir('inicio-iniciar')}`);
   } else {
-    corpo = `${cabInv}
+    corpo = `${e === 'gestor-aviso' ? cartaoGestor : ''}${cabInv}
       ${rotulo('Secções')}${seccoes.join('')}
       ${comuns}${fim('Terminar inventário', ` ${ir('inicio-terminar')}`)}${ligado}`;
     // 27 nov. (ela: «simplifica todos os ecrãs»): conta-se pelo «Continuar Óleos»; sem o alvo que não lia nem o «Contar uma prateleira» repetido
@@ -243,7 +250,7 @@ function inicio(e: EstInicio = ''): string {
     : e === 'terminar' ? dialogo('Terminar o inventário?', '<p>Depois de terminar não se conta mais nenhuma prateleira neste inventário. As secções a decorrer (Óleos, Auto) terminam também.</p>',
       acao('Terminar inventário', square, ` ${ir('inicio-sem-inventario')}`, 'inv__btn--perigo'), sec('Voltar', arrowLeft, ` ${ir('inicio')}`))
     : e === 'a-iniciar' ? ocupado('A iniciar o inventário…') : '';
-  return pagina({ k: `inicio${e ? `-${e}` : ''}`, topo: topo('Inventário', e === 'gestor' || e === 'gestor-aviso' ? GESTOR : QUEM, undefined, trocar), corpo, aviso: e === 'gestor-aviso' ? avisoGestor : undefined, pe: rodape ? pe(rodape) : undefined, sobre, semRede: e === 'sem-servidor' || e === 'por-fechar' ? REDE.geral : undefined });
+  return pagina({ k: `inicio${e ? `-${e}` : ''}`, topo: topo('Inventário', e === 'gestor' || e === 'gestor-aviso' ? GESTOR : QUEM, undefined, trocar), corpo, pe: rodape ? pe(rodape) : undefined, sobre, semRede: e === 'sem-servidor' || e === 'por-fechar' ? REDE.geral : undefined });
 }
 
 type EstPrat = '' | 'gestor' | 'sem-rede' | 'por-fechar' | 'escrever' | 'ocupada' | 'ja-contada' | 'nao-iniciada' | 'a-abrir' | 'fechada' | 'fechada-acertos' | 'artigo' | 'outra-seccao' | 'ficar';
@@ -520,7 +527,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('entrar-primeira', 'entrar', '01.1 · Primeira vez no PDA', F.ENTRAR, 'Ainda ninguém entrou neste PDA: só o campo do nome.', entrar(true)),
 
     { id: 'inicio', nome: '02 · Início', fluxo: F.INVENTARIO, objetivo: 'O inventário a decorrer e as secções, visto pela operadora. Por iniciar: «Iniciar Óleos». A decorrer: «Continuar Óleos» e, por baixo, «Terminar» (e «Acertar», ao gestor, ao lado), e quantas prateleiras estão trancadas à espera do acerto. «Acertar» só o gestor vê (02.9). No fim, «Terminar inventário». Sem pausa do inventário nem «Ver as contagens deste PDA».', versoes: v(inicio()) },
-    est('inicio-gestor-aviso', 'inicio', '02.10 · Uma prateleira trancada (gestor)', F.ACERTAR, 'O gestor age logo: quando uma prateleira fica trancada para o acerto, o PDA dele vibra e mostra esta faixa em qualquer ecrã (menos a contar e a acertar). Primeiro as que a separação já tentou usar. Sem tempos no ecrã.', inicio('gestor-aviso')),
+    est('inicio-gestor-aviso', 'inicio', '02.10 · Uma prateleira trancada (gestor)', F.ACERTAR, 'O gestor age logo: quando uma prateleira fica trancada para o acerto, o PDA dele vibra e o Início mostra este cartão laranja no ecrã, que fica até ele acertar (nos outros ecrãs é uma faixa em cima). Primeiro as que a separação já tentou usar. Sem tempos no ecrã.', inicio('gestor-aviso')),
     est('inicio-gestor', 'inicio', '02.9 · O gestor', F.INVENTARIO, 'Só o gestor acerta: a ele aparece «Acertar Óleos» entre «Continuar» e «Terminar». A lista de gestores vem da API.', inicio('gestor')),
     est('inicio-sem-inventario', 'inicio', '02.1 · Nenhum inventário', F.INVENTARIO, 'Sem inventário a decorrer: um botão só, «Iniciar inventário».', inicio('sem-inventario')),
     est('inicio-iniciar', 'inicio', '02.2 · Iniciar o inventário', F.INVENTARIO, 'Confirma antes de começar; as secções ficam por iniciar.', inicio('iniciar'), 'Diálogo aberto'),
