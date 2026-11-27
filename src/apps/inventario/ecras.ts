@@ -214,7 +214,7 @@ function seccao(s: Sec, estado: Sec['est'] = s.est, txt = s.txt, gestor = false)
     : estado === 'dec' ? `${acao(`Continuar ${s.nome}`, play, ` ${ir('prateleira')}`)}<div class="inv__par">${gestor ? sec(s.acertar ? `Acertar (${s.acertar})` : 'Acertar', acerto, ` ${ir('acertar-picar')}`) : ''}${fim('Terminar', ` ${ir('inicio-terminar-seccao')}`)}</div>` : '';
   return `<div class="inv__cartao inv__seccao">
     <div class="inv__linha"><div class="inv__cresce"><b class="inv__nome">${s.nome}</b><small class="${estado === 'dec' ? 'is-decorrer' : ''}">${txt}</small></div>${estado === 'fim' ? L(circleCheck, 'inv__certo') : ''}</div>
-    ${estado !== 'por' ? `<button type="button" class="inv__trancadas" ${ir('prateleiras')}>${L(lock, s.tr ? 'is-laranja' : '')}<b>${s.tr ?? 0} ${s.tr === 1 ? 'trancada' : 'trancadas'}</b>${L(lockOpen, 'is-verde')}<b class="inv__cresce">${s.lib ?? 0} ${s.lib === 1 ? 'liberta' : 'libertas'}</b><span>Prateleiras</span>${L(chevronRight)}</button>` : ''}
+    ${estado !== 'por' ? `<button type="button" class="inv__trancadas" ${ir('prateleiras')}><span class="inv__trancadas-cont">${!s.tr && !s.lib ? '<small>Ainda nenhuma trancada nem liberta</small>' : ''}${s.tr ? `<i>${L(lock, 'is-laranja')}<b>${s.tr} ${s.tr === 1 ? 'trancada' : 'trancadas'}</b></i>` : ''}${s.lib ? `<i>${L(lockOpen, 'is-verde')}<b>${s.lib} ${s.lib === 1 ? 'liberta' : 'libertas'}</b></i>` : ''}</span><span>Prateleiras</span>${L(chevronRight)}</button>` : ''}
     ${botao}</div>`;
 }
 

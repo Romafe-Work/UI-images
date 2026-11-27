@@ -328,3 +328,10 @@
 .inv__vs b { font-size: 20px; font-weight: 700; color: var(--i-tinta); }
 .inv__vs i { font-style: normal; font-size: 13px; color: var(--i-tinta-2); }
 .inv__vs.is-dif strong { color: var(--i-laranja); }
+
+/* 27 nov. (ela: «não gosto de ver 0 libertadas»): só o que existe */
+.inv__trancadas-cont { flex: 1; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; margin-right: 8px; }
+.inv__trancadas-cont b { color: var(--i-tinta); }
+.inv__trancadas-cont { column-gap: 12px; }
+.inv__trancadas-cont i { display: inline-flex; align-items: center; gap: 4px; font-style: normal; white-space: nowrap; }
+.inv__trancadas-cont small { color: var(--i-tinta-2); font-size: 14px; }
