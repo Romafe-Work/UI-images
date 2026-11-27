@@ -57,6 +57,11 @@
 .inv__posicao span { display: flex; flex-direction: column; align-items: center; }
 .inv__posicao small { color: #cfe2f3; font-size: 12px; }
 .inv__posicao b { font-family: var(--f-mono); font-size: 24px; font-weight: 900; line-height: 1.1; }
+.inv__posicao--faixa { justify-content: flex-start; align-items: center; gap: 12px; padding: 4px 16px; }
+.inv__posicao--faixa span { flex-direction: row; align-items: baseline; gap: 3px; }
+.inv__posicao--faixa small { font-size: 11px; }
+.inv__posicao--faixa b { font-size: 18px; }
+.inv__posicao-cadeado { width: 18px; height: 18px; margin-left: auto; }
 
 /* ---------- corpo e pé ---------- */
 .inv__corpo { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -64,6 +69,7 @@
 .inv__par { display: flex; gap: 10px; }
 .inv__par > * { flex: 1; min-width: 0; }
 .inv__par > .inv__btn--largo { flex: 1.3; }
+.inv__par--trancar > :last-child { flex: 1.3; }
 
 /* ---------- botões: todos com ícone e texto ---------- */
 .inv__btn {

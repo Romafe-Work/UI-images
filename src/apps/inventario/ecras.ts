@@ -100,6 +100,12 @@ function alvoCompacto(titulo: string, o: { erro?: string; lido?: boolean; destin
   </div>`;
 }
 
+/** 27 nov.: a posição numa faixa fina com o cadeado, a contar depois do primeiro artigo (a lista do picado tem espaço no CK62). */
+function posicaoFaixa(codigo: string): string {
+  const partes: [string, string][] = [['Arm.', codigo.slice(0, 2)], ['Zona', codigo.slice(2, 4)], ['Col.', codigo.slice(4, 6)], ['Prat.', codigo.slice(6, 8)]];
+  return `<div class="inv__posicao inv__posicao--faixa" aria-label="Prateleira ${codigo}, trancada a contar">${partes.map(([r, v]) => `<span><small>${r}</small><b>${v}</b></span>`).join('')}${L(lock, 'inv__posicao-cadeado')}</div>`;
+}
+
 function posicaoGrande(codigo: string): string {
   const partes: [string, string][] = [['Arm.', codigo.slice(0, 2)], ['Zona', codigo.slice(2, 4)], ['Col.', codigo.slice(4, 6)], ['Prat.', codigo.slice(6, 8)]];
   return `<div class="inv__posicao" aria-label="Prateleira ${codigo}">${partes.map(([r, v]) => `<span><small>${r}</small><b>${v}</b></span>`).join('')}</div>`;
@@ -109,9 +115,9 @@ const cartao = (dentro: string, destino?: IdInventario) => `<div class="inv__car
 const pe = (dentro: string) => `<footer class="inv__pe">${dentro}</footer>`;
 
 /** A página: o topo, (a posição), o corpo que rola e o pé; por cima, um diálogo ou o «a falar com o servidor». */
-function pagina(o: { k: string; topo: string; posicao?: string; corpo: string; pe?: string; sobre?: string; escuro?: boolean; semRede?: string }): string {
+function pagina(o: { k: string; topo: string; posicao?: string; faixa?: boolean; corpo: string; pe?: string; sobre?: string; escuro?: boolean; semRede?: string }): string {
   return `<div class="inv${o.escuro ? ' inv--camara' : ''}" data-inv="${o.k}" data-ir-ultima>
-    ${o.semRede ? semRede(o.semRede) : ''}${o.topo}${o.posicao ? posicaoGrande(o.posicao) : ''}
+    ${o.semRede ? semRede(o.semRede) : ''}${o.topo}${o.posicao ? (o.faixa ? posicaoFaixa(o.posicao) : posicaoGrande(o.posicao)) : ''}
     <main class="inv__corpo">${o.corpo}</main>
     ${o.pe ?? ''}${o.sobre ?? ''}
   </div>`;
@@ -283,15 +289,17 @@ function contar(e: EstContar = ''): string {
     k: `contar${e ? `-${e}` : ''}`,
     topo: topo('Óleos', QUEM, undefined, direita),
     posicao: PO,
-    // 27 nov. (ela: «enquanto pico quero os artigos que vou picando nessa prateleira»): depois do primeiro artigo o alvo
-    // passa a uma faixa e a faixa de estado a uma linha, para a lista do picado ficar com o ecrã
-    corpo: `${estadoPrat('TRANCADA_A_CONTAR', ls.length ? undefined : `A ${PO} está trancada: a ser contada por ${QUEM} desde as 10:24. Ninguém mexe nela.`)}${picado ? '' : ls.length
+    // 27 nov. (ela: «enquanto pico quero os artigos que vou picando nessa prateleira» e «tem muita coisa no ecrã, o item
+    // picado fica cortado»): depois do primeiro artigo a posição passa a faixa fina com o cadeado (sai a caixa do estado),
+    // o alvo a uma faixa e Escrever e Trancar a uma linha, para a lista do picado ficar com o ecrã
+    faixa: ls.length > 0,
+    corpo: `${ls.length ? '' : estadoPrat('TRANCADA_A_CONTAR', `A ${PO} está trancada: a ser contada por ${QUEM} desde as 10:24. Ninguém mexe nela.`)}${picado ? '' : ls.length
       ? alvoCompacto('Pica o próximo artigo', { erro, lido: !!ultima, destino: 'contar-lido' })
       : alvo('Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', destino: 'contar-lido' })}
       <div class="inv__cab-linhas">${rotulo('Picado nesta prateleira')}<b>${un(ls)} un. · ${codigos(ls.length)}</b></div>
       ${linhas}`,
-    pe: pe(`<div class="inv__par">${sec('Escrever', keyboard, ` ${ir('contar-escrever')}`)}${ls.length ? '' : sec('Vazia', inbox, ` ${ir('resumo-vazia')}`)}</div>
-      ${ls.length ? acao('Trancar prateleira', lock, ` ${ir(rede ? 'prateleira-por-fechar' : 'resumo')}`) : ''}`),
+    pe: pe(`<div class="inv__par${ls.length ? ' inv__par--trancar' : ''}">${sec('Escrever', keyboard, ` ${ir('contar-escrever')}`)}${ls.length
+      ? acao('Trancar', lock, ` ${ir(rede ? 'prateleira-por-fechar' : 'resumo')}`) : sec('Vazia', inbox, ` ${ir('resumo-vazia')}`)}</div>`),
     sobre,
     semRede: rede ? REDE.contar : undefined,
   });
