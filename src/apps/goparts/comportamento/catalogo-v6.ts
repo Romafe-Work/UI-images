@@ -19,7 +19,7 @@
    ========================================================= */
 import { partilhado, encherVeiculos, ir, type Vista } from './catalogo-v3';
 import { escolherGrupo, abrirReferencias, ramo } from './catalogo-v5';
-import { REFERENCIAS, euros } from '../portal/catalogo-dados';
+import { REFERENCIAS, MODELOS, euros } from '../portal/catalogo-dados';
 import { rolamentoSvg } from '../../../comum/rolamento-svg';
 import { doCatalogoParaLista } from './lista';
 import * as carrinho from './carrinho';
@@ -524,8 +524,37 @@ function armar(): void {
 /** (20 out., V6) Abrir já o que ficou pedido (a ficha de uma referência), sem esperar pelo quadro seguinte: durante
     uma View Transition o navegador não corre requestAnimationFrame. */
 export const prepararJa = () => armar();
+/* (27 nov.) ela: «no Figma mete todos disponíveis» — os passos do catálogo estão sempre ativos. Saltar para um passo
+   sem as escolhas de trás escolhe por omissão o que falta, para o passo mostrar algo real: a marca e o modelo do
+   veículo de exemplo (Renault Clio IV, o AA-12-BC), a primeira versão, o primeiro grupo e a primeira referência dele. */
+const POR_OMISSAO = { marca: 'Renault', modelo: 'Clio IV (BH_)' };
+function completar(main: HTMLElement, n: number): void {
+  if (n >= 1 && n <= 5 && !main.dataset.marca) encherModelos(main, POR_OMISSAO.marca);
+  if (n >= 2 && n <= 5 && !main.dataset.modelo) {
+    const marca = main.dataset.marca || POR_OMISSAO.marca;
+    const modelo = marca === POR_OMISSAO.marca ? POR_OMISSAO.modelo : (MODELOS[marca]?.[0]?.[0] ?? POR_OMISSAO.modelo);
+    encherVeiculos(main, marca, modelo);
+  }
+  if (n >= 3 && n <= 5 && !main.dataset.versao) {
+    const linha = main.querySelector<HTMLElement>('.cat3__vista[data-so="veiculos"] tbody .cat3__linha');
+    if (linha) { main.dataset.versao = linha.dataset.versao || ''; linha.setAttribute('aria-selected', 'true'); }
+  }
+  if (n >= 4 && n <= 5 && !main.dataset.refs) abrirReferencias(main, REFERENCIAS[0][0], [], 'veiculo');
+  if (n === 5 && !main.dataset.ref) {
+    const grupo = main.querySelector<HTMLSelectElement>('[data-ref-grupo]')?.value || REFERENCIAS[0][0];
+    const r = REFERENCIAS.find((q) => q[0] === grupo) ?? REFERENCIAS[0];
+    abrirDetalhes(main, r[1], r[2]);
+  }
+}
+
 export function iniciar(): void {
   ligarGanchos();
+  /* antes do clique do passo (v5): completa o que falta */
+  document.addEventListener('click', (ev) => {
+    const p = (ev.target as Element).closest?.<HTMLButtonElement>('.cat5__fluxo .cat2__passo'); if (!p) return;
+    const main = (p.closest('.portal') || document).querySelector<HTMLElement>('.cat6'); if (!main) return;
+    completar(main, Number(p.dataset.passo));
+  }, true);
   inclinar();
   profundidade();
   document.addEventListener('keydown', tecladoArvore);

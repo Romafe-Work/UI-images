@@ -193,7 +193,7 @@ const detalhes = `
    assim»: a linha de sempre, Marcas · Modelos · Veículos · Grupo montagem · Referências
    · Detalhes · Universal, só com o nome; o atual com o fundo e a risca laranja.
    «Grupo montagem» fica desligado: não está desenhado. */
-const passo = (n: number, t: string) => `<li><button type="button" class="cat2__passo cat5__passo" data-passo="${n}"${n === 0 ? ' aria-current="true"' : n === 6 ? '' : ' disabled'}>${t}</button></li>`;
+const passo = (n: number, t: string) => `<li><button type="button" class="cat2__passo cat5__passo" data-passo="${n}"${n === 0 ? ' aria-current="true"' : ''}>${t}</button></li>`;
 const fluxo = `<nav class="cat2__passos cat5__fluxo" aria-label="Passos do catálogo">
     <ol class="cat5__passos">${([[0, 'Marcas'], [1, 'Modelos'], [2, 'Veículos'], [3, 'Grupo montagem'], [4, 'Referências'], [5, 'Detalhes'], [6, 'Universal']] as [number, string][]).map(([n, t]) => passo(n, t)).join('')}</ol>
   </nav>`;

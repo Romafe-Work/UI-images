@@ -181,7 +181,8 @@ export function fluxo(main: HTMLElement, vista: VistaV5): void {
   if (!nav) return;
   /* a linha de sempre: cada passo acende-se quando há o que mostrar; o Grupo montagem não está desenhado */
   /* (14 out.) o Grupo montagem passa a existir: os grupos do veículo escolhido */
-  const pode: Record<string, boolean> = { 0: true, 1: !!main.dataset.marca, 2: !!main.dataset.modelo, 3: !!main.dataset.versao, 4: !!main.dataset.refs, 5: !!main.dataset.ref, 6: true };
+  /* (27 nov.) ela: «mete todos disponíveis» — todos os passos ativos; o que falta escolhe-se ao saltar (catalogo-v6.ts, completar) */
+  const pode: Record<string, boolean> = { 0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true };
   const atual = { marcas: 0, modelos: 1, veiculos: 2, grupos: 3, referencias: 4, detalhes: 5, universal: 6 }[vista];
   /* a comparação só fica aberta nas Referências e nos Detalhes */
   if (vista !== 'referencias' && vista !== 'detalhes') { const c = main.querySelector<HTMLElement>('.cat5__comparacao'); if (c) c.hidden = true; }

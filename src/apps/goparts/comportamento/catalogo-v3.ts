@@ -28,7 +28,8 @@ export function passos(portal: ParentNode, atual: number, ate = atual): void {
   $$<HTMLButtonElement>(portal, '.cat2__passo').forEach((b) => {
     const n = Number(b.dataset.passo);
     if (n === atual) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
-    b.disabled = !(n <= ate || n === 6);
+    /* (27 nov.) ela: «mete todos disponíveis» — os passos estão sempre ativos; ao saltar, o que falta escolhe-se por omissão (catalogo-v6.ts) */
+    b.disabled = false; void ate;
   });
 }
 
