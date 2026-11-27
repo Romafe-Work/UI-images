@@ -311,8 +311,20 @@
 /* 27 nov. (ela: «tens de dizer o que significa −2, +1»): cada diferença em palavras */
 .inv__difs { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .inv__difs li { display: flex; gap: 8px; align-items: flex-start; }
-.inv__difs li > b { width: 30px; flex: none; color: var(--i-laranja); font-weight: 900; font-size: 15px; }
+.inv__difs li > span { flex: 1; min-width: 0; }
+.inv__difs-cab { display: flex; flex-wrap: wrap; column-gap: 8px; align-items: baseline; }
+.inv__difs-cab strong { flex: 1 1 auto; min-width: 0; }
+.inv__difs-cab b { color: var(--i-laranja); font-weight: 800; font-size: 13px; }
 .inv__difs strong { display: block; color: var(--i-tinta); font-size: 13px; }
 .inv__difs small { display: block; color: var(--i-tinta-2); font-size: 12px; line-height: 1.25; font-weight: 400; }
 .inv__dif { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.05; }
 .inv__dif small { font-size: 11px; font-weight: 400; }
+
+/* 27 nov.: no acerto, picado vs sistema em vez do −2 */
+.inv__vs { display: flex; align-items: center; gap: 6px; }
+.inv__vs > span { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.inv__vs small { font-size: 11px; color: var(--i-tinta-2); }
+.inv__vs strong { font-size: 24px; font-weight: 900; color: var(--i-azul); }
+.inv__vs b { font-size: 20px; font-weight: 700; color: var(--i-tinta); }
+.inv__vs i { font-style: normal; font-size: 13px; color: var(--i-tinta-2); }
+.inv__vs.is-dif strong { color: var(--i-laranja); }

@@ -69,18 +69,19 @@ const sec = (t: string, ic: string, extra = '', cls = '') => `<button type="butt
 const fim = (t: string, extra = '') => sec(t, square, extra, 'inv__btn--fim');
 const rotulo = (t: string) => `<p class="inv__rotulo">${t}</p>`;
 /** 27 nov. (ela: «tens de dizer o que significa −2, +1»): cada diferença com a frase que vem da API. */
-type Dif = [number, string, string];
+type Dif = [number, number, string, string]; // picado, sistema, artigo, frase
 const DIFS_FECHO: Dif[] = [
-  [-2, 'Óleo motor 15W40 · bidão 5 L', 'O sistema tem 7, contaste 5: faltam 2 na prateleira. O acerto tira 2 ao stock.'],
-  [1, 'Óleo hidráulico ISO 46 · 20 L', 'O sistema tem 3, contaste 4: há 1 a mais na prateleira. O acerto soma 1 ao stock.'],
-  [1, 'Código que não está no stock', 'Código que não está no stock: contaste 1. Vai ao gestor para ver que artigo é.'],
+  [5, 7, 'Óleo motor 15W40 · bidão 5 L', 'O sistema tem 7, contaste 5: faltam 2 na prateleira. O acerto tira 2 ao stock.'],
+  [4, 3, 'Óleo hidráulico ISO 46 · 20 L', 'O sistema tem 3, contaste 4: há 1 a mais na prateleira. O acerto soma 1 ao stock.'],
+  [1, 0, 'Código que não está no stock', 'Código que não está no stock: contaste 1. Vai ao gestor para ver que artigo é.'],
 ];
 const DIFS_ACERTO: Dif[] = [
-  [-2, 'Óleo motor 15W40 · bidão 5 L', 'O stock tinha 7, estão 5: tirou 2 ao stock (faltavam na prateleira).'],
-  [1, 'Óleo hidráulico ISO 46 · 20 L', 'O stock tinha 3, estão 4: somou 1 ao stock (havia a mais na prateleira).'],
-  [-1, 'Óleo de engrenagens 80W90 · 5 L', 'O stock tinha 1, estão 0: tirou 1 ao stock (faltava na prateleira).'],
+  [5, 7, 'Óleo motor 15W40 · bidão 5 L', 'O stock tinha 7, estão 5: tirou 2 ao stock (faltavam na prateleira).'],
+  [4, 3, 'Óleo hidráulico ISO 46 · 20 L', 'O stock tinha 3, estão 4: somou 1 ao stock (havia a mais na prateleira).'],
+  [0, 1, 'Óleo de engrenagens 80W90 · 5 L', 'O stock tinha 1, estão 0: tirou 1 ao stock (faltava na prateleira).'],
 ];
-const difLinhas = (ds: Dif[]) => `<ul class="inv__difs">${ds.map(([n, a, t]) => `<li><b>${n > 0 ? `+${n}` : n}</b><span><strong>${a}</strong><small>${t}</small></span></li>`).join('')}</ul>`;
+// 27 nov. (ela: «no acerto em vez de aparecer −2 coloca picado vs sistema»)
+const difLinhas = (ds: Dif[]) => `<ul class="inv__difs">${ds.map(([p, st, a, t]) => `<li><span><span class="inv__difs-cab"><strong>${a}</strong><b>picado ${p} vs sistema ${st}</b></span><small>${t}</small></span></li>`).join('')}</ul>`;
 const aviso = (t: string, tom: 'erro' | 'ok' | 'laranja' | 'azul') => `<p class="inv__aviso inv__aviso--${tom}">${t}</p>`;
 
 function topo(titulo: string, sub?: string, voltar?: IdInventario, direita = ''): string {
@@ -418,8 +419,8 @@ function acertarEcra(e: EstAc = ''): string {
   const linhas = `<ul class="inv__linhas">${ls.map((l) => {
     const d = l.contado - l.stock;
     return `<li class="inv__lin${l.codigo === ultima ? ' is-ultima' : ''}" ${ir('acertar-mudar')} role="button" tabindex="0">
-      <div class="inv__cresce"><b class="inv__nome-art">${l.nome || '<span class="inv__fora">Código que não está no stock</span>'}</b><small class="inv__codigo-peq">${l.codigo} · stock ${l.stock}</small></div>
-      ${d ? `<b class="inv__dif">${d > 0 ? `+${d}` : d}<small>${d > 0 ? 'a mais' : d === -1 ? 'falta' : 'faltam'}</small></b>` : ''}<strong class="inv__qtd">${l.contado}</strong>${L(pencil, 'inv__lapis')}</li>`;
+      <div class="inv__cresce"><b class="inv__nome-art">${l.nome || '<span class="inv__fora">Código que não está no stock</span>'}</b><small class="inv__codigo-peq">${l.codigo}</small></div>
+      <span class="inv__vs${d ? ' is-dif' : ''}"><span><small>picado</small><strong>${l.contado}</strong></span><i>vs</i><span><small>sistema</small><b>${l.stock}</b></span></span>${L(pencil, 'inv__lapis')}</li>`;
   }).join('')}</ul>`;
   const sobre = e === 'mudar' ? dialogo('Corrigir a quantidade',
       `<p class="inv__codigo inv__codigo--grande">5601234567892</p><p class="inv__dica">Óleo motor 15W40 · bidão 5 L · stock 5</p>
@@ -435,7 +436,7 @@ function acertarEcra(e: EstAc = ''): string {
     k: `acertar${e ? `-${e}` : ''}`,
     topo: topo('Acertar', 'Óleos · contada por Joana Matos', 'acertar-picar', `<button type="button" class="inv__trocar" ${ir('acertar-de-novo')}>${L(rotateCcw)}<span>De novo</span></button>`),
     posicao: PO, faixa: true,
-    corpo: `${e === 'sem-rede' ? aviso('Sem rede: o acerto não foi feito. O que mudaste continua aqui; carrega outra vez em «Acertar» quando a rede voltar.', 'erro') : ''}<div class="inv__cab-linhas">${rotulo('Contado · stock')}<b class="${difs ? 'is-laranja' : 'is-ok'}">${difs ? `${difs} diferenças` : 'Bate com o stock'}</b></div>
+    corpo: `${e === 'sem-rede' ? aviso('Sem rede: o acerto não foi feito. O que mudaste continua aqui; carrega outra vez em «Acertar» quando a rede voltar.', 'erro') : ''}<div class="inv__cab-linhas">${rotulo('Picado vs sistema')}<b class="${difs ? 'is-laranja' : 'is-ok'}">${difs ? `${difs} diferenças` : 'Bate com o stock'}</b></div>
       ${linhas}`,
     pe: pe(`<div class="inv__par inv__par--trancar">${sec('Escrever', keyboard, ` ${ir('acertar-lido')}`)}${acao(`Acertar (${difs})`, acerto, ` ${ir('acertar-confirmar')}`)}</div>`),
     sobre,
