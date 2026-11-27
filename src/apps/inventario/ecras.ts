@@ -90,6 +90,16 @@ function alvo(titulo: string, sub: string, o: { erro?: string; leitor?: Alvo; li
   </div>`;
 }
 
+/** 27 nov.: o alvo numa faixa (lê na mesma, com o gatilho ou a câmara), para a lista do que se picou caber no CK62. */
+function alvoCompacto(titulo: string, o: { erro?: string; lido?: boolean; destino?: IdInventario } = {}): string {
+  const cls = `inv__alvo inv__alvo--faixa${o.erro ? ' is-erro' : ''}${o.lido ? ' is-lido' : ''}`;
+  return `<div class="${cls}"${o.destino ? ` ${ir(o.destino)} role="button" tabindex="0"` : ''}>
+    ${L(o.erro ? triangleAlert : scanBarcode, 'inv__alvo-ic')}
+    <div class="inv__cresce"><p class="inv__alvo-titulo">${titulo}</p>${o.erro ? `<p class="inv__alvo-sub">${o.erro}</p>` : ''}</div>
+    <button type="button" class="inv__icone-camara" aria-label="Usar a câmara" ${ir('camara')}>${L(camera)}</button>
+  </div>`;
+}
+
 function posicaoGrande(codigo: string): string {
   const partes: [string, string][] = [['Arm.', codigo.slice(0, 2)], ['Zona', codigo.slice(2, 4)], ['Col.', codigo.slice(4, 6)], ['Prat.', codigo.slice(6, 8)]];
   return `<div class="inv__posicao" aria-label="Prateleira ${codigo}">${partes.map(([r, v]) => `<span><small>${r}</small><b>${v}</b></span>`).join('')}</div>`;
@@ -273,10 +283,13 @@ function contar(e: EstContar = ''): string {
     k: `contar${e ? `-${e}` : ''}`,
     topo: topo('Óleos', QUEM, undefined, direita),
     posicao: PO,
-    corpo: `${estadoPrat('TRANCADA_A_CONTAR', `A ${PO} está trancada: a ser contada por ${QUEM} desde as 10:24. Ninguém mexe nela.`)}${picado ? '' : alvo(ls.length ? 'Pica o próximo artigo' : 'Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', lido: !!ultima, destino: 'contar-lido' })}
-      <div class="inv__cab-linhas">${rotulo('Já picado')}<b>${un(ls)} un. · ${codigos(ls.length)}</b></div>
+    // 27 nov. (ela: «enquanto pico quero os artigos que vou picando nessa prateleira»): depois do primeiro artigo o alvo
+    // passa a uma faixa e a faixa de estado a uma linha, para a lista do picado ficar com o ecrã
+    corpo: `${estadoPrat('TRANCADA_A_CONTAR', ls.length ? undefined : `A ${PO} está trancada: a ser contada por ${QUEM} desde as 10:24. Ninguém mexe nela.`)}${picado ? '' : ls.length
+      ? alvoCompacto('Pica o próximo artigo', { erro, lido: !!ultima, destino: 'contar-lido' })
+      : alvo('Pica o artigo', 'Cada leitura soma 1. Toca numa linha para corrigir.', { erro, leitor: 'gatilho', destino: 'contar-lido' })}
+      <div class="inv__cab-linhas">${rotulo('Picado nesta prateleira')}<b>${un(ls)} un. · ${codigos(ls.length)}</b></div>
       ${linhas}`,
-    // no CK62 o ecrã é baixo: «Já picado» e «Escrever» lado a lado, para a lista ter espaço
     pe: pe(`<div class="inv__par">${sec('Escrever', keyboard, ` ${ir('contar-escrever')}`)}${ls.length ? '' : sec('Vazia', inbox, ` ${ir('resumo-vazia')}`)}</div>
       ${ls.length ? acao('Trancar prateleira', lock, ` ${ir(rede ? 'prateleira-por-fechar' : 'resumo')}`) : ''}`),
     sobre,
@@ -487,7 +500,7 @@ export function ecrasInventario(): EcraInventario[] {
     est('prateleira-fechada-acertos', 'prateleira', '03.7 · Trancada com diferenças', F.CONTAR, 'Trancada para o acerto, com as diferenças por acertar; só o gestor a liberta («Acertar Óleos»). Um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
 
     { id: 'contar', nome: '04 · Contar', fluxo: F.CONTAR, objetivo: 'Cada leitura soma 1; o escrito à mão leva a quantidade. O tempo de prateleira corre no topo. Sem pausa: só se sai a trancar, a confirmar vazia ou a descartar.', versoes: v(contar()) },
-    est('contar-lido', 'contar', '04.1 · A contar', F.CONTAR, 'Cada linha com o nome do artigo e o código; a última leitura fica a laranja e sobe para o topo; toca-se numa linha para corrigir.', contar('lido')),
+    est('contar-lido', 'contar', '04.1 · A contar', F.CONTAR, 'Enquanto se pica vê-se o que já se picou nesta prateleira: depois do primeiro artigo o alvo passa a uma faixa (o gatilho lê na mesma) e a lista fica com o ecrã. A última leitura fica a laranja e sobe para o topo; toca-se numa linha para corrigir.', contar('lido')),
     est('contar-sem-rede', 'contar', '04.9 · Sem rede a contar', F.CONTAR, 'A meio da prateleira a rede cai: continua-se a picar (fica no PDA); ao trancar, espera pela rede.', contar('sem-rede')),
     est('contar-escrever', 'contar', '04.2 · Escrever artigo', F.CONTAR, 'Artigo sem etiqueta ou que não lê: código e quantidade (1 a 9999); fica «Escrito à mão».', contar('escrever'), 'Diálogo aberto'),
     est('contar-corrigir', 'contar', '04.3 · Corrigir a quantidade', F.CONTAR, 'Menos, mais ou escrever o número; ou tirar da contagem. A correção fica no registo.', contar('corrigir'), 'Diálogo aberto'),
