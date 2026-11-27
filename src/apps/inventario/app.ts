@@ -2,10 +2,10 @@ import type { App } from '../../comum/tipos';
 import type { IdInventario } from './ids';
 import { ecrasInventario } from './ecras';
 
-/* 26 nov. 2026: a app Kotlin Inventário, separada da Pick, como está na 2.0.0 — entra-se só com o nome, o inventário e
-   cada secção começam e acabam com botão, cada prateleira conta-se uma vez, o tempo de prateleira fica registado e
-   fechar faz o acerto automático no servidor (endpoints inventados, base de dados em Excel). Sem Excel exportado nem
-   fotografias. Tela do EDA61K, como a Pick. */
+/* A app Kotlin Inventário, separada da Pick, como está na 2.1.5 (27 nov. 2026). Entra-se só com o nome; o inventário e
+   cada secção começam e acabam com botão. A prateleira passa por quatro estados, que vêm sempre da API: livre →
+   trancada a contar → trancada para o acerto → liberta (para a separação e a expedição). Só o gestor acerta.
+   Tela do EDA61K, como a Pick. */
 export const inventario: App<IdInventario> = {
   id: 'inventario',
   nome: 'Inventário',
@@ -15,9 +15,11 @@ export const inventario: App<IdInventario> = {
   tela: { l: 320, a: 533 },
   fluxos: {
     Entrar: 'Quem vai contar: sem função nem palavra-passe, só o nome.',
-    'Inventário e secções': 'Iniciar e terminar o inventário; iniciar e terminar cada secção (ex.: Óleos). Só se conta nas secções a decorrer.',
-    Contar: 'Prateleira → artigos → fechar: o servidor abre a prateleira (bloqueada), recusa a já contada, regista o tempo e faz os acertos ao fechar.',
-    'Histórico e contagens': 'O histórico de uma prateleira ou artigo, as contagens deste PDA e a ligação ao servidor.',
+    'Inventário e secções': 'Iniciar e terminar o inventário; em cada secção, «Continuar», «Acertar» (só o gestor) e «Terminar». Só se conta nas secções a decorrer.',
+    Contar: 'Prateleira (começa por 60) → artigos → «Trancar prateleira». Enquanto se conta está trancada; depois fica trancada para o acerto, mesmo sem diferenças.',
+    Acertar: 'Só o gestor: pica a prateleira trancada, acerta o contado à mão ou picando de novo, e «Acertar prateleira» liberta-a.',
+    'Histórico': 'O histórico de uma prateleira ou artigo, por blocos, só do inventário a decorrer; e a ligação ao servidor.',
   },
+
   ecras: ecrasInventario(),
 };

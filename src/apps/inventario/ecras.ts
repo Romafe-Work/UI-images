@@ -111,7 +111,7 @@ function pagina(o: { k: string; topo: string; posicao?: string; corpo: string; p
  * 2.1.0 (ela: «não te esqueças de implementar todos os estados sem rede … e colocar no Figma também»): a faixa SEM REDE
  * por cima de todos os ecrãs (menos Entrar e Ligação); a app tenta sozinha de 5 em 5 s.
  */
-const REDE = { geral: 'O servidor não responde. A tentar outra vez…', contar: 'Continua a picar: fica no PDA. Ao fechar, espera pela rede.', acertar: 'O que mudares fica aqui; o acerto só se faz com rede.' };
+const REDE = { geral: 'O servidor não responde. A tentar outra vez…', contar: 'Continua a picar: fica no PDA. Ao trancar, espera pela rede.', acertar: 'O que mudares fica aqui; o acerto só se faz com rede.' };
 const semRede = (t: string) => `<div class="inv__semrede" role="status">${L(wifiOff)}<div class="inv__cresce"><b>Sem rede</b><small>${t}</small></div><button type="button">Tentar</button></div>`;
 
 /* ---------- diálogos (AlertDialog) ---------- */
@@ -167,7 +167,7 @@ function inicio(e: EstInicio = ''): string {
   const cabInv = cartao(`<div class="inv__linha"><div class="inv__cresce"><b class="inv__nome">${INV}</b><small>Desde hoje às 08:00 · Joana Matos</small></div>
       <div class="inv__direita"><strong class="inv__grande">${nenhuma ? 0 : 20}</strong><small>contadas</small></div></div>`);
   const ligado = `<button type="button" class="inv__ligada" ${ir('ligacao')}>${L(settings)}<span>Servidor: 127.0.0.1:5198</span><b>Mudar</b></button>`;
-  const comuns = `${e === 'por-fechar' ? `${aviso('Sem ligação ao servidor (127.0.0.1:5198). Confirma a rede e tenta outra vez.', 'erro')}${sec('Fechar no servidor (2)', cloudUpload)}` : ''}
+  const comuns = `${e === 'por-fechar' ? `${aviso('Sem ligação ao servidor (127.0.0.1:5198). Confirma a rede e tenta outra vez.', 'erro')}${sec('Trancar no servidor (2)', cloudUpload)}` : ''}
     ${sec('Histórico de uma prateleira ou artigo', history, ` ${ir('historico')}`)}`;
   let corpo: string, rodape: string;
   if (e === 'sem-servidor') {
@@ -201,9 +201,9 @@ function prateleira(e: EstPrat = ''): string {
     : e === 'nao-iniciada' ? 'A 60100102 é da secção Rolamentos, que ainda não começou. Inicia-a no Início.'
     : e === 'artigo' ? 'Isso é um artigo (Óleo motor 15W40 · bidão 5 L). Pica primeiro a etiqueta da prateleira: começa por 60.'
     : e === 'ficar' ? 'Pica uma prateleira de Auto (zona 30).'
-    : e === 'sem-rede' ? 'Sem rede: a 60800102 não abre, porque é o servidor que a bloqueia para mais ninguém a contar. Pica outra vez quando a rede voltar.' : undefined;
+    : e === 'sem-rede' ? 'Sem rede: a 60800102 não abre, porque é o servidor que a tranca para mais ninguém a contar. Pica outra vez quando a rede voltar.' : undefined;
   const banner = feito ? `<div class="inv__feito">${L(circleCheck)}<div><b>60800101 trancada</b><span>42 un. · 2 códigos · 2 min 05 s</span>
-      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s, à espera do acerto do gestor. Sem diferenças.' : e === 'por-fechar' ? 'Por fechar: sem rede. Fica no PDA e fecha-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong></div></div>` : '';
+      <strong class="${e === 'fechada' ? '' : e === 'por-fechar' ? 'is-erro' : 'is-azul'}">${e === 'fechada' ? 'Trancada em 2 min 05 s, à espera do acerto do gestor. Sem diferenças.' : e === 'por-fechar' ? 'Por trancar: sem rede. Fica no PDA e tranca-se sozinha quando a rede voltar.' : '2 diferenças por acertar · 1 fora do stock, para o Gestor'}</strong></div></div>` : '';
   const sobre = e === 'escrever' ? dialogo('Escrever a prateleira', `${campo('O código da prateleira', '', { mono: true, dica: 'Ex.: 60300102' })}`,
       acao('Contar', check, ` ${ir('contar')}`), sec('Voltar', arrowLeft, ` ${ir('prateleira')}`))
     : e === 'a-abrir' ? ocupado('A abrir a prateleira 60800101…')
@@ -263,10 +263,10 @@ function contar(e: EstContar = ''): string {
        ${sec('Tirar da contagem', trash2, ` ${ir('contar-lido')}`)}`,
       acao('Guardar', check, ` ${ir('contar-lido')}`), sec('Voltar', arrowLeft, ` ${ir('contar-lido')}`))
     : e === 'parece-prateleira' ? dialogo('60800102 é uma prateleira',
-      `<p>Acabaste a ${PO}? Podes fechá-la e passar à 60800102, ou contar este código como um artigo.</p>`,
+      `<p>Acabaste a ${PO}? Podes trancá-la e passar à 60800102, ou contar este código como um artigo.</p>`,
       acao('Trancar e passar', lock, ` ${ir('prateleira-fechada-acertos')}`), sec('Contar como artigo', plus, ` ${ir('contar-lido')}`))
     : e === 'descartar' ? dialogo('Descartar esta contagem?',
-      `<p>Apaga o que já contaste na ${PO} e desbloqueia-a. A prateleira fica por contar.</p>`,
+      `<p>Apaga o que já contaste na ${PO}. A prateleira volta a ficar livre, por contar.</p>`,
       acao('Descartar', trash2, ` ${ir('inicio')}`, 'inv__btn--perigo'), sec('Voltar', arrowLeft, ` ${ir('contar-lido')}`))
     : '';
   return pagina({
@@ -309,7 +309,7 @@ function resumo(e: EstResumo = ''): string {
       ${!ver && !vazia ? '<p class="inv__dica">Ao fechar guardam-se as diferenças; o stock só muda com «Acertar Óleos», no Início.</p>' : ''}
       ${ls.length ? `<ul class="inv__linhas inv__linhas--resumo">${ls.map((l) => `<li><div class="inv__cresce"><b class="inv__nome-art">${nomeDe(l)}</b><small class="inv__codigo-peq">${l.codigo}</small></div><strong>${l.n}</strong></li>`).join('')}</ul>` : ''}`,
     pe: ver ? undefined : pe(`<div class="inv__par">${sec('Continuar', scanBarcode, ` ${ir(vazia ? 'contar' : 'contar-lido')}`)}${acao(vazia ? 'Está vazia' : 'Trancar', vazia ? inbox : lock, ` ${ir(vazia ? 'prateleira-fechada' : 'resumo-a-fechar')}`, 'inv__btn--largo')}</div>`),
-    sobre: e === 'a-fechar' ? ocupado(`A fechar a ${PO}…`) : '',
+    sobre: e === 'a-fechar' ? ocupado(`A trancar a ${PO}…`) : '',
   });
 }
 
@@ -438,7 +438,7 @@ function ligacao(e: EstLig = ''): string {
   return pagina({
     k: `ligacao${e ? `-${e}` : ''}`,
     topo: topo('Ligação ao servidor', undefined, 'inicio'),
-    corpo: `${e === 'ocupada' ? aviso('Há prateleiras a meio ou por fechar. Acaba-as antes de mudar de servidor: estão abertas no atual.', 'erro') : ''}
+    corpo: `${e === 'ocupada' ? aviso('Há prateleiras a meio ou por trancar. Acaba-as antes de mudar de servidor: estão abertas no atual.', 'erro') : ''}
       ${campo('Endereço do servidor', 'http://127.0.0.1:5198', { tipo: 'url' })}
       <p class="inv__dica">Com o PDA ligado ao PC pelo cabo: http://127.0.0.1:5198 (e «adb reverse tcp:5198 tcp:5198» no PC). Pela rede: o endereço do PC, ex.: http://10.100.2.15:5198.</p>
       ${sec('Testar ligação', cloudUpload, ` ${ir('ligacao-testada')}`)}
@@ -461,7 +461,7 @@ export function ecrasInventario(): EcraInventario[] {
     { id: 'entrar', nome: '01 · Entrar', fluxo: F.ENTRAR, objetivo: 'Sem função nem palavra-passe: quem já entrou neste PDA toca no nome; outra pessoa escreve o seu.', versoes: v(entrar(false)) },
     est('entrar-primeira', 'entrar', '01.1 · Primeira vez no PDA', F.ENTRAR, 'Ainda ninguém entrou neste PDA: só o campo do nome.', entrar(true)),
 
-    { id: 'inicio', nome: '02 · Início', fluxo: F.INVENTARIO, objetivo: 'O inventário a decorrer e as secções, visto pela operadora. Por iniciar: «Iniciar Óleos». A decorrer: «Continuar Óleos» e «Terminar Óleos», e quantas prateleiras estão fechadas à espera do acerto. «Acertar» só o gestor vê (02.9). No fim, «Terminar inventário». Sem pausa do inventário nem «Ver as contagens deste PDA».', versoes: v(inicio()) },
+    { id: 'inicio', nome: '02 · Início', fluxo: F.INVENTARIO, objetivo: 'O inventário a decorrer e as secções, visto pela operadora. Por iniciar: «Iniciar Óleos». A decorrer: «Continuar Óleos» e «Terminar Óleos», e quantas prateleiras estão trancadas à espera do acerto. «Acertar» só o gestor vê (02.9). No fim, «Terminar inventário». Sem pausa do inventário nem «Ver as contagens deste PDA».', versoes: v(inicio()) },
     est('inicio-gestor', 'inicio', '02.9 · O gestor', F.INVENTARIO, 'Só o gestor acerta: a ele aparece «Acertar Óleos» entre «Continuar» e «Terminar». A lista de gestores vem da API.', inicio('gestor')),
     est('inicio-sem-inventario', 'inicio', '02.1 · Nenhum inventário', F.INVENTARIO, 'Sem inventário a decorrer: um botão só, «Iniciar inventário».', inicio('sem-inventario')),
     est('inicio-iniciar', 'inicio', '02.2 · Iniciar o inventário', F.INVENTARIO, 'Confirma antes de começar; as secções ficam por iniciar.', inicio('iniciar'), 'Diálogo aberto'),
@@ -469,41 +469,41 @@ export function ecrasInventario(): EcraInventario[] {
     est('inicio-nenhuma-seccao', 'inicio', '02.4 · Nenhuma secção a decorrer', F.INVENTARIO, 'Inventário iniciado, secções por iniciar: ainda não se conta.', inicio('nenhuma-seccao')),
     est('inicio-terminar-seccao', 'inicio', '02.5 · Terminar uma secção', F.INVENTARIO, 'Depois de terminar, as prateleiras dessa secção já não se contam. Recusado se houver uma a ser contada.', inicio('terminar-seccao'), 'Diálogo aberto'),
     est('inicio-terminar', 'inicio', '02.6 · Terminar o inventário', F.INVENTARIO, 'Termina também as secções a decorrer. Recusado se houver prateleiras a ser contadas.', inicio('terminar'), 'Diálogo aberto'),
-    est('inicio-por-fechar', 'inicio', '02.7 · Por fechar no servidor', F.INVENTARIO, 'O fecho falhou: as contagens ficam no PDA e fecham-se daqui.', inicio('por-fechar')),
-    est('inicio-sem-servidor', 'inicio', '02.8 · Sem rede', F.INVENTARIO, 'A faixa «Sem rede» em cima (em todos os ecrãs); sem o servidor não se conta: é ele que bloqueia a prateleira. Tenta sozinho de 5 em 5 s.', inicio('sem-servidor')),
+    est('inicio-por-fechar', 'inicio', '02.7 · Por trancar no servidor', F.INVENTARIO, 'O trancar falhou: as contagens ficam no PDA e trancam-se daqui.', inicio('por-fechar')),
+    est('inicio-sem-servidor', 'inicio', '02.8 · Sem rede', F.INVENTARIO, 'A faixa «Sem rede» em cima (em todos os ecrãs); sem o servidor não se conta: é ele que tranca a prateleira. Tenta sozinho de 5 em 5 s.', inicio('sem-servidor')),
 
-    { id: 'prateleira', nome: '03 · Contar uma prateleira', fluxo: F.CONTAR, objetivo: 'Entra-se por «Continuar Óleos»: pica a etiqueta da prateleira (começa sempre por 60) ou escreve-a. O servidor abre-a (fica bloqueada); uma prateleira conta-se uma vez e depois só tem acertos.', versoes: v(prateleira()) },
+    { id: 'prateleira', nome: '03 · Contar uma prateleira', fluxo: F.CONTAR, objetivo: 'Entra-se por «Continuar Óleos»: pica a etiqueta da prateleira (começa sempre por 60) ou escreve-a. O servidor tranca-a enquanto se conta; uma prateleira conta-se uma vez e depois só tem acertos.', versoes: v(prateleira()) },
     est('prateleira-escrever', 'prateleira', '03.1 · Escrever a prateleira', F.CONTAR, 'A etiqueta não lê: escreve-se o código.', prateleira('escrever'), 'Diálogo aberto'),
     est('prateleira-a-abrir', 'prateleira', '03.2 · A abrir no servidor', F.CONTAR, 'Picou-se a prateleira: enquanto o servidor a abre, não se lê nada.', prateleira('a-abrir')),
     est('prateleira-ja-contada', 'prateleira', '03.3 · Já contada', F.CONTAR, 'Não se lê a mesma prateleira duas vezes no mesmo inventário: diz quem e quando.', prateleira('ja-contada')),
     est('prateleira-ocupada', 'prateleira', '03.4 · A ser contada', F.CONTAR, 'Outra pessoa tem a prateleira aberta: diz quem, desde quando e em que PDA.', prateleira('ocupada')),
     est('prateleira-nao-iniciada', 'prateleira', '03.5 · Secção por iniciar', F.CONTAR, 'A prateleira é de uma secção que ainda não começou (ou já terminou).', prateleira('nao-iniciada')),
-    est('prateleira-sem-rede', 'prateleira', '03.11 · Sem rede', F.CONTAR, 'A prateleira não abre sem rede: é o servidor que a bloqueia para mais ninguém a contar.', prateleira('sem-rede')),
-    est('prateleira-por-fechar', 'prateleira', '03.12 · Fechada sem rede', F.CONTAR, 'Fechou-se sem rede: fica no PDA «por fechar» e fecha-se sozinha quando a rede voltar.', prateleira('por-fechar')),
+    est('prateleira-sem-rede', 'prateleira', '03.11 · Sem rede', F.CONTAR, 'A prateleira não abre sem rede: é o servidor que a tranca para mais ninguém a contar.', prateleira('sem-rede')),
+    est('prateleira-por-fechar', 'prateleira', '03.12 · Trancada sem rede', F.CONTAR, 'Trancou-se sem rede: fica no PDA «por trancar» e tranca-se sozinha quando a rede voltar.', prateleira('por-fechar')),
     est('prateleira-artigo', 'prateleira', '03.8 · Picou um artigo', F.CONTAR, 'As etiquetas das prateleiras começam sempre por 60: um artigo aqui é recusado e diz-se qual é.', prateleira('artigo')),
     est('prateleira-outra-seccao', 'prateleira', '03.9 · Prateleira de outra secção', F.CONTAR, 'A contar Auto, picou-se uma prateleira de Óleos: muda-se para Óleos no PDA (ou «Iniciar Óleos e mudar»), ou vai-se à zona 30.', prateleira('outra-seccao'), 'Diálogo aberto'),
     est('prateleira-ficar', 'prateleira', '03.10 · Fica na zona', F.CONTAR, 'Escolheu-se ir à zona 30: pede uma prateleira da Auto.', prateleira('ficar')),
     est('prateleira-fechada', 'prateleira', '03.6 · Trancada sem diferenças', F.CONTAR, 'Trancada com o tempo de prateleira. Mesmo sem diferenças, fica trancada para o acerto até o gestor acertar.', prateleira('fechada')),
     est('prateleira-fechada-acertos', 'prateleira', '03.7 · Trancada com diferenças', F.CONTAR, 'Trancada para o acerto, com as diferenças por acertar; só o gestor a liberta («Acertar Óleos»). Um código fora do stock vai ao Gestor.', prateleira('fechada-acertos')),
 
-    { id: 'contar', nome: '04 · Contar', fluxo: F.CONTAR, objetivo: 'Cada leitura soma 1; o escrito à mão leva a quantidade. O tempo de prateleira corre no topo. Sem pausa: só se sai a fechar, a confirmar vazia ou a descartar.', versoes: v(contar()) },
+    { id: 'contar', nome: '04 · Contar', fluxo: F.CONTAR, objetivo: 'Cada leitura soma 1; o escrito à mão leva a quantidade. O tempo de prateleira corre no topo. Sem pausa: só se sai a trancar, a confirmar vazia ou a descartar.', versoes: v(contar()) },
     est('contar-lido', 'contar', '04.1 · A contar', F.CONTAR, 'Cada linha com o nome do artigo e o código; a última leitura fica a laranja e sobe para o topo; toca-se numa linha para corrigir.', contar('lido')),
-    est('contar-sem-rede', 'contar', '04.9 · Sem rede a contar', F.CONTAR, 'A meio da prateleira a rede cai: continua-se a picar (fica no PDA); ao fechar, espera pela rede.', contar('sem-rede')),
+    est('contar-sem-rede', 'contar', '04.9 · Sem rede a contar', F.CONTAR, 'A meio da prateleira a rede cai: continua-se a picar (fica no PDA); ao trancar, espera pela rede.', contar('sem-rede')),
     est('contar-escrever', 'contar', '04.2 · Escrever artigo', F.CONTAR, 'Artigo sem etiqueta ou que não lê: código e quantidade (1 a 9999); fica «Escrito à mão».', contar('escrever'), 'Diálogo aberto'),
     est('contar-corrigir', 'contar', '04.3 · Corrigir a quantidade', F.CONTAR, 'Menos, mais ou escrever o número; ou tirar da contagem. A correção fica no registo.', contar('corrigir'), 'Diálogo aberto'),
-    est('contar-parece-prateleira', 'contar', '04.4 · É uma prateleira', F.CONTAR, 'Picou-se outra etiqueta de prateleira: fechar e passar, ou contar como artigo.', contar('parece-prateleira'), 'Diálogo aberto'),
+    est('contar-parece-prateleira', 'contar', '04.4 · É uma prateleira', F.CONTAR, 'Picou-se outra etiqueta de prateleira: trancar e passar, ou contar como artigo.', contar('parece-prateleira'), 'Diálogo aberto'),
     est('contar-mesma', 'contar', '04.5 · A mesma prateleira', F.CONTAR, 'Picou-se a etiqueta da prateleira onde já se está.', contar('mesma')),
     est('contar-sair', 'contar', '04.6 · Sair a meio', F.CONTAR, 'O botão voltar do Android só avisa: quem começa uma prateleira acaba-a.', contar('sair')),
-    est('contar-descartar', 'contar', '04.7 · Descartar', F.CONTAR, 'Apaga o contado e desbloqueia a prateleira; fica por contar.', contar('descartar'), 'Diálogo aberto'),
+    est('contar-descartar', 'contar', '04.7 · Descartar', F.CONTAR, 'Apaga o contado e a prateleira volta a ficar livre, por contar.', contar('descartar'), 'Diálogo aberto'),
 
     { id: 'camara', nome: '05 · Ler com a câmara', fluxo: F.CONTAR, objetivo: 'No PDA ao lado do gatilho, no telemóvel em vez dele: fica aberta da prateleira aos artigos; a mesma etiqueta só conta passados 2 s.', versoes: v(camaraEcra(false)) },
     est('camara-lido', 'camara', '05.1 · Lido', F.CONTAR, 'O que se leu aparece em baixo com a quantidade.', camaraEcra(true)),
 
     { id: 'resumo', nome: '06 · Trancar a prateleira', fluxo: F.CONTAR, objetivo: 'Aqui vê-se o que se picou (o «Já picado» deixou de ser botão). Trancar grava o contado à parte do stock e as diferenças; a prateleira fica trancada para o acerto até o gestor acertar.', versoes: v(resumo()) },
     est('resumo-vazia', 'resumo', '06.1 · Prateleira vazia', F.CONTAR, 'A vazia passa pelo mesmo resumo.', resumo('vazia')),
-    est('resumo-a-fechar', 'resumo', '06.2 · A fechar no servidor', F.CONTAR, 'Enquanto o servidor fecha e acerta, não se lê nada.', resumo('a-fechar')),
+    est('resumo-a-fechar', 'resumo', '06.2 · A trancar no servidor', F.CONTAR, 'Enquanto o servidor tranca a prateleira e grava as diferenças, não se lê nada.', resumo('a-fechar')),
 
-    { id: 'acertar-picar', nome: '07 · Acertar Óleos', fluxo: F.ACERTAR, objetivo: 'Só o gestor. Do «Acertar Óleos»: pica-se a prateleira, ou toca-se numa das FECHADAS (contadas com diferenças, trancadas até ao acerto).', versoes: v(acertarPicar()) },
+    { id: 'acertar-picar', nome: '07 · Acertar Óleos', fluxo: F.ACERTAR, objetivo: 'Só o gestor. Do «Acertar Óleos»: pica-se a prateleira, ou toca-se numa das trancadas à espera do acerto (contadas, trancadas até ao acerto).', versoes: v(acertarPicar()) },
     est('acertar-picar-feito', 'acertar-picar', '07.1 · Prateleira acertada', F.ACERTAR, 'Volta-se aqui depois de acertar, com quantos acertos se fizeram, para picar a próxima.', acertarPicar('feito')),
     est('acertar-picar-nao-contada', 'acertar-picar', '07.2 · Ainda não contada', F.ACERTAR, 'Só se acerta uma prateleira que já foi contada neste inventário.', acertarPicar('nao-contada')),
     est('acertar-picar-sem-rede', 'acertar-picar', '07.4 · Sem rede', F.ACERTAR, 'Sem rede não se vê a prateleira (o stock e o contado estão no servidor).', acertarPicar('sem-rede')),
