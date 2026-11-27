@@ -318,7 +318,7 @@ export const DIAGRAMAS: Diagrama[] = [
       a('resumo', 'aTrancar', 'Trancar'), a('aTrancar', 'difs'), a('difs', 'semDif', 'não'), a('difs', 'comDif', 'sim'), a('semDif', 'espera'), a('comDif', 'espera'),
       a('espera', 'gestor', 'só o gestor'), a('gestor', 'acPicar', 'Acertar Óleos'), a('acPicar', 'acertar', 'pica ou toca na trancada'),
       a('acertar', 'mudar', 'toca numa linha'), a('mudar', 'acertar'), a('acertar', 'deNovo'), a('deNovo', 'acertar', 'pica tudo'),
-      a('acertar', 'confirmar', 'Acertar prateleira'), a('confirmar', 'feito', 'stock = contado'), a('feito', 'liberta'), t('feito', 'acPicar', 'próxima'),
+      a('acertar', 'confirmar', 'Acertar'), a('confirmar', 'feito', 'stock = contado'), a('feito', 'liberta'), t('feito', 'acPicar', 'próxima'),
       a('inicio', 'terminarSec', 'Terminar Óleos'), a('terminarSec', 'inicio'), a('inicio', 'terminar', 'Terminar inventário'), a('terminar', 'fim'),
     ],
     grupos: [{ titulo: 'Só o gestor', nos: ['gestor', 'acPicar', 'acertar', 'mudar', 'deNovo', 'confirmar', 'feito', 'liberta'] }],

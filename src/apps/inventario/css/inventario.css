@@ -267,3 +267,9 @@
 .inv__estado-prat.is-contagem { background: var(--i-azul-suave); color: var(--i-azul); }
 .inv__estado-prat.is-aberta { background: var(--i-ok-suave); color: var(--i-ok); }
 .inv__cadeado { width: 20px; height: 20px; color: var(--i-laranja); flex: none; }
+
+/* 27 nov.: os totais do «Trancar» numa linha (antes, três cartões) */
+.inv__totais { display: flex; align-items: center; gap: 8px; }
+.inv__totais b { flex: 1; font-size: 18px; font-weight: 900; }
+.inv__totais span { display: inline-flex; align-items: center; gap: 4px; color: var(--i-tinta-2); font-family: var(--f-mono); font-weight: 700; }
+.inv__totais svg { width: 18px; height: 18px; }

@@ -17,7 +17,7 @@ export const inventario: App<IdInventario> = {
     Entrar: 'Quem vai contar: sem função nem palavra-passe, só o nome.',
     'Inventário e secções': 'Iniciar e terminar o inventário; em cada secção, «Continuar», «Acertar» (só o gestor) e «Terminar». Só se conta nas secções a decorrer.',
     Contar: 'Prateleira (começa por 60) → artigos → «Trancar prateleira». Enquanto se conta está trancada; depois fica trancada para o acerto, mesmo sem diferenças.',
-    Acertar: 'Só o gestor: pica a prateleira trancada, acerta o contado à mão ou picando de novo, e «Acertar prateleira» liberta-a.',
+    Acertar: 'Só o gestor: pica a prateleira trancada, acerta o contado à mão ou picando de novo, e «Acertar» liberta-a.',
     'Histórico': 'O histórico de uma prateleira ou artigo, por blocos, só do inventário a decorrer; e a ligação ao servidor.',
   },
 
